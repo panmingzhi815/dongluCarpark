@@ -33,8 +33,8 @@ import org.eclipse.swt.events.KeyEvent;
 public class Login {
 
 	protected Shell shell;
-	private Text text_userName;
-	private Text text_pwd;
+	private Text txtAdmin;
+	private Text txtAdmin_1;
 	private Label lblNewLabel_msg;
 	private Combo combo;
 	@Inject
@@ -106,17 +106,19 @@ public class Login {
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel.setText("用户名");
 
-		text_userName = new Text(composite, SWT.BORDER);
-		text_userName.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_userName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		txtAdmin = new Text(composite, SWT.BORDER);
+		txtAdmin.setText("admin");
+		txtAdmin.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		txtAdmin.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
 		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
 		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_1.setText("密    码");
 
-		text_pwd = new Text(composite, SWT.BORDER | SWT.PASSWORD);
-		text_pwd.addKeyListener(new KeyAdapter() {
+		txtAdmin_1 = new Text(composite, SWT.BORDER | SWT.PASSWORD);
+		txtAdmin_1.setText("admin");
+		txtAdmin_1.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.keyCode==13) {
@@ -124,8 +126,8 @@ public class Login {
 				}
 			}
 		});
-		text_pwd.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_pwd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		txtAdmin_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		txtAdmin_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		new Label(composite, SWT.NONE);
 
 		ComboViewer comboViewer = new ComboViewer(composite, SWT.NONE);
@@ -171,8 +173,8 @@ public class Login {
 	 * 
 	 */
 	public void login() {
-		String userName = text_userName.getText();
-		String pwd = text_pwd.getText();
+		String userName = txtAdmin.getText();
+		String pwd = txtAdmin_1.getText();
 		String type = combo.getText();
 			if (!StrUtil.isEmpty(userName) && !StrUtil.isEmpty(pwd)) {
 				if (userName.equals("admin")) {

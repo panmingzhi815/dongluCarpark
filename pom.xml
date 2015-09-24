@@ -12,6 +12,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+    <dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
   </properties>
 
   <dependencies>
@@ -71,6 +73,8 @@
             <!-- The configuration of the plugin -->
             <configuration>
                 <!-- Specifies the configuration file of the assembly plugin -->
+                	<appendAssemblyId>false</appendAssemblyId>
+					<finalName>carpark-${dev.build.timestamp}</finalName>
                 <descriptors>
                     <descriptor>src/main/resources/package.xml</descriptor>
                 </descriptors>

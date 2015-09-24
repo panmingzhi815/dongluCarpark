@@ -576,15 +576,18 @@ public class CarparkMainApp {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				final String date=StrUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
 				if (ip.equals("192.168.1.139")) {
 					new Thread(new Runnable() {
 						public void run() {
 							Display.getDefault().asyncExec(new Runnable() {
 								public void run() {
 									if(outsmallImage.getBackgroundImage() != null){
+										System.out.println(date+ip+"小图片销毁图片");
 										outsmallImage.getBackgroundImage().dispose();
 									}
 									if(outbigImage.getBackgroundImage() != null){
+										System.out.println(date+ip+"大图片销毁图片");
 										outbigImage.getBackgroundImage().dispose();
 									}
 									Image newImg = getImage(smallImage,insmallimg,shell);
@@ -606,9 +609,11 @@ public class CarparkMainApp {
 						Display.getDefault().asyncExec(new Runnable() {
 							public void run() {
 								if(insmallimg.getBackgroundImage() != null){
+									System.out.println(date+ip+"小图片销毁图片");
 									insmallimg.getBackgroundImage().dispose();
 								}
 								if(inbigimg.getBackgroundImage() != null){
+									System.out.println(date+ip+"大图片销毁图片");
 									inbigimg.getBackgroundImage().dispose();
 								}
 								Image newImg = getImage(smallImage,insmallimg,shell);
@@ -641,10 +646,9 @@ public class CarparkMainApp {
 				int clickCount = e.getClickCount();
 				if (clickCount==2) {
 					Display.getDefault().asyncExec(new Runnable() {
-						
 						public void run() {
 							AddDeviceWizard v=new AddDeviceWizard("");
-        					Object showWizard = commonui.showWizard(v);
+        					Object showWizard = commonui.showWizard(v,new Shell());
         					System.out.println(showWizard);
 						}
 					});
@@ -684,6 +688,7 @@ public class CarparkMainApp {
 		Rectangle rectangle = insmallimg.getBounds();
 		ImageData id = img.getImageData().scaledTo(rectangle.width, rectangle.height);
 		Image newImg = new Image(shell.getDisplay(), id);
+		img.dispose();
 		return newImg;
 	}
 }
