@@ -174,36 +174,41 @@ public class Login {
 	 * 
 	 */
 	public void login() {
-		String userName = txtAdmin.getText();
-		String pwd = txtAdmin_1.getText();
-		String type = combo.getText();
-			if (!StrUtil.isEmpty(userName) && !StrUtil.isEmpty(pwd)) {
-				if (userName.equals("admin")) {
-					System.setProperty("userType", "admin");
-					if (type.equals("管理界面")) {
-						carparkManageApp.commonui.info("提示", "管理员进入管理界面");
-						shell.setVisible(false);
-						carparkManageApp.open();
-						System.out.println("exit");
-					}else{
-						carparkManageApp.commonui.info("提示", "管理员进入监控界面");
+		try {
+			String userName = txtAdmin.getText();
+			String pwd = txtAdmin_1.getText();
+			String type = combo.getText();
+				if (!StrUtil.isEmpty(userName) && !StrUtil.isEmpty(pwd)) {
+					if (userName.equals("admin")) {
+						System.setProperty("userType", "admin");
+						if (type.equals("管理界面")) {
+							carparkManageApp.commonui.info("提示", "管理员进入管理界面");
+							shell.setVisible(false);
+							carparkManageApp.open();
+							System.out.println("exit");
+						}else{
+							carparkManageApp.commonui.info("提示", "管理员进入监控界面");
+							shell.setVisible(false);
+							carparkMainApp.open();
+							System.out.println("exit");
+						}
+						
+					} else {
+						System.setProperty("userType", "noadmin");
+						carparkManageApp.commonui.info("提示", "进入监控界面界面");
 						shell.setVisible(false);
 						carparkMainApp.open();
 						System.out.println("exit");
 					}
 					
-				} else {
-					System.setProperty("userType", "noadmin");
-					carparkManageApp.commonui.info("提示", "进入监控界面界面");
-					shell.setVisible(false);
-					carparkMainApp.open();
-					System.out.println("exit");
-				}
-				
 
-			} else {
-				lblNewLabel_msg.setText("用户名或密码错误！");
-				return;
-			}
+				} else {
+					lblNewLabel_msg.setText("用户名或密码错误！");
+					return;
+				}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
 	}
 }

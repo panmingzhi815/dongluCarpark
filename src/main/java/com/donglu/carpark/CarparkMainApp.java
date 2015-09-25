@@ -118,6 +118,8 @@ public class CarparkMainApp {
 
 	private CTabFolder tabInFolder;
 
+	private CTabFolder tabOutFolder;
+
 	/**
 	 * Launch the application.
 	 * 
@@ -132,7 +134,10 @@ public class CarparkMainApp {
 		}
 	}
 	public CarparkMainApp() {
-		
+		mapDeviceType.put("192.168.1.138", "进口");
+		mapDeviceType.put("192.168.1.139", "出口");
+		mapDeviceType.put("192.168.1.231", "进口");
+		mapDeviceType.put("192.168.1.232", "出口");
 	}
 	/**
 	 * Open the window.
@@ -204,13 +209,17 @@ public class CarparkMainApp {
 		editInToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				CTabItem selection = tabInFolder.getSelection();
-				String text2 = selection.getText();
-				AddDeviceModel model=new AddDeviceModel();
-				model.setName(text2);
-				AddDeviceWizard v=new AddDeviceWizard(model);
-				AddDeviceModel showWizard = (AddDeviceModel) commonui.showWizard(v);
-				selection.setText(showWizard.getName());
+				try {
+					CTabItem selection = tabInFolder.getSelection();
+					String text2 = selection.getText();
+					AddDeviceModel model=new AddDeviceModel();
+					model.setName(text2);
+					AddDeviceWizard v=new AddDeviceWizard(model);
+					AddDeviceModel showWizard = (AddDeviceModel) commonui.showWizard(v);
+					selection.setText(showWizard.getName());
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 		
@@ -224,11 +233,11 @@ public class CarparkMainApp {
 				
 				CTabItem tabItem = new CTabItem(tabInFolder, SWT.NONE);
 				tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
-				tabItem.setText("dsad");
+				tabItem.setText("192.168.1.231");
 				Composite composite = new Composite(tabInFolder, SWT.BORDER|SWT.EMBEDDED);
 				tabItem.setControl(composite);
 				composite.setLayout(new FillLayout());
-				createLeftCamera("192.168.1.138", composite);
+				createLeftCamera("192.168.1.231", composite);
 			}
 		});
 		delInToolItem.addSelectionListener(new SelectionAdapter() {
@@ -252,26 +261,73 @@ public class CarparkMainApp {
 		tabItem.setControl(southCamera);
 		southCamera.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
-		CTabFolder tabFolder_1 = new CTabFolder(composite_1, SWT.BORDER | SWT.FLAT);
-		Composite control2 = new Composite(tabFolder_1, SWT.NONE);
+		tabOutFolder = new CTabFolder(composite_1, SWT.BORDER | SWT.FLAT);
+		Composite control2 = new Composite(tabOutFolder, SWT.NONE);
 		GridLayout layout2 = new GridLayout();
 		layout2.marginHeight = 0;
 		layout2.marginWidth = 0;
 		control2.setLayout(layout2);
-		ToolBar toolBar2 = new ToolBar(control2,SWT.NONE);
-		ToolItem toolItem3 = new ToolItem(toolBar2, SWT.NONE);
+		ToolBar outToolBar = new ToolBar(control2,SWT.NONE);
+		ToolItem toolItem3 = new ToolItem(outToolBar, SWT.NONE);
 		toolItem3.setText("拍照");
-		ToolItem toolItem4 = new ToolItem(toolBar2, SWT.NONE);
+		ToolItem toolItem4 = new ToolItem(outToolBar, SWT.NONE);
 		toolItem4.setText("抬杆");
-
-		tabFolder_1.setTopRight(control2);
-		tabFolder_1.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
-		tabFolder_1.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
 		
-		CTabItem tabItem_2 = new CTabItem(tabFolder_1, SWT.NONE);
+		ToolItem addOutToolItem = new ToolItem(outToolBar, SWT.NONE);
+		addOutToolItem.setText("添加");
+		addOutToolItem.setToolTipText("添加进口设备");
+		addOutToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				CTabItem tabItem = new CTabItem(tabOutFolder, SWT.NONE);
+				tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
+				tabItem.setText("192.168.1.232");
+				Composite composite = new Composite(tabOutFolder, SWT.BORDER|SWT.EMBEDDED);
+				tabItem.setControl(composite);
+				composite.setLayout(new FillLayout());
+				createLeftCamera("192.168.1.232", composite);
+			}
+		});
+		ToolItem editOutToolItem = new ToolItem(outToolBar, SWT.NONE);
+		editOutToolItem.setText("修改");
+		editOutToolItem.setToolTipText("修改进口设备");
+		editOutToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+//				CTabItem selection = tabInFolder.getSelection();
+//				String text2 = selection.getText();
+//				AddDeviceModel model=new AddDeviceModel();
+//				model.setName(text2);
+//				AddDeviceWizard v=new AddDeviceWizard(model);
+//				AddDeviceModel showWizard = (AddDeviceModel) commonui.showWizard(v);
+//				selection.setText(showWizard.getName());
+			}
+		});
+		
+		
+		ToolItem delOutToolItem = new ToolItem(outToolBar, SWT.NONE);
+		delOutToolItem.setText("删除");
+		delOutToolItem.setToolTipText("删除进口设备");
+		delOutToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				boolean confirm = commonui.confirm("确定提示", "确定删除所选设备");
+				if (confirm) {
+					tabOutFolder.getSelection().dispose();
+				}
+				
+			}
+		});
+		
+		tabOutFolder.setTopRight(control2);
+		tabOutFolder.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+		tabOutFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+		
+		CTabItem tabItem_2 = new CTabItem(tabOutFolder, SWT.NONE);
 		tabItem_2.setText("南门出场视频");
 		
-		northCamera = new Composite(tabFolder_1, SWT.BORDER|SWT.EMBEDDED);
+		northCamera = new Composite(tabOutFolder, SWT.BORDER|SWT.EMBEDDED);
 		tabItem_2.setControl(northCamera);
 		northCamera.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
@@ -605,8 +661,6 @@ public class CarparkMainApp {
 		btnf_1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				createPlayLeft.release();
-				createLeftCamera("192.168.1.139",southCamera);
 			}
 		});
 		btnf_1.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
@@ -631,13 +685,24 @@ public class CarparkMainApp {
 		new Label(group, SWT.NONE);
 		new Label(group, SWT.NONE);
 		addCamera();
-		addXinlutongJNA();
 		tabInFolder.setSelection(0);
-		tabFolder_1.setSelection(0);
+		tabOutFolder.setSelection(0);
 	}
 
 	private void addXinlutongJNA() {
-		XinlutongResult xinlutongResult = new XinlutongResult() {
+		XinlutongResult xinlutongResult = getXinlutongResult();
+		xinlutongJNA.openEx("192.168.1.138", xinlutongResult);
+		xinlutongJNA.openEx("192.168.1.139", xinlutongResult);
+		xinlutongJNA.openEx("192.168.1.231", xinlutongResult);
+		xinlutongJNA.openEx("192.168.1.232", xinlutongResult);
+		
+	}
+	/**
+	 * 
+	 * @return XinlutongResult
+	 */
+	public XinlutongResult getXinlutongResult() {
+		return new XinlutongResult() {
 			public void invok(final String ip, int channel,final String plateNO,final byte[] bigImage, final byte[] smallImage) {
 				Date date = new Date();
 				String folder=StrUtil.formatDate(date, "yyyyMMddHH");
@@ -645,7 +710,9 @@ public class CarparkMainApp {
 				saveImage(folder,fileName+"_"+plateNO+"_big.jpg",bigImage);
 				saveImage(folder,fileName+"_"+plateNO+"_small.jpg",smallImage);
 				final String dateString=StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss");
-				if (ip.equals("192.168.1.139")) {
+				System.out.println(dateString+"=="+ip+"=="+mapDeviceType.get(ip)+"=="+plateNO);
+				LOGGER.info(dateString+"=="+ip+"=="+mapDeviceType.get(ip)+"=="+plateNO);
+				if (mapDeviceType.get(ip).equals("出口")) {
 					new Thread(new Runnable() {
 						public void run() {
 							Display.getDefault().asyncExec(new Runnable() {
@@ -671,7 +738,7 @@ public class CarparkMainApp {
 							});
 						}
 						}).start();
-				}else if(ip.equals("192.168.1.138")){
+				}else if(mapDeviceType.get(ip).equals("进口")){
 					new Thread(new Runnable() {
 					public void run() {
 						Display.getDefault().asyncExec(new Runnable() {
@@ -701,8 +768,6 @@ public class CarparkMainApp {
 				
 			}
 		};
-		xinlutongJNA.openEx("192.168.1.138", xinlutongResult);
-		xinlutongJNA.openEx("192.168.1.139", xinlutongResult);
 	}
 
 	protected void saveImage(String f, String fileName, byte[] bigImage) {
@@ -712,7 +777,9 @@ public class CarparkMainApp {
 			if (!file.exists()&&!file.isDirectory()) {
 				file.mkdir();
 			}
-			Files.write(bigImage, new File(fl+"/"+fileName));
+			File file2 = new File(fl+"/"+fileName);
+			file2.createNewFile();
+			Files.write(bigImage, file2);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -735,6 +802,7 @@ public class CarparkMainApp {
         new_Frame1.pack();
         new_Frame1.setVisible(true);
         final String url="rtsp://"+ip+":554/h264ESVideoTest";
+//        final String url="rtsp://192.168.1.45:8554/138";
 		createPlayRight = webCameraDevice.createPlay(new_Frame1, url);
 		createPlayRight.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
 			@Override
@@ -743,7 +811,6 @@ public class CarparkMainApp {
 					public void run() {
 						while (!mediaPlayer.isPlaying()) {
 							LOGGER.info("设备连接{}已断开",url);
-							mediaPlayer.release();
 							mediaPlayer.playMedia(url);
 							Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
 						}
@@ -757,6 +824,7 @@ public class CarparkMainApp {
 				createPlayRight.release();
 			}
 		});
+		xinlutongJNA.openEx(ip, getXinlutongResult());
 	}
 
 	/**
@@ -779,10 +847,8 @@ public class CarparkMainApp {
 					public void run() {
 						while (!mediaPlayer.isPlaying()) {
 							LOGGER.info("设备连接{}已断开",url);
-							mediaPlayer.release();
 							mediaPlayer.playMedia(url);
 							Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
-							System.out.println("mediaPlayer.isPlaying()=="+mediaPlayer.isPlaying());
 						}
 					}
 				}.run();
@@ -797,11 +863,14 @@ public class CarparkMainApp {
 				createPlayLeft.release();
 			}
 		});
+		xinlutongJNA.openEx(ip, getXinlutongResult());
 	}
 
 	
 	public Image getImage(final byte[] smallImage, CLabel insmallimg, Shell shell) {
-		try(ByteArrayInputStream stream = new ByteArrayInputStream(smallImage)) {
+		ByteArrayInputStream stream=null;
+		try {
+			stream = new ByteArrayInputStream(smallImage);
 			Image img = new Image(shell.getDisplay(), stream);
 			Rectangle rectangle = insmallimg.getBounds();
 			ImageData id = img.getImageData().scaledTo(rectangle.width, rectangle.height);
@@ -811,6 +880,14 @@ public class CarparkMainApp {
 			return newImg;
 		} catch (Exception e) {
 			throw new DongluAppException("图片转换错误", e);
+		}finally{
+			if (stream!=null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }
