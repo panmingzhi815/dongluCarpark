@@ -771,6 +771,7 @@ public class CarparkMainApp {
 	}
 
 	protected void saveImage(String f, String fileName, byte[] bigImage) {
+		bigImage = bigImage == null ? new byte[0] : bigImage;
 		String fl="img/"+f;
 		try {
 			File file = new File(fl);
