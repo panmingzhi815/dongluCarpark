@@ -4,7 +4,6 @@ import java.awt.Canvas;
 import java.awt.Frame;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
@@ -725,12 +724,11 @@ public class CarparkMainApp {
 										LOGGER.info(dateString+ip+"大图片销毁图片");
 										outbigImage.getBackgroundImage().dispose();
 									}
-									Image newImg = getImage(smallImage,insmallimg,shell);
-									outsmallImage.setText("");
-									outsmallImage.setBackgroundImage(newImg);
-									Image bigImg = getImage(bigImage,inbigimg,shell);
-									outbigImage.setText("");
-									outbigImage.setBackgroundImage(bigImg);
+
+									setImage(smallImage, insmallimg, shell);
+
+									setImage(bigImage, inbigimg, shell);
+
 									txtoutplateNo.setText(plateNO);
 									text_out_time.setText(dateString);
 									plateNoTotal.addAndGet(1);
@@ -746,17 +744,17 @@ public class CarparkMainApp {
 								if(insmallimg.getBackgroundImage() != null){
 									LOGGER.info(dateString+ip+"小图片销毁图片");
 									insmallimg.getBackgroundImage().dispose();
+									insmallimg.setBackgroundImage(null);
 								}
 								if(inbigimg.getImage() != null){
 									LOGGER.info(dateString+ip+"大图片销毁图片");
 									inbigimg.getBackgroundImage().dispose();
+									insmallimg.setBackgroundImage(null);
 								}
-								Image newImg = getImage(smallImage,insmallimg,shell);
-								insmallimg.setText("");
-								insmallimg.setBackgroundImage(newImg);
-								Image bigImg = getImage(bigImage,inbigimg,shell);
-								inbigimg.setText("");
-								inbigimg.setBackgroundImage(bigImg);
+								setImage(smallImage, insmallimg, shell);
+
+								setImage(bigImage, inbigimg, shell);
+
 								txtinplateNo.setText(plateNO);
 								text_in_time.setText(dateString);
 								plateNoTotal.addAndGet(1);
@@ -868,7 +866,11 @@ public class CarparkMainApp {
 	}
 
 	
-	public Image getImage(final byte[] smallImage, CLabel insmallimg, Shell shell) {
+	public void setImage(final byte[] smallImage, CLabel insmallimg, Shell shell) {
+		if(smallImage == null){
+			return;
+		}
+
 		ByteArrayInputStream stream=null;
 		try {
 			stream = new ByteArrayInputStream(smallImage);
@@ -877,8 +879,10 @@ public class CarparkMainApp {
 			ImageData id = img.getImageData().scaledTo(rectangle.width, rectangle.height);
 			Image newImg = new Image(shell.getDisplay(), id);
 			img.dispose();
-			LOGGER.info("getImage dispose");
-			return newImg;
+
+			insmallimg.setText("");
+			insmallimg.setBackgroundImage(newImg);
+			LOGGER.info("setImage dispose");
 		} catch (Exception e) {
 			throw new DongluAppException("图片转换错误", e);
 		}finally{
