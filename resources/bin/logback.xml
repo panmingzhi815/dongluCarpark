@@ -1,0 +1,75 @@
+<configuration scan="true" scanPeriod="5 seconds">
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+	
+	
+    <appender name="UI_MESSAGE_DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>log/ui/message.txt</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>log/ui/message-%d{yyyy-MM-dd}.%i.txt</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- or whenever the file size reaches 100MB -->
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n </pattern>
+        </encoder>
+
+    </appender>
+
+    <appender name="DEVICE_MESSAGE_DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>log/device/message.txt</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>log/device/message-%d{yyyy-MM-dd}.%i.txt</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- or whenever the file size reaches 100MB -->
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n </pattern>
+        </encoder>
+
+    </appender>
+
+    <appender name="SERVICES_MESSAGE_DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>log/service/message.txt</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>log/service/message-%d{yyyy-MM-dd}.%i.txt</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- or whenever the file size reaches 100MB -->
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.dongluhitec.card.hardware" level="INFO">
+        <appender-ref ref="DEVICE_MESSAGE_DEBUG"/>
+    </logger>
+
+    <logger name="com.dongluhitec.card.service" level="INFO">
+        <appender-ref ref="SERVICES_MESSAGE_DEBUG"/>
+    </logger>
+
+    <logger name="com.donglu.carpark" level="INFO">
+        <appender-ref ref="UI_MESSAGE_DEBUG"/>
+    </logger>
+ 	<logger name="org.eclipse.jetty" level="ERROR"></logger> 
+</configuration>

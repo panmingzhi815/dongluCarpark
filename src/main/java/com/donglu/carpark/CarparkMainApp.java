@@ -7,8 +7,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.graphics.Image;
@@ -34,13 +37,17 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 
+import com.donglu.carpark.wizard.AddDeviceModel;
 import com.donglu.carpark.wizard.AddDeviceWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongCallback.XinlutongResult;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
+import com.google.common.collect.Maps;
 import com.google.common.io.Files;
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Inject;
 
 import org.eclipse.swt.events.DisposeEvent;
@@ -49,10 +56,18 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import uk.co.caprica.vlcj.binding.internal.libvlc_media_t;
+import uk.co.caprica.vlcj.player.MediaPlayer;
+import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
+import uk.co.caprica.vlcj.player.MediaPlayerEventListener;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
 public class CarparkMainApp {
+	
+	private Logger LOGGER = LoggerFactory.getLogger(CarparkMainApp.class);
 
 	protected Shell shell;
 	private Text text;
@@ -81,8 +96,9 @@ public class CarparkMainApp {
 	@Inject
 	private XinlutongJNA xinlutongJNA;
 	@Inject
-	CommonUIFacility commonui;
-	
+	private CommonUIFacility commonui;
+	@Inject
+	private CarparkMainPresenter presenter;
 	private Composite northCamera;
 	private Composite southCamera;
 	private CLabel inbigimg;
@@ -92,6 +108,15 @@ public class CarparkMainApp {
 	
 	
 	AtomicInteger plateNoTotal=new AtomicInteger(0);
+
+	private EmbeddedMediaPlayer createPlayLeft;
+
+	private EmbeddedMediaPlayer createPlayRight;
+	
+	//保存设备的进出口信息
+	Map<String, String> mapDeviceType=Maps.newHashMap();
+
+	private CTabFolder tabInFolder;
 
 	/**
 	 * Launch the application.
@@ -106,7 +131,9 @@ public class CarparkMainApp {
 			e.printStackTrace();
 		}
 	}
-
+	public CarparkMainApp() {
+		
+	}
 	/**
 	 * Open the window.
 	 */
@@ -155,9 +182,9 @@ public class CarparkMainApp {
 		fl_composite_1.spacing = 5;
 		composite_1.setLayout(fl_composite_1);
 		
-		CTabFolder tabFolder = new CTabFolder(composite_1, SWT.BORDER | SWT.FLAT);
-		tabFolder.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
-		Composite control = new Composite(tabFolder, SWT.NONE);
+		tabInFolder = new CTabFolder(composite_1, SWT.BORDER | SWT.FLAT);
+		tabInFolder.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+		Composite control = new Composite(tabInFolder, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
@@ -167,20 +194,63 @@ public class CarparkMainApp {
 		toolItem.setText("拍照");
 		ToolItem toolItem2 = new ToolItem(toolBar, SWT.NONE);
 		toolItem2.setText("抬杆");
-
-		tabFolder.setTopRight(control);
-		tabFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+		ToolItem addInToolItem = new ToolItem(toolBar, SWT.NONE);
+		addInToolItem.setText("添加");
+		addInToolItem.setToolTipText("添加进口设备");
 		
-		CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
+		ToolItem editInToolItem = new ToolItem(toolBar, SWT.NONE);
+		editInToolItem.setText("修改");
+		editInToolItem.setToolTipText("修改进口设备");
+		editInToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				CTabItem selection = tabInFolder.getSelection();
+				String text2 = selection.getText();
+				AddDeviceModel model=new AddDeviceModel();
+				model.setName(text2);
+				AddDeviceWizard v=new AddDeviceWizard(model);
+				AddDeviceModel showWizard = (AddDeviceModel) commonui.showWizard(v);
+				selection.setText(showWizard.getName());
+			}
+		});
+		
+		
+		ToolItem delInToolItem = new ToolItem(toolBar, SWT.NONE);
+		delInToolItem.setText("删除");
+		delInToolItem.setToolTipText("删除进口设备");
+		addInToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				CTabItem tabItem = new CTabItem(tabInFolder, SWT.NONE);
+				tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
+				tabItem.setText("dsad");
+				Composite composite = new Composite(tabInFolder, SWT.BORDER|SWT.EMBEDDED);
+				tabItem.setControl(composite);
+				composite.setLayout(new FillLayout());
+				createLeftCamera("192.168.1.138", composite);
+			}
+		});
+		delInToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				boolean confirm = commonui.confirm("确定提示", "确定删除所选设备");
+				if (confirm) {
+					tabInFolder.getSelection().dispose();
+				}
+			}
+		});
+
+		tabInFolder.setTopRight(control);
+		tabInFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+		
+		CTabItem tabItem = new CTabItem(tabInFolder, SWT.NONE);
 		tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
 		tabItem.setText("南门入场视频");
 		
-		southCamera = new Composite(tabFolder, SWT.BORDER|SWT.EMBEDDED);
+		southCamera = new Composite(tabInFolder, SWT.BORDER|SWT.EMBEDDED);
 		tabItem.setControl(southCamera);
 		southCamera.setLayout(new FillLayout(SWT.HORIZONTAL));
-		
-		CTabItem tabItem_1 = new CTabItem(tabFolder, SWT.NONE);
-		tabItem_1.setText("北门入场视频");
 		
 		CTabFolder tabFolder_1 = new CTabFolder(composite_1, SWT.BORDER | SWT.FLAT);
 		Composite control2 = new Composite(tabFolder_1, SWT.NONE);
@@ -204,9 +274,6 @@ public class CarparkMainApp {
 		northCamera = new Composite(tabFolder_1, SWT.BORDER|SWT.EMBEDDED);
 		tabItem_2.setControl(northCamera);
 		northCamera.setLayout(new FillLayout(SWT.HORIZONTAL));
-		
-		CTabItem tabItem_3 = new CTabItem(tabFolder_1, SWT.NONE);
-		tabItem_3.setText("北门出场视频");
 		
 		Composite composite_2 = new Composite(composite, SWT.NONE);
 		composite_2.setLayout(new GridLayout(1, false));
@@ -279,7 +346,7 @@ public class CarparkMainApp {
 		
 		Label label_16 = new Label(composite_12, SWT.NONE);
 		label_16.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_16.setText("入场时间");
+		label_16.setText("出场时间");
 		label_16.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		
 		text_out_time = new Text(composite_12, SWT.BORDER);
@@ -538,6 +605,8 @@ public class CarparkMainApp {
 		btnf_1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				createPlayLeft.release();
+				createLeftCamera("192.168.1.139",southCamera);
 			}
 		});
 		btnf_1.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
@@ -563,41 +632,40 @@ public class CarparkMainApp {
 		new Label(group, SWT.NONE);
 		addCamera();
 		addXinlutongJNA();
-		tabFolder.setSelection(0);
+		tabInFolder.setSelection(0);
 		tabFolder_1.setSelection(0);
 	}
 
 	private void addXinlutongJNA() {
 		XinlutongResult xinlutongResult = new XinlutongResult() {
 			public void invok(final String ip, int channel,final String plateNO,final byte[] bigImage, final byte[] smallImage) {
-				try {
-					Files.write(bigImage, new File("img/"+StrUtil.formatDate(new Date(), "yyyyMMDDHHmmssSSS")+plateNO+"_big.jpg"));
-					Files.write(smallImage, new File("img/"+StrUtil.formatDate(new Date(), "yyyyMMDDHHmmssSSS")+plateNO+"_small.jpg"));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				final String date=StrUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
+				Date date = new Date();
+				String folder=StrUtil.formatDate(date, "yyyyMMddHH");
+				String fileName=StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
+				saveImage(folder,fileName+"_"+plateNO+"_big.jpg",bigImage);
+				saveImage(folder,fileName+"_"+plateNO+"_small.jpg",smallImage);
+				final String dateString=StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss");
 				if (ip.equals("192.168.1.139")) {
 					new Thread(new Runnable() {
 						public void run() {
 							Display.getDefault().asyncExec(new Runnable() {
 								public void run() {
 									if(outsmallImage.getBackgroundImage() != null){
-										System.out.println(date+ip+"小图片销毁图片");
+										LOGGER.info(dateString+ip+"小图片销毁图片");
 										outsmallImage.getBackgroundImage().dispose();
 									}
 									if(outbigImage.getBackgroundImage() != null){
-										System.out.println(date+ip+"大图片销毁图片");
+										LOGGER.info(dateString+ip+"大图片销毁图片");
 										outbigImage.getBackgroundImage().dispose();
 									}
 									Image newImg = getImage(smallImage,insmallimg,shell);
 									outsmallImage.setText("");
-									outsmallImage.setBackground(newImg);
+									outsmallImage.setBackgroundImage(newImg);
 									Image bigImg = getImage(bigImage,inbigimg,shell);
 									outbigImage.setText("");
-									outbigImage.setBackground(bigImg);
+									outbigImage.setBackgroundImage(bigImg);
 									txtoutplateNo.setText(plateNO);
-									text_out_time.setText(StrUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
+									text_out_time.setText(dateString);
 									plateNoTotal.addAndGet(1);
 								}
 							});
@@ -609,21 +677,21 @@ public class CarparkMainApp {
 						Display.getDefault().asyncExec(new Runnable() {
 							public void run() {
 								if(insmallimg.getBackgroundImage() != null){
-									System.out.println(date+ip+"小图片销毁图片");
+									LOGGER.info(dateString+ip+"小图片销毁图片");
 									insmallimg.getBackgroundImage().dispose();
 								}
-								if(inbigimg.getBackgroundImage() != null){
-									System.out.println(date+ip+"大图片销毁图片");
+								if(inbigimg.getImage() != null){
+									LOGGER.info(dateString+ip+"大图片销毁图片");
 									inbigimg.getBackgroundImage().dispose();
 								}
 								Image newImg = getImage(smallImage,insmallimg,shell);
 								insmallimg.setText("");
-								insmallimg.setBackground(newImg);
+								insmallimg.setBackgroundImage(newImg);
 								Image bigImg = getImage(bigImage,inbigimg,shell);
 								inbigimg.setText("");
-								inbigimg.setBackground(bigImg);
+								inbigimg.setBackgroundImage(bigImg);
 								txtinplateNo.setText(plateNO);
-								text_in_time.setText(StrUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
+								text_in_time.setText(dateString);
 								plateNoTotal.addAndGet(1);
 							}
 						});
@@ -637,58 +705,112 @@ public class CarparkMainApp {
 		xinlutongJNA.openEx("192.168.1.139", xinlutongResult);
 	}
 
+	protected void saveImage(String f, String fileName, byte[] bigImage) {
+		String fl="img/"+f;
+		try {
+			File file = new File(fl);
+			if (!file.exists()&&!file.isDirectory()) {
+				file.mkdir();
+			}
+			Files.write(bigImage, new File(fl+"/"+fileName));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	private void addCamera() {
-		Frame new_Frame = SWT_AWT.new_Frame(southCamera);
-		Canvas canvas = new Canvas();
-		canvas.addMouseListener(new java.awt.event.MouseAdapter() {
-			@Override
-			public void mouseClicked(java.awt.event.MouseEvent e) {
-				int clickCount = e.getClickCount();
-				if (clickCount==2) {
-					Display.getDefault().asyncExec(new Runnable() {
-						public void run() {
-							AddDeviceWizard v=new AddDeviceWizard("");
-        					Object showWizard = commonui.showWizard(v,new Shell());
-        					System.out.println(showWizard);
-						}
-					});
-					
-				}
-			}
-		});
-        new_Frame.add(canvas);
-        new_Frame.pack();
-        new_Frame.setVisible(true);
-		final EmbeddedMediaPlayer createPlay = webCameraDevice.createPlay(new_Frame, "rtsp://192.168.1.138:554/h264ESVideoTest");
+		createLeftCamera("192.168.1.138",southCamera);
 		
-		shell.addDisposeListener(new DisposeListener() {
-			
-			public void widgetDisposed(DisposeEvent e) {
-				createPlay.release();
-			}
-		});
-		
+		createRightCamera("192.168.1.139",northCamera);
+	}
+
+	/**
+	 * @param ip 
+	 * @param northCamera 
+	 * 
+	 */
+	public void createRightCamera(String ip, Composite northCamera) {
 		Frame new_Frame1 = SWT_AWT.new_Frame(northCamera);
 		Canvas canvas1 = new Canvas();
         new_Frame1.add(canvas1);
         new_Frame1.pack();
         new_Frame1.setVisible(true);
-		final EmbeddedMediaPlayer createPlay2 = webCameraDevice.createPlay(new_Frame1, "rtsp://192.168.1.139:554/h264ESVideoTest");
+        final String url="rtsp://"+ip+":554/h264ESVideoTest";
+		createPlayRight = webCameraDevice.createPlay(new_Frame1, url);
+		createPlayRight.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
+			@Override
+			public void finished(final MediaPlayer mediaPlayer) {
+				new Runnable() {
+					public void run() {
+						while (!mediaPlayer.isPlaying()) {
+							LOGGER.info("设备连接{}已断开",url);
+							mediaPlayer.release();
+							mediaPlayer.playMedia(url);
+							Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
+						}
+					}
+				}.run();
+			}
+		});
+		
 		shell.addDisposeListener(new DisposeListener() {
-			
 			public void widgetDisposed(DisposeEvent e) {
-				createPlay2.release();
+				createPlayRight.release();
+			}
+		});
+	}
+
+	/**
+	 * @param ip 
+	 * @param southCamera 
+	 * 
+	 */
+	public void createLeftCamera(String ip, Composite southCamera) {
+		Frame new_Frame = SWT_AWT.new_Frame(southCamera);
+		Canvas canvas = new Canvas();
+        new_Frame.add(canvas);
+        new_Frame.pack();
+        new_Frame.setVisible(true);
+        final String url="rtsp://"+ip+":554/h264ESVideoTest";
+		createPlayLeft = webCameraDevice.createPlay(new_Frame, url);
+		createPlayLeft.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
+			@Override
+			public void finished(final MediaPlayer mediaPlayer) {
+				new Runnable() {
+					public void run() {
+						while (!mediaPlayer.isPlaying()) {
+							LOGGER.info("设备连接{}已断开",url);
+							mediaPlayer.release();
+							mediaPlayer.playMedia(url);
+							Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
+							System.out.println("mediaPlayer.isPlaying()=="+mediaPlayer.isPlaying());
+						}
+					}
+				}.run();
+			}
+			@Override
+			public void error(MediaPlayer mediaPlayer) {
+				
+			}
+		});
+		shell.addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				createPlayLeft.release();
 			}
 		});
 	}
 
 	
 	public Image getImage(final byte[] smallImage, CLabel insmallimg, Shell shell) {
-		Image img = new Image(shell.getDisplay(), new ByteArrayInputStream(smallImage));
-		Rectangle rectangle = insmallimg.getBounds();
-		ImageData id = img.getImageData().scaledTo(rectangle.width, rectangle.height);
-		Image newImg = new Image(shell.getDisplay(), id);
-		img.dispose();
-		return newImg;
+		try(ByteArrayInputStream stream = new ByteArrayInputStream(smallImage)) {
+			Image img = new Image(shell.getDisplay(), stream);
+			Rectangle rectangle = insmallimg.getBounds();
+			ImageData id = img.getImageData().scaledTo(rectangle.width, rectangle.height);
+			Image newImg = new Image(shell.getDisplay(), id);
+			img.dispose();
+			LOGGER.info("getImage dispose");
+			return newImg;
+		} catch (Exception e) {
+			throw new DongluAppException("图片转换错误", e);
+		}
 	}
 }

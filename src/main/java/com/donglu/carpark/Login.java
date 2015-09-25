@@ -57,6 +57,7 @@ public class Login {
 			window.open();
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.exit(0);
 		}
 	}
 
