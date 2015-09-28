@@ -37,8 +37,6 @@ import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 
 public class Login {
-	private DataBindingContext m_bindingContext;
-
 	protected Shell shell;
 	private Text txtAdmin;
 	private Text txtAdmin_1;
@@ -179,7 +177,6 @@ public class Login {
 		button_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_1.setText("取消");
-		m_bindingContext = initDataBindings();
 
 	}
 
@@ -223,14 +220,5 @@ public class Login {
 			e.printStackTrace();
 			System.exit(0);
 		}
-	}
-	protected DataBindingContext initDataBindings() {
-		DataBindingContext bindingContext = new DataBindingContext();
-		//
-		IObservableValue observeTextTxtAdminObserveWidget = WidgetProperties.text(SWT.Modify).observe(txtAdmin);
-		IObservableValue canonicalNameGetClassObserveValue = PojoProperties.value("canonicalName").observe(getClass());
-		bindingContext.bindValue(observeTextTxtAdminObserveWidget, canonicalNameGetClassObserveValue, null, null);
-		//
-		return bindingContext;
 	}
 }
