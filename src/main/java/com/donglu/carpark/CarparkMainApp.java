@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -44,6 +45,7 @@ import org.eclipse.swt.custom.CTabItem;
 
 import antlr.ByteBuffer;
 
+import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.wizard.AddDeviceModel;
 import com.donglu.carpark.wizard.AddDeviceWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -54,6 +56,7 @@ import com.dongluhitec.card.domain.db.Link;
 import com.dongluhitec.card.domain.db.LinkStyleEnum;
 import com.dongluhitec.card.domain.db.SerialDeviceAddress;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
@@ -116,6 +119,8 @@ public class CarparkMainApp implements XinlutongResult {
 	private CarparkMainPresenter presenter;
 	@Inject
 	private BasicHardwareService hardwareService;
+	@Inject
+	private CarparkDatabaseServiceProvider sp;
 	
 	private CLabel inBigImg;
 	private CLabel inSmallImg;
@@ -134,6 +139,8 @@ public class CarparkMainApp implements XinlutongResult {
 
 	// 保存设备的界面信息
 	Map<CTabItem, String> mapDeviceTabItem = Maps.newHashMap();
+	
+	Map<String, SingleCarparkDevice> mapIpToDevice=Maps.newHashMap(); 
 
 	private CTabFolder tabInFolder;
 
@@ -145,9 +152,22 @@ public class CarparkMainApp implements XinlutongResult {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
 	}
 
 	public CarparkMainApp() {
+		Object readObject = com.dongluhitec.card.ui.util.FileUtils.readObject("mapIpToDevice");
+		if (readObject!=null) {
+			mapIpToDevice=(Map<String, SingleCarparkDevice>) readObject;
+    		for (String key : mapIpToDevice.keySet()) {
+    			SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(key);
+    			if (StrUtil.isEmpty(singleCarparkDevice.getInType())) {
+    				continue;
+    			}
+    			mapDeviceType.put(key, singleCarparkDevice.getInType());
+    		}
+		}
+		
 //		mapDeviceType.put("192.168.1.138", "进口");
 //		mapDeviceType.put("192.168.1.139", "出口");
 //		mapDeviceType.put("192.168.1.231", "进口");
@@ -682,6 +702,7 @@ public class CarparkMainApp implements XinlutongResult {
 			xinlutongJNA.closeEx(ip);
 			mapDeviceTabItem.remove(selection);
 			mapDeviceType.remove(ip);
+			mapIpToDevice.remove(ip);
 		}
 	}
 
@@ -693,7 +714,7 @@ public class CarparkMainApp implements XinlutongResult {
 			if (type.equals("进口")) {
 				final CTabItem tabItem = new CTabItem(tabInFolder, SWT.NONE);
 				tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
-				tabItem.setText(ip);
+				tabItem.setText(mapIpToDevice.get(ip).getName()==null?ip:mapIpToDevice.get(ip).getName());
 				final Composite composite = new Composite(tabInFolder, SWT.BORDER | SWT.EMBEDDED);
 				tabItem.setControl(composite);
 				composite.setLayout(new FillLayout());
@@ -708,7 +729,7 @@ public class CarparkMainApp implements XinlutongResult {
 			} else if (type.equals("出口")) {
 				CTabItem tabItem = new CTabItem(tabOutFolder, SWT.NONE);
 				tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
-				tabItem.setText(ip);
+				tabItem.setText(mapIpToDevice.get(ip).getName()==null?ip:mapIpToDevice.get(ip).getName());
 				final Composite composite = new Composite(tabOutFolder, SWT.BORDER | SWT.EMBEDDED);
 				tabItem.setControl(composite);
 				composite.setLayout(new FillLayout());
@@ -866,85 +887,138 @@ public class CarparkMainApp implements XinlutongResult {
 	}
 
 	public void invok(final String ip, int channel, final String plateNO, final byte[] bigImage, final byte[] smallImage) {
-		Date date = new Date();
-		String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
-		String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
-		saveImage(folder, fileName + "_" + plateNO + "_big.jpg", bigImage);
-		saveImage(folder, fileName + "_" + plateNO + "_small.jpg", smallImage);
-		final String dateString = StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss");
-//		System.out.println(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO);
-		LOGGER.info(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO);
 
 		if (mapDeviceType.get(ip).equals("出口")) {
-			new Thread(new Runnable() {
-				public void run() {
-					Display.getDefault().asyncExec(new Runnable() {
-						public void run() {
-							if (outSmallImage != null) {
-								LOGGER.info(dateString + ip + "小图片销毁图片");
-								outSmallImage.dispose();
-								outSmallImg.setBackgroundImage(null);
-							}
-							if (outBigImage != null) {
-								LOGGER.info(dateString + ip + "大图片销毁图片");
-								outBigImage.dispose();
-								outBigImg.setBackgroundImage(null);
-							}
-
-							outSmallImage = getImage(smallImage, outSmallImg, shell);
-							if (outSmallImage != null) {
-								outSmallImg.setBackgroundImage(outSmallImage);
-							}
-
-							outBigImage = getImage(bigImage, outBigImg, shell);
-							if (outBigImage != null) {
-								outBigImg.setBackgroundImage(outBigImage);
-							}
-
-							txtoutplateNo.setText(plateNO);
-							text_out_time.setText(dateString);
-							plateNoTotal.addAndGet(1);
-							showInDevice("192.168.1.200:10001","1.9",plateNO);
-						}
-					});
-				}
-			}).start();
+			carparkOutTask(ip, plateNO, bigImage, smallImage);
 		} else if (mapDeviceType.get(ip).equals("进口")) {
-			new Thread(new Runnable() {
-				public void run() {
-					Display.getDefault().asyncExec(new Runnable() {
-						public void run() {
-							if (inSmallImage != null) {
-								LOGGER.info(dateString + ip + "小图片销毁图片");
-								inSmallImage.dispose();
-								inSmallImg.setBackgroundImage(null);
-							}
-							if (inBigImage != null) {
-								LOGGER.info(dateString + ip + "大图片销毁图片");
-								inBigImage.dispose();
-								inBigImg.setBackgroundImage(null);
-							}
-
-							inSmallImage = getImage(smallImage, inSmallImg, shell);
-							if (inSmallImage != null) {
-								inSmallImg.setBackgroundImage(inSmallImage);
-							}
-
-							inBigImage = getImage(bigImage, inBigImg, shell);
-							if (inBigImage != null) {
-								inBigImg.setBackgroundImage(inBigImage);
-							}
-
-							txtinplateNo.setText(plateNO);
-							text_in_time.setText(dateString);
-							plateNoTotal.addAndGet(1);
-							showInDevice("192.168.1.113:10001","1.2",plateNO);
-						}
-					});
-				}
-			}).start();
+			carparkInTask(ip, plateNO, bigImage, smallImage);
 		}
 	}
+	//停车场进
+	private void carparkInTask(final String ip, final String plateNO, final byte[] bigImage, final byte[] smallImage) {
+		new Thread(new Runnable() {
+			public void run() {
+				long nanoTime = System.nanoTime();
+				Date date = new Date();
+				String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
+				String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
+				saveImage(folder, fileName + "_" + plateNO + "_big.jpg", bigImage);
+				saveImage(folder, fileName + "_" + plateNO + "_small.jpg", smallImage);
+				long nanoTime1 = System.nanoTime();
+				
+				final String dateString = StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss");
+				LOGGER.info(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO);
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						if (inSmallImage != null) {
+							LOGGER.info(dateString + ip + "小图片销毁图片");
+							inSmallImage.dispose();
+							inSmallImg.setBackgroundImage(null);
+						}
+						if (inBigImage != null) {
+							LOGGER.info(dateString + ip + "大图片销毁图片");
+							inBigImage.dispose();
+							inBigImg.setBackgroundImage(null);
+						}
+
+						inSmallImage = getImage(smallImage, inSmallImg, shell);
+						if (inSmallImage != null) {
+							inSmallImg.setBackgroundImage(inSmallImage);
+						}
+
+						inBigImage = getImage(bigImage, inBigImg, shell);
+						if (inBigImage != null) {
+							inBigImg.setBackgroundImage(inBigImage);
+						}
+
+						txtinplateNo.setText(plateNO);
+						text_in_time.setText(dateString);
+						plateNoTotal.addAndGet(1);
+						showInDevice("192.168.1.113:10001","1.2",plateNO);
+					}
+				});
+				long nanoTime3 = System.nanoTime();
+				List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(null, plateNO);
+				String carType="临时车";
+				if (!StrUtil.isEmpty(findByNameOrPlateNo)) {
+					carType="固定车";
+				}
+				SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(ip);
+				if (StrUtil.isEmpty(singleCarparkDevice)) {
+					LOGGER.info("没有找到ip为："+ip+"的设备");
+				}else{
+					String roadType = singleCarparkDevice.getRoadType();
+					LOGGER.info("车辆类型为：{}==t通道类型为：{}",carType,roadType);
+				}
+				long nanoTime2 = System.nanoTime();
+				LOGGER.info(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO+"车辆类型："+carType+"\n"
+						+ "保存图片："+(nanoTime1-nanoTime)+"==查找固定用户："+(nanoTime2-nanoTime3)+"==界面操作："+(nanoTime3-nanoTime1));
+			}
+		}).start();
+	}
+	//停车场出
+	private void carparkOutTask(final String ip, final String plateNO, final byte[] bigImage, final byte[] smallImage) {
+		new Thread(new Runnable() {
+			public void run() {
+				long nanoTime = System.nanoTime();
+				Date date = new Date();
+				String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
+				String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
+				saveImage(folder, fileName + "_" + plateNO + "_big.jpg", bigImage);
+				saveImage(folder, fileName + "_" + plateNO + "_small.jpg", smallImage);
+				long nanoTime1 = System.nanoTime();
+				final String dateString = StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss");
+//					System.out.println(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO);
+				LOGGER.info(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO);
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						if (outSmallImage != null) {
+							LOGGER.info(dateString + ip + "小图片销毁图片");
+							outSmallImage.dispose();
+							outSmallImg.setBackgroundImage(null);
+						}
+						if (outBigImage != null) {
+							LOGGER.info(dateString + ip + "大图片销毁图片");
+							outBigImage.dispose();
+							outBigImg.setBackgroundImage(null);
+						}
+
+						outSmallImage = getImage(smallImage, outSmallImg, shell);
+						if (outSmallImage != null) {
+							outSmallImg.setBackgroundImage(outSmallImage);
+						}
+
+						outBigImage = getImage(bigImage, outBigImg, shell);
+						if (outBigImage != null) {
+							outBigImg.setBackgroundImage(outBigImage);
+						}
+
+						txtoutplateNo.setText(plateNO);
+						text_out_time.setText(dateString);
+						plateNoTotal.addAndGet(1);
+						showInDevice("192.168.1.200:10001","1.9",plateNO);
+					}
+				});
+				long nanoTime3 = System.nanoTime();
+				List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(null, plateNO);
+				String carType="临时车";
+				if (!StrUtil.isEmpty(findByNameOrPlateNo)) {
+					carType="固定车";
+				}
+				SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(ip);
+				if (StrUtil.isEmpty(singleCarparkDevice)) {
+					LOGGER.info("没有找到ip为："+ip+"的设备");
+				}else{
+					String roadType = singleCarparkDevice.getRoadType();
+					LOGGER.info("车辆类型为：{}==通道类型为：{}",carType,roadType);
+				}
+				long nanoTime2 = System.nanoTime();
+				LOGGER.info(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO+"车辆类型："+carType+"\n"
+						+ "保存图片："+(nanoTime1-nanoTime)+"==查找固定用户："+(nanoTime2-nanoTime3)+"==界面操作："+(nanoTime3-nanoTime1));
+			}
+		}).start();
+	}
+	//发送语音
 	private synchronized void showInDevice(String ip, String addr, String plateNO){
 		
 		System.out.println(ip+"==="+addr+"==="+plateNO);
@@ -983,12 +1057,22 @@ public class CarparkMainApp implements XinlutongResult {
 			}
 			String ip = showWizard.getIp();
 			String name = showWizard.getName();
+			showWizard.setInType(type);
+			addDevice(showWizard.getDevice());
 			addDevice(tabFolder, type, ip, name);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
+	void addDevice(SingleCarparkDevice device) throws Exception{
+		String ip = device.getIp();
+		SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(ip);
+		if (!StrUtil.isEmpty(singleCarparkDevice)) {
+			throw new Exception("ip"+ip+"的设备已存在");
+		}
+		mapIpToDevice.put(ip, device);
+		com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
+	}
 	/**
 	 * 普通添加设备
 	 * 

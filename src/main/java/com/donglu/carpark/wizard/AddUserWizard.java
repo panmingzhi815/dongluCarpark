@@ -6,8 +6,8 @@ import com.dongluhitec.card.common.ui.AbstractWizard;
 
 
 public class AddUserWizard extends Wizard implements AbstractWizard{
-	AddDeviceModel model;
-	public AddUserWizard(AddDeviceModel model) {
+	AddUserModel model;
+	public AddUserWizard(AddUserModel model) {
 		this.model=model;
 		setWindowTitle("添加固定用户");
 	}

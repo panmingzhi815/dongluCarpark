@@ -25,6 +25,7 @@ import org.eclipse.core.databinding.beans.BeansObservables;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
 public class AddDeviceWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -211,25 +212,9 @@ public class AddDeviceWizardPage extends WizardPage {
 		IObservableValue ipModelObserveValue = BeanProperties.value("ip").observe(model);
 		bindingContext.bindValue(observeTextTxt_ipObserveWidget, ipModelObserveValue, null, null);
 		//
-		IObservableValue observeSelectionComboObserveWidget = WidgetProperties.selection().observe(combo);
-		IObservableValue typeModelObserveValue = BeanProperties.value("type").observe(model);
-		bindingContext.bindValue(observeSelectionComboObserveWidget, typeModelObserveValue, null, null);
-		//
-		IObservableValue observeSelectionCombo_linkAddressObserveWidget = WidgetProperties.selection().observe(combo_linkAddress);
-		IObservableValue linkAddressModelObserveValue = BeanProperties.value("linkAddress").observe(model);
-		bindingContext.bindValue(observeSelectionCombo_linkAddressObserveWidget, linkAddressModelObserveValue, null, null);
-		//
 		IObservableValue observeTextText_2ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_2);
 		IObservableValue addressModelObserveValue = BeanProperties.value("address").observe(model);
 		bindingContext.bindValue(observeTextText_2ObserveWidget, addressModelObserveValue, null, null);
-		//
-		IObservableValue observeSelectionCombo_1ObserveWidget = WidgetProperties.selection().observe(combo_1);
-		IObservableValue roadTypeModelObserveValue = BeanProperties.value("roadType").observe(model);
-		bindingContext.bindValue(observeSelectionCombo_1ObserveWidget, roadTypeModelObserveValue, null, null);
-		//
-		IObservableValue observeSelectionCombo_2ObserveWidget = WidgetProperties.selection().observe(combo_carpark);
-		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
-		bindingContext.bindValue(observeSelectionCombo_2ObserveWidget, carparkModelObserveValue, null, null);
 		//
 		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
 		IObservableMap observeMap = BeansObservables.observeMap(listContentProvider.getKnownElements(), SingleCarparkCarpark.class, "name");
@@ -238,7 +223,22 @@ public class AddDeviceWizardPage extends WizardPage {
 		//
 		IObservableList listModelObserveList = BeanProperties.list("list").observe(model);
 		comboViewer_3.setInput(listModelObserveList);
-		combo_carpark.select(0);
+		//
+		IObservableValue observeTextComboObserveWidget = WidgetProperties.text().observe(combo);
+		IObservableValue typeModelObserveValue = BeanProperties.value("type").observe(model);
+		bindingContext.bindValue(observeTextComboObserveWidget, typeModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer_3 = ViewerProperties.singleSelection().observe(comboViewer_3);
+		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer_3, carparkModelObserveValue, null, null);
+		//
+		IObservableValue observeTextCombo_1ObserveWidget = WidgetProperties.text().observe(combo_1);
+		IObservableValue roadTypeModelObserveValue = BeanProperties.value("roadType").observe(model);
+		bindingContext.bindValue(observeTextCombo_1ObserveWidget, roadTypeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextCombo_linkAddressObserveWidget = WidgetProperties.text().observe(combo_linkAddress);
+		IObservableValue linkAddressModelObserveValue = BeanProperties.value("linkAddress").observe(model);
+		bindingContext.bindValue(observeTextCombo_linkAddressObserveWidget, linkAddressModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

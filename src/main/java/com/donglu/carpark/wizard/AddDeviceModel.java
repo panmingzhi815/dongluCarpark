@@ -24,6 +24,19 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		if (pcs != null)
 			pcs.firePropertyChange("list", null, null);
 	}
-	
+	public SingleCarparkDevice getDevice(){
+		SingleCarparkDevice device=new SingleCarparkDevice();
+		device.setAddress(getAddress());
+		device.setCarpark(getCarpark());
+		device.setId(getId());
+		device.setIdentifire(getIdentifire());
+		device.setInType(getInType());
+		device.setIp(getIp());
+		device.setLinkAddress(getLinkAddress());
+		device.setName(getName());
+		device.setRoadType(getRoadType());
+		device.setType(getType());
+		return device;
+	}
 	
 }

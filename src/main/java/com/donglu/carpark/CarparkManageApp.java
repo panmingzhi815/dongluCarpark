@@ -45,6 +45,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 
 import com.beust.jcommander.JCommander;
+import com.donglu.carpark.model.UserModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.wizard.AddBlackUserWizard;
@@ -87,6 +88,11 @@ import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
+import org.eclipse.core.databinding.observable.map.IObservableMap;
+import org.eclipse.core.databinding.beans.BeansObservables;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 
 public class CarparkManageApp {
 	private DataBindingContext m_bindingContext;
@@ -109,7 +115,7 @@ public class CarparkManageApp {
 	@Inject
 	CommonUIFacility commonui;
 	
-	private Table table_1;
+	private Table table_user;
 	private Text text_7;
 	private Text text_8;
 	private Table table_6;
@@ -124,6 +130,9 @@ public class CarparkManageApp {
 	private TreeViewer treeViewer;
 	
 	private CarparkModel carparkModel;
+	
+	private UserModel userModel;
+	private TableViewer tableViewer_user;
 	
 	/**
 	 * Launch the application.
@@ -167,7 +176,9 @@ public class CarparkManageApp {
 	private void init() {
 		presenter.setView(this);
 		carparkModel=new CarparkModel();
+		userModel=new UserModel();
 		presenter.setCarparkModel(carparkModel);
+		presenter.setUserModel(userModel);
 		presenter.init();
 	}
 
@@ -345,11 +356,7 @@ public class CarparkManageApp {
 		toolItem_4.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				AddUserWizard v=new AddUserWizard(new AddDeviceModel());
-//				WizardDialog dialog=new WizardDialog(new Shell(), v);
-//				dialog.open();
-				Object showWizard = commonui.showWizard(v);
-				System.out.println(showWizard);
+				presenter.addCarparkUser();
 			}
 		});
 		toolItem_4.setText("+");
@@ -360,52 +367,52 @@ public class CarparkManageApp {
 		ToolItem toolItem_6 = new ToolItem(toolBar_2, SWT.NONE);
 		toolItem_6.setText("/");
 		
-		TableViewer tableViewer_1 = new TableViewer(composite_2, SWT.BORDER | SWT.FULL_SELECTION);
-		table_1 = tableViewer_1.getTable();
-		table_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		table_1.setLinesVisible(true);
-		table_1.setHeaderVisible(true);
-		table_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		tableViewer_user = new TableViewer(composite_2, SWT.BORDER | SWT.FULL_SELECTION);
+		table_user = tableViewer_user.getTable();
+		table_user.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		table_user.setLinesVisible(true);
+		table_user.setHeaderVisible(true);
+		table_user.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 		
-		TableViewerColumn tableViewerColumn_28 = new TableViewerColumn(tableViewer_1, SWT.NONE);
-		TableColumn tableColumn_22 = tableViewerColumn_28.getColumn();
-		tableColumn_22.setWidth(78);
-		tableColumn_22.setText("编号");
+		TableViewerColumn tableViewerColumn_id = new TableViewerColumn(tableViewer_user, SWT.NONE);
+		TableColumn tableColumn_id = tableViewerColumn_id.getColumn();
+		tableColumn_id.setWidth(78);
+		tableColumn_id.setText("编号");
 		
-		TableViewerColumn tableViewerColumn_1 = new TableViewerColumn(tableViewer_1, SWT.NONE);
-		TableColumn tableColumn_1 = tableViewerColumn_1.getColumn();
-		tableColumn_1.setWidth(70);
-		tableColumn_1.setText("姓名");
+		TableViewerColumn tableViewerColumn_name = new TableViewerColumn(tableViewer_user, SWT.NONE);
+		TableColumn tableColumn_name = tableViewerColumn_name.getColumn();
+		tableColumn_name.setWidth(70);
+		tableColumn_name.setText("姓名");
 		
-		TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer_1, SWT.NONE);
-		TableColumn tableColumn = tableViewerColumn.getColumn();
-		tableColumn.setWidth(73);
-		tableColumn.setText("车牌号");
+		TableViewerColumn tableViewerColumn_plateNo = new TableViewerColumn(tableViewer_user, SWT.NONE);
+		TableColumn tableColumn_plateNo = tableViewerColumn_plateNo.getColumn();
+		tableColumn_plateNo.setWidth(73);
+		tableColumn_plateNo.setText("车牌号");
 		
-		TableViewerColumn tableViewerColumn_2 = new TableViewerColumn(tableViewer_1, SWT.NONE);
-		TableColumn tableColumn_2 = tableViewerColumn_2.getColumn();
-		tableColumn_2.setWidth(67);
-		tableColumn_2.setText("住址");
+		TableViewerColumn tableViewerColumn_address = new TableViewerColumn(tableViewer_user, SWT.NONE);
+		TableColumn tableColumn_address = tableViewerColumn_address.getColumn();
+		tableColumn_address.setWidth(67);
+		tableColumn_address.setText("住址");
 		
-		TableViewerColumn tableViewerColumn_3 = new TableViewerColumn(tableViewer_1, SWT.NONE);
-		TableColumn tableColumn_3 = tableViewerColumn_3.getColumn();
-		tableColumn_3.setWidth(81);
-		tableColumn_3.setText("用户类型");
+		TableViewerColumn tableViewerColumn_type = new TableViewerColumn(tableViewer_user, SWT.NONE);
+		TableColumn tableColumn_type = tableViewerColumn_type.getColumn();
+		tableColumn_type.setWidth(81);
+		tableColumn_type.setText("用户类型");
 		
-		TableViewerColumn tableViewerColumn_4 = new TableViewerColumn(tableViewer_1, SWT.NONE);
-		TableColumn tableColumn_12 = tableViewerColumn_4.getColumn();
-		tableColumn_12.setWidth(78);
-		tableColumn_12.setText("有效期");
+		TableViewerColumn tableViewerColumn_validTo = new TableViewerColumn(tableViewer_user, SWT.NONE);
+		TableColumn tableColumn_validTo = tableViewerColumn_validTo.getColumn();
+		tableColumn_validTo.setWidth(78);
+		tableColumn_validTo.setText("有效期");
 		
-		TableViewerColumn tableViewerColumn_17 = new TableViewerColumn(tableViewer_1, SWT.NONE);
-		TableColumn tableColumn_21 = tableViewerColumn_17.getColumn();
-		tableColumn_21.setWidth(74);
-		tableColumn_21.setText("车位");
+		TableViewerColumn tableViewerColumn_carNo = new TableViewerColumn(tableViewer_user, SWT.NONE);
+		TableColumn tableColumn_carparkNo = tableViewerColumn_carNo.getColumn();
+		tableColumn_carparkNo.setWidth(74);
+		tableColumn_carparkNo.setText("车位");
 		
-		TableViewerColumn tableViewerColumn_29 = new TableViewerColumn(tableViewer_1, SWT.NONE);
-		TableColumn tableColumn_23 = tableViewerColumn_29.getColumn();
-		tableColumn_23.setWidth(100);
-		tableColumn_23.setText("备注");
+		TableViewerColumn tableViewerColumn_remark = new TableViewerColumn(tableViewer_user, SWT.NONE);
+		TableColumn tableColumn_remark = tableViewerColumn_remark.getColumn();
+		tableColumn_remark.setWidth(100);
+		tableColumn_remark.setText("备注");
 		
 		TabItem tbtmNewItem_2 = new TabItem(tabFolder, SWT.NONE);
 		tbtmNewItem_2.setText("记录查询");
@@ -1054,6 +1061,14 @@ public class CarparkManageApp {
 		IObservableValue observeSingleSelectionTreeViewer = ViewerProperties.singleSelection().observe(treeViewer);
 		IObservableValue carparkCarparkModelObserveValue = BeanProperties.value("carpark").observe(carparkModel);
 		bindingContext.bindValue(observeSingleSelectionTreeViewer, carparkCarparkModelObserveValue, null, null);
+		//
+		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
+		IObservableMap[] observeMaps = BeansObservables.observeMaps(listContentProvider.getKnownElements(), SingleCarparkUser.class, new String[]{"id", "name", "plateNo", "address", "type", "validTo", "carparkNo", "remark"});
+		tableViewer_user.setLabelProvider(new ObservableMapLabelProvider(observeMaps));
+		tableViewer_user.setContentProvider(listContentProvider);
+		//
+		IObservableList allListUserModelObserveList = BeanProperties.list("allList").observe(userModel);
+		tableViewer_user.setInput(allListUserModelObserveList);
 		//
 		return bindingContext;
 	}

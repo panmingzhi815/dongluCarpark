@@ -15,20 +15,35 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
+import org.eclipse.core.databinding.observable.map.IObservableMap;
+import org.eclipse.core.databinding.beans.BeansObservables;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
+import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
 public class AddUserWizardPage extends WizardPage {
+	private DataBindingContext m_bindingContext;
 	private Text text;
 	private Text text_1;
 	private Text text_3;
 	private Text text_4;
-	AddDeviceModel model;
+	AddUserModel model;
+	private ComboViewer comboViewer_carpark;
+	private Combo combo_carpark;
+	private Combo combo;
 
 	
 	/**
 	 * Create the wizard.
 	 * @param model 
 	 */
-	public AddUserWizardPage(AddDeviceModel model) {
+	public AddUserWizardPage(AddUserModel model) {
 		super("wizardPage");
 		setTitle("添加固定用户");
 		setDescription("添加固定用户");
@@ -68,7 +83,7 @@ public class AddUserWizardPage extends WizardPage {
 		label_2.setText("用户类型");
 		
 		ComboViewer comboViewer = new ComboViewer(composite, SWT.NONE);
-		Combo combo = comboViewer.getCombo();
+		combo = comboViewer.getCombo();
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
@@ -93,8 +108,46 @@ public class AddUserWizardPage extends WizardPage {
 		label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_5.setText("停车场");
 		
-		ComboViewer comboViewer_1 = new ComboViewer(composite, SWT.NONE);
-		Combo combo_1 = comboViewer_1.getCombo();
-		combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		comboViewer_carpark = new ComboViewer(composite, SWT.NONE);
+		combo_carpark = comboViewer_carpark.getCombo();
+		combo_carpark.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		m_bindingContext = initDataBindings();
+	}
+	protected DataBindingContext initDataBindings() {
+		DataBindingContext bindingContext = new DataBindingContext();
+		//
+		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
+		IObservableMap observeMap = BeansObservables.observeMap(listContentProvider.getKnownElements(), SingleCarparkCarpark.class, "name");
+		comboViewer_carpark.setLabelProvider(new ObservableMapLabelProvider(observeMap));
+		comboViewer_carpark.setContentProvider(listContentProvider);
+		//
+		IObservableList allListModelObserveList = BeanProperties.list("allList").observe(model);
+		comboViewer_carpark.setInput(allListModelObserveList);
+		//
+		IObservableValue observeTextTextObserveWidget = WidgetProperties.text(SWT.Modify).observe(text);
+		IObservableValue plateNoModelObserveValue = BeanProperties.value("plateNo").observe(model);
+		bindingContext.bindValue(observeTextTextObserveWidget, plateNoModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_1ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_1);
+		IObservableValue nameModelObserveValue = BeanProperties.value("name").observe(model);
+		bindingContext.bindValue(observeTextText_1ObserveWidget, nameModelObserveValue, null, null);
+		//
+		IObservableValue observeTextComboObserveWidget = WidgetProperties.text().observe(combo);
+		IObservableValue typeModelObserveValue = BeanProperties.value("type").observe(model);
+		bindingContext.bindValue(observeTextComboObserveWidget, typeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
+		IObservableValue addressModelObserveValue = BeanProperties.value("address").observe(model);
+		bindingContext.bindValue(observeTextText_3ObserveWidget, addressModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_4ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_4);
+		IObservableValue carparkNoModelObserveValue = BeanProperties.value("carparkNo").observe(model);
+		bindingContext.bindValue(observeTextText_4ObserveWidget, carparkNoModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer_carpark = ViewerProperties.singleSelection().observe(comboViewer_carpark);
+		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer_carpark, carparkModelObserveValue, null, null);
+		//
+		return bindingContext;
 	}
 }
