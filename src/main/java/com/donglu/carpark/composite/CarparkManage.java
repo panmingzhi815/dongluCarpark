@@ -57,9 +57,6 @@ public class CarparkManage extends Composite {
 		toolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				AddCarparkWizard v=new AddCarparkWizard();
-				WizardDialog dialog=new WizardDialog(new Shell(), v);
-				dialog.open();
 			}
 		});
 		toolItem.setText("+");

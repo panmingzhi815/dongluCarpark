@@ -47,9 +47,17 @@ import antlr.ByteBuffer;
 import com.donglu.carpark.wizard.AddDeviceModel;
 import com.donglu.carpark.wizard.AddDeviceWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.domain.LinkProtocolEnum;
+import com.dongluhitec.card.domain.LinkTypeEnum;
+import com.dongluhitec.card.domain.db.Device;
+import com.dongluhitec.card.domain.db.Link;
+import com.dongluhitec.card.domain.db.LinkStyleEnum;
+import com.dongluhitec.card.domain.db.SerialDeviceAddress;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
+import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongCallback.XinlutongResult;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
 import com.google.common.collect.Maps;
@@ -106,6 +114,9 @@ public class CarparkMainApp implements XinlutongResult {
 	private CommonUIFacility commonui;
 	@Inject
 	private CarparkMainPresenter presenter;
+	@Inject
+	private BasicHardwareService hardwareService;
+	
 	private CLabel inBigImg;
 	private CLabel inSmallImg;
 	private CLabel outSmallImg;
@@ -167,6 +178,7 @@ public class CarparkMainApp implements XinlutongResult {
 
 	/**
 	 * Create contents of the window.
+	 * @wbp.parser.entryPoint
 	 */
 	protected void createContents() {
 		shell = new Shell();
@@ -892,6 +904,7 @@ public class CarparkMainApp implements XinlutongResult {
 							txtoutplateNo.setText(plateNO);
 							text_out_time.setText(dateString);
 							plateNoTotal.addAndGet(1);
+							showInDevice("192.168.1.200:10001","1.9",plateNO);
 						}
 					});
 				}
@@ -925,13 +938,35 @@ public class CarparkMainApp implements XinlutongResult {
 							txtinplateNo.setText(plateNO);
 							text_in_time.setText(dateString);
 							plateNoTotal.addAndGet(1);
+							showInDevice("192.168.1.113:10001","1.2",plateNO);
 						}
 					});
 				}
 			}).start();
 		}
 	}
-
+	private synchronized void showInDevice(String ip, String addr, String plateNO){
+		
+		System.out.println(ip+"==="+addr+"==="+plateNO);
+		try {
+			if (StrUtil.isEmpty(plateNO)) {
+				return;
+			}
+			Device device=new Device();
+			Link link=new Link();
+			link.setLinkStyleEnum(LinkStyleEnum.直连设备);
+			link.setType(LinkTypeEnum.TCP);
+			link.setAddress(ip);
+			link.setProtocol(LinkProtocolEnum.WriteCardCarpark);
+			SerialDeviceAddress address = new SerialDeviceAddress();
+			address.setAddress(addr);
+			device.setAddress(address);
+			device.setLink(link);
+			hardwareService.writeCarpark_simpleScreen(device, plateNO, 9, 3);
+		} catch (Exception e) {
+			System.out.println("error for ip :" + ip + " addr :" + addr + " :plateNo" + plateNO);
+		}
+	}
 	/**
 	 * 弹窗添加设备
 	 * 
@@ -946,7 +981,7 @@ public class CarparkMainApp implements XinlutongResult {
 			if (showWizard == null) {
 				return;
 			}
-			String ip = showWizard.getLink();
+			String ip = showWizard.getIp();
 			String name = showWizard.getName();
 			addDevice(tabFolder, type, ip, name);
 		} catch (Exception e) {
@@ -996,13 +1031,13 @@ public class CarparkMainApp implements XinlutongResult {
 
 			AddDeviceModel model = new AddDeviceModel();
 			model.setName(name);
-			model.setLink(link);
+			model.setIp(link);
 			AddDeviceWizard v = new AddDeviceWizard(model);
 			AddDeviceModel showWizard = (AddDeviceModel) commonui.showWizard(v);
 			if (showWizard == null) {
 				return;
 			}
-			String ip = showWizard.getLink();
+			String ip = showWizard.getIp();
 
 			if (ip.equals(link)) {
 				selection.setText(showWizard.getName());

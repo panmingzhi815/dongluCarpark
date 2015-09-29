@@ -1,26 +1,29 @@
 package com.donglu.carpark.wizard;
 
-public class AddDeviceModel {
-	private String name="";
-	private String link="";
-	private String carpark="";
+import java.util.ArrayList;
+import java.util.List;
+
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+
+
+public class AddDeviceModel extends SingleCarparkDevice{
+	private List<SingleCarparkCarpark> list=new ArrayList<SingleCarparkCarpark>();
 	
-	public String getName() {
-		return name;
+	public AddDeviceModel(){
+		SingleCarparkCarpark s=new SingleCarparkCarpark();
+		s.setName("停车场1");
+		list.add(s);
 	}
-	public void setName(String name) {
-		this.name = name;
+	public List<SingleCarparkCarpark> getList() {
+		return list;
 	}
-	public String getLink() {
-		return link;
+
+	public void setList(List<SingleCarparkCarpark> list) {
+		this.list = list;
+		if (pcs != null)
+			pcs.firePropertyChange("list", null, null);
 	}
-	public void setLink(String link) {
-		this.link = link;
-	}
-	public String getCarpark() {
-		return carpark;
-	}
-	public void setCarpark(String carpark) {
-		this.carpark = carpark;
-	}
+	
+	
 }

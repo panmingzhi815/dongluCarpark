@@ -21,14 +21,18 @@ public class AddUserWizardPage extends WizardPage {
 	private Text text_1;
 	private Text text_3;
 	private Text text_4;
+	AddDeviceModel model;
 
+	
 	/**
 	 * Create the wizard.
+	 * @param model 
 	 */
-	public AddUserWizardPage() {
+	public AddUserWizardPage(AddDeviceModel model) {
 		super("wizardPage");
 		setTitle("添加固定用户");
 		setDescription("添加固定用户");
+		this.model=model;
 	}
 
 	/**
@@ -92,13 +96,5 @@ public class AddUserWizardPage extends WizardPage {
 		ComboViewer comboViewer_1 = new ComboViewer(composite, SWT.NONE);
 		Combo combo_1 = comboViewer_1.getCombo();
 		combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
-		Label label_6 = new Label(composite, SWT.NONE);
-		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_6.setText("月租类型");
-		
-		ComboViewer comboViewer_2 = new ComboViewer(composite, SWT.NONE);
-		Combo combo_2 = comboViewer_2.getCombo();
-		combo_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 	}
 }

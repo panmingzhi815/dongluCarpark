@@ -17,8 +17,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Table;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.IContentProvider;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -40,17 +45,26 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 
 import com.beust.jcommander.JCommander;
+import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.wizard.AddBlackUserWizard;
+import com.donglu.carpark.wizard.AddCarparkModel;
 import com.donglu.carpark.wizard.AddCarparkWizard;
+import com.donglu.carpark.wizard.AddDeviceModel;
 import com.donglu.carpark.wizard.AddSystemUserWizard;
 import com.donglu.carpark.wizard.AddUserWizard;
 import com.donglu.carpark.wizard.NewCommonChargeWizard;
+import com.dongluhitec.card.blservice.DatabaseServiceProvider;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.Widget;
 import com.dongluhitec.card.common.ui.WidgetContainer;
 import com.dongluhitec.card.common.ui.impl.SWTContainer;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.Attendance.realtime.RealTimePresenter;
+import com.dongluhitec.card.ui.cache.MonthlyCarparkChargeInfo;
+import com.dongluhitec.card.ui.carpark.charge.wizard.NewMonthCardWizard;
 import com.dongluhitec.card.ui.main.DongluUIAppConfigurator;
 import com.dongluhitec.card.ui.main.javafx.DongluJavaFXModule;
 import com.dongluhitec.card.ui.util.WidgetUtil;
@@ -61,8 +75,21 @@ import com.google.inject.Injector;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.wb.rcp.databinding.BeansListObservableFactory;
+import org.eclipse.wb.rcp.databinding.TreeBeanAdvisor;
+import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
+import org.eclipse.wb.rcp.databinding.TreeObservableLabelProvider;
+import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.core.databinding.property.Properties;
+import org.eclipse.core.databinding.observable.Realm;
+import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
 public class CarparkManageApp {
+	private DataBindingContext m_bindingContext;
 
 	protected Shell shell;
 	private Table table;
@@ -91,23 +118,32 @@ public class CarparkManageApp {
 	private Text text_10;
 	private Text text_11;
 	private Text text_12;
+	@Inject
+	private CarparkManagePresenter presenter;
 	
+	private TreeViewer treeViewer;
 	
-
+	private CarparkModel carparkModel;
+	
 	/**
 	 * Launch the application.
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		try {
-			 DongluUIAppConfigurator configurator = new DongluUIAppConfigurator();
+		Display display = Display.getDefault();
+		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
+			public void run() {
+				try {
+					 DongluUIAppConfigurator configurator = new DongluUIAppConfigurator();
 	         new JCommander(configurator, args);
-			Injector createInjector = Guice.createInjector(new DongluJavaFXModule());
-			CarparkManageApp window = createInjector.getInstance(CarparkManageApp.class);
-			window.open();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+					Injector createInjector = Guice.createInjector(new DongluJavaFXModule());
+					CarparkManageApp window = createInjector.getInstance(CarparkManageApp.class);
+					window.open();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	/**
@@ -115,6 +151,7 @@ public class CarparkManageApp {
 	 */
 	public void open() {
 		Display display = Display.getDefault();
+		init();
 		createContents();
 		shell.open();
 		shell.setMaximized(true);
@@ -125,6 +162,13 @@ public class CarparkManageApp {
 			}
 		}
 		System.exit(0);
+	}
+
+	private void init() {
+		presenter.setView(this);
+		carparkModel=new CarparkModel();
+		presenter.setCarparkModel(carparkModel);
+		presenter.init();
 	}
 
 	/**
@@ -166,21 +210,25 @@ public class CarparkManageApp {
 		carparkConfigToolBar = new ToolBar(composite_3, SWT.FLAT | SWT.RIGHT);
 		carparkConfigToolBar.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
 		
-		ToolItem toolItem = new ToolItem(carparkConfigToolBar, SWT.NONE);
-		toolItem.addSelectionListener(new SelectionAdapter() {
+		ToolItem toolItem_add = new ToolItem(carparkConfigToolBar, SWT.NONE);
+		toolItem_add.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				AddCarparkWizard v=new AddCarparkWizard();
-				WizardDialog dialog=new WizardDialog(new Shell(), v);
-				dialog.open();
+				presenter.addCarpark();
 			}
 		});
-		toolItem.setText("+");
+		toolItem_add.setText("+");
 		
 		ToolItem toolItem_1 = new ToolItem(carparkConfigToolBar, SWT.NONE);
+		toolItem_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.deleteCarpark();
+			}
+		});
 		toolItem_1.setText("-");
 		
-		TreeViewer treeViewer = new TreeViewer(composite_3, SWT.BORDER);
+		treeViewer = new TreeViewer(composite_3, SWT.BORDER);
 		Tree tree = treeViewer.getTree();
 		tree.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
@@ -210,6 +258,17 @@ public class CarparkManageApp {
 			}
 		});
 		toolItem_2.setText("+");
+		
+		ToolItem toolItem_14 = new ToolItem(toolBar_1, SWT.NONE);
+		toolItem_14.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				MonthlyCarparkChargeInfo wizardModel = new MonthlyCarparkChargeInfo();
+				NewMonthCardWizard newWizard =new NewMonthCardWizard(wizardModel);
+				commonui.showWizard(newWizard);
+			}
+		});
+		toolItem_14.setText("#");
 		
 		ToolItem toolItem_3 = new ToolItem(toolBar_1, SWT.NONE);
 		toolItem_3.setText("-");
@@ -286,7 +345,7 @@ public class CarparkManageApp {
 		toolItem_4.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				AddUserWizard v=new AddUserWizard(this);
+				AddUserWizard v=new AddUserWizard(new AddDeviceModel());
 //				WizardDialog dialog=new WizardDialog(new Shell(), v);
 //				dialog.open();
 				Object showWizard = commonui.showWizard(v);
@@ -967,6 +1026,7 @@ public class CarparkManageApp {
 		});
 		
 		controlDispay();
+		m_bindingContext = initDataBindings();
 	}
 
 	private void controlDispay() {
@@ -978,5 +1038,23 @@ public class CarparkManageApp {
 			carparkConfigToolBar.dispose();
 		}
 		
+	}
+	protected DataBindingContext initDataBindings() {
+		DataBindingContext bindingContext = new DataBindingContext();
+		//
+		BeansListObservableFactory treeObservableFactory = new BeansListObservableFactory(SingleCarparkCarpark.class, "childs");
+		TreeBeanAdvisor treeAdvisor = new TreeBeanAdvisor(SingleCarparkCarpark.class, "parent", "childs", null);
+		ObservableListTreeContentProvider treeContentProvider = new ObservableListTreeContentProvider(treeObservableFactory, treeAdvisor);
+		treeViewer.setLabelProvider(new TreeObservableLabelProvider(treeContentProvider.getKnownElements(), SingleCarparkCarpark.class, "name", null));
+		treeViewer.setContentProvider(treeContentProvider);
+		//
+		IObservableList listCarparkCarparkModelObserveList = BeanProperties.list("listCarpark").observe(carparkModel);
+		treeViewer.setInput(listCarparkCarparkModelObserveList);
+		//
+		IObservableValue observeSingleSelectionTreeViewer = ViewerProperties.singleSelection().observe(treeViewer);
+		IObservableValue carparkCarparkModelObserveValue = BeanProperties.value("carpark").observe(carparkModel);
+		bindingContext.bindValue(observeSingleSelectionTreeViewer, carparkCarparkModelObserveValue, null, null);
+		//
+		return bindingContext;
 	}
 }

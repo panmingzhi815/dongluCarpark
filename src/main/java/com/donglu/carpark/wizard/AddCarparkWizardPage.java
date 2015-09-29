@@ -6,24 +6,35 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.core.databinding.beans.BeanProperties;
 
 public class AddCarparkWizardPage extends WizardPage {
+	private DataBindingContext m_bindingContext;
 	private Text text;
 	private Text text_1;
-
+	private SingleCarparkCarpark model;
+	private Button btnBu;
 	/**
 	 * Create the wizard.
+	 * @param model 
 	 */
-	public AddCarparkWizardPage() {
+	public AddCarparkWizardPage(SingleCarparkCarpark model) {
 		super("wizardPage");
 		setTitle("添加停车场");
 		setDescription("添加停车场");
+		this.model=model;
 	}
 
 	/**
@@ -55,7 +66,25 @@ public class AddCarparkWizardPage extends WizardPage {
 		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(composite, SWT.NONE);
 		
-		Button button = new Button(composite, SWT.CHECK);
-		button.setText("是否容许临时车进入");
+		btnBu = new Button(composite, SWT.CHECK);
+		btnBu.setText("不允许临时车进入");
+		m_bindingContext = initDataBindings();
+	}
+	protected DataBindingContext initDataBindings() {
+		DataBindingContext bindingContext = new DataBindingContext();
+		//
+		IObservableValue observeTextTextObserveWidget = WidgetProperties.text(SWT.Modify).observe(text);
+		IObservableValue codeModelObserveValue = BeanProperties.value("code").observe(model);
+		bindingContext.bindValue(observeTextTextObserveWidget, codeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_1ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_1);
+		IObservableValue nameModelObserveValue = BeanProperties.value("name").observe(model);
+		bindingContext.bindValue(observeTextText_1ObserveWidget, nameModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionButtonObserveWidget = WidgetProperties.selection().observe(btnBu);
+		IObservableValue tempCarIsInModelObserveValue = BeanProperties.value("tempCarIsIn").observe(model);
+		bindingContext.bindValue(observeSelectionButtonObserveWidget, tempCarIsInModelObserveValue, null, null);
+		//
+		return bindingContext;
 	}
 }

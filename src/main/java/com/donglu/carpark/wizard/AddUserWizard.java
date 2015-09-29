@@ -6,15 +6,15 @@ import com.dongluhitec.card.common.ui.AbstractWizard;
 
 
 public class AddUserWizard extends Wizard implements AbstractWizard{
-	Object object;
-	public AddUserWizard(Object object) {
-		this.object=object;
+	AddDeviceModel model;
+	public AddUserWizard(AddDeviceModel model) {
+		this.model=model;
 		setWindowTitle("添加固定用户");
 	}
 
 	@Override
 	public void addPages() {
-		addPage(new AddUserWizardPage());
+		addPage(new AddUserWizardPage(model));
 	}
 
 	@Override
@@ -24,7 +24,7 @@ public class AddUserWizard extends Wizard implements AbstractWizard{
 
 	public Object getModel() {
 		
-		return object;
+		return model;
 	}
 
 }
