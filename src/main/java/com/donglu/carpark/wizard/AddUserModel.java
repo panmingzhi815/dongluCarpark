@@ -28,4 +28,31 @@ public class AddUserModel extends SingleCarparkUser {
 		user.setPlateNo(getPlateNo());
 		user.setType(getType());
 	}
+
+	public SingleCarparkUser getSingleCarparkUser() {
+		SingleCarparkUser user = new SingleCarparkUser();
+		user.setAddress(getAddress());
+		user.setCarpark(getCarpark());
+		user.setCarparkNo(getCarparkNo());
+		user.setName(getName());
+		user.setPlateNo(getPlateNo());
+		user.setType(getType());
+		user.setCreateDate(getCreateDate());
+		user.setId(getId());
+		user.setValidTo(getValidTo());
+		user.setRemark(getRemark());
+		return user;
+	}
+	public void setSingleCarparkUser(SingleCarparkUser user){
+		setAddress(user.getAddress());
+		setCarpark(user.getCarpark());
+		setCarparkNo(user.getCarparkNo());
+		setName(user.getName());
+		setPlateNo(user.getPlateNo());
+		setType(user.getType());
+		setCreateDate(user.getCreateDate());
+		setId(user.getId());
+		setValidTo(user.getValidTo());
+		setRemark(user.getRemark());
+	}
 }

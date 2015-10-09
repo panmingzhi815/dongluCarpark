@@ -79,11 +79,13 @@ public class AddDeviceWizardPage extends WizardPage {
 		label.setText("设备名称");
 		
 		txt_name = new Text(composite, SWT.BORDER);
-		txt_name.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		GridData gd_txt_name = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_txt_name.widthHint = 139;
+		txt_name.setLayoutData(gd_txt_name);
 		txt_name.setText("");
 		Label lblIp = new Label(composite, SWT.NONE);
 		lblIp.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblIp.setText("ip");
+		lblIp.setText("抓拍ip");
 		
 		txt_ip = new Text(composite, SWT.BORDER);
 		txt_ip.setText("192.168.1.139");
@@ -157,7 +159,7 @@ public class AddDeviceWizardPage extends WizardPage {
 		
 		Label label_4 = new Label(composite, SWT.NONE);
 		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_4.setText("设备地址");
+		label_4.setText("语音地址");
 		
 		text_2 = new Text(composite, SWT.BORDER);
 		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));

@@ -25,6 +25,7 @@ import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
 import com.dongluhitec.card.blservice.DatabaseServiceProvider;
 import com.dongluhitec.card.blservice.HardwareFacility;
 import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.security.LocalSecurityManager;
 import com.dongluhitec.card.domain.security.impl.SecurityManagerImpl;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -38,6 +39,7 @@ import com.dongluhitec.card.service.impl.LocalVMServiceProvider;
 import com.dongluhitec.card.ui.main.DongluUIAppConfigurator;
 import com.dongluhitec.card.ui.main.guice.CardUIViewerGuiceModule;
 import com.dongluhitec.card.ui.main.javafx.DongluJavaFXModule;
+import com.dongluhitec.card.ui.util.FileUtils;
 import com.dongluhitec.card.ui.util.WidgetUtil;
 import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
@@ -48,6 +50,8 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -58,18 +62,25 @@ import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.swt.graphics.Point;
 
 public class Login {
+	private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
+	
 	protected Shell shell;
-	private Text txtAdmin;
-	private Text txtAdmin_1;
-	private Label lblNewLabel_msg;
+	private Text txt_userName;
+	private Text txt_password;
+	private Label lbl_msg;
 	private Combo combo;
 	
 	private final CarparkManageApp carparkManageApp;
 	private final CarparkMainApp carparkMainApp;
 	private final ServerUI serverUI;
 	private final CarparkDatabaseServiceProvider sp;
+	private final String selectType="LoginSelectType";
+	private App app;
 	
 	@Inject
 	public Login(CarparkManageApp carparkManageApp,CarparkMainApp carparkMainApp,ServerUI serverUI,CarparkDatabaseServiceProvider sp) {
@@ -99,6 +110,7 @@ public class Login {
                             this.bind(CarparkDatabaseServiceProvider.class).to(CarparkLocalVMServiceProvider.class).in(Singleton.class);
                             this.bind(CarparkServerConfig.class).toInstance(CarparkServerConfig.getInstance());
 //                            this.bind(LocalSecurityManager.class).to(SecurityManagerImpl.class);
+                            
                         }
                     }, new CarparkHardwareGuiceModule(),new CommonUIGuiceModule());
 					
@@ -106,6 +118,7 @@ public class Login {
 					window.open();
 				} catch (Exception e) {
 					e.printStackTrace();
+					LOGGER.error("main is error");
 					System.exit(0);
 				}
 			}
@@ -133,44 +146,47 @@ public class Login {
 	 */
 	protected void createContents() {
 		shell = new Shell();
-		shell.setSize(293, 226);
+		shell.setSize(300, 280);
 		shell.setText("用户登录");
-		shell.setLayout(new GridLayout(1, false));
+		GridLayout gridLayout = new GridLayout(1, false);
+		gridLayout.verticalSpacing = 15;
+		shell.setLayout(gridLayout);
 
 		Composite composite_2 = new Composite(shell, SWT.NONE);
 		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
-		GridData gd_composite_2 = new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1);
-		gd_composite_2.heightHint = 29;
-		gd_composite_2.widthHint = 191;
-		composite_2.setLayoutData(gd_composite_2);
+		composite_2.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1));
 
-		lblNewLabel_msg = new Label(composite_2, SWT.NONE);
+		lbl_msg = new Label(composite_2, SWT.NONE);
+		lbl_msg.setAlignment(SWT.CENTER);
+		lbl_msg.setFont(SWTResourceManager.getFont("微软雅黑", 16, SWT.BOLD));
+		lbl_msg.setText("停车场用户登录");
 
 		Composite composite = new Composite(shell, SWT.NONE);
-		composite.setLayout(new GridLayout(2, false));
-		GridData gd_composite = new GridData(SWT.CENTER, SWT.TOP, true, true, 1, 1);
-		gd_composite.heightHint = 101;
-		gd_composite.widthHint = 188;
-		composite.setLayoutData(gd_composite);
+		GridLayout gl_composite = new GridLayout(2, false);
+		gl_composite.verticalSpacing = 10;
+		composite.setLayout(gl_composite);
+		composite.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, true, false, 1, 1));
 
 		Label lblNewLabel = new Label(composite, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel.setText("用户名");
 
-		txtAdmin = new Text(composite, SWT.BORDER);
-		txtAdmin.setText("admin");
-		txtAdmin.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		txtAdmin.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		txt_userName = new Text(composite, SWT.BORDER);
+		txt_userName.setText("admin");
+		txt_userName.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_txt_userName = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_txt_userName.widthHint = 150;
+		txt_userName.setLayoutData(gd_txt_userName);
 
 		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
 		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_1.setText("密    码");
 
-		txtAdmin_1 = new Text(composite, SWT.BORDER | SWT.PASSWORD);
-		txtAdmin_1.setText("admin");
-		txtAdmin_1.addKeyListener(new KeyAdapter() {
+		txt_password = new Text(composite, SWT.BORDER | SWT.PASSWORD);
+		txt_password.setText("admin");
+		txt_password.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.keyCode==13) {
@@ -178,23 +194,41 @@ public class Login {
 				}
 			}
 		});
-		txtAdmin_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		txtAdmin_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		new Label(composite, SWT.NONE);
+		txt_password.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_txt_password = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_txt_password.widthHint = 150;
+		txt_password.setLayoutData(gd_txt_password);
+		
+		Label label = new Label(composite, SWT.NONE);
+		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("类    型");
 
-		ComboViewer comboViewer = new ComboViewer(composite, SWT.NONE);
+		ComboViewer comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
+		comboViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				int i=combo.getSelectionIndex();
+				FileUtils.writeObject(selectType, i);
+			}
+		});
 		combo = comboViewer.getCombo();
 		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		GridData gd_combo = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_combo.widthHint = 150;
+		combo.setLayoutData(gd_combo);
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(new String[] { "监控界面", "管理界面" });
-		combo.select(0);
+		Object readObject = FileUtils.readObject(selectType);
+		if (StrUtil.isEmpty(readObject)) {
+			combo.select(0);
+		}else{
+			combo.select((int) readObject);
+		}
+		
 		Composite composite_1 = new Composite(shell, SWT.NONE);
 		composite_1.setLayout(new GridLayout(3, false));
-		GridData gd_composite_1 = new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1);
-		gd_composite_1.widthHint = 190;
-		composite_1.setLayoutData(gd_composite_1);
+		composite_1.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1));
 
 		Button button = new Button(composite_1, SWT.NONE);
 		button.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
@@ -220,13 +254,14 @@ public class Login {
 		button_1.setText("取消");
 		
 		Button button_2 = new Button(composite_1, SWT.NONE);
+		button_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_2.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				serverUI.open();
 			}
 		});
-		button_2.setText("底层配置");
+		button_2.setText("配置");
 
 	}
 
@@ -234,46 +269,51 @@ public class Login {
 	 * 
 	 */
 	public void login() {
+		String userName = null ;
+		String pwd = null ;
+		String type = null;
 		try {
 			sp.start();
+			SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(txt_userName.getText(), txt_password.getText());
+			if (StrUtil.isEmpty(findByNameAndPassword)) {
+				lbl_msg.setText("用户名或密码错误");
+				return;
+			}
+			userName=findByNameAndPassword.getUserName();
+			pwd=findByNameAndPassword.getPassword();
+			type=findByNameAndPassword.getType();
+			System.setProperty("userName",userName );
+			System.setProperty("password",pwd );
+			System.setProperty("userType", type);
 		} catch (Exception e1) {
 			e1.printStackTrace();
+			lbl_msg.setText(e1.getMessage());
 			return;
 		}
 		try {
-			String userName = txtAdmin.getText();
-			String pwd = txtAdmin_1.getText();
-			String type = combo.getText();
-				if (!StrUtil.isEmpty(userName) && !StrUtil.isEmpty(pwd)) {
-					if (userName.equals("admin")) {
-						System.setProperty("userType", "admin");
-						if (type.equals("管理界面")) {
-							carparkManageApp.commonui.info("提示", "管理员进入管理界面");
-							shell.setVisible(false);
-							carparkManageApp.open();
-							System.out.println("exit");
-						}else{
-							carparkManageApp.commonui.info("提示", "管理员进入监控界面");
-							shell.setVisible(false);
-							carparkMainApp.open();
-							System.out.println("exit");
-						}
-						
-					} else {
-						System.setProperty("userType", "noadmin");
-						carparkManageApp.commonui.info("提示", "进入监控界面界面");
-						shell.setVisible(false);
-						carparkMainApp.open();
-						System.out.println("exit");
-					}
-					
-
-				} else {
-					lblNewLabel_msg.setText("用户名或密码错误！");
-					return;
+			String loginApp=combo.getText();
+			if (type.equals("操作员")) {
+				shell.setVisible(false);
+				app=carparkMainApp;
+				app.open();
+			}
+			else{
+				shell.setVisible(false);
+				if (loginApp.equals("监控界面")) {
+					app=carparkMainApp;
+					app.open();
+				}else if(loginApp.equals("管理界面")){
+					app=carparkManageApp;
+					app.open();
 				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			LOGGER.error("main is error"+"界面出错======="+e.getMessage());
+//			app.disponse();
+//			app.setShell(new Shell());
+//			app.open();
+//			shell.setVisible(true);
 			System.exit(0);
 		}
 	}

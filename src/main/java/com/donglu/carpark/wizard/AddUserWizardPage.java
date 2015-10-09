@@ -26,6 +26,7 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class AddUserWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -62,55 +63,81 @@ public class AddUserWizardPage extends WizardPage {
 		
 		Composite composite = new Composite(container, SWT.BORDER);
 		composite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
-		composite.setLayout(new GridLayout(2, false));
+		GridLayout gridLayout = new GridLayout(2, false);
+		gridLayout.verticalSpacing = 10;
+		composite.setLayout(gridLayout);
 		
 		Label label = new Label(composite, SWT.NONE);
+		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("车牌");
 		
 		text = new Text(composite, SWT.BORDER);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text.widthHint = 150;
+		text.setLayoutData(gd_text);
 		
 		Label label_1 = new Label(composite, SWT.NONE);
+		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_1.setText("用户名");
 		
 		text_1 = new Text(composite, SWT.BORDER);
-		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text_1 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_1.widthHint = 150;
+		text_1.setLayoutData(gd_text_1);
 		
 		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_2.setText("用户类型");
 		
-		ComboViewer comboViewer = new ComboViewer(composite, SWT.NONE);
+		ComboViewer comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
 		combo = comboViewer.getCombo();
-		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_combo = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_combo.widthHint = 150;
+		combo.setLayoutData(gd_combo);
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(new String[]{"普通"});
 		combo.select(0);
 		
 		Label label_3 = new Label(composite, SWT.NONE);
+		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_3.setText("住址");
 		
 		text_3 = new Text(composite, SWT.BORDER);
-		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text_3 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_3.widthHint = 150;
+		text_3.setLayoutData(gd_text_3);
 		
 		Label label_4 = new Label(composite, SWT.NONE);
+		label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_4.setText("车位");
 		
 		text_4 = new Text(composite, SWT.BORDER);
-		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text_4 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_4.widthHint = 150;
+		text_4.setLayoutData(gd_text_4);
 		
 		Label label_5 = new Label(composite, SWT.NONE);
+		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_5.setText("停车场");
 		
-		comboViewer_carpark = new ComboViewer(composite, SWT.NONE);
+		comboViewer_carpark = new ComboViewer(composite, SWT.READ_ONLY);
 		combo_carpark = comboViewer_carpark.getCombo();
-		combo_carpark.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		combo_carpark.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_combo_carpark = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_combo_carpark.widthHint = 150;
+		combo_carpark.setLayoutData(gd_combo_carpark);
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {

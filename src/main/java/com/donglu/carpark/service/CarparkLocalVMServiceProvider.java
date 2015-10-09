@@ -1,14 +1,11 @@
 package com.donglu.carpark.service;
 
 import com.donglu.carpark.server.CarparkServerConfig;
+import com.donglu.carpark.service.impl.CarparkInOutServiceImpl;
 import com.donglu.carpark.service.impl.CarparkServiceImpl;
 import com.donglu.carpark.service.impl.CarparkUserServiceImpl;
-import com.dongluhitec.card.blservice.*;
-import com.dongluhitec.card.domain.db.setting.SystemSetting;
-import com.dongluhitec.card.service.DbServiceConfigurator;
+import com.donglu.carpark.service.impl.SystemUserServiceImpl;
 import com.dongluhitec.card.service.MapperConfig;
-import com.dongluhitec.card.service.impl.AbstractServiceProvider;
-import com.dongluhitec.card.service.impl.SettingServiceImpl;
 import com.google.inject.*;
 import com.google.inject.name.Named;
 import com.google.inject.persist.PersistService;
@@ -42,6 +39,8 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
         persistService.start();
         setCarparkService(injector.getInstance(CarparkService.class));
         setCarparkUserService(injector.getInstance(CarparkUserService.class));
+        setSystemUserService(injector.getInstance(SystemUserServiceI.class));
+        setCarparkInOutService(injector.getInstance(CarparkInOutServiceI.class));
     }
 
     protected void stopServices() {
@@ -85,6 +84,8 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
             
             this.bind(CarparkService.class).to(CarparkServiceImpl.class).in(Singleton.class);
             this.bind(CarparkUserService.class).to(CarparkUserServiceImpl.class).in(Singleton.class);
+            this.bind(SystemUserServiceI.class).to(SystemUserServiceImpl.class).in(Singleton.class);
+            this.bind(CarparkInOutServiceI.class).to(CarparkInOutServiceImpl.class).in(Singleton.class);
         }
     }
 

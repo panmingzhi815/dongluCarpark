@@ -1,7 +1,10 @@
 package com.dongluhitec.card.domain.db.singlecarpark;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.OneToOne;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 @Entity
@@ -11,16 +14,21 @@ public class SingleCarparkDevice extends DomainObject{
 	 */
 	private static final long serialVersionUID = -6409867850987940644L;
 	
-	private String identifire;
-	private String name;
-	private String ip;
-	private String inType;
-	private String type;
-	private String linkAddress;
-	private String address;
-	private String roadType;
-	@OneToOne
-	private SingleCarparkCarpark carpark;
+	private String identifire;//编号
+	private String name;//名字
+	private String ip="192.168.1.1";//车牌识别ip
+	private String inType;//出入口类型
+	private String type;//设备类型  tcp or 485
+	private String linkAddress;//连接地址
+	private String address;//设备地址
+	private String roadType;//通道类型
+	
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name = "carparkId", nullable = true, insertable = false, updatable = false)
+	private SingleCarparkCarpark carpark; //所属停车场
+	
+	@Column(name = "carparkId", nullable = true)
+	private Long carparkId;
 	
 	public String getIdentifire() {
 		return identifire;
@@ -96,6 +104,14 @@ public class SingleCarparkDevice extends DomainObject{
 		this.inType = inType;
 		if (pcs != null)
 			pcs.firePropertyChange("inType", null, null);
+	}
+	public Long getCarparkId() {
+		return carparkId;
+	}
+	public void setCarparkId(Long carparkId) {
+		this.carparkId = carparkId;
+		if (pcs != null)
+			pcs.firePropertyChange("carparkId", null, null);
 	}
 	
 	

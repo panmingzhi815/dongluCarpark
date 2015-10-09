@@ -3,7 +3,8 @@ package com.donglu.carpark.service;
 public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkDatabaseServiceProvider {
 	private CarparkService carparkService;
 	private CarparkUserService carparkUserService;
-	
+	private SystemUserServiceI SystemUserService;
+	private CarparkInOutServiceI carparkInOutService;
 	
 	private boolean started=false;
 
@@ -48,6 +49,22 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 
 	public void setCarparkUserService(CarparkUserService carparkUserService) {
 		this.carparkUserService = carparkUserService;
+	}
+
+	public SystemUserServiceI getSystemUserService() {
+		return SystemUserService;
+	}
+
+	public void setSystemUserService(SystemUserServiceI systemUserService) {
+		SystemUserService = systemUserService;
+	}
+
+	public CarparkInOutServiceI getCarparkInOutService() {
+		return carparkInOutService;
+	}
+
+	public void setCarparkInOutService(CarparkInOutServiceI carparkInOutService) {
+		this.carparkInOutService = carparkInOutService;
 	}
 
 }

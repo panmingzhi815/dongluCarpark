@@ -4,18 +4,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.Restrictions;
+import org.criteria4jpa.order.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.service.CarparkService;
 import com.dongluhitec.card.domain.db.CardUserGroup;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.dongluhitec.card.service.impl.SettingServiceImpl;
@@ -56,7 +61,7 @@ public class CarparkServiceImpl implements CarparkService {
 		return carpark.getId();
 	}
 
-	public List<SingleCarparkCarpark> findAll() {
+	public List<SingleCarparkCarpark> findAllCarpark() {
 		unitOfWork.begin();
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
@@ -102,5 +107,107 @@ public class CarparkServiceImpl implements CarparkService {
 		} finally {
 			unitOfWork.end();
 		}
+	}
+
+	@Transactional
+	public Long saveMonthlyCharge(SingleCarparkMonthlyCharge monthlyCharge) {
+		DatabaseOperation<SingleCarparkMonthlyCharge> dom = DatabaseOperation.forClass(SingleCarparkMonthlyCharge.class, emprovider.get());
+		if (monthlyCharge.getId() == null) {
+			dom.insert(monthlyCharge);
+		} else {
+			dom.save(monthlyCharge);
+		}
+		return monthlyCharge.getId();
+	}
+
+	@Override
+	@Transactional
+	public Long deleteMonthlyCharge(SingleCarparkMonthlyCharge monthlyCharge) {
+		DatabaseOperation<SingleCarparkMonthlyCharge> dom = DatabaseOperation.forClass(SingleCarparkMonthlyCharge.class, emprovider.get());
+		dom.remove(monthlyCharge);
+		return monthlyCharge.getId();
+	}
+
+	@Override
+	public List<SingleCarparkMonthlyCharge> findAllMonthlyCharge() {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkMonthlyCharge.class);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkMonthlyCharge> findMonthlyChargeByCarpark(SingleCarparkCarpark carpark) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkMonthlyCharge.class);
+			c.add(Restrictions.eq("carpark", carpark));
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Transactional
+	public Long saveCarparkDevice(SingleCarparkDevice device) {
+		DatabaseOperation<SingleCarparkDevice> dom = DatabaseOperation.forClass(SingleCarparkDevice.class, emprovider.get());
+		if (device.getId() == null) {
+			dom.insert(device);
+		} else {
+			dom.save(device);
+		}
+		return device.getId();
+	}
+
+	@Override
+	public Long deleteDevice(SingleCarparkDevice device) {
+		DatabaseOperation<SingleCarparkDevice> dom = DatabaseOperation.forClass(SingleCarparkDevice.class, emprovider.get());
+		dom.remove(device);
+		return device.getId();
+	}
+
+	@Override
+	public List<SingleCarparkDevice> findAll() {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkDevice.class);
+			c.addOrder(Order.asc("identifire"));
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Transactional
+	public Long saveMonthlyUserPayHistory(SingleCarparkMonthlyUserPayHistory h) {
+		DatabaseOperation<SingleCarparkMonthlyUserPayHistory> dom = DatabaseOperation.forClass(SingleCarparkMonthlyUserPayHistory.class, emprovider.get());
+		if (h.getId() == null) {
+			dom.insert(h);
+		} else {
+			dom.save(h);
+		}
+		return h.getId();
+	}
+
+	@Override
+	public Long deleteMonthlyUserPayHistory(SingleCarparkMonthlyUserPayHistory h) {
+		// TODO 自动生成的方法存根
+		return null;
+	}
+
+	@Override
+	public List<SingleCarparkMonthlyUserPayHistory> findByPropety(Map<String, Object> map) {
+		
+		return null;
+	}
+
+	@Transactional
+	public Long deleteMonthlyCharge(Long id) {
+		DatabaseOperation<SingleCarparkMonthlyCharge> dom = DatabaseOperation.forClass(SingleCarparkMonthlyCharge.class, emprovider.get());
+		dom.remove(id);
+		return id;
 	}
 }

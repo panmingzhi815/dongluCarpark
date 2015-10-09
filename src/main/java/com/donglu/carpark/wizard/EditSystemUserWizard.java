@@ -7,36 +7,28 @@ import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 
-public class AddSystemUserWizard extends Wizard implements AbstractWizard{
+public class EditSystemUserWizard extends Wizard implements AbstractWizard{
 	SystemUserModel model;
-	private AddSystemUserWizardPage page;
-	public AddSystemUserWizard(SystemUserModel model) {
+	private EditSystemUserWizardPage page;
+	public EditSystemUserWizard(SystemUserModel model) {
 		this.model=model;
 		setWindowTitle("添加系统用户");
 	}
 
 	@Override
 	public void addPages() {
-		page = new AddSystemUserWizardPage(model);
+		page = new EditSystemUserWizardPage(model);
 		addPage(page);
 	}
 
 	@Override
 	public boolean performFinish() {
-		if (StrUtil.isEmpty(model.getUserName())) {
-			page.setErrorMessage("用户名不能为空");
-			return false;
-		}
 		if (StrUtil.isEmpty(model.getPwd())) {
 			page.setErrorMessage("用户密码不能为空");
 			return false;
 		}
 		if (!model.getPwd().equals(model.getRePwd())) {
 			page.setErrorMessage("两次输入的密码不一致！");
-			return false;
-		}
-		if (StrUtil.isEmpty(model.getType())) {
-			page.setErrorMessage("用户类型不能为空");
 			return false;
 		}
 		return true;

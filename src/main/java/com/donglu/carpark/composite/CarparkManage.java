@@ -23,7 +23,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
 import com.donglu.carpark.wizard.AddCarparkWizard;
-import com.donglu.carpark.wizard.NewCommonChargeWizard;
+import com.donglu.carpark.wizard.AddTempChargeWizard;
 
 public class CarparkManage extends Composite {
 
@@ -86,7 +86,7 @@ public class CarparkManage extends Composite {
 		toolItem_2.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				NewCommonChargeWizard v=new NewCommonChargeWizard();
+				AddTempChargeWizard v=new AddTempChargeWizard();
 				WizardDialog dialog=new WizardDialog(new Shell(), v);
 				dialog.open();
 			}

@@ -58,7 +58,7 @@ import org.eclipse.core.databinding.beans.BeansObservables;
  * Time: 下午4:14
  * To change this template use File | Settings | File Templates.
  */
-public class NewCommonChargeBasicPage extends WizardPage {
+public class AddTempChargeBasicPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
 	
 	private final String INPUTLAYOUTDATA = "w 100!";
@@ -87,7 +87,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 
 	private Text text_startStepPrice;
 
-    public NewCommonChargeBasicPage() {
+    public AddTempChargeBasicPage() {
         super("wizardPage");
 
         setTitle("添加停车场临时收费标准");

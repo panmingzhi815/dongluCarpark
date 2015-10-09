@@ -7,35 +7,39 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.donglu.carpark.model.SystemUserModel;
 
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
-public class AddCarparkWizardPage extends WizardPage {
+public class EditSystemUserWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
 	private Text text;
 	private Text text_1;
-	private SingleCarparkCarpark model;
-	private Button btnBu;
 	private Text text_2;
+	private SystemUserModel model;
 	private Text text_3;
+
 	/**
 	 * Create the wizard.
 	 * @param model 
 	 */
-	public AddCarparkWizardPage(SingleCarparkCarpark model) {
+	public EditSystemUserWizardPage(SystemUserModel model) {
 		super("wizardPage");
-		setTitle("添加停车场");
-		setDescription("添加停车场");
+		setTitle("添加固定用户");
+		setDescription("添加固定用户");
 		this.model=model;
 	}
 
@@ -53,61 +57,56 @@ public class AddCarparkWizardPage extends WizardPage {
 		composite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
 		composite.setLayout(new GridLayout(2, false));
 		
-		Label label = new Label(composite, SWT.NONE);
-		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("停车场编码");
-		
-		text = new Text(composite, SWT.BORDER);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
 		Label label_1 = new Label(composite, SWT.NONE);
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_1.setText("停车场名称");
+		label_1.setText("用户名");
 		
-		text_1 = new Text(composite, SWT.BORDER);
-		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text = new Text(composite, SWT.BORDER);
+		text.setEnabled(false);
+		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblNewLabel = new Label(composite, SWT.NONE);
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel.setText("总车位数");
+		lblNewLabel.setText("新密码");
 		
-		text_2 = new Text(composite, SWT.BORDER);
-		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		text_1 = new Text(composite, SWT.BORDER | SWT.PASSWORD);
+		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_1.setText("剩余车位数");
+		lblNewLabel_1.setText("确认密码");
 		
-		text_3 = new Text(composite, SWT.BORDER);
-		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		new Label(composite, SWT.NONE);
+		text_2 = new Text(composite, SWT.BORDER | SWT.PASSWORD);
+		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		btnBu = new Button(composite, SWT.CHECK);
-		btnBu.setText("不允许临时车进入");
+		Label label = new Label(composite, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("备注");
+		
+		text_3 = new Text(composite, SWT.BORDER | SWT.MULTI);
+		GridData gd_text_3 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_3.heightHint = 50;
+		text_3.setLayoutData(gd_text_3);
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
 		IObservableValue observeTextTextObserveWidget = WidgetProperties.text(SWT.Modify).observe(text);
-		IObservableValue codeModelObserveValue = BeanProperties.value("code").observe(model);
-		bindingContext.bindValue(observeTextTextObserveWidget, codeModelObserveValue, null, null);
+		IObservableValue userNameModelObserveValue = BeanProperties.value("userName").observe(model);
+		bindingContext.bindValue(observeTextTextObserveWidget, userNameModelObserveValue, null, null);
 		//
 		IObservableValue observeTextText_1ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_1);
-		IObservableValue nameModelObserveValue = BeanProperties.value("name").observe(model);
-		bindingContext.bindValue(observeTextText_1ObserveWidget, nameModelObserveValue, null, null);
-		//
-		IObservableValue observeSelectionButtonObserveWidget = WidgetProperties.selection().observe(btnBu);
-		IObservableValue tempCarIsInModelObserveValue = BeanProperties.value("tempCarIsIn").observe(model);
-		bindingContext.bindValue(observeSelectionButtonObserveWidget, tempCarIsInModelObserveValue, null, null);
+		IObservableValue pwdModelObserveValue = BeanProperties.value("pwd").observe(model);
+		bindingContext.bindValue(observeTextText_1ObserveWidget, pwdModelObserveValue, null, null);
 		//
 		IObservableValue observeTextText_2ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_2);
-		IObservableValue totalNumberOfSlotModelObserveValue = BeanProperties.value("totalNumberOfSlot").observe(model);
-		bindingContext.bindValue(observeTextText_2ObserveWidget, totalNumberOfSlotModelObserveValue, null, null);
+		IObservableValue rePwdModelObserveValue = BeanProperties.value("rePwd").observe(model);
+		bindingContext.bindValue(observeTextText_2ObserveWidget, rePwdModelObserveValue, null, null);
 		//
 		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
-		IObservableValue leftNumberOfSlotModelObserveValue = BeanProperties.value("leftNumberOfSlot").observe(model);
-		bindingContext.bindValue(observeTextText_3ObserveWidget, leftNumberOfSlotModelObserveValue, null, null);
+		IObservableValue remarkModelObserveValue = BeanProperties.value("remark").observe(model);
+		bindingContext.bindValue(observeTextText_3ObserveWidget, remarkModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

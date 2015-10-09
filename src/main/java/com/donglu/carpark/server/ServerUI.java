@@ -132,7 +132,7 @@ public class ServerUI {
 		label_3.setText("密码");
 		
 		txt_pwd = new Text(composite, SWT.BORDER | SWT.PASSWORD);
-		txt_pwd.setText("a123456");
+		txt_pwd.setText("1");
 		txt_pwd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(composite, SWT.NONE);
 		
@@ -301,6 +301,7 @@ public class ServerUI {
             });
             CarparkDatabaseServiceProvider serviceProvider = injector.getInstance(CarparkDatabaseServiceProvider.class);
             serviceProvider.start();
+            serviceProvider.getSystemUserService().init();
             serviceProvider.stop();
             return true;
         } catch (Exception e) {

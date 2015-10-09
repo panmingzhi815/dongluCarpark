@@ -3,6 +3,7 @@ package com.donglu.carpark.wizard;
 import org.eclipse.jface.wizard.Wizard;
 
 import com.dongluhitec.card.common.ui.AbstractWizard;
+import com.dongluhitec.card.ui.util.WidgetUtil;
 
 
 public class AddUserWizard extends Wizard implements AbstractWizard{
@@ -15,6 +16,8 @@ public class AddUserWizard extends Wizard implements AbstractWizard{
 	@Override
 	public void addPages() {
 		addPage(new AddUserWizardPage(model));
+		getShell().setSize(450,550);
+		WidgetUtil.center(getShell());
 	}
 
 	@Override

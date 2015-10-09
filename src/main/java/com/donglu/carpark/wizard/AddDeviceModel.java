@@ -9,6 +9,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 
 public class AddDeviceModel extends SingleCarparkDevice{
 	private List<SingleCarparkCarpark> list=new ArrayList<SingleCarparkCarpark>();
+	private String serialAddress="DOM1";
+	private String tcpAddress="192.168.1.1";
 	
 	public AddDeviceModel(){
 		SingleCarparkCarpark s=new SingleCarparkCarpark();
@@ -37,6 +39,22 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		device.setRoadType(getRoadType());
 		device.setType(getType());
 		return device;
+	}
+	public String getSerialAddress() {
+		return serialAddress;
+	}
+	public void setSerialAddress(String serialAddress) {
+		this.serialAddress = serialAddress;
+		if (pcs != null)
+			pcs.firePropertyChange("serialAddress", null, null);
+	}
+	public String getTcpAddress() {
+		return tcpAddress;
+	}
+	public void setTcpAddress(String tcpAddress) {
+		this.tcpAddress = tcpAddress;
+		if (pcs != null)
+			pcs.firePropertyChange("tcpAddress", null, null);
 	}
 	
 }

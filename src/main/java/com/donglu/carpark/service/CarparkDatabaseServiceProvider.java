@@ -16,5 +16,9 @@ public interface CarparkDatabaseServiceProvider {
 	CarparkService getCarparkService();
 	
 	CarparkUserService getCarparkUserService();
+	
+	SystemUserServiceI getSystemUserService();
+	
+	CarparkInOutServiceI getCarparkInOutService();
 }
 

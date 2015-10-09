@@ -11,6 +11,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 import com.dongluhitec.card.domain.db.CardUserGroup;
 import com.dongluhitec.card.domain.db.DomainObject;
@@ -35,6 +37,15 @@ public class SingleCarparkCarpark extends DomainObject {
 	
 	@Column(name = "parent", nullable = true)
 	private Long parentId;
+	
+	@NotNull(message = "车位总数不能为空")
+	@Min(value = 0, message = "车位总数不能小于0")
+	private int totalNumberOfSlot;
+	
+	@NotNull(message = "剩余车位总数不能为空")
+	@Min(value = 0, message = "剩余车位总数不能小于0")
+	private int leftNumberOfSlot;
+	
 	public String getCode() {
 		return code;
 	}
@@ -86,6 +97,39 @@ public class SingleCarparkCarpark extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("parentId", null, null);
 	}
+	@Override
+	public boolean equals(Object obj) {
+		if (!obj.getClass().equals(SingleCarparkCarpark.class)) {
+			return false;
+		}
+		SingleCarparkCarpark cp=(SingleCarparkCarpark) obj;
+		if (this.name.equals(cp.getName())) {
+			return true;
+		}
+		return false;
+	}
+	@Override
+	public String toString() {
+		// TODO 自动生成的方法存根
+		return this.getCode()+"-"+this.getName();
+	}
+	public int getTotalNumberOfSlot() {
+		return totalNumberOfSlot;
+	}
+	public void setTotalNumberOfSlot(int totalNumberOfSlot) {
+		this.totalNumberOfSlot = totalNumberOfSlot;
+		if (pcs != null)
+			pcs.firePropertyChange("totalNumberOfSlot", null, null);
+	}
+	public int getLeftNumberOfSlot() {
+		return leftNumberOfSlot;
+	}
+	public void setLeftNumberOfSlot(int leftNumberOfSlot) {
+		this.leftNumberOfSlot = leftNumberOfSlot;
+		if (pcs != null)
+			pcs.firePropertyChange("leftNumberOfSlot", null, null);
+	}
+	
 	
 	
 }
