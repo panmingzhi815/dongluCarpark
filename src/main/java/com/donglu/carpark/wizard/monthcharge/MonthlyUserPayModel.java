@@ -1,6 +1,7 @@
 package com.donglu.carpark.wizard.monthcharge;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -45,7 +46,7 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 		SingleCarparkMonthlyUserPayHistory s=new SingleCarparkMonthlyUserPayHistory();
 		s.setCarType(this.getCarType());
 		s.setChargesMoney(getChargesMoney());
-		s.setCreateTime(getCreateTime());
+		s.setCreateTime(new Date());
 		s.setMonthamount(getMonthamount());
 		s.setMonthCharge(getMonthCharge());
 		s.setOldOverDueTime(getOldOverDueTime());
@@ -55,6 +56,7 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 		s.setUserIdCard(getUserIdCard());
 		s.setUserName(getUserName());
 		s.setId(id);
+		s.setOperaName(getOperaName());
 		return s;
 	}
 }

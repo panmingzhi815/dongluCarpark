@@ -1,110 +1,90 @@
-package com.donglu.carpark;
+package com.donglu.carpark.ui;
 
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.ToolItem;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Table;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
 
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.observable.Realm;
+import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.core.databinding.observable.map.IObservableMap;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
+import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.IContentProvider;
-import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.swt.widgets.Tree;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.jface.viewers.TreeViewerColumn;
-import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.DateTime;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.wb.rcp.databinding.BeansListObservableFactory;
+import org.eclipse.wb.rcp.databinding.TreeBeanAdvisor;
+import org.eclipse.wb.rcp.databinding.TreeObservableLabelProvider;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.beust.jcommander.JCommander;
+import com.donglu.carpark.App;
+import com.donglu.carpark.info.CarparkChargeInfo;
 import com.donglu.carpark.model.CarparkModel;
 import com.donglu.carpark.model.InOutHistoryModel;
 import com.donglu.carpark.model.SystemUserModel;
 import com.donglu.carpark.model.UserModel;
-import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
-import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.wizard.AddBlackUserWizard;
-import com.donglu.carpark.wizard.AddCarparkModel;
-import com.donglu.carpark.wizard.AddCarparkWizard;
-import com.donglu.carpark.wizard.AddDeviceModel;
-import com.donglu.carpark.wizard.AddMonthChargeWizard;
-import com.donglu.carpark.wizard.AddSystemUserWizard;
-import com.donglu.carpark.wizard.AddUserWizard;
-import com.donglu.carpark.wizard.model.AddMonthChargeModel;
-import com.donglu.carpark.wizard.AddTempChargeWizard;
-import com.dongluhitec.card.blservice.DatabaseServiceProvider;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
-import com.dongluhitec.card.common.ui.Widget;
-import com.dongluhitec.card.common.ui.WidgetContainer;
-import com.dongluhitec.card.common.ui.impl.SWTContainer;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.ui.Attendance.realtime.RealTimePresenter;
-import com.dongluhitec.card.ui.cache.MonthlyCarparkChargeInfo;
-import com.dongluhitec.card.ui.carpark.charge.wizard.NewMonthCardWizard;
 import com.dongluhitec.card.ui.main.DongluUIAppConfigurator;
 import com.dongluhitec.card.ui.main.javafx.DongluJavaFXModule;
-import com.dongluhitec.card.ui.util.WidgetUtil;
+import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-
-import org.eclipse.wb.swt.SWTResourceManager;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.wb.rcp.databinding.BeansListObservableFactory;
-import org.eclipse.wb.rcp.databinding.TreeBeanAdvisor;
-import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
-import org.eclipse.wb.rcp.databinding.TreeObservableLabelProvider;
-import org.eclipse.core.databinding.observable.list.IObservableList;
-import org.eclipse.core.databinding.property.Properties;
-import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.viewers.ViewerProperties;
-import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
-import org.eclipse.core.databinding.observable.map.IObservableMap;
-import org.eclipse.core.databinding.beans.BeansObservables;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
-import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
-import org.eclipse.core.databinding.beans.PojoObservables;
-import com.donglu.carpark.info.CarparkChargeInfo;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
+import com.donglu.carpark.ui.list.CarparkPayHistoryListView;
 
 public class CarparkManageApp implements App{
 	private DataBindingContext m_bindingContext;
@@ -132,9 +112,9 @@ public class CarparkManageApp implements App{
 	private Text text_8;
 	private Table table_6;
 	private ToolBar carparkConfigToolBar;
-	private Text text_9;
-	private Text text_10;
-	private Text text_11;
+	private Text text_setting_dataBaseSave;
+	private Text text_setting_imgSave;
+	private Text text_setting_imgSaveDays;
 	private Text text_12;
 	@Inject
 	private CarparkManagePresenter presenter;
@@ -162,6 +142,12 @@ public class CarparkManageApp implements App{
 	private DateChooserCombo dateChooserCombo_inout_start;
 
 	private DateChooserCombo dateChooserCombo_inout_end;
+	
+	private Map<SystemSettingTypeEnum, String> mapSystemSetting=Maps.newHashMap();
+	private Text text_pay_userName;
+	private Text text_pay_operaName;
+
+	private CarparkPayHistoryListView carparkPayHistoryListView;
 	
 	/**
 	 * Launch the application.
@@ -212,6 +198,10 @@ public class CarparkManageApp implements App{
 		presenter.setUserModel(userModel);
 		presenter.setSystemUserModel(systemUserModel);
 		presenter.setInOutHistoryModel(inOutHistoryModel);
+		
+		for (SystemSettingTypeEnum t : SystemSettingTypeEnum.values()) {
+			mapSystemSetting.put(t, null);
+		}
 		presenter.init();
 	}
 
@@ -302,9 +292,7 @@ public class CarparkManageApp implements App{
 		toolItem_2.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				AddTempChargeWizard v=new AddTempChargeWizard();
-				WizardDialog dialog=new WizardDialog(new Shell(), v);
-				dialog.open();
+				presenter.addTempCharge(null);
 			}
 		});
 		toolItem_2.setText("+");
@@ -488,13 +476,13 @@ public class CarparkManageApp implements App{
 		tbtmNewItem_2.setControl(composite_5);
 		composite_5.setLayout(new GridLayout(1, false));
 		
-		TabFolder tabFolder_1 = new TabFolder(composite_5, SWT.BOTTOM);
-		tabFolder_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		TabFolder tabFolder_searchHistory = new TabFolder(composite_5, SWT.BOTTOM);
+		tabFolder_searchHistory.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
-		TabItem tabItem = new TabItem(tabFolder_1, SWT.NONE);
+		TabItem tabItem = new TabItem(tabFolder_searchHistory, SWT.NONE);
 		tabItem.setText("进出记录查询");
 		
-		Composite composite_7 = new Composite(tabFolder_1, SWT.NONE);
+		Composite composite_7 = new Composite(tabFolder_searchHistory, SWT.NONE);
 		tabItem.setControl(composite_7);
 		composite_7.setLayout(new GridLayout(1, false));
 		
@@ -692,6 +680,9 @@ public class CarparkManageApp implements App{
 		label_15.setText("/");
 		
 		label_inout_totalCount = new Label(composite_16, SWT.NONE);
+		GridData gd_label_inout_totalCount = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_label_inout_totalCount.widthHint = 93;
+		label_inout_totalCount.setLayoutData(gd_label_inout_totalCount);
 		label_inout_totalCount.setText("0");
 		
 		Button button_11 = new Button(composite_16, SWT.NONE);
@@ -710,10 +701,10 @@ public class CarparkManageApp implements App{
 		button_11.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
 		button_11.setText("更多");
 		
-		TabItem tabItem_1 = new TabItem(tabFolder_1, SWT.NONE);
+		TabItem tabItem_1 = new TabItem(tabFolder_searchHistory, SWT.NONE);
 		tabItem_1.setText("归账查询");
 		
-		Composite composite_6 = new Composite(tabFolder_1, SWT.NONE);
+		Composite composite_6 = new Composite(tabFolder_searchHistory, SWT.NONE);
 		tabItem_1.setControl(composite_6);
 		composite_6.setLayout(new GridLayout(1, false));
 		
@@ -781,10 +772,10 @@ public class CarparkManageApp implements App{
 		tableColumn_7.setWidth(100);
 		tableColumn_7.setText("时间");
 		
-		TabItem tabItem_2 = new TabItem(tabFolder_1, SWT.NONE);
+		TabItem tabItem_2 = new TabItem(tabFolder_searchHistory, SWT.NONE);
 		tabItem_2.setText("充值查询");
 		
-		Composite composite_8 = new Composite(tabFolder_1, SWT.NONE);
+		Composite composite_8 = new Composite(tabFolder_searchHistory, SWT.NONE);
 		tabItem_2.setControl(composite_8);
 		composite_8.setLayout(new GridLayout(1, false));
 		
@@ -849,7 +840,66 @@ public class CarparkManageApp implements App{
 		TableViewerColumn tableViewerColumn_19 = new TableViewerColumn(tableViewer_4, SWT.NONE);
 		TableColumn tableColumn_14 = tableViewerColumn_19.getColumn();
 		tableColumn_14.setWidth(100);
-		tableColumn_14.setText("时间");
+		tableColumn_14.setText("过期时间");
+		
+		TabItem tabItem_6 = new TabItem(tabFolder_searchHistory, SWT.NONE);
+		tabItem_6.setText("充值");
+		
+		Composite composite_17 = new Composite(tabFolder_searchHistory, SWT.NONE);
+		tabItem_6.setControl(composite_17);
+		composite_17.setLayout(new GridLayout(1, false));
+		
+		Group group_5 = new Group(composite_17, SWT.NONE);
+		group_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		group_5.setText("查询");
+		group_5.setLayout(new GridLayout(9, false));
+		
+		Label label_14 = new Label(group_5, SWT.NONE);
+		label_14.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_14.setText("用户");
+		
+		text_pay_userName = new Text(group_5, SWT.BORDER);
+		text_pay_userName.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_pay_userName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_16 = new Label(group_5, SWT.NONE);
+		label_16.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_16.setText("操作员");
+		
+		text_pay_operaName = new Text(group_5, SWT.BORDER);
+		text_pay_operaName.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_pay_operaName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_17 = new Label(group_5, SWT.NONE);
+		label_17.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_17.setText("时间");
+		
+		DateTime dateTime = new DateTime(group_5, SWT.BORDER);
+		dateTime.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		
+		Label label_18 = new Label(group_5, SWT.NONE);
+		label_18.setText("终止时间");
+		
+		DateTime dateTime_2 = new DateTime(group_5, SWT.BORDER);
+		dateTime_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		
+		Button button_13 = new Button(group_5, SWT.NONE);
+		button_13.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.searchCharge(carparkPayHistoryListView,text_pay_userName.getText(),text_pay_operaName.getText(),new Date(),new Date());
+			}
+		});
+		button_13.setText("查询");
+		
+		carparkPayHistoryListView = new CarparkPayHistoryListView(composite_17, SWT.NONE);
+		carparkPayHistoryListView.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		TabItem tabItem_7 = new TabItem(tabFolder_searchHistory, SWT.NONE);
+		tabItem_7.setText("New Item");
+		
+		Composite composite_18 =presenter.getCarparkPayHistoryPresenter().getView(tabFolder_searchHistory, SWT.NONE);
+		tabItem_7.setControl(composite_18);
 		
 		TabItem tbtmNewItem_1 = new TabItem(tabFolder, SWT.NONE);
 		tbtmNewItem_1.setText("系统用户");
@@ -946,33 +996,122 @@ public class CarparkManageApp implements App{
 		group_4.setText("停车场设置");
 		
 		Button btnCheckButton = new Button(group_4, SWT.CHECK);
+		btnCheckButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.车位满是否允许临时车入场, btnCheckButton.getSelection()+"");
+			}
+		});
 		btnCheckButton.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btnCheckButton.setText("车位满是否允许临时车入场");
-		
+		String string4 = mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许临时车入场);
+		if (string4==null) {
+			btnCheckButton.setSelection(Boolean.valueOf(SystemSettingTypeEnum.车位满是否允许临时车入场.getDefaultValue()));
+		}else{
+			btnCheckButton.setSelection(Boolean.valueOf(string4));
+		}
 		Button btnCheckButton_1 = new Button(group_4, SWT.CHECK);
+		btnCheckButton_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.车位满是否允许免费车入场, btnCheckButton_1.getSelection()+"");
+			}
+		});
 		btnCheckButton_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btnCheckButton_1.setText("车位满是否允许免费车入场");
 		
+		String string5 = mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场);
+		if (string5==null) {
+			btnCheckButton_1.setSelection(Boolean.valueOf(SystemSettingTypeEnum.车位满是否允许免费车入场.getDefaultValue()));
+		}else{
+			btnCheckButton_1.setSelection(Boolean.valueOf(string5));
+		}
+		
 		Button button_3 = new Button(group_4, SWT.CHECK);
+		button_3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.车位满是否允许储值车入场, button_3.getSelection()+"");
+			}
+		});
 		button_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_3.setText("车位满是否允许储值车入场");
 		
+		String string6 = mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许储值车入场);
+		if (string6==null) {
+			button_3.setSelection(Boolean.valueOf(SystemSettingTypeEnum.车位满是否允许储值车入场.getDefaultValue()));
+		}else{
+			button_3.setSelection(Boolean.valueOf(string6));
+		}
+		
 		Button button_4 = new Button(group_4, SWT.CHECK);
+		button_4.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.临时车入场是否确认, button_4.getSelection()+"");
+			}
+		});
 		button_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_4.setText("临时车入场是否确认");
 		
+		String string7 = mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认);
+		if (string7==null) {
+			button_4.setSelection(Boolean.valueOf(SystemSettingTypeEnum.临时车入场是否确认.getDefaultValue()));
+		}else{
+			button_4.setSelection(Boolean.valueOf(string7));
+		}
+		
 		Button button_6 = new Button(group_4, SWT.CHECK);
+		button_6.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.临时车零收费是否自动出场, button_6.getSelection()+"");
+			}
+		});
 		button_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_6.setText("临时车零收费是否自动出场");
+		
+		String string8 = mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场);
+		if (string8==null) {
+			button_6.setSelection(Boolean.valueOf(SystemSettingTypeEnum.临时车零收费是否自动出场.getDefaultValue()));
+		}else{
+			button_6.setSelection(Boolean.valueOf(string8));
+		}
 		new Label(group_4, SWT.NONE);
 		
 		Button button_5 = new Button(group_4, SWT.CHECK);
+		button_5.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.固定车入场是否确认, button_5.getSelection()+"");
+			}
+		});
 		button_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_5.setText("固定车入场是否确认");
 		
+		String string9 = mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认);
+		if (string9==null) {
+			button_5.setSelection(Boolean.valueOf(SystemSettingTypeEnum.固定车入场是否确认.getDefaultValue()));
+		}else{
+			button_5.setSelection(Boolean.valueOf(string9));
+		}
+		
 		Button button_7 = new Button(group_4, SWT.CHECK);
+		button_7.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.固定车出场确认, button_7.getSelection()+"");
+			}
+		});
 		button_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_7.setText("固定车出场确认");
+		
+		String string0 = mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认);
+		if (string0==null) {
+			button_7.setSelection(Boolean.valueOf(SystemSettingTypeEnum.固定车出场确认.getDefaultValue()));
+		}else{
+			button_7.setSelection(Boolean.valueOf(string0));
+		}
 		new Label(group_4, SWT.NONE);
 		
 		Composite composite_14 = new Composite(group_4, SWT.NONE);
@@ -980,15 +1119,41 @@ public class CarparkManageApp implements App{
 		composite_14.setLayout(new GridLayout(3, false));
 		
 		Label label_11 = new Label(composite_14, SWT.NONE);
+		label_11.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_11.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_11.setText("数据库备份位置");
 		
-		text_9 = new Text(composite_14, SWT.BORDER);
-		GridData gd_text_9 = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_text_9.widthHint = 239;
-		text_9.setLayoutData(gd_text_9);
+		text_setting_dataBaseSave = new Text(composite_14, SWT.BORDER);
+		text_setting_dataBaseSave.setEditable(false);
+		text_setting_dataBaseSave.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				FileDialog fileDialog = new FileDialog(shell, SWT.SINGLE);
+				fileDialog.setText("请选择路径");
+				String open = fileDialog.open();
+				if (StrUtil.isEmpty(open)) {
+					return;
+				}
+				text_setting_dataBaseSave.setText(open);
+				mapSystemSetting.put(SystemSettingTypeEnum.数据库备份位置, open);
+			}
+		});
+		text_setting_dataBaseSave.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text_setting_dataBaseSave = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_text_setting_dataBaseSave.widthHint = 239;
+		text_setting_dataBaseSave.setLayoutData(gd_text_setting_dataBaseSave);
+		String string = mapSystemSetting.get(SystemSettingTypeEnum.数据库备份位置);
+		text_setting_dataBaseSave.setText(string==null?SystemSettingTypeEnum.数据库备份位置.getDefaultValue():string);
 		
 		Button button_8 = new Button(composite_14, SWT.NONE);
+		button_8.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.backup(text_setting_dataBaseSave.getText());
+				
+			}
+		});
+		button_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_8.setText("备份");
 		
 		Composite composite_15 = new Composite(group_4, SWT.NONE);
@@ -996,22 +1161,79 @@ public class CarparkManageApp implements App{
 		composite_15.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
 		
 		Label label_12 = new Label(composite_15, SWT.NONE);
+		label_12.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_label_12 = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_label_12.widthHint = 83;
+		gd_label_12.widthHint = 108;
 		label_12.setLayoutData(gd_label_12);
 		label_12.setText("图片存放位置");
 		
-		text_10 = new Text(composite_15, SWT.BORDER);
-		GridData gd_text_10 = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_text_10.widthHint = 241;
-		text_10.setLayoutData(gd_text_10);
+		text_setting_imgSave = new Text(composite_15, SWT.BORDER);
+		text_setting_imgSave.setEditable(false);
+		text_setting_imgSave.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				DirectoryDialog directoryDialog=new DirectoryDialog(shell,SWT.SINGLE);
+				String open = directoryDialog.open();
+				if (StrUtil.isEmpty(open)) {
+					return;
+				}
+				text_setting_imgSave.setText(open);
+				mapSystemSetting.put(SystemSettingTypeEnum.图片保存位置, open);
+//				presenter.setting();
+			}
+		});
+		text_setting_imgSave.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text_setting_imgSave = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_text_setting_imgSave.widthHint = 241;
+		text_setting_imgSave.setLayoutData(gd_text_setting_imgSave);
+		String string2 = mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置);
+		text_setting_imgSave.setText(string2==null?SystemSettingTypeEnum.图片保存位置.getDefaultValue():string2);
 		
 		Button button_9 = new Button(composite_15, SWT.CHECK);
-		button_9.setText("是否自动删除");
+		button_9.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (!button_9.getSelection()) {
+					mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少天, null);
+					return;
+				}
+				String text = text_setting_imgSaveDays.getText();
+				Integer valueOf=0;
+				try {
+					valueOf = Integer.valueOf(text);
+				} catch (NumberFormatException e1) {
+					
+				}
+				mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少天, valueOf+"");
+			}
+		});
+		button_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_9.setText("保存多少天的照片");
+		String string3 = mapSystemSetting.get(SystemSettingTypeEnum.图片保存多少天);
 		
-		text_11 = new Text(composite_15, SWT.BORDER);
-		text_11.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		new Label(group_4, SWT.NONE);
+		text_setting_imgSaveDays = new Text(composite_15, SWT.BORDER);
+		text_setting_imgSaveDays.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_setting_imgSaveDays.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		if (string3==null) {
+			button_9.setSelection(false);
+			text_setting_imgSaveDays.setText(SystemSettingTypeEnum.图片保存多少天.getDefaultValue());
+		}else{
+			if (string3.equals(SystemSettingTypeEnum.图片保存多少天.getDefaultValue())) {
+				
+			}else
+			button_9.setSelection(true);
+			text_setting_imgSaveDays.setText(string3);
+		}
+		
+		Button button_12 = new Button(group_4, SWT.NONE);
+		button_12.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.saveAllSystemSetting();
+			}
+		});
+		button_12.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_12.setText("保存设置");
 		new Label(group_4, SWT.NONE);
 		new Label(group_4, SWT.NONE);
 		new Label(group_4, SWT.NONE);
@@ -1277,5 +1499,9 @@ public class CarparkManageApp implements App{
 		bindingContext.bindValue(observeTextLabel_inout_totalCountObserveWidget, countSearchAllInOutHistoryModelObserveValue, null, null);
 		//
 		return bindingContext;
+	}
+
+	public Map<SystemSettingTypeEnum, String> getMapSystemSetting() {
+		return mapSystemSetting;
 	}
 }

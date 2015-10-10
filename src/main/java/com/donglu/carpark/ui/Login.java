@@ -1,4 +1,4 @@
-package com.donglu.carpark;
+package com.donglu.carpark.ui;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -17,6 +17,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
 import com.beust.jcommander.JCommander;
+import com.donglu.carpark.App;
 import com.donglu.carpark.server.CarparkHardwareGuiceModule;
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.ServerUI;

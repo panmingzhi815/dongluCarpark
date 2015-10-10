@@ -1,4 +1,4 @@
-package com.donglu.carpark;
+package com.donglu.carpark.ui;
 
 import java.awt.Canvas;
 import java.awt.Frame;
@@ -50,6 +50,7 @@ import org.eclipse.swt.custom.CTabItem;
 
 import antlr.ByteBuffer;
 
+import com.donglu.carpark.App;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
@@ -65,7 +66,9 @@ import com.dongluhitec.card.domain.db.SerialDeviceAddress;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
@@ -159,6 +162,8 @@ public class CarparkMainApp implements XinlutongResult, App {
 	Map<CTabItem, String> mapDeviceTabItem = Maps.newHashMap();
 	//保存设备的信息
 	Map<String, SingleCarparkDevice> mapIpToDevice = Maps.newHashMap();
+	//保存设置信息
+	private Map<SystemSettingTypeEnum, String> mapSystemSetting=Maps.newHashMap();
 
 	private CTabFolder tabInFolder;
 
@@ -195,6 +200,9 @@ public class CarparkMainApp implements XinlutongResult, App {
 				}
 				mapDeviceType.put(key, singleCarparkDevice.getInType());
 			}
+		}
+		for (SystemSettingTypeEnum t : SystemSettingTypeEnum.values()) {
+			mapSystemSetting.put(t, null);
 		}
 	}
 
@@ -244,6 +252,10 @@ public class CarparkMainApp implements XinlutongResult, App {
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 //		float totalCharge = carparkInOutService.findTotalCharge(userName);
 //		model.setTotalCharge(totalCharge);
+		List<SingleCarparkSystemSetting> findAllSystemSetting = sp.getCarparkService().findAllSystemSetting();
+		for (SingleCarparkSystemSetting ss : findAllSystemSetting) {
+			mapSystemSetting.put(SystemSettingTypeEnum.valueOf(ss.getSettingKey()), ss.getSettingValue());
+		}
 	}
 
 	/**
@@ -827,7 +839,12 @@ public class CarparkMainApp implements XinlutongResult, App {
 	// 保存车牌识别的图片
 	protected void saveImage(String f, String fileName, byte[] bigImage) {
 		bigImage = bigImage == null ? new byte[0] : bigImage;
-		String fl = "img/" + f;
+		String fl = "/img/" + f;
+		if (!StrUtil.isEmpty(mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置))) {
+			String string = mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置);
+			String flag=string+fl;
+			fl=flag;
+		}
 		try {
 			File file = new File(fl);
 			if (!file.exists() && !file.isDirectory()) {

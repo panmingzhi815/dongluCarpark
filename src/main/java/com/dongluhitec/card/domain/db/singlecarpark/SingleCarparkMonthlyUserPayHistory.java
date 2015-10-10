@@ -10,7 +10,9 @@ import javax.persistence.Transient;
 import com.dongluhitec.card.domain.db.DomainObject;
 @Entity
 public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
-
+	public enum Property{
+		userName,plateNO,chargesMoney,operaName,overdueTime,createTime
+	}
 	/**
 	 * 
 	 */
@@ -29,12 +31,12 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
     private Date overdueTime;
 
     //缴费前的过期时间
-    @Transient
     private Date oldOverDueTime;
     
     //本次缴费金额
-    @Transient
     private Float chargesMoney;
+    
+    private String operaName;
 
 	public String getUserName() {
 		return userName;
@@ -148,6 +150,16 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public String getOperaName() {
+		return operaName;
+	}
+
+	public void setOperaName(String operaName) {
+		this.operaName = operaName;
+		if (pcs != null)
+			pcs.firePropertyChange("operaName", null, null);
 	}
 	
 }

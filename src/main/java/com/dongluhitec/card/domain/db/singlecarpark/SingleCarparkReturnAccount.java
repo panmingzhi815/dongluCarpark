@@ -2,8 +2,10 @@ package com.dongluhitec.card.domain.db.singlecarpark;
 
 import java.util.Date;
 
-import com.dongluhitec.card.domain.db.DomainObject;
+import javax.persistence.Entity;
 
+import com.dongluhitec.card.domain.db.DomainObject;
+@Entity
 public class SingleCarparkReturnAccount extends DomainObject {
 
 	/**
@@ -12,8 +14,8 @@ public class SingleCarparkReturnAccount extends DomainObject {
 	private static final long serialVersionUID = 3639922435037701579L;
 	
 	private String returnUser;
-	private float factReturn;
-	private float shouldReturn;
+	private Float factReturn;
+	private Float shouldReturn;
 	private Date returnTime;
 	private String operaName;
 	public String getReturnUser() {
@@ -24,7 +26,7 @@ public class SingleCarparkReturnAccount extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("returnUser", null, null);
 	}
-	public float getFactReturn() {
+	public Float getFactReturn() {
 		return factReturn;
 	}
 	public void setFactReturn(float factReturn) {
@@ -32,7 +34,7 @@ public class SingleCarparkReturnAccount extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("factReturn", null, null);
 	}
-	public float getShouldReturn() {
+	public Float getShouldReturn() {
 		return shouldReturn;
 	}
 	public void setShouldReturn(float shouldReturn) {

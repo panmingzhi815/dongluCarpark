@@ -2,7 +2,7 @@ package com.donglu.carpark.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -10,17 +10,24 @@ import javax.persistence.EntityManager;
 
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
+import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
 import org.criteria4jpa.order.Order;
+import org.criteria4jpa.projection.Projections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.service.CarparkService;
-import com.dongluhitec.card.domain.db.CardUserGroup;
+import com.dongluhitec.card.blservice.DongluServiceException;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.dongluhitec.card.service.impl.SettingServiceImpl;
@@ -210,4 +217,159 @@ public class CarparkServiceImpl implements CarparkService {
 		dom.remove(id);
 		return id;
 	}
+
+	@Override
+	public List<SingleCarparkSystemSetting> findAllSystemSetting() {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkSystemSetting.class);
+			
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Transactional
+	public Long saveSystemSetting(SingleCarparkSystemSetting h) {
+		Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkSystemSetting.class);
+		c.add(Restrictions.eq("settingKey", h.getSettingKey()));
+		SingleCarparkSystemSetting set = (SingleCarparkSystemSetting) c.getSingleResultOrNull();
+		
+		DatabaseOperation<SingleCarparkSystemSetting> dom = DatabaseOperation.forClass(SingleCarparkSystemSetting.class, emprovider.get());
+		if (set!=null) {
+			h.setId(set.getId());
+		}
+		if (h.getId() == null) {
+			dom.insert(h);
+		} else {
+			dom.save(h);
+		}
+		return h.getId();
+	}
+
+	@Override
+	public SingleCarparkSystemSetting findSystemSettingByKey(String key) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkSystemSetting.class);
+			c.add(Restrictions.eq("key", key));
+			SingleCarparkSystemSetting set = (SingleCarparkSystemSetting) c.getSingleResultOrNull();
+			return set;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public CarparkChargeStandard findCarparkChargeStandardByCode(String code) {
+		
+		return null;
+	}
+
+	@Override
+	public List<CarparkCarType> getCarparkCarTypeList() {
+		unitOfWork.begin();
+		try {
+			Criteria criteria = CriteriaUtils.createCriteria(emprovider.get(),
+					CarparkCarType.class);
+			return criteria.getResultList();
+		} catch (Exception e) {
+			throw new DongluServiceException("获取停车场车类型列表失败!", e);
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Transactional
+	public Long saveCarparkChargeStandard(CarparkChargeStandard carparkChargeStandard) {
+		DatabaseOperation<CarparkChargeStandard> dom = DatabaseOperation
+				.forClass(CarparkChargeStandard.class, emprovider.get());
+		if (carparkChargeStandard.getId() == null) {
+			dom.insert(carparkChargeStandard);
+		} else {
+			// 如果更改了新的时段,则先删除旧的时段
+			CarparkChargeStandard carparkChargeStandard1 = emprovider.get()
+					.find(CarparkChargeStandard.class,
+							carparkChargeStandard.getId());
+			if (carparkChargeStandard.getCarparkDurationStandards() != null) {
+				List<CarparkDurationStandard> carparkDurationStandards = carparkChargeStandard1
+						.getCarparkDurationStandards();
+				for (CarparkDurationStandard carparkDurationStandard : carparkDurationStandards) {
+					emprovider.get().remove(carparkDurationStandard);
+				}
+			}
+			dom.save(carparkChargeStandard);
+		}
+		return carparkChargeStandard.getId();
+	}
+
+	@Override
+	public List<CarparkChargeStandard> findTempChargeByCarpark(SingleCarparkCarpark carpark) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), CarparkChargeStandard.class);
+			c.add(Restrictions.eq("carpark", carpark));
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Transactional
+	public Long deleteTempCharge(Long id) {
+		DatabaseOperation<CarparkChargeStandard> dom = DatabaseOperation.forClass(CarparkChargeStandard.class, emprovider.get());
+		dom.remove(id);
+		return id;
+		
+	}
+
+	@Override
+	public List<SingleCarparkMonthlyUserPayHistory> findMonthlyUserPayHistoryByCondition(int maxResult, int size, String userName, String operaName, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkMonthlyUserPayHistory.class);
+			createCriteriaBySingleCarparkMonthlyUserPayHistory(c,userName,operaName,start,end);
+			c.setFirstResult(maxResult);
+			c.setMaxResults(size);
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	private void createCriteriaBySingleCarparkMonthlyUserPayHistory(Criteria c, String userName, String operaName, Date start, Date end) {
+		if (!StrUtil.isEmpty(userName)) {
+			c.add(Restrictions.or(Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.userName.name(), userName,MatchMode.START),
+					Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.userName.name(), userName,MatchMode.END)));
+		}
+		if (!StrUtil.isEmpty(userName)) {
+			c.add(Restrictions.or(Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.operaName.name(), operaName,MatchMode.START),
+					Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.operaName.name(), operaName,MatchMode.END)));
+		}
+		if (!StrUtil.isEmpty(start)) {
+			Date todayTopTime = StrUtil.getTodayTopTime(start);
+			c.add(Restrictions.ge(SingleCarparkMonthlyUserPayHistory.Property.createTime.name(), todayTopTime));
+		}
+		if (!StrUtil.isEmpty(end)) {
+			Date todayTopTime = StrUtil.getTodayBottomTime(end);
+			c.add(Restrictions.le(SingleCarparkMonthlyUserPayHistory.Property.createTime.name(), todayTopTime));
+		}
+		
+	}
+
+	@Override
+	public int countMonthlyUserPayHistoryByCondition(String userName, String operaName, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkMonthlyUserPayHistory.class);
+			createCriteriaBySingleCarparkMonthlyUserPayHistory(c,userName,operaName,start,end);
+			c.setProjection(Projections.rowCount());
+			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
+			return singleResultOrNull.intValue();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
 }

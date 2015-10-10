@@ -1,4 +1,4 @@
-package com.donglu.carpark;
+package com.donglu.carpark.ui;
 
 import java.awt.Canvas;
 import java.awt.Frame;

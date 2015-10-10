@@ -34,13 +34,17 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
     }
 
     protected void initService() {
-        Injector injector = Guice.createInjector(new Model());
-        this.persistService = injector.getInstance(PersistService.class);
-        persistService.start();
-        setCarparkService(injector.getInstance(CarparkService.class));
-        setCarparkUserService(injector.getInstance(CarparkUserService.class));
-        setSystemUserService(injector.getInstance(SystemUserServiceI.class));
-        setCarparkInOutService(injector.getInstance(CarparkInOutServiceI.class));
+        try{
+        	Injector injector = Guice.createInjector(new Model());
+            this.persistService = injector.getInstance(PersistService.class);
+            persistService.start();
+            setCarparkService(injector.getInstance(CarparkService.class));
+            setCarparkUserService(injector.getInstance(CarparkUserService.class));
+            setSystemUserService(injector.getInstance(SystemUserServiceI.class));
+            setCarparkInOutService(injector.getInstance(CarparkInOutServiceI.class));
+        }catch(Exception e){
+        	e.printStackTrace();
+        }
     }
 
     protected void stopServices() {

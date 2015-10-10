@@ -1,10 +1,11 @@
-package com.donglu.carpark;
+package com.donglu.carpark.ui;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import org.bridj.cpp.std.list;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.donglu.carpark.info.CarparkChargeInfo;
 import com.donglu.carpark.model.CarparkModel;
@@ -16,27 +17,37 @@ import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.service.SystemUserServiceI;
+import com.donglu.carpark.ui.common.AbstractListView;
+import com.donglu.carpark.ui.list.CarparkPayHistoryListView;
+import com.donglu.carpark.ui.view.CarparkPayHistoryPresenter;
 import com.donglu.carpark.wizard.AddCarparkWizard;
-import com.donglu.carpark.wizard.AddDeviceModel;
 import com.donglu.carpark.wizard.AddMonthChargeWizard;
 import com.donglu.carpark.wizard.AddSystemUserWizard;
 import com.donglu.carpark.wizard.AddUserModel;
 import com.donglu.carpark.wizard.AddUserWizard;
 import com.donglu.carpark.wizard.EditSystemUserWizard;
+import com.donglu.carpark.wizard.charge.NewCommonChargeModel;
+import com.donglu.carpark.wizard.charge.NewCommonChargeWizard;
 import com.donglu.carpark.wizard.model.AddMonthChargeModel;
 import com.donglu.carpark.wizard.monthcharge.MonthlyUserPayModel;
 import com.donglu.carpark.wizard.monthcharge.MonthlyUserPayWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.mapper.BeanUtil;
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 public class CarparkManagePresenter {
+//	private Logger LOGGER = LoggerFactory.getLogger(CarparkManagePresenter.class);
 	// 停车场管理界面
 	private CarparkManageApp view;
 
@@ -50,7 +61,10 @@ public class CarparkManagePresenter {
 	private CarparkDatabaseServiceProvider sp;
 
 	@Inject
-	CommonUIFacility commonui;
+	private CommonUIFacility commonui;
+	
+	@Inject
+	private CarparkPayHistoryPresenter carparkPayHistoryPresenter;
 
 	/**
 	 * 删除停车场
@@ -96,7 +110,9 @@ public class CarparkManagePresenter {
 			e.printStackTrace();
 		}
 	}
-
+	/**
+	 * 添加停车场用户
+	 */
 	public void addCarparkUser() {
 
 		try {
@@ -125,7 +141,9 @@ public class CarparkManagePresenter {
 		}
 
 	}
-
+	/**
+	 * 删除停车场用户
+	 */
 	public void delCarparkUser() {
 		List<SingleCarparkUser> selectList = userModel.getSelectList();
 		if (StrUtil.isEmpty(selectList)) {
@@ -147,7 +165,9 @@ public class CarparkManagePresenter {
 		}
 		refreshUser();
 	}
-	
+	/**
+	 * 编辑停车场用户
+	 */
 	public void editCarparkUser(){
 		List<SingleCarparkUser> selectList = userModel.getSelectList();
 		if (StrUtil.isEmpty(selectList)) {
@@ -192,20 +212,70 @@ public class CarparkManagePresenter {
 	public void setCarparkModel(CarparkModel carparkModel) {
 		this.carparkModel = carparkModel;
 	}
-
+	/**
+	 *初始化
+	 */
 	public void init() {
 		refreshCarpark();
 		refreshUser();
 		refreshSystemUser();
 		refreshSearchInOut();
+		refreshSystemSetting();
+//		testDatabase();
 	}
-
+	
+	public void testDatabase(){
+		
+//		String property = System.getProperty("testDatabase");
+//		if(Strings.isNullOrEmpty(property)){}
+		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(()->{
+			try {
+				SingleCarparkInOutHistory singleCarparkInOutHistory = new SingleCarparkInOutHistory();
+//				singleCarparkInOutHistory.setBigImg("2015\10\09\16\20151009162220491_粤BD021W_big.jpg");
+//				singleCarparkInOutHistory.setSmallImg("2015\10\09\16\20151009162220491_粤BD021W_big.jpg");
+				singleCarparkInOutHistory.setCarType("小车");
+				singleCarparkInOutHistory.setFactMoney(15F);
+				singleCarparkInOutHistory.setFreeMoney(5F);
+				singleCarparkInOutHistory.setShouldMoney(20F);
+				singleCarparkInOutHistory.setInTime(new Date());
+				singleCarparkInOutHistory.setOutTime(new Date());
+				singleCarparkInOutHistory.setInDevice("进口");
+				singleCarparkInOutHistory.setOutDevice("出口");
+				singleCarparkInOutHistory.setReturnAccount(456789L);
+				singleCarparkInOutHistory.setPlateNo("京A78945");
+				singleCarparkInOutHistory.setUserId(1L);
+				singleCarparkInOutHistory.setUserName("xiaobai");
+				sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
+//				LOGGER.info("保存成功");
+			} catch (Exception e) {
+//				LOGGER.error("保存错误",e);
+			}
+			
+		}, 5000, 10, TimeUnit.MILLISECONDS);
+	}
+	
+	
+	/**
+	 * 刷新系统设置
+	 */
+	private void refreshSystemSetting() {
+		Map<SystemSettingTypeEnum, String> mapSystemSetting = view.getMapSystemSetting();
+		List<SingleCarparkSystemSetting> findAllSystemSetting = sp.getCarparkService().findAllSystemSetting();
+		for (SingleCarparkSystemSetting singleCarparkSystemSetting : findAllSystemSetting) {
+			mapSystemSetting.put(SystemSettingTypeEnum.valueOf(singleCarparkSystemSetting.getSettingKey()), singleCarparkSystemSetting.getSettingValue());
+		}
+	}
+	/**
+	 * 刷新固定用户
+	 */
 	private void refreshUser() {
 		CarparkUserService carparkUserService = sp.getCarparkUserService();
 		List<SingleCarparkUser> findAll = carparkUserService.findAll();
 		userModel.setAllList(findAll);
 	}
-
+	/**
+	 * 刷新停车场
+	 */
 	private void refreshCarpark() {
 		CarparkService carparkService = sp.getCarparkService();
 		List<SingleCarparkCarpark> list = carparkService.findCarparkToLevel();
@@ -317,7 +387,9 @@ public class CarparkManagePresenter {
 		}
 		
 	}
-	
+	/**
+	 * 添加月租收费设置
+	 */
 	public void addMonthCharge(){
 		try {
 			SingleCarparkCarpark carpark = carparkModel.getCarpark();
@@ -348,7 +420,12 @@ public class CarparkManagePresenter {
 		}
 		
 	}
-	
+	/**
+	 * 检测登录用户权限
+	 * @param loginType
+	 * @param type
+	 * @return
+	 */
 	private boolean check(String loginType, String type) {
 		if (loginType.equals("系统管理员")) {
 			return true;
@@ -360,12 +437,17 @@ public class CarparkManagePresenter {
 		}
 		return false;
 	}
-
+	/**
+	 * 刷新系统用户
+	 */
 	public void refreshSystemUser(){
 		SystemUserServiceI systemUserService = sp.getSystemUserService();
 		List<SingleCarparkSystemUser> findAll = systemUserService.findAll();
 		systemUserModel.setList(findAll);
 	}
+	/**
+	 * 刷新停车场收费设置
+	 */
 	public void refreshCarparkCharge(){
 		SingleCarparkCarpark carpark = carparkModel.getCarpark();
 		if (StrUtil.isEmpty(carpark)) {
@@ -379,6 +461,16 @@ public class CarparkManagePresenter {
 			cci.setName(singleCarparkMonthlyCharge.getChargeName());
 			cci.setId(singleCarparkMonthlyCharge.getId());
 			cci.setType("固定月租收费");
+			list.add(cci);
+		}
+		
+		List<CarparkChargeStandard> listTemp=sp.getCarparkService().findTempChargeByCarpark(carpark);
+		for (CarparkChargeStandard t : listTemp) {
+			CarparkChargeInfo cci=new CarparkChargeInfo();
+			cci.setCode(t.getCode());
+			cci.setName(t.getName());
+			cci.setId(t.getId());
+			cci.setType("临时收费");
 			list.add(cci);
 		}
 		carparkModel.setListCarparkCharge(list);
@@ -408,7 +500,7 @@ public class CarparkManagePresenter {
 				return;
 			}
 			singleCarparkUser.setValidTo(m.getOverdueTime());
-			SingleCarparkMonthlyUserPayHistory singleCarparkMonthlyUserPayHistory = m.getSingleCarparkMonthlyUserPayHistory();
+			m.setOperaName(System.getProperty("userName"));
 			sp.getCarparkUserService().saveUser(singleCarparkUser);
 			sp.getCarparkService().saveMonthlyUserPayHistory(m.getSingleCarparkMonthlyUserPayHistory());
 			refreshUser();
@@ -433,6 +525,9 @@ public class CarparkManagePresenter {
 		if (carparkChargeInfo.getType().equals("固定月租收费")) {
 			sp.getCarparkService().deleteMonthlyCharge(carparkChargeInfo.getId());
 		}
+		if (carparkChargeInfo.getType().equals("临时收费")) {
+			sp.getCarparkService().deleteTempCharge(carparkChargeInfo.getId());
+		}
 		refreshCarparkCharge();
 	}
 
@@ -443,18 +538,104 @@ public class CarparkManagePresenter {
 	public void setInOutHistoryModel(InOutHistoryModel inOutHistoryModel) {
 		this.inOutHistoryModel = inOutHistoryModel;
 	}
-
+	/**
+	 * 查询进出场记录
+	 * @param plateNo
+	 * @param userName
+	 * @param start
+	 * @param end
+	 * @param operaName
+	 * @param carType
+	 * @param inout
+	 */
 	public void search(String plateNo, String userName, Date start, Date end, String operaName, String carType, String inout) {
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(inOutHistoryModel.getListSearch().size(), 50, plateNo, userName, carType, inout, start, end, operaName);
+		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(inOutHistoryModel.getListSearch().size(), 200, plateNo, userName, carType, inout, start, end, operaName);
 		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName);
 		inOutHistoryModel.addListSearch(findByCondition);
 		inOutHistoryModel.setCountSearch(inOutHistoryModel.getListSearch().size());
 		inOutHistoryModel.setCountSearchAll(countByCondition.intValue());
 		
 	}
+	/**
+	 * 刷新进出场记录
+	 */
 	public void refreshSearchInOut(){
 		inOutHistoryModel.setListSearch(new ArrayList<>());
 		search(null, null, null, null, null, null, null);
+	}
+	//数据库备份
+	public void backup(String text) {
+		
+	}
+	/**
+	 * 保存设置信息
+	 */
+	public void saveAllSystemSetting() {
+		Map<SystemSettingTypeEnum, String> mapSystemSetting = view.getMapSystemSetting();
+		CarparkService carparkService = sp.getCarparkService();
+		for (SystemSettingTypeEnum t : mapSystemSetting.keySet()) {
+			SingleCarparkSystemSetting h = new SingleCarparkSystemSetting();
+			h.setSettingKey(t.name());
+			h.setSettingValue(mapSystemSetting.get(t)==null?t.getDefaultValue():mapSystemSetting.get(t));
+			carparkService.saveSystemSetting(h);
+		}
+	}
+	/**
+	 * 添加临时收费
+	 */
+	public void addTempCharge(CarparkChargeStandard carparkCharge) {
+		SingleCarparkCarpark current = carparkModel.getCarpark();
+		if(current == null){
+            commonui.error("错误", "请先选择一个停车场");
+            return;
+        }
+        
+        final CarparkService carparkService = sp.getCarparkService();
+        final CarparkChargeStandard carparkChargeStandard = new CarparkChargeStandard();
+        
+        NewCommonChargeModel model = new NewCommonChargeModel();
+        if(carparkCharge != null){        	
+        	BeanUtil.copyProperties(carparkCharge, model, CarparkChargeStandard.Property.values());
+        	model.setFreeTimeEnable(model.getAcrossdayChargeEnable() == 1 ? "是":"否");
+        }else{
+        	model.setFreeTime(0);
+        	model.setOnedayMaxCharge(0F);
+        	model.setStartStepPrice(0F);
+        	model.setStartStepTime(0);
+        }
+        model.setCarparkCarTypeList(carparkService.getCarparkCarTypeList());
+        NewCommonChargeWizard wizard =new NewCommonChargeWizard(model, sp, commonui);
+		
+//        NewCommonChargeWizard newCommonChargeWizard = wizardFactory.createNewCommonChargeWizard(model);
+//        NewCommonChargeModel resultModel = (NewCommonChargeModel)commonui.showWizard(newCommonChargeWizard);
+        NewCommonChargeModel resultModel = (NewCommonChargeModel)commonui.showWizard(wizard);
+        if(resultModel == null) return;
+        BeanUtil.copyProperties(resultModel, carparkChargeStandard, CarparkChargeStandard.Property.values());
+        try {
+			carparkChargeStandard.setCarpark(current);
+//			Long aLong = carparkService.saveCarparkChargeStandard(carparkChargeStandard);
+			refreshCarparkCharge();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+//		NewCommonChargeWizard wizard =new NewCommonChargeWizard(new NewCommonChargeModel(), sp, commonui);
+//		commonui.showWizard(wizard);
+		
+	}
+
+	public void searchCharge(CarparkPayHistoryListView carparkPayHistoryListView, String userName, String operaName, Date start, Date end) {
+		AbstractListView<SingleCarparkMonthlyUserPayHistory>.Model model = carparkPayHistoryListView.getModel();
+		List<SingleCarparkMonthlyUserPayHistory> list =sp.getCarparkService().findMonthlyUserPayHistoryByCondition(0,50,userName,operaName,start,end);
+		int countSearchAll=sp.getCarparkService().countMonthlyUserPayHistoryByCondition(userName,operaName,start,end);
+		model.setList(list);
+		model.setCountSearch(list.size());
+		model.setCountSearchAll(countSearchAll);
+		
+	}
+
+	public CarparkPayHistoryPresenter getCarparkPayHistoryPresenter() {
+		return carparkPayHistoryPresenter;
 	}
 }
