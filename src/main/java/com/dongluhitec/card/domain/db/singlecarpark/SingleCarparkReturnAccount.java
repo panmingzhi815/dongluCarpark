@@ -7,7 +7,9 @@ import javax.persistence.Entity;
 import com.dongluhitec.card.domain.db.DomainObject;
 @Entity
 public class SingleCarparkReturnAccount extends DomainObject {
-
+	public enum Property{
+		id,returnUser,factReturn,shouldReturn,returnTime,operaName
+	}
 	/**
 	 * 
 	 */
@@ -60,5 +62,15 @@ public class SingleCarparkReturnAccount extends DomainObject {
 	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+	public void setFactReturn(Float factReturn) {
+		this.factReturn = factReturn;
+		if (pcs != null)
+			pcs.firePropertyChange("factReturn", null, null);
+	}
+	public void setShouldReturn(Float shouldReturn) {
+		this.shouldReturn = shouldReturn;
+		if (pcs != null)
+			pcs.firePropertyChange("shouldReturn", null, null);
 	}
 }

@@ -20,6 +20,7 @@ import com.donglu.carpark.service.SystemUserServiceI;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.list.CarparkPayHistoryListView;
 import com.donglu.carpark.ui.view.CarparkPayHistoryPresenter;
+import com.donglu.carpark.ui.view.ReturnAccountPresenter;
 import com.donglu.carpark.wizard.AddCarparkWizard;
 import com.donglu.carpark.wizard.AddMonthChargeWizard;
 import com.donglu.carpark.wizard.AddSystemUserWizard;
@@ -65,6 +66,8 @@ public class CarparkManagePresenter {
 	
 	@Inject
 	private CarparkPayHistoryPresenter carparkPayHistoryPresenter;
+	@Inject
+	private ReturnAccountPresenter returnAccountPresenter;
 
 	/**
 	 * 删除停车场
@@ -134,6 +137,15 @@ public class CarparkManagePresenter {
 			user.setCreateDate(new Date());
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
 			carparkUserService.saveUser(user);
+			if (m.getCarparkNo() != null) {
+				SingleCarparkCarpark carpark = m.getCarpark();
+				Integer fixNumberOfSlot = carpark.getFixNumberOfSlot();
+				Integer flag=fixNumberOfSlot==null?m.getCarparkNo():fixNumberOfSlot+m.getCarparkNo();
+				carpark.setFixNumberOfSlot(flag);
+				Integer tempNumberOfSlot=carpark.getTotalNumberOfSlot()-flag;
+				carpark.setTempNumberOfSlot(tempNumberOfSlot);
+				sp.getCarparkService().saveCarpark(carpark);
+			}
 			commonui.info("操作成功", "保存成功!");
 			refreshUser();
 		} catch (Exception e) {
@@ -637,5 +649,9 @@ public class CarparkManagePresenter {
 
 	public CarparkPayHistoryPresenter getCarparkPayHistoryPresenter() {
 		return carparkPayHistoryPresenter;
+	}
+
+	public ReturnAccountPresenter getReturnAccountPresenter() {
+		return returnAccountPresenter;
 	}
 }

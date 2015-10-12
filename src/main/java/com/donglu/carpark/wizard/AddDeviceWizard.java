@@ -32,9 +32,23 @@ public class AddDeviceWizard extends Wizard implements AbstractWizard{
 		
 		
 		if (StrUtil.isEmpty(model.getAddress())||StrUtil.isEmpty(model.getName())||StrUtil.isEmpty(model.getIp())||
-				StrUtil.isEmpty(roadType)||StrUtil.isEmpty(identifire)||StrUtil.isEmpty(carpark)||StrUtil.isEmpty(linkAddress)) {
+				StrUtil.isEmpty(roadType)||StrUtil.isEmpty(identifire)||StrUtil.isEmpty(carpark)) {
 			page.setErrorMessage("请填写完整信息");
 			return false;
+		}
+		if (model.getType().equals("tcp")) {
+			if (model.getTcpAddress()!=null) {
+				model.setLinkAddress(model.getTcpAddress());
+			}else{
+				page.setErrorMessage("请填写语音连接");
+				return false;
+			}
+		}else if(model.getType().equals("485")){
+			if (model.getSerialAddress()!=null) {
+				model.setLinkAddress(model.getSerialAddress());
+			}else{page.setErrorMessage("请填写语音连接");
+				return false;
+			}
 		}
 		return true;
 	}

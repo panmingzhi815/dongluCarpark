@@ -7,6 +7,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
 public class SingleCarparkDevice extends DomainObject{
 	/**
@@ -83,6 +84,11 @@ public class SingleCarparkDevice extends DomainObject{
 	}
 	public void setCarpark(SingleCarparkCarpark carpark) {
 		this.carpark = carpark;
+		if (!StrUtil.isEmpty(carpark)) {
+			if (StrUtil.isEmpty(carpark.getId())) {
+				this.carparkId=carpark.getId();
+			}
+		}
 		if (pcs != null)
 			pcs.firePropertyChange("carpark", null, null);
 	}

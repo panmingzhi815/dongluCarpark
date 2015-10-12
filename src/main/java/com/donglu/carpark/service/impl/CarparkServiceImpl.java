@@ -26,6 +26,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.MapperConfig;
@@ -343,7 +344,7 @@ public class CarparkServiceImpl implements CarparkService {
 			c.add(Restrictions.or(Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.userName.name(), userName,MatchMode.START),
 					Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.userName.name(), userName,MatchMode.END)));
 		}
-		if (!StrUtil.isEmpty(userName)) {
+		if (!StrUtil.isEmpty(operaName)) {
 			c.add(Restrictions.or(Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.operaName.name(), operaName,MatchMode.START),
 					Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.operaName.name(), operaName,MatchMode.END)));
 		}
@@ -370,6 +371,19 @@ public class CarparkServiceImpl implements CarparkService {
 		} finally{
 			unitOfWork.end();
 		}
+	}
+
+	@Transactional
+	public Long saveReturnAccount(SingleCarparkReturnAccount a) {
+		DatabaseOperation<SingleCarparkReturnAccount> dom = DatabaseOperation
+				.forClass(SingleCarparkReturnAccount.class, emprovider.get());
+		if (a.getId() == null) {
+			dom.insert(a);
+		} else {
+			dom.save(a);
+		}
+		return a.getId();
+		
 	}
 
 }

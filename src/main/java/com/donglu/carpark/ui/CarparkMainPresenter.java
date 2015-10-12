@@ -2,6 +2,8 @@ package com.donglu.carpark.ui;
 
 import java.awt.Canvas;
 import java.awt.Frame;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -19,13 +21,19 @@ import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.wizard.AddDeviceModel;
 import com.donglu.carpark.wizard.AddDeviceWizard;
+import com.donglu.carpark.wizard.ReturnAccountWizard;
+import com.donglu.carpark.wizard.model.ReturnAccountModel;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
+import com.dongluhitec.card.mapper.BeanUtil;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Inject;
 
@@ -85,7 +93,11 @@ public class CarparkMainPresenter {
 	 */
 	public void addDevice(CTabFolder tabFolder, String type) {
 		try {
-			AddDeviceWizard v = new AddDeviceWizard(new AddDeviceModel());
+			AddDeviceModel model = new AddDeviceModel();
+			model.setList(sp.getCarparkService().findAllCarpark());
+			model.setType("tcp");
+			AddDeviceWizard v = new AddDeviceWizard(model);
+			
 			AddDeviceModel showWizard = (AddDeviceModel) commonui.showWizard(v);
 			if (showWizard == null) {
 				return;
@@ -236,22 +248,26 @@ public class CarparkMainPresenter {
 	public void editDevice(CTabFolder tabFolder, String type) {
 		try {
 			CTabItem selection = tabFolder.getSelection();
-			String name = selection.getText();
-			String link = mapDeviceTabItem.get(selection);
-
+			if (StrUtil.isEmpty(selection)) {
+				return;
+			}
+			String oldIp = mapDeviceTabItem.get(selection);
+			SingleCarparkDevice device = mapIpToDevice.get(oldIp);
 			AddDeviceModel model = new AddDeviceModel();
-			model.setName(name);
-			model.setIp(link);
+			model.setDevice(device);
 			AddDeviceWizard v = new AddDeviceWizard(model);
+			model.setList(sp.getCarparkService().findAllCarpark());
 			AddDeviceModel showWizard = (AddDeviceModel) commonui.showWizard(v);
 			if (showWizard == null) {
 				return;
 			}
 			String ip = showWizard.getIp();
 
-			if (ip.equals(link)) {
+			if (ip.equals(oldIp)) {
 				selection.setText(showWizard.getName());
-				commonui.error("修改成功", "修改设备" + ip + "成功");
+				mapIpToDevice.put(ip, showWizard.getDevice());
+				com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
+				commonui.info("修改成功", "修改设备" + ip + "成功");
 				return;
 			} else {
 				if (mapDeviceType.get(ip) != null) {
@@ -259,6 +275,7 @@ public class CarparkMainPresenter {
 					return;
 				}
 				deleteDeviceTabItem(selection);
+				addDevice(showWizard.getDevice());
 				addDevice(tabFolder, type, ip, showWizard.getName());
 			}
 		} catch (Exception e1) {
@@ -296,5 +313,111 @@ public class CarparkMainPresenter {
 	}
 	public void setModel(CarparkMainModel model) {
 		this.model = model;
+	}
+	/**
+	 * 归账
+	 */
+	/**
+	 * 
+	 */
+	public void returnAccount() {
+		try {
+			ReturnAccountModel model = new ReturnAccountModel();
+			String userName = this.model.getUserName();
+			model.setReturnUser(userName);
+			CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
+			float shouldMoney=carparkInOutService.findShouldMoneyByName(userName);
+			float factMoney=carparkInOutService.findFactMoneyByName(userName);
+			float freeMoney=carparkInOutService.findFreeMoneyByName(userName);
+			model.setShouldReturn(shouldMoney);
+			model.setFactReturn(factMoney);
+			ReturnAccountWizard wizard=new ReturnAccountWizard(model,sp);
+			ReturnAccountModel m = (ReturnAccountModel) commonui.showWizard(wizard);
+			if (StrUtil.isEmpty(m)) {
+				return;
+			}
+			SingleCarparkReturnAccount a = new SingleCarparkReturnAccount();
+			BeanUtil.copyProperties(m, a, "returnUser","factReturn","shouldReturn","operaName");
+			a.setReturnTime(new Date());
+			Long saveReturnAccount = sp.getCarparkService().saveReturnAccount(a);
+			
+			List<SingleCarparkInOutHistory> list=carparkInOutService.findNotReturnAccount(a.getReturnUser());
+			for (SingleCarparkInOutHistory singleCarparkInOutHistory : list) {
+				singleCarparkInOutHistory.setReturnAccount(saveReturnAccount);
+			}
+			carparkInOutService.saveInOutHistoryOfList(list);
+			this.model.setTotalCharge(carparkInOutService.findFactMoneyByName(userName));
+			this.model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * 显示屏显示，语音
+	 * @param device 设备
+	 * @param string 显示
+	 * @param i 音量
+	 * @param j 显示屏上下
+	 */
+	public void showMesToDevice(SingleCarparkDevice device, String string, int i, int j) {
+		
+		
+	}
+	/**
+	 * 开门，设备开闸
+	 * @param device
+	 */
+	public void openDoor(SingleCarparkDevice device) {
+		
+		
+	}
+	/**
+	 * 免费放行
+	 */
+	public void freeCarPass() {
+		String plateNo = model.getPlateNo();
+		SingleCarparkInOutHistory history = model.getHistory();
+		
+		float real = 0;
+		float shouldMony = model.getShouldMony();
+		boolean confirm = commonui.confirm("收费确认", "车牌："+plateNo+"应收："+shouldMony+"免费放行");
+		if (!confirm) {
+			return;
+		}
+		history.setFactMoney(real);
+		history.setFreeMoney(shouldMony-real);
+		sp.getCarparkInOutService().saveInOutHistory(history);
+		
+	}
+	/**
+	 * 收费放行
+	 */
+	public void chargeCarPass() {
+		
+		String plateNo = model.getPlateNo();
+		SingleCarparkInOutHistory history = model.getHistory();
+		
+		float real = model.getReal();
+		float shouldMony = model.getShouldMony();
+		boolean confirm = commonui.confirm("收费确认", "车牌："+plateNo+"应收："+shouldMony+"实收："+real);
+		if (!confirm) {
+			return;
+		}
+		history.setFactMoney(real);
+		history.setFreeMoney(shouldMony-real);
+		sp.getCarparkInOutService().saveInOutHistory(history);
+	}
+	/**
+	 * 计算收费
+	 * @return
+	 */
+	public float countShouldMoney() {
+		
+		return 20;
+	}
+	public void changeUser() {
+		
+		
 	}
 }

@@ -11,6 +11,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 
 public interface CarparkService {
@@ -84,6 +85,8 @@ public interface CarparkService {
 	 */
 	public List<SingleCarparkMonthlyUserPayHistory> findMonthlyUserPayHistoryByCondition(int maxResult, int size, String userName, String operaName, Date start, Date end);
 	public int countMonthlyUserPayHistoryByCondition(String userName, String operaName, Date start, Date end);
+	
+	public Long saveReturnAccount(SingleCarparkReturnAccount a);
 	
 	
 }

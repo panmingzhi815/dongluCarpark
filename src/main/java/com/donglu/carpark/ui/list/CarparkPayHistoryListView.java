@@ -1,13 +1,14 @@
 package com.donglu.carpark.ui.list;
 
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.ToolBar;
 
 import com.donglu.carpark.ui.common.AbstractListView;
+import com.donglu.carpark.ui.view.CarparkPayHistoryPresenter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 
 public class CarparkPayHistoryListView extends AbstractListView<SingleCarparkMonthlyUserPayHistory> {
-	
-	
+	CarparkPayHistoryListPresenter presenter;
 	public CarparkPayHistoryListView(Composite parent, int style) {
 		super(parent, style, SingleCarparkMonthlyUserPayHistory.class,
 				new String[]{SingleCarparkMonthlyUserPayHistory.Property.userName.name(),
@@ -23,8 +24,24 @@ public class CarparkPayHistoryListView extends AbstractListView<SingleCarparkMon
 
 	@Override
 	protected void searchMore() {
-		
-		
+		presenter.searMore();
 	}
 
+
+	public CarparkPayHistoryListPresenter getPresenter() {
+		return presenter;
+	}
+
+	public void setPresenter(CarparkPayHistoryListPresenter presenter) {
+		this.presenter = presenter;
+	}
+
+	@Override
+	protected void createMenuBarToolItem(ToolBar toolBar_menu) {
+	}
+
+	@Override
+	protected void createRefreshBarToolItem(ToolBar toolBar_refresh) {
+	}
+	
 }

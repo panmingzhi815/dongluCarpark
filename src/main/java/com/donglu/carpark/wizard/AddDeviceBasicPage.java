@@ -158,7 +158,7 @@ public class AddDeviceBasicPage extends WizardPage {
 			}
 		});
 		radio_serial.setText("485");
-		model.setType("tcp");
+		
 		
 		label_4 = new Label(composite, SWT.NONE);
 		label_4.setText("连接类型");
@@ -175,7 +175,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		layout.marginWidth = 0;
 		serialComposite.setLayout(layout);
 
-		serialNameComboViewer = new ComboViewer(serialComposite, SWT.NONE);
+		serialNameComboViewer = new ComboViewer(serialComposite, SWT.READ_ONLY);
 		combo_serialName = serialNameComboViewer.getCombo();
 		GridData serialNameGridData = new GridData();
 		serialNameGridData.widthHint = 40;
@@ -199,7 +199,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_6.setText("通道类型");
 		
-		comboViewer = new ComboViewer(composite, SWT.NONE);
+		comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
 		combo = comboViewer.getCombo();
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		comboViewer.setContentProvider(new ArrayContentProvider());
@@ -211,9 +211,21 @@ public class AddDeviceBasicPage extends WizardPage {
 		label_7.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_7.setText("停车场");
 		
-		comboViewer_1 = new ComboViewer(composite, SWT.NONE);
+		comboViewer_1 = new ComboViewer(composite, SWT.READ_ONLY);
 		combo_1 = comboViewer_1.getCombo();
 		combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		if (model.getType().equals("tcp")) {
+			address_stack.topControl = text_tcpip;
+			address_stack_container.layout();
+			radio_tcpip.setSelection(true);
+			radio_serial.setSelection(false);
+		}
+		if (model.getType().equals("485")) {
+			address_stack.topControl = serialComposite;
+			address_stack_container.layout();
+			radio_tcpip.setSelection(false);
+			radio_serial.setSelection(true);
+		}
 		bindingContext = initDataBindings();
 
 	}
@@ -248,10 +260,6 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue roadTypeModelObserveValue = BeanProperties.value("roadType").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer, roadTypeModelObserveValue, null, null);
 		//
-		IObservableValue observeSingleSelectionComboViewer_1 = ViewerProperties.singleSelection().observe(comboViewer_1);
-		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
-		bindingContext.bindValue(observeSingleSelectionComboViewer_1, carparkModelObserveValue, null, null);
-		//
 		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
 		IObservableMap observeMap = BeansObservables.observeMap(listContentProvider.getKnownElements(), SingleCarparkCarpark.class, "name");
 		comboViewer_1.setLabelProvider(new ObservableMapLabelProvider(observeMap));
@@ -259,6 +267,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		//
 		IObservableList listModelObserveList = BeanProperties.list("list").observe(model);
 		comboViewer_1.setInput(listModelObserveList);
+		//
+		IObservableValue observeSingleSelectionComboViewer_1 = ViewerProperties.singleSelection().observe(comboViewer_1);
+		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer_1, carparkModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

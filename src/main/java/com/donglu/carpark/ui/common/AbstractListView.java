@@ -25,6 +25,8 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
+
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.beans.BeanProperties;
@@ -80,6 +82,13 @@ public abstract class AbstractListView<T> extends Composite {
 			this.countSearchAll = countSearchAll;
 			if (pcs != null)
 				pcs.firePropertyChange("countSearchAll", null, null);
+		}
+
+		public void AddList(List<T> list2) {
+			this.list.addAll(list2);
+			if (pcs != null)
+				pcs.firePropertyChange("list", null, null);
+			
 		}
 	}
 	

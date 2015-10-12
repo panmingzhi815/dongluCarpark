@@ -93,10 +93,12 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 
 	private void createCriteriaByCondition(Criteria c, String plateNo, String userName, String carType, String inout, Date in, Date out, String operaName) {
 		if (!StrUtil.isEmpty(plateNo)) {
-			c.add(Restrictions.like(SingleCarparkInOutHistory.Property.plateNo.name(), plateNo,MatchMode.ANYWHERE));
+			c.add(Restrictions.or(Restrictions.like(SingleCarparkInOutHistory.Property.plateNo.name(), plateNo,MatchMode.START),
+					Restrictions.like(SingleCarparkInOutHistory.Property.plateNo.name(), plateNo,MatchMode.END)));
 		}
 		if (!StrUtil.isEmpty(userName)) {
-			c.add(Restrictions.like(SingleCarparkInOutHistory.Property.userName.name(), userName,MatchMode.ANYWHERE));
+			c.add(Restrictions.or(Restrictions.like(SingleCarparkInOutHistory.Property.userName.name(), userName,MatchMode.START),
+					Restrictions.like(SingleCarparkInOutHistory.Property.userName.name(), userName,MatchMode.END)));
 		}
 		if (!StrUtil.isEmpty(carType)) {
 			if (!carType.equals("全部")) {
@@ -142,6 +144,87 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		} finally {
 			unitOfWork.end();
 		}
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> findNotReturnAccount(String returnUser) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.returnAccount.name()));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.operaName.name(), returnUser));
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public float findShouldMoneyByName(String userName) {
+		unitOfWork.begin();
+		try {
+			System.out.println();
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.returnAccount.name()));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.operaName.name(), userName));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
+			c.setProjection(Projections.sum(SingleCarparkInOutHistory.Property.shouldMoney.name()));
+			Object singleResult2 = c.getSingleResult();
+			Double singleResult = (Double) c.getSingleResult();
+			return singleResult==null?0:singleResult.intValue();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public float findFactMoneyByName(String userName) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.returnAccount.name()));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.operaName.name(), userName));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
+			c.setProjection(Projections.sum(SingleCarparkInOutHistory.Property.factMoney.name()));
+			Double singleResult = (Double) c.getSingleResult();
+			return singleResult==null?0:singleResult.intValue();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public float findFreeMoneyByName(String userName) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.returnAccount.name()));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.operaName.name(), userName));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
+			c.setProjection(Projections.sum(SingleCarparkInOutHistory.Property.freeMoney.name()));
+			Double singleResult = (Double) c.getSingleResult();
+			return singleResult==null?0:singleResult.intValue();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Transactional
+	public Long saveInOutHistoryOfList(List<SingleCarparkInOutHistory> list) {
+		DatabaseOperation<SingleCarparkInOutHistory> dom = DatabaseOperation.forClass(SingleCarparkInOutHistory.class, emprovider.get());
+		for (SingleCarparkInOutHistory inout : list) {
+			if (inout.getId() == null) {
+				dom.insert(inout);
+			} else {
+				dom.save(inout);
+			}
+		}
+		
+		return list.size()*1L;
 	}
 
 }

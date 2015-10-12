@@ -69,7 +69,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			if (!StrUtil.isEmpty(name)) {
 				c.add(Restrictions.like("name", name, MatchMode.ANYWHERE));
 			}
-			if (StrUtil.isEmpty(plateNo)) {
+			if (!StrUtil.isEmpty(plateNo)) {
 				c.add(Restrictions.like("plateNo", plateNo, MatchMode.ANYWHERE));
 			}
 			return c.getResultList();

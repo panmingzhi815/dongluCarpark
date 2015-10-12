@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -18,14 +19,16 @@ public class SingleCarparkUser extends DomainObject {
 	private String plateNo;
 	private String type;
 	private String address;
-	private String carparkNo;
+	private Integer carparkNo;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createDate;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date validTo;
+	private Integer remindDays;
+	private Integer delayDays;
 	
 	private String remark;
-	@OneToOne
+	@ManyToOne
 	private SingleCarparkCarpark carpark;
 	public String getName() {
 		return name;
@@ -59,10 +62,10 @@ public class SingleCarparkUser extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("address", null, null);
 	}
-	public String getCarparkNo() {
+	public Integer getCarparkNo() {
 		return carparkNo;
 	}
-	public void setCarparkNo(String carparkNo) {
+	public void setCarparkNo(Integer carparkNo) {
 		this.carparkNo = carparkNo;
 		if (pcs != null)
 			pcs.firePropertyChange("carparkNo", null, null);
@@ -98,5 +101,21 @@ public class SingleCarparkUser extends DomainObject {
 		this.remark = remark;
 		if (pcs != null)
 			pcs.firePropertyChange("remark", null, null);
+	}
+	public Integer getRemindDays() {
+		return remindDays;
+	}
+	public void setRemindDays(Integer remindDays) {
+		this.remindDays = remindDays;
+		if (pcs != null)
+			pcs.firePropertyChange("remindDays", null, null);
+	}
+	public Integer getDelayDays() {
+		return delayDays;
+	}
+	public void setDelayDays(Integer delayDays) {
+		this.delayDays = delayDays;
+		if (pcs != null)
+			pcs.firePropertyChange("delayDays", null, null);
 	}
 }

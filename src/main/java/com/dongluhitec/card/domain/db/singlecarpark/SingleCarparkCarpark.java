@@ -40,11 +40,19 @@ public class SingleCarparkCarpark extends DomainObject {
 	
 	@NotNull(message = "车位总数不能为空")
 	@Min(value = 0, message = "车位总数不能小于0")
-	private int totalNumberOfSlot;
+	private Integer totalNumberOfSlot;
 	
 	@NotNull(message = "剩余车位总数不能为空")
 	@Min(value = 0, message = "剩余车位总数不能小于0")
-	private int leftNumberOfSlot;
+	private Integer leftNumberOfSlot;
+	
+	@Column(name = "fixNumberOfSlot")
+	@Min(value = 0, message = "固定车位总数不能小于0")
+	private Integer fixNumberOfSlot;
+
+	@Column(name = "tempNumberOfSlot")
+	@Min(value = 0, message = "临时车位总数不能小于0")
+	private Integer tempNumberOfSlot;
 	
 	public String getCode() {
 		return code;
@@ -110,10 +118,9 @@ public class SingleCarparkCarpark extends DomainObject {
 	}
 	@Override
 	public String toString() {
-		// TODO 自动生成的方法存根
 		return this.getCode()+"-"+this.getName();
 	}
-	public int getTotalNumberOfSlot() {
+	public Integer getTotalNumberOfSlot() {
 		return totalNumberOfSlot;
 	}
 	public void setTotalNumberOfSlot(int totalNumberOfSlot) {
@@ -121,10 +128,39 @@ public class SingleCarparkCarpark extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("totalNumberOfSlot", null, null);
 	}
-	public int getLeftNumberOfSlot() {
+	public Integer getLeftNumberOfSlot() {
 		return leftNumberOfSlot;
 	}
 	public void setLeftNumberOfSlot(int leftNumberOfSlot) {
+		this.leftNumberOfSlot = leftNumberOfSlot;
+		if (pcs != null)
+			pcs.firePropertyChange("leftNumberOfSlot", null, null);
+	}
+	public Integer getFixNumberOfSlot() {
+		return fixNumberOfSlot;
+	}
+	public void setFixNumberOfSlot(Integer fixNumberOfSlot) {
+		this.fixNumberOfSlot = fixNumberOfSlot;
+		if (pcs != null)
+			pcs.firePropertyChange("fixNumberOfSlot", null, null);
+	}
+	public Integer getTempNumberOfSlot() {
+		return tempNumberOfSlot;
+	}
+	public void setTempNumberOfSlot(Integer tempNumberOfSlot) {
+		this.tempNumberOfSlot = tempNumberOfSlot;
+		if (pcs != null)
+			pcs.firePropertyChange("tempNumberOfSlot", null, null);
+	}
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	public void setTotalNumberOfSlot(Integer totalNumberOfSlot) {
+		this.totalNumberOfSlot = totalNumberOfSlot;
+		if (pcs != null)
+			pcs.firePropertyChange("totalNumberOfSlot", null, null);
+	}
+	public void setLeftNumberOfSlot(Integer leftNumberOfSlot) {
 		this.leftNumberOfSlot = leftNumberOfSlot;
 		if (pcs != null)
 			pcs.firePropertyChange("leftNumberOfSlot", null, null);

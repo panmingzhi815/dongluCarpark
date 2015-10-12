@@ -3,6 +3,7 @@ package com.donglu.carpark.model;
 import java.util.Date;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 
 public class CarparkMainModel extends DomainObject{
 	String userName;
@@ -22,6 +23,8 @@ public class CarparkMainModel extends DomainObject{
 	String totalTime;
 	float shouldMony;
 	float real;
+	
+	SingleCarparkInOutHistory history;
 	
 	boolean btnClick=false;
 	
@@ -152,6 +155,14 @@ public class CarparkMainModel extends DomainObject{
 		this.btnClick = btnClick;
 		if (pcs != null)
 			pcs.firePropertyChange("btnClick", null, null);
+	}
+	public SingleCarparkInOutHistory getHistory() {
+		return history;
+	}
+	public void setHistory(SingleCarparkInOutHistory history) {
+		this.history = history;
+		if (pcs != null)
+			pcs.firePropertyChange("history", null, null);
 	}
 	
 }

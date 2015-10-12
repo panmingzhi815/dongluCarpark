@@ -56,5 +56,23 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		if (pcs != null)
 			pcs.firePropertyChange("tcpAddress", null, null);
 	}
+	public void setDevice(SingleCarparkDevice device) {
+		setAddress(device.getAddress());
+		setCarpark(device.getCarpark());
+		setId(device.getId());
+		setIdentifire(device.getIdentifire());
+		setInType(device.getInType());
+		setIp(device.getIp());
+		setLinkAddress(device.getLinkAddress());
+		setName(device.getName());
+		setRoadType(device.getRoadType());
+		setType(device.getType());
+		String type2 = device.getType();
+		if (type2.equals("tcp")) {
+			setTcpAddress(device.getLinkAddress());
+		}else{
+			setSerialAddress(device.getLinkAddress());
+		}
+	}
 	
 }

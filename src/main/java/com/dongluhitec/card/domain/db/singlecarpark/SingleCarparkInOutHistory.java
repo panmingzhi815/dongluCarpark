@@ -13,7 +13,7 @@ import com.dongluhitec.card.domain.db.DomainObject;
 public class SingleCarparkInOutHistory extends DomainObject{
 	
 	public enum Property{
-		plateNo,userName,carType,inTime,outTime,inDevice,outDevice,operaName,returnAccount
+		plateNo,userName,carType,inTime,outTime,inDevice,outDevice,operaName,returnAccount,shouldMoney,factMoney,freeMoney
 	}
 	/**
 	 * 
