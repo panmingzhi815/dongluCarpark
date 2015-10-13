@@ -246,7 +246,7 @@ public class CarparkManageApp implements App{
 				presenter.addCarpark();
 			}
 		});
-		toolItem_add.setText("+");
+		toolItem_add.setText("添加");
 		
 		ToolItem toolItem_1 = new ToolItem(carparkConfigToolBar, SWT.NONE);
 		toolItem_1.addSelectionListener(new SelectionAdapter() {
@@ -255,7 +255,7 @@ public class CarparkManageApp implements App{
 				presenter.deleteCarpark();
 			}
 		});
-		toolItem_1.setText("-");
+		toolItem_1.setText("删除");
 		
 		treeViewer = new TreeViewer(composite_3, SWT.BORDER);
 		Tree tree = treeViewer.getTree();
@@ -284,22 +284,24 @@ public class CarparkManageApp implements App{
 		toolBar_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		
 		ToolItem toolItem_2 = new ToolItem(toolBar_1, SWT.NONE);
+		toolItem_2.setToolTipText("添加临时收费设置");
 		toolItem_2.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				presenter.addTempCharge(null);
 			}
 		});
-		toolItem_2.setText("+");
+		toolItem_2.setText("添加临时");
 		
 		ToolItem toolItem_14 = new ToolItem(toolBar_1, SWT.NONE);
+		toolItem_14.setToolTipText("添加固定收费设置");
 		toolItem_14.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				presenter.addMonthCharge();
 			}
 		});
-		toolItem_14.setText("#");
+		toolItem_14.setText("添加固定");
 		
 		ToolItem toolItem_3 = new ToolItem(toolBar_1, SWT.NONE);
 		toolItem_3.addSelectionListener(new SelectionAdapter() {
@@ -308,11 +310,11 @@ public class CarparkManageApp implements App{
 				presenter.deleteCarparkCharge();
 			}
 		});
-		toolItem_3.setText("-");
+		toolItem_3.setText("删除");
 		
 		ToolItem toolItem_8 = new ToolItem(toolBar_1, SWT.NONE);
 		toolItem_8.setToolTipText("修改");
-		toolItem_8.setText("/");
+		toolItem_8.setText("修改");
 		
 		tableViewer = new TableViewer(composite_4, SWT.BORDER | SWT.FULL_SELECTION);
 		table = tableViewer.getTable();
@@ -387,7 +389,7 @@ public class CarparkManageApp implements App{
 				presenter.monthUserPay();
 			}
 		});
-		toolItem_7.setText("$");
+		toolItem_7.setText("充值");
 		
 		ToolItem toolItem_4 = new ToolItem(toolBar_user, SWT.NONE);
 		toolItem_4.addSelectionListener(new SelectionAdapter() {
@@ -396,7 +398,7 @@ public class CarparkManageApp implements App{
 				presenter.addCarparkUser();
 			}
 		});
-		toolItem_4.setText("+");
+		toolItem_4.setText("添加");
 		
 		ToolItem toolItem_delete = new ToolItem(toolBar_user, SWT.NONE);
 		toolItem_delete.addSelectionListener(new SelectionAdapter() {
@@ -405,7 +407,7 @@ public class CarparkManageApp implements App{
 				presenter.delCarparkUser();
 			}
 		});
-		toolItem_delete.setText("-");
+		toolItem_delete.setText("删除");
 		
 		ToolItem toolItem_edit = new ToolItem(toolBar_user, SWT.NONE);
 		toolItem_edit.addSelectionListener(new SelectionAdapter() {
@@ -414,7 +416,7 @@ public class CarparkManageApp implements App{
 				presenter.editCarparkUser();
 			}
 		});
-		toolItem_edit.setText("/");
+		toolItem_edit.setText("修改");
 		
 		tableViewer_user = new TableViewer(composite_2, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
 		table_user = tableViewer_user.getTable();
@@ -801,7 +803,7 @@ public class CarparkManageApp implements App{
 				presenter.addSystemUser();
 			}
 		});
-		toolItem_addSystemUser.setText("+");
+		toolItem_addSystemUser.setText("添加");
 		
 		ToolItem toolItem_10 = new ToolItem(toolBar_systemUser, SWT.NONE);
 		toolItem_10.addSelectionListener(new SelectionAdapter() {
@@ -810,7 +812,7 @@ public class CarparkManageApp implements App{
 				presenter.deleteSystemUser();
 			}
 		});
-		toolItem_10.setText("-");
+		toolItem_10.setText("删除");
 		
 		ToolItem toolItem_11 = new ToolItem(toolBar_systemUser, SWT.NONE);
 		toolItem_11.addSelectionListener(new SelectionAdapter() {
@@ -819,7 +821,7 @@ public class CarparkManageApp implements App{
 				presenter.editSystemUser();
 			}
 		});
-		toolItem_11.setText("/");
+		toolItem_11.setText("修改");
 		
 		tableViewer_1 = new TableViewer(composite_9, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
 		table_5 = tableViewer_1.getTable();
@@ -1140,10 +1142,10 @@ public class CarparkManageApp implements App{
 				commonui.showWizard(v);
 			}
 		});
-		toolItem_12.setText("+");
+		toolItem_12.setText("添加");
 		
 		ToolItem toolItem_13 = new ToolItem(toolBar_4, SWT.NONE);
-		toolItem_13.setText("-");
+		toolItem_13.setText("删除");
 		
 		TableViewer tableViewer_6 = new TableViewer(composite_13, SWT.BORDER | SWT.FULL_SELECTION);
 		table_6 = tableViewer_6.getTable();

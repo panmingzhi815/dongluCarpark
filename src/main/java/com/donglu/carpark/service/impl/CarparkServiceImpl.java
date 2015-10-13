@@ -386,4 +386,17 @@ public class CarparkServiceImpl implements CarparkService {
 		
 	}
 
+	@Override
+	public SingleCarparkCarpark findCarparkById(Long id) {
+		unitOfWork.begin();
+		try {
+    		DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation
+    				.forClass(SingleCarparkCarpark.class, emprovider.get());
+    		SingleCarparkCarpark entityWithId = dom.getEntityWithId(id);
+    		return entityWithId;
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
 }

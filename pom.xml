@@ -94,7 +94,7 @@
             <configuration>
                 <!-- Specifies the configuration file of the assembly plugin -->
                 	<appendAssemblyId>false</appendAssemblyId>
-					<finalName>carpark-${dev.build.timestamp}</finalName>
+					<finalName>carpark-${dev.build.timestamp}-V1.0.0.1</finalName>
                 <descriptors>
                     <descriptor>src/main/resources/package.xml</descriptor>
                 </descriptors>

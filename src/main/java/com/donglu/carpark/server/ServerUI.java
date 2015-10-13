@@ -26,8 +26,6 @@ import com.dongluhitec.card.blservice.DatabaseServiceProvider;
 import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIFacility.Progress;
-import com.dongluhitec.card.server.ui.DongluServerConfig;
-import com.dongluhitec.card.server.ui.DongluServerInit;
 import com.dongluhitec.card.server.util.DatabaseUtil;
 import com.dongluhitec.card.service.DbServiceConfigurator;
 import com.dongluhitec.card.service.impl.LocalVMServiceProvider;

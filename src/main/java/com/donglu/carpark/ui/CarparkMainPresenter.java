@@ -24,12 +24,15 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.wizard.AddDeviceModel;
 import com.donglu.carpark.wizard.AddDeviceWizard;
+import com.donglu.carpark.wizard.ChangeUserWizard;
 import com.donglu.carpark.wizard.ReturnAccountWizard;
+import com.donglu.carpark.wizard.model.ChangeUserModel;
 import com.donglu.carpark.wizard.model.ReturnAccountModel;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
@@ -418,6 +421,23 @@ public class CarparkMainPresenter {
 	}
 	public void changeUser() {
 		
+		ChangeUserWizard wizard=new ChangeUserWizard(new ChangeUserModel(), sp);
+		ChangeUserModel showWizard = (ChangeUserModel) commonui.showWizard(wizard);
+		if (StrUtil.isEmpty(showWizard)) {
+			return;
+		}
+		SingleCarparkSystemUser systemUser = showWizard.getSystemUser();
+		String userName = systemUser.getUserName();
+		System.setProperty("userName", userName);
+		System.setProperty("userType", systemUser.getType());
 		
+		model.setBtnClick(false);
+		model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow());
+		model.setUserName(userName);
+		model.setWorkTime(new Date());
+		model.setTotalCharge(sp.getCarparkInOutService().findShouldMoneyByName(userName));
+		model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
+		model.setMonthSlot(sp.getCarparkInOutService().findFixSlotIsNow());
+		model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow());
 	}
 }

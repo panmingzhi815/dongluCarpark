@@ -626,7 +626,7 @@ public class CarparkManagePresenter {
         BeanUtil.copyProperties(resultModel, carparkChargeStandard, CarparkChargeStandard.Property.values());
         try {
 			carparkChargeStandard.setCarpark(current);
-//			Long aLong = carparkService.saveCarparkChargeStandard(carparkChargeStandard);
+			carparkService.saveCarparkChargeStandard(carparkChargeStandard);
 			refreshCarparkCharge();
 		} catch (Exception e) {
 			e.printStackTrace();

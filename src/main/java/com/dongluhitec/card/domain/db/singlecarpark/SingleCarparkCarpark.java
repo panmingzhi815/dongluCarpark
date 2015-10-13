@@ -19,6 +19,9 @@ import com.dongluhitec.card.domain.db.DomainObject;
 
 @Entity
 public class SingleCarparkCarpark extends DomainObject {
+	public enum Property{
+		totalNumberOfSlot,fixNumberOfSlot,tempNumberOfSlot
+	}
 
 	/**
 	 * 

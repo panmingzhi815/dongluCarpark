@@ -227,4 +227,66 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		return list.size()*1L;
 	}
 
+	@Override
+	public int findFixSlotIsNow() {
+		unitOfWork.begin();
+		try {
+			Criteria cc = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
+			cc.setProjection(Projections.sum(SingleCarparkCarpark.Property.fixNumberOfSlot.name()));
+			Long singleResult2 = (Long) cc.getSingleResult();
+			int intValue = singleResult2==null?0:singleResult2.intValue();
+			
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "固定车"));
+			c.setProjection(Projections.rowCount());
+			Long singleResult = (Long) c.getSingleResult();
+			int now=singleResult==null?0:singleResult.intValue();
+			return intValue-singleResult.intValue();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public int findTempSlotIsNow() {
+		unitOfWork.begin();
+		try {
+			Criteria cc = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
+			cc.setProjection(Projections.sum(SingleCarparkCarpark.Property.tempNumberOfSlot.name()));
+			Long singleResult2 = (Long) cc.getSingleResult();
+			int intValue = singleResult2==null?0:singleResult2.intValue();
+			
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
+			c.setProjection(Projections.rowCount());
+			Long singleResult = (Long) c.getSingleResult();
+			int now=singleResult==null?0:singleResult.intValue();
+			return intValue-now;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public int findTotalSlotIsNow() {
+		unitOfWork.begin();
+		try {
+			Criteria cc = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
+			cc.setProjection(Projections.sum(SingleCarparkCarpark.Property.totalNumberOfSlot.name()));
+			 Object singleResult2 = cc.getSingleResult();
+			int intValue = singleResult2==null?0:((Long)singleResult2).intValue();
+			
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.setProjection(Projections.rowCount());
+			Long singleResult = (Long) c.getSingleResult();
+			int now=singleResult==null?0:singleResult.intValue();
+			return intValue-now;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
 }

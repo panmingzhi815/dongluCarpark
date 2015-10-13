@@ -89,4 +89,7 @@ public interface CarparkService {
 	public Long saveReturnAccount(SingleCarparkReturnAccount a);
 	
 	
+	public SingleCarparkCarpark findCarparkById(Long id);
+	
+	
 }

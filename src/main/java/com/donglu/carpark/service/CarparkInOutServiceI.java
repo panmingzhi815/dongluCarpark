@@ -38,4 +38,19 @@ public interface CarparkInOutServiceI {
 	float findFreeMoneyByName(String userName);
 	
 	Long saveInOutHistoryOfList(List<SingleCarparkInOutHistory> list);
+	/**
+	 * 查询现在的固定车位数
+	 * @return
+	 */
+	int findFixSlotIsNow();
+	/**
+	 * 查询现在的临时车位数
+	 * @return
+	 */
+	int findTempSlotIsNow();
+	/**
+	 * 查询现在的总车位数
+	 * @return
+	 */
+	int findTotalSlotIsNow();
 }
