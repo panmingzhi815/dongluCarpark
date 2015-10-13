@@ -71,6 +71,7 @@ import com.donglu.carpark.model.SystemUserModel;
 import com.donglu.carpark.model.UserModel;
 import com.donglu.carpark.wizard.AddBlackUserWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.common.ui.impl.SWTContainer;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -95,9 +96,6 @@ public class CarparkManageApp implements App{
 	private Text text_inout_plateNo;
 	private Text text_inout_userName;
 	private Text text_inout_operaName;
-	private Table table_3;
-	private Text text_3;
-	private Text text_4;
 	private SashForm sashForm;
 	private Table table_5;
 	
@@ -698,76 +696,13 @@ public class CarparkManageApp implements App{
 		button_11.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
 		button_11.setText("更多");
 		
-		TabItem tabItem_1 = new TabItem(tabFolder_searchHistory, SWT.NONE);
-		tabItem_1.setText("归账查询");
+		TabItem tbtmNewItem_3 = new TabItem(tabFolder_searchHistory, SWT.NONE);
+		tbtmNewItem_3.setText("New Item");
 		
-		Composite composite_6 = new Composite(tabFolder_searchHistory, SWT.NONE);
-		tabItem_1.setControl(composite_6);
-		composite_6.setLayout(new GridLayout(1, false));
-		
-		Group group_1 = new Group(composite_6, SWT.NONE);
-		group_1.setLayout(new GridLayout(9, false));
-		group_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		group_1.setText("查询");
-		
-		Label lblNewLabel_3 = new Label(group_1, SWT.NONE);
-		lblNewLabel_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_3.setText("操作员");
-		
-		text_3 = new Text(group_1, SWT.BORDER);
-		text_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		
-		Label lblNewLabel_4 = new Label(group_1, SWT.NONE);
-		lblNewLabel_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_4.setText("归账人");
-		
-		text_4 = new Text(group_1, SWT.BORDER);
-		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		
-		Label lblNewLabel_5 = new Label(group_1, SWT.NONE);
-		lblNewLabel_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_5.setText("时间");
-		
-		DateTime dateTime_1 = new DateTime(group_1, SWT.BORDER);
-		dateTime_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
-		Label lblNewLabel_8 = new Label(group_1, SWT.NONE);
-		lblNewLabel_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_8.setText("终止时间");
-		
-		DateTime dateTime_3 = new DateTime(group_1, SWT.BORDER);
-		dateTime_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
-		Button btnNewButton = new Button(group_1, SWT.NONE);
-		btnNewButton.setText("查询");
-		
-		TableViewer tableViewer_3 = new TableViewer(composite_6, SWT.BORDER | SWT.FULL_SELECTION);
-		table_3 = tableViewer_3.getTable();
-		table_3.setHeaderVisible(true);
-		table_3.setLinesVisible(true);
-		table_3.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
-		TableViewerColumn tableViewerColumn_9 = new TableViewerColumn(tableViewer_3, SWT.NONE);
-		TableColumn tableColumn_4 = tableViewerColumn_9.getColumn();
-		tableColumn_4.setWidth(100);
-		tableColumn_4.setText("归账人");
-		
-		TableViewerColumn tableViewerColumn_10 = new TableViewerColumn(tableViewer_3, SWT.NONE);
-		TableColumn tableColumn_5 = tableViewerColumn_10.getColumn();
-		tableColumn_5.setWidth(100);
-		tableColumn_5.setText("操作员");
-		
-		TableViewerColumn tableViewerColumn_11 = new TableViewerColumn(tableViewer_3, SWT.NONE);
-		TableColumn tableColumn_6 = tableViewerColumn_11.getColumn();
-		tableColumn_6.setWidth(100);
-		tableColumn_6.setText("金额");
-		
-		TableViewerColumn tableViewerColumn_12 = new TableViewerColumn(tableViewer_3, SWT.NONE);
-		TableColumn tableColumn_7 = tableViewerColumn_12.getColumn();
-		tableColumn_7.setWidth(100);
-		tableColumn_7.setText("时间");
+		Composite composite_inOutHostory_search = new Composite(tabFolder_searchHistory, SWT.NONE);
+		tbtmNewItem_3.setControl(composite_inOutHostory_search);
+		presenter.getInOutHostoryPresenter().go(composite_inOutHostory_search);
+		composite_inOutHostory_search.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		TabItem tabItem_7 = new TabItem(tabFolder_searchHistory, SWT.NONE);
 		tabItem_7.setText("充值记录查询");
@@ -776,7 +711,7 @@ public class CarparkManageApp implements App{
 		tabItem_7.setControl(composite_18);
 		
 		TabItem tabItem_2 = new TabItem(tabFolder_searchHistory, SWT.NONE);
-		tabItem_2.setText("New Item");
+		tabItem_2.setText("归账记录查询");
 		
 		composite_returnAccount_search = new Composite(tabFolder_searchHistory, SWT.NONE);
 		tabItem_2.setControl(composite_returnAccount_search);
@@ -1219,7 +1154,7 @@ public class CarparkManageApp implements App{
 		label_21.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_21.setText("软件版本：");
 		
-		lblNewLabel_3 = new Label(composite_21, SWT.NONE);
+		Label lblNewLabel_3 = new Label(composite_21, SWT.NONE);
 		lblNewLabel_3.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		lblNewLabel_3.setText(System.getProperty("version","读取失败"));
 		

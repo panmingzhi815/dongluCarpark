@@ -19,7 +19,9 @@ import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.service.SystemUserServiceI;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.list.CarparkPayHistoryListView;
+import com.donglu.carpark.ui.list.TestPresenter;
 import com.donglu.carpark.ui.view.CarparkPayHistoryPresenter;
+import com.donglu.carpark.ui.view.InOutHostoryPresenter;
 import com.donglu.carpark.ui.view.ReturnAccountPresenter;
 import com.donglu.carpark.wizard.AddCarparkWizard;
 import com.donglu.carpark.wizard.AddMonthChargeWizard;
@@ -68,6 +70,10 @@ public class CarparkManagePresenter {
 	private CarparkPayHistoryPresenter carparkPayHistoryPresenter;
 	@Inject
 	private ReturnAccountPresenter returnAccountPresenter;
+	@Inject
+	private InOutHostoryPresenter inOutHostoryPresenter;
+	@Inject
+	private TestPresenter p;
 
 	/**
 	 * 删除停车场
@@ -653,5 +659,13 @@ public class CarparkManagePresenter {
 
 	public ReturnAccountPresenter getReturnAccountPresenter() {
 		return returnAccountPresenter;
+	}
+
+	public TestPresenter getP() {
+		return p;
+	}
+
+	public InOutHostoryPresenter getInOutHostoryPresenter() {
+		return inOutHostoryPresenter;
 	}
 }

@@ -35,6 +35,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
 public abstract class AbstractListView<T> extends Composite {
 	private DataBindingContext m_bindingContext;
@@ -52,6 +53,7 @@ public abstract class AbstractListView<T> extends Composite {
 	
 	public class Model extends DomainObject{
 		private List<T> list=new ArrayList<>();
+		private List<T> selected=new ArrayList<>();
 		Integer countSearch;
 		Integer countSearchAll;
 		public List<T> getList() {
@@ -89,6 +91,16 @@ public abstract class AbstractListView<T> extends Composite {
 			if (pcs != null)
 				pcs.firePropertyChange("list", null, null);
 			
+		}
+
+		public List<T> getSelected() {
+			return selected;
+		}
+
+		public void setSelected(List<T> selected) {
+			this.selected = selected;
+			if (pcs != null)
+				pcs.firePropertyChange("selected", null, null);
 		}
 	}
 	
@@ -188,7 +200,7 @@ public abstract class AbstractListView<T> extends Composite {
 
 	protected void createRefreshBarToolItem(ToolBar toolBar_refresh) {
 		ToolItem tltm_refresh = new ToolItem(toolBar_refresh, SWT.NONE);
-		tltm_refresh.setText("o");
+		tltm_refresh.setText("刷新");
 	}
 	
 	protected abstract void searchMore();
@@ -199,6 +211,9 @@ public abstract class AbstractListView<T> extends Composite {
 
 	public void setTableTitle(String tableTitle) {
 		lbl_tableTitle.setText(tableTitle);
+	}
+	public void  sss(){
+		
 	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
@@ -211,6 +226,10 @@ public abstract class AbstractListView<T> extends Composite {
 		IObservableValue countSearchAllModelObserveValue = BeanProperties.value("countSearchAll").observe(model);
 		bindingContext.bindValue(observeTextLbl_allcountObserveWidget, countSearchAllModelObserveValue, null, null);
 		//
+		IObservableList observeMultiSelectionTableViewer = ViewerProperties.multipleSelection().observe(tableViewer);
+		IObservableList selectedModelObserveList = BeanProperties.list("selected").observe(model);
+		bindingContext.bindList(observeMultiSelectionTableViewer, selectedModelObserveList, null, null);
+		//
 		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
 		IObservableMap[] observeMap = BeansObservables.observeMaps(listContentProvider.getKnownElements(), tClass,columnProperties);
 		tableViewer.setLabelProvider(new ObservableMapLabelProvider(observeMap));
@@ -218,7 +237,6 @@ public abstract class AbstractListView<T> extends Composite {
 		//
 		IObservableList listModelObserveList = BeanProperties.list("list").observe(model);
 		tableViewer.setInput(listModelObserveList);
-		
 		return bindingContext;
 	}
 }

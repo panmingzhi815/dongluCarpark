@@ -26,7 +26,7 @@ public class ReturnAccountListView extends AbstractListView<SingleCarparkReturnA
 
 	@Override
 	protected void searchMore() {
-		
+		getPresenter().searchMore();
 	}
 
 	public void setPresenter(Presenter presenter) {

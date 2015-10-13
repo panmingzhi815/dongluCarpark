@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 
+import org.apache.derby.vti.Restriction;
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
@@ -202,15 +203,11 @@ public class CarparkServiceImpl implements CarparkService {
 
 	@Override
 	public Long deleteMonthlyUserPayHistory(SingleCarparkMonthlyUserPayHistory h) {
-		// TODO 自动生成的方法存根
-		return null;
+		DatabaseOperation<SingleCarparkMonthlyUserPayHistory> dom = DatabaseOperation.forClass(SingleCarparkMonthlyUserPayHistory.class, emprovider.get());
+		dom.remove(h);
+		return h.getId();
 	}
 
-	@Override
-	public List<SingleCarparkMonthlyUserPayHistory> findByPropety(Map<String, Object> map) {
-		
-		return null;
-	}
 
 	@Transactional
 	public Long deleteMonthlyCharge(Long id) {
@@ -397,6 +394,54 @@ public class CarparkServiceImpl implements CarparkService {
 		} finally{
 			unitOfWork.end();
 		}
+	}
+
+	@Override
+	public List<SingleCarparkReturnAccount> findReturnAccountByCondition(int max, int size, String userName, String operaName, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c=
+			createCriteriaBySingleCarparkReturnAccount(userName,operaName,start,end);
+			c.setFirstResult(max);
+			c.setMaxResults(size);
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public int countReturnAccountByCondition(String userName, String operaName, Date start, Date end) {
+		
+		unitOfWork.begin();
+		try {
+			Criteria c=
+			createCriteriaBySingleCarparkReturnAccount(userName,operaName,start,end);
+			c.setProjection(Projections.rowCount());
+			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
+			return singleResultOrNull.intValue();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	private Criteria createCriteriaBySingleCarparkReturnAccount(String userName, String operaName, Date start, Date end) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkReturnAccount.class);
+		if (!StrUtil.isEmpty(userName)) {
+			c.add(Restrictions.or(Restrictions.like(SingleCarparkReturnAccount.Property.returnUser.name(), userName,MatchMode.START),
+					Restrictions.like(SingleCarparkReturnAccount.Property.returnUser.name(), userName,MatchMode.END)));
+		}
+		if (!StrUtil.isEmpty(operaName)) {
+			c.add(Restrictions.or(Restrictions.like(SingleCarparkReturnAccount.Property.operaName.name(), operaName,MatchMode.START),
+					Restrictions.like(SingleCarparkReturnAccount.Property.operaName.name(), operaName,MatchMode.END)));
+		}
+		if (!StrUtil.isEmpty(start)) {
+			c.add(Restrictions.ge(SingleCarparkReturnAccount.Property.returnTime.name(), StrUtil.getTodayTopTime(start)));
+		}
+		if (!StrUtil.isEmpty(end)) {
+			c.add(Restrictions.le(SingleCarparkReturnAccount.Property.returnTime.name(), StrUtil.getTodayBottomTime(end)));
+		}
+		return c;
 	}
 
 }
