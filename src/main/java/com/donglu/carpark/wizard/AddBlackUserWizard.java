@@ -3,18 +3,19 @@ package com.donglu.carpark.wizard;
 import org.eclipse.jface.wizard.Wizard;
 
 import com.dongluhitec.card.common.ui.AbstractWizard;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 
 
 public class AddBlackUserWizard extends Wizard implements AbstractWizard{
-	Object object;
-	public AddBlackUserWizard(Object object) {
-		this.object=object;
+	SingleCarparkBlackUser model;
+	public AddBlackUserWizard(SingleCarparkBlackUser model) {
 		setWindowTitle("添加黑名单");
+		this.model=model;
 	}
 
 	@Override
 	public void addPages() {
-		addPage(new AddBlackUserWizardPage());
+		addPage(new AddBlackUserWizardPage(model));
 	}
 
 	@Override
@@ -24,7 +25,7 @@ public class AddBlackUserWizard extends Wizard implements AbstractWizard{
 
 	public Object getModel() {
 		
-		return object;
+		return model;
 	}
 
 }

@@ -37,7 +37,8 @@ import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
-public abstract class AbstractListView<T> extends Composite {
+public abstract class AbstractListView<T> extends Composite{
+	protected Presenter presenter;
 	private DataBindingContext m_bindingContext;
 	private Table table;
 	private Model model=new Model();
@@ -54,8 +55,8 @@ public abstract class AbstractListView<T> extends Composite {
 	public class Model extends DomainObject{
 		private List<T> list=new ArrayList<>();
 		private List<T> selected=new ArrayList<>();
-		Integer countSearch;
-		Integer countSearchAll;
+		Integer countSearch=0;
+		Integer countSearchAll=0;
 		public List<T> getList() {
 			return list;
 		}
@@ -108,9 +109,9 @@ public abstract class AbstractListView<T> extends Composite {
 	 * @param parent
 	 * @param style
 	 */
-	public AbstractListView(Composite parent, int style,Class tClass,String[] columnProperties,String[] nameProperties,int[] columnLenths) {
+	public AbstractListView(Composite parent, int style,Class<T> tClass,String[] columnProperties,String[] nameProperties,int[] columnLenths) {
 		super(parent, style);
-//		,Class tClass,String[] columnProperties,String[] nameProperties,int[] columnLenths
+//		,Class<T> tClass,String[] columnProperties,String[] nameProperties,int[] columnLenths
 		this.tClass=tClass;
 		this.columnProperties=columnProperties;
 		this.nameProperties=nameProperties;
@@ -192,19 +193,40 @@ public abstract class AbstractListView<T> extends Composite {
 
 	protected void createMenuBarToolItem(ToolBar toolBar_menu) {
 		ToolItem toolItem_add = new ToolItem(toolBar_menu, SWT.NONE);
-		toolItem_add.setText("+");
+		toolItem_add.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.add();
+			}
+		});
+		toolItem_add.setText("添加");
 		
 		ToolItem toolItem_delete = new ToolItem(toolBar_menu, SWT.NONE);
-		toolItem_delete.setText("-");
+		toolItem_delete.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.delete();
+			}
+		});
+		toolItem_delete.setText("删除");
 	}
 
 	protected void createRefreshBarToolItem(ToolBar toolBar_refresh) {
 		ToolItem tltm_refresh = new ToolItem(toolBar_refresh, SWT.NONE);
+		tltm_refresh.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.refresh();
+			}
+		});
 		tltm_refresh.setText("刷新");
 	}
 	
-	protected abstract void searchMore();
-
+	protected void searchMore(){}
+	protected void refresh(){}
+	protected void add(){}
+	protected void delete(){}
+	
 	public Model getModel() {
 		return model;
 	}
@@ -238,5 +260,13 @@ public abstract class AbstractListView<T> extends Composite {
 		IObservableList listModelObserveList = BeanProperties.list("list").observe(model);
 		tableViewer.setInput(listModelObserveList);
 		return bindingContext;
+	}
+
+	public Presenter getPresenter() {
+		return presenter;
+	}
+
+	public void setPresenter(Presenter presenter) {
+		this.presenter = presenter;
 	}
 }

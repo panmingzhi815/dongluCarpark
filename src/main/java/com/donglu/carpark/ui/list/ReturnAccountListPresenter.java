@@ -9,13 +9,14 @@ import org.eclipse.swt.widgets.Control;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
+import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.Presenter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.google.inject.Inject;
 
-public class ReturnAccountListPresenter implements Presenter{
+public class ReturnAccountListPresenter  extends AbstractListPresenter{
 	private ReturnAccountListView v;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;

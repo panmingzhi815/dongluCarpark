@@ -67,6 +67,7 @@ import com.dongluhitec.card.domain.db.Link;
 import com.dongluhitec.card.domain.db.LinkStyleEnum;
 import com.dongluhitec.card.domain.db.SerialDeviceAddress;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -185,6 +186,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	Map<String, SingleCarparkDevice> mapIpToDevice = Maps.newHashMap();
 	//保存设置信息
 	private Map<SystemSettingTypeEnum, String> mapSystemSetting=Maps.newHashMap();
+	//保存黑名单信息
+	Map<String, SingleCarparkBlackUser> mapBlackUser=Maps.newHashMap();
 
 	private CTabFolder tabInFolder;
 
@@ -278,6 +281,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		for (SingleCarparkSystemSetting ss : findAllSystemSetting) {
 			mapSystemSetting.put(SystemSettingTypeEnum.valueOf(ss.getSettingKey()), ss.getSettingValue());
 		}
+		List<SingleCarparkBlackUser> findAllBlackUser = sp.getCarparkService().findAllBlackUser();
+		for (SingleCarparkBlackUser singleCarparkBlackUser : findAllBlackUser) {
+			mapBlackUser.put(singleCarparkBlackUser.getPlateNO(), singleCarparkBlackUser);
+		}
+		
+		
 	}
 
 	/**
@@ -967,12 +976,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private void carparkInTask(final String ip, final String plateNO, final byte[] bigImage, final byte[] smallImage) {
 		new Thread(new Runnable() {
 			public void run() {
-				if (model.getTotalSlot()<=0) {
-					LOGGER.error("车位已满");
-					return;
-				}
 				long nanoTime = System.nanoTime();
 				Date date = new Date();
+				
 				String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
 				String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
 				String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
@@ -1010,11 +1016,23 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 						txtinplateNo.setText(plateNO);
 						text_in_time.setText(dateString);
 						plateNoTotal.addAndGet(1);
-
 					}
 				});
 				
+//				model.setInShowBigImg(inBigImage);
+//				model.setInShowSmallImg(inSmallImage);
+//				model.setInShowPlateNO(plateNO);
+//				model.setInShowTime(dateString);
+//				plateNoTotal.addAndGet(1);
+				
 				long nanoTime3 = System.nanoTime();
+				SingleCarparkBlackUser singleCarparkBlackUser = mapBlackUser.get(plateNO);
+				if (!StrUtil.isEmpty(singleCarparkBlackUser)) {
+					LOGGER.error("车牌：{}为黑名单",plateNO);
+					model.setInShowMeg("黑名单");
+					return;
+				}
+				
 				List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(null, plateNO);
 				SingleCarparkDevice device = mapIpToDevice.get(ip);
 				SingleCarparkUser user=StrUtil.isEmpty(findByNameOrPlateNo)?null:findByNameOrPlateNo.get(0);
@@ -1060,8 +1078,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				}else{
 					model.setMonthSlot(model.getMonthSlot()-1);
 				}
-				carpark.setLeftNumberOfSlot(carpark.getLeftNumberOfSlot()-1);
-				model.setTotalSlot(model.getTotalSlot()-1);
+				int left=carpark.getLeftNumberOfSlot()-1;
+				carpark.setLeftNumberOfSlot(left<=0?0:left);
+				int total=model.getTotalSlot()-1;
+				model.setTotalSlot(total<=0?0:total);
 				carparkService.saveCarpark(carpark);
 				sp.getCarparkInOutService().saveInOutHistory(h);
 
@@ -1320,6 +1340,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		}
 	}
 
+	@Override
+	public boolean isOpen() {
+		// TODO 自动生成的方法存根
+		return false;
+	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
@@ -1390,13 +1415,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue observeEnabledBtnfObserveWidget = WidgetProperties.enabled().observe(btnf);
 		bindingContext.bindValue(observeEnabledBtnfObserveWidget, btnClickModelObserveValue, null, null);
 		//
+		IObservableValue observeTextInBigImgObserveWidget = WidgetProperties.text().observe(inBigImg);
+		IObservableValue inShowMegModelObserveValue = BeanProperties.value("inShowMeg").observe(model);
+		bindingContext.bindValue(observeTextInBigImgObserveWidget, inShowMegModelObserveValue, null, null);
+		//
 		return bindingContext;
 	}
-
-	@Override
-	public boolean isOpen() {
-		// TODO 自动生成的方法存根
-		return false;
-	}
-
 }

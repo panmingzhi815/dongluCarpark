@@ -10,7 +10,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayH
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 
 public class ReturnAccountListView extends AbstractListView<SingleCarparkReturnAccount> implements View{
-	private Presenter presenter;
 	public ReturnAccountListView(Composite parent, int style) {
 		super(parent, style, SingleCarparkReturnAccount.class,
 				new String[]{SingleCarparkReturnAccount.Property.id.name(),
@@ -28,11 +27,6 @@ public class ReturnAccountListView extends AbstractListView<SingleCarparkReturnA
 	protected void searchMore() {
 		getPresenter().searchMore();
 	}
-
-	public void setPresenter(Presenter presenter) {
-		this.presenter=presenter;
-	}
-
 	@Override
 	public ReturnAccountListPresenter getPresenter() {
 		return (ReturnAccountListPresenter) presenter;

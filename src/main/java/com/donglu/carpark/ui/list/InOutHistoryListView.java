@@ -17,7 +17,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayH
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 
 public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHistory> implements View{
-	private Presenter presenter;
+	
 	public InOutHistoryListView(Composite parent, int style) {
 		super(parent, style, SingleCarparkInOutHistory.class,
 				new String[]{SingleCarparkInOutHistory.Property.plateNo.name(),
@@ -42,9 +42,6 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		getPresenter().searchMore();
 	}
 
-	public void setPresenter(Presenter presenter) {
-		this.presenter=presenter;
-	}
 
 	@Override
 	public InOutHistoryListPresenter getPresenter() {

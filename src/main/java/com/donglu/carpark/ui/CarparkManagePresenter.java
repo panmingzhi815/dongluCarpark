@@ -18,6 +18,7 @@ import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.service.SystemUserServiceI;
 import com.donglu.carpark.ui.common.AbstractListView;
+import com.donglu.carpark.ui.list.BlackUserListPresenter;
 import com.donglu.carpark.ui.list.CarparkPayHistoryListView;
 import com.donglu.carpark.ui.list.TestPresenter;
 import com.donglu.carpark.ui.view.CarparkPayHistoryPresenter;
@@ -74,6 +75,9 @@ public class CarparkManagePresenter {
 	@Inject
 	private InOutHistoryPresenter inOutHostoryPresenter;
 	@Inject
+	private BlackUserListPresenter blackUserListPresenter;
+	
+	@Inject
 	private TestPresenter p;
 
 	/**
@@ -107,13 +111,15 @@ public class CarparkManagePresenter {
 			CarparkService carparkService = sp.getCarparkService();
 			AddCarparkWizard w = new AddCarparkWizard(new SingleCarparkCarpark());
 			SingleCarparkCarpark showWizard = (SingleCarparkCarpark) commonui.showWizard(w);
-			if (!StrUtil.isEmpty(showWizard)) {
-				SingleCarparkCarpark carpark = carparkModel.getCarpark();
-				if (carpark != null) {
-					showWizard.setParent(carpark);
-				}
-				carparkService.saveCarpark(showWizard);
+			if (StrUtil.isEmpty(showWizard)) {
+				return;
 			}
+			SingleCarparkCarpark carpark = carparkModel.getCarpark();
+			if (carpark != null) {
+				showWizard.setParent(carpark);
+			}
+			showWizard.setTempNumberOfSlot(showWizard.getLeftNumberOfSlot());
+			carparkService.saveCarpark(showWizard);
 			List<SingleCarparkCarpark> findCarparkToLevel = carparkService.findCarparkToLevel();
 			carparkModel.setListCarpark(findCarparkToLevel);
 		} catch (Exception e) {
@@ -693,5 +699,9 @@ public class CarparkManagePresenter {
 			e.printStackTrace();
 		}
 		
+	}
+
+	public BlackUserListPresenter getBlackUserListPresenter() {
+		return blackUserListPresenter;
 	}
 }

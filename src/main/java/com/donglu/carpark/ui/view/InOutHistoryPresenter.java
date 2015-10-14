@@ -4,12 +4,13 @@ import java.util.Date;
 
 import org.eclipse.swt.widgets.Composite;
 
+import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.list.InOutHistoryListPresenter;
 import com.donglu.carpark.ui.list.ReturnAccountListPresenter;
 import com.google.inject.Inject;
 
-public class InOutHistoryPresenter implements Presenter{
+public class InOutHistoryPresenter  extends AbstractListPresenter{
 	private InOutHistoryView view;
 	@Inject
 	private InOutHistoryListPresenter listPresenter;

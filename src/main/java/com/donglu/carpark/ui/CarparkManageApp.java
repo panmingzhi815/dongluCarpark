@@ -102,7 +102,6 @@ public class CarparkManageApp extends AbstractApp{
 	private Table table_user;
 	private Text text_7;
 	private Text text_8;
-	private Table table_6;
 	private ToolBar carparkConfigToolBar;
 	private Text text_setting_dataBaseSave;
 	private Text text_setting_imgSave;
@@ -574,9 +573,9 @@ public class CarparkManageApp extends AbstractApp{
 		Group group_4 = new Group(composite_12, SWT.NONE);
 		group_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		group_4.setLayout(new GridLayout(3, false));
-		GridData gd_group_4 = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		GridData gd_group_4 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
 		gd_group_4.heightHint = 106;
-		gd_group_4.widthHint = 461;
+		gd_group_4.widthHint = 669;
 		group_4.setLayoutData(gd_group_4);
 		group_4.setText("停车场设置");
 		
@@ -825,47 +824,12 @@ public class CarparkManageApp extends AbstractApp{
 		new Label(group_4, SWT.NONE);
 		new Label(group_4, SWT.NONE);
 		
-		Composite composite_13 = new Composite(composite_12, SWT.NONE);
-		composite_13.setLayout(new GridLayout(2, false));
-		GridData gd_composite_13 = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
-		gd_composite_13.heightHint = 360;
-		composite_13.setLayoutData(gd_composite_13);
-		
-		Label label_8 = new Label(composite_13, SWT.NONE);
-		label_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_8.setText("黑名单");
-		
-		ToolBar toolBar_4 = new ToolBar(composite_13, SWT.FLAT | SWT.RIGHT);
-		toolBar_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		
-		ToolItem toolItem_12 = new ToolItem(toolBar_4, SWT.NONE);
-		toolItem_12.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				AddBlackUserWizard v=new AddBlackUserWizard(this);
-				commonui.showWizard(v);
-			}
-		});
-		toolItem_12.setText("添加");
-		
-		ToolItem toolItem_13 = new ToolItem(toolBar_4, SWT.NONE);
-		toolItem_13.setText("删除");
-		
-		TableViewer tableViewer_6 = new TableViewer(composite_13, SWT.BORDER | SWT.FULL_SELECTION);
-		table_6 = tableViewer_6.getTable();
-		table_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		table_6.setLinesVisible(true);
-		table_6.setHeaderVisible(true);
-		GridData gd_table_6 = new GridData(SWT.FILL, SWT.FILL, false, true, 2, 1);
-		gd_table_6.widthHint = 170;
-		table_6.setLayoutData(gd_table_6);
-		
-		TableViewerColumn tableViewerColumn_30 = new TableViewerColumn(tableViewer_6, SWT.NONE);
-		TableColumn tableColumn_24 = tableViewerColumn_30.getColumn();
-		tableColumn_24.setAlignment(SWT.CENTER);
-		tableColumn_24.setWidth(100);
-		tableColumn_24.setText("车牌");
-		
+		Composite composite_blackUser = new Composite(composite_12, SWT.NONE);
+		composite_blackUser.setLayout(new FillLayout(SWT.HORIZONTAL));
+		GridData gd_composite_blackUser = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_composite_blackUser.heightHint = 360;
+		composite_blackUser.setLayoutData(gd_composite_blackUser);
+		presenter.getBlackUserListPresenter().go(composite_blackUser);
 		TabItem tabItem_4 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_4.setText("关于");
 		

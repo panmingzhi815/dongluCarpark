@@ -2,12 +2,28 @@ package com.donglu.carpark.model;
 
 import java.util.Date;
 
+import org.eclipse.swt.graphics.Image;
+
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 public class CarparkMainModel extends DomainObject{
+	private String inShowPlateNO;
+	private String inShowTime;
+	private String inShowMeg;
+	private Image inShowSmallImg;
+	private Image inShowBigImg;
+	
+	private String outShowPlateNO;
+	private String outShowTime;
+	private String outShowMeg;
+	private Image outShowSmallImg;
+	private Image outShowBigImg;
+	
+	
 	String userName;
-	Date workTime;
+	String workTime;
 	int totalSlot;
 	int hoursSlot;
 	int monthSlot;
@@ -18,8 +34,8 @@ public class CarparkMainModel extends DomainObject{
 	String plateNo;
 	String carUser;
 	String carType;
-	Date inTime;
-	Date outTime;
+	String inTime;
+	String outTime;
 	String totalTime;
 	float shouldMony;
 	float real;
@@ -36,11 +52,11 @@ public class CarparkMainModel extends DomainObject{
 		if (pcs != null)
 			pcs.firePropertyChange("userName", null, null);
 	}
-	public Date getWorkTime() {
+	public String getWorkTime() {
 		return workTime;
 	}
 	public void setWorkTime(Date workTime) {
-		this.workTime = workTime;
+		this.workTime = StrUtil.formatDate(workTime, "yyyy-MM-dd HH:mm");
 		if (pcs != null)
 			pcs.firePropertyChange("workTime", null, null);
 	}
@@ -68,19 +84,19 @@ public class CarparkMainModel extends DomainObject{
 		if (pcs != null)
 			pcs.firePropertyChange("carType", null, null);
 	}
-	public Date getInTime() {
+	public String getInTime() {
 		return inTime;
 	}
 	public void setInTime(Date inTime) {
-		this.inTime = inTime;
+		this.inTime = StrUtil.formatDate(inTime, "yyyy-MM-dd HH:mm");
 		if (pcs != null)
 			pcs.firePropertyChange("inTime", null, null);
 	}
-	public Date getOutTime() {
+	public String getOutTime() {
 		return outTime;
 	}
 	public void setOutTime(Date outTime) {
-		this.outTime = outTime;
+		this.outTime = StrUtil.formatDate(outTime, "yyyy-MM-dd HH:mm");
 		if (pcs != null)
 			pcs.firePropertyChange("outTime", null, null);
 	}
@@ -163,6 +179,86 @@ public class CarparkMainModel extends DomainObject{
 		this.history = history;
 		if (pcs != null)
 			pcs.firePropertyChange("history", null, null);
+	}
+	public String getInShowPlateNO() {
+		return inShowPlateNO;
+	}
+	public void setInShowPlateNO(String inShowPlateNO) {
+		this.inShowPlateNO = inShowPlateNO;
+		if (pcs != null)
+			pcs.firePropertyChange("inShowPlateNO", null, null);
+	}
+	public String getInShowTime() {
+		return inShowTime;
+	}
+	public void setInShowTime(String inShowTime) {
+		this.inShowTime = inShowTime;
+		if (pcs != null)
+			pcs.firePropertyChange("inShowTime", null, null);
+	}
+	public String getInShowMeg() {
+		return inShowMeg;
+	}
+	public void setInShowMeg(String inShowMeg) {
+		this.inShowMeg = inShowMeg;
+		if (pcs != null)
+			pcs.firePropertyChange("inShowMeg", null, null);
+	}
+	public Image getInShowSmallImg() {
+		return inShowSmallImg;
+	}
+	public void setInShowSmallImg(Image inShowSmallImg) {
+		this.inShowSmallImg = inShowSmallImg;
+		if (pcs != null)
+			pcs.firePropertyChange("inShowSmallImg", null, null);
+	}
+	public Image getInShowBigImg() {
+		return inShowBigImg;
+	}
+	public void setInShowBigImg(Image inShowBigImg) {
+		this.inShowBigImg = inShowBigImg;
+		if (pcs != null)
+			pcs.firePropertyChange("inShowBigImg", null, null);
+	}
+	public String getOutShowPlateNO() {
+		return outShowPlateNO;
+	}
+	public void setOutShowPlateNO(String outShowPlateNO) {
+		this.outShowPlateNO = outShowPlateNO;
+		if (pcs != null)
+			pcs.firePropertyChange("outShowPlateNO", null, null);
+	}
+	public String getOutShowTime() {
+		return outShowTime;
+	}
+	public void setOutShowTime(String outShowTime) {
+		this.outShowTime = outShowTime;
+		if (pcs != null)
+			pcs.firePropertyChange("outShowTime", null, null);
+	}
+	public String getOutShowMeg() {
+		return outShowMeg;
+	}
+	public void setOutShowMeg(String outShowMeg) {
+		this.outShowMeg = outShowMeg;
+		if (pcs != null)
+			pcs.firePropertyChange("outShowMeg", null, null);
+	}
+	public Image getOutShowSmallImg() {
+		return outShowSmallImg;
+	}
+	public void setOutShowSmallImg(Image outShowSmallImg) {
+		this.outShowSmallImg = outShowSmallImg;
+		if (pcs != null)
+			pcs.firePropertyChange("outShowSmallImg", null, null);
+	}
+	public Image getOutShowBigImg() {
+		return outShowBigImg;
+	}
+	public void setOutShowBigImg(Image outShowBigImg) {
+		this.outShowBigImg = outShowBigImg;
+		if (pcs != null)
+			pcs.firePropertyChange("outShowBigImg", null, null);
 	}
 	
 }

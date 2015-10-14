@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Control;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.service.CarparkService;
+import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.wizard.InOutHistoryDetailWizard;
@@ -22,7 +23,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
-public class InOutHistoryListPresenter implements Presenter{
+public class InOutHistoryListPresenter  extends AbstractListPresenter{
 	private InOutHistoryListView v;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;

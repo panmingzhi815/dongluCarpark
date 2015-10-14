@@ -23,6 +23,7 @@ import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationStandard;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -469,6 +470,36 @@ public class CarparkServiceImpl implements CarparkService {
 			DatabaseOperation<SingleCarparkMonthlyCharge> dom = DatabaseOperation.forClass(SingleCarparkMonthlyCharge.class, emprovider.get());
 			SingleCarparkMonthlyCharge entityWithId = dom.getEntityWithId(id);
 			return entityWithId;
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Transactional
+	public Long saveBlackUser(SingleCarparkBlackUser b) {
+		DatabaseOperation<SingleCarparkBlackUser> dom = DatabaseOperation.forClass(SingleCarparkBlackUser.class, emprovider.get());
+		if (b.getId()==null) {
+			dom.insert(b);
+		}else{
+			dom.save(b);
+		}
+		return b.getId();
+	}
+
+	@Transactional
+	public Long deleteBlackUser(SingleCarparkBlackUser b) {
+		DatabaseOperation<SingleCarparkBlackUser> dom = DatabaseOperation.forClass(SingleCarparkBlackUser.class, emprovider.get());
+		Long id = b.getId();
+		dom.remove(id);
+		return id;
+	}
+
+	@Override
+	public List<SingleCarparkBlackUser> findAllBlackUser() {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkBlackUser.class);
+			return c.getResultList();
 		} finally{
 			unitOfWork.end();
 		}

@@ -6,11 +6,12 @@ import java.util.List;
 import org.eclipse.swt.widgets.Composite;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.google.inject.Inject;
 
-public class CarparkPayHistoryListPresenter {
+public class CarparkPayHistoryListPresenter  extends AbstractListPresenter{
 	
 	CarparkPayHistoryListView view;
 	

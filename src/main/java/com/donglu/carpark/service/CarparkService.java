@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -199,6 +200,10 @@ public interface CarparkService {
 	 * @return
 	 */
 	public SingleCarparkMonthlyCharge findMonthlyChargeById(Long id);
+	//黑名单
+	public Long saveBlackUser(SingleCarparkBlackUser b);
+	public Long deleteBlackUser(SingleCarparkBlackUser b);
+	public List<SingleCarparkBlackUser> findAllBlackUser();
 	
 	
 }

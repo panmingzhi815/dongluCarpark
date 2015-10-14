@@ -27,15 +27,6 @@ public class CarparkPayHistoryListView extends AbstractListView<SingleCarparkMon
 		presenter.searMore();
 	}
 
-
-	public CarparkPayHistoryListPresenter getPresenter() {
-		return presenter;
-	}
-
-	public void setPresenter(CarparkPayHistoryListPresenter presenter) {
-		this.presenter = presenter;
-	}
-
 	@Override
 	protected void createMenuBarToolItem(ToolBar toolBar_menu) {
 	}
