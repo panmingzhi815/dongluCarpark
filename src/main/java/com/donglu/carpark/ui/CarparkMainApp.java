@@ -744,7 +744,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				presenter.chargeCarPass();
+				boolean chargeCarPass = presenter.chargeCarPass();
+				if (!chargeCarPass) {
+					return;
+				}
 				model.setBtnClick(false);
 			}
 		});
@@ -758,7 +761,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		btnf.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				presenter.freeCarPass();
+				boolean freeCarPass = presenter.freeCarPass();
+				if (!freeCarPass) {
+					return;
+				}
 				model.setBtnClick(false);
 			}
 		});
@@ -1189,8 +1195,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					model.setTotalSlot(model.getTotalSlot()+1);
 					model.setMonthSlot(model.getMonthSlot()+1);
 					
-				}else{
-					//临时车
+				}else{//临时车操作
+					
+					//固定车通道
 					if (equals) {
 						presenter.showMesToDevice(device,FIX_ROAD,1,1);
 						return;
@@ -1294,6 +1301,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				model.setInTime(inTime);
 				model.setTotalTime(StrUtil.MinusTime2(inTime, outTime));
 				model.setHistory(singleCarparkInOutHistory);
+				float shouldMoney=presenter.countShouldMoney();
+				model.setShouldMony(shouldMoney);
+				
+				
 				String property = System.getProperty("tempCarAutoPass");
 				Boolean valueOf = Boolean.valueOf(property);
 				//自动放行
@@ -1311,11 +1322,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					model.setReal(15);
 				}
 				
-				
-				
-				float shouldMoney=presenter.countShouldMoney();
 				float factMoney=model.getReal();
-				model.setShouldMony(shouldMoney);
+				
 				singleCarparkInOutHistory.setShouldMoney(shouldMoney);
 				
 				singleCarparkInOutHistory.setFactMoney(factMoney);

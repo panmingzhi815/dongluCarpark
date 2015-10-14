@@ -384,7 +384,7 @@ public class CarparkMainPresenter {
 	/**
 	 * 免费放行
 	 */
-	public void freeCarPass() {
+	public boolean freeCarPass() {
 		String plateNo = model.getPlateNo();
 		SingleCarparkInOutHistory history = model.getHistory();
 		
@@ -392,30 +392,34 @@ public class CarparkMainPresenter {
 		float shouldMony = model.getShouldMony();
 		boolean confirm = commonui.confirm("收费确认", "车牌："+plateNo+"应收："+shouldMony+"免费放行");
 		if (!confirm) {
-			return;
+			return false;
 		}
-		history.setFactMoney(real);
-		history.setFreeMoney(shouldMony-real);
-		sp.getCarparkInOutService().saveInOutHistory(history);
+		model.setReal(real);
+		return true;
+//		history.setFactMoney(real);
+//		history.setFreeMoney(shouldMony-real);
+//		sp.getCarparkInOutService().saveInOutHistory(history);
 		
 	}
 	/**
 	 * 收费放行
 	 */
-	public void chargeCarPass() {
+	public boolean chargeCarPass() {
 		
 		String plateNo = model.getPlateNo();
 		SingleCarparkInOutHistory history = model.getHistory();
 		
 		float real = model.getReal();
 		float shouldMony = model.getShouldMony();
+		if (real>shouldMony) {
+			commonui.error("收费提示", "实时不能超过应收");
+			return false;
+		}
 		boolean confirm = commonui.confirm("收费确认", "车牌："+plateNo+"应收："+shouldMony+"实收："+real);
 		if (!confirm) {
-			return;
+			return false;
 		}
-		history.setFactMoney(real);
-		history.setFreeMoney(shouldMony-real);
-		sp.getCarparkInOutService().saveInOutHistory(history);
+		return true;
 	}
 	/**
 	 * 计算收费
