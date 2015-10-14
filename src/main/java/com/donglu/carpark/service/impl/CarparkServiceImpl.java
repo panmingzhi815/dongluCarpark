@@ -251,7 +251,7 @@ public class CarparkServiceImpl implements CarparkService {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkSystemSetting.class);
-			c.add(Restrictions.eq("key", key));
+			c.add(Restrictions.eq("settingKey", key));
 			SingleCarparkSystemSetting set = (SingleCarparkSystemSetting) c.getSingleResultOrNull();
 			return set;
 		} finally {
@@ -261,8 +261,26 @@ public class CarparkServiceImpl implements CarparkService {
 
 	@Override
 	public CarparkChargeStandard findCarparkChargeStandardByCode(String code) {
-		
-		return null;
+		unitOfWork.begin();
+		try {
+			Criteria criteria = CriteriaUtils.createCriteria(emprovider.get(),
+					CarparkChargeStandard.class);
+			criteria.add(Restrictions.eq(CarparkChargeStandard.Property.code.name(), code));
+			Object singleResultOrNull = criteria.getSingleResultOrNull();
+			if (StrUtil.isEmpty(singleResultOrNull)) {
+				return null;
+			}
+			CarparkChargeStandard c=(CarparkChargeStandard) singleResultOrNull;
+			List<CarparkDurationStandard> carparkDurationStandards = c.getCarparkDurationStandards();
+			for (CarparkDurationStandard carparkDurationStandard : carparkDurationStandards) {
+				carparkDurationStandard.getCarparkDurationPriceList().size();
+			}
+			return c ;
+		} catch (Exception e) {
+			throw new DongluServiceException("查找临时收费标准失败!", e);
+		} finally {
+			unitOfWork.end();
+		}
 	}
 
 	@Override
@@ -442,6 +460,18 @@ public class CarparkServiceImpl implements CarparkService {
 			c.add(Restrictions.le(SingleCarparkReturnAccount.Property.returnTime.name(), StrUtil.getTodayBottomTime(end)));
 		}
 		return c;
+	}
+
+	@Override
+	public SingleCarparkMonthlyCharge findMonthlyChargeById(Long id) {
+		unitOfWork.begin();
+		try {
+			DatabaseOperation<SingleCarparkMonthlyCharge> dom = DatabaseOperation.forClass(SingleCarparkMonthlyCharge.class, emprovider.get());
+			SingleCarparkMonthlyCharge entityWithId = dom.getEntityWithId(id);
+			return entityWithId;
+		} finally{
+			unitOfWork.end();
+		}
 	}
 
 }

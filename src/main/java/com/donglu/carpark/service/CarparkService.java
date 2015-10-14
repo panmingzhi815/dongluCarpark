@@ -193,5 +193,12 @@ public interface CarparkService {
 	public List<SingleCarparkReturnAccount> findReturnAccountByCondition(int size, int i, String userName, String operaName, Date start, Date end);
 	public int countReturnAccountByCondition(String userName, String operaName, Date start, Date end);
 	
+	/**
+	 * 查询固定设置
+	 * @param id
+	 * @return
+	 */
+	public SingleCarparkMonthlyCharge findMonthlyChargeById(Long id);
+	
 	
 }

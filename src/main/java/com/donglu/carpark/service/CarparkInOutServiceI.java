@@ -14,8 +14,8 @@ public interface CarparkInOutServiceI {
 	float findTotalCharge(String userName);
 	
 	
-	List<SingleCarparkInOutHistory> findByCondition(int maxResult,int size,String plateNo,String userName,String carType,String inout,Date in,Date out,String operaName);
-	Long countByCondition(String plateNo,String userName,String carType,String inout,Date in,Date out,String operaName);
+	List<SingleCarparkInOutHistory> findByCondition(int maxResult,int size,String plateNo,String userName,String carType,String inout,Date in,Date out,String operaName, String inDevice, String outDevice, Long returnAccount);
+	Long countByCondition(String plateNo,String userName,String carType,String inout,Date start,Date end,String operaName, String inDevice, String outDevice, Long returnAccount);
 
 	List<SingleCarparkInOutHistory> findNotReturnAccount(String returnUser);
 	/**

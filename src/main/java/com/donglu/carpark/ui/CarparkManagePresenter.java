@@ -21,7 +21,7 @@ import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.list.CarparkPayHistoryListView;
 import com.donglu.carpark.ui.list.TestPresenter;
 import com.donglu.carpark.ui.view.CarparkPayHistoryPresenter;
-import com.donglu.carpark.ui.view.InOutHostoryPresenter;
+import com.donglu.carpark.ui.view.InOutHistoryPresenter;
 import com.donglu.carpark.ui.view.ReturnAccountPresenter;
 import com.donglu.carpark.wizard.AddCarparkWizard;
 import com.donglu.carpark.wizard.AddMonthChargeWizard;
@@ -36,6 +36,7 @@ import com.donglu.carpark.wizard.monthcharge.MonthlyUserPayModel;
 import com.donglu.carpark.wizard.monthcharge.MonthlyUserPayWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -71,7 +72,7 @@ public class CarparkManagePresenter {
 	@Inject
 	private ReturnAccountPresenter returnAccountPresenter;
 	@Inject
-	private InOutHostoryPresenter inOutHostoryPresenter;
+	private InOutHistoryPresenter inOutHostoryPresenter;
 	@Inject
 	private TestPresenter p;
 
@@ -237,7 +238,6 @@ public class CarparkManagePresenter {
 		refreshCarpark();
 		refreshUser();
 		refreshSystemUser();
-		refreshSearchInOut();
 		refreshSystemSetting();
 //		testDatabase();
 	}
@@ -409,19 +409,25 @@ public class CarparkManagePresenter {
 	 * 添加月租收费设置
 	 */
 	public void addMonthCharge(){
-		try {
 			SingleCarparkCarpark carpark = carparkModel.getCarpark();
 			if (carpark==null) {
 				commonui.error("提示", "请先选择一个停车场");
 				return;
 			}
-			AddMonthChargeWizard w=new AddMonthChargeWizard(AddMonthChargeModel.init());
+			AddMonthChargeModel init = AddMonthChargeModel.init();
+			init.setCarpark(carpark);
+			addAndEditMonthCharge(init);
+	}
+
+	private void addAndEditMonthCharge(AddMonthChargeModel init) {
+		try {
+			AddMonthChargeWizard w=new AddMonthChargeWizard(init);
 			AddMonthChargeModel m = (AddMonthChargeModel) commonui.showWizard(w);
 			if (m==null) {
 				return;
 			}
 			SingleCarparkMonthlyCharge monthlyCharge=new SingleCarparkMonthlyCharge();
-			monthlyCharge.setCarpark(carpark);
+			monthlyCharge.setCarpark(m.getCarpark());
 			monthlyCharge.setCarType(m.getCarType());
 			monthlyCharge.setChargeCode(m.getChargeCode());
 			monthlyCharge.setChargeName(m.getChargeName());
@@ -431,12 +437,12 @@ public class CarparkManagePresenter {
 			monthlyCharge.setParkType(m.getParkType());
 			monthlyCharge.setPrice(m.getPrice());
 			monthlyCharge.setRentingDays(m.getRentingDays());
+			monthlyCharge.setId(m.getId());
 			sp.getCarparkService().saveMonthlyCharge(monthlyCharge);
 			refreshCarparkCharge();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 	}
 	/**
 	 * 检测登录用户权限
@@ -540,10 +546,10 @@ public class CarparkManagePresenter {
 		if (!confirm) {
 			return;
 		}
-		if (carparkChargeInfo.getType().equals("固定月租收费")) {
+		if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.固定月租收费.name())) {
 			sp.getCarparkService().deleteMonthlyCharge(carparkChargeInfo.getId());
 		}
-		if (carparkChargeInfo.getType().equals("临时收费")) {
+		if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.临时收费.name())) {
 			sp.getCarparkService().deleteTempCharge(carparkChargeInfo.getId());
 		}
 		refreshCarparkCharge();
@@ -568,8 +574,8 @@ public class CarparkManagePresenter {
 	 */
 	public void search(String plateNo, String userName, Date start, Date end, String operaName, String carType, String inout) {
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(inOutHistoryModel.getListSearch().size(), 200, plateNo, userName, carType, inout, start, end, operaName);
-		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName);
+		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(inOutHistoryModel.getListSearch().size(), 200, plateNo, userName, carType, inout, start, end, operaName, inout, inout, null);
+		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName, inout, inout, null);
 		inOutHistoryModel.addListSearch(findByCondition);
 		inOutHistoryModel.setCountSearch(inOutHistoryModel.getListSearch().size());
 		inOutHistoryModel.setCountSearchAll(countByCondition.intValue());
@@ -614,7 +620,7 @@ public class CarparkManagePresenter {
         
         NewCommonChargeModel model = new NewCommonChargeModel();
         if(carparkCharge != null){        	
-        	BeanUtil.copyProperties(carparkCharge, model, CarparkChargeStandard.Property.values());
+        	BeanUtil.copyProperties(carparkCharge,model, CarparkChargeStandard.Property.values());
         	model.setFreeTimeEnable(model.getAcrossdayChargeEnable() == 1 ? "是":"否");
         }else{
         	model.setFreeTime(0);
@@ -665,7 +671,27 @@ public class CarparkManagePresenter {
 		return p;
 	}
 
-	public InOutHostoryPresenter getInOutHostoryPresenter() {
+	public InOutHistoryPresenter getInOutHostoryPresenter() {
 		return inOutHostoryPresenter;
+	}
+
+	public void editCarparkChargeSetting() {
+		try {
+			CarparkChargeInfo carparkChargeInfo = carparkModel.getCarparkChargeInfo();
+			CarparkService carparkService = sp.getCarparkService();
+			if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.固定月租收费.name())) {
+				SingleCarparkMonthlyCharge monthlyCharge=carparkService.findMonthlyChargeById(carparkChargeInfo.getId());
+				
+				AddMonthChargeModel init = new AddMonthChargeModel(monthlyCharge);
+				addAndEditMonthCharge(init);
+			}
+			if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.临时收费.name())) {
+				CarparkChargeStandard findCarparkChargeStandardByCode = carparkService.findCarparkChargeStandardByCode(carparkChargeInfo.getCode());
+				addTempCharge(findCarparkChargeStandardByCode);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 }

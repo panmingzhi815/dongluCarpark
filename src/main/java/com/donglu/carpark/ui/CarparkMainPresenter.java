@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
+import com.donglu.carpark.ui.common.App;
+import com.donglu.carpark.ui.view.InOutHistoryPresenter;
 import com.donglu.carpark.wizard.AddDeviceModel;
 import com.donglu.carpark.wizard.AddDeviceWizard;
 import com.donglu.carpark.wizard.ChangeUserWizard;
@@ -55,6 +57,8 @@ public class CarparkMainPresenter {
 	
 	@Inject
 	private WebCameraDevice webCameraDevice;
+	@Inject
+	private InOutHistoryPresenter inOutHistoryPresenter;
 	
 	// 保存设备的进出口信息
 	Map<String, String> mapDeviceType ;
@@ -67,6 +71,8 @@ public class CarparkMainPresenter {
 	private CarparkMainModel model;
 	
 	private CarparkMainApp view;
+	
+	private App app;
 	public void setCarNo(){
 		
 	}
@@ -419,6 +425,9 @@ public class CarparkMainPresenter {
 		
 		return 20;
 	}
+	/**
+	 * 换班
+	 */
 	public void changeUser() {
 		
 		ChangeUserWizard wizard=new ChangeUserWizard(new ChangeUserModel(), sp);
@@ -439,5 +448,23 @@ public class CarparkMainPresenter {
 		model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
 		model.setMonthSlot(sp.getCarparkInOutService().findFixSlotIsNow());
 		model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow());
+	}
+	/**
+	 * 打开记录查询页面
+	 */
+	public void showSearchInOutHistory() {
+		System.out.println(inOutHistoryPresenter.getListPresenter().getInOutHistory());;
+		if (app!=null) {
+			if (app.isOpen()) {
+				app.focus();
+			}else{
+				app.open();
+			}
+			return;
+		}
+		ShowApp showApp=new ShowApp();
+		showApp.setPresenter(inOutHistoryPresenter);
+		app=showApp;
+		app.open();
 	}
 }

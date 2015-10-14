@@ -17,12 +17,12 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
 import com.beust.jcommander.JCommander;
-import com.donglu.carpark.App;
 import com.donglu.carpark.server.CarparkHardwareGuiceModule;
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.ServerUI;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
+import com.donglu.carpark.ui.common.App;
 import com.dongluhitec.card.blservice.DatabaseServiceProvider;
 import com.dongluhitec.card.blservice.HardwareFacility;
 import com.dongluhitec.card.common.ui.CommonUIGuiceModule;

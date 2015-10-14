@@ -51,11 +51,12 @@ import org.eclipse.swt.custom.CTabItem;
 
 import antlr.ByteBuffer;
 
-import com.donglu.carpark.App;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.service.CarparkService;
+import com.donglu.carpark.ui.common.AbstractApp;
+import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.wizard.AddDeviceModel;
 import com.donglu.carpark.wizard.AddDeviceWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -78,6 +79,7 @@ import com.dongluhitec.card.hardware.device.WebCameraDevice;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongCallback.XinlutongResult;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
+import com.dongluhitec.card.service.util.ImageUtil;
 import com.dongluhitec.card.ui.carpark.pay.storein.wizard.NewCarparkStoreInHistoryModel;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -108,7 +110,7 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 
-public class CarparkMainApp implements XinlutongResult, App {
+public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private static final String CAR_IS_ARREARS = "车辆已到期,请联系管理员";
 
 	private static final String CAR_OUT_MSG = "祝您一路平安";
@@ -784,6 +786,12 @@ public class CarparkMainApp implements XinlutongResult, App {
 		btnf_2.setText("归账(F8)");
 
 		Button btnf_3 = new Button(group, SWT.NONE);
+		btnf_3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.showSearchInOutHistory();
+			}
+		});
 		btnf_3.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		GridData gd_btnf_3 = new GridData(SWT.CENTER, SWT.CENTER, true, false, 2, 1);
 		gd_btnf_3.widthHint = 120;
@@ -1013,6 +1021,14 @@ public class CarparkMainApp implements XinlutongResult, App {
 				String carType = "临时车";
 				if (!StrUtil.isEmpty(user)) {
 					carType = "固定车";
+					if (model.getMonthSlot()<=0) {
+						LOGGER.error("固定车位已满");
+						return;
+					}
+				}
+				if (model.getHoursSlot()<=0) {
+					LOGGER.error("临时车位已满");
+					return;
 				}
 				if (StrUtil.isEmpty(device)) {
 					LOGGER.info("没有找到ip为：" + ip + "的设备");
@@ -1378,12 +1394,9 @@ public class CarparkMainApp implements XinlutongResult, App {
 	}
 
 	@Override
-	public void disponse() {
-		this.shell.dispose();
+	public boolean isOpen() {
+		// TODO 自动生成的方法存根
+		return false;
 	}
 
-	@Override
-	public void setShell(Shell shell) {
-		this.shell=shell;
-	}
 }
