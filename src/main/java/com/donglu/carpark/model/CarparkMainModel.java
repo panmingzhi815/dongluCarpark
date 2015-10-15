@@ -88,7 +88,7 @@ public class CarparkMainModel extends DomainObject{
 		return inTime;
 	}
 	public void setInTime(Date inTime) {
-		this.inTime = StrUtil.formatDate(inTime, "yyyy-MM-dd HH:mm");
+		this.inTime = StrUtil.formatDate(inTime, "yyyy-MM-dd HH:mm:ss");
 		if (pcs != null)
 			pcs.firePropertyChange("inTime", null, null);
 	}
@@ -96,7 +96,7 @@ public class CarparkMainModel extends DomainObject{
 		return outTime;
 	}
 	public void setOutTime(Date outTime) {
-		this.outTime = StrUtil.formatDate(outTime, "yyyy-MM-dd HH:mm");
+		this.outTime = StrUtil.formatDate(outTime, "yyyy-MM-dd HH:mm:ss");
 		if (pcs != null)
 			pcs.firePropertyChange("outTime", null, null);
 	}

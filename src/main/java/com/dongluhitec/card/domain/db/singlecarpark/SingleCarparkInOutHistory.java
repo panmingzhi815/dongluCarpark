@@ -44,6 +44,8 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private String smallImg;
 	private String bigImg;
 	
+	private String inPhotographType;
+	private String outPhotographType;
 
 	public String getPlateNo() {
 		return plateNo;
@@ -200,6 +202,26 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		this.returnAccount = returnAccount;
 		if (pcs != null)
 			pcs.firePropertyChange("returnAccount", null, null);
+	}
+
+	public String getInPhotographType() {
+		return inPhotographType;
+	}
+
+	public void setInPhotographType(String inPhotographType) {
+		this.inPhotographType = inPhotographType;
+		if (pcs != null)
+			pcs.firePropertyChange("inPhotographType", null, null);
+	}
+
+	public String getOutPhotographType() {
+		return outPhotographType;
+	}
+
+	public void setOutPhotographType(String outPhotographType) {
+		this.outPhotographType = outPhotographType;
+		if (pcs != null)
+			pcs.firePropertyChange("outPhotographType", null, null);
 	}
 	
 }

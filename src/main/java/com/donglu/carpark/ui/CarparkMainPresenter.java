@@ -82,6 +82,10 @@ public class CarparkMainPresenter {
 	 * @param selection
 	 */
 	protected void deleteDeviceTabItem(CTabItem selection) {
+		boolean confirm = commonui.confirm("确定提示", "确定删除所选设备");
+		if (!confirm) {
+			return;
+		}
 		if (selection != null) {
 			String ip = mapDeviceTabItem.get(selection);
 			System.out.println("删除设备" + ip);
@@ -470,5 +474,12 @@ public class CarparkMainPresenter {
 		showApp.setPresenter(inOutHistoryPresenter);
 		app=showApp;
 		app.open();
+	}
+	/**
+	 * 手动抓拍
+	 */
+	public void handPhotograph(String ip) {
+		xinlutongJNA.tigger(ip);
+		
 	}
 }
