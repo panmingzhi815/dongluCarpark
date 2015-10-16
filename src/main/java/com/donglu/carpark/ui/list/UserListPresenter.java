@@ -14,8 +14,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
-public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkBlackUser>{
-	BlackUserListView view;
+public class UserListPresenter extends AbstractListPresenter<SingleCarparkBlackUser>{
+	UserListView view;
 	
 	@Inject
 	private CommonUIFacility commonui;
@@ -23,7 +23,7 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 	private CarparkDatabaseServiceProvider sp;
 	@Override
 	public void go(Composite c) {
-		view=new BlackUserListView(c,c.getStyle());
+		view=new UserListView(c,c.getStyle());
 		view.setPresenter(this);
 		view.setTableTitle("黑名单列表");
 	}
@@ -42,10 +42,11 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 			e.printStackTrace();
 		}
 	}
+
 	@Override
 	public void delete(List<SingleCarparkBlackUser> list) {
 		try {
-			List<SingleCarparkBlackUser> selected = view.getModel().getSelected();
+			List<SingleCarparkBlackUser> selected = list;
 			if (StrUtil.isEmpty(selected)) {
 				commonui.info("删除提示", "请选择一个黑名单");
 				return;

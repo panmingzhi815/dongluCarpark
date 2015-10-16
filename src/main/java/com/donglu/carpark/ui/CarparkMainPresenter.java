@@ -2,6 +2,8 @@ package com.donglu.carpark.ui;
 
 import java.awt.Canvas;
 import java.awt.Frame;
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,14 +33,24 @@ import com.donglu.carpark.wizard.ReturnAccountWizard;
 import com.donglu.carpark.wizard.model.ChangeUserModel;
 import com.donglu.carpark.wizard.model.ReturnAccountModel;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.domain.LPRInOutType;
+import com.dongluhitec.card.domain.LinkProtocolEnum;
+import com.dongluhitec.card.domain.LinkTypeEnum;
+import com.dongluhitec.card.domain.db.Device;
+import com.dongluhitec.card.domain.db.Link;
+import com.dongluhitec.card.domain.db.LinkStyleEnum;
+import com.dongluhitec.card.domain.db.SerialDeviceAddress;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
+import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
 import com.dongluhitec.card.mapper.BeanUtil;
+import com.google.common.io.Files;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Inject;
 
@@ -58,6 +70,9 @@ public class CarparkMainPresenter {
 	@Inject
 	private WebCameraDevice webCameraDevice;
 	@Inject
+	private BasicHardwareService hardwareService;
+	
+	@Inject
 	private InOutHistoryPresenter inOutHistoryPresenter;
 	
 	// 保存设备的进出口信息
@@ -67,6 +82,8 @@ public class CarparkMainPresenter {
 	Map<CTabItem, String> mapDeviceTabItem;
 	//保存设备的信息
 	Map<String, SingleCarparkDevice> mapIpToDevice;
+	//保存设置信息
+	private Map<SystemSettingTypeEnum, String> mapSystemSetting;
 	
 	private CarparkMainModel model;
 	
@@ -367,23 +384,87 @@ public class CarparkMainPresenter {
 		}
 	}
 	/**
-	 * 显示屏显示，语音
+	 * 显示屏显示车牌
 	 * @param device 设备
-	 * @param string 显示
-	 * @param i 音量
-	 * @param j 显示屏上下
+	 * @param plateNO 显示车牌
 	 */
-	public void showMesToDevice(SingleCarparkDevice device, String string, int i, int j) {
-		
-		
+	public boolean showPlateNOToDevice(SingleCarparkDevice device, String plateNO) {
+		try {
+			Device d = getDevice(device);
+			Boolean carparkPlate = hardwareService.carparkPlate(d, plateNO);
+			return carparkPlate;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	/**
+	 * 发送语音
+	 * @param device
+	 * @param content语音
+	 * @param voice音量
+	 */
+	public boolean showContentToDevice(SingleCarparkDevice device, String content,int voice) {
+		try {
+			Device d = getDevice(device);
+			return hardwareService.carparkContentVoice(d, content, voice);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	/**
+	 * 显示车为数
+	 * @param device
+	 * @param content
+	 * @param voice
+	 * @return
+	 */
+	public boolean showPositionToDevice(SingleCarparkDevice device,int position) {
+		try {
+			Device d = getDevice(device);
+			
+			return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(device.getInType()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	private Device getDevice(SingleCarparkDevice device) {
+		Device d = new Device();
+		 Link link = new Link();
+		 link.setId((long) device.getLinkAddress().hashCode());
+		 link.setLinkStyleEnum(LinkStyleEnum.直连设备);
+		 link.setType(LinkTypeEnum.TCP);
+		 link.setAddress(device.getLinkAddress());
+		 link.setProtocol(LinkProtocolEnum.Carpark);
+		 SerialDeviceAddress address = new SerialDeviceAddress();
+		 address.setAddress(device.getAddress());
+		 d.setAddress(address);
+		 d.setLink(link);
+		 return d;
 	}
 	/**
 	 * 开门，设备开闸
 	 * @param device
 	 */
-	public void openDoor(SingleCarparkDevice device) {
-		
-		
+	public boolean openDoor(SingleCarparkDevice device) {
+		try {
+			showPositionToDevice(device,model.getTotalSlot());
+			Boolean carparkOpenDoor = hardwareService.carparkOpenDoor(getDevice(device));
+			return carparkOpenDoor;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	public boolean showUsualContentToDevice(SingleCarparkDevice device,String usualContent){
+		try {
+			Boolean carparkUsualContent = hardwareService.carparkUsualContent(getDevice(device), usualContent);
+			return carparkUsualContent;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	/**
 	 * 免费放行
@@ -481,5 +562,35 @@ public class CarparkMainPresenter {
 	public void handPhotograph(String ip) {
 		xinlutongJNA.tigger(ip);
 		
+	}
+	
+	/**
+	 * 保存车牌识别的图片
+	 * @param f 文件夹
+	 * @param fileName 文件名
+	 * @param bigImage 图片字节
+	 */
+	protected void saveImage(String f, String fileName, byte[] bigImage) {
+		bigImage = bigImage == null ? new byte[0] : bigImage;
+		String fl = "/img/" + f;
+		if (!StrUtil.isEmpty(mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置))) {
+				String string = mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置);
+				fl = string + fl;
+		}
+		try {
+			File file = new File(fl);
+			if (!file.exists() && !file.isDirectory()) {
+					Files.createParentDirs(file);
+					file.mkdir();
+			}
+			File file2 = new File(fl + "/" + fileName);
+			file2.createNewFile();
+			Files.write(bigImage, file2);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	public void setMapSystemSetting(Map<SystemSettingTypeEnum, String> mapSystemSetting) {
+		this.mapSystemSetting = mapSystemSetting;
 	}
 }

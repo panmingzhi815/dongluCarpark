@@ -147,7 +147,9 @@ public class CarparkManagePresenter {
 			}
 			
 			SingleCarparkUser user = m.getSingleCarparkUser();
-			user.setCreateDate(new Date());
+			Date createDate = new Date();
+			user.setCreateDate(createDate);
+			user.setValidTo(createDate);
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
 			carparkUserService.saveUser(user);
 			if (m.getCarparkNo() != null) {

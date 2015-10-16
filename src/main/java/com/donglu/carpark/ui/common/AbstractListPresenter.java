@@ -5,7 +5,7 @@ import java.util.List;
 import org.eclipse.swt.widgets.Composite;
 
 
-public abstract class AbstractListPresenter<T> implements Presenter {
+public abstract class AbstractListPresenter<T> implements ListPresenter<T> {
 
 	@Override
 	public abstract void go(Composite c);
@@ -16,7 +16,7 @@ public abstract class AbstractListPresenter<T> implements Presenter {
 	}
 	
 	@Override
-	public void delete() {
+	public void delete(List<T> list) {
 	}
 
 	@Override

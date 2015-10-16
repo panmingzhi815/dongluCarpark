@@ -38,7 +38,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
 public abstract class AbstractListView<T> extends Composite{
-	protected Presenter presenter;
+	protected ListPresenter<T> presenter;
 	private DataBindingContext m_bindingContext;
 	private Table table;
 	private Model model=new Model();
@@ -205,7 +205,7 @@ public abstract class AbstractListView<T> extends Composite{
 		toolItem_delete.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				presenter.delete();
+				presenter.delete(model.getSelected());
 			}
 		});
 		toolItem_delete.setText("删除");
@@ -267,6 +267,6 @@ public abstract class AbstractListView<T> extends Composite{
 	}
 
 	public void setPresenter(Presenter presenter) {
-		this.presenter = presenter;
+		this.presenter = (ListPresenter<T>) presenter;
 	}
 }

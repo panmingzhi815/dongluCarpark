@@ -82,6 +82,7 @@ import com.dongluhitec.card.hardware.device.WebCameraDevice;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongCallback.XinlutongResult;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
+import com.dongluhitec.card.server.servlet.ImageServlet;
 import com.dongluhitec.card.service.util.ImageUtil;
 import com.dongluhitec.card.ui.carpark.pay.storein.wizard.NewCarparkStoreInHistoryModel;
 import com.google.common.base.Preconditions;
@@ -115,6 +116,8 @@ import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.events.KeyAdapter;
 
 public class CarparkMainApp extends AbstractApp implements XinlutongResult {
+	private static final String USUAL_MSG = "欢迎光临";
+
 	private static final String TEMP_CAR_AUTO_PASS = "tempCarAutoPass";
 
 	private static final String CAR_IS_ARREARS = "车辆已到期,请联系管理员";
@@ -192,16 +195,19 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private Map<SystemSettingTypeEnum, String> mapSystemSetting = Maps.newHashMap();
 	// 保存黑名单信息
 	Map<String, SingleCarparkBlackUser> mapBlackUser = Maps.newHashMap();
-
+	// 进口tab
 	private CTabFolder tabInFolder;
-
+	// 出口tab
 	private CTabFolder tabOutFolder;
 
 	private String userType;
 	private Label lblNewLabel;
 	private Button btnNewButton;
 	private Button btnf;
-	private Map<String, Date> mapHandPhotograph=Maps.newHashMap();
+	// 保存最近的手动拍照时间
+	private Map<String, Date> mapHandPhotograph = Maps.newHashMap();
+	// 是否中断收费操作
+	private boolean discontinue = false;
 
 	/**
 	 * Launch the application.
@@ -211,7 +217,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	public static void main(String[] args) {
 		Date instant = new Date();
 		System.out.println(StrUtil.formatDate(instant, "yyyy-MM-dd HH:mm:ss"));
-		DateTime d=new DateTime(instant);
+		DateTime d = new DateTime(instant);
 		DateTime plusSeconds = d.plusSeconds(3);
 		System.out.println(StrUtil.formatDate(plusSeconds.toDate(), "yyyy-MM-dd HH:mm:ss"));
 
@@ -257,11 +263,15 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		System.exit(0);
 	}
 
+	/**
+	 * 初始化
+	 */
 	private void init() {
 		presenter.setView(this);
 		presenter.setMapDeviceTabItem(this.mapDeviceTabItem);
 		presenter.setMapDeviceType(this.mapDeviceType);
 		presenter.setMapIpToDevice(mapIpToDevice);
+		presenter.setMapSystemSetting(mapSystemSetting);
 		model = new CarparkMainModel();
 		presenter.setModel(model);
 		String userName = System.getProperty("userName");
@@ -289,7 +299,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		for (SingleCarparkBlackUser singleCarparkBlackUser : findAllBlackUser) {
 			mapBlackUser.put(singleCarparkBlackUser.getPlateNO(), singleCarparkBlackUser);
 		}
-
+//		autoSendPositionToDevice();
 	}
 
 	/**
@@ -876,26 +886,23 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		presenter.handPhotograph(ip);
 		mapHandPhotograph.put(ip, new Date());
 	}
+	/**
+	 * 没隔5秒自动发送车位
+	 */
+	private void autoSendPositionToDevice() {
+		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
 
-	// private void testProject() {
-	// byte[] readAllBytes = null;
-	// try {
-	// readAllBytes = java.nio.file.Files.readAllBytes(Paths.get("D:/20150925131528451_粤BD021W_small.jpg"));
-	// } catch (IOException e1) {
-	// e1.printStackTrace();
-	// }
-	// byte[] b = readAllBytes;
-	// ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-	// newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
-	//
-	// @Override
-	// public void run() {
-	// // addPool(b);
-	// invok("192.168.1.138", 1, "no", b, b);
-	// }
-	// }, 1000, 100, TimeUnit.MILLISECONDS);
-	// }
-	//
+			@Override
+			public void run() {
+				Set<String> keySet = mapIpToDevice.keySet();
+				for (String c : keySet) {
+					presenter.showPositionToDevice(mapIpToDevice.get(c), model.getHoursSlot());
+				}
+			}
+		}, 5000, 5000, TimeUnit.MILLISECONDS);
+	}
+
 	// private void addPool(byte[] readAllBytes) {
 	//
 	// Future<?> submit = execute.submit(new Runnable() {
@@ -953,29 +960,14 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 	}
 
-	// 保存车牌识别的图片
-	protected void saveImage(String f, String fileName, byte[] bigImage) {
-		bigImage = bigImage == null ? new byte[0] : bigImage;
-		String fl = "/img/" + f;
-		if (!StrUtil.isEmpty(mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置))) {
-			String string = mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置);
-			String flag = string + fl;
-			fl = flag;
-		}
-		try {
-			File file = new File(fl);
-			if (!file.exists() && !file.isDirectory()) {
-				Files.createParentDirs(file);
-				file.mkdir();
-			}
-			File file2 = new File(fl + "/" + fileName);
-			file2.createNewFile();
-			Files.write(bigImage, file2);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
+	/**
+	 * 获取图片
+	 * 
+	 * @param smallImage
+	 * @param insmallimg
+	 * @param shell
+	 * @return
+	 */
 	public Image getImage(final byte[] smallImage, CLabel insmallimg, Shell shell) {
 		if (smallImage == null) {
 			insmallimg.setText("无图片");
@@ -991,7 +983,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			ImageDescriptor createFromImageData = ImageDescriptor.createFromImageData(data);
 			Image createImg = createFromImageData.createImage();
 			img.dispose();
-			img=null;
+			img = null;
 			insmallimg.setText("");
 			return createImg;
 		} catch (Exception e) {
@@ -1007,46 +999,48 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		}
 	}
 
+	/**
+	 * 车牌识别监控
+	 */
 	public void invok(final String ip, int channel, final String plateNO, final byte[] bigImage, final byte[] smallImage) {
 		Preconditions.checkNotNull(mapDeviceType.get(ip), "not monitor device:" + ip);
-		Preconditions.checkNotNull(plateNO, "not plateNO is:" + plateNO);
-		if (StrUtil.isEmpty(plateNO)) {
-			System.out.println("空的车牌");
-			return;
-		}
 		if (mapDeviceType.get(ip).equals("出口")) {
 			new Thread(new Runnable() {
 				public void run() {
 					carparkOutTask(ip, plateNO, bigImage, smallImage);
 				}
 			}).start();
-
 		} else if (mapDeviceType.get(ip).equals("进口")) {
 			new Thread(new Runnable() {
 				public void run() {
 					carparkInTask(ip, plateNO, bigImage, smallImage);
 				}
 			}).start();
-			
+
 		}
 	}
 
 	// 停车场进
 	private synchronized void carparkInTask(final String ip, final String plateNO, final byte[] bigImage, final byte[] smallImage) {
+		LOGGER.debug("开始保存车牌：{}的图片", plateNO);
 		long nanoTime = System.nanoTime();
 		Date date = new Date();
-
 		String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
 		String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
 		String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
-		saveImage(folder, bigImgFileName, bigImage);
 		String smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
-		saveImage(folder, smallImgFileName, smallImage);
+		presenter.saveImage(folder, bigImgFileName, bigImage);
+		presenter.saveImage(folder, smallImgFileName, smallImage);
 		long nanoTime1 = System.nanoTime();
 
 		final String dateString = StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss");
 		LOGGER.info(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO);
-		// 显示图片
+		SingleCarparkDevice device = mapIpToDevice.get(ip);
+		if (StrUtil.isEmpty(device)) {
+			LOGGER.error("没有找到ip:" + ip + "的设备");
+			return;
+		}
+		LOGGER.debug("开始在界面显示车牌：{}的抓拍图片", plateNO);
 		Display.getDefault().asyncExec(new Runnable() {
 			public void run() {
 				if (inSmallImage != null) {
@@ -1075,46 +1069,61 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				plateNoTotal.addAndGet(1);
 			}
 		});
-
+		//空车牌处理
+		if (StrUtil.isEmpty(plateNO)) {
+			LOGGER.info("空的车牌");
+			return;
+		}
 		// model.setInShowBigImg(inBigImage);
 		// model.setInShowSmallImg(inSmallImage);
 		// model.setInShowPlateNO(plateNO);
 		// model.setInShowTime(dateString);
 		// plateNoTotal.addAndGet(1);
-
+		 
 		long nanoTime3 = System.nanoTime();
+		LOGGER.debug("进行黑名单判断");
 		SingleCarparkBlackUser singleCarparkBlackUser = mapBlackUser.get(plateNO);
 		if (!StrUtil.isEmpty(singleCarparkBlackUser)) {
 			LOGGER.error("车牌：{}为黑名单", plateNO);
 			model.setInShowMeg("黑名单");
 			return;
 		}
-
+		LOGGER.debug("显示车牌");
+		presenter.showPlateNOToDevice(device, plateNO);
+		
+		LOGGER.debug("查找是否为固定车");
 		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(null, plateNO);
-		SingleCarparkDevice device = mapIpToDevice.get(ip);
 		SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo.get(0);
+		
 		String carType = "临时车";
 		if (!StrUtil.isEmpty(user)) {
 			carType = "固定车";
-			if (model.getMonthSlot() <= 0) {
-				LOGGER.error("固定车位已满");
+//			if (model.getMonthSlot() <= 0) {
+//				LOGGER.error("固定车位已满");
+//				return;
+//			}
+			String content = ",有效期至" + StrUtil.formatDate(user.getValidTo(), "yyyy年MM月dd日");
+			presenter.showContentToDevice(device, CAR_IN_MSG+content, 1);
+			LOGGER.info("固定车：{}，{}",plateNO,content);
+		} else {
+			LOGGER.debug("判断是否允许临时车进");
+			if (device.getCarpark().isTempCarIsIn()) {
+				presenter.showContentToDevice(device, "固定停车场,不允许临时车进", 1);
+				presenter.showUsualContentToDevice(device, USUAL_MSG);
 				return;
 			}
+			presenter.showContentToDevice(device, CAR_IN_MSG, 1);
 		}
 		if (model.getHoursSlot() <= 0) {
 			LOGGER.error("临时车位已满");
 			return;
 		}
-		if (StrUtil.isEmpty(device)) {
-			LOGGER.info("没有找到ip为：" + ip + "的设备");
-		} else {
-			String roadType = device.getRoadType();
-			LOGGER.info("车辆类型为：{}==t通道类型为：{}", carType, roadType);
-		}
-		showInDevice(device, plateNO, user);
+		LOGGER.debug("车辆类型为：{}==t通道类型为：{}", carType, device.getRoadType());
+		// showInDevice(device, plateNO, user);
 		long nanoTime2 = System.nanoTime();
-		LOGGER.info(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO + "车辆类型：" + carType + "\n" + "保存图片：" + (nanoTime1 - nanoTime) + "==查找固定用户：" + (nanoTime2 - nanoTime3)
+		LOGGER.debug(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO + "车辆类型：" + carType + "==" + "保存图片：" + (nanoTime1 - nanoTime) + "==查找固定用户：" + (nanoTime2 - nanoTime3)
 				+ "==界面操作：" + (nanoTime3 - nanoTime1));
+		LOGGER.info("把车牌:{}的进场记录保存到数据库",plateNO);
 		SingleCarparkInOutHistory h = new SingleCarparkInOutHistory();
 		h.setInTime(date);
 		h.setPlateNo(plateNO);
@@ -1132,16 +1141,18 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		if (!StrUtil.isEmpty(handPhotographDate)) {
 			DateTime plusSeconds = new DateTime(handPhotographDate).plusSeconds(3);
 			boolean after = plusSeconds.toDate().after(date);
-			if (after) 
+			if (after)
 				h.setInPhotographType("手动");
 		}
 		CarparkService carparkService = sp.getCarparkService();
 		SingleCarparkCarpark carpark = carparkService.findCarparkById(device.getCarpark().getId());
-		;
 
 		if (carType.equals("临时车")) {
 			model.setHoursSlot(model.getHoursSlot() - 1);
 		} else {
+			if (model.getMonthSlot()<=0) {
+				model.setHoursSlot(model.getHoursSlot() - 1);
+			}else
 			model.setMonthSlot(model.getMonthSlot() - 1);
 		}
 		int left = carpark.getLeftNumberOfSlot() - 1;
@@ -1150,19 +1161,21 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		model.setTotalSlot(total <= 0 ? 0 : total);
 		carparkService.saveCarpark(carpark);
 		sp.getCarparkInOutService().saveInOutHistory(h);
+		presenter.openDoor(device);
+		presenter.showUsualContentToDevice(device, USUAL_MSG);
 	}
 
 	// 停车场出
 	private synchronized void carparkOutTask(final String ip, final String plateNO, final byte[] bigImage, final byte[] smallImage) {
-		
+
 		long nanoTime = System.nanoTime();
 		Date date = new Date();
 		String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
 		String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
 		String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
-		saveImage(folder, bigImgFileName, bigImage);
+		presenter.saveImage(folder, bigImgFileName, bigImage);
 		String smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
-		saveImage(folder, smallImgFileName, smallImage);
+		presenter.saveImage(folder, smallImgFileName, smallImage);
 		long nanoTime1 = System.nanoTime();
 		final String dateString = StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss");
 		// System.out.println(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO);
@@ -1204,8 +1217,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			LOGGER.info("没有找到ip为：" + ip + "的设备");
 			return;
 		}
+		presenter.showPlateNOToDevice(device, plateNO);
 
-		showInDevice(device, plateNO, null);
 		long nanoTime3 = System.nanoTime();
 		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(null, plateNO);
 		SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo.get(0);
@@ -1223,8 +1236,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		if (carType.equals("固定车")) {
 			if (!equals) {
-				presenter.showMesToDevice(device, TEMP_ROAD, 1, 1);
-				return;
+				if (roadType.equals(DeviceRoadTypeEnum.临时车通道.name())) {
+					presenter.showContentToDevice(device, TEMP_ROAD, 1);
+					return;
+				}
 			}
 			Date validTo = user.getValidTo();
 			Integer delayDays = user.getDelayDays() == null ? 0 : user.getDelayDays();
@@ -1234,92 +1249,37 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			Date time = c.getTime();
 
 			if (StrUtil.getTodayBottomTime(time).before(date)) {
-				presenter.showMesToDevice(device, CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo()), 1, 1);
+				presenter.showContentToDevice(device, CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo()), 1);
 				LOGGER.info("车辆:{}已到期", plateNO);
 				return;
-			}
-			c.setTime(validTo);
-			c.add(Calendar.DATE, user.getRemindDays() == null ? 0 : user.getRemindDays());
-			time = c.getTime();
-			if (StrUtil.getTodayBottomTime(time).before(date)) {
-				presenter.showMesToDevice(device, CAR_WILL_ARREARS + StrUtil.formatDate(user.getValidTo()), 1, 1);
-				LOGGER.info("车辆:{}即将到期", plateNO);
+			} else {
+				c.setTime(validTo);
+				c.add(Calendar.DATE, user.getRemindDays() == null ? 0 : user.getRemindDays());
+				time = c.getTime();
+				if (StrUtil.getTodayBottomTime(time).before(date)) {
+					presenter.showContentToDevice(device, CAR_WILL_ARREARS + StrUtil.formatDate(user.getValidTo()), 1);
+					LOGGER.info("车辆:{}即将到期", plateNO);
+				} else {
+					presenter.showContentToDevice(device, CAR_OUT_MSG + StrUtil.formatDate(user.getValidTo()), 1);
+				}
 			}
 
-			presenter.showMesToDevice(device, CAR_OUT_MSG + StrUtil.formatDate(user.getValidTo()), 1, 1);
-			presenter.openDoor(device);
 			SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkById(device.getCarpark().getId());
 			carpark.setLeftNumberOfSlot(carpark.getLeftNumberOfSlot() + 1);
-			model.setTotalSlot(model.getTotalSlot() + 1);
-			model.setMonthSlot(model.getMonthSlot() + 1);
-
+			model.setMonthSlot(model.getMonthSlot() + 1 > carpark.getFixNumberOfSlot() ? carpark.getFixNumberOfSlot() : model.getMonthSlot() + 1);
+			model.setTotalSlot(model.getHoursSlot() + model.getMonthSlot());
+			presenter.openDoor(device);
 		} else {// 临时车操作
-
 			// 固定车通道
 			if (equals) {
-				presenter.showMesToDevice(device, FIX_ROAD, 1, 1);
+				// presenter.showPlateNOToDevice(device, FIX_ROAD, 1, 1);
 				return;
 			}
-
+			carparkOutProcess(ip, plateNO, device, date);
 		}
-		carparkOutProcess(ip, plateNO, device,date);
 	}
 
-	// 进口发送语音
-	private void showInDevice(SingleCarparkDevice device, String plateNO, SingleCarparkUser user) {
-		if (StrUtil.isEmpty(device)) {
-			return;
-		}
-		String roadType = device.getRoadType();
-		SingleCarparkCarpark carpark = device.getCarpark();
-		boolean tempCarIsIn = carpark.isTempCarIsIn();
-		presenter.showMesToDevice(device, "车牌：" + plateNO, 1, 1);
-		if (StrUtil.isEmpty(user)) {
-			boolean equals = roadType.equals("固定车通道");
-			if (equals) {
-				presenter.showMesToDevice(device, FIX_ROAD, 1, 1);
-				return;
-			}
-			// 不允许临时车进
-			if (tempCarIsIn) {
-				presenter.showMesToDevice(device, NOT_PERMIT_TEMPCAR_IN_MSG, 1, 1);
-				return;
-			}
-			presenter.showMesToDevice(device, CAR_IN_MSG, 1, 1);
-			presenter.openDoor(device);
-		} else {
-			boolean equals = roadType.equals("临时车通道");
-			if (equals) {
-				presenter.showMesToDevice(device, TEMP_ROAD, 1, 1);
-				return;
-			}
-			presenter.showMesToDevice(device, CAR_IN_MSG + StrUtil.formatDate(user.getValidTo(), "yyyy-MM-dd"), 1, 1);
-			presenter.openDoor(device);
-		}
-		// try {
-		// if (StrUtil.isEmpty(plateNO)) {
-		// return;
-		// }
-		// Device device = new Device();
-		// Link link = new Link();
-		// link.setId((long) ip.hashCode());
-		// link.setLinkStyleEnum(LinkStyleEnum.直连设备);
-		// link.setType(LinkTypeEnum.TCP);
-		// link.setAddress(ip);
-		// link.setProtocol(LinkProtocolEnum.WriteCardCarpark);
-		// SerialDeviceAddress address = new SerialDeviceAddress();
-		// address.setAddress(addr);
-		// device.setAddress(address);
-		// device.setLink(link);
-		// hardwareService.writeCarpark_simpleScreen(device, plateNO, 9, 3);
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// System.out.println("voice error for ip :" + ip + " addr :" + addr + " :plateNo" + plateNO);
-		//// System.exit(0);
-		// }
-	}
-
-	private void carparkOutProcess(final String ip, final String plateNO, SingleCarparkDevice device,Date date) {
+	private void carparkOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date) {
 		// System.out.println("出场");
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(plateNO);
@@ -1340,8 +1300,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 			SingleCarparkInOutHistory singleCarparkInOutHistory = findByNoCharge.get(0);
 			String type = singleCarparkInOutHistory.getCarType();
-			Date outTime = new Date();
-			singleCarparkInOutHistory.setOutTime(outTime);
+
+			singleCarparkInOutHistory.setOutTime(date);
 			singleCarparkInOutHistory.setOperaName(model.getUserName());
 			singleCarparkInOutHistory.setOutDevice(device.getName());
 			singleCarparkInOutHistory.setOutPhotographType("自动");
@@ -1349,7 +1309,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			if (!StrUtil.isEmpty(handPhotographDate)) {
 				DateTime plusSeconds = new DateTime(handPhotographDate).plusSeconds(3);
 				boolean after = plusSeconds.toDate().after(date);
-				if (after) 
+				if (after)
 					singleCarparkInOutHistory.setOutPhotographType("手动");
 			}
 			Date inTime = singleCarparkInOutHistory.getInTime();
@@ -1359,13 +1319,14 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				model.setPlateNo(plateNO);
 				model.setCarType(singleCarparkInOutHistory.getCarType());
 				model.setBtnClick(true);
-				model.setOutTime(outTime);
+				model.setOutTime(date);
 				model.setInTime(inTime);
-				model.setTotalTime(StrUtil.MinusTime2(inTime, outTime));
+				model.setTotalTime(StrUtil.MinusTime2(inTime, date));
 				model.setHistory(singleCarparkInOutHistory);
 				float shouldMoney = presenter.countShouldMoney();
 				model.setShouldMony(shouldMoney);
-
+				LOGGER.info("{}进场时间{}，出场时间{}，停车：{}，应收费：{}元", plateNO, model.getInTime(), model.getOutTime(), model.getTotalTime(), shouldMoney);
+				presenter.showContentToDevice(device, "请缴费" + shouldMoney + "元", 1);
 				String property = System.getProperty(TEMP_CAR_AUTO_PASS);
 				Boolean valueOf = Boolean.valueOf(property);
 				// 自动放行
@@ -1377,7 +1338,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 							e.printStackTrace();
 						}
 					}
-
+					if (discontinue) {
+						return;
+					}
 				} else {
 					// 测试添加默认实收
 					model.setReal(15);
@@ -1401,6 +1364,13 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				presenter.openDoor(device);
 				model.setTotalSlot(model.getTotalSlot() + 1);
 				model.setHoursSlot(model.getHoursSlot() + 1);
+				model.setPlateNo("");
+				model.setShouldMony(0);
+				model.setReal(0);
+				model.setInTime(null);
+				model.setOutTime(null);
+				model.setCarType(null);
+				model.setTotalTime(null);
 			} else {
 				// 固定车操作
 				carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
