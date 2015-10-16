@@ -41,6 +41,7 @@ import javafx.concurrent.Task;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class ServerUI {
 
@@ -100,45 +101,54 @@ public class ServerUI {
 		composite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
 		
 		Label label = new Label(composite, SWT.NONE);
+		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("地址");
 		
 		text_ip = new Text(composite, SWT.BORDER);
+		text_ip.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_ip.setText("127.0.0.1");
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_text.widthHint = 103;
+		gd_text.widthHint = 176;
 		text_ip.setLayoutData(gd_text);
 		
 		Label label_1 = new Label(composite, SWT.NONE);
+		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_1.setText("端口");
 		
 		text_port = new Text(composite, SWT.BORDER);
+		text_port.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_port.setText("1433");
 		text_port.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_2.setText("用户名");
 		
 		txt_name = new Text(composite, SWT.BORDER);
+		txt_name.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		txt_name.setText("sa");
 		txt_name.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label label_3 = new Label(composite, SWT.NONE);
+		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_3.setText("密码");
 		
 		txt_pwd = new Text(composite, SWT.BORDER | SWT.PASSWORD);
+		txt_pwd.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		txt_pwd.setText("1");
 		txt_pwd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(composite, SWT.NONE);
 		
 		Composite composite_1 = new Composite(composite, SWT.NONE);
-		composite_1.setLayout(new GridLayout(3, false));
+		composite_1.setLayout(new GridLayout(1, false));
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 		
 		btn_checkDataBase = new Button(composite_1, SWT.NONE);
+		btn_checkDataBase.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btn_checkDataBase.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -150,18 +160,6 @@ public class ServerUI {
 			}
 		});
 		btn_checkDataBase.setText("测试");
-		
-		Button btn_checkTable = new Button(composite_1, SWT.NONE);
-		btn_checkTable.setText("检查表");
-		
-		Button btn_init = new Button(composite_1, SWT.NONE);
-		btn_init.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				
-			}
-		});
-		btn_init.setText("初始化数据库");
 
 	}
 

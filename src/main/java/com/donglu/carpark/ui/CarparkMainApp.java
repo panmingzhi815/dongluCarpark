@@ -116,6 +116,8 @@ import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.events.KeyAdapter;
 
 public class CarparkMainApp extends AbstractApp implements XinlutongResult {
+	public static final String IMAGE_SAVE_SITE = "imageSaveSite";//图片保存位置
+
 	private static final String USUAL_MSG = "欢迎光临";
 
 	private static final String TEMP_CAR_AUTO_PASS = "tempCarAutoPass";
@@ -295,6 +297,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		for (SingleCarparkSystemSetting ss : findAllSystemSetting) {
 			mapSystemSetting.put(SystemSettingTypeEnum.valueOf(ss.getSettingKey()), ss.getSettingValue());
 		}
+		com.dongluhitec.card.ui.util.FileUtils.writeObject(IMAGE_SAVE_SITE, mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置));
 		List<SingleCarparkBlackUser> findAllBlackUser = sp.getCarparkService().findAllBlackUser();
 		for (SingleCarparkBlackUser singleCarparkBlackUser : findAllBlackUser) {
 			mapBlackUser.put(singleCarparkBlackUser.getPlateNO(), singleCarparkBlackUser);

@@ -45,64 +45,36 @@ org.apache.commons.fileupload.servlet.ServletFileUpload;
 public class Fileupload extends HttpServlet {
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-
 		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-
 		if(isMultipart) {
-
 			FileItemFactory factory =new DiskFileItemFactory();
-
 			ServletFileUpload upload =new ServletFileUpload(factory);
-
 			@SuppressWarnings("rawtypes")
 			Iterator items;
 			try{
 				items = upload.parseRequest(request).iterator();
 				while(items.hasNext()) {
-
 					FileItem item = (FileItem) items.next();
-
 					if(!item.isFormField()) {
-
 						// 取出上传文件的文件名称
-
 						String name = item.getName();
-
 						// System.out.println(name);
-
 						String fileName =name.substring(name.lastIndexOf('\\') + 1, name.length());
-
 						// System.out.println(fileName);
-
 						String path =request.getRealPath("upload") + File.separatorChar+ fileName;
-
 						// 上传文件
-
 						File uploadedFile =new File(path);
-
 						item.write(uploadedFile);
-
 						response.setContentType("text/html;charset=gb2312");
-
 						PrintWriter out = response.getWriter();
-
 						// System.out.println(path);
-
 						out.print("<font size='2'>上传的文件为："+ name +"<br>");
-
 						out.print("保存的地址为："+ path +"</font>");
-
 					}
-
 				}
-
 			}catch(Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}
-
 	}
-
 }

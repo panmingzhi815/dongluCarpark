@@ -143,7 +143,7 @@ public class HttpRequestor {
             inputStream = httpURLConnection.getInputStream();
             inputStreamReader = new InputStreamReader(inputStream);
             reader = new BufferedReader(inputStreamReader);
-            
+           
             while ((tempLine = reader.readLine()) != null) {
                 resultBuffer.append(tempLine);
             }
