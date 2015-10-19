@@ -1,6 +1,7 @@
 package com.donglu.carpark.ui;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -24,21 +25,24 @@ import com.donglu.carpark.ui.list.TestPresenter;
 import com.donglu.carpark.ui.view.CarparkPayHistoryPresenter;
 import com.donglu.carpark.ui.view.InOutHistoryPresenter;
 import com.donglu.carpark.ui.view.ReturnAccountPresenter;
-import com.donglu.carpark.wizard.AddCarparkWizard;
-import com.donglu.carpark.wizard.AddMonthChargeWizard;
-import com.donglu.carpark.wizard.AddSystemUserWizard;
-import com.donglu.carpark.wizard.AddUserModel;
-import com.donglu.carpark.wizard.AddUserWizard;
-import com.donglu.carpark.wizard.EditSystemUserWizard;
-import com.donglu.carpark.wizard.charge.NewCommonChargeModel;
-import com.donglu.carpark.wizard.charge.NewCommonChargeWizard;
-import com.donglu.carpark.wizard.model.AddMonthChargeModel;
-import com.donglu.carpark.wizard.monthcharge.MonthlyUserPayModel;
-import com.donglu.carpark.wizard.monthcharge.MonthlyUserPayWizard;
+import com.donglu.carpark.ui.wizard.AddCarparkWizard;
+import com.donglu.carpark.ui.wizard.AddMonthChargeWizard;
+import com.donglu.carpark.ui.wizard.AddSystemUserWizard;
+import com.donglu.carpark.ui.wizard.AddUserModel;
+import com.donglu.carpark.ui.wizard.AddUserWizard;
+import com.donglu.carpark.ui.wizard.EditSystemUserWizard;
+import com.donglu.carpark.ui.wizard.charge.NewCommonChargeModel;
+import com.donglu.carpark.ui.wizard.charge.NewCommonChargeWizard;
+import com.donglu.carpark.ui.wizard.holiday.AddYearHolidayModel;
+import com.donglu.carpark.ui.wizard.holiday.AddYearHolidayWizard;
+import com.donglu.carpark.ui.wizard.model.AddMonthChargeModel;
+import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayModel;
+import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkHoliday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
@@ -259,7 +263,7 @@ public class CarparkManagePresenter {
 				SingleCarparkInOutHistory singleCarparkInOutHistory = new SingleCarparkInOutHistory();
 //				singleCarparkInOutHistory.setBigImg("2015\10\09\16\20151009162220491_粤BD021W_big.jpg");
 //				singleCarparkInOutHistory.setSmallImg("2015\10\09\16\20151009162220491_粤BD021W_big.jpg");
-				singleCarparkInOutHistory.setCarType("小车");
+				singleCarparkInOutHistory.setCarType("临时车");
 				singleCarparkInOutHistory.setFactMoney(15F);
 				singleCarparkInOutHistory.setFreeMoney(5F);
 				singleCarparkInOutHistory.setShouldMoney(20F);
@@ -411,6 +415,49 @@ public class CarparkManagePresenter {
 			e.printStackTrace();
 			commonui.error("提示", "修改失败！");
 		}
+		
+	}
+	/**
+	 * 添加临时收费
+	 */
+	public void addTempCharge(CarparkChargeStandard carparkCharge) {
+		SingleCarparkCarpark current = carparkModel.getCarpark();
+		if(current == null){
+            commonui.error("错误", "请先选择一个停车场");
+            return;
+        }
+        
+        final CarparkService carparkService = sp.getCarparkService();
+        final CarparkChargeStandard carparkChargeStandard = new CarparkChargeStandard();
+        
+        NewCommonChargeModel model = new NewCommonChargeModel();
+        if(carparkCharge != null){        	
+        	BeanUtil.copyProperties(carparkCharge,model, CarparkChargeStandard.Property.values());
+        	model.setFreeTimeEnable(model.getAcrossdayChargeEnable() == 1 ? "是":"否");
+        }else{
+        	model.setFreeTime(0);
+        	model.setOnedayMaxCharge(0F);
+        	model.setStartStepPrice(0F);
+        	model.setStartStepTime(0);
+        }
+        model.setCarparkCarTypeList(carparkService.getCarparkCarTypeList());
+        NewCommonChargeWizard wizard =new NewCommonChargeWizard(model, sp, commonui);
+		
+//        NewCommonChargeWizard newCommonChargeWizard = wizardFactory.createNewCommonChargeWizard(model);
+//        NewCommonChargeModel resultModel = (NewCommonChargeModel)commonui.showWizard(newCommonChargeWizard);
+        NewCommonChargeModel resultModel = (NewCommonChargeModel)commonui.showWizard(wizard);
+        if(resultModel == null) return;
+        BeanUtil.copyProperties(resultModel, carparkChargeStandard, CarparkChargeStandard.Property.values());
+        try {
+			carparkChargeStandard.setCarpark(current);
+			carparkService.saveCarparkChargeStandard(carparkChargeStandard);
+			refreshCarparkCharge();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+//		NewCommonChargeWizard wizard =new NewCommonChargeWizard(new NewCommonChargeModel(), sp, commonui);
+//		commonui.showWizard(wizard);
 		
 	}
 	/**
@@ -613,49 +660,7 @@ public class CarparkManagePresenter {
 			carparkService.saveSystemSetting(h);
 		}
 	}
-	/**
-	 * 添加临时收费
-	 */
-	public void addTempCharge(CarparkChargeStandard carparkCharge) {
-		SingleCarparkCarpark current = carparkModel.getCarpark();
-		if(current == null){
-            commonui.error("错误", "请先选择一个停车场");
-            return;
-        }
-        
-        final CarparkService carparkService = sp.getCarparkService();
-        final CarparkChargeStandard carparkChargeStandard = new CarparkChargeStandard();
-        
-        NewCommonChargeModel model = new NewCommonChargeModel();
-        if(carparkCharge != null){        	
-        	BeanUtil.copyProperties(carparkCharge,model, CarparkChargeStandard.Property.values());
-        	model.setFreeTimeEnable(model.getAcrossdayChargeEnable() == 1 ? "是":"否");
-        }else{
-        	model.setFreeTime(0);
-        	model.setOnedayMaxCharge(0F);
-        	model.setStartStepPrice(0F);
-        	model.setStartStepTime(0);
-        }
-        model.setCarparkCarTypeList(carparkService.getCarparkCarTypeList());
-        NewCommonChargeWizard wizard =new NewCommonChargeWizard(model, sp, commonui);
-		
-//        NewCommonChargeWizard newCommonChargeWizard = wizardFactory.createNewCommonChargeWizard(model);
-//        NewCommonChargeModel resultModel = (NewCommonChargeModel)commonui.showWizard(newCommonChargeWizard);
-        NewCommonChargeModel resultModel = (NewCommonChargeModel)commonui.showWizard(wizard);
-        if(resultModel == null) return;
-        BeanUtil.copyProperties(resultModel, carparkChargeStandard, CarparkChargeStandard.Property.values());
-        try {
-			carparkChargeStandard.setCarpark(current);
-			carparkService.saveCarparkChargeStandard(carparkChargeStandard);
-			refreshCarparkCharge();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-//		NewCommonChargeWizard wizard =new NewCommonChargeWizard(new NewCommonChargeModel(), sp, commonui);
-//		commonui.showWizard(wizard);
-		
-	}
+	
 
 	public void searchCharge(CarparkPayHistoryListView carparkPayHistoryListView, String userName, String operaName, Date start, Date end) {
 		AbstractListView<SingleCarparkMonthlyUserPayHistory>.Model model = carparkPayHistoryListView.getModel();
@@ -705,5 +710,40 @@ public class CarparkManagePresenter {
 
 	public BlackUserListPresenter getBlackUserListPresenter() {
 		return blackUserListPresenter;
+	}
+	/**
+	 * 节假日设置
+	 */
+	public void addHoliday() {
+		try {
+			CarparkService carparkService = sp.getCarparkService();
+			int year = Calendar.getInstance().get(Calendar.YEAR);
+			List<SingleCarparkHoliday> findHolidayByYear = carparkService.findHolidayByYear(year);
+			List<Date> listDate=new ArrayList<>();
+			for (SingleCarparkHoliday h : findHolidayByYear) {
+				System.out.println(StrUtil.formatDate(h.getHolidayDate(), "yyyy-MM-dd"));
+				listDate.add(h.getHolidayDate());
+			}
+			AddYearHolidayModel model = new AddYearHolidayModel();
+			model.setSelect(listDate);
+			model.setYear(year);
+			AddYearHolidayWizard wizard=new AddYearHolidayWizard(model, sp, commonui);
+			AddYearHolidayModel m = (AddYearHolidayModel) commonui.showWizard(wizard);
+			if (StrUtil.isEmpty(m)) {
+				return;
+			}
+			carparkService.deleteHoliday(findHolidayByYear);
+			List<Date> select = m.getSelect();
+			List<SingleCarparkHoliday> list=new ArrayList<>();
+			for (Date date : select) {
+				System.out.println(StrUtil.formatDate(date, "yyyy-MM-dd"));
+				SingleCarparkHoliday holiday=new SingleCarparkHoliday();
+				holiday.setHolidayDate(date);
+				list.add(holiday);
+			}
+			carparkService.saveHoliday(list);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

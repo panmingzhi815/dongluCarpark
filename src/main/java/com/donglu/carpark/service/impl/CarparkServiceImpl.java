@@ -1,6 +1,7 @@
 package com.donglu.carpark.service.impl;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -26,6 +27,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkHoliday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
@@ -503,6 +505,43 @@ public class CarparkServiceImpl implements CarparkService {
 		} finally{
 			unitOfWork.end();
 		}
+	}
+
+	@Override
+	public List<SingleCarparkHoliday> findHolidayByYear(int year) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkHoliday.class);
+			Calendar cd=Calendar.getInstance();
+			cd.set(year, 1, 1);
+			Date time = cd.getTime();
+			c.add(Restrictions.between("holidayDate", StrUtil.getYearTopTime(time), StrUtil.getYearBottomTime(time)));
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Transactional
+	public Long deleteHoliday(List<SingleCarparkHoliday> list) {
+		DatabaseOperation<SingleCarparkHoliday> dom = DatabaseOperation.forClass(SingleCarparkHoliday.class, emprovider.get());
+		for (SingleCarparkHoliday h:list) {
+			dom.remove(h.getId());
+		}
+		return list.size()*1L;
+	}
+
+	@Transactional
+	public Long saveHoliday(List<SingleCarparkHoliday> list) {
+		DatabaseOperation<SingleCarparkHoliday> dom = DatabaseOperation.forClass(SingleCarparkHoliday.class, emprovider.get());
+		for (SingleCarparkHoliday b : list) {
+			if (b.getId()==null) {
+				dom.insert(b);
+			}else{
+				dom.save(b);
+			}
+		}
+		return list.size()*1L;
 	}
 
 }

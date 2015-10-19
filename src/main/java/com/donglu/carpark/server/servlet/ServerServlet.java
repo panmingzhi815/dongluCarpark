@@ -40,6 +40,7 @@ public class ServerServlet extends HttpServlet {
 			PrintWriter out = response.getWriter();
 			CarparkServerConfig instance = CarparkServerConfig.getInstance();
 			String s = instance.getDbServerIp()+"/"+instance.getDbServerPort()+"/"+instance.getDbServerUsername()+"/"+instance.getDbServerPassword();
+			System.out.println(s);
 			out.print(s);
 			out.flush();
 			out.close();

@@ -8,6 +8,7 @@ import javax.persistence.ManyToOne;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
+
 @Entity
 public class SingleCarparkDevice extends DomainObject{
 	/**

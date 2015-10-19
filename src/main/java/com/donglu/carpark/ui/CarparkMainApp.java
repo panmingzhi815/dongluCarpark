@@ -59,8 +59,8 @@ import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.ui.common.AbstractApp;
 import com.donglu.carpark.ui.common.App;
-import com.donglu.carpark.wizard.AddDeviceModel;
-import com.donglu.carpark.wizard.AddDeviceWizard;
+import com.donglu.carpark.ui.wizard.AddDeviceModel;
+import com.donglu.carpark.ui.wizard.AddDeviceWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.LinkProtocolEnum;
@@ -932,10 +932,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		Set<String> keySet = mapDeviceType.keySet();
 		for (String ip : keySet) {
 			String type = mapDeviceType.get(ip);
+			SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(ip);
 			if (type.equals("进口")) {
 				final CTabItem tabItem = new CTabItem(tabInFolder, SWT.NONE);
 				tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
-				tabItem.setText(mapIpToDevice.get(ip).getName() == null ? ip : mapIpToDevice.get(ip).getName());
+				tabItem.setText(singleCarparkDevice.getName() == null ? ip : singleCarparkDevice.getName());
 				final Composite composite = new Composite(tabInFolder, SWT.BORDER | SWT.EMBEDDED);
 				tabItem.setControl(composite);
 				composite.setLayout(new FillLayout());
@@ -947,10 +948,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 						composite.dispose();
 					}
 				});
+				
 			} else if (type.equals("出口")) {
 				CTabItem tabItem = new CTabItem(tabOutFolder, SWT.NONE);
 				tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
-				tabItem.setText(mapIpToDevice.get(ip).getName() == null ? ip : mapIpToDevice.get(ip).getName());
+				tabItem.setText(singleCarparkDevice.getName() == null ? ip : singleCarparkDevice.getName());
 				final Composite composite = new Composite(tabOutFolder, SWT.BORDER | SWT.EMBEDDED);
 				tabItem.setControl(composite);
 				composite.setLayout(new FillLayout());
@@ -963,6 +965,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					}
 				});
 			}
+			presenter.showUsualContentToDevice(singleCarparkDevice, USUAL_MSG);
 		}
 
 	}
@@ -1169,7 +1172,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		carparkService.saveCarpark(carpark);
 		sp.getCarparkInOutService().saveInOutHistory(h);
 		presenter.openDoor(device);
-		presenter.showUsualContentToDevice(device, USUAL_MSG);
+//		presenter.showUsualContentToDevice(device, USUAL_MSG);
 	}
 
 	// 停车场出

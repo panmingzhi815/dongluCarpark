@@ -61,7 +61,7 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
             final JpaPersistModule jpaPersistModule =
                     new JpaPersistModule("SQLSERVER2008");
             CarparkServerConfig config=(CarparkServerConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
-            
+            config.setDbServerIp(CarparkClientConfig.getInstance().getDbServerIp());
             final Properties properties = new Properties();
             String dbServerDriver = config.getDbServerDriver();
             String dbServerURL = config.getDbServerURL();

@@ -68,7 +68,6 @@ import com.donglu.carpark.model.CarparkModel;
 import com.donglu.carpark.model.InOutHistoryModel;
 import com.donglu.carpark.model.SystemUserModel;
 import com.donglu.carpark.model.UserModel;
-import com.donglu.carpark.wizard.AddBlackUserWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.impl.SWTContainer;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
@@ -87,6 +86,7 @@ import com.google.inject.Injector;
 import com.donglu.carpark.ui.common.AbstractApp;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.list.CarparkPayHistoryListView;
+import com.donglu.carpark.ui.wizard.AddBlackUserWizard;
 
 public class CarparkManageApp extends AbstractApp{
 	private DataBindingContext m_bindingContext;
@@ -819,7 +819,16 @@ public class CarparkManageApp extends AbstractApp{
 		});
 		button_12.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_12.setText("保存设置");
-		new Label(group_4, SWT.NONE);
+		
+		Button button = new Button(group_4, SWT.NONE);
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.addHoliday();
+			}
+		});
+		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button.setText("节假日设置");
 		new Label(group_4, SWT.NONE);
 		new Label(group_4, SWT.NONE);
 		new Label(group_4, SWT.NONE);

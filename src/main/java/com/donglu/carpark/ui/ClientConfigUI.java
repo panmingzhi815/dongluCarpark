@@ -108,7 +108,7 @@ public class ClientConfigUI {
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text.widthHint = 176;
 		text_ip.setLayoutData(gd_text);
-		
+		text_ip.setText(CarparkClientConfig.getInstance().getDbServerIp());
 		btn_checkDataBase = new Button(composite, SWT.NONE);
 		btn_checkDataBase.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btn_checkDataBase.addSelectionListener(new SelectionAdapter() {

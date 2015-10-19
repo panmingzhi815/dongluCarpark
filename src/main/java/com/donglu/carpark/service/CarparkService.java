@@ -9,6 +9,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkHoliday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
@@ -204,6 +205,14 @@ public interface CarparkService {
 	public Long saveBlackUser(SingleCarparkBlackUser b);
 	public Long deleteBlackUser(SingleCarparkBlackUser b);
 	public List<SingleCarparkBlackUser> findAllBlackUser();
+	/**
+	 * 节假日
+	 * @param year
+	 * @return
+	 */
+	public List<SingleCarparkHoliday> findHolidayByYear(int year);
+	public Long deleteHoliday(List<SingleCarparkHoliday> list);
+	public Long saveHoliday(List<SingleCarparkHoliday> list);
 	
 	
 }

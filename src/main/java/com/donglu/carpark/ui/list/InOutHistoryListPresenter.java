@@ -13,7 +13,7 @@ import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.Presenter;
-import com.donglu.carpark.wizard.InOutHistoryDetailWizard;
+import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
