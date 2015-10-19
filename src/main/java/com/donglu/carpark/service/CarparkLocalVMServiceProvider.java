@@ -5,7 +5,11 @@ import com.donglu.carpark.service.impl.CarparkInOutServiceImpl;
 import com.donglu.carpark.service.impl.CarparkServiceImpl;
 import com.donglu.carpark.service.impl.CarparkUserServiceImpl;
 import com.donglu.carpark.service.impl.SystemUserServiceImpl;
+import com.donglu.carpark.ui.CarparkClientConfig;
+import com.donglu.carpark.ui.ClientConfigUI;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.MapperConfig;
+import com.dongluhitec.card.ui.util.FileUtils;
 import com.google.inject.*;
 import com.google.inject.name.Named;
 import com.google.inject.persist.PersistService;
@@ -23,13 +27,12 @@ import java.util.Properties;
 public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServiceProvider{
 
     private PersistService persistService;
-    final private CarparkServerConfig config;
+   
     //必须给定一个hbm2ddl值 ,如果是新建数据库,则为create,如果不为create, table上的一些约束条件将无法自动生成.但在运行时,应将该值设置为update
     final private String HBM2DDL;
 
     @Inject
-    public CarparkLocalVMServiceProvider(CarparkServerConfig configurator,@Named(value = "HBM2DDL")String HBM2DDL){
-        this.config = configurator;
+    public CarparkLocalVMServiceProvider(@Named(value = "HBM2DDL")String HBM2DDL){
         this.HBM2DDL = HBM2DDL;
     }
 
@@ -57,7 +60,8 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
         protected void configure() {
             final JpaPersistModule jpaPersistModule =
                     new JpaPersistModule("SQLSERVER2008");
-
+            CarparkServerConfig config=(CarparkServerConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
+            
             final Properties properties = new Properties();
             String dbServerDriver = config.getDbServerDriver();
             String dbServerURL = config.getDbServerURL();

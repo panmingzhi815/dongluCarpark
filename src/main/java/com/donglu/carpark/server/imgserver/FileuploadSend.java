@@ -1,5 +1,6 @@
 package com.donglu.carpark.server.imgserver;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import
 
@@ -16,7 +17,7 @@ java.io.IOException;
 import
 
 java.io.InputStream;
-
+import java.io.InputStreamReader;
 import
 
 java.net.HttpURLConnection;
@@ -25,6 +26,8 @@ import
 
 java.net.URL;
 import java.util.Map;
+
+import org.apache.commons.io.input.CharSequenceInputStream;
 
 public class FileuploadSend {
 
@@ -37,7 +40,7 @@ public class FileuploadSend {
 		URL uri = new URL(actionUrl);
 		HttpURLConnection conn = (HttpURLConnection) uri.openConnection();
 		// 设置从主机读取数据超时
-		conn.setReadTimeout(10 * 1000);
+		conn.setReadTimeout(2 * 1000);
 		conn.setDoInput(true);
 		conn.setDoOutput(true);
 		conn.setUseCaches(false);
@@ -78,15 +81,18 @@ public class FileuploadSend {
 		int res = conn.getResponseCode();
 		// System.out.println(res);
 		InputStream in = null;
-		// 上传成功返回200
+		//上传成功返回200
 		if (res == 200) {
 			in = conn.getInputStream();
 			int ch;
+			InputStreamReader r=new InputStreamReader(in, "utf-8");
 			StringBuilder sb2 = new StringBuilder();
 			// 保存数据
-			while ((ch = in.read()) != -1) {
+			while ((ch = r.read()) != -1) {
 				sb2.append((char) ch);
 			}
+			System.out.println("==========="+sb2);
+			return sb2.toString();
 		}
 		// 如果数据不为空，则以字符串方式返回数据，否则返回null
 		return in == null ? null : in.toString();
@@ -101,7 +107,7 @@ public class FileuploadSend {
 		URL uri = new URL(actionUrl + "?id=" + FileName);
 		HttpURLConnection conn = (HttpURLConnection) uri.openConnection();
 		// 设置从主机读取数据超时
-		conn.setReadTimeout(10 * 1000);
+		conn.setReadTimeout(2 * 1000);
 		conn.setDoInput(true);
 		conn.setDoOutput(true);
 		conn.setUseCaches(false);

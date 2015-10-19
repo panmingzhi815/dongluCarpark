@@ -37,8 +37,8 @@ public class ImageUploadServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    	req.setCharacterEncoding("utf-8");
-    	resp.setCharacterEncoding("utf-8");
+    	req.setCharacterEncoding("UTF-8");
+    	resp.setCharacterEncoding("UTF-8");
     	
         String id = req.getParameter("id");
         Object o=FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);
@@ -86,7 +86,7 @@ public class ImageUploadServlet extends HttpServlet {
 						com.google.common.io.Files.createParentDirs(uploadedFile);
 						item.write(uploadedFile);
 						
-						response.setContentType("text/html;charset=gb2312");
+						response.setContentType("text/html;charset=utf-8");
 						PrintWriter out = response.getWriter();
 						 System.out.println(path);
 						out.print("上传的文件为："+ name);

@@ -629,14 +629,17 @@ public class CarparkMainPresenter {
 			file2.createNewFile();
 			Files.write(bigImage, file2);
 			String ip = CarparkServerConfig.getInstance().getDbServerIp();
-			if (!ip.equals(StrUtil.getHostIp())&&!ip.equals("127.0.0.1")&&!ip.equals("localhost")) {
+			if (true) {
+				long nanoTime = System.nanoTime();
+				LOGGER.info("准备将图片{}上传到服务器",finalFileName);
 				try {
-					LOGGER.info("准备将图片{}上传到服务器",finalFileName);
 					FileuploadSend.upload("http://"+ip+":8899/carparkImage/", finalFileName);
 					LOGGER.info("图片上传到服务器成功");
 				} catch (Exception e) {
 					e.printStackTrace();
 					LOGGER.error("图片上传到服务器失败");
+				}finally{
+					LOGGER.info("上传图片花费时间：{}",System.nanoTime()-nanoTime);
 				}
 			}
 		} catch (IOException e) {

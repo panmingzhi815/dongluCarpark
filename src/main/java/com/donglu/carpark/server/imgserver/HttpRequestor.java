@@ -38,6 +38,7 @@ public class HttpRequestor {
         HttpURLConnection httpURLConnection = (HttpURLConnection)connection;
         
         httpURLConnection.setRequestProperty("Accept-Charset", charset);
+        httpURLConnection.setRequestProperty("Charset", "UTF-8");
         httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         
         InputStream inputStream = null;
@@ -74,7 +75,7 @@ public class HttpRequestor {
             }
             
         }
-
+        System.out.println(resultBuffer);
         return resultBuffer.toString();
     }
     

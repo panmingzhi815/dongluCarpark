@@ -19,12 +19,28 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.widgets.Text;
 
+import com.donglu.carpark.server.CarparkHardwareGuiceModule;
+import com.donglu.carpark.server.CarparkServerConfig;
+import com.donglu.carpark.server.ServerUI;
 import com.donglu.carpark.server.servlet.ImageUploadServlet;
+import com.donglu.carpark.server.servlet.ServerServlet;
+import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
+import com.dongluhitec.card.blservice.HardwareFacility;
+import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.hardware.util.HardwareFacilityImpl;
 import com.dongluhitec.card.server.ServerUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Provider;
+import com.google.inject.Singleton;
+import com.google.inject.name.Names;
 
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -43,11 +59,12 @@ public class ImageServerUI {
 	private Text text;
 
 	private Server server;
+	@Inject
+	private ServerUI ui;
 
 	private final Provider<ImageUploadServlet> imageServletProvider = new Provider<ImageUploadServlet>() {
 		@Override
 		public ImageUploadServlet get() {
-
 			return new ImageUploadServlet();
 		}
 	};
@@ -59,7 +76,8 @@ public class ImageServerUI {
 	 */
 	public static void main(String[] args) {
 		try {
-			ImageServerUI window = new ImageServerUI();
+			Injector createInjector = Guice.createInjector(new CommonUIGuiceModule());
+			ImageServerUI window = createInjector.getInstance(ImageServerUI.class);
 			window.open();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -73,6 +91,17 @@ public class ImageServerUI {
 		Display display = Display.getDefault();
 		createContents();
 		shell.open();
+		shell.setImage(JFaceUtil.getImage("carpark_16"));
+		
+		Button btnTest = new Button(shell, SWT.NONE);
+		btnTest.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		btnTest.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ui.open();
+			}
+		});
+		btnTest.setText("配    置");
 		shell.layout();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -87,9 +116,9 @@ public class ImageServerUI {
 	 */
 	protected void createContents() {
 		shell = new Shell();
-		shell.setSize(452, 86);
+		shell.setSize(522, 86);
 		shell.setText("图片服务器");
-		shell.setLayout(new GridLayout(4, false));
+		shell.setLayout(new GridLayout(5, false));
 
 		Label label = new Label(shell, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -129,9 +158,12 @@ public class ImageServerUI {
 				String data = (String) btnStart.getData("type");
 				if (data.equals("start")) {
 					startServer();
-					btnStart.setText("已启动");
+					btnStart.setText("退    出");
+					btnStart.setData("type", "stop");
 				}
-				
+				if (data.equals("stop")) {
+					System.exit(0);
+				}
 			}
 		});
 		btnStart.setText("启    动");
@@ -171,6 +203,13 @@ public class ImageServerUI {
 			ServletHandler servletHandler = new ServletHandler();
 			server.setHandler(servletHandler);
 			ServerUtil.startServlet("/carparkImage/*", servletHandler, imageServletProvider);
+			Provider<ServerServlet> serverServlet = new Provider<ServerServlet>() {
+				@Override
+				public ServerServlet get() {
+					return new ServerServlet();
+				}
+			};
+			ServerUtil.startServlet("/server/*", servletHandler, serverServlet);
 			server.start();
 		} catch (Exception e) {
 			e.printStackTrace();

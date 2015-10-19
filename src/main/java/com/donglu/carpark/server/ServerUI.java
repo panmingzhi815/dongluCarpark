@@ -111,7 +111,7 @@ public class ServerUI {
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text.widthHint = 176;
 		text_ip.setLayoutData(gd_text);
-		
+		text_ip.setText(CarparkServerConfig.getInstance().getDbServerIp());
 		Label label_1 = new Label(composite, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -121,7 +121,7 @@ public class ServerUI {
 		text_port.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_port.setText("1433");
 		text_port.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+		text_port.setText(CarparkServerConfig.getInstance().getDbServerPort());
 		Label label_2 = new Label(composite, SWT.NONE);
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -131,7 +131,7 @@ public class ServerUI {
 		txt_name.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		txt_name.setText("sa");
 		txt_name.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+		txt_name.setText(CarparkServerConfig.getInstance().getDbServerUsername());
 		Label label_3 = new Label(composite, SWT.NONE);
 		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -141,6 +141,7 @@ public class ServerUI {
 		txt_pwd.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		txt_pwd.setText("1");
 		txt_pwd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		txt_pwd.setText(CarparkServerConfig.getInstance().getDbServerPassword());
 		new Label(composite, SWT.NONE);
 		
 		Composite composite_1 = new Composite(composite, SWT.NONE);

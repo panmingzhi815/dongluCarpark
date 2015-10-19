@@ -154,6 +154,7 @@ public class CarparkManageApp extends AbstractApp{
 		Display display = Display.getDefault();
 		init();
 		createContents();
+		shell.setImage(JFaceUtil.getImage("carpark_16"));
 		shell.open();
 		shell.setMaximized(true);
 		shell.layout();

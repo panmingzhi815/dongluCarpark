@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Properties;
 
-public class CarparkServerConfig {
+public class CarparkServerConfig implements Serializable{
 	
 	public final String configFileName = "CarparkServerConfig.properties";
 	public static CarparkServerConfig instance;

@@ -26,6 +26,7 @@ import com.donglu.carpark.ui.common.App;
 import com.dongluhitec.card.blservice.DatabaseServiceProvider;
 import com.dongluhitec.card.blservice.HardwareFacility;
 import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.security.LocalSecurityManager;
 import com.dongluhitec.card.domain.security.impl.SecurityManagerImpl;
@@ -82,6 +83,8 @@ public class Login {
 	private final CarparkDatabaseServiceProvider sp;
 	private final String selectType="LoginSelectType";
 	private App app;
+	@Inject
+	private ClientConfigUI clientConfigUI;
 	
 	@Inject
 	public Login(CarparkManageApp carparkManageApp,CarparkMainApp carparkMainApp,ServerUI serverUI,CarparkDatabaseServiceProvider sp) {
@@ -134,6 +137,7 @@ public class Login {
 		createContents();
 		WidgetUtil.center(shell);
 		shell.open();
+		shell.setImage(JFaceUtil.getImage("carpark_16"));
 		shell.layout();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -259,7 +263,7 @@ public class Login {
 		button_2.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				serverUI.open();
+				clientConfigUI.open();
 			}
 		});
 		button_2.setText("配置");

@@ -62,6 +62,7 @@ import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.wizard.AddDeviceModel;
 import com.donglu.carpark.wizard.AddDeviceWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.LinkProtocolEnum;
 import com.dongluhitec.card.domain.LinkTypeEnum;
 import com.dongluhitec.card.domain.db.Device;
@@ -116,6 +117,8 @@ import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.events.KeyAdapter;
 
 public class CarparkMainApp extends AbstractApp implements XinlutongResult {
+	private static final String VILIDTO_DATE = ",有效期至yyyy年MM月dd日";
+
 	public static final String IMAGE_SAVE_SITE = "imageSaveSite";//图片保存位置
 
 	private static final String USUAL_MSG = "欢迎光临";
@@ -254,6 +257,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		Display display = Display.getDefault();
 		createContents();
 		shell.setMaximized(true);
+		shell.setImage(JFaceUtil.getImage("carpark_16"));
 		shell.open();
 		shell.layout();
 		while (!shell.isDisposed()) {
@@ -1105,7 +1109,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 //				LOGGER.error("固定车位已满");
 //				return;
 //			}
-			String content = ",有效期至" + StrUtil.formatDate(user.getValidTo(), "yyyy年MM月dd日");
+			String content = StrUtil.formatDate(user.getValidTo(), VILIDTO_DATE);
 			presenter.showContentToDevice(device, CAR_IN_MSG+content, 1);
 			LOGGER.info("固定车：{}，{}",plateNO,content);
 		} else {
@@ -1252,7 +1256,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			Date time = c.getTime();
 
 			if (StrUtil.getTodayBottomTime(time).before(date)) {
-				presenter.showContentToDevice(device, CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo()), 1);
+				presenter.showContentToDevice(device, CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(),VILIDTO_DATE), 1);
 				LOGGER.info("车辆:{}已到期", plateNO);
 				return;
 			} else {
@@ -1260,7 +1264,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				c.add(Calendar.DATE, user.getRemindDays() == null ? 0 : user.getRemindDays());
 				time = c.getTime();
 				if (StrUtil.getTodayBottomTime(time).before(date)) {
-					presenter.showContentToDevice(device, CAR_WILL_ARREARS + StrUtil.formatDate(user.getValidTo()), 1);
+					presenter.showContentToDevice(device, CAR_WILL_ARREARS + StrUtil.formatDate(user.getValidTo(),VILIDTO_DATE), 1);
 					LOGGER.info("车辆:{}即将到期", plateNO);
 				} else {
 					presenter.showContentToDevice(device, CAR_OUT_MSG + StrUtil.formatDate(user.getValidTo()), 1);
