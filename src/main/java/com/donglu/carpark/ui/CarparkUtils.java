@@ -6,9 +6,14 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
+import com.dongluhitec.card.domain.util.StrUtil;
+
 public class CarparkUtils {
 	
 	public static List<String> splitPlateNO(String plateNo){
+		if (StrUtil.isEmpty(plateNo)) {
+			return new ArrayList<>();
+		}
 		List<String> list=new ArrayList<>();
 		for (int i=plateNo.length();i>0;i--) {
 			for (int j=0;j<plateNo.length();j++) {

@@ -47,6 +47,7 @@ public class CarparkMainModel extends DomainObject{
 	boolean btnClick=false;
 	boolean inCheckClick=false;
 	boolean outCheckClick=false;
+	boolean handSearch=false;
 	
 	public String getUserName() {
 		return userName;
@@ -296,5 +297,13 @@ public class CarparkMainModel extends DomainObject{
 		this.ip = ip;
 		if (pcs != null)
 			pcs.firePropertyChange("ip", null, null);
+	}
+	public boolean isHandSearch() {
+		return handSearch;
+	}
+	public void setHandSearch(boolean handSearch) {
+		this.handSearch = handSearch;
+		if (pcs != null)
+			pcs.firePropertyChange("handSearch", null, null);
 	}
 }

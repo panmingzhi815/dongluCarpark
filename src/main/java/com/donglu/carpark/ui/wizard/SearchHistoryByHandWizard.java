@@ -17,6 +17,7 @@ public class SearchHistoryByHandWizard extends Wizard implements AbstractWizard{
 	@Override
 	public void addPages() {
 		addPage(new SearchHistoryByHandWizardPage(searchErrorCarPresenter));
+		getShell().setSize(900, 600);
 	}
 
 	@Override

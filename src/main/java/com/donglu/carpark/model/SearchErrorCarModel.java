@@ -15,7 +15,7 @@ public class SearchErrorCarModel extends DomainObject {
 	private SingleCarparkInOutHistory noPlateNoSelect;
 	private byte[] bigImg;
 	private byte[] smallImg;
-	
+	private boolean inOrOut=true;
 	public List<SingleCarparkInOutHistory> getHavePlateNoList() {
 		return havePlateNoList;
 	}
@@ -77,5 +77,13 @@ public class SearchErrorCarModel extends DomainObject {
 		this.smallImg = smallImg;
 		if (pcs != null)
 			pcs.firePropertyChange("smallImg", null, null);
+	}
+	public boolean isInOrOut() {
+		return inOrOut;
+	}
+	public void setInOrOut(boolean inOrOut) {
+		this.inOrOut = inOrOut;
+		if (pcs != null)
+			pcs.firePropertyChange("inOrOut", null, null);
 	}
 }

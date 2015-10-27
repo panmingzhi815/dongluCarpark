@@ -689,6 +689,8 @@ public class CarparkMainPresenter {
 	public void showManualSearch() {
 		try {
 			searchErrorCarPresenter.getModel().setPlateNo(model.getOutShowPlateNO());
+			searchErrorCarPresenter.getModel().setHavePlateNoSelect(null);
+			searchErrorCarPresenter.getModel().setNoPlateNoSelect(null);
 			searchErrorCarPresenter.setSystemSetting(mapSystemSetting);
 			SearchHistoryByHandWizard wizard=new SearchHistoryByHandWizard(searchErrorCarPresenter);
 			Object showWizard = commonui.showWizard(wizard);
@@ -700,6 +702,10 @@ public class CarparkMainPresenter {
 				return;
 			}
 			SearchErrorCarModel m = searchErrorCarPresenter.getModel();
+			if (!m.isInOrOut()) {
+				select.setPlateNo(m.getPlateNo());
+				sp.getCarparkInOutService().saveInOutHistory(select);
+			}
 			view.invok(model.getIp(), 0, select.getPlateNo(), m.getBigImg(), m.getSmallImg());
 		} catch (Exception e) {
 			e.printStackTrace();

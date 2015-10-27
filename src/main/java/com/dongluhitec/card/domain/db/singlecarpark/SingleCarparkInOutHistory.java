@@ -47,6 +47,10 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	
 	private String smallImg;
 	private String bigImg;
+	private String outSmallImg;
+	private String outBigImg;
+	private String inPlateNO;
+	private String outPlateNO;
 	
 	private String inPhotographType;
 	private String outPhotographType;
@@ -232,6 +236,38 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		this.outPhotographType = outPhotographType;
 		if (pcs != null)
 			pcs.firePropertyChange("outPhotographType", null, null);
+	}
+	public String getOutSmallImg() {
+		return outSmallImg;
+	}
+	public void setOutSmallImg(String outSmallImg) {
+		this.outSmallImg = outSmallImg;
+		if (pcs != null)
+			pcs.firePropertyChange("outSmallImg", null, null);
+	}
+	public String getOutBigImg() {
+		return outBigImg;
+	}
+	public void setOutBigImg(String outBigImg) {
+		this.outBigImg = outBigImg;
+		if (pcs != null)
+			pcs.firePropertyChange("outBigImg", null, null);
+	}
+	public String getInPlateNO() {
+		return inPlateNO;
+	}
+	public void setInPlateNO(String inPlateNO) {
+		this.inPlateNO = inPlateNO;
+		if (pcs != null)
+			pcs.firePropertyChange("inPlateNO", null, null);
+	}
+	public String getOutPlateNO() {
+		return outPlateNO;
+	}
+	public void setOutPlateNO(String outPlateNO) {
+		this.outPlateNO = outPlateNO;
+		if (pcs != null)
+			pcs.firePropertyChange("outPlateNO", null, null);
 	}
 	
 }

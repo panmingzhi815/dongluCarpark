@@ -71,16 +71,19 @@ public class SearchErrorCarView extends Composite implements View{
 	private TableViewer tableViewer;
 	private TableViewer tableViewer_1;
 	private Label lbl_bigImg;
-	private Label lbl_smallImg;
-	private Label label;
+	private Label lblbbbbbb;
 	boolean search=false;
+	private Button button;
 	public SearchErrorCarView(Composite parent, int style,SearchErrorCarModel model) {
 		super(parent, style);
 		this.model=model;
 		setLayout(new GridLayout(2, false));
 		
-		label = new Label(this, SWT.NONE);
-		new Label(this, SWT.NONE);
+		lblbbbbbb = new Label(this, SWT.NONE);
+		lblbbbbbb.setText("粤BBBBBB");
+		
+		button = new Button(this, SWT.CHECK);
+		button.setText("使用进场车牌为准");
 		
 		TabFolder tabFolder = new TabFolder(this, SWT.NONE);
 		tabFolder.addSelectionListener(new SelectionAdapter() {
@@ -115,11 +118,9 @@ public class SearchErrorCarView extends Composite implements View{
 					model.setBigImg(getByte(select.getBigImg()));
 					model.setSmallImg(getByte(select.getSmallImg()));
 					lbl_bigImg.setImage(getImage(getByte(select.getBigImg()),lbl_bigImg));
-					lbl_smallImg.setImage(getImage(getByte(select.getSmallImg()), lbl_smallImg));
 				}else{
 					SingleCarparkInOutHistory select = model.getHavePlateNoSelect();
 					lbl_bigImg.setImage(getImage(getByte(select.getBigImg()),lbl_bigImg));
-					lbl_smallImg.setImage(getImage(getByte(select.getSmallImg()), lbl_smallImg));
 					model.setBigImg(getByte(select.getBigImg()));
 					model.setSmallImg(getByte(select.getSmallImg()));
 				}
@@ -165,17 +166,11 @@ public class SearchErrorCarView extends Composite implements View{
 		
 		Composite composite = new Composite(this, SWT.NONE);
 		composite.setLayout(new GridLayout(1, false));
-		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 2));
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		
 		lbl_bigImg = new Label(composite, SWT.NONE);
 		lbl_bigImg.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		lbl_bigImg.setText("大图片");
-		
-		lbl_smallImg = new Label(this, SWT.NONE);
-		lbl_smallImg.setText("小图片");
-		GridData gd_lbl_smallImg = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-		gd_lbl_smallImg.heightHint = 55;
-		lbl_smallImg.setLayoutData(gd_lbl_smallImg);
 		Font font = SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL);
 		m_bindingContext = initDataBindings();
 	}
@@ -268,9 +263,13 @@ public class SearchErrorCarView extends Composite implements View{
 		IObservableValue noPlateNoSelectModelObserveValue = BeanProperties.value("noPlateNoSelect").observe(model);
 		bindingContext.bindValue(observeSingleSelectionTableViewer_1, noPlateNoSelectModelObserveValue, null, null);
 		//
-		IObservableValue observeTextLabelObserveWidget = WidgetProperties.text().observe(label);
+		IObservableValue observeTextLabelObserveWidget = WidgetProperties.text().observe(lblbbbbbb);
 		IObservableValue plateNoModelObserveValue = BeanProperties.value("plateNo").observe(model);
 		bindingContext.bindValue(observeTextLabelObserveWidget, plateNoModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionButtonObserveWidget = WidgetProperties.selection().observe(button);
+		IObservableValue inOrOutModelObserveValue = BeanProperties.value("inOrOut").observe(model);
+		bindingContext.bindValue(observeSelectionButtonObserveWidget, inOrOutModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}
