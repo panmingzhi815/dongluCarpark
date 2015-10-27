@@ -10,6 +10,7 @@ import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.Restrictions;
 
 import com.donglu.carpark.service.SystemUserServiceI;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
@@ -86,6 +87,16 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 		systemUser.setType("系统管理员");
 		systemUser.setCreateDate(new Date());
 		dom.insert(systemUser);
+		DatabaseOperation<CarparkCarType> dom1= DatabaseOperation.forClass(CarparkCarType.class, emprovider.get());
+		CarparkCarType t=new CarparkCarType();
+		t.setName("大车");
+		dom1.insert(t);
+		t=new CarparkCarType();
+		t.setName("小车");
+		dom1.insert(t);
+		t=new CarparkCarType();
+		t.setName("摩托车");
+		dom1.insert(t);
 	}
 
 }

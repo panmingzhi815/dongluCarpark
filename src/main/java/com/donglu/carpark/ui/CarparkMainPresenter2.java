@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.swt.SWT;
@@ -23,22 +22,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
-import com.donglu.carpark.model.SearchErrorCarModel;
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
-import com.donglu.carpark.service.CountTempCarChargeI;
-import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
-import com.donglu.carpark.ui.common.ShowDialog;
 import com.donglu.carpark.ui.view.InOutHistoryPresenter;
-import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
 import com.donglu.carpark.ui.wizard.AddDeviceModel;
 import com.donglu.carpark.ui.wizard.AddDeviceWizard;
 import com.donglu.carpark.ui.wizard.ChangeUserWizard;
 import com.donglu.carpark.ui.wizard.ReturnAccountWizard;
-import com.donglu.carpark.ui.wizard.SearchHistoryByHandWizard;
 import com.donglu.carpark.ui.wizard.model.ChangeUserModel;
 import com.donglu.carpark.ui.wizard.model.ReturnAccountModel;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -49,7 +42,6 @@ import com.dongluhitec.card.domain.db.Device;
 import com.dongluhitec.card.domain.db.Link;
 import com.dongluhitec.card.domain.db.LinkStyleEnum;
 import com.dongluhitec.card.domain.db.SerialDeviceAddress;
-import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
@@ -60,7 +52,6 @@ import com.dongluhitec.card.hardware.device.WebCameraDevice;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
 import com.dongluhitec.card.mapper.BeanUtil;
-import com.dongluhitec.card.ui.util.FileUtils;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Inject;
@@ -69,8 +60,8 @@ import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
-public class CarparkMainPresenter {
-	private Logger LOGGER = LoggerFactory.getLogger(CarparkMainPresenter.class);
+public class CarparkMainPresenter2 {
+	private Logger LOGGER = LoggerFactory.getLogger(CarparkMainPresenter2.class);
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
 	@Inject
@@ -85,10 +76,6 @@ public class CarparkMainPresenter {
 
 	@Inject
 	private InOutHistoryPresenter inOutHistoryPresenter;
-	@Inject
-	private SearchErrorCarPresenter searchErrorCarPresenter;
-	
-	private CountTempCarChargeI countTempCarCharge;
 
 	// 保存设备的进出口信息
 	Map<String, String> mapDeviceType;
@@ -102,10 +89,9 @@ public class CarparkMainPresenter {
 
 	private CarparkMainModel model;
 
-	private CarparkMainApp view;
+	private CarparkMainApp2 view;
 
 	private App app;
-	private App searchApp;
 
 	public void setCarNo() {
 
@@ -117,6 +103,10 @@ public class CarparkMainPresenter {
 	 * @param selection
 	 */
 	protected void deleteDeviceTabItem(CTabItem selection) {
+		boolean confirm = commonui.confirm("确定提示", "确定删除所选设备");
+		if (!confirm) {
+			return;
+		}
 		if (selection != null) {
 			String ip = mapDeviceTabItem.get(selection);
 			System.out.println("删除设备" + ip);
@@ -152,7 +142,6 @@ public class CarparkMainPresenter {
 			showWizard.setInType(type);
 			addDevice(showWizard.getDevice());
 			addDevice(tabFolder, type, ip, name);
-			showUsualContentToDevice(showWizard.getDevice(), showWizard.getDevice().getAdvertise());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -317,7 +306,6 @@ public class CarparkMainPresenter {
 				mapIpToDevice.put(ip, showWizard.getDevice());
 				com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 				commonui.info("修改成功", "修改设备" + ip + "成功");
-				showUsualContentToDevice(showWizard.getDevice(), showWizard.getDevice().getAdvertise());
 				return;
 			} else {
 				if (mapDeviceType.get(ip) != null) {
@@ -328,19 +316,16 @@ public class CarparkMainPresenter {
 				addDevice(showWizard.getDevice());
 				addDevice(tabFolder, type, ip, showWizard.getName());
 			}
-			
 		} catch (Exception e1) {
 			e1.printStackTrace();
-		}finally{
-			
 		}
 	}
 
-	public CarparkMainApp getView() {
+	public CarparkMainApp2 getView() {
 		return view;
 	}
 
-	public void setView(CarparkMainApp view) {
+	public void setView(CarparkMainApp2 view) {
 		this.view = view;
 	}
 
@@ -442,15 +427,10 @@ public class CarparkMainPresenter {
 	 * @param content语音
 	 * @param voice音量
 	 */
-	public boolean showContentToDevice(SingleCarparkDevice device, String content,boolean opDoor) {
+	public boolean showContentToDevice(SingleCarparkDevice device, String content, int voice) {
 		try {
-			if (opDoor) {
-				Device d = getDevice(device);
-    			return hardwareService.carparkContentVoiceAndOpenDoor(d, content, device.getVolume()==null?1:device.getVolume());
-			}else{
-    			Device d = getDevice(device);
-    			return hardwareService.carparkContentVoice(d, content, device.getVolume()==null?1:device.getVolume());
-			}
+			Device d = getDevice(device);
+			return hardwareService.carparkContentVoice(d, content, voice);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -498,12 +478,8 @@ public class CarparkMainPresenter {
 	 */
 	public boolean openDoor(SingleCarparkDevice device) {
 		try {
+			showPositionToDevice(device, model.getTotalSlot());
 			Boolean carparkOpenDoor = hardwareService.carparkOpenDoor(getDevice(device));
-			Thread.sleep(1000);
-			Set<String> keySet = mapIpToDevice.keySet();
-			for (String string : keySet) {
-				showPositionToDevice(mapIpToDevice.get(string), model.getTotalSlot());
-			}
 			return carparkOpenDoor;
 		} catch (Exception e) {
 			return false;
@@ -564,14 +540,12 @@ public class CarparkMainPresenter {
 
 	/**
 	 * 计算收费
-	 * @param endTime 
-	 * @param startTime 
 	 * 
 	 * @return
 	 */
-	public float countShouldMoney(CarTypeEnum carType, Date startTime, Date endTime) {
-		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carType.index(), startTime, endTime);
-		return calculateTempCharge;
+	public float countShouldMoney() {
+
+		return 20;
 	}
 
 	/**
@@ -603,7 +577,8 @@ public class CarparkMainPresenter {
 	 * 打开记录查询页面
 	 */
 	public void showSearchInOutHistory() {
-		
+		System.out.println(inOutHistoryPresenter.getListPresenter().getInOutHistory());
+		;
 		if (app != null) {
 			if (app.isOpen()) {
 				app.focus();
@@ -674,35 +649,5 @@ public class CarparkMainPresenter {
 
 	public void setMapSystemSetting(Map<SystemSettingTypeEnum, String> mapSystemSetting) {
 		this.mapSystemSetting = mapSystemSetting;
-	}
-
-	public void init() {
-		countTempCarCharge=(CountTempCarChargeI) FileUtils.readObject("countTempCarCharge");
-		System.out.println(countTempCarCharge);
-		if (StrUtil.isEmpty(countTempCarCharge)) {
-			countTempCarCharge=new CountTempCarChargeImpl();
-			FileUtils.writeObject("countTempCarCharge", countTempCarCharge);
-		}
-		
-	}
-
-	public void showManualSearch() {
-		try {
-			searchErrorCarPresenter.getModel().setPlateNo(model.getOutShowPlateNO());
-			searchErrorCarPresenter.setSystemSetting(mapSystemSetting);
-			SearchHistoryByHandWizard wizard=new SearchHistoryByHandWizard(searchErrorCarPresenter);
-			Object showWizard = commonui.showWizard(wizard);
-			if (StrUtil.isEmpty(showWizard)) {
-				return;
-			}
-			SingleCarparkInOutHistory select = searchErrorCarPresenter.getModel().getHavePlateNoSelect()==null?searchErrorCarPresenter.getModel().getNoPlateNoSelect():searchErrorCarPresenter.getModel().getHavePlateNoSelect();
-			if (StrUtil.isEmpty(select)) {
-				return;
-			}
-			SearchErrorCarModel m = searchErrorCarPresenter.getModel();
-			view.invok(model.getIp(), 0, select.getPlateNo(), m.getBigImg(), m.getSmallImg());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 }

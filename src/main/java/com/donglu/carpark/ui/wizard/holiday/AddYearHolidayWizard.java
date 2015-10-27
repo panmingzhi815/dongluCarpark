@@ -16,8 +16,7 @@ import com.dongluhitec.card.blservice.SettingService;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.db.Holiday;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkHoliday;
+import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -73,11 +72,11 @@ public class AddYearHolidayWizard extends Wizard implements AbstractWizard{
 //		SettingService ss=sd.getServiceProvider().getSettingService();
 //		model.setAllh(ss.findHolidayByYearAndMonth(year,0));
 		CarparkService carparkService = sp.getCarparkService();
-		List<SingleCarparkHoliday> list=carparkService.findHolidayByYear(year);
+		List<Holiday> list=carparkService.findHolidayByYear(year);
 		List<Date> listDate=new ArrayList<>();
-		for (SingleCarparkHoliday h : list) {
-			System.out.println(StrUtil.formatDate(h.getHolidayDate(), "yyyy-MM-dd"));
-			listDate.add(h.getHolidayDate());
+		for (Holiday h : list) {
+			System.out.println(StrUtil.formatDate(h.getStart(), "yyyy-MM-dd"));
+			listDate.add(h.getStart());
 		}
 		model.setSelect(listDate);
 	}

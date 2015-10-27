@@ -2,6 +2,7 @@ package com.donglu.carpark.ui.wizard;
 
 import java.util.List;
 
+import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayModel;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.google.common.collect.Lists;
@@ -9,6 +10,8 @@ import com.google.common.collect.Lists;
 public class AddUserModel extends SingleCarparkUser {
 	
 	private List<SingleCarparkCarpark> allList=Lists.newArrayList();
+	
+	private MonthlyUserPayModel model;
 
 	public List<SingleCarparkCarpark> getAllList() {
 		return allList;
@@ -41,6 +44,8 @@ public class AddUserModel extends SingleCarparkUser {
 		user.setId(getId());
 		user.setValidTo(getValidTo());
 		user.setRemark(getRemark());
+		user.setDelayDays(getDelayDays());
+		user.setRemindDays(getRemindDays());
 		return user;
 	}
 	public void setSingleCarparkUser(SingleCarparkUser user){
@@ -54,5 +59,15 @@ public class AddUserModel extends SingleCarparkUser {
 		setId(user.getId());
 		setValidTo(user.getValidTo());
 		setRemark(user.getRemark());
+	}
+
+	public MonthlyUserPayModel getModel() {
+		return model;
+	}
+
+	public void setModel(MonthlyUserPayModel model) {
+		this.model = model;
+		if (pcs != null)
+			pcs.firePropertyChange("model", null, null);
 	}
 }

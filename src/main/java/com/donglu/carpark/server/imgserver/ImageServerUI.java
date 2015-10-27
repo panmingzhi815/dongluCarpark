@@ -4,6 +4,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -18,6 +19,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tray;
+import org.eclipse.swt.widgets.TrayItem;
 
 import com.donglu.carpark.server.CarparkHardwareGuiceModule;
 import com.donglu.carpark.server.CarparkServerConfig;
@@ -47,6 +50,9 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
@@ -117,9 +123,45 @@ public class ImageServerUI {
 	protected void createContents() {
 		shell = new Shell();
 		shell.setSize(522, 86);
-		shell.setText("图片服务器");
+		shell.setText("服务器");
 		shell.setLayout(new GridLayout(5, false));
+		shell.addShellListener(new ShellAdapter() {
 
+			@Override
+			public void shellClosed(ShellEvent e) {
+				shell.forceActive();
+				MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION | SWT.APPLICATION_MODAL);
+
+		        box.setText("退出提示");
+		        box.setMessage("确认退出服务器？退出服务器后客户端的图片将不会在服务器端备份！");
+		        int open = box.open();
+		        if (open == SWT.YES) {
+					System.exit(0);
+				}else{
+					e.doit=false;
+				}
+			}
+			@Override
+			public void shellIconified(ShellEvent e) {
+				shell.setVisible(false);
+			}
+			
+		});
+		Display default1 = Display.getDefault();
+		Tray systemTray = default1.getSystemTray();
+		TrayItem trayItem=new TrayItem(systemTray, SWT.NONE);
+		trayItem.setToolTipText("服务器");
+		trayItem.setImage(JFaceUtil.getImage("carpark_16"));
+		trayItem.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				shell.setVisible(true);
+				shell.setFocus();
+				text.setFocus();
+			}
+			
+		});
 		Label label = new Label(shell, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -132,7 +174,7 @@ public class ImageServerUI {
 		gd_text.widthHint = 214;
 		text.setLayoutData(gd_text);
 		Object readObject = FileUtils.readObject(IMAGE_SAVE_DIRECTORY);
-		text.setText(readObject==null?"":(String) readObject);
+		text.setText(readObject==null?System.getProperty("user.dir"):(String) readObject);
 		Button button = new Button(shell, SWT.NONE);
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button.addSelectionListener(new SelectionAdapter() {

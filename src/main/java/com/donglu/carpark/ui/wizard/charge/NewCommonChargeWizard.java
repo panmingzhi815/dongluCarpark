@@ -47,7 +47,7 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
         newCommonChargeBasicPage = new NewCommonChargeBasicPage(model);
         addPage(newCommonChargeBasicPage);
 
-        getShell().setSize(700, 600);
+        getShell().setSize(700, 700);
     }
 
     @Override

@@ -6,6 +6,8 @@ import com.dongluhitec.card.ui.carpark.pay.storein.wizard.NewCarparkStoreInHisto
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.SWT;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class MonthlyUserPayWizard extends Wizard implements AbstractWizard{
 	

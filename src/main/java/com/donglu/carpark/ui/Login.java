@@ -20,6 +20,7 @@ import com.beust.jcommander.JCommander;
 import com.donglu.carpark.server.CarparkHardwareGuiceModule;
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.ServerUI;
+import com.donglu.carpark.service.CarparkClientLocalVMServiceProvider;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
 import com.donglu.carpark.ui.common.App;
@@ -76,23 +77,19 @@ public class Login {
 	private Text txt_password;
 	private Label lbl_msg;
 	private Combo combo;
-	
-	private final CarparkManageApp carparkManageApp;
-	private final CarparkMainApp carparkMainApp;
-	private final ServerUI serverUI;
-	private final CarparkDatabaseServiceProvider sp;
+	@Inject
+	private CarparkManageApp carparkManageApp;
+	@Inject
+	private CarparkMainApp carparkMainApp;
+	@Inject
+	private ServerUI serverUI;
+	@Inject
+	private CarparkDatabaseServiceProvider sp;
 	private final String selectType="LoginSelectType";
 	private App app;
 	@Inject
 	private ClientConfigUI clientConfigUI;
 	
-	@Inject
-	public Login(CarparkManageApp carparkManageApp,CarparkMainApp carparkMainApp,ServerUI serverUI,CarparkDatabaseServiceProvider sp) {
-		this.carparkManageApp = carparkManageApp;
-		this.carparkMainApp = carparkMainApp;
-		this.serverUI = serverUI;
-		this.sp = sp;
-	}
 
 	/**
 	 * Launch the application.
@@ -111,7 +108,7 @@ public class Login {
                         protected void configure() {
                             this.bindConstant().annotatedWith(Names.named("HBM2DDL")).to("update");
                             this.bind(HardwareFacility.class).to(HardwareFacilityImpl.class);
-                            this.bind(CarparkDatabaseServiceProvider.class).to(CarparkLocalVMServiceProvider.class).in(Singleton.class);
+                            this.bind(CarparkDatabaseServiceProvider.class).to(CarparkClientLocalVMServiceProvider.class).in(Singleton.class);
                             this.bind(CarparkServerConfig.class).toInstance(CarparkServerConfig.getInstance());
 //                            this.bind(LocalSecurityManager.class).to(SecurityManagerImpl.class);
                             

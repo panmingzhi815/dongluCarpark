@@ -8,6 +8,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
 public class SingleCarparkSystemUser extends DomainObject{
 
@@ -26,6 +27,13 @@ public class SingleCarparkSystemUser extends DomainObject{
 	private String lastEditUser; 
 	private String remark;
 	
+	public String getCreateDateLabel() {
+		return StrUtil.formatDate(getCreateDate(), "yyyy-MM-dd HH:mm:ss");
+	}
+	
+	public String getLastEditDateLabel() {
+		return StrUtil.formatDate(getLastEditDate(), "yyyy-MM-dd HH:mm:ss");
+	}
 	public String getUserName() {
 		return userName;
 	}

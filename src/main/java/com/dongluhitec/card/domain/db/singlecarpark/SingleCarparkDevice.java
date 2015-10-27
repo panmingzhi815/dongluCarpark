@@ -22,8 +22,10 @@ public class SingleCarparkDevice extends DomainObject{
 	private String inType;//出入口类型
 	private String type;//设备类型  tcp or 485
 	private String linkAddress;//连接地址
-	private String address;//设备地址
+	private String address="1.1";//设备地址
 	private String roadType;//通道类型
+	private Integer volume=1;
+	private String advertise="欢迎光临";
 	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "carparkId", nullable = true, insertable = false, updatable = false)
@@ -64,6 +66,7 @@ public class SingleCarparkDevice extends DomainObject{
 		if (pcs != null)
 			pcs.firePropertyChange("type", null, null);
 	}
+	
 	public String getAddress() {
 		return address;
 	}
@@ -120,7 +123,25 @@ public class SingleCarparkDevice extends DomainObject{
 		if (pcs != null)
 			pcs.firePropertyChange("carparkId", null, null);
 	}
+	public Integer getVolume() {
+		return volume;
+	}
+	public void setVolume(Integer volume) {
+		this.volume = volume;
+		if (pcs != null)
+			pcs.firePropertyChange("volume", null, null);
+	}
 	
-	
+	public static void main(String[] args) {
+		System.out.println("1.1".substring(2));
+	}
+	public String getAdvertise() {
+		return advertise;
+	}
+	public void setAdvertise(String advertise) {
+		this.advertise = advertise;
+		if (pcs != null)
+			pcs.firePropertyChange("advertise", null, null);
+	}
 	
 }

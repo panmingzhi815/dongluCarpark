@@ -1,5 +1,6 @@
 package com.donglu.carpark.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -10,10 +11,12 @@ import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
+import org.criteria4jpa.criterion.SimpleExpression;
 import org.criteria4jpa.order.Order;
 import org.criteria4jpa.projection.Projections;
 
 import com.donglu.carpark.service.CarparkInOutServiceI;
+import com.donglu.carpark.ui.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -245,13 +248,13 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			Long singleResult2 = (Long) cc.getSingleResult();
 			int intValue = singleResult2==null?0:singleResult2.intValue();
 			
-			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
-			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
-			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "固定车"));
-			c.setProjection(Projections.rowCount());
-			Long singleResult = (Long) c.getSingleResult();
-			int now=singleResult==null?0:singleResult.intValue();
-			return intValue-singleResult.intValue();
+//			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+//			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+//			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "固定车"));
+//			c.setProjection(Projections.rowCount());
+//			Long singleResult = (Long) c.getSingleResult();
+//			int now=singleResult==null?0:singleResult.intValue();
+			return intValue;
 		} finally {
 			unitOfWork.end();
 		}
@@ -266,13 +269,13 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			Long singleResult2 = (Long) cc.getSingleResult();
 			int intValue = singleResult2==null?0:singleResult2.intValue();
 			
-			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
-			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
-			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
-			c.setProjection(Projections.rowCount());
-			Long singleResult = (Long) c.getSingleResult();
-			int now=singleResult==null?0:singleResult.intValue();
-			return intValue-now;
+//			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+//			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+//			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
+//			c.setProjection(Projections.rowCount());
+//			Long singleResult = (Long) c.getSingleResult();
+//			int now=singleResult==null?0:singleResult.intValue();
+			return intValue;
 		} finally {
 			unitOfWork.end();
 		}
@@ -283,17 +286,69 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		unitOfWork.begin();
 		try {
 			Criteria cc = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
-			cc.setProjection(Projections.sum(SingleCarparkCarpark.Property.totalNumberOfSlot.name()));
+			cc.setProjection(Projections.sum(SingleCarparkCarpark.Property.tempNumberOfSlot.name()));
 			 Object singleResult2 = cc.getSingleResult();
 			int intValue = singleResult2==null?0:((Long)singleResult2).intValue();
 			
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
 			c.setProjection(Projections.rowCount());
 			Long singleResult = (Long) c.getSingleResult();
 			int now=singleResult==null?0:singleResult.intValue();
-			return intValue-now;
+			return intValue-now<=0?0:intValue-now;
 		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> searchHistoryByLikePlateNO(String plateNO, boolean order) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNotEmpty(SingleCarparkInOutHistory.Property.plateNo.name()));
+			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.plateNo.name()));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			List<SimpleExpression> list=new ArrayList<>();
+			for (String s : CarparkUtils.splitPlateNO(plateNO)) {
+				SimpleExpression like = Restrictions.like(SingleCarparkInOutHistory.Property.plateNo.name(), s,MatchMode.ANYWHERE);
+				list.add(like);
+			}
+			
+			c.add(Restrictions.or(list.toArray(new SimpleExpression[list.size()])));
+			if (order) {
+				c.addOrder(Order.asc(SingleCarparkInOutHistory.Property.inTime.name()));
+			}else{
+				c.addOrder(Order.desc(SingleCarparkInOutHistory.Property.inTime.name()));
+			}
+			return c.getResultList();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ArrayList<>();
+		}finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> findAddNoPlateNOHistory(boolean order) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.or(Restrictions.isEmpty(SingleCarparkInOutHistory.Property.plateNo.name()),
+					Restrictions.isNull(SingleCarparkInOutHistory.Property.plateNo.name())));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			if (order) {
+				c.addOrder(Order.asc(SingleCarparkInOutHistory.Property.inTime.name()));
+			}else{
+				c.addOrder(Order.desc(SingleCarparkInOutHistory.Property.inTime.name()));
+			}
+			return c.getResultList();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ArrayList<>();
+		}finally{
 			unitOfWork.end();
 		}
 	}

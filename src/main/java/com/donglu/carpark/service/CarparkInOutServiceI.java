@@ -53,4 +53,8 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	int findTotalSlotIsNow();
+
+	List<SingleCarparkInOutHistory> searchHistoryByLikePlateNO(String plateNO, boolean order);
+
+	List<SingleCarparkInOutHistory> findAddNoPlateNOHistory(boolean order);
 }

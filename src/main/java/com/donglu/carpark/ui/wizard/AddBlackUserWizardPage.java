@@ -25,6 +25,10 @@ public class AddBlackUserWizardPage extends WizardPage {
 	private Text text;
 	private Text text_1;
 	SingleCarparkBlackUser model;
+	private Text text_2;
+	private Text text_3;
+	private Text text_4;
+	private Text text_5;
 
 	/**
 	 * Create the wizard.
@@ -62,6 +66,52 @@ public class AddBlackUserWizardPage extends WizardPage {
 		gd_text.widthHint = 131;
 		text.setLayoutData(gd_text);
 		
+		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_2.setText("起始时间");
+		
+		Composite composite_1 = new Composite(composite, SWT.NONE);
+		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		composite_1.setLayout(new GridLayout(7, false));
+		
+		text_2 = new Text(composite_1, SWT.BORDER);
+		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text_2 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_text_2.widthHint = 19;
+		text_2.setLayoutData(gd_text_2);
+		
+		Label label_3 = new Label(composite_1, SWT.NONE);
+		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_3.setText(":");
+		
+		text_3 = new Text(composite_1, SWT.BORDER);
+		text_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text_3 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_text_3.widthHint = 21;
+		text_3.setLayoutData(gd_text_3);
+		
+		Label label_4 = new Label(composite_1, SWT.NONE);
+		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_4.setText("--");
+		
+		text_4 = new Text(composite_1, SWT.BORDER);
+		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text_4 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_4.widthHint = 20;
+		text_4.setLayoutData(gd_text_4);
+		
+		Label label_5 = new Label(composite_1, SWT.NONE);
+		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_5.setText(":");
+		
+		text_5 = new Text(composite_1, SWT.BORDER);
+		text_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text_5 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_5.widthHint = 21;
+		text_5.setLayoutData(gd_text_5);
+		
 		Label label_1 = new Label(composite, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
@@ -84,6 +134,22 @@ public class AddBlackUserWizardPage extends WizardPage {
 		IObservableValue observeTextText_1ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_1);
 		IObservableValue remarkModelObserveValue = BeanProperties.value("remark").observe(model);
 		bindingContext.bindValue(observeTextText_1ObserveWidget, remarkModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_2ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_2);
+		IObservableValue hoursStartLabelModelObserveValue = BeanProperties.value("hoursStartLabel").observe(model);
+		bindingContext.bindValue(observeTextText_2ObserveWidget, hoursStartLabelModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
+		IObservableValue minuteStartLabelModelObserveValue = BeanProperties.value("minuteStartLabel").observe(model);
+		bindingContext.bindValue(observeTextText_3ObserveWidget, minuteStartLabelModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_4ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_4);
+		IObservableValue hoursEndLabelModelObserveValue = BeanProperties.value("hoursEndLabel").observe(model);
+		bindingContext.bindValue(observeTextText_4ObserveWidget, hoursEndLabelModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_5ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_5);
+		IObservableValue minuteEndLabelModelObserveValue = BeanProperties.value("minuteEndLabel").observe(model);
+		bindingContext.bindValue(observeTextText_5ObserveWidget, minuteEndLabelModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

@@ -1,5 +1,10 @@
 package com.donglu.carpark.service.impl;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -16,6 +21,8 @@ import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
 import org.criteria4jpa.order.Order;
 import org.criteria4jpa.projection.Projections;
+import org.hibernate.Session;
+import org.hibernate.jdbc.ReturningWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,21 +30,24 @@ import com.donglu.carpark.service.CarparkService;
 import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationPrice;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkHoliday;
+import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.dongluhitec.card.service.impl.SettingServiceImpl;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
@@ -508,33 +518,51 @@ public class CarparkServiceImpl implements CarparkService {
 	}
 
 	@Override
-	public List<SingleCarparkHoliday> findHolidayByYear(int year) {
+	public List<Holiday> findHolidayByYear(int year) {
 		unitOfWork.begin();
 		try {
-			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkHoliday.class);
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), Holiday.class);
 			Calendar cd=Calendar.getInstance();
 			cd.set(year, 1, 1);
 			Date time = cd.getTime();
-			c.add(Restrictions.between("holidayDate", StrUtil.getYearTopTime(time), StrUtil.getYearBottomTime(time)));
-			return c.getResultList();
-		} finally{
+			c.add(Restrictions.between("start", StrUtil.getYearTopTime(time), StrUtil.getYearBottomTime(time)));
+			List<Holiday> resultList = c.getResultList();
+			return resultList;
+		}catch(Exception e){
+			e.printStackTrace();
+			return new ArrayList<>();
+		}finally{
 			unitOfWork.end();
 		}
 	}
-
+	@Override
+	public Holiday findHolidayByDate(Date date) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), Holiday.class);
+//			c.
+			return (Holiday) c.getSingleResultOrNull();
+		}catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}finally{
+			unitOfWork.end();
+		}
+	}
+	
 	@Transactional
-	public Long deleteHoliday(List<SingleCarparkHoliday> list) {
-		DatabaseOperation<SingleCarparkHoliday> dom = DatabaseOperation.forClass(SingleCarparkHoliday.class, emprovider.get());
-		for (SingleCarparkHoliday h:list) {
+	public Long deleteHoliday(List<Holiday> list) {
+		DatabaseOperation<Holiday> dom = DatabaseOperation.forClass(Holiday.class, emprovider.get());
+		for (Holiday h:list) {
 			dom.remove(h.getId());
 		}
 		return list.size()*1L;
 	}
 
 	@Transactional
-	public Long saveHoliday(List<SingleCarparkHoliday> list) {
-		DatabaseOperation<SingleCarparkHoliday> dom = DatabaseOperation.forClass(SingleCarparkHoliday.class, emprovider.get());
-		for (SingleCarparkHoliday b : list) {
+	public Long saveHoliday(List<Holiday> list) {
+		DatabaseOperation<Holiday> dom = DatabaseOperation.forClass(Holiday.class, emprovider.get());
+		for (Holiday b : list) {
 			if (b.getId()==null) {
 				dom.insert(b);
 			}else{
@@ -543,5 +571,98 @@ public class CarparkServiceImpl implements CarparkService {
 		}
 		return list.size()*1L;
 	}
+	
+	@Override
+	public float calculateTempCharge(final Long carTypeId,
+			final Date startTime, final Date endTime) {
+		try {
+			unitOfWork.begin();
+			Session unwrap = emprovider.get().unwrap(Session.class);
+			Float o = unwrap.doReturningWork(new ReturningWork<Float>() {
+				@Override
+				public Float execute(Connection conn) throws SQLException {
+					String spName = "{call upGetNewPakCarCharge(?,?,?,?)}";
 
+					CallableStatement proc = conn
+							.prepareCall("{call upGetNewPakCarCharge(?,?,?,?)}");
+					proc.setString(1, carTypeId + "");
+					proc.setTimestamp(2, new Timestamp(startTime.getTime()));
+					proc.setTimestamp(3, new Timestamp(endTime.getTime()));
+					proc.registerOutParameter(4, Types.NUMERIC);
+					proc.execute();
+					proc.getMoreResults();
+					float money = proc.getFloat(4);
+					proc.close();
+					conn.close();
+					return money;
+				}
+			});
+			LOGGER.info(
+					"计算临时收费成功:carTypeId={},startTime={},endTime={},money={}",
+					carTypeId, StrUtil.formatDateTime(startTime),
+					StrUtil.formatDateTime(endTime), o);
+			return o;
+		} catch (Exception e) {
+			LOGGER.error("计算临时收费失败:carTypeId={},startTime={},endTime={}",
+					carTypeId, StrUtil.formatDateTime(startTime),
+					StrUtil.formatDateTime(endTime));
+			throw new DongluServiceException("计算临时收费金额失败", e);
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public SingleCarparkBlackUser findBlackUserByPlateNO(String plateNO) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkBlackUser.class);
+			c.add(Restrictions.eq(SingleCarparkBlackUser.Property.plateNO.name(), plateNO));
+			return (SingleCarparkBlackUser) c.getSingleResultOrNull();
+		}catch(Exception e){
+			return null;
+		}finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public int countMonthUserByHaveCarSite() {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+			c.add(Restrictions.isNotNull("carparkNo"));
+			c.setProjection(Projections.rowCount());
+			return ((Long)c.getSingleResultOrNull()).intValue();
+		}catch(Exception e){
+			return 0;
+		}finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<CarparkChargeStandard> findCarparkTempCharge(long l) {
+		unitOfWork.begin();
+		try {
+			DatabaseOperation<CarparkCarType> dom = DatabaseOperation.forClass(CarparkCarType.class, emprovider.get());
+			CarparkCarType entityWithId = dom.getEntityWithId(l);
+			List<CarparkChargeStandard> carparkChargeStandardList = entityWithId.getCarparkChargeStandardList();
+			for (CarparkChargeStandard carparkChargeStandard : carparkChargeStandardList) {
+				List<CarparkDurationStandard> carparkDurationStandards = carparkChargeStandard.getCarparkDurationStandards();
+				for (CarparkDurationStandard carparkDurationStandard : carparkDurationStandards) {
+					List<CarparkDurationPrice> carparkDurationPriceList = carparkDurationStandard.getCarparkDurationPriceList();
+					for (CarparkDurationPrice carparkDurationPrice : carparkDurationPriceList) {
+						carparkDurationPrice.getId();
+					}
+				}
+			}
+			return carparkChargeStandardList;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Lists.newArrayList();
+		}finally{
+			unitOfWork.end();
+		}
+	}
 }

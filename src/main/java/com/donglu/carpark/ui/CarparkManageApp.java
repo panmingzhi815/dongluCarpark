@@ -87,6 +87,8 @@ import com.donglu.carpark.ui.common.AbstractApp;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.list.CarparkPayHistoryListView;
 import com.donglu.carpark.ui.wizard.AddBlackUserWizard;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 
 public class CarparkManageApp extends AbstractApp{
 	private DataBindingContext m_bindingContext;
@@ -100,8 +102,8 @@ public class CarparkManageApp extends AbstractApp{
 	CommonUIFacility commonui;
 	
 	private Table table_user;
-	private Text text_7;
-	private Text text_8;
+	private Text text_userName;
+	private Text text_plateNo;
 	private ToolBar carparkConfigToolBar;
 	private Text text_setting_dataBaseSave;
 	private Text text_setting_imgSave;
@@ -125,6 +127,7 @@ public class CarparkManageApp extends AbstractApp{
 	private Map<SystemSettingTypeEnum, String> mapSystemSetting=Maps.newHashMap();
 
 	private Composite composite_returnAccount_search;
+	private Text text_1;
 	
 	/**
 	 * Launch the application.
@@ -240,6 +243,24 @@ public class CarparkManageApp extends AbstractApp{
 		});
 		toolItem_1.setText("删除");
 		
+		ToolItem toolItem = new ToolItem(carparkConfigToolBar, SWT.NONE);
+		toolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.editCarpark();
+			}
+		});
+		toolItem.setText("修改");
+		
+		ToolItem toolItem_5 = new ToolItem(carparkConfigToolBar, SWT.NONE);
+		toolItem_5.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.refreshCarpark();
+			}
+		});
+		toolItem_5.setText("刷新");
+		
 		treeViewer = new TreeViewer(composite_3, SWT.BORDER);
 		Tree tree = treeViewer.getTree();
 		tree.addSelectionListener(new SelectionAdapter() {
@@ -250,11 +271,6 @@ public class CarparkManageApp extends AbstractApp{
 		});
 		tree.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
-		
-		TreeViewerColumn treeViewerColumn = new TreeViewerColumn(treeViewer, SWT.NONE);
-		TreeColumn treeColumn = treeViewerColumn.getColumn();
-		treeColumn.setWidth(100);
-		treeColumn.setText("停车场");
 		
 		Composite composite_4 = new Composite(sashForm_1, SWT.NONE);
 		composite_4.setLayout(new GridLayout(2, false));
@@ -274,7 +290,7 @@ public class CarparkManageApp extends AbstractApp{
 				presenter.addTempCharge(null);
 			}
 		});
-		toolItem_2.setText("添加临时");
+		toolItem_2.setText("添加临时收费设置");
 		
 		ToolItem toolItem_14 = new ToolItem(toolBar_1, SWT.NONE);
 		toolItem_14.setToolTipText("添加固定收费设置");
@@ -284,7 +300,7 @@ public class CarparkManageApp extends AbstractApp{
 				presenter.addMonthCharge();
 			}
 		});
-		toolItem_14.setText("添加固定");
+		toolItem_14.setText("添加固定收费设置");
 		
 		ToolItem toolItem_3 = new ToolItem(toolBar_1, SWT.NONE);
 		toolItem_3.addSelectionListener(new SelectionAdapter() {
@@ -304,6 +320,15 @@ public class CarparkManageApp extends AbstractApp{
 		});
 		toolItem_8.setToolTipText("修改");
 		toolItem_8.setText("修改");
+		
+		ToolItem toolItem_6 = new ToolItem(toolBar_1, SWT.NONE);
+		toolItem_6.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				System.out.println(presenter.test1());
+			}
+		});
+		toolItem_6.setText("刷新");
 		
 		tableViewer = new TableViewer(composite_4, SWT.BORDER | SWT.FULL_SELECTION);
 		table = tableViewer.getTable();
@@ -347,20 +372,26 @@ public class CarparkManageApp extends AbstractApp{
 		lblNewLabel_9.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_9.setText("姓名");
 		
-		text_7 = new Text(group_3, SWT.BORDER);
-		text_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_7.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		text_userName = new Text(group_3, SWT.BORDER);
+		text_userName.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_userName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label lblNewLabel_10 = new Label(group_3, SWT.NONE);
 		lblNewLabel_10.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_10.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_10.setText("车牌");
 		
-		text_8 = new Text(group_3, SWT.BORDER);
-		text_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_8.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		text_plateNo = new Text(group_3, SWT.BORDER);
+		text_plateNo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_plateNo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Button button_2 = new Button(group_3, SWT.NONE);
+		button_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.searchUser(text_userName.getText(),text_plateNo.getText());
+			}
+		});
 		button_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_2.setText("查询");
 		
@@ -431,7 +462,7 @@ public class CarparkManageApp extends AbstractApp{
 		
 		TableViewerColumn tableViewerColumn_address = new TableViewerColumn(tableViewer_user, SWT.NONE);
 		TableColumn tableColumn_address = tableViewerColumn_address.getColumn();
-		tableColumn_address.setWidth(134);
+		tableColumn_address.setWidth(131);
 		tableColumn_address.setText("住址");
 		
 		TableViewerColumn tableViewerColumn_type = new TableViewerColumn(tableViewer_user, SWT.NONE);
@@ -441,7 +472,7 @@ public class CarparkManageApp extends AbstractApp{
 		
 		TableViewerColumn tableViewerColumn_validTo = new TableViewerColumn(tableViewer_user, SWT.NONE);
 		TableColumn tableColumn_validTo = tableViewerColumn_validTo.getColumn();
-		tableColumn_validTo.setWidth(111);
+		tableColumn_validTo.setWidth(180);
 		tableColumn_validTo.setText("有效期");
 		
 		TableViewerColumn tableViewerColumn_carNo = new TableViewerColumn(tableViewer_user, SWT.NONE);
@@ -453,7 +484,6 @@ public class CarparkManageApp extends AbstractApp{
 		TableColumn tableColumn_remark = tableViewerColumn_remark.getColumn();
 		tableColumn_remark.setWidth(100);
 		tableColumn_remark.setText("备注");
-		
 		TabItem tbtmNewItem_2 = new TabItem(tabFolder, SWT.NONE);
 		tbtmNewItem_2.setText("记录查询");
 		
@@ -498,6 +528,7 @@ public class CarparkManageApp extends AbstractApp{
 		lblNewLabel_6.setText("系统用户设置");
 		
 		ToolBar toolBar_systemUser = new ToolBar(composite_9, SWT.FLAT | SWT.RIGHT);
+		toolBar_systemUser.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.NORMAL));
 		toolBar_systemUser.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		
 		ToolItem toolItem_addSystemUser = new ToolItem(toolBar_systemUser, SWT.NONE);
@@ -546,12 +577,12 @@ public class CarparkManageApp extends AbstractApp{
 		
 		TableViewerColumn tableViewerColumn_24 = new TableViewerColumn(tableViewer_1, SWT.NONE);
 		TableColumn tableColumn_17 = tableViewerColumn_24.getColumn();
-		tableColumn_17.setWidth(121);
+		tableColumn_17.setWidth(200);
 		tableColumn_17.setText("创建时间");
 		
 		TableViewerColumn tableViewerColumn_25 = new TableViewerColumn(tableViewer_1, SWT.NONE);
 		TableColumn tableColumn_18 = tableViewerColumn_25.getColumn();
-		tableColumn_18.setWidth(124);
+		tableColumn_18.setWidth(200);
 		tableColumn_18.setText("最后修改时间");
 		
 		TableViewerColumn tableViewerColumn_26 = new TableViewerColumn(tableViewer_1, SWT.NONE);
@@ -699,6 +730,37 @@ public class CarparkManageApp extends AbstractApp{
 		}
 		new Label(group_4, SWT.NONE);
 		
+		Composite composite_6 = new Composite(group_4, SWT.NONE);
+		composite_6.setLayout(new GridLayout(3, false));
+		composite_6.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
+		
+		Label label_3 = new Label(composite_6, SWT.NONE);
+		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_3.setText("同一车牌识别间隔");
+		
+		text_1 = new Text(composite_6, SWT.BORDER);
+		text_1.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				String text = text_1.getText();
+				try {
+					Integer.valueOf(text);
+					mapSystemSetting.put(SystemSettingTypeEnum.同一车牌识别间隔, text);
+				} catch (NumberFormatException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_text_1.widthHint = 82;
+		text_1.setLayoutData(gd_text_1);
+		text_1.setText(mapSystemSetting.get(SystemSettingTypeEnum.同一车牌识别间隔)==null?SystemSettingTypeEnum.同一车牌识别间隔.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.同一车牌识别间隔));
+		Label label_5 = new Label(composite_6, SWT.NONE);
+		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_5.setText("秒");
+		
 		Composite composite_14 = new Composite(group_4, SWT.NONE);
 		composite_14.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
 		composite_14.setLayout(new GridLayout(3, false));
@@ -810,7 +872,11 @@ public class CarparkManageApp extends AbstractApp{
 			text_setting_imgSaveDays.setText(string3);
 		}
 		
-		Button button_12 = new Button(group_4, SWT.NONE);
+		Composite composite_7 = new Composite(group_4, SWT.NONE);
+		composite_7.setLayout(new GridLayout(2, false));
+		composite_7.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
+		
+		Button button_12 = new Button(composite_7, SWT.NONE);
 		button_12.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -820,7 +886,7 @@ public class CarparkManageApp extends AbstractApp{
 		button_12.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_12.setText("保存设置");
 		
-		Button button = new Button(group_4, SWT.NONE);
+		Button button = new Button(composite_7, SWT.NONE);
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -829,10 +895,6 @@ public class CarparkManageApp extends AbstractApp{
 		});
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button.setText("节假日设置");
-		new Label(group_4, SWT.NONE);
-		new Label(group_4, SWT.NONE);
-		new Label(group_4, SWT.NONE);
-		new Label(group_4, SWT.NONE);
 		
 		Composite composite_blackUser = new Composite(composite_12, SWT.NONE);
 		composite_blackUser.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -982,13 +1044,19 @@ public class CarparkManageApp extends AbstractApp{
 	public Map<SystemSettingTypeEnum, String> getMapSystemSetting() {
 		return mapSystemSetting;
 	}
+
+	@Override
+	public boolean isOpen() {
+		// TODO 自动生成的方法存根
+		return false;
+	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
 		BeansListObservableFactory treeObservableFactory = new BeansListObservableFactory(SingleCarparkCarpark.class, "childs");
 		TreeBeanAdvisor treeAdvisor = new TreeBeanAdvisor(SingleCarparkCarpark.class, "parent", "childs", null);
 		ObservableListTreeContentProvider treeContentProvider = new ObservableListTreeContentProvider(treeObservableFactory, treeAdvisor);
-		treeViewer.setLabelProvider(new TreeObservableLabelProvider(treeContentProvider.getKnownElements(), SingleCarparkCarpark.class, "name", null));
+		treeViewer.setLabelProvider(new TreeObservableLabelProvider(treeContentProvider.getKnownElements(), SingleCarparkCarpark.class, "labelString", null));
 		treeViewer.setContentProvider(treeContentProvider);
 		//
 		IObservableList listCarparkCarparkModelObserveList = BeanProperties.list("listCarpark").observe(carparkModel);
@@ -999,7 +1067,7 @@ public class CarparkManageApp extends AbstractApp{
 		bindingContext.bindValue(observeSingleSelectionTreeViewer, carparkCarparkModelObserveValue, null, null);
 		//
 		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
-		IObservableMap[] observeMaps = BeansObservables.observeMaps(listContentProvider.getKnownElements(), SingleCarparkUser.class, new String[]{"id", "name", "plateNo", "address", "type", "validTo", "carparkNo", "remark"});
+		IObservableMap[] observeMaps = BeansObservables.observeMaps(listContentProvider.getKnownElements(), SingleCarparkUser.class, new String[]{"id", "name", "plateNo", "address", "type", "valitoLabel", "carparkNo", "remark"});
 		tableViewer_user.setLabelProvider(new ObservableMapLabelProvider(observeMaps));
 		tableViewer_user.setContentProvider(listContentProvider);
 		//
@@ -1011,7 +1079,7 @@ public class CarparkManageApp extends AbstractApp{
 		bindingContext.bindList(observeMultiSelectionTableViewer_user, selectListUserModelObserveList, null, null);
 		//
 		ObservableListContentProvider listContentProvider_1 = new ObservableListContentProvider();
-		IObservableMap[] observeMaps_1 = BeansObservables.observeMaps(listContentProvider_1.getKnownElements(), SingleCarparkSystemUser.class, new String[]{"userName", "type", "createDate", "lastEditDate", "lastEditUser", "remark"});
+		IObservableMap[] observeMaps_1 = BeansObservables.observeMaps(listContentProvider_1.getKnownElements(), SingleCarparkSystemUser.class, new String[]{"userName", "type", "createDateLabel", "lastEditDateLabel", "lastEditUser", "remark"});
 		tableViewer_1.setLabelProvider(new ObservableMapLabelProvider(observeMaps_1));
 		tableViewer_1.setContentProvider(listContentProvider_1);
 		//
@@ -1035,11 +1103,5 @@ public class CarparkManageApp extends AbstractApp{
 		bindingContext.bindValue(observeSingleSelectionTableViewer, carparkChargeInfoCarparkModelObserveValue, null, null);
 		//
 		return bindingContext;
-	}
-
-	@Override
-	public boolean isOpen() {
-		// TODO 自动生成的方法存根
-		return false;
 	}
 }

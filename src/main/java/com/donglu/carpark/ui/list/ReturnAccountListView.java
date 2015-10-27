@@ -17,8 +17,8 @@ public class ReturnAccountListView extends AbstractListView<SingleCarparkReturnA
 						SingleCarparkReturnAccount.Property.operaName.name(),
 						SingleCarparkReturnAccount.Property.shouldReturn.name(),
 						SingleCarparkReturnAccount.Property.factReturn.name(),
-						SingleCarparkReturnAccount.Property.returnTime.name(),},
-				new String[]{"编号","归账人","操作员","应归账金额","实归账金额","归账实际时间"},
+						SingleCarparkReturnAccount.Property.returnTimeLabel.name()},
+				new String[]{"编号","归账人","操作员","应归账金额","实归账金额","归账时间"},
 				new int[]{100,100,100,100,100,200});
 		this.setTableTitle("归账记录表");
 	}

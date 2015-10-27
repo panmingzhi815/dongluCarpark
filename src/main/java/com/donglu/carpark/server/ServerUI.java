@@ -304,6 +304,8 @@ public class ServerUI {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }finally{
+        	shell.forceFocus();
         }
     }
 	public String getDefaultCreateDatabaseSql(String type,String databaseFolder){

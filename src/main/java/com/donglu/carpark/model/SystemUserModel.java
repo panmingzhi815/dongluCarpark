@@ -1,9 +1,11 @@
 package com.donglu.carpark.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 public class SystemUserModel extends SingleCarparkSystemUser {
 	private String pwd;
@@ -11,7 +13,8 @@ public class SystemUserModel extends SingleCarparkSystemUser {
 	
 	private List<SingleCarparkSystemUser> list=new ArrayList<>();
 	private List<SingleCarparkSystemUser> selectList=new ArrayList<>();
-
+	
+	
 	public List<SingleCarparkSystemUser> getList() {
 		return list;
 	}

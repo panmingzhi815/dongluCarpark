@@ -1,13 +1,21 @@
 package com.donglu.carpark.ui.wizard;
 
+import java.util.Date;
+
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 
+import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayBasicPage;
+import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayModel;
 import com.dongluhitec.card.common.ui.AbstractWizard;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.WidgetUtil;
 
 
 public class AddUserWizard extends Wizard implements AbstractWizard{
 	AddUserModel model;
+	private AddUserWizardPage page;
+	
 	public AddUserWizard(AddUserModel model) {
 		this.model=model;
 		setWindowTitle("添加固定用户");
@@ -15,13 +23,22 @@ public class AddUserWizard extends Wizard implements AbstractWizard{
 
 	@Override
 	public void addPages() {
-		addPage(new AddUserWizardPage(model));
-		getShell().setSize(450,550);
+		page = new AddUserWizardPage(model);
+		addPage(page);
+		if (!StrUtil.isEmpty(model.getModel())) {
+			addPage(new MonthlyUserPayBasicPage(model.getModel()));
+		}
+		getShell().setSize(450,650);
 		WidgetUtil.center(getShell());
 	}
 
 	@Override
 	public boolean performFinish() {
+		if (!StrUtil.isEmpty(model.getModel()))
+		if (StrUtil.isEmpty(model.getModel().getOverdueTime())) {
+			page.setErrorMessage("固定用户必须有个有效期");
+			return false;
+		}
 		return true;
 	}
 
@@ -30,4 +47,18 @@ public class AddUserWizard extends Wizard implements AbstractWizard{
 		return model;
 	}
 
+	@Override
+	public IWizardPage getNextPage(IWizardPage page) {
+		Date createDate = new Date();
+		model.setCreateDate(createDate);
+		model.setValidTo(createDate);
+		MonthlyUserPayModel m = model.getModel();
+		m.setPlateNO(model.getPlateNo());
+		m.setUserName(model.getName());
+		m.setCreateTime(model.getCreateDate());
+		m.setCreateTimeLabel(m.getCreateTimeLabel());
+		return super.getNextPage(page);
+	}
+
+	
 }

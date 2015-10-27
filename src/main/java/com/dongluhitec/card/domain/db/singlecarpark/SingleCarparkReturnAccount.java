@@ -5,10 +5,11 @@ import java.util.Date;
 import javax.persistence.Entity;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
 public class SingleCarparkReturnAccount extends DomainObject {
 	public enum Property{
-		id,returnUser,factReturn,shouldReturn,returnTime,operaName
+		id,returnUser,factReturn,shouldReturn,returnTime,operaName,returnTimeLabel
 	}
 	/**
 	 * 
@@ -20,6 +21,10 @@ public class SingleCarparkReturnAccount extends DomainObject {
 	private Float shouldReturn;
 	private Date returnTime;
 	private String operaName;
+	
+	public String getReturnTimeLabel(){
+		return StrUtil.formatDate(returnTime, "yyyy-MM-dd HH:mm:ss");
+	}
 	public String getReturnUser() {
 		return returnUser;
 	}

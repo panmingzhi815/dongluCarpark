@@ -8,12 +8,16 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity
 public class SingleCarparkInOutHistory extends DomainObject{
 	
 	public enum Property{
 		plateNo,userName,carType,inTime,outTime,inDevice,outDevice,operaName,returnAccount,shouldMoney,factMoney,freeMoney
+	}
+	public enum Label{
+		inTimeLabel,outTimeLabel
 	}
 	/**
 	 * 
@@ -50,7 +54,13 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	public String getPlateNo() {
 		return plateNo;
 	}
-
+	public String getInTimeLabel(){
+		return StrUtil.formatDate(inTime, "yyyy-MM-dd HH:mm:ss");
+	}
+	public String getOutTimeLabel(){
+		return StrUtil.formatDate(inTime, "yyyy-MM-dd HH:mm:ss");
+	}
+	
 	public void setPlateNo(String plateNo) {
 		this.plateNo = plateNo;
 		if (pcs != null)

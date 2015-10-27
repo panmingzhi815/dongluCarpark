@@ -1,5 +1,6 @@
 package com.donglu.carpark.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -71,6 +72,22 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			}
 			if (!StrUtil.isEmpty(plateNo)) {
 				c.add(Restrictions.like("plateNo", plateNo, MatchMode.ANYWHERE));
+			}
+			return c.getResultList();
+		}finally{
+			unitOfWork.end();
+		}
+	}
+	@Override
+	public List<SingleCarparkUser> findUserByPlateNo(String plateNO) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+			
+			if (!StrUtil.isEmpty(plateNO)) {
+				c.add(Restrictions.like("plateNo", plateNO,MatchMode.ANYWHERE));
+			}else{
+				return new ArrayList<>();
 			}
 			return c.getResultList();
 		}finally{

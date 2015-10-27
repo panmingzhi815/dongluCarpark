@@ -34,6 +34,7 @@ import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class MonthlyUserPayBasicPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -56,7 +57,7 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 	private Combo combo_1;
 	private ComboViewer comboViewer;
 
-	protected MonthlyUserPayBasicPage(MonthlyUserPayModel model) {
+	public MonthlyUserPayBasicPage(MonthlyUserPayModel model) {
 		super("WizardPage");
 		this.model = model;
 		this.initOverdueTime = model.getOverdueTime();
@@ -75,26 +76,36 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		composite.setLayoutData("align center,w 200");
 		composite.setLayout(new GridLayout(2, false));
 
-		new Label(composite, SWT.NONE).setText("用户名");
+		Label label_10 = new Label(composite, SWT.NONE);
+		label_10.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_10.setText("用户名");
 		text_username = new Text(composite, SWT.BORDER | SWT.READ_ONLY);
+		text_username.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_username.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		Label label_8 = new Label(composite, SWT.NONE);
+		label_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_8.setText("身份证号");
 		text_userIdCard = new Text(composite, SWT.BORDER | SWT.READ_ONLY);
+		text_userIdCard.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_userIdCard.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
 		Label label_9 = new Label(composite, SWT.NONE);
+		label_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_9.setText("车 牌 号");
 		carCode = new Text(composite, SWT.BORDER | SWT.READ_ONLY);
+		carCode.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		carCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
 		Label label_1 = new Label(composite, SWT.NONE);
+		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setText("创建日期");
 		text_createTime = new Text(composite, SWT.BORDER | SWT.READ_ONLY);
+		text_createTime.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_createTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
 		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_2.setText("月租类型");
 
 		comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
@@ -110,6 +121,7 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 //			}
 //		});
 		combo_1 = comboViewer.getCombo();
+		combo_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		combo_1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -125,27 +137,35 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		Label label = new Label(composite, SWT.NONE);
+		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label.setText("车辆类型");
 		carType = new Text(composite, SWT.BORDER | SWT.READ_ONLY);
+		carType.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		carType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
 		Label label_3 = new Label(composite, SWT.NONE);
+		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_3.setText("月租月数");
 		text_rentingDays = new Text(composite, SWT.BORDER | SWT.READ_ONLY);
+		text_rentingDays.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_rentingDays.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
 		Label label_4 = new Label(composite, SWT.NONE);
+		label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_4.setText("月租金额");
 		text_monthMoney = new Text(composite, SWT.BORDER | SWT.READ_ONLY);
+		text_monthMoney.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_monthMoney.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
 		Label label_5 = new Label(composite, SWT.NONE);
+		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_5.setText("缴费期数");
 		cbv_chargesCount = new ComboViewer(composite, SWT.BORDER | SWT.READ_ONLY);
 		cbv_chargesCount.setLabelProvider(new LabelProvider());
 		cbv_chargesCount.setContentProvider(new ArrayContentProvider());
 		cbv_chargesCount.setInput(new Integer[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 		combo = cbv_chargesCount.getCombo();
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
 		combo.addSelectionListener(new SelectionAdapter() {
@@ -168,13 +188,25 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		});
 		
 		Label label_6 = new Label(composite, SWT.NONE);
+		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_6.setText("到期时间");
 		dateChooserCombo = new DateChooserCombo(composite, SWT.BORDER);
+		dateChooserCombo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Date value = dateChooserCombo.getValue();
+				model.setOverdueTime(StrUtil.getTodayBottomTime(value));
+				System.out.println(value);
+			}
+		});
+		dateChooserCombo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		dateChooserCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
 		Label label_7 = new Label(composite, SWT.NONE);
+		label_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_7.setText("本次缴费");
 		text_chargesMoney = new Text(composite, SWT.BORDER);
+		text_chargesMoney.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_chargesMoney.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		if (!StrUtil.isEmpty(model.getOverdueTime())) {
 			dateChooserCombo.setValue(model.getOverdueTime());
@@ -195,10 +227,6 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		IObservableValue observeTextCarCodeObserveWidget = WidgetProperties.text(SWT.Modify).observe(carCode);
 		IObservableValue plateNOModelObserveValue = BeanProperties.value("plateNO").observe(model);
 		bindingContext.bindValue(observeTextCarCodeObserveWidget, plateNOModelObserveValue, null, null);
-		//
-		IObservableValue observeTextText_createTimeObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_createTime);
-		IObservableValue createTimeModelObserveValue = BeanProperties.value("createTime").observe(model);
-		bindingContext.bindValue(observeTextText_createTimeObserveWidget, createTimeModelObserveValue, null, null);
 		//
 		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
 		IObservableMap observeMap = BeansObservables.observeMap(listContentProvider.getKnownElements(), SingleCarparkMonthlyCharge.class, "chargeName");
@@ -227,6 +255,10 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		IObservableValue observeTextText_chargesMoneyObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_chargesMoney);
 		IObservableValue chargesMoneyModelObserveValue = BeanProperties.value("chargesMoney").observe(model);
 		bindingContext.bindValue(observeTextText_chargesMoneyObserveWidget, chargesMoneyModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_createTimeObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_createTime);
+		IObservableValue createTimeLabelModelObserveValue = BeanProperties.value("createTimeLabel").observe(model);
+		bindingContext.bindValue(observeTextText_createTimeObserveWidget, createTimeLabelModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

@@ -56,7 +56,7 @@ public class AddDeviceBasicPage extends WizardPage {
 	private Label label_1;
 	private Text text;
 	private Label label_2;
-	private Label label_3;
+	private Label lblip;
 	private Label label;
 	private Label label_4;
 	private Label label_5;
@@ -69,6 +69,11 @@ public class AddDeviceBasicPage extends WizardPage {
 	private ComboViewer comboViewer;
 	private Combo combo_1;
 	private ComboViewer comboViewer_1;
+	private Label label_8;
+	private Combo combo_2;
+	private ComboViewer comboViewer_2;
+	private Label label_3;
+	private Text text_4;
 
 	/**
 	 * Create the wizard.
@@ -117,16 +122,17 @@ public class AddDeviceBasicPage extends WizardPage {
 		text_1.setText("");
 		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		label_3 = new Label(composite, SWT.NONE);
-		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_3.setText("抓拍ip");
+		lblip = new Label(composite, SWT.NONE);
+		lblip.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblip.setText("摄像机IP");
 		
 		text_2 = new Text(composite, SWT.BORDER);
 		text_2.setText("192.168.1.139");
 		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		label = new Label(composite, SWT.NONE);
-		label.setText("设备类型");
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("控制器类型");
 
 		Composite composite_1 = new Composite(composite, SWT.NONE);
 		composite_1.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -143,6 +149,7 @@ public class AddDeviceBasicPage extends WizardPage {
 				address_stack_container.layout();
 //				bindingContext.updateModels();
 				model.setLinkAddress(model.getTcpAddress());
+				text_3.setEditable(false);
 			}
 		});
 		radio_tcpip.setText("TCP");
@@ -155,13 +162,15 @@ public class AddDeviceBasicPage extends WizardPage {
 				model.setType("485");
 				address_stack_container.layout();
 //				bindingContext.updateTargets();
+				text_3.setEditable(true);
 			}
 		});
 		radio_serial.setText("485");
 		
 		
 		label_4 = new Label(composite, SWT.NONE);
-		label_4.setText("连接类型");
+		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_4.setText("控制器连接");
 
 		address_stack_container = new Composite(composite, SWT.NONE);
 		address_stack = new StackLayout();
@@ -175,7 +184,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		layout.marginWidth = 0;
 		serialComposite.setLayout(layout);
 
-		serialNameComboViewer = new ComboViewer(serialComposite, SWT.READ_ONLY);
+		serialNameComboViewer = new ComboViewer(serialComposite, SWT.NONE);
 		combo_serialName = serialNameComboViewer.getCombo();
 		GridData serialNameGridData = new GridData();
 		serialNameGridData.widthHint = 40;
@@ -183,18 +192,31 @@ public class AddDeviceBasicPage extends WizardPage {
 		text_tcpip = new Text(address_stack_container, SWT.BORDER);
 		serialNameComboViewer.setContentProvider(new ArrayContentProvider());
 		serialNameComboViewer.setLabelProvider(new LabelProvider());
-		serialNameComboViewer.setInput(new String[]{"DOM1","DOM2","DOM3","DOM4","DOM5","DOM6","DOM7","DOM8","DOM9","DOM10",});
+		serialNameComboViewer.setInput(new String[]{"COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8","COM9","COM10",});
 
 		address_stack.topControl = text_tcpip;
 		radio_tcpip.setSelection(true);
         
         label_5 = new Label(composite, SWT.NONE);
         label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        label_5.setText("语音地址");
+        label_5.setText("控制器地址");
 		
 		text_3 = new Text(composite, SWT.BORDER);
+		text_3.setEditable(false);
 		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
+		label_8 = new Label(composite, SWT.NONE);
+		label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_8.setText("语音音量");
+		
+		comboViewer_2 = new ComboViewer(composite, SWT.READ_ONLY);
+		combo_2 = comboViewer_2.getCombo();
+		GridData gd_combo_2 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_combo_2.widthHint = 78;
+		combo_2.setLayoutData(gd_combo_2);
+		comboViewer_2.setContentProvider(new ArrayContentProvider());
+		comboViewer_2.setLabelProvider(new LabelProvider());
+		comboViewer_2.setInput(new String[]{"0","1","2","3","4","5","6","7","8","9"});
 		label_6 = new Label(composite, SWT.NONE);
 		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_6.setText("通道类型");
@@ -214,6 +236,13 @@ public class AddDeviceBasicPage extends WizardPage {
 		comboViewer_1 = new ComboViewer(composite, SWT.READ_ONLY);
 		combo_1 = comboViewer_1.getCombo();
 		combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		label_3 = new Label(composite, SWT.NONE);
+		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_3.setText("显示屏内容");
+		
+		text_4 = new Text(composite, SWT.BORDER);
+		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		if (model.getType().equals("tcp")) {
 			address_stack.topControl = text_tcpip;
 			address_stack_container.layout();
@@ -244,18 +273,6 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue ipModelObserveValue = BeanProperties.value("ip").observe(model);
 		bindingContext.bindValue(observeTextText_2ObserveWidget, ipModelObserveValue, null, null);
 		//
-		IObservableValue observeTextText_tcpipObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_tcpip);
-		IObservableValue tcpAddressModelObserveValue = BeanProperties.value("tcpAddress").observe(model);
-		bindingContext.bindValue(observeTextText_tcpipObserveWidget, tcpAddressModelObserveValue, null, null);
-		//
-		IObservableValue observeSingleSelectionSerialNameComboViewer = ViewerProperties.singleSelection().observe(serialNameComboViewer);
-		IObservableValue serialAddressModelObserveValue = BeanProperties.value("serialAddress").observe(model);
-		bindingContext.bindValue(observeSingleSelectionSerialNameComboViewer, serialAddressModelObserveValue, null, null);
-		//
-		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
-		IObservableValue addressModelObserveValue = BeanProperties.value("address").observe(model);
-		bindingContext.bindValue(observeTextText_3ObserveWidget, addressModelObserveValue, null, null);
-		//
 		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
 		IObservableValue roadTypeModelObserveValue = BeanProperties.value("roadType").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer, roadTypeModelObserveValue, null, null);
@@ -271,6 +288,26 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue observeSingleSelectionComboViewer_1 = ViewerProperties.singleSelection().observe(comboViewer_1);
 		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer_1, carparkModelObserveValue, null, null);
+		//
+		IObservableValue observeTextCombo_serialNameObserveWidget = WidgetProperties.text().observe(combo_serialName);
+		IObservableValue serialAddressModelObserveValue = BeanProperties.value("serialAddress").observe(model);
+		bindingContext.bindValue(observeTextCombo_serialNameObserveWidget, serialAddressModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer_2 = ViewerProperties.singleSelection().observe(comboViewer_2);
+		IObservableValue voiceModelObserveValue = BeanProperties.value("voice").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer_2, voiceModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
+		IObservableValue addressModelObserveValue = BeanProperties.value("address").observe(model);
+		bindingContext.bindValue(observeTextText_3ObserveWidget, addressModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_tcpipObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_tcpip);
+		IObservableValue tcpAddressModelObserveValue = BeanProperties.value("tcpAddress").observe(model);
+		bindingContext.bindValue(observeTextText_tcpipObserveWidget, tcpAddressModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_4ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_4);
+		IObservableValue advertiseModelObserveValue = BeanProperties.value("advertise").observe(model);
+		bindingContext.bindValue(observeTextText_4ObserveWidget, advertiseModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

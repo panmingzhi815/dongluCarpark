@@ -9,8 +9,8 @@ public enum SystemSettingTypeEnum {
 	固定车入场是否确认("false"),
 	固定车出场确认("false"),
 	数据库备份位置(""),
-	图片保存位置(""),
-	图片保存多少天("999");
+	图片保存位置(System.getProperty("user.dir")),
+	图片保存多少天("999"), 同一车牌识别间隔("10");
 	private String defaultValue;
 	
 	SystemSettingTypeEnum(String defaultValue){

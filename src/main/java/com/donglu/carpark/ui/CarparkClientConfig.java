@@ -17,6 +17,8 @@ public class CarparkClientConfig implements Serializable{
 	private String dbServerUsername;
 	private String dbServerPassword;
 	
+	private String dbServerType;
+	
 	private CarparkClientConfig(){}
 	
 	public static CarparkClientConfig getInstance(){
@@ -97,5 +99,33 @@ public class CarparkClientConfig implements Serializable{
 
 	public void setDbServerPassword(String dbServerPassword) {
 		this.dbServerPassword = dbServerPassword;
+	}
+	public String getDbServerDriver() {
+		switch (this.dbServerType) {
+		case "SQLSERVER2008":
+			return "net.sourceforge.jtds.jdbc.Driver";
+		case "MYSQL":
+			return "com.mysql.jdbc.Driver";
+		default:
+			return null;
+		}
+	}
+	public String getDbServerURL() {
+		switch (this.dbServerType) {
+		case "SQLSERVER2008":
+			return String.format("jdbc:jtds:sqlserver://%s:%s/carpark", this.dbServerIp,this.dbServerPort);
+		case "MYSQL":
+			return String.format("jdbc:mysql://%s:%s/carpark", this.dbServerIp,this.dbServerPort);
+		default:
+			return null;
+		}
+	}
+
+	public String getDbServerType() {
+		return dbServerType;
+	}
+
+	public void setDbServerType(String dbServerType) {
+		this.dbServerType = dbServerType;
 	}
 }

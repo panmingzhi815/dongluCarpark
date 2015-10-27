@@ -38,6 +38,7 @@ public class AddUserWizardPage extends WizardPage {
 	private ComboViewer comboViewer_carpark;
 	private Combo combo_carpark;
 	private Combo combo;
+	private ComboViewer comboViewer;
 
 	
 	/**
@@ -94,7 +95,7 @@ public class AddUserWizardPage extends WizardPage {
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_2.setText("用户类型");
 		
-		ComboViewer comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
+		comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
 		combo = comboViewer.getCombo();
 		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_combo = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -102,7 +103,7 @@ public class AddUserWizardPage extends WizardPage {
 		combo.setLayoutData(gd_combo);
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
-		comboViewer.setInput(new String[]{"普通"});
+		comboViewer.setInput(new String[]{"普通","免费"});
 		combo.select(0);
 		
 		Label label_3 = new Label(composite, SWT.NONE);
@@ -159,10 +160,6 @@ public class AddUserWizardPage extends WizardPage {
 		IObservableValue nameModelObserveValue = BeanProperties.value("name").observe(model);
 		bindingContext.bindValue(observeTextText_1ObserveWidget, nameModelObserveValue, null, null);
 		//
-		IObservableValue observeTextComboObserveWidget = WidgetProperties.text().observe(combo);
-		IObservableValue typeModelObserveValue = BeanProperties.value("type").observe(model);
-		bindingContext.bindValue(observeTextComboObserveWidget, typeModelObserveValue, null, null);
-		//
 		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
 		IObservableValue addressModelObserveValue = BeanProperties.value("address").observe(model);
 		bindingContext.bindValue(observeTextText_3ObserveWidget, addressModelObserveValue, null, null);
@@ -174,6 +171,10 @@ public class AddUserWizardPage extends WizardPage {
 		IObservableValue observeSingleSelectionComboViewer_carpark = ViewerProperties.singleSelection().observe(comboViewer_carpark);
 		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer_carpark, carparkModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
+		IObservableValue typeModelObserveValue = BeanProperties.value("type").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer, typeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

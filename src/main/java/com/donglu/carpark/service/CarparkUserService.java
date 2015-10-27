@@ -10,4 +10,5 @@ public interface CarparkUserService {
 	
 	List<SingleCarparkUser> findAll();
 	List<SingleCarparkUser> findByNameOrPlateNo(String name,String plateNo);
+	List<SingleCarparkUser> findUserByPlateNo(String plateNO);
 }

@@ -9,7 +9,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkHoliday;
+import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
@@ -210,9 +210,35 @@ public interface CarparkService {
 	 * @param year
 	 * @return
 	 */
-	public List<SingleCarparkHoliday> findHolidayByYear(int year);
-	public Long deleteHoliday(List<SingleCarparkHoliday> list);
-	public Long saveHoliday(List<SingleCarparkHoliday> list);
+	public List<Holiday> findHolidayByYear(int year);
+	public Long deleteHoliday(List<Holiday> list);
+	public Long saveHoliday(List<Holiday> list);
+	/**
+	 * 计算临时收费
+	 * @param carTypeId
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	float calculateTempCharge(Long carTypeId, Date startTime, Date endTime);
+	/**
+	 * 查找车牌是否为黑名单
+	 * @param plateNO
+	 * @return
+	 */
+	public SingleCarparkBlackUser findBlackUserByPlateNO(String plateNO);
+	/**
+	 * 查找有固定车位的用户的数量
+	 * @return
+	 */
+	public int countMonthUserByHaveCarSite();
+	public List<CarparkChargeStandard> findCarparkTempCharge(long l);
+	/**
+	 * 查找指定日期的节假日
+	 * @param date
+	 * @return
+	 */
+	Holiday findHolidayByDate(Date date);
 	
 	
 }

@@ -83,7 +83,7 @@ public class InOutHistoryView extends Composite implements View{
 		gd_dateChooserCombo.widthHint = 117;
 		dateChooserCombo_start.setLayoutData(gd_dateChooserCombo);
 		dateChooserCombo_start.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
+		dateChooserCombo_start.setValue(new Date());
 		Label lblNewLabel = new Label(group, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -157,7 +157,7 @@ public class InOutHistoryView extends Composite implements View{
 		dateChooserCombo_end = new DateChooserCombo(group, SWT.BORDER);
 		dateChooserCombo_end.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		dateChooserCombo_end.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
+		dateChooserCombo_end.setValue(new Date());
 		Label lblNewLabel_1 = new Label(group, SWT.NONE);
 		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));

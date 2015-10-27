@@ -24,7 +24,7 @@ import java.util.Properties;
  * Time: 22:35
  * To change this template use File | Settings | File Templates.
  */
-public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServiceProvider{
+public class CarparkClientLocalVMServiceProvider extends AbstractCarparkDatabaseServiceProvider{
 
     private PersistService persistService;
    
@@ -32,7 +32,7 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
     final private String HBM2DDL;
 
     @Inject
-    public CarparkLocalVMServiceProvider(@Named(value = "HBM2DDL")String HBM2DDL){
+    public CarparkClientLocalVMServiceProvider(@Named(value = "HBM2DDL")String HBM2DDL){
         this.HBM2DDL = HBM2DDL;
     }
 
@@ -60,12 +60,17 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
         protected void configure() {
             final JpaPersistModule jpaPersistModule =
                     new JpaPersistModule("SQLSERVER2008");
-            CarparkServerConfig config=CarparkServerConfig.getInstance();
+            CarparkClientConfig cf=(CarparkClientConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
+            if (cf==null) {
+				return;
+			}
+            cf.setDbServerType("SQLSERVER2008");
+            cf.setDbServerIp(CarparkClientConfig.getInstance().getDbServerIp());
             final Properties properties = new Properties();
-            String dbServerDriver = config.getDbServerDriver();
-            String dbServerURL = config.getDbServerURL();
-            String dbServerUsername = config.getDbServerUsername();
-            String dbServerPassword = config.getDbServerPassword();
+            String dbServerDriver = cf.getDbServerDriver();
+            String dbServerURL = cf.getDbServerURL();
+            String dbServerUsername = cf.getDbServerUsername();
+            String dbServerPassword = cf.getDbServerPassword();
             Object object = properties.get("javax.persistence.jdbc.driver");
             System.out.println(dbServerDriver+"==="+dbServerURL+"==="+dbServerUsername+"==="+dbServerPassword+"=="+object);
             

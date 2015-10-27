@@ -10,16 +10,20 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity
 public class SingleCarparkUser extends DomainObject {
+	public enum Property{
+		id,plateNo,name,type,address,carparkNo,createDate,validTo,remark
+	}
 	
 	private String name;
 	@Column(unique=true)
 	private String plateNo;
 	private String type;
 	private String address;
-	private Integer carparkNo;
+	private String carparkNo;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createDate;
 	@Temporal(TemporalType.TIMESTAMP)
@@ -30,6 +34,10 @@ public class SingleCarparkUser extends DomainObject {
 	private String remark;
 	@ManyToOne
 	private SingleCarparkCarpark carpark;
+	
+	public String getValitoLabel(){
+		return StrUtil.formatDate(validTo, "yyyy-MM-dd HH:mm:ss");
+	}
 	public String getName() {
 		return name;
 	}
@@ -62,10 +70,10 @@ public class SingleCarparkUser extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("address", null, null);
 	}
-	public Integer getCarparkNo() {
+	public String getCarparkNo() {
 		return carparkNo;
 	}
-	public void setCarparkNo(Integer carparkNo) {
+	public void setCarparkNo(String carparkNo) {
 		this.carparkNo = carparkNo;
 		if (pcs != null)
 			pcs.firePropertyChange("carparkNo", null, null);

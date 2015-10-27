@@ -15,10 +15,15 @@ public class AddDeviceWizard extends Wizard implements AbstractWizard{
 	public AddDeviceWizard(AddDeviceModel model) {
 		this.model=model;
 		setWindowTitle("添加固定用户");
+		model.setVoice(model.getVolume()+"");
+		if (!StrUtil.isEmpty(model.getTcpLabel())) {
+			model.setTcpAddress(model.getTcpLabel());
+		}
 	}
 
 	@Override
 	public void addPages() {
+		
 		page = new AddDeviceBasicPage(model);
 		addPage(page);
 	}
@@ -38,18 +43,28 @@ public class AddDeviceWizard extends Wizard implements AbstractWizard{
 		}
 		if (model.getType().equals("tcp")) {
 			if (model.getTcpAddress()!=null) {
-				model.setLinkAddress(model.getTcpAddress());
+				model.setLinkAddress(model.getTcpAddress()+":10001");
 			}else{
-				page.setErrorMessage("请填写语音连接");
+				page.setErrorMessage("请填写控制器连接");
 				return false;
 			}
 		}else if(model.getType().equals("485")){
 			if (model.getSerialAddress()!=null) {
 				model.setLinkAddress(model.getSerialAddress());
-			}else{page.setErrorMessage("请填写语音连接");
+			}else{page.setErrorMessage("请填写控制器连接");
 				return false;
 			}
+		}else if(StrUtil.isEmpty(model.getVoice())){
+			page.setErrorMessage("请选择语言音量");
+			return false;
 		}
+		if (model.getAdvertise().length()>40) {
+			page.setErrorMessage("平时语音不能超过40个汉字");
+			return false;
+		}
+		String voice = model.getVoice();
+		
+		model.setVolume(Integer.valueOf(voice));
 		return true;
 	}
 

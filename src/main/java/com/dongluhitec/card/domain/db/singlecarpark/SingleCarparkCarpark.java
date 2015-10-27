@@ -168,6 +168,10 @@ public class SingleCarparkCarpark extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("leftNumberOfSlot", null, null);
 	}
+	@Override
+	public String getLabelString() {
+		return "("+code+")"+name;
+	}
 	
 	
 	

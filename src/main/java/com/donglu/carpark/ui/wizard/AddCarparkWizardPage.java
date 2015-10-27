@@ -27,7 +27,7 @@ public class AddCarparkWizardPage extends WizardPage {
 	private SingleCarparkCarpark model;
 	private Button btnBu;
 	private Text text_2;
-	private Text text_3;
+	private Text text_4;
 	/**
 	 * Create the wizard.
 	 * @param model 
@@ -74,12 +74,12 @@ public class AddCarparkWizardPage extends WizardPage {
 		text_2 = new Text(composite, SWT.BORDER);
 		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
-		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
-		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_1.setText("剩余车位数");
+		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_2.setText("固定车位数");
 		
-		text_3 = new Text(composite, SWT.BORDER);
-		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		text_4 = new Text(composite, SWT.BORDER);
+		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		new Label(composite, SWT.NONE);
 		
 		btnBu = new Button(composite, SWT.CHECK);
@@ -105,9 +105,9 @@ public class AddCarparkWizardPage extends WizardPage {
 		IObservableValue totalNumberOfSlotModelObserveValue = BeanProperties.value("totalNumberOfSlot").observe(model);
 		bindingContext.bindValue(observeTextText_2ObserveWidget, totalNumberOfSlotModelObserveValue, null, null);
 		//
-		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
-		IObservableValue leftNumberOfSlotModelObserveValue = BeanProperties.value("leftNumberOfSlot").observe(model);
-		bindingContext.bindValue(observeTextText_3ObserveWidget, leftNumberOfSlotModelObserveValue, null, null);
+		IObservableValue observeTextText_4ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_4);
+		IObservableValue fixNumberOfSlotModelObserveValue = BeanProperties.value("fixNumberOfSlot").observe(model);
+		bindingContext.bindValue(observeTextText_4ObserveWidget, fixNumberOfSlotModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

@@ -10,7 +10,10 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 public class AddDeviceModel extends SingleCarparkDevice{
 	private List<SingleCarparkCarpark> list=new ArrayList<SingleCarparkCarpark>();
 	private String serialAddress="DOM1";
-	private String tcpAddress="192.168.1.1:10001";
+	private String tcpAddress="192.168.1.1";
+	private String voice="1";
+	private String addressLabel;
+	private String tcpLabel;
 	
 	public AddDeviceModel(){
 		SingleCarparkCarpark s=new SingleCarparkCarpark();
@@ -38,6 +41,8 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		device.setName(getName());
 		device.setRoadType(getRoadType());
 		device.setType(getType());
+		device.setVolume(getVolume());
+		device.setAdvertise(getAdvertise());
 		return device;
 	}
 	public String getSerialAddress() {
@@ -73,6 +78,32 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		}else{
 			setSerialAddress(device.getLinkAddress());
 		}
+		setVolume(device.getVolume());
+		setAdvertise(device.getAdvertise());
+	}
+	public String getVoice() {
+		return voice;
+	}
+	public void setVoice(String voice) {
+		this.voice = voice;
+		if (pcs != null)
+			pcs.firePropertyChange("voice", null, null);
+	}
+	public String getAddressLabel() {
+		return addressLabel;
+	}
+	public void setAddressLabel(String addressLabel) {
+		this.addressLabel = addressLabel;
+		if (pcs != null)
+			pcs.firePropertyChange("addressLabel", null, null);
+	}
+	public String getTcpLabel() {
+		return getLinkAddress()==null?null:getLinkAddress().substring(0, getLinkAddress().indexOf(":"));
+	}
+	public void setTcpLabel(String tcpLabel) {
+		this.tcpLabel = tcpLabel;
+		if (pcs != null)
+			pcs.firePropertyChange("tcpLabel", null, null);
 	}
 	
 }

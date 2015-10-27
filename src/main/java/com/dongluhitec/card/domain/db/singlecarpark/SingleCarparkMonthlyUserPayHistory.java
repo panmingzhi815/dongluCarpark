@@ -8,10 +8,14 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
 public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	public enum Property{
 		userName,plateNO,chargesMoney,operaName,overdueTime,createTime
+	}
+	public enum Label{
+		createTimeLabel,overdueTimeLabel
 	}
 	/**
 	 * 
@@ -41,7 +45,13 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	public String getUserName() {
 		return userName;
 	}
-
+	
+	public String getCreateTimeLabel(){
+		return StrUtil.formatDate(createTime, "yyyy-MM-dd HH:mm:ss");
+	}
+	public String getOverdueTimeLabel(){
+		return StrUtil.formatDate(overdueTime, "yyyy-MM-dd HH:mm:ss");
+	}
 	public void setUserName(String userName) {
 		this.userName = userName;
 		if (pcs != null)

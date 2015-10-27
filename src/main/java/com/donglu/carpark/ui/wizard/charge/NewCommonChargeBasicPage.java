@@ -508,7 +508,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 		if(this.model.getCarparkAcrossDayTypeEnum() == null){
 			this.model.setCarparkAcrossDayTypeEnum(CarparkAcrossDayTypeEnum.重复计费);
 		}
-		if(this.model.getOnedayMaxCharge()==null||this.model.getOnedayMaxCharge() == 0){
+		if(this.model.getOnedayMaxCharge() == 0){
 			this.model.setOnedayMaxCharge(0);
 		}
 	}

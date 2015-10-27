@@ -86,6 +86,7 @@ public class ClientConfigUI {
 
 	/**
 	 * Create contents of the window.
+	 * @wbp.parser.entryPoint
 	 */
 	protected void createContents() {
 		shell = new Shell();
@@ -131,7 +132,7 @@ public class ClientConfigUI {
 			String upload = FileuploadSend.upload("http://"+dbServer_ip+":8899/server/", null);
 			String[] s = upload.split("/");
 			
-			CarparkServerConfig instance = CarparkServerConfig.getInstance();
+			CarparkClientConfig instance = CarparkClientConfig.getInstance();
 			instance.setDbServerIp(s[0]);
 			instance.setDbServerPort(s[1]);
 			instance.setDbServerUsername(s[2]);

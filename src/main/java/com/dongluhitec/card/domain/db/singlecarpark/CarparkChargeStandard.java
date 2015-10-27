@@ -5,10 +5,8 @@ import java.util.List;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 
@@ -55,7 +53,7 @@ public class CarparkChargeStandard extends DomainObject{
 	
 	@Min(value=0,message="最大收费必须大于等于0")
 	@Column(name="oneday_max_charge")
-	private Float onedayMaxCharge;
+	private float onedayMaxCharge;
 	
 	@Min(value=0,message="免费时间必须大于等于0")
 	@Column(name="free_time")
@@ -118,7 +116,7 @@ public class CarparkChargeStandard extends DomainObject{
 		firePropertyChange(Property.carparkDurationTypeEnum.name(), this.carparkDurationTypeEnum, this.carparkDurationTypeEnum = carparkDurationTypeEnum);
 	}
 
-	public Float getOnedayMaxCharge() {
+	public float getOnedayMaxCharge() {
 		return onedayMaxCharge;
 	}
 
@@ -168,7 +166,7 @@ public class CarparkChargeStandard extends DomainObject{
 		firePropertyChange(Property.startStepTime.name(), this.startStepTime, this.startStepTime = startStepTime);
 	}
 
-	public Float getStartStepPrice() {
+	public float getStartStepPrice() {
 		return startStepPrice;
 	}
 
@@ -222,16 +220,4 @@ public class CarparkChargeStandard extends DomainObject{
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
-
-	public void setOnedayMaxCharge(Float onedayMaxCharge) {
-		this.onedayMaxCharge = onedayMaxCharge;
-		if (pcs != null)
-			pcs.firePropertyChange("onedayMaxCharge", null, null);
-	}
-
-	public void setStartStepPrice(Float startStepPrice) {
-		this.startStepPrice = startStepPrice;
-		if (pcs != null)
-			pcs.firePropertyChange("startStepPrice", null, null);
-	}
 }

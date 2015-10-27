@@ -6,12 +6,14 @@ import java.util.List;
 
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 	
 	private int count;
 	private List<SingleCarparkMonthlyCharge> allmonth=new ArrayList<>();
 	private SingleCarparkMonthlyCharge selectMonth;
+	private String createTimeLabel;
 	public int getCount() {
 		return count;
 	}
@@ -58,5 +60,15 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 		s.setId(id);
 		s.setOperaName(getOperaName());
 		return s;
+	}
+
+	public String getCreateTimeLabel() {
+		return StrUtil.formatDate(getCreateTime(), "yyyy-MM-dd HH:mm:ss");
+	}
+
+	public void setCreateTimeLabel(String createTimeLabel) {
+		this.createTimeLabel = createTimeLabel;
+		if (pcs != null)
+			pcs.firePropertyChange("createTimeLabel", null, null);
 	}
 }

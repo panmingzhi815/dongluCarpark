@@ -3,13 +3,10 @@ package com.donglu.carpark.ui.wizard.holiday;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.dongluhitec.card.domain.BasicJavaBeanModel;
-import com.dongluhitec.card.domain.db.Holiday;
-import com.dongluhitec.card.domain.db.attendance.AttendanceHoliday;
+import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.ui.setting.settingwizard.AddMoreHolidayDate;
 
 public class AddYearHolidayModel extends BasicJavaBeanModel {

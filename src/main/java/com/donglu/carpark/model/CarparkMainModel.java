@@ -42,7 +42,11 @@ public class CarparkMainModel extends DomainObject{
 	
 	SingleCarparkInOutHistory history;
 	
+	String ip;
+	
 	boolean btnClick=false;
+	boolean inCheckClick=false;
+	boolean outCheckClick=false;
 	
 	public String getUserName() {
 		return userName;
@@ -260,5 +264,37 @@ public class CarparkMainModel extends DomainObject{
 		if (pcs != null)
 			pcs.firePropertyChange("outShowBigImg", null, null);
 	}
-	
+	public void clear() {
+		setPlateNo(null);
+		setInTime(null);
+		setOutTime(null);
+		setBtnClick(false);
+		setShouldMony(0);
+		setReal(0);
+		setCarType(null);
+	}
+	public boolean isInCheckClick() {
+		return inCheckClick;
+	}
+	public void setInCheckClick(boolean inCheckClick) {
+		this.inCheckClick = inCheckClick;
+		if (pcs != null)
+			pcs.firePropertyChange("inCheckClick", null, null);
+	}
+	public boolean isOutCheckClick() {
+		return outCheckClick;
+	}
+	public void setOutCheckClick(boolean outCheckClick) {
+		this.outCheckClick = outCheckClick;
+		if (pcs != null)
+			pcs.firePropertyChange("outCheckClick", null, null);
+	}
+	public String getIp() {
+		return ip;
+	}
+	public void setIp(String ip) {
+		this.ip = ip;
+		if (pcs != null)
+			pcs.firePropertyChange("ip", null, null);
+	}
 }

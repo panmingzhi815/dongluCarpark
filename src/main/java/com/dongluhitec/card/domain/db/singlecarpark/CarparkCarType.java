@@ -15,7 +15,7 @@ public class CarparkCarType extends DomainObject{
 
 	private static final long serialVersionUID = -4521169608146500548L;
 	
-	@Column(name="name")
+	@Column(name="name",unique=true)
 	private String name;
 	
 	@OneToMany(mappedBy="carparkCarType")
