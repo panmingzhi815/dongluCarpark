@@ -878,8 +878,8 @@ public class CarparkManagePresenter {
 		}
 	}
 
-	public void searchUser(String name, String plateNo) {
-		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(name, plateNo);
+	public void searchUser(String name, String plateNo, int willOverdue, String overdue) {
+		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(name, plateNo,willOverdue,overdue);
 		userModel.setAllList(findByNameOrPlateNo);
 	}
 

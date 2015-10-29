@@ -1,6 +1,7 @@
 package com.donglu.carpark.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -9,6 +10,7 @@ import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +64,8 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			unitOfWork.end();
 		}
 	}
-
-	public List<SingleCarparkUser> findByNameOrPlateNo(String name, String plateNo) {
+	@Override
+	public List<SingleCarparkUser> findByNameOrPlateNo(String name, String plateNo, int willOverdue, String overdue) {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
@@ -72,6 +74,17 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			}
 			if (!StrUtil.isEmpty(plateNo)) {
 				c.add(Restrictions.like("plateNo", plateNo, MatchMode.ANYWHERE));
+			}
+			if (willOverdue>0) {
+				Date date = new DateTime(StrUtil.getTodayBottomTime(new Date())).plusDays(willOverdue).toDate();
+				c.add(Restrictions.le(SingleCarparkUser.Property.validTo.name(), date));
+			}
+			if (!StrUtil.isEmpty(overdue)) {
+				if (overdue.equals("是")) {
+					c.add(Restrictions.le(SingleCarparkUser.Property.validTo.name(), new Date()));
+				}else{
+					c.add(Restrictions.ge(SingleCarparkUser.Property.validTo.name(), new Date()));
+				}
 			}
 			return c.getResultList();
 		}finally{

@@ -52,7 +52,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 
 	@Override
 	public void refresh() {
-		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(userName, plateNo);
+		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(userName, plateNo, 0, null);
 		view.getModel().setList(findByNameOrPlateNo);
 		view.getModel().setCountSearch(findByNameOrPlateNo.size());
 		view.getModel().setCountSearchAll(findByNameOrPlateNo.size());

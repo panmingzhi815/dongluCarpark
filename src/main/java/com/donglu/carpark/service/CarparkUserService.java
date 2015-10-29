@@ -9,7 +9,7 @@ public interface CarparkUserService {
 	Long deleteUser(SingleCarparkUser user);
 	
 	List<SingleCarparkUser> findAll();
-	List<SingleCarparkUser> findByNameOrPlateNo(String name,String plateNo);
+	List<SingleCarparkUser> findByNameOrPlateNo(String name,String plateNo, int willOverdue, String overdue);
 	List<SingleCarparkUser> findUserByPlateNo(String plateNO);
 	
 	List<SingleCarparkUser> findUserByMonthChargeId(Long id);

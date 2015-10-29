@@ -73,6 +73,10 @@ import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
 
 public class CarparkManageApp extends AbstractApp{
 	private DataBindingContext m_bindingContext;
@@ -112,6 +116,7 @@ public class CarparkManageApp extends AbstractApp{
 
 	private Composite composite_returnAccount_search;
 	private Text text_1;
+	private Text text_willOverdue;
 	
 	/**
 	 * Launch the application.
@@ -393,7 +398,7 @@ public class CarparkManageApp extends AbstractApp{
 		Group group_3 = new Group(composite_2, SWT.NONE);
 		group_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		group_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
-		group_3.setLayout(new GridLayout(5, false));
+		group_3.setLayout(new GridLayout(9, false));
 		
 		Label lblNewLabel_9 = new Label(group_3, SWT.NONE);
 		lblNewLabel_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -413,11 +418,44 @@ public class CarparkManageApp extends AbstractApp{
 		text_plateNo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_plateNo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
+		Label label_7 = new Label(group_3, SWT.NONE);
+		label_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_7.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_7.setText("即将过期");
+		
+		text_willOverdue = new Text(group_3, SWT.BORDER);
+		text_willOverdue.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_willOverdue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_8 = new Label(group_3, SWT.NONE);
+		label_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_8.setText("是否过期");
+		
+		ComboViewer comboViewer = new ComboViewer(group_3, SWT.NONE);
+		Combo combo = comboViewer.getCombo();
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		comboViewer.setContentProvider(new ArrayContentProvider());
+		comboViewer.setLabelProvider(new LabelProvider());
+		comboViewer.setInput(new String[]{"全部","是","否"});
+		
 		Button button_2 = new Button(group_3, SWT.NONE);
 		button_2.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				presenter.searchUser(text_userName.getText(),text_plateNo.getText());
+				String text = text_willOverdue.getText();
+				int parseInt=0;
+				try {
+					parseInt = Integer.parseInt(text);
+				} catch (NumberFormatException e1) {
+				}
+				
+				String text2 = combo.getText();
+				if (text2.equals("全部")) {
+					text2=null;
+				}
+				presenter.searchUser(text_userName.getText(),text_plateNo.getText(),parseInt,text2);
 			}
 		});
 		button_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -456,6 +494,18 @@ public class CarparkManageApp extends AbstractApp{
 			}
 		});
 		toolItem_delete.setText("删除");
+		
+		ToolItem toolItem_15 = new ToolItem(toolBar_user, SWT.NONE);
+		toolItem_15.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+			}
+		});
+		toolItem_15.setText("导入");
+		
+		ToolItem toolItem_16 = new ToolItem(toolBar_user, SWT.NONE);
+		toolItem_16.setText("导出");
 		
 		ToolItem toolItem_edit = new ToolItem(toolBar_user, SWT.NONE);
 		toolItem_edit.addSelectionListener(new SelectionAdapter() {
