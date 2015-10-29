@@ -45,6 +45,8 @@ import com.donglu.carpark.ui.wizard.holiday.AddYearHolidayWizard;
 import com.donglu.carpark.ui.wizard.model.AddMonthChargeModel;
 import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayModel;
 import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayWizard;
+import com.donglu.carpark.util.ExcelImportExport;
+import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkAcrossDayTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
@@ -953,6 +955,43 @@ public class CarparkManagePresenter {
 		} catch (Exception e) {
 			commonui.error("启用失败", "未知错误"+e.getMessage());
 			e.printStackTrace();
+		}
+	}
+
+	public void importUser() {
+		try {
+			String path = commonui.selectToSave();
+			ExcelImportExport export=new ExcelImportExportImpl();
+			int excelRowNum = export.getExcelRowNum(path);
+			if (excelRowNum<3) {
+				return;
+			}
+			int importUser = export.importUser(path, sp);
+			if (importUser>0) {
+				commonui.info("导入提示", "导入完成。有"+importUser+"条数据导入失败");
+			}else{
+				commonui.info("导入提示", "导入成功");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			refreshUser();
+		}
+	}
+	/**
+	 * 导出固定用户信息
+	 */
+	public void exportUser() {
+		String selectToSave = commonui.selectToSave();
+		String path = StrUtil.checkPath(selectToSave,  new String[] { ".xls", ".xlsx" }, ".xls");
+		ExcelImportExport export=new ExcelImportExportImpl();
+		List<SingleCarparkUser> allList = userModel.getAllList();
+		try {
+			export.exportUser(path, allList);
+			commonui.info("导出提示", "导出成功！");
+		} catch (Exception e) {
+			e.printStackTrace();
+			commonui.error("导出提示", "导出失败！"+e.getMessage());
 		}
 	}
 

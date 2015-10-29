@@ -495,17 +495,23 @@ public class CarparkManageApp extends AbstractApp{
 		});
 		toolItem_delete.setText("删除");
 		
-		ToolItem toolItem_15 = new ToolItem(toolBar_user, SWT.NONE);
-		toolItem_15.addSelectionListener(new SelectionAdapter() {
+		ToolItem ti_import = new ToolItem(toolBar_user, SWT.NONE);
+		ti_import.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+				presenter.importUser();
 			}
 		});
-		toolItem_15.setText("导入");
+		ti_import.setText("导入");
 		
-		ToolItem toolItem_16 = new ToolItem(toolBar_user, SWT.NONE);
-		toolItem_16.setText("导出");
+		ToolItem ti_export = new ToolItem(toolBar_user, SWT.NONE);
+		ti_export.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.exportUser();
+			}
+		});
+		ti_export.setText("导出");
 		
 		ToolItem toolItem_edit = new ToolItem(toolBar_user, SWT.NONE);
 		toolItem_edit.addSelectionListener(new SelectionAdapter() {

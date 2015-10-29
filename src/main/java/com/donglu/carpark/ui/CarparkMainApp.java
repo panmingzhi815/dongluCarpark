@@ -1710,12 +1710,17 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			if (!tempCarNoChargeIsPass) {
 				// 自动收费放行
 				if (!valueOf) {
+					int i=0;
 					presenter.showContentToDevice(device, s, false);
 					while (model.isBtnClick()) {
 						try {
 							if (discontinue) {
 								return;
 							}
+							if (i>120) {
+								return;
+							}
+							i++;
 							Thread.sleep(500);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
@@ -1730,6 +1735,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				}
 			} else {
 				if (!valueOf) {
+					int i=0;
 					if (shouldMoney > 0) {
 						presenter.showContentToDevice(device, s, false);
 						while (model.isBtnClick()) {
@@ -1737,6 +1743,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 								if (discontinue) {
 									return;
 								}
+								if (i>120) {
+									return;
+								}
+								i++;
 								Thread.sleep(500);
 							} catch (InterruptedException e) {
 								e.printStackTrace();
