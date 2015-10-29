@@ -174,7 +174,7 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 				image=Files.toByteArray(file);
 			}else{
 				String substring = img.substring(img.lastIndexOf("/")+1);
-				String actionUrl = "http://"+CarparkClientConfig.getInstance().getDbServerIp()+":8899";
+				String actionUrl = "http://"+CarparkClientConfig.getInstance().getDbServerIp()+":8899/carparkImage";
 				image = FileuploadSend.download(actionUrl, substring);
 			}
 			return image;

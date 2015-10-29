@@ -63,6 +63,8 @@ public class ImageUploadServlet extends HttpServlet {
         }
     }
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    	request.setCharacterEncoding("UTF-8");
+    	response.setCharacterEncoding("UTF-8");
 		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
 		if(isMultipart) {
 			FileItemFactory factory =new DiskFileItemFactory();
@@ -86,7 +88,7 @@ public class ImageUploadServlet extends HttpServlet {
 						com.google.common.io.Files.createParentDirs(uploadedFile);
 						item.write(uploadedFile);
 						
-						response.setContentType("text/html;charset=utf-8");
+						response.setContentType("text/html;charset=UTF-8");
 						PrintWriter out = response.getWriter();
 						 System.out.println(path);
 						out.print("上传的文件为："+ name);

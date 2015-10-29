@@ -665,8 +665,9 @@ public class CarparkMainPresenter {
 				long nanoTime = System.nanoTime();
 				LOGGER.info("准备将图片{}上传到服务器{}",finalFileName,ip);
 				try {
-					FileuploadSend.upload("http://"+ip+":8899/carparkImage/", finalFileName);
-					LOGGER.info("图片上传到服务器{}成功",ip);
+					String upload = FileuploadSend.upload("http://"+ip+":8899/carparkImage/", finalFileName);
+					
+					LOGGER.info("图片上传到服务器{}成功,{}",ip,upload);
 				} catch (Exception e) {
 					e.printStackTrace();
 					LOGGER.error("图片上传到服务器{}失败",ip);

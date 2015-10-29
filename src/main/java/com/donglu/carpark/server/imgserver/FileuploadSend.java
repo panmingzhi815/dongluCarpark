@@ -91,7 +91,6 @@ public class FileuploadSend {
 			while ((ch = r.read()) != -1) {
 				sb2.append((char) ch);
 			}
-			System.out.println("==========="+sb2);
 			return sb2.toString();
 		}
 		// 如果数据不为空，则以字符串方式返回数据，否则返回null
