@@ -387,6 +387,7 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 //				user.setValidTo(StrUtil.parse(validTo, USER_VALIDTO));
 				user.setCarparkNo(carparkNo);
 				user.setRemark(remark);
+				user.setCreateDate(new Date());
 				carparkUserService.saveUser(user);
 				setCellStringvalue(row, 8, "处理成功", cellStyle);
 			} catch (Exception e) {
