@@ -1681,7 +1681,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				}
 				carType = getCarparkCarType(model.getCarparkCarType());
 			} else if (mapTempCharge.keySet().size() == 1) {
-				carType = getCarparkCarType(mapTempCharge.values().toArray(new String[1])[1]);
+				List<String> list=new ArrayList<>();
+				list.addAll(mapTempCharge.keySet());
+				carType = getCarparkCarType(list.get(0));
 			}
 			model.setComboCarTypeEnable(false);
 			float shouldMoney = presenter.countShouldMoney(carType, inTime, date);
