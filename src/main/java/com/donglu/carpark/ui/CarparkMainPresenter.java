@@ -438,10 +438,10 @@ public class CarparkMainPresenter {
 
 	/**
 	 * 发送语音
-	 * 
-	 * @param device
+	 * @param device 设备
 	 * @param content语音
-	 * @param voice音量
+	 * @param opDoor是否需要开门
+	 * @return
 	 */
 	public boolean showContentToDevice(SingleCarparkDevice device, String content,boolean opDoor) {
 		try {

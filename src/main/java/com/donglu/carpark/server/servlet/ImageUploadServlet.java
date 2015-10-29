@@ -76,8 +76,8 @@ public class ImageUploadServlet extends HttpServlet {
 					if(!item.isFormField()) {
 						// 取出上传文件的文件名称
 						String name = item.getName();
-						 System.out.println(name);
-						String fileName =name.substring(name.indexOf('\\') + 1, name.length());
+						 System.out.println("name"+name);
+						String fileName =name.substring(name.lastIndexOf("img"), name.length());
 						 System.out.println("fileName="+fileName);
 						Object o=FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);
 						String path =o +""+ File.separatorChar+ fileName;

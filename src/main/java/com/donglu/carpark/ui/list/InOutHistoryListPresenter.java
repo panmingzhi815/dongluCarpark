@@ -57,7 +57,7 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter{
 	private void defaultSearch() {
 		AbstractListView<SingleCarparkInOutHistory>.Model model = v.getModel();
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(model.getList().size(), 50, plateNo,
+		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(model.getList().size(), 500, plateNo,
 				userName, carType, inout, start, end, operaName,inDevice,outDevice,returnAccount);
 		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName, inDevice, outDevice, returnAccount);
 		
@@ -116,7 +116,8 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter{
 			
 			SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存位置.name());
 			
-			InOutHistoryDetailWizard wizard =new InOutHistoryDetailWizard(h,findSystemSettingByKey.getSettingValue());
+			InOutHistoryDetailWizard wizard =new InOutHistoryDetailWizard(h,
+					findSystemSettingByKey.getSettingValue()==null?SystemSettingTypeEnum.图片保存位置.getDefaultValue():findSystemSettingByKey.getSettingValue());
 			inOutHistory = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
 			
 			

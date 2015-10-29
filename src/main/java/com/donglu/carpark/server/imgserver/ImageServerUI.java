@@ -74,6 +74,7 @@ public class ImageServerUI {
 			return new ImageUploadServlet();
 		}
 	};
+	private TrayItem trayItem;
 
 	/**
 	 * Launch the application.
@@ -136,6 +137,7 @@ public class ImageServerUI {
 		        box.setMessage("确认退出服务器？退出服务器后客户端的图片将不会在服务器端备份！");
 		        int open = box.open();
 		        if (open == SWT.YES) {
+		        	trayItem.dispose();
 					System.exit(0);
 				}else{
 					e.doit=false;
@@ -149,7 +151,7 @@ public class ImageServerUI {
 		});
 		Display default1 = Display.getDefault();
 		Tray systemTray = default1.getSystemTray();
-		TrayItem trayItem=new TrayItem(systemTray, SWT.NONE);
+		trayItem = new TrayItem(systemTray, SWT.NONE);
 		trayItem.setToolTipText("服务器");
 		trayItem.setImage(JFaceUtil.getImage("carpark_16"));
 		trayItem.addSelectionListener(new SelectionAdapter() {
@@ -162,6 +164,7 @@ public class ImageServerUI {
 			}
 			
 		});
+		
 		Label label = new Label(shell, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));

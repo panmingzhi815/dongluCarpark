@@ -635,9 +635,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		composite_15.setLayout(new GridLayout(1, false));
 
 		btnOutCheck = new Button(composite_15, SWT.NONE);
+		GridData gd_btnOutCheck = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		if (!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认) == null ? SystemSettingTypeEnum.固定车出场确认.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认))) {
-
+			gd_btnOutCheck.exclude = true;
 		}
+		btnOutCheck.setLayoutData(gd_btnOutCheck);
 		btnOutCheck.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
 		btnOutCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -708,7 +710,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		lblNewLabel = new Label(group, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		GridData gd_lblNewLabel = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		gd_lblNewLabel.widthHint = 82;
+		lblNewLabel.setLayoutData(gd_lblNewLabel);
 		lblNewLabel.setText("剩余车位数");
 
 		text_total = new Text(group, SWT.BORDER | SWT.READ_ONLY);
@@ -843,7 +847,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		text_outTime.setText("2015-8-15 14:50:20");
 		text_outTime.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		text_outTime.setEditable(false);
-		text_outTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		GridData gd_text_outTime = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_outTime.widthHint = 160;
+		text_outTime.setLayoutData(gd_text_outTime);
 
 		Label label_11 = new Label(group, SWT.NONE);
 		label_11.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -904,13 +910,16 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		Label lbl_carType = new Label(composite_14, SWT.RIGHT);
 		GridData gd_lbl_carType = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_lbl_carType.widthHint = 79;
+		gd_lbl_carType.widthHint = 77;
 		lbl_carType.setLayoutData(gd_lbl_carType);
 		lbl_carType.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		lbl_carType.setText("车辆类型");
 
 		Composite composite_13 = new Composite(composite_14, SWT.NONE);
-		composite_13.setLayout(new GridLayout(1, false));
+		composite_13.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		GridLayout gl_composite_13 = new GridLayout(1, false);
+		gl_composite_13.marginWidth = 0;
+		composite_13.setLayout(gl_composite_13);
 
 		ComboViewer comboViewer = new ComboViewer(composite_13, SWT.READ_ONLY);
 		combo = comboViewer.getCombo();
@@ -1246,10 +1255,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		}
 		long nanoTime1 = System.nanoTime();
 
+		LOGGER.debug("开始在界面显示车牌：{}的抓拍图片", plateNO);
 		model.setInShowPlateNO(plateNO);
 		model.setInShowTime(dateString);
-
-		LOGGER.debug("开始在界面显示车牌：{}的抓拍图片", plateNO);
 		Display.getDefault().asyncExec(new Runnable() {
 			public void run() {
 				if (inSmallImage != null) {
@@ -1274,18 +1282,17 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				if (inBigImage != null) {
 					inBigImg.setBackgroundImage(inBigImage);
 				}
-
-				// txtinplateNo.setText(plateNO);
-				// text_in_time.setText(dateString);
 				plateNoTotal.addAndGet(1);
 			}
 		});
 		String editPlateNo = null;
+		boolean noPlateNO=false;
 		// 空车牌处理
 		if (StrUtil.isEmpty(plateNO)) {
 			LOGGER.info("空的车牌");
 			if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认)) || Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认))) {
 				model.setInCheckClick(true);
+				noPlateNO=true;
 				while (model.isInCheckClick()) {
 					try {
 						Thread.sleep(500);
@@ -1519,8 +1526,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		//
 		if (StrUtil.isEmpty(plateNO)) {
 			LOGGER.error("空的车牌");
-
-			// btnHandSearch.setData("plateNO",plateNO);
+			setBtnData(btnHandSearch, BTN_KEY_PLATENO, plateNO);
 			model.setHandSearch(true);
 			return;
 		}
@@ -1618,7 +1624,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		} else {// 临时车操作
 			// 固定车通道
 			if (equals) {
-				// presenter.showPlateNOToDevice(device, FIX_ROAD, 1, 1);
+				 presenter.showContentToDevice(device, FIX_ROAD, false);
 				return;
 			}
 			carparkOutProcess(ip, plateNO, device, date, bigImg, smallImg);

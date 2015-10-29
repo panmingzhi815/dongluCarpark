@@ -13,9 +13,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.donglu.carpark.server.imgserver.FileuploadSend;
+import com.donglu.carpark.ui.CarparkClientConfig;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.google.common.io.Files;
 
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.FillLayout;
@@ -32,6 +36,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.conversion.Converter;
 import org.eclipse.swt.events.MouseAdapter;
@@ -43,11 +48,9 @@ import org.eclipse.swt.events.SelectionEvent;
 public class InOutHistoryDetailWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
 	private SingleCarparkInOutHistory model;
-	private Text text;
-	private Text text_1;
 	private String file;
 	private Label lbl_bigImg;
-	private Label lbl_smallImg;
+	private Label lbl_outSmallImg;
 	/**
 	 * Create the wizard.
 	 * @param model 
@@ -83,33 +86,28 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		composite_1.setLayout(new GridLayout(3, false));
 		
 		Composite composite_3 = new Composite(composite_1, SWT.NONE);
-		GridData gd_composite_3 = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		GridData gd_composite_3 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
 		gd_composite_3.widthHint = 232;
 		composite_3.setLayoutData(gd_composite_3);
-		composite_3.setLayout(new GridLayout(2, false));
+		GridLayout gl_composite_3 = new GridLayout(1, false);
+		gl_composite_3.verticalSpacing = 0;
+		gl_composite_3.marginWidth = 0;
+		gl_composite_3.marginHeight = 0;
+		gl_composite_3.horizontalSpacing = 0;
+		composite_3.setLayout(gl_composite_3);
 		
-		Label lblNewLabel = new Label(composite_3, SWT.NONE);
-		lblNewLabel.setText("车牌");
-		
-		text = new Text(composite_3, SWT.BORDER);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		text.setEditable(false);
-		
-		Label lblNewLabel_2 = new Label(composite_3, SWT.NONE);
-		lblNewLabel_2.setText("用户名");
-		
-		text_1 = new Text(composite_3, SWT.BORDER);
-		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		text_1.setEditable(false);
+		Label lbl_inSmallImg = new Label(composite_3, SWT.NONE);
+		lbl_inSmallImg.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, true, 1, 1));
 		
 		Composite composite_2 = new Composite(composite_1, SWT.NONE);
 		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
 		GridData gd_composite_2 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
+		gd_composite_2.heightHint = 56;
 		gd_composite_2.widthHint = 262;
 		composite_2.setLayoutData(gd_composite_2);
 		
-		lbl_smallImg = new Label(composite_2, SWT.NONE);
-		lbl_smallImg.setBounds(0, 0, 249, 60);
+		lbl_outSmallImg = new Label(composite_2, SWT.NONE);
+		lbl_outSmallImg.setBounds(0, 0, 249, 60);
 		
 		Button button = new Button(composite_1, SWT.NONE);
 		button.setLayoutData(new GridData(SWT.LEFT, SWT.BOTTOM, false, false, 1, 1));
@@ -132,44 +130,59 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 	}
 	
 	public void setBigImg(){
-		String bigImg ="/img/"+ model.getBigImg();
-		if (!StrUtil.isEmpty(file)) {
-			bigImg=file+bigImg;
-		}
 		try {
-			Image image2 = getImage(bigImg, lbl_bigImg, getShell());
+			Image image2 = getImage(getByte(model.getBigImg()), lbl_bigImg);
 			lbl_bigImg.setImage(image2);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	public Image getImage(String fileName,Label insmallimg, Shell shell) throws IOException {
-//		byte[] readAllBytes = java.nio.file.Files.readAllBytes(Paths.get(fileName));
-		
-		try(FileInputStream fis=new FileInputStream(new File(fileName))) {
-			Image img = new Image(shell.getDisplay(), fis);
-			Rectangle bounds = insmallimg.getBounds();
-			ImageData id = img.getImageData().scaledTo(bounds.width, bounds.height);
-			Image createImg = new Image(shell.getDisplay(), id);
-			img.dispose();
+	protected Image getImage(byte[] image, Label lbl) {
+		if (image==null) {
+			return null;
+		}
+		ByteArrayInputStream stream = null;
+		try {
+			stream = new ByteArrayInputStream(image);
+			Image newImg = new Image(getShell().getDisplay(), stream);
+			Rectangle rectangle = lbl.getBounds();
+			ImageData data = newImg.getImageData().scaledTo(rectangle.width, rectangle.height);
+			ImageDescriptor createFromImageData = ImageDescriptor.createFromImageData(data);
+			Image createImg = createFromImageData.createImage();
+			newImg.dispose();
+			newImg = null;
+			lbl.setText("");
 			return createImg;
 		} catch (Exception e) {
-			throw new DongluAppException("图片转换错误", e);
-		} finally {
+			e.printStackTrace();
+			return null;
+		}finally{
+			if (stream!=null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
-	protected DataBindingContext initDataBindings() {
-		DataBindingContext bindingContext = new DataBindingContext();
-		//
-			IObservableValue observeTextTextObserveWidget = WidgetProperties.text(SWT.Modify).observe(text);
-			IObservableValue plateNoModelObserveValue = BeanProperties.value("plateNo").observe(model);
-			bindingContext.bindValue(observeTextTextObserveWidget, plateNoModelObserveValue, null, null);
-			//
-			IObservableValue observeTextText_1ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_1);
-			IObservableValue userNameModelObserveValue = BeanProperties.value("userName").observe(model);
-			bindingContext.bindValue(observeTextText_1ObserveWidget, userNameModelObserveValue, null, null);
-		//
-		return bindingContext;
+	protected byte[] getByte(String img) {
+		try {
+			byte[] image;
+			File file=new File(this.file+"/img/"+img);
+			if (file.exists()) {
+				image=Files.toByteArray(file);
+			}else{
+				String substring = img.substring(img.lastIndexOf("/")+1);
+				String actionUrl = "http://"+CarparkClientConfig.getInstance().getDbServerIp()+":8899";
+				image = FileuploadSend.download(actionUrl, substring);
+			}
+			return image;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
 	@Override
@@ -179,15 +192,17 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 	}
 
 	public void setSmallImg() {
-		String bigImg ="/img/"+ model.getSmallImg();
-		if (!StrUtil.isEmpty(file)) {
-			bigImg=file+bigImg;
-		}
+		
 		try {
-			Image image2 = getImage(bigImg, lbl_smallImg, getShell());
-			lbl_smallImg.setImage(image2);
+			Image image2 = getImage(getByte(model.getSmallImg()), lbl_outSmallImg);
+			lbl_outSmallImg.setImage(image2);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	protected DataBindingContext initDataBindings() {
+		DataBindingContext bindingContext = new DataBindingContext();
+		//
+		return bindingContext;
 	}
 }
