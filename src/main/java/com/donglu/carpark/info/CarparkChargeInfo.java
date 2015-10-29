@@ -6,6 +6,9 @@ public class CarparkChargeInfo extends DomainObject{
 	private String code;
 	private String name;
 	private String type;
+	private String carType;
+	private String useType;
+	private String holidayType;
 	public String getCode() {
 		return code;
 	}
@@ -29,6 +32,30 @@ public class CarparkChargeInfo extends DomainObject{
 		this.type = type;
 		if (pcs != null)
 			pcs.firePropertyChange("type", null, null);
+	}
+	public String getCarType() {
+		return carType;
+	}
+	public void setCarType(String carType) {
+		this.carType = carType;
+		if (pcs != null)
+			pcs.firePropertyChange("carType", null, null);
+	}
+	public String getUseType() {
+		return useType;
+	}
+	public void setUseType(String useType) {
+		this.useType = useType;
+		if (pcs != null)
+			pcs.firePropertyChange("useType", null, null);
+	}
+	public String getHolidayType() {
+		return holidayType;
+	}
+	public void setHolidayType(String holidayType) {
+		this.holidayType = holidayType;
+		if (pcs != null)
+			pcs.firePropertyChange("holidayType", null, null);
 	}
 	
 }

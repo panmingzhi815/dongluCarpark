@@ -665,4 +665,46 @@ public class CarparkServiceImpl implements CarparkService {
 			unitOfWork.end();
 		}
 	}
+
+	@Override
+	public SingleCarparkMonthlyCharge findMonthlyChargeByCode(String code) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkMonthlyCharge.class);
+			c.add(Restrictions.eq("chargeCode", code));
+			return (SingleCarparkMonthlyCharge) c.getSingleResultOrNull();
+		}catch(Exception e){
+			return null;
+		}finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<CarparkChargeStandard> findAllCarparkChargeStandard() {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), CarparkChargeStandard.class);
+			c.add(Restrictions.eq("using", true));
+			return c.getResultList();
+		}catch(Exception e){
+			return new ArrayList<>();
+		}finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public SingleCarparkCarpark findCarparkByCode(String code) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
+			c.add(Restrictions.eq("code", code));
+			return (SingleCarparkCarpark) c.getSingleResultOrNull();
+		}catch(Exception e){
+			return null;
+		}finally{
+			unitOfWork.end();
+		}
+	}
 }

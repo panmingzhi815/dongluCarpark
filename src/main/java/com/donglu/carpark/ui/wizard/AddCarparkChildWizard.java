@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui.wizard;
 
+import org.apache.poi.ss.formula.functions.IfFunc;
 import org.eclipse.jface.wizard.Wizard;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
@@ -7,25 +8,25 @@ import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.util.StrUtil;
 
-public class AddCarparkWizard extends Wizard implements AbstractWizard{
+public class AddCarparkChildWizard extends Wizard implements AbstractWizard{
 	
 	private SingleCarparkCarpark model;
-	private AddCarparkWizardPage page;
-	CarparkDatabaseServiceProvider sp;
-	public AddCarparkWizard(SingleCarparkCarpark model, CarparkDatabaseServiceProvider sp) {
+	private AddCarparkChildWizardPage page;
+	private  CarparkDatabaseServiceProvider sp;
+	public AddCarparkChildWizard(SingleCarparkCarpark model, CarparkDatabaseServiceProvider sp) {
 		this.model=model;
 		this.sp=sp;
 		if (StrUtil.isEmpty(model.getCode())) {
-			setWindowTitle("添加停车场");
+			setWindowTitle("添加子停车场");
 		}else{
-			setWindowTitle("修改停车场");
+			setWindowTitle("修改子停车场");
 		}
 		
 	}
 
 	@Override
 	public void addPages() {
-		page = new AddCarparkWizardPage(model);
+		page = new AddCarparkChildWizardPage(model);
 		addPage(page);
 	}
 
@@ -35,8 +36,8 @@ public class AddCarparkWizard extends Wizard implements AbstractWizard{
 			page.setErrorMessage("请填写完整信息");
 			return false;
 		}
-		String code = model.getCode();
 		try {
+			String code = model.getCode();
 			int parseInt = Integer.parseInt(code);
 			if (parseInt<0||parseInt>99) {
 				page.setErrorMessage("编码只能是0-99的数字");
@@ -60,7 +61,7 @@ public class AddCarparkWizard extends Wizard implements AbstractWizard{
 		}
 		return true;
 	}
-
+	
 	private boolean checkCode() {
 		SingleCarparkCarpark findCarparkById = sp.getCarparkService().findCarparkByCode(model.getCode());
 		if (!StrUtil.isEmpty(findCarparkById)&&findCarparkById.getId()!=model.getId()) {
@@ -68,7 +69,8 @@ public class AddCarparkWizard extends Wizard implements AbstractWizard{
 		}
 		return false;
 	}
-
+	
+	
 	@Override
 	public Object getModel() {
 		

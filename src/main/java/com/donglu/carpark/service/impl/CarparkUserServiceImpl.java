@@ -85,7 +85,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
 			
 			if (!StrUtil.isEmpty(plateNO)) {
-				c.add(Restrictions.like("plateNo", plateNO,MatchMode.ANYWHERE));
+				c.add(Restrictions.like("plateNo", plateNO));
 			}else{
 				return new ArrayList<>();
 			}
@@ -93,6 +93,29 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		}finally{
 			unitOfWork.end();
 		}
+	}
+	@Override
+	public List<SingleCarparkUser> findUserByMonthChargeId(Long id) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+			c.add(Restrictions.eq("monthChargeId", id));
+			return c.getResultList();
+		}finally{
+			unitOfWork.end();
+		}
+	}
+	@Transactional
+	public Long saveUserByMany(List<SingleCarparkUser> list) {
+		for (SingleCarparkUser user : list) {
+			DatabaseOperation<SingleCarparkUser> dom = DatabaseOperation.forClass(SingleCarparkUser.class, emprovider.get());
+			if (user.getId() == null) {
+				dom.insert(user);
+			} else {
+				dom.save(user);
+			}
+		}
+		return list.size()*1L;
 	}
 
 }

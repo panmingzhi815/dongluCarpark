@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.FillLayout;
@@ -36,9 +37,14 @@ public class AddBlackUserWizardPage extends WizardPage {
 	 */
 	public AddBlackUserWizardPage(SingleCarparkBlackUser model) {
 		super("wizardPage");
-		setTitle("添加固定用户");
-		setDescription("添加固定用户");
 		this.model=model;
+		if (StrUtil.isEmpty(model.getPlateNO())) {
+			setTitle("添加黑名单");
+			setDescription("添加黑名单");
+		}else{
+			setTitle("修改黑名单");
+			setDescription("修改黑名单");
+		}
 	}
 
 	/**

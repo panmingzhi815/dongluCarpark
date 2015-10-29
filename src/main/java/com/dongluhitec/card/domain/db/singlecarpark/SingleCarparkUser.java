@@ -30,6 +30,7 @@ public class SingleCarparkUser extends DomainObject {
 	private Date validTo;
 	private Integer remindDays;
 	private Integer delayDays;
+	private Long monthChargeId;//月租编号
 	
 	private String remark;
 	@ManyToOne
@@ -125,5 +126,13 @@ public class SingleCarparkUser extends DomainObject {
 		this.delayDays = delayDays;
 		if (pcs != null)
 			pcs.firePropertyChange("delayDays", null, null);
+	}
+	public Long getMonthChargeId() {
+		return monthChargeId;
+	}
+	public void setMonthChargeId(Long monthChargeId) {
+		this.monthChargeId = monthChargeId;
+		if (pcs != null)
+			pcs.firePropertyChange("monthChargeId", null, null);
 	}
 }

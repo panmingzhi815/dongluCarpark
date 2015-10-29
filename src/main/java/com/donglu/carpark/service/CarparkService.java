@@ -239,6 +239,16 @@ public interface CarparkService {
 	 * @return
 	 */
 	Holiday findHolidayByDate(Date date);
+	/**
+	 * 根据编码查找月租设置
+	 * @param code
+	 * @return
+	 */
+	public SingleCarparkMonthlyCharge findMonthlyChargeByCode(String code);
+	
+	public List<CarparkChargeStandard> findAllCarparkChargeStandard();
+	
+	public SingleCarparkCarpark findCarparkByCode(String code);
 	
 	
 }

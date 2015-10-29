@@ -27,5 +27,20 @@ public class AddMonthChargeModel extends SingleCarparkMonthlyCharge {
 		model.setPrice(500);
 		return model;
 	}
+	public SingleCarparkMonthlyCharge getSingleCarparkMonthlyCharge() {
+		SingleCarparkMonthlyCharge monthlyCharge = new SingleCarparkMonthlyCharge();
+		monthlyCharge.setCarpark(getCarpark());
+		monthlyCharge.setCarType(getCarType());
+		monthlyCharge.setChargeCode(getChargeCode());
+		monthlyCharge.setChargeName(getChargeName());
+		monthlyCharge.setDelayDays(getDelayDays());
+		monthlyCharge.setExpiringDays(getExpiringDays());
+		monthlyCharge.setNote(getNote());
+		monthlyCharge.setParkType(getParkType());
+		monthlyCharge.setPrice(getPrice());
+		monthlyCharge.setRentingDays(getRentingDays());
+		monthlyCharge.setId(getId());
+		return monthlyCharge;
+	}
 	
 }

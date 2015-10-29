@@ -2,6 +2,7 @@ package com.donglu.carpark.ui;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import com.donglu.carpark.ui.view.CarparkPayHistoryPresenter;
 import com.donglu.carpark.ui.view.InOutHistoryPresenter;
 import com.donglu.carpark.ui.view.ReturnAccountPresenter;
 import com.donglu.carpark.ui.view.UserPresenter;
+import com.donglu.carpark.ui.wizard.AddCarparkChildWizard;
 import com.donglu.carpark.ui.wizard.AddCarparkWizard;
 import com.donglu.carpark.ui.wizard.AddMonthChargeWizard;
 import com.donglu.carpark.ui.wizard.AddSystemUserWizard;
@@ -124,19 +126,58 @@ public class CarparkManagePresenter {
 	 * 添加停车场
 	 */
 	public void addCarpark() {
+		SingleCarparkCarpark model = new SingleCarparkCarpark();
+		addAndEditCarpark(model);
+	}
+
+	/**
+	 * @param model
+	 */
+	private void addAndEditCarpark(SingleCarparkCarpark model) {
 		try {
 			CarparkService carparkService = sp.getCarparkService();
-			AddCarparkWizard w = new AddCarparkWizard(new SingleCarparkCarpark());
+			AddCarparkWizard w = new AddCarparkWizard(model,sp);
 			SingleCarparkCarpark showWizard = (SingleCarparkCarpark) commonui.showWizard(w);
 			if (StrUtil.isEmpty(showWizard)) {
 				return;
 			}
-			SingleCarparkCarpark carpark = carparkModel.getCarpark();
-			if (carpark != null) {
-				showWizard.setParent(carpark);
-			}
 			showWizard.setTempNumberOfSlot(showWizard.getTotalNumberOfSlot() - showWizard.getFixNumberOfSlot());
 			showWizard.setLeftNumberOfSlot(showWizard.getTotalNumberOfSlot());
+			carparkService.saveCarpark(showWizard);
+			refreshCarpark();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * 添加子停车场
+	 */
+	public void addChildCapark() {
+		SingleCarparkCarpark model = new SingleCarparkCarpark();
+		addAndEditChildCarpark(model);
+	}
+
+	/**
+	 * @param model
+	 */
+	private void addAndEditChildCarpark(SingleCarparkCarpark model) {
+		try {
+			SingleCarparkCarpark carpark = carparkModel.getCarpark();
+			if (carpark == null) {
+				commonui.info("提示", "请先选择一个停车场");
+				return;
+			}
+			CarparkService carparkService = sp.getCarparkService();
+			AddCarparkChildWizard w = new AddCarparkChildWizard(model,sp);
+			SingleCarparkCarpark showWizard = (SingleCarparkCarpark) commonui.showWizard(w);
+			if (StrUtil.isEmpty(showWizard)) {
+				return;
+			}
+			
+			showWizard.setParent(carpark);
+			showWizard.setTempNumberOfSlot(0);
+			showWizard.setLeftNumberOfSlot(0);
+			showWizard.setTotalNumberOfSlot(0);
 			carparkService.saveCarpark(showWizard);
 			refreshCarpark();
 		} catch (Exception e) {
@@ -149,15 +190,12 @@ public class CarparkManagePresenter {
 	 */
 	public void editCarpark() {
 		try {
-			AddCarparkWizard w = new AddCarparkWizard(carparkModel.getCarpark());
-			SingleCarparkCarpark showWizard = (SingleCarparkCarpark) commonui.showWizard(w);
-			if (StrUtil.isEmpty(showWizard)) {
-				return;
+			SingleCarparkCarpark carpark = carparkModel.getCarpark();
+			if (StrUtil.isEmpty(carpark.getParent())) {
+				addAndEditCarpark(carpark);
+			}else{
+				addAndEditChildCarpark(carpark);
 			}
-			showWizard.setTempNumberOfSlot(showWizard.getTotalNumberOfSlot()-showWizard.getFixNumberOfSlot());
-			CarparkService carparkService = sp.getCarparkService();
-			carparkService.saveCarpark(showWizard);
-			refreshCarpark();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -191,6 +229,7 @@ public class CarparkManagePresenter {
 			singleCarparkUser.setValidTo(m.getOverdueTime());
 			singleCarparkUser.setDelayDays(m.getSelectMonth().getDelayDays());
 			singleCarparkUser.setRemindDays(m.getSelectMonth().getExpiringDays());
+			singleCarparkUser.setMonthChargeId(m.getSelectMonth().getId());
 			m.setOperaName(System.getProperty("userName"));
 			sp.getCarparkUserService().saveUser(singleCarparkUser);
 			sp.getCarparkService().saveMonthlyUserPayHistory(m.getSingleCarparkMonthlyUserPayHistory());
@@ -236,6 +275,7 @@ public class CarparkManagePresenter {
 			if (!StrUtil.isEmpty(selectMonth)) {
 				user.setDelayDays(selectMonth.getDelayDays());
 				user.setRemindDays(selectMonth.getExpiringDays());
+				user.setMonthChargeId(selectMonth.getId());
 			}
 			carparkUserService.saveUser(user);
 			carparkService.saveMonthlyUserPayHistory(mm.getSingleCarparkMonthlyUserPayHistory());
@@ -333,6 +373,7 @@ public class CarparkManagePresenter {
 		refreshUser();
 		refreshSystemUser();
 		refreshSystemSetting();
+		refreshCarparkCharge();
 		// testDatabase();
 	}
 
@@ -392,9 +433,14 @@ public class CarparkManagePresenter {
 	 * 刷新停车场
 	 */
 	public void refreshCarpark() {
+		carparkModel.setListCarpark(Collections.emptyList());
 		CarparkService carparkService = sp.getCarparkService();
 		List<SingleCarparkCarpark> list = carparkService.findCarparkToLevel();
+		if (!StrUtil.isEmpty(list)) {
+			carparkModel.setCarpark(list.get(0));
+		}
 		carparkModel.setListCarpark(list);
+		view.expandAllCarpark();
 	}
 
 	public UserModel getUserModel() {
@@ -567,23 +613,21 @@ public class CarparkManagePresenter {
 
 	private void addAndEditMonthCharge(AddMonthChargeModel init) {
 		try {
-			AddMonthChargeWizard w = new AddMonthChargeWizard(init);
+			AddMonthChargeWizard w = new AddMonthChargeWizard(init,sp);
 			AddMonthChargeModel m = (AddMonthChargeModel) commonui.showWizard(w);
 			if (m == null) {
 				return;
 			}
-			SingleCarparkMonthlyCharge monthlyCharge = new SingleCarparkMonthlyCharge();
-			monthlyCharge.setCarpark(m.getCarpark());
-			monthlyCharge.setCarType(m.getCarType());
-			monthlyCharge.setChargeCode(m.getChargeCode());
-			monthlyCharge.setChargeName(m.getChargeName());
-			monthlyCharge.setDelayDays(m.getDelayDays());
-			monthlyCharge.setExpiringDays(m.getExpiringDays());
-			monthlyCharge.setNote(m.getNote());
-			monthlyCharge.setParkType(m.getParkType());
-			monthlyCharge.setPrice(m.getPrice());
-			monthlyCharge.setRentingDays(m.getRentingDays());
-			monthlyCharge.setId(m.getId());
+			SingleCarparkMonthlyCharge monthlyCharge=m.getSingleCarparkMonthlyCharge();
+			
+			if (!StrUtil.isEmpty(monthlyCharge.getId())) {
+				List<SingleCarparkUser> list=sp.getCarparkUserService().findUserByMonthChargeId(monthlyCharge.getId());
+				for (SingleCarparkUser singleCarparkUser : list) {
+					singleCarparkUser.setRemindDays(monthlyCharge.getExpiringDays());
+					singleCarparkUser.setDelayDays(monthlyCharge.getDelayDays());
+				}
+				sp.getCarparkUserService().saveUserByMany(list);
+			}
 			sp.getCarparkService().saveMonthlyCharge(monthlyCharge);
 			refreshCarparkCharge();
 		} catch (Exception e) {
@@ -644,6 +688,13 @@ public class CarparkManagePresenter {
 			cci.setCode(t.getCode());
 			cci.setName(t.getName());
 			cci.setId(t.getId());
+			if (t.getUsing()==null||!t.getUsing()) {
+				cci.setUseType("未启用");
+			}else{
+				cci.setUseType("已启用");
+			}
+			cci.setCarType(t.getCarparkCarType().getName());
+			cci.setHolidayType(t.getCarparkHolidayTypeEnum().name());
 			cci.setType("临时收费");
 			list.add(cci);
 		}
@@ -855,5 +906,55 @@ public class CarparkManagePresenter {
 			System.out.println(StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss"));
 		}
 	}
+	/**
+	 * 启用临时收费设置
+	 */
+	public void startUseTempCharge() {
+		try {
+			CarparkChargeInfo carparkChargeInfo = carparkModel.getCarparkChargeInfo();
+			if (carparkChargeInfo.getUseType().equals(CarparkChargeTypeEnum.固定月租收费)||carparkChargeInfo.getUseType().equals("已启用")) {
+				return;
+			}
+			List<CarparkChargeInfo> listCarparkCharge = carparkModel.getListCarparkCharge();
+			for (CarparkChargeInfo carparkChargeInfo2 : listCarparkCharge) {
+				if(!carparkChargeInfo.getUseType().equals(CarparkChargeTypeEnum.固定月租收费)){
+					if (carparkChargeInfo.getCarType().equals(carparkChargeInfo2.getCarType())) {
+						if (carparkChargeInfo.getHolidayType().equals(carparkChargeInfo2.getHolidayType())) {
+							if (carparkChargeInfo2.getUseType().equals("已启用")) {
+								commonui.error("启用失败", "已有车辆类型["+carparkChargeInfo2.getCarType()+"]节假日类型["+carparkChargeInfo2.getHolidayType()+"]的临时收费设置已被启用，请先禁止！");
+								return;
+							}
+						}
+					}
+				}
+			}
+			CarparkChargeStandard findCarparkChargeStandardByCode = sp.getCarparkService().findCarparkChargeStandardByCode(carparkChargeInfo.getCode());
+			findCarparkChargeStandardByCode.setUsing(true);
+			sp.getCarparkService().saveCarparkChargeStandard(findCarparkChargeStandardByCode);
+			refreshCarparkCharge();
+		} catch (Exception e) {
+			commonui.error("启用失败", "未知错误"+e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * 停用临时收费设置
+	 */
+	public void stopUseTempCharge() {
+		try {
+			CarparkChargeInfo carparkChargeInfo = carparkModel.getCarparkChargeInfo();
+			if (carparkChargeInfo.getUseType().equals(CarparkChargeTypeEnum.固定月租收费)||carparkChargeInfo.getUseType().equals("未启用")) {
+				return;
+			}
+			CarparkChargeStandard findCarparkChargeStandardByCode = sp.getCarparkService().findCarparkChargeStandardByCode(carparkChargeInfo.getCode());
+			findCarparkChargeStandardByCode.setUsing(false);
+			sp.getCarparkService().saveCarparkChargeStandard(findCarparkChargeStandardByCode);
+			refreshCarparkCharge();
+		} catch (Exception e) {
+			commonui.error("启用失败", "未知错误"+e.getMessage());
+			e.printStackTrace();
+		}
+	}
 
+	
 }

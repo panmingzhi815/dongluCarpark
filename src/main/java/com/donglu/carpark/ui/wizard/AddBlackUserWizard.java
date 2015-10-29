@@ -11,8 +11,12 @@ public class AddBlackUserWizard extends Wizard implements AbstractWizard{
 	SingleCarparkBlackUser model;
 	private AddBlackUserWizardPage page;
 	public AddBlackUserWizard(SingleCarparkBlackUser model) {
-		setWindowTitle("添加黑名单");
 		this.model=model;
+		if (StrUtil.isEmpty(model.getPlateNO())) {
+			setWindowTitle("添加黑名单");
+		}else{
+			setWindowTitle("修改黑名单");
+		}
 	}
 
 	@Override

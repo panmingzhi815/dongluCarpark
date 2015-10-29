@@ -14,6 +14,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.widgets.DateTime;
@@ -87,7 +88,7 @@ public class InOutHistoryView extends Composite implements View{
 		Label lblNewLabel = new Label(group, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel.setText("进设备");
+		lblNewLabel.setText("进场设备");
 		
 		text_inDevice = new Text(group, SWT.BORDER);
 		text_inDevice.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -101,7 +102,10 @@ public class InOutHistoryView extends Composite implements View{
 		text_operaName = new Text(group, SWT.BORDER);
 		text_operaName.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_operaName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		
+		if (System.getProperty("userType").equals(SystemUserTypeEnum.操作员.name())) {
+			text_operaName.setEditable(false);
+			text_operaName.setText(System.getProperty("userName"));
+		}
 		Label lblNewLabel_2 = new Label(group, SWT.NONE);
 		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -161,7 +165,7 @@ public class InOutHistoryView extends Composite implements View{
 		Label lblNewLabel_1 = new Label(group, SWT.NONE);
 		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_1.setText("出设备");
+		lblNewLabel_1.setText("出场设备");
 		
 		text_outDevice = new Text(group, SWT.BORDER);
 		text_outDevice.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

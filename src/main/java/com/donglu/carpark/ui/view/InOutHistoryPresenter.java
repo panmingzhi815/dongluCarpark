@@ -14,6 +14,7 @@ public class InOutHistoryPresenter  extends AbstractListPresenter{
 	private InOutHistoryView view;
 	@Inject
 	private InOutHistoryListPresenter listPresenter;
+	
 	@Override
 	public void go(Composite c) {
 		view=new InOutHistoryView(c, c.getStyle());
@@ -31,5 +32,4 @@ public class InOutHistoryPresenter  extends AbstractListPresenter{
 	public InOutHistoryListPresenter getListPresenter() {
 		return listPresenter;
 	}
-	
 }

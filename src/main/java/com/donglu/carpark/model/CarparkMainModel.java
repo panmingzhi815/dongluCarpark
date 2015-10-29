@@ -49,6 +49,12 @@ public class CarparkMainModel extends DomainObject{
 	boolean outCheckClick=false;
 	boolean handSearch=false;
 	
+	boolean selectCarType=false;
+	boolean comboCarTypeEnable=false;
+	
+	
+	String carparkCarType;
+	
 	public String getUserName() {
 		return userName;
 	}
@@ -306,4 +312,28 @@ public class CarparkMainModel extends DomainObject{
 		if (pcs != null)
 			pcs.firePropertyChange("handSearch", null, null);
 	}
+	public boolean isSelectCarType() {
+		return selectCarType;
+	}
+	public void setSelectCarType(boolean selectCarType) {
+		this.selectCarType = selectCarType;
+		if (pcs != null)
+			pcs.firePropertyChange("selectCarType", null, null);
+	}
+	public void setCarparkCarType(String carparkCarType) {
+		this.carparkCarType=carparkCarType;
+	}
+	public String getCarparkCarType() {
+		return carparkCarType;
+	}
+	
+	public boolean isComboCarTypeEnable() {
+		return comboCarTypeEnable;
+	}
+	public void setComboCarTypeEnable(boolean comboCarTypeEnable) {
+		this.comboCarTypeEnable = comboCarTypeEnable;
+		if (pcs != null)
+			pcs.firePropertyChange("comboCarTypeEnable", null, null);
+	}
+
 }

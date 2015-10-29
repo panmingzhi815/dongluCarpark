@@ -13,6 +13,8 @@ import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.carpark.MonthlyCarparkCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationStandard;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -33,7 +35,7 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
    
 	private CarparkDatabaseServiceProvider sp;
     
-    private NewCommonChargeBasicPage newCommonChargeBasicPage;
+    private NewCommonChargeBasicPage page;
     
     public NewCommonChargeWizard(NewCommonChargeModel model,CarparkDatabaseServiceProvider sp,CommonUIFacility commonui) {
         this.model = model;
@@ -44,8 +46,8 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
 
     @Override
     public void addPages() {
-        newCommonChargeBasicPage = new NewCommonChargeBasicPage(model);
-        addPage(newCommonChargeBasicPage);
+        page = new NewCommonChargeBasicPage(model);
+        addPage(page);
 
         getShell().setSize(700, 700);
     }
@@ -57,14 +59,34 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
 
     @Override
     public boolean performFinish() {
-    	
+    	String code = model.getCode();
+    	String name = model.getName();
+    	if (StrUtil.isEmpty(name)||StrUtil.isEmpty(code)) {
+    		page.setErrorMessage("请填写完整信息");
+			return false;
+		}
+    	try {
+			int parseInt = Integer.parseInt(code);
+			if (parseInt<0||parseInt>99) {
+				page.setErrorMessage("编码只能为0-99的数字");
+				return false;
+			}
+			if (parseInt>=0&&parseInt<=9) {
+				model.setCode("0"+parseInt);
+			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			page.setErrorMessage("编码只能为0-99的数字");
+			return false;
+			
+		}
     	if(checkCodeHasOverride()){
     		commonui.error("错误", "该收费编码己存在,请重新输入");
     		return false;
     	}
     	
     	//收集数据
-    	List<CarparkDurationStandard> durationTable = newCommonChargeBasicPage.getDurationTable();
+    	List<CarparkDurationStandard> durationTable = page.getDurationTable();
     	this.model.setCarparkDurationStandards(durationTable);
     	
     	
@@ -124,10 +146,10 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
     	if(carparkChargeStandard != null && carparkChargeStandard.getId() != this.getModel().getId()){
     		return true;
     	}
-//    	MonthlyCarparkCharge monthlyCarparkCharge = carparkService.findMonthlyCarparkChargeByCode(this.getModel().getCode());
-//    	if(monthlyCarparkCharge != null && monthlyCarparkCharge.getId() != this.getModel().getId()){
-//    		return true;
-//    	}
+    	SingleCarparkMonthlyCharge findMonthlyChargeByCode = sp.getCarparkService().findMonthlyChargeByCode(model.getCode());
+    	if (!StrUtil.isEmpty(findMonthlyChargeByCode)) {
+			return true;
+		}
     	return false;
     }
     

@@ -20,6 +20,8 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.util.StrUtil;
+
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.beans.BeanProperties;
@@ -47,9 +49,14 @@ public class AddUserWizardPage extends WizardPage {
 	 */
 	public AddUserWizardPage(AddUserModel model) {
 		super("wizardPage");
-		setTitle("添加固定用户");
-		setDescription("添加固定用户");
 		this.model=model;
+		if (StrUtil.isEmpty(model.getPlateNo())) {
+			setTitle("添加固定用户");
+			setDescription("添加固定用户");
+		}else{
+			setTitle("修改固定用户");
+			setDescription("修改固定用户");
+		}
 	}
 
 	/**

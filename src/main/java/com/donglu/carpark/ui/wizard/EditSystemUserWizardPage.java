@@ -38,8 +38,8 @@ public class EditSystemUserWizardPage extends WizardPage {
 	 */
 	public EditSystemUserWizardPage(SystemUserModel model) {
 		super("wizardPage");
-		setTitle("添加固定用户");
-		setDescription("添加固定用户");
+		setTitle("编辑系统用户");
+		setDescription("编辑系统用户");
 		this.model=model;
 	}
 

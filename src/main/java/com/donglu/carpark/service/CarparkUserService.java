@@ -11,4 +11,7 @@ public interface CarparkUserService {
 	List<SingleCarparkUser> findAll();
 	List<SingleCarparkUser> findByNameOrPlateNo(String name,String plateNo);
 	List<SingleCarparkUser> findUserByPlateNo(String plateNO);
+	
+	List<SingleCarparkUser> findUserByMonthChargeId(Long id);
+	Long saveUserByMany(List<SingleCarparkUser> list);
 }

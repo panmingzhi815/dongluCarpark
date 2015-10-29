@@ -12,7 +12,7 @@ public class EditSystemUserWizard extends Wizard implements AbstractWizard{
 	private EditSystemUserWizardPage page;
 	public EditSystemUserWizard(SystemUserModel model) {
 		this.model=model;
-		setWindowTitle("添加系统用户");
+		setWindowTitle("编辑系统用户");
 	}
 
 	@Override

@@ -62,7 +62,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		return StrUtil.formatDate(inTime, "yyyy-MM-dd HH:mm:ss");
 	}
 	public String getOutTimeLabel(){
-		return StrUtil.formatDate(inTime, "yyyy-MM-dd HH:mm:ss");
+		return StrUtil.formatDate(outTime, "yyyy-MM-dd HH:mm:ss");
 	}
 	
 	public void setPlateNo(String plateNo) {

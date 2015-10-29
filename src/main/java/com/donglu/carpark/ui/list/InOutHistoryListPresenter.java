@@ -20,6 +20,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayH
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
@@ -40,6 +41,7 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter{
 	private String inDevice;
 	private String outDevice;
 	private Long returnAccount;
+	
 	
 	private SingleCarparkInOutHistory inOutHistory;
 	@Override
@@ -76,7 +78,7 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter{
 		this.userName=userName;
 		this.start=start;
 		this.end=end;
-		this.operaName=operaName;
+			this.operaName=operaName;
 		this.carType=carType;
 		this.inout=inout;
 		this.inDevice=inDevice;
@@ -126,5 +128,4 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter{
 	public SingleCarparkInOutHistory getInOutHistory() {
 		return inOutHistory;
 	}
-	
 }

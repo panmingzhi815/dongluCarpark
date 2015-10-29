@@ -17,9 +17,9 @@ public class CarparkModel extends DomainObject{
 		return listCarpark;
 	}
 	public void setListCarpark(List<SingleCarparkCarpark> listCarpark) {
-		this.listCarpark = listCarpark;
-		if (pcs != null)
-			pcs.firePropertyChange("listCarpark", null, null);
+		this.listCarpark.clear();
+		this.listCarpark.addAll(listCarpark);
+		firePropertyChange("listCarpark", null, null);
 	}
 	public SingleCarparkCarpark getCarpark() {
 		return carpark;

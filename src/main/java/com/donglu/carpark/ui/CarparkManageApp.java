@@ -1,8 +1,6 @@
 package com.donglu.carpark.ui;
 
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.Map;
 
 import org.eclipse.core.databinding.DataBindingContext;
@@ -13,22 +11,18 @@ import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.TreeViewerColumn;
-import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -39,9 +33,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
@@ -56,7 +48,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.wb.rcp.databinding.BeansListObservableFactory;
 import org.eclipse.wb.rcp.databinding.TreeBeanAdvisor;
 import org.eclipse.wb.rcp.databinding.TreeObservableLabelProvider;
@@ -68,11 +59,10 @@ import com.donglu.carpark.model.CarparkModel;
 import com.donglu.carpark.model.InOutHistoryModel;
 import com.donglu.carpark.model.SystemUserModel;
 import com.donglu.carpark.model.UserModel;
+import com.donglu.carpark.ui.common.AbstractApp;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
-import com.dongluhitec.card.common.ui.impl.SWTContainer;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
@@ -83,12 +73,6 @@ import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.donglu.carpark.ui.common.AbstractApp;
-import com.donglu.carpark.ui.common.App;
-import com.donglu.carpark.ui.list.CarparkPayHistoryListView;
-import com.donglu.carpark.ui.wizard.AddBlackUserWizard;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 
 public class CarparkManageApp extends AbstractApp{
 	private DataBindingContext m_bindingContext;
@@ -232,7 +216,16 @@ public class CarparkManageApp extends AbstractApp{
 				presenter.addCarpark();
 			}
 		});
-		toolItem_add.setText("添加");
+		toolItem_add.setText("添加主停车场");
+		
+		ToolItem toolItem_13 = new ToolItem(carparkConfigToolBar, SWT.NONE);
+		toolItem_13.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.addChildCapark();
+			}
+		});
+		toolItem_13.setText("添加子停车场");
 		
 		ToolItem toolItem_1 = new ToolItem(carparkConfigToolBar, SWT.NONE);
 		toolItem_1.addSelectionListener(new SelectionAdapter() {
@@ -321,6 +314,26 @@ public class CarparkManageApp extends AbstractApp{
 		toolItem_8.setToolTipText("修改");
 		toolItem_8.setText("修改");
 		
+		ToolItem toolItem_9 = new ToolItem(toolBar_1, SWT.NONE);
+		toolItem_9.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.startUseTempCharge();
+			}
+		});
+		toolItem_9.setToolTipText("启用临时收费设置");
+		toolItem_9.setText("启用");
+		
+		ToolItem toolItem_12 = new ToolItem(toolBar_1, SWT.NONE);
+		toolItem_12.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.stopUseTempCharge();
+			}
+		});
+		toolItem_12.setToolTipText("禁用停车场收费设置");
+		toolItem_12.setText("禁用");
+		
 		ToolItem toolItem_6 = new ToolItem(toolBar_1, SWT.NONE);
 		toolItem_6.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -351,6 +364,21 @@ public class CarparkManageApp extends AbstractApp{
 		TableColumn tblclmnNewColumn = tableViewerColumn_1.getColumn();
 		tblclmnNewColumn.setWidth(114);
 		tblclmnNewColumn.setText("收费类型");
+		
+		TableViewerColumn tableViewerColumn_2 = new TableViewerColumn(tableViewer, SWT.NONE);
+		TableColumn tableColumn_1 = tableViewerColumn_2.getColumn();
+		tableColumn_1.setWidth(100);
+		tableColumn_1.setText("车辆类型");
+		
+		TableViewerColumn tableViewerColumn_4 = new TableViewerColumn(tableViewer, SWT.NONE);
+		TableColumn tableColumn_3 = tableViewerColumn_4.getColumn();
+		tableColumn_3.setWidth(100);
+		tableColumn_3.setText("节假日类型");
+		
+		TableViewerColumn tableViewerColumn_3 = new TableViewerColumn(tableViewer, SWT.NONE);
+		TableColumn tableColumn_2 = tableViewerColumn_3.getColumn();
+		tableColumn_2.setWidth(100);
+		tableColumn_2.setText("是否启用");
 		sashForm_1.setWeights(new int[] {1, 1});
 		sashForm.setWeights(new int[] {1});
 		
@@ -1047,7 +1075,6 @@ public class CarparkManageApp extends AbstractApp{
 
 	@Override
 	public boolean isOpen() {
-		// TODO 自动生成的方法存根
 		return false;
 	}
 	protected DataBindingContext initDataBindings() {
@@ -1091,7 +1118,7 @@ public class CarparkManageApp extends AbstractApp{
 		bindingContext.bindList(observeMultiSelectionTableViewer_1, selectListSystemUserModelObserveList, null, null);
 		//
 		ObservableListContentProvider listContentProvider_2 = new ObservableListContentProvider();
-		IObservableMap[] observeMaps_2 = BeansObservables.observeMaps(listContentProvider_2.getKnownElements(), CarparkChargeInfo.class, new String[]{"code", "name", "type"});
+		IObservableMap[] observeMaps_2 = BeansObservables.observeMaps(listContentProvider_2.getKnownElements(), CarparkChargeInfo.class, new String[]{"code", "name", "type", "carType", "holidayType", "useType"});
 		tableViewer.setLabelProvider(new ObservableMapLabelProvider(observeMaps_2));
 		tableViewer.setContentProvider(listContentProvider_2);
 		//
@@ -1103,5 +1130,14 @@ public class CarparkManageApp extends AbstractApp{
 		bindingContext.bindValue(observeSingleSelectionTableViewer, carparkChargeInfoCarparkModelObserveValue, null, null);
 		//
 		return bindingContext;
+	}
+
+	public void expandAllCarpark() {
+		if(shell == null || shell.isDisposed()){
+			return;
+		}
+		shell.getDisplay().asyncExec(()->{
+			treeViewer.expandAll();
+		});
 	}
 }

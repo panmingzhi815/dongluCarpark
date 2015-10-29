@@ -79,6 +79,8 @@ public class CarparkChargeStandard extends DomainObject{
 	@Enumerated
 	@Column(name = "workday_type")
 	private CarparkHolidayTypeEnum carparkHolidayTypeEnum;
+	//是否启用
+	private Boolean using;
 	
 	@OneToMany(mappedBy="carparkChargeStandard",cascade=CascadeType.ALL)
 	private List<CarparkDurationStandard> carparkDurationStandards = new ArrayList<CarparkDurationStandard>();;
@@ -220,4 +222,14 @@ public class CarparkChargeStandard extends DomainObject{
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
+
+	public Boolean getUsing() {
+		return using;
+	}
+
+	public void setUsing(Boolean using) {
+		this.using = using;
+		if (pcs != null)
+			pcs.firePropertyChange("using", null, null);
+	}
 }

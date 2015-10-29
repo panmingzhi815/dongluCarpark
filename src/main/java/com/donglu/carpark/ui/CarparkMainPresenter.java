@@ -24,14 +24,12 @@ import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.model.SearchErrorCarModel;
-import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.service.CountTempCarChargeI;
 import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
-import com.donglu.carpark.ui.common.ShowDialog;
 import com.donglu.carpark.ui.view.InOutHistoryPresenter;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
 import com.donglu.carpark.ui.wizard.AddDeviceModel;
@@ -54,6 +52,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
@@ -105,8 +104,6 @@ public class CarparkMainPresenter {
 	private CarparkMainApp view;
 
 	private App app;
-	private App searchApp;
-
 	public void setCarNo() {
 
 	}
@@ -138,6 +135,10 @@ public class CarparkMainPresenter {
 	 */
 	public void addDevice(CTabFolder tabFolder, String type) {
 		try {
+			if (tabFolder.getItems().length>=4) {
+				commonui.info("提示", type+"最多只能添加4个设备");
+				return;
+			}
 			AddDeviceModel model = new AddDeviceModel();
 			model.setList(sp.getCarparkService().findAllCarpark());
 			model.setType("tcp");
@@ -446,7 +447,9 @@ public class CarparkMainPresenter {
 		try {
 			if (opDoor) {
 				Device d = getDevice(device);
-    			return hardwareService.carparkContentVoiceAndOpenDoor(d, content, device.getVolume()==null?1:device.getVolume());
+    			Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoor(d, content, device.getVolume()==null?1:device.getVolume());
+    			openDoorToPhotograph(device.getIp());
+				return carparkContentVoiceAndOpenDoor;
 			}else{
     			Device d = getDevice(device);
     			return hardwareService.carparkContentVoice(d, content, device.getVolume()==null?1:device.getVolume());
@@ -504,12 +507,16 @@ public class CarparkMainPresenter {
 			for (String string : keySet) {
 				showPositionToDevice(mapIpToDevice.get(string), model.getTotalSlot());
 			}
+			openDoorToPhotograph(device.getIp());
 			return carparkOpenDoor;
 		} catch (Exception e) {
 			return false;
 		}
 	}
-
+	
+	public void openDoorToPhotograph(String ip){
+		xinlutongJNA.openDoor(ip);
+	}
 	public boolean showUsualContentToDevice(SingleCarparkDevice device, String usualContent) {
 		try {
 			Boolean carparkUsualContent = hardwareService.carparkUsualContent(getDevice(device), usualContent);
@@ -653,16 +660,16 @@ public class CarparkMainPresenter {
 			File file2 = new File(finalFileName);
 			file2.createNewFile();
 			Files.write(bigImage, file2);
-			String ip = CarparkServerConfig.getInstance().getDbServerIp();
+			String ip = CarparkClientConfig.getInstance().getDbServerIp();
 			if (true) {
 				long nanoTime = System.nanoTime();
-				LOGGER.info("准备将图片{}上传到服务器",finalFileName);
+				LOGGER.info("准备将图片{}上传到服务器{}",finalFileName,ip);
 				try {
 					FileuploadSend.upload("http://"+ip+":8899/carparkImage/", finalFileName);
-					LOGGER.info("图片上传到服务器成功");
+					LOGGER.info("图片上传到服务器{}成功",ip);
 				} catch (Exception e) {
 					e.printStackTrace();
-					LOGGER.error("图片上传到服务器失败");
+					LOGGER.error("图片上传到服务器{}失败",ip);
 				}finally{
 					LOGGER.info("上传图片花费时间：{}",System.nanoTime()-nanoTime);
 				}
@@ -685,8 +692,11 @@ public class CarparkMainPresenter {
 		}
 		
 	}
-
-	public void showManualSearch() {
+	/**
+	 *人工查找
+	 * @param data 
+	 */
+	public void showManualSearch(String plateNO) {
 		try {
 			searchErrorCarPresenter.getModel().setPlateNo(model.getOutShowPlateNO());
 			searchErrorCarPresenter.getModel().setHavePlateNoSelect(null);
@@ -702,10 +712,17 @@ public class CarparkMainPresenter {
 				return;
 			}
 			SearchErrorCarModel m = searchErrorCarPresenter.getModel();
+			select.setOutPlateNO(plateNO);
 			if (!m.isInOrOut()) {
 				select.setPlateNo(m.getPlateNo());
-				sp.getCarparkInOutService().saveInOutHistory(select);
+				List<SingleCarparkUser> findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(m.getPlateNo());
+				if (StrUtil.isEmpty(findUserByPlateNo)) {
+					select.setCarType("临时车");
+				}else{
+					select.setCarType("固定车");
+				}
 			}
+			sp.getCarparkInOutService().saveInOutHistory(select);
 			view.invok(model.getIp(), 0, select.getPlateNo(), m.getBigImg(), m.getSmallImg());
 		} catch (Exception e) {
 			e.printStackTrace();

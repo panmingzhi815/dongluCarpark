@@ -30,27 +30,20 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 
 	@Override
 	public void add() {
-		try {
-			AddBlackUserWizard wizard=new AddBlackUserWizard(new  SingleCarparkBlackUser());
-			SingleCarparkBlackUser b = (SingleCarparkBlackUser) commonui.showWizard(wizard);
-			if (StrUtil.isEmpty(b)) {
-				return;
-			}
-			sp.getCarparkService().saveBlackUser(b);
-			refresh();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		addAndEditBlackUser(new SingleCarparkBlackUser());
 	}
 	@Override
 	public void delete(List<SingleCarparkBlackUser> list) {
 		try {
-			List<SingleCarparkBlackUser> selected = view.getModel().getSelected();
-			if (StrUtil.isEmpty(selected)) {
+			if (StrUtil.isEmpty(list)) {
 				commonui.info("删除提示", "请选择一个黑名单");
 				return;
 			}
-			for (SingleCarparkBlackUser b : selected) {
+			boolean confirm = commonui.confirm("删除提示", "确认删除选中"+list.size()+"的条记录");
+			if (!confirm) {
+				return;
+			}
+			for (SingleCarparkBlackUser b : list) {
 				sp.getCarparkService().deleteBlackUser(b);
 			}
 			refresh();
@@ -66,6 +59,33 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 		model.setList(list);
 		model.setCountSearch(list.size());
 		model.setCountSearchAll(list.size());
+	}
+
+	public void edit() {
+		List<SingleCarparkBlackUser> selected = view.getModel().getSelected();
+		if (StrUtil.isEmpty(selected)) {
+			return;
+		}
+		SingleCarparkBlackUser singleCarparkBlackUser = selected.get(0);
+		addAndEditBlackUser(singleCarparkBlackUser);
+		
+	}
+
+	/**
+	 * @param singleCarparkBlackUser
+	 */
+	private void addAndEditBlackUser(SingleCarparkBlackUser singleCarparkBlackUser) {
+		try {
+			AddBlackUserWizard wizard=new AddBlackUserWizard(singleCarparkBlackUser);
+			SingleCarparkBlackUser b = (SingleCarparkBlackUser) commonui.showWizard(wizard);
+			if (StrUtil.isEmpty(b)) {
+				return;
+			}
+			sp.getCarparkService().saveBlackUser(b);
+			refresh();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 }

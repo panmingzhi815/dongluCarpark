@@ -11,14 +11,17 @@ import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.WidgetUtil;
 
-
-public class AddUserWizard extends Wizard implements AbstractWizard{
+public class AddUserWizard extends Wizard implements AbstractWizard {
 	AddUserModel model;
 	private AddUserWizardPage page;
-	
+
 	public AddUserWizard(AddUserModel model) {
-		this.model=model;
-		setWindowTitle("添加固定用户");
+		this.model = model;
+		if (StrUtil.isEmpty(model.getPlateNo())) {
+			setWindowTitle("添加固定用户");
+		} else {
+			setWindowTitle("修改固定用户");
+		}
 	}
 
 	@Override
@@ -28,22 +31,27 @@ public class AddUserWizard extends Wizard implements AbstractWizard{
 		if (!StrUtil.isEmpty(model.getModel())) {
 			addPage(new MonthlyUserPayBasicPage(model.getModel()));
 		}
-		getShell().setSize(450,650);
+		getShell().setSize(450, 650);
 		WidgetUtil.center(getShell());
 	}
 
 	@Override
 	public boolean performFinish() {
-		if (!StrUtil.isEmpty(model.getModel()))
-		if (StrUtil.isEmpty(model.getModel().getOverdueTime())) {
-			page.setErrorMessage("固定用户必须有个有效期");
+		if (!StrUtil.isEmpty(model.getModel())) {
+			if (StrUtil.isEmpty(model.getModel().getOverdueTime())) {
+				page.setErrorMessage("固定用户必须有个有效期");
+				return false;
+			}
+		}
+		if (model.getPlateNo().length()>8) {
+			page.setErrorMessage("请输入正确车牌");
 			return false;
 		}
 		return true;
 	}
 
 	public Object getModel() {
-		
+
 		return model;
 	}
 
@@ -60,5 +68,4 @@ public class AddUserWizard extends Wizard implements AbstractWizard{
 		return super.getNextPage(page);
 	}
 
-	
 }

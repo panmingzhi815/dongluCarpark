@@ -1,9 +1,13 @@
 package com.donglu.carpark.ui.list;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 import com.donglu.carpark.ui.common.AbstractListView;
-import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 
@@ -18,8 +22,23 @@ public class BlackUserListView extends AbstractListView<SingleCarparkBlackUser> 
 	public BlackUserListPresenter getPresenter() {
 		return (BlackUserListPresenter) presenter;
 	}
-
+	
+	
+	
 	@Override
 	protected void searchMore() {
+	}
+
+	@Override
+	protected void createMenuBarToolItem(ToolBar toolBar_menu) {
+		super.createMenuBarToolItem(toolBar_menu);
+		ToolItem toolItem_add = new ToolItem(toolBar_menu, SWT.NONE);
+		toolItem_add.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().edit();
+			}
+		});
+		toolItem_add.setText("修改");
 	}
 }
