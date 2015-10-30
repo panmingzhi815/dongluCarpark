@@ -82,8 +82,6 @@ public class Login {
 	@Inject
 	private CarparkMainApp carparkMainApp;
 	@Inject
-	private ServerUI serverUI;
-	@Inject
 	private CarparkDatabaseServiceProvider sp;
 	private final String selectType="LoginSelectType";
 	private App app;
@@ -310,8 +308,7 @@ public class Login {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			LOGGER.error("main is error"+"界面出错======="+e.getMessage());
+			LOGGER.error("main is error"+"界面出错======="+e);
 //			app.disponse();
 //			app.setShell(new Shell());
 //			app.open();

@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.ui.CarparkClientConfig;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.exception.DongluAppException;
@@ -44,13 +45,19 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.DisposeEvent;
 
 public class InOutHistoryDetailWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
 	private SingleCarparkInOutHistory model;
 	private String file;
-	private Label lbl_bigImg;
-	private Label lbl_outSmallImg;
+	private Label lbl_inBigImg;
+	private Label lbl_outBigImg;
+	private SashForm sashForm;
+	private Image inImage;
+	private Image outImage;
 	/**
 	 * Create the wizard.
 	 * @param model 
@@ -69,6 +76,19 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 	 * @param parent
 	 */
 	public void createControl(Composite parent) {
+		parent.addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				System.out.println("InOutHistoryDetailWizardPage is dispose");
+				if (inImage!=null) {
+					inImage.dispose();
+					inImage=null;
+				}
+				if (outImage!=null) {
+					outImage.dispose();
+					outImage=null;
+				}
+			}
+		});
 		Composite container = new Composite(parent, SWT.NULL);
 
 		setControl(container);
@@ -83,75 +103,88 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		
 		Composite composite_1 = new Composite(composite, SWT.NONE);
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		composite_1.setLayout(new GridLayout(3, false));
-		
-		Composite composite_3 = new Composite(composite_1, SWT.NONE);
-		GridData gd_composite_3 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-		gd_composite_3.widthHint = 232;
-		composite_3.setLayoutData(gd_composite_3);
-		GridLayout gl_composite_3 = new GridLayout(1, false);
-		gl_composite_3.verticalSpacing = 0;
-		gl_composite_3.marginWidth = 0;
-		gl_composite_3.marginHeight = 0;
-		gl_composite_3.horizontalSpacing = 0;
-		composite_3.setLayout(gl_composite_3);
-		
-		Label lbl_inSmallImg = new Label(composite_3, SWT.NONE);
-		lbl_inSmallImg.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, true, 1, 1));
-		
-		Composite composite_2 = new Composite(composite_1, SWT.NONE);
-		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
-		GridData gd_composite_2 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-		gd_composite_2.heightHint = 56;
-		gd_composite_2.widthHint = 262;
-		composite_2.setLayoutData(gd_composite_2);
-		
-		lbl_outSmallImg = new Label(composite_2, SWT.NONE);
-		lbl_outSmallImg.setBounds(0, 0, 249, 60);
+		composite_1.setLayout(new GridLayout(1, false));
 		
 		Button button = new Button(composite_1, SWT.NONE);
 		button.setLayoutData(new GridData(SWT.LEFT, SWT.BOTTOM, false, false, 1, 1));
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getWizard().init();
+				setImage();
 			}
 		});
 		button.setText("刷新");
-		Composite composite_4 = new Composite(composite, SWT.NONE);
-		composite_4.setLayout(new FillLayout(SWT.HORIZONTAL));
-		composite_4.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
-		lbl_bigImg = new Label(composite_4, SWT.NONE);
-		lbl_bigImg.setBounds(0, 0, 550, 350);
-		setBigImg();
-		setSmallImg();
+		sashForm = new SashForm(composite, SWT.NONE);
+		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		Composite composite_4 = new Composite(sashForm, SWT.NONE);
+		composite_4.setLayout(new GridLayout(1, false));
+		
+		lbl_inBigImg = new Label(composite_4, SWT.NONE);
+		lbl_inBigImg.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		Composite composite_5 = new Composite(sashForm, SWT.NONE);
+		composite_5.setLayout(new GridLayout(1, false));
+		
+		lbl_outBigImg = new Label(composite_5, SWT.NONE);
+		lbl_outBigImg.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		lbl_outBigImg.setBounds(0, 0, 400, 500);
+		lbl_inBigImg.setBounds(0, 0, 400, 500);
+		sashForm.setWeights(new int[] {1, 1});
+		setImage();
 		m_bindingContext = initDataBindings();
 	}
 	
+	private void setImage() {
+		try {
+			if (inImage!=null) {
+				inImage.dispose();
+				inImage=null;
+			}
+			if (outImage!=null) {
+				outImage.dispose();
+				outImage=null;
+			}
+			
+			inImage = CarparkUtils.getImage(CarparkUtils.getImageByte(file,model.getBigImg()), lbl_inBigImg, getShell());
+			lbl_inBigImg.setImage(inImage);
+			outImage = CarparkUtils.getImage(CarparkUtils.getImageByte(file,model.getOutBigImg()), lbl_outBigImg, getShell());
+			lbl_outBigImg.setImage(inImage);
+			if (StrUtil.isEmpty(outImage)) {
+				sashForm.setWeights(new int[]{1,0});
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+
 	public void setBigImg(){
 		try {
-			Image image2 = getImage(getByte(model.getBigImg()), lbl_bigImg);
-			lbl_bigImg.setImage(image2);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	protected Image getImage(byte[] image, Label lbl) {
-		if (image==null) {
+	protected Image getImage(byte[] image, Label lbl,Shell shell) {
+		if (image==null||image.length<=0) {
 			return null;
 		}
 		ByteArrayInputStream stream = null;
 		try {
 			stream = new ByteArrayInputStream(image);
-			Image newImg = new Image(getShell().getDisplay(), stream);
+			Image newImg = new Image(shell.getDisplay(), stream);
 			Rectangle rectangle = lbl.getBounds();
+			System.out.println(rectangle);
+			if (rectangle.width==0) {
+				return newImg;
+			}
 			ImageData data = newImg.getImageData().scaledTo(rectangle.width, rectangle.height);
 			ImageDescriptor createFromImageData = ImageDescriptor.createFromImageData(data);
 			Image createImg = createFromImageData.createImage();
 			newImg.dispose();
 			newImg = null;
-			lbl.setText("");
 			return createImg;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -166,10 +199,13 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 			}
 		}
 	}
-	protected byte[] getByte(String img) {
+	protected byte[] getImageByte(String filePath,String img) {
+		if (StrUtil.isEmpty(img)) {
+			return null;
+		}
 		try {
 			byte[] image;
-			File file=new File(this.file+"/img/"+img);
+			File file=new File(filePath+"/img/"+img);
 			if (file.exists()) {
 				image=Files.toByteArray(file);
 			}else{
@@ -189,16 +225,6 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 	public InOutHistoryDetailWizard getWizard() {
 		
 		return (InOutHistoryDetailWizard) super.getWizard();
-	}
-
-	public void setSmallImg() {
-		
-		try {
-			Image image2 = getImage(getByte(model.getSmallImg()), lbl_outSmallImg);
-			lbl_outSmallImg.setImage(image2);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();

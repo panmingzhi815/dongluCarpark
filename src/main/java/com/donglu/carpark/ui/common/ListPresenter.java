@@ -6,4 +6,5 @@ public interface ListPresenter<T> extends Presenter {
 	public void add();
 	void delete(List<T> list);
 	void refresh();
+	public void mouseDoubleClick(List<T> list);
 }

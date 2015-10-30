@@ -30,6 +30,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayH
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -145,6 +147,13 @@ public abstract class AbstractListView<T> extends Composite{
 		table.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
+		table.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				presenter.mouseDoubleClick(model.selected);
+			}
+		});
 		
 		for (int i = 0; i < columnProperties.length; i++) {
 			

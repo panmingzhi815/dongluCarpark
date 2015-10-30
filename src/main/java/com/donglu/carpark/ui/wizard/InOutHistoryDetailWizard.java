@@ -25,7 +25,6 @@ public class InOutHistoryDetailWizard extends Wizard implements AbstractWizard{
 
 	@Override
 	public boolean performFinish() {
-		init();
 		return false;
 	}
 
@@ -34,10 +33,4 @@ public class InOutHistoryDetailWizard extends Wizard implements AbstractWizard{
 		
 		return model;
 	}
-
-	public void init() {
-		page.setBigImg();
-		page.setSmallImg();
-	}
-
 }

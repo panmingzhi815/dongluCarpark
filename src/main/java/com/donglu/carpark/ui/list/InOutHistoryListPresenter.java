@@ -24,7 +24,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
-public class InOutHistoryListPresenter  extends AbstractListPresenter{
+public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarparkInOutHistory>{
 	private InOutHistoryListView v;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
@@ -129,4 +129,18 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter{
 	public SingleCarparkInOutHistory getInOutHistory() {
 		return inOutHistory;
 	}
+	@Override
+	public void mouseDoubleClick(List<SingleCarparkInOutHistory> list) {
+		try {
+			SingleCarparkInOutHistory h =list.get(0);
+			SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存位置.name());
+			InOutHistoryDetailWizard wizard =new InOutHistoryDetailWizard(h,
+					findSystemSettingByKey.getSettingValue()==null?SystemSettingTypeEnum.图片保存位置.getDefaultValue():findSystemSettingByKey.getSettingValue());
+			inOutHistory = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 }

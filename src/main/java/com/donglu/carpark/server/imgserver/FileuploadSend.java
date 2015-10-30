@@ -25,6 +25,7 @@ java.net.HttpURLConnection;
 import
 
 java.net.URL;
+import java.util.Base64;
 import java.util.Map;
 
 import org.apache.commons.io.input.CharSequenceInputStream;
@@ -55,7 +56,8 @@ public class FileuploadSend {
 			sb1.append(PREFFIX);
 			sb1.append(BOUNDARY);
 			sb1.append(LINEND);
-			sb1.append("Content-Disposition: form-data; name=\"file\";filename=\"" + FileName + "\"" + LINEND);
+			String encodeToString = Base64.getEncoder().encodeToString(FileName.getBytes("UTF-8"));
+			sb1.append("Content-Disposition: form-data; name=\"file\";filename=\"" + encodeToString + "\"" + LINEND);
 			sb1.append("Content-Type: application/octet-stream;chartset=" + CHARSET + LINEND);
 			sb1.append(LINEND);
 			// 写入到输出流中

@@ -9,7 +9,7 @@ import org.joda.time.DateTime;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CountTempCarChargeI;
-import com.donglu.carpark.ui.CarparkUtils;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkAcrossDayTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationPrice;

@@ -3,6 +3,7 @@ package com.donglu.carpark.server.servlet;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.Iterator;
 
 import javax.servlet.ServletException;
@@ -78,7 +79,10 @@ public class ImageUploadServlet extends HttpServlet {
 					if(!item.isFormField()) {
 						// 取出上传文件的文件名称
 						String name = item.getName();
-						 System.out.println("name"+name);
+						System.out.println("name"+name);
+						byte[] decode = Base64.getDecoder().decode(name);
+						name = new String(decode,"UTF-8");
+						System.out.println("string"+name);
 						String fileName =name.substring(name.lastIndexOf("img"), name.length());
 						 System.out.println("fileName="+fileName);
 						Object o=FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);

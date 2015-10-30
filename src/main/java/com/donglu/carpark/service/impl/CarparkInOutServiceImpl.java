@@ -16,7 +16,7 @@ import org.criteria4jpa.order.Order;
 import org.criteria4jpa.projection.Projections;
 
 import com.donglu.carpark.service.CarparkInOutServiceI;
-import com.donglu.carpark.ui.CarparkUtils;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;

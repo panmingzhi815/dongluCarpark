@@ -24,4 +24,8 @@ public abstract class AbstractListPresenter<T> implements ListPresenter<T> {
 		
 	}
 
+	@Override
+	public void mouseDoubleClick(List<T> list) {
+	}
+
 }

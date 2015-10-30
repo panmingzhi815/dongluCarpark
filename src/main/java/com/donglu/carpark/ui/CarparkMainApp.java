@@ -44,6 +44,7 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.ui.common.AbstractApp;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
@@ -150,10 +151,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 	private CarparkMainModel model;
 
-	private CLabel inBigImg;
-	private CLabel inSmallImg;
-	private CLabel outSmallImg;
-	private CLabel outBigImg;
+	private CLabel lbl_inBigImg;
+	private CLabel lbl_inSmallImg;
+	private CLabel lbl_outSmallImg;
+	private CLabel lbl_outBigImg;
 
 	private Image inSmallImage;
 	private Image inBigImage;
@@ -592,11 +593,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		composite_10.setLayout(new FillLayout(SWT.HORIZONTAL));
 		composite_10.setBounds(0, 0, 64, 64);
 
-		inSmallImg = new CLabel(composite_10, SWT.NONE);
-		inSmallImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
-		inSmallImg.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
-		inSmallImg.setAlignment(SWT.CENTER);
-		inSmallImg.setText("入场车牌");
+		lbl_inSmallImg = new CLabel(composite_10, SWT.NONE);
+		lbl_inSmallImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
+		lbl_inSmallImg.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
+		lbl_inSmallImg.setAlignment(SWT.CENTER);
+		lbl_inSmallImg.setText("入场车牌");
 
 		Composite composite_6 = new Composite(composite_3, SWT.NONE);
 		composite_6.setLayout(new GridLayout(3, false));
@@ -670,11 +671,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		gd_composite_11.widthHint = 120;
 		composite_11.setLayoutData(gd_composite_11);
 
-		outSmallImg = new CLabel(composite_11, SWT.NONE);
-		outSmallImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
-		outSmallImg.setAlignment(SWT.CENTER);
-		outSmallImg.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
-		outSmallImg.setText("出场车牌");
+		lbl_outSmallImg = new CLabel(composite_11, SWT.NONE);
+		lbl_outSmallImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
+		lbl_outSmallImg.setAlignment(SWT.CENTER);
+		lbl_outSmallImg.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
+		lbl_outSmallImg.setText("出场车牌");
 
 		Composite composite_4 = new Composite(composite_2, SWT.NONE);
 		FillLayout fl_composite_4 = new FillLayout(SWT.HORIZONTAL);
@@ -685,20 +686,20 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		Composite composite_7 = new Composite(composite_4, SWT.BORDER);
 		composite_7.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-		inBigImg = new CLabel(composite_7, SWT.NONE);
-		inBigImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
-		inBigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));
-		inBigImg.setAlignment(SWT.CENTER);
-		inBigImg.setText("入场车牌");
+		lbl_inBigImg = new CLabel(composite_7, SWT.NONE);
+		lbl_inBigImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
+		lbl_inBigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));
+		lbl_inBigImg.setAlignment(SWT.CENTER);
+		lbl_inBigImg.setText("入场车牌");
 
 		Composite composite_8 = new Composite(composite_4, SWT.BORDER);
 		composite_8.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-		outBigImg = new CLabel(composite_8, SWT.NONE);
-		outBigImg.setText("出场车牌");
-		outBigImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
-		outBigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));
-		outBigImg.setAlignment(SWT.CENTER);
+		lbl_outBigImg = new CLabel(composite_8, SWT.NONE);
+		lbl_outBigImg.setText("出场车牌");
+		lbl_outBigImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
+		lbl_outBigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));
+		lbl_outBigImg.setAlignment(SWT.CENTER);
 
 		Group group = new Group(shell, SWT.SHADOW_IN);
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 5, SWT.NORMAL));
@@ -1019,20 +1020,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		btnf_3.setLayoutData(gd_btnf_3);
 		btnf_3.setText("浏览记录(F9)");
 		createDeviceTabItem();
-
-		// mapDeviceType.put("192.168.1.138", "进口");
-		shell.addKeyListener(new KeyListener() {
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				System.out.println(e.keyCode);
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				System.out.println(e.keyCode);
-			}
-		});
 		tabInFolder.setSelection(0);
 		tabOutFolder.setSelection(0);
 		m_bindingContext = initDataBindings();
@@ -1124,46 +1111,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		}
 
 	}
-
-	/**
-	 * 获取图片
-	 * 
-	 * @param smallImage
-	 * @param insmallimg
-	 * @param shell
-	 * @return
-	 */
-	public Image getImage(final byte[] smallImage, CLabel insmallimg, Shell shell) {
-		if (smallImage == null || smallImage.length <= 0) {
-			insmallimg.setText("无图片");
-			return null;
-		}
-
-		ByteArrayInputStream stream = null;
-		try {
-			stream = new ByteArrayInputStream(smallImage);
-			Image img = new Image(shell.getDisplay(), stream);
-			Rectangle rectangle = insmallimg.getBounds();
-			ImageData data = img.getImageData().scaledTo(rectangle.width, rectangle.height);
-			ImageDescriptor createFromImageData = ImageDescriptor.createFromImageData(data);
-			Image createImg = createFromImageData.createImage();
-			img.dispose();
-			img = null;
-			insmallimg.setText("");
-			return createImg;
-		} catch (Exception e) {
-			throw new DongluAppException("图片转换错误", e);
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
 	/**
 	 * 车牌识别监控
 	 */
@@ -1176,15 +1123,15 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			return;
 		}
 		if (mapDeviceType.get(ip).equals("出口")) {
-			if (listOutTask.size() > 10) {
-				LOGGER.info("已经有{}个任务正在等待处理暂不添加任务{}", listOutTask.size(), listOutTask);
+			if (listOutTask.size() > 5) {
+				LOGGER.info("已经有5个任务正在等待处理暂不添加任务{}", listOutTask);
 				return;
 			}
+			String key = new Date() + "current has device:" + ip + " with plate:" + plateNO + " process";
+			listOutTask.add(key);
 			outTheadPool.submit(new Runnable() {
 				public void run() {
-					String key = new Date() + "current has device:" + ip + " with plate:" + plateNO + " process";
 					try {
-						listOutTask.add(key);
 						carparkOutTask(ip, plateNO, bigImage, smallImage);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -1264,23 +1211,23 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					LOGGER.info("进场小图片销毁图片");
 					inSmallImage.dispose();
 					inSmallImage = null;
-					inSmallImg.setBackgroundImage(null);
+					lbl_inSmallImg.setBackgroundImage(null);
 				}
 				if (inBigImage != null) {
 					LOGGER.info("进场大图片销毁图片");
 					inBigImage.dispose();
 					inBigImage = null;
-					inBigImg.setBackgroundImage(null);
+					lbl_inBigImg.setBackgroundImage(null);
 				}
 
-				inSmallImage = getImage(smallImage, inSmallImg, shell);
+				inSmallImage = CarparkUtils.getImage(smallImage, lbl_inSmallImg, shell);
 				if (inSmallImage != null) {
-					inSmallImg.setBackgroundImage(inSmallImage);
+					lbl_inSmallImg.setBackgroundImage(inSmallImage);
 				}
 
-				inBigImage = getImage(bigImage, inBigImg, shell);
+				inBigImage = CarparkUtils.getImage(bigImage, lbl_inBigImg, shell);
 				if (inBigImage != null) {
-					inBigImg.setBackgroundImage(inBigImage);
+					lbl_inBigImg.setBackgroundImage(inBigImage);
 				}
 				plateNoTotal.addAndGet(1);
 			}
@@ -1491,22 +1438,22 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				if (outSmallImage != null) {
 					LOGGER.info("出口小图片销毁图片");
 					outSmallImage.dispose();
-					outSmallImg.setBackgroundImage(null);
+					lbl_outSmallImg.setBackgroundImage(null);
 				}
 				if (outBigImage != null) {
 					LOGGER.info("出口大图片销毁图片");
 					outBigImage.dispose();
-					outBigImg.setBackgroundImage(null);
+					lbl_outBigImg.setBackgroundImage(null);
 				}
 
-				outSmallImage = getImage(smallImage, outSmallImg, shell);
+				outSmallImage = CarparkUtils.getImage(smallImage, lbl_outSmallImg, shell);
 				if (outSmallImage != null) {
-					outSmallImg.setBackgroundImage(outSmallImage);
+					lbl_outSmallImg.setBackgroundImage(outSmallImage);
 				}
 
-				outBigImage = getImage(bigImage, outBigImg, shell);
+				outBigImage = CarparkUtils.getImage(bigImage, lbl_outBigImg, shell);
 				if (outBigImage != null) {
-					outBigImg.setBackgroundImage(outBigImage);
+					lbl_outBigImg.setBackgroundImage(outBigImage);
 				}
 
 				txtoutplateNo.setText(plateNO);
@@ -1632,16 +1579,13 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	}
 
 	private void carparkOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg) {
-		// System.out.println("出场");
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(plateNO);
-		// System.out.println("入场纪录："+findByNoCharge.size());
 		if (StrUtil.isEmpty(findByNoCharge)) {
 			LOGGER.error("没有找到车牌：{}的进场记录", plateNO);
 			setBtnData(btnHandSearch, BTN_KEY_PLATENO, plateNO);
 			model.setHandSearch(true);
 			return;
-
 		}
 
 		if (!StrUtil.isEmpty(findByNoCharge)) {
@@ -1921,7 +1865,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue observeEnabledBtnfObserveWidget = WidgetProperties.enabled().observe(btnFree);
 		bindingContext.bindValue(observeEnabledBtnfObserveWidget, btnClickModelObserveValue, null, null);
 		//
-		IObservableValue observeTextInBigImgObserveWidget = WidgetProperties.text().observe(inBigImg);
+		IObservableValue observeTextInBigImgObserveWidget = WidgetProperties.text().observe(lbl_inBigImg);
 		IObservableValue inShowMegModelObserveValue = BeanProperties.value("inShowMeg").observe(model);
 		bindingContext.bindValue(observeTextInBigImgObserveWidget, inShowMegModelObserveValue, null, null);
 		//
