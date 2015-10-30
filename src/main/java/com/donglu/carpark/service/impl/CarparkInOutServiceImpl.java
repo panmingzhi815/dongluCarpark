@@ -288,8 +288,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		unitOfWork.begin();
 		try {
 			Criteria cc = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
+            cc.add(Restrictions.isNull("parent"));			
 			cc.setProjection(Projections.sum(SingleCarparkCarpark.Property.tempNumberOfSlot.name()));
-			 Object singleResult2 = cc.getSingleResult();
+			Object singleResult2 = cc.getSingleResult();
 			int intValue = singleResult2==null?0:((Long)singleResult2).intValue();
 			
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);

@@ -726,7 +726,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		Label label = new Label(group, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("时租车位数");
+		label.setText("临时车位数");
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 
 		text_hours = new Text(group, SWT.BORDER | SWT.READ_ONLY);
@@ -1563,9 +1563,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					singleCarparkInOutHistory.setOutPhotographType("手动");
 			}
 			carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
-			model.setHoursSlot(carparkInOutService.findTempSlotIsNow());
 			// model.setMonthSlot(carparkInOutService.findFixSlotIsNow());
-			model.setTotalSlot(model.getHoursSlot() + model.getMonthSlot());
+			model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow());
 			presenter.openDoor(device);
 
 		} else {// 临时车操作
