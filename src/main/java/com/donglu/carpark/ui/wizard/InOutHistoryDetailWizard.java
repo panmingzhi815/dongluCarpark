@@ -21,6 +21,7 @@ public class InOutHistoryDetailWizard extends Wizard implements AbstractWizard{
 	public void addPages() {
 		page = new InOutHistoryDetailWizardPage(model,file);
 		addPage(page);
+		getShell().setSize(840, 630);
 	}
 
 	@Override

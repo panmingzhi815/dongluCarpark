@@ -32,4 +32,7 @@ public class InOutHistoryPresenter  extends AbstractListPresenter{
 	public InOutHistoryListPresenter getListPresenter() {
 		return listPresenter;
 	}
+	public void exportSearch() {
+		listPresenter.exportSearch();	
+	}
 }

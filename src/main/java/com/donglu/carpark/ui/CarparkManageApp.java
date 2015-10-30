@@ -181,7 +181,7 @@ public class CarparkManageApp extends AbstractApp{
 	protected void createContents() {
 		shell = new Shell();
 		shell.setSize(896, 621);
-		shell.setText("停车场管理界面");
+		shell.setText("停车场管理界面("+CarparkClientConfig.getInstance().getDbServerIp()+")");
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
@@ -590,8 +590,10 @@ public class CarparkManageApp extends AbstractApp{
 		TabItem tabItem_7 = new TabItem(tabFolder_searchHistory, SWT.NONE);
 		tabItem_7.setText("充值记录查询");
 		
-		Composite composite_18 =presenter.getCarparkPayHistoryPresenter().getView(tabFolder_searchHistory, SWT.NONE);
+		Composite composite_18 =new Composite(tabFolder_searchHistory, SWT.NONE);
+		presenter.getCarparkPayHistoryPresenter().go(composite_18);
 		tabItem_7.setControl(composite_18);
+		composite_18.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		TabItem tabItem_2 = new TabItem(tabFolder_searchHistory, SWT.NONE);
 		tabItem_2.setText("归账记录查询");
@@ -680,7 +682,7 @@ public class CarparkManageApp extends AbstractApp{
 		tableColumn.setText("备注");
 		
 		TabItem tabItem_3 = new TabItem(tabFolder, SWT.NONE);
-		tabItem_3.setText("设置");
+		tabItem_3.setText("参数设置");
 		
 		Composite composite_12 = new Composite(tabFolder, SWT.NONE);
 		tabItem_3.setControl(composite_12);
@@ -960,16 +962,6 @@ public class CarparkManageApp extends AbstractApp{
 		composite_7.setLayout(new GridLayout(2, false));
 		composite_7.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
 		
-		Button button_12 = new Button(composite_7, SWT.NONE);
-		button_12.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				presenter.saveAllSystemSetting();
-			}
-		});
-		button_12.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_12.setText("保存设置");
-		
 		Button button = new Button(composite_7, SWT.NONE);
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -979,6 +971,32 @@ public class CarparkManageApp extends AbstractApp{
 		});
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button.setText("节假日设置");
+		
+		Button button_1 = new Button(composite_7, SWT.NONE);
+		button_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.deleteAllHistory();
+			}
+		});
+		button_1.setToolTipText("清除进出场记录，清除充值、归账记录");
+		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_1.setText("清除记录");
+		
+		Composite composite_8 = new Composite(group_4, SWT.NONE);
+		composite_8.setLayout(new GridLayout(1, false));
+		composite_8.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
+		
+		Button button_12 = new Button(composite_8, SWT.NONE);
+		button_12.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		button_12.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.saveAllSystemSetting();
+			}
+		});
+		button_12.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_12.setText("保存设置");
 		
 		Composite composite_blackUser = new Composite(composite_12, SWT.NONE);
 		composite_blackUser.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -1196,4 +1214,10 @@ public class CarparkManageApp extends AbstractApp{
 			treeViewer.expandAll();
 		});
 	}
+
+	@Override
+	public Shell getShell() {
+		return this.shell;
+	}
+	
 }

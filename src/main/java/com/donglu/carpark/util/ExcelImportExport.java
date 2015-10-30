@@ -14,6 +14,7 @@ public interface ExcelImportExport {
 	 * 所有的excel模板都应该在这里进行定义
 	 */
 	String UserTemplate = System.getProperty("user.dir") + "/excelTemplete/固定用户导入导出模板.xls";
+	String NomalTemplate = System.getProperty("user.dir") + "/excelTemplete/导出通用模板.xls";
 
     void printExcel(String filePath) throws Exception;
 	/**
@@ -25,4 +26,5 @@ public interface ExcelImportExport {
 	
 	public void exportUser(String path,List<SingleCarparkUser> list) throws Exception ;
 	public int importUser(String path,CarparkDatabaseServiceProvider sp) throws Exception ;
+	public void export(String path,String[] names,String[] cloumns,List<? extends Object> list)throws Exception;
 }

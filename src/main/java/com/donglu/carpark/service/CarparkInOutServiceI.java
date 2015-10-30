@@ -57,4 +57,9 @@ public interface CarparkInOutServiceI {
 	List<SingleCarparkInOutHistory> searchHistoryByLikePlateNO(String plateNO, boolean order);
 
 	List<SingleCarparkInOutHistory> findAddNoPlateNOHistory(boolean order);
+	/**
+	 * 
+	 * @return
+	 */
+	Long deleteAllHistory();
 }

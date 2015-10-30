@@ -6,4 +6,5 @@ public interface App {
 	public void open();
 	boolean isOpen();
 	public void focus();
+	public Shell getShell();
 }

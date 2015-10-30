@@ -9,7 +9,7 @@ import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.list.ReturnAccountListPresenter;
 import com.google.inject.Inject;
 
-public class ReturnAccountPresenter  extends AbstractListPresenter{
+public class ReturnAccountPresenter implements Presenter{
 	private ReturnAccountView view;
 	@Inject
 	private ReturnAccountListPresenter listPresenter;
@@ -21,6 +21,9 @@ public class ReturnAccountPresenter  extends AbstractListPresenter{
 	}
 	public void search(String operaName, String returnUser, Date start, Date end) {
 		listPresenter.search(operaName,returnUser,start,end);
+	}
+	public void export() {
+		listPresenter.export();
 	}
 	
 }

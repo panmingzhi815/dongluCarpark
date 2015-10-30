@@ -341,7 +341,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		shell = new Shell();
 		shell.setMinimumSize(new Point(1024, 768));
 		shell.setSize(1036, 768);
-		shell.setText("停车场监控-1.0.0.2");
+		shell.setText("停车场监控-1.0.0.3("+CarparkClientConfig.getInstance().getDbServerIp()+")");
 		shell.addShellListener(new ShellAdapter() {
 			@Override
 			public void shellClosed(ShellEvent e) {

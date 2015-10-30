@@ -12,23 +12,32 @@ import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.Presenter;
+import com.donglu.carpark.util.ExcelImportExport;
+import com.donglu.carpark.util.ExcelImportExportImpl;
+import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
-public class ReturnAccountListPresenter  extends AbstractListPresenter{
+public class ReturnAccountListPresenter extends AbstractListPresenter {
 	private ReturnAccountListView v;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
+	@Inject
+	private CommonUIFacility commonui;
 	private String operaName;
 	private String userName;
 	private Date start;
 	private Date end;
+
 	@Override
 	public void go(Composite c) {
-		v=new ReturnAccountListView( c, c.getStyle());
+		v = new ReturnAccountListView(c, c.getStyle());
 		v.setPresenter(this);
 	}
+
 	public void search(String operaName, String userName, Date start, Date end) {
 		AbstractListView<SingleCarparkReturnAccount>.Model model = v.getModel();
 		model.setList(new ArrayList<>());
@@ -38,11 +47,12 @@ public class ReturnAccountListPresenter  extends AbstractListPresenter{
 		model.setCountSearchAll(countMonthlyUserPayHistoryByCondition);
 		model.AddList(findMonthlyUserPayHistoryByCondition);
 		model.setCountSearch(model.getList().size());
-		
+
 	}
+
 	public void searchMore() {
 		AbstractListView<SingleCarparkReturnAccount>.Model model = v.getModel();
-		if (model.getCountSearchAll()<=model.getCountSearch()) {
+		if (model.getCountSearchAll() <= model.getCountSearch()) {
 			return;
 		}
 		CarparkService carparkService = sp.getCarparkService();
@@ -52,5 +62,27 @@ public class ReturnAccountListPresenter  extends AbstractListPresenter{
 		model.AddList(findMonthlyUserPayHistoryByCondition);
 		model.setCountSearch(model.getList().size());
 	}
-	
+
+	public void export() {
+		List<SingleCarparkReturnAccount> list = v.getModel().getList();
+		if (StrUtil.isEmpty(list)) {
+			return;
+		}
+		String selectToSave = commonui.selectToSave();
+		if (StrUtil.isEmpty(selectToSave)) {
+			return;
+		}
+		String path = StrUtil.checkPath(selectToSave, new String[] { ".xls", ".xlsx" }, ".xls");
+		String[] columnProperties = v.getColumnProperties();
+		String[] nameProperties = v.getNameProperties();
+		ExcelImportExport excelImportExport = new ExcelImportExportImpl();
+		try {
+			excelImportExport.export(path, nameProperties, columnProperties, list);
+			commonui.info("操作成功", "导出成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		}
+	}
+
 }

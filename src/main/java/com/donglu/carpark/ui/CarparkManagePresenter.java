@@ -992,8 +992,22 @@ public class CarparkManagePresenter {
 			commonui.info("导出提示", "导出成功！");
 		} catch (Exception e) {
 			e.printStackTrace();
-			commonui.error("导出提示", "导出失败！"+e.getMessage());
+			commonui.error("导出提示", "导出时发生错误！"+e.getMessage());
 		}
+	}
+
+	public void deleteAllHistory() {
+		try {
+			boolean confirm = commonui.confirm("提示", "确定删除所有的进出场、充值、归账记录？");
+			if (!confirm) {
+				return;
+			}
+			sp.getCarparkInOutService().deleteAllHistory();
+			commonui.info("提示", "清除成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	

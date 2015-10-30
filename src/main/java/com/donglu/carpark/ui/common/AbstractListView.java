@@ -278,4 +278,12 @@ public abstract class AbstractListView<T> extends Composite{
 	public void setPresenter(Presenter presenter) {
 		this.presenter = (ListPresenter<T>) presenter;
 	}
+
+	public String[] getColumnProperties() {
+		return columnProperties;
+	}
+
+	public String[] getNameProperties() {
+		return nameProperties;
+	}
 }

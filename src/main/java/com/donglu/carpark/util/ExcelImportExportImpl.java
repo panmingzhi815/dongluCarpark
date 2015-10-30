@@ -82,13 +82,6 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		}
 	}
 
-
-	
-
-	
-
-	
-
 	public File getTempFile(String lastType) throws IOException {
 		File file = new File(System.getProperty("user.dir") + File.separator + "temp" + File.separator + lastType);
 		if (!file.exists()) {
@@ -404,6 +397,43 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		fileOut.flush();
 		fileOut.close();
 		return failNum;
+	}
+
+
+
+
+
+
+
+
+	@Override
+	public void export(String path,String[] names, String[] cloumns, List<? extends Object> list) throws Exception {
+		copyTemplement(NomalTemplate, path);
+
+		HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(path));
+		HSSFSheet sheet = wb.getSheetAt(0);
+		int currentRow = 0;
+		HSSFRow row = sheet.createRow(currentRow);
+		row.createCell(0).setCellValue("编号");
+		for (int i = 0; i < names.length; i++) {
+			String string = names[i];
+			row.createCell(i+1).setCellValue(string);
+		}
+		currentRow++;
+		for (int i = 0; i < list.size(); i++) {
+			row = sheet.createRow(currentRow + i);
+			Object o = list.get(i);
+			row.createCell(0).setCellValue(i+1);
+			for (int j = 0; j < cloumns.length; j++) {
+				String string = cloumns[j];
+				Object fieldValueByName = CarparkUtils.getFieldValueByName(string, o);
+				row.createCell(j+1).setCellValue(fieldValueByName+"");
+			}
+		}
+		FileOutputStream fileOut = new FileOutputStream(path);
+		wb.write(fileOut);
+		fileOut.flush();
+		fileOut.close();
 	}
 
 }

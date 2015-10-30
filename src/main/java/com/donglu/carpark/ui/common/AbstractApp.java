@@ -1,5 +1,7 @@
 package com.donglu.carpark.ui.common;
 
+import org.eclipse.swt.widgets.Shell;
+
 public class AbstractApp implements App {
 
 	@Override
@@ -18,6 +20,10 @@ public class AbstractApp implements App {
 	public void focus() {
 		
 
+	}
+	@Override
+	public Shell getShell() {
+		return null;
 	}
 
 }

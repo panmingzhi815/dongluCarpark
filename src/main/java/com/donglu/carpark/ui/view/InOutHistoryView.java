@@ -53,7 +53,7 @@ public class InOutHistoryView extends Composite implements View{
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		group.setText("查询");
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		group.setLayout(new GridLayout(13, false));
+		group.setLayout(new GridLayout(14, false));
 		
 		Label label = new Label(group, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -125,6 +125,16 @@ public class InOutHistoryView extends Composite implements View{
 		});
 		button.setText("查询");
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		
+		Button button_2 = new Button(group, SWT.NONE);
+		button_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().exportSearch();
+			}
+		});
+		button_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_2.setText("导出");
 		
 		Label label_4 = new Label(group, SWT.NONE);
 		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -205,6 +215,7 @@ public class InOutHistoryView extends Composite implements View{
 		});
 		button_1.setText("统计");
 		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		new Label(group, SWT.NONE);
 		
 		listComposite = new Composite(this, SWT.NONE);
 		listComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));

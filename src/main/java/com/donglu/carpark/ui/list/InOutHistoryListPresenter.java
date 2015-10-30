@@ -14,6 +14,9 @@ import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
+import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ExcelImportExport;
+import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
@@ -141,6 +144,24 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 			e.printStackTrace();
 		}
 	}
-	
-	
+	public void exportSearch() {
+		List<SingleCarparkInOutHistory> list = v.getModel().getList();
+		if (StrUtil.isEmpty(list)) {
+			return;
+		}
+		String selectToSave = commonui.selectToSave();
+		if (StrUtil.isEmpty(selectToSave)) {
+			return;
+		}
+		String path = StrUtil.checkPath(selectToSave, new String[]{".xls",".xlsx"}, ".xls");
+		String[] columnProperties = v.getColumnProperties();
+		String[] nameProperties = v.getNameProperties();
+		ExcelImportExport excelImportExport=new ExcelImportExportImpl();
+		try {
+			excelImportExport.export(path, nameProperties, columnProperties, list);
+			commonui.info("操作成功", "导出成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -12,6 +12,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 
+import com.donglu.carpark.ui.common.Presenter;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.list.CarparkPayHistoryListView;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -22,12 +24,12 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
 
-public class CarparkPayHistoryView extends Composite{
+public class CarparkPayHistoryView extends Composite implements View{
 	private Text text_pay_userName;
 	private Text text_pay_operaName;
 	
-	private CarparkPayHistoryPresenter presenter;
 	private Composite listComposite;
+	private Presenter presenter;
 	
 	public CarparkPayHistoryView(Composite parent, int style) {
 		super(parent, style);
@@ -37,7 +39,7 @@ public class CarparkPayHistoryView extends Composite{
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		group.setText("查询");
-		group.setLayout(new GridLayout(9, false));
+		group.setLayout(new GridLayout(10, false));
 		
 		Label label = new Label(group, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -76,11 +78,21 @@ public class CarparkPayHistoryView extends Composite{
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				presenter.searchCharge(text_pay_userName.getText(),text_pay_operaName.getText(),dateChooserCombo.getValue(),dateChooserCombo_1.getValue());
+				getPresenter().searchCharge(text_pay_userName.getText(),text_pay_operaName.getText(),dateChooserCombo.getValue(),dateChooserCombo_1.getValue());
 			}
 		});
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button.setText("查询");
+		
+		Button button_1 = new Button(group, SWT.NONE);
+		button_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().export();
+			}
+		});
+		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_1.setText("导出");
 		
 		listComposite = new Composite(this, SWT.NONE);
 		listComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -93,6 +105,16 @@ public class CarparkPayHistoryView extends Composite{
 
 	public Composite getListComposite() {
 		return listComposite;
+	}
+
+	@Override
+	public void setPresenter(Presenter presenter) {
+		this.presenter=presenter;
+	}
+
+	@Override
+	public CarparkPayHistoryPresenter getPresenter() {
+		return (CarparkPayHistoryPresenter) this.presenter;
 	}
 	
 }

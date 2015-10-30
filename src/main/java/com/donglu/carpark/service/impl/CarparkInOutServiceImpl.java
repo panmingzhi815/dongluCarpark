@@ -19,6 +19,8 @@ import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
@@ -351,6 +353,35 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}finally{
 			unitOfWork.end();
 		}
+	}
+
+	@Transactional
+	public Long deleteAllHistory() {
+		//
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+		List<SingleCarparkInOutHistory> resultList = c.getResultList();
+		DatabaseOperation<SingleCarparkInOutHistory> dom = DatabaseOperation.forClass(SingleCarparkInOutHistory.class, emprovider.get());
+		for (SingleCarparkInOutHistory singleCarparkInOutHistory : resultList) {
+			dom.remove(singleCarparkInOutHistory);
+		}
+		//
+		Criteria c1 = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkMonthlyUserPayHistory.class);
+		List<SingleCarparkMonthlyUserPayHistory> resultList1 = c.getResultList();
+		DatabaseOperation<SingleCarparkMonthlyUserPayHistory> dom1 = DatabaseOperation.forClass(SingleCarparkMonthlyUserPayHistory.class, emprovider.get());
+		for (SingleCarparkMonthlyUserPayHistory h : resultList1) {
+			dom1.remove(h);
+		}
+		//
+		Criteria c2 = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkReturnAccount.class);
+		List<SingleCarparkReturnAccount> resultList2 = c.getResultList();
+		DatabaseOperation<SingleCarparkReturnAccount> dom2 = DatabaseOperation.forClass(SingleCarparkReturnAccount.class, emprovider.get());
+		for (SingleCarparkReturnAccount h : resultList2) {
+			dom2.remove(h);
+		}
+		//
+		
+		
+		return 1L;
 	}
 
 }

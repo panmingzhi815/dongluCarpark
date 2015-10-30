@@ -37,7 +37,7 @@ public class ReturnAccountView extends Composite implements View{
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		group.setText("查询");
-		group.setLayout(new GridLayout(9, false));
+		group.setLayout(new GridLayout(10, false));
 		
 		Label label = new Label(group, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -83,6 +83,16 @@ public class ReturnAccountView extends Composite implements View{
 			}
 		});
 		button.setText("查询");
+		
+		Button button_1 = new Button(group, SWT.NONE);
+		button_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().export();
+			}
+		});
+		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_1.setText("导出");
 		
 		listComposite = new Composite(this, SWT.NONE);
 		listComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
