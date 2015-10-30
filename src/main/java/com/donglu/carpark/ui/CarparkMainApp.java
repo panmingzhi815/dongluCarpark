@@ -1688,7 +1688,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				setBtnData(btnCharge, BTN_CHARGE_DEVICE, device);
 				setBtnData(btnFree, BTN_CHARGE_DEVICE, device);
 			}
-			if (true) {
+			if (valueOf) {
 				singleCarparkInOutHistory.setFactMoney(shouldMoney);
 				chargeCarPass(device,singleCarparkInOutHistory,false);
 			}

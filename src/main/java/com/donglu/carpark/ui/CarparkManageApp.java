@@ -69,6 +69,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.main.DongluUIAppConfigurator;
 import com.dongluhitec.card.ui.main.javafx.DongluJavaFXModule;
+import com.dongluhitec.card.ui.util.FileUtils;
 import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -79,6 +80,8 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 
 public class CarparkManageApp extends AbstractApp{
+	public static final String CLIENT_IMAGE_SAVE_FILE_PATH = "clientImageSaveFilePath";
+
 	private DataBindingContext m_bindingContext;
 
 	protected Shell shell;
@@ -911,7 +914,8 @@ public class CarparkManageApp extends AbstractApp{
 					return;
 				}
 				text_setting_imgSave.setText(open);
-				mapSystemSetting.put(SystemSettingTypeEnum.图片保存位置, open);
+				FileUtils.writeObject(CLIENT_IMAGE_SAVE_FILE_PATH, open);
+//				mapSystemSetting.put(SystemSettingTypeEnum.图片保存位置, open);
 //				presenter.setting();
 			}
 		});
@@ -919,13 +923,14 @@ public class CarparkManageApp extends AbstractApp{
 		GridData gd_text_setting_imgSave = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		gd_text_setting_imgSave.widthHint = 241;
 		text_setting_imgSave.setLayoutData(gd_text_setting_imgSave);
-		String string2 = mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置);
-		text_setting_imgSave.setText(string2==null?SystemSettingTypeEnum.图片保存位置.getDefaultValue():string2);
+		String imgSavePath = (String) FileUtils.readObject(CLIENT_IMAGE_SAVE_FILE_PATH);
+		text_setting_imgSave.setText(imgSavePath==null?System.getProperty("user.dir"):imgSavePath);
 		
 		Button button_9 = new Button(composite_15, SWT.CHECK);
 		button_9.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.是否自动删除图片, button_9.getSelection()+"");
 				if (!button_9.getSelection()) {
 					mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少天, null);
 					return;
@@ -937,7 +942,7 @@ public class CarparkManageApp extends AbstractApp{
 				} catch (NumberFormatException e1) {
 					
 				}
-				mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少天, valueOf+"");
+				mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少天, (valueOf==0?999:valueOf)+"");
 			}
 		});
 		button_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

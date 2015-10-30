@@ -12,6 +12,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -32,11 +34,14 @@ import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
 import com.dongluhitec.card.blservice.HardwareFacility;
 import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.util.HardwareFacilityImpl;
 import com.dongluhitec.card.server.ServerUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
+import com.google.common.collect.Maps;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -67,6 +72,10 @@ public class ImageServerUI {
 	private Server server;
 	@Inject
 	private ServerUI ui;
+	@Inject
+	private CarparkDatabaseServiceProvider sp;
+	
+	private String filePath="";
 
 	private final Provider<ImageUploadServlet> imageServletProvider = new Provider<ImageUploadServlet>() {
 		@Override
@@ -83,7 +92,14 @@ public class ImageServerUI {
 	 */
 	public static void main(String[] args) {
 		try {
-			Injector createInjector = Guice.createInjector(new CommonUIGuiceModule());
+			Injector createInjector = Guice.createInjector(new CommonUIGuiceModule(),new AbstractModule() {
+                @Override
+                protected void configure() {
+                    this.bindConstant().annotatedWith(Names.named("HBM2DDL")).to("update");
+                    bind(CarparkServerConfig.class).toInstance(CarparkServerConfig.getInstance());
+                    bind(CarparkDatabaseServiceProvider.class).to(CarparkLocalVMServiceProvider.class);
+                }
+            });
 			ImageServerUI window = createInjector.getInstance(ImageServerUI.class);
 			window.open();
 		} catch (Exception e) {
@@ -96,6 +112,7 @@ public class ImageServerUI {
 	 */
 	public void open() {
 		Display display = Display.getDefault();
+//		init();
 		createContents();
 		shell.open();
 		shell.setImage(JFaceUtil.getImage("carpark_16"));
@@ -106,6 +123,8 @@ public class ImageServerUI {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				ui.open();
+				init();
+				text.setText(filePath);
 			}
 		});
 		btnTest.setText("配    置");
@@ -116,6 +135,23 @@ public class ImageServerUI {
 			}
 		}
 		System.exit(0);
+	}
+
+	private void init() {
+		try {
+			sp.start();
+			SingleCarparkSystemSetting s = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存位置.name());
+			filePath=StrUtil.isEmpty(s)?System.getProperty("user.dir"):s.getSettingValue();
+			FileUtils.writeObject(IMAGE_SAVE_DIRECTORY, filePath);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				sp.stop();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -185,10 +221,10 @@ public class ImageServerUI {
 			public void widgetSelected(SelectionEvent e) {
 				DirectoryDialog directoryDialog=new DirectoryDialog(shell,SWT.SINGLE);
 				String open = directoryDialog.open();
-				FileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
 				if (StrUtil.isEmpty(open)) {
 					return;
 				}
+				FileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
 				text.setText(open);
 			}
 		});
@@ -203,7 +239,7 @@ public class ImageServerUI {
 				String data = (String) btnStart.getData("type");
 				if (data.equals("start")) {
 					startServer();
-					btnStart.setText("退    出");
+					btnStart.setText("退出");
 					btnStart.setData("type", "stop");
 				}
 				if (data.equals("stop")) {
@@ -244,6 +280,14 @@ public class ImageServerUI {
 	
 	protected void startServer() {
 		try {
+			sp.start();
+			String open = text.getText();
+			FileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
+			SingleCarparkSystemSetting s=new SingleCarparkSystemSetting();
+			s.setSettingKey(SystemSettingTypeEnum.图片保存位置.name());
+			s.setSettingValue(open);
+			sp.getCarparkService().saveSystemSetting(s);
+			sp.stop();
 			this.server = new Server(8899);
 			ServletHandler servletHandler = new ServletHandler();
 			server.setHandler(servletHandler);

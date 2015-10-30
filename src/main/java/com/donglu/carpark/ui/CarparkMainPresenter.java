@@ -646,8 +646,8 @@ public class CarparkMainPresenter {
 	protected void saveImage(String f, String fileName, byte[] bigImage) {
 		bigImage = bigImage == null ? new byte[0] : bigImage;
 		String fl = "/img/" + f;
-		if (!StrUtil.isEmpty(mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置))) {
-			String string = mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置);
+		if (!StrUtil.isEmpty(FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH))) {
+			String string = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 			fl = string + fl;
 		}
 		try {
