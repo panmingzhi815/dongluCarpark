@@ -417,6 +417,7 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		row.createCell(0).setCellValue("编号");
 		for (int i = 0; i < names.length; i++) {
 			String string = names[i];
+			HSSFCell createCell = row.createCell(i+1);
 			row.createCell(i+1).setCellValue(string);
 		}
 		currentRow++;

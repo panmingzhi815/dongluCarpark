@@ -265,4 +265,19 @@ public class CarparkUtils {
 	public static void main(String[] args) {
 		System.out.println(splitPlateNO("粤BD021W"));
 	}
+	/**
+	 * 0.0返回0
+	 * @param s
+	 * @return
+	 */
+	public static String formatFloatString(String s) {
+		String substring = s.substring(s.indexOf(".") + 1, s.indexOf(".") + 2);
+		Integer intValueOf = Integer.valueOf(substring);
+		if (intValueOf == 0) {
+			String ss = s.replace("." + intValueOf, "");
+			System.out.println(ss);
+			return ss;
+		}
+		return s;
+	}
 }

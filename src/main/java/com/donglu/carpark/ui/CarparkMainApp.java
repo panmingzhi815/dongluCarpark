@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -90,6 +91,8 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 
 public class CarparkMainApp extends AbstractApp implements XinlutongResult {
+	private static final String BTN_CHARGE_DEVICE = "btnChargeDevice";
+
 	private static final String BTN_CHARGE = "btnCharge";
 
 	private static final String BTN_KEY_PLATENO = "plateNO";
@@ -140,8 +143,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private Text txtoutplateNo;
 	private Text text_out_time;
 
-	@Inject
-	private XinlutongJNA xinlutongJNA;
 	@Inject
 	private CommonUIFacility commonui;
 	@Inject
@@ -384,6 +385,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		toolItem_in_photograph.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if (!rateLimiter.tryAcquire()) {
+					return;
+				}
 				CTabItem selection = tabInFolder.getSelection();
 				if (StrUtil.isEmpty(selection)) {
 					return;
@@ -462,6 +466,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		toolItem_out_photograph.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if (!rateLimiter.tryAcquire()) {
+					return;
+				}
 				CTabItem selection = tabOutFolder.getSelection();
 				if (StrUtil.isEmpty(selection)) {
 					return;
@@ -475,6 +482,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		toolItem_out_openDoor.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if (!rateLimiter.tryAcquire()) {
+					return;
+				}
 				CTabItem selection = tabOutFolder.getSelection();
 				if (StrUtil.isEmpty(selection)) {
 					return;
@@ -887,11 +897,17 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			public void keyReleased(KeyEvent e) {
 				// 收费放行
 				if (e.keyCode == 16777296 || e.keyCode == 13 || e.keyCode == 16777236) {
-					chargeCarPass();
+					SingleCarparkInOutHistory data = (SingleCarparkInOutHistory)btnCharge.getData(BTN_CHARGE);
+					SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
+					data.setFactMoney(model.getReal());
+					chargeCarPass(device,data,true);
 				}
 				// 免费放行
 				if (e.keyCode == 16777237) {
-					freeCarPass();
+					SingleCarparkInOutHistory data = (SingleCarparkInOutHistory)btnCharge.getData(BTN_CHARGE);
+					SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
+					data.setFactMoney(0);
+					chargeCarPass(device,data,true);
 				}
 			}
 		});
@@ -945,7 +961,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		btnCharge.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				chargeCarPass();
+				SingleCarparkInOutHistory data = (SingleCarparkInOutHistory)btnCharge.getData(BTN_CHARGE);
+				SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
+				data.setFactMoney(model.getReal());
+				chargeCarPass(device,data,true);
 			}
 		});
 		btnCharge.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
@@ -958,7 +977,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		btnFree.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				freeCarPass();
+				SingleCarparkInOutHistory data = (SingleCarparkInOutHistory)btnCharge.getData(BTN_CHARGE);
+				SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
+				data.setFactMoney(0);
+				chargeCarPass(device,data,true);
 			}
 		});
 		btnFree.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
@@ -1143,7 +1165,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			outTheadPool.submit(() -> {
 				while (model.isBtnClick()) {
 					try {
-						TimeUnit.MILLISECONDS.sleep(1000);
+						TimeUnit.MILLISECONDS.sleep(500);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -1637,112 +1659,155 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			model.setComboCarTypeEnable(false);
 			float shouldMoney = presenter.countShouldMoney(carType, inTime, date);
 			model.setShouldMony(shouldMoney);
+			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
 			model.setReal(shouldMoney);
 			LOGGER.info("{}进场时间{}，出场时间{}，停车：{}，应收费：{}元", plateNO, model.getInTime(), model.getOutTime(), model.getTotalTime(), shouldMoney);
 			String s = "请缴费" + shouldMoney + "元";
-			String substring = s.substring(s.indexOf(".") + 1, s.indexOf(".") + 2);
-			Integer intValueOf = Integer.valueOf(substring);
-			if (intValueOf == 0) {
-				String ss = s.replace("." + intValueOf, "");
-				System.out.println(ss);
-				s = ss;
-			}
+			s=CarparkUtils.formatFloatString(s);
+			
 			String property = System.getProperty(TEMP_CAR_AUTO_PASS);
 			Boolean valueOf = Boolean.valueOf(property);
 			// 临时车零收费是否自动出场
 			Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
 			model.setBtnClick(true);
 			LOGGER.info("等待收费");
-//			if (tempCarNoChargeIsPass) {
-//				if (shouldMoney>0) {
-//					setBtnData(btnCharge, BTN_CHARGE, singleCarparkInOutHistory);
-//				}
-//			}
-			if (!tempCarNoChargeIsPass) {
-				// 自动收费放行
-				if (!valueOf) {
-					int i=0;
+			if (tempCarNoChargeIsPass) {
+				if (shouldMoney>0) {
 					presenter.showContentToDevice(device, s, false);
-					while (model.isBtnClick()) {
-						try {
-							if (discontinue) {
-								return;
-							}
-							if (i>120) {
-								return;
-							}
-							i++;
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					if (discontinue) {
-						return;
-					}
-				} else {
-					// 测试添加默认实收
-					model.setReal(15);
+					setBtnData(btnCharge, BTN_CHARGE, singleCarparkInOutHistory);
+					setBtnData(btnFree, BTN_CHARGE, singleCarparkInOutHistory);
+					setBtnData(btnCharge, BTN_CHARGE_DEVICE, device);
+					setBtnData(btnFree, BTN_CHARGE_DEVICE, device);
+				}else{
+					chargeCarPass(device,singleCarparkInOutHistory,false);
 				}
-			} else {
-				if (!valueOf) {
-					int i=0;
-					if (shouldMoney > 0) {
-						presenter.showContentToDevice(device, s, false);
-						while (model.isBtnClick()) {
-							try {
-								if (discontinue) {
-									return;
-								}
-								if (i>120) {
-									return;
-								}
-								i++;
-								Thread.sleep(500);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-						if (discontinue) {
-							return;
-						}
-					} else {
-						presenter.showContentToDevice(device, s + "," + CAR_OUT_MSG, true);
-					}
-				} else {
-					// 测试添加默认实收
-					model.setReal(15);
-				}
+			}else{
+				presenter.showContentToDevice(device, s, false);
+				setBtnData(btnCharge, BTN_CHARGE, singleCarparkInOutHistory);
+				setBtnData(btnFree, BTN_CHARGE, singleCarparkInOutHistory);
+				setBtnData(btnCharge, BTN_CHARGE_DEVICE, device);
+				setBtnData(btnFree, BTN_CHARGE_DEVICE, device);
 			}
-			if (discontinue) {
-				return;
+			if (true) {
+				singleCarparkInOutHistory.setFactMoney(shouldMoney);
+				chargeCarPass(device,singleCarparkInOutHistory,false);
 			}
 			//
-
-			float factMoney = model.getReal();
-			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
-			singleCarparkInOutHistory.setFactMoney(factMoney);
-			float freeMoney = shouldMoney - factMoney;
-			singleCarparkInOutHistory.setFreeMoney(freeMoney);
-			// System.out.println("singleCarparkInOutHistory.getFreeMoney()=="+singleCarparkInOutHistory.getFreeMoney());
-			carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
-			model.setHistory(singleCarparkInOutHistory);
-			// model.setTotalCharge(sp.getCarparkInOutService().findFactMoneyByName(userName));
-			// model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
-			model.setTotalCharge(model.getTotalCharge() + factMoney);
-			model.setTotalFree(model.getTotalFree() + freeMoney);
-			model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow());
-			model.setBtnClick(false);
-			if (tempCarNoChargeIsPass) {
-				if (shouldMoney > 0) {
-					presenter.showContentToDevice(device, CAR_OUT_MSG, true);
-				}
-			} else {
-				presenter.showContentToDevice(device, CAR_OUT_MSG, true);
-			}
-			// presenter.openDoor(device);
-			model.setHandSearch(false);
+//			if (!tempCarNoChargeIsPass) {
+//				// 自动收费放行
+//				if (!valueOf) {
+//					int i=0;
+//					presenter.showContentToDevice(device, s, false);
+//					while (model.isBtnClick()) {
+//						try {
+//							if (discontinue) {
+//								return;
+//							}
+//							if (i>120) {
+//								model.setBtnClick(false);
+//								return;
+//							}
+//							i++;
+//							Thread.sleep(500);
+//						} catch (InterruptedException e) {
+//							e.printStackTrace();
+//						}
+//					}
+//					if (discontinue) {
+//						return;
+//					}
+//				}
+//			} else {
+//				if (!valueOf) {
+//					int i=0;
+//					if (shouldMoney > 0) {
+//						presenter.showContentToDevice(device, s, false);
+//						while (model.isBtnClick()) {
+//							try {
+//								if (discontinue) {
+//									return;
+//								}
+//								if (i>120) {
+//									model.setBtnClick(false);
+//									return;
+//								}
+//								i++;
+//								Thread.sleep(500);
+//							} catch (InterruptedException e) {
+//								e.printStackTrace();
+//							}
+//						}
+//						if (discontinue) {
+//							return;
+//						}
+//					}
+//				} else {
+//					// 测试添加默认实收
+//					model.setReal(15);
+//				}
+//			}
+//			if (discontinue) {
+//				return;
+//			}
+//			//
+//
+//			float factMoney = model.getReal();
+//			
+//			singleCarparkInOutHistory.setFactMoney(factMoney);
+//			float freeMoney = shouldMoney - factMoney;
+//			singleCarparkInOutHistory.setFreeMoney(freeMoney);
+//			// System.out.println("singleCarparkInOutHistory.getFreeMoney()=="+singleCarparkInOutHistory.getFreeMoney());
+//			carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
+//			model.setHistory(singleCarparkInOutHistory);
+//			// model.setTotalCharge(sp.getCarparkInOutService().findFactMoneyByName(userName));
+//			// model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
+//			model.setTotalCharge(model.getTotalCharge() + factMoney);
+//			model.setTotalFree(model.getTotalFree() + freeMoney);
+//			model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow());
+//			model.setBtnClick(false);
+//			if (tempCarNoChargeIsPass) {
+//				if (shouldMoney > 0) {
+//					presenter.showContentToDevice(device, CAR_OUT_MSG, true);
+//				}else{
+//					presenter.showContentToDevice(device, s + "," + CAR_OUT_MSG, true);
+//				}
+//			} else {
+//				presenter.showContentToDevice(device, CAR_OUT_MSG, true);
+//			}
+//			// presenter.openDoor(device);
+//			model.setHandSearch(false);
 		}
+	}
+
+	private void chargeCarPass(SingleCarparkDevice device,SingleCarparkInOutHistory singleCarparkInOutHistory,boolean check) {
+		
+		Float shouldMoney = singleCarparkInOutHistory.getShouldMoney();
+		float factMoney=singleCarparkInOutHistory.getFactMoney();
+		if (check) {
+			if (factMoney > shouldMoney) {
+				commonui.error("收费提示", "实时不能超过应收");
+				return;
+			}
+			boolean confirm = commonui.confirm("收费确认", "车牌：" + singleCarparkInOutHistory.getPlateNo() + "应收：" + shouldMoney + "实收：" + factMoney);
+			if (!confirm) {
+				return;
+			}
+		}
+		float freeMoney = shouldMoney - factMoney;
+		singleCarparkInOutHistory.setFreeMoney(freeMoney);
+		sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
+		Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
+		if (tempCarNoChargeIsPass) {
+			if (shouldMoney > 0) {
+				presenter.showContentToDevice(device, CAR_OUT_MSG, true);
+			}else{
+				presenter.showContentToDevice(device, CarparkUtils.formatFloatString("请缴费"+shouldMoney+"元") + "," + CAR_OUT_MSG, true);
+			}
+		} else {
+			presenter.showContentToDevice(device, CAR_OUT_MSG, true);
+		}
+		model.setBtnClick(false);
+		model.setHandSearch(false);
 	}
 
 	private void setBtnData(Button btnHandSearch2, String key, Object value) {
@@ -1778,11 +1843,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			System.out.println("不能收费");
 			return;
 		}
-		boolean chargeCarPass = presenter.chargeCarPass();
-		if (!chargeCarPass) {
-			return;
-		}
-		model.setBtnClick(false);
 	}
 
 	// 免费
