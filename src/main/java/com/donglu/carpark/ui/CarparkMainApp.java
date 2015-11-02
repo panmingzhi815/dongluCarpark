@@ -1164,8 +1164,13 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			});
 			outTheadPool.submit(() -> {
 				while (model.isBtnClick()) {
+					int i=0;
 					try {
+						if (i>120) {
+							model.setBtnClick(false);
+						}
 						TimeUnit.MILLISECONDS.sleep(500);
+						i++;
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

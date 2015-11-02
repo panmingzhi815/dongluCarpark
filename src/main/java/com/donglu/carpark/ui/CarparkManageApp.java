@@ -78,6 +78,8 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.ModifyEvent;
 
 public class CarparkManageApp extends AbstractApp{
 	public static final String CLIENT_IMAGE_SAVE_FILE_PATH = "clientImageSaveFilePath";
@@ -926,13 +928,13 @@ public class CarparkManageApp extends AbstractApp{
 		String imgSavePath = (String) FileUtils.readObject(CLIENT_IMAGE_SAVE_FILE_PATH);
 		text_setting_imgSave.setText(imgSavePath==null?System.getProperty("user.dir"):imgSavePath);
 		
-		Button button_9 = new Button(composite_15, SWT.CHECK);
-		button_9.addSelectionListener(new SelectionAdapter() {
+		Button btn_imgSaveMonth = new Button(composite_15, SWT.CHECK);
+		btn_imgSaveMonth.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.是否自动删除图片, button_9.getSelection()+"");
-				if (!button_9.getSelection()) {
-					mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少天, null);
+				mapSystemSetting.put(SystemSettingTypeEnum.是否自动删除图片, btn_imgSaveMonth.getSelection()+"");
+				if (!btn_imgSaveMonth.getSelection()) {
+					mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少月, null);
 					return;
 				}
 				String text = text_setting_imgSaveDays.getText();
@@ -942,27 +944,38 @@ public class CarparkManageApp extends AbstractApp{
 				} catch (NumberFormatException e1) {
 					
 				}
-				mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少天, (valueOf==0?999:valueOf)+"");
+				mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少月, (valueOf==0?999:valueOf)+"");
 			}
 		});
-		button_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_9.setText("保存多少天的照片");
-		String string3 = mapSystemSetting.get(SystemSettingTypeEnum.图片保存多少天);
+		btn_imgSaveMonth.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		btn_imgSaveMonth.setText("保存多少月的照片");
+		String autoDeleteImg = mapSystemSetting.get(SystemSettingTypeEnum.是否自动删除图片);
+		Boolean valueOf = Boolean.valueOf(autoDeleteImg==null?SystemSettingTypeEnum.是否自动删除图片.getDefaultValue():autoDeleteImg);
+		btn_imgSaveMonth.setSelection(valueOf.booleanValue());
+		String imgSaveMonth = mapSystemSetting.get(SystemSettingTypeEnum.图片保存多少月);
 		
 		text_setting_imgSaveDays = new Text(composite_15, SWT.BORDER);
+		text_setting_imgSaveDays.addKeyListener(new KeyAdapter() {
+			String oldText="";
+			@Override
+			public void keyReleased(KeyEvent e) {
+				String text = text_setting_imgSaveDays.getText();
+				try {
+					Integer valueOf2 = Integer.valueOf(text);
+					if (valueOf2>0) {
+						mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少月,text);
+					}
+					oldText=text;
+				} catch (NumberFormatException e1) {
+					text_setting_imgSaveDays.setText("");
+					text_setting_imgSaveDays.append(oldText);
+				}
+			}
+		});
 		text_setting_imgSaveDays.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_setting_imgSaveDays.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		if (string3==null) {
-			button_9.setSelection(false);
-			text_setting_imgSaveDays.setText(SystemSettingTypeEnum.图片保存多少天.getDefaultValue());
-		}else{
-			if (string3.equals(SystemSettingTypeEnum.图片保存多少天.getDefaultValue())) {
-				
-			}else
-			button_9.setSelection(true);
-			text_setting_imgSaveDays.setText(string3);
-		}
 		
+		text_setting_imgSaveDays.setText(imgSaveMonth==null?SystemSettingTypeEnum.图片保存多少月.getDefaultValue():imgSaveMonth);
 		Composite composite_7 = new Composite(group_4, SWT.NONE);
 		composite_7.setLayout(new GridLayout(2, false));
 		composite_7.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
@@ -987,21 +1000,21 @@ public class CarparkManageApp extends AbstractApp{
 		button_1.setToolTipText("清除进出场记录，清除充值、归账记录");
 		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_1.setText("清除记录");
-		
 		Composite composite_8 = new Composite(group_4, SWT.NONE);
 		composite_8.setLayout(new GridLayout(1, false));
 		composite_8.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 		
-		Button button_12 = new Button(composite_8, SWT.NONE);
-		button_12.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
-		button_12.addSelectionListener(new SelectionAdapter() {
+		Button btn_saveAllSetting = new Button(composite_8, SWT.NONE);
+		btn_saveAllSetting.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
+		btn_saveAllSetting.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		btn_saveAllSetting.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				presenter.saveAllSystemSetting();
 			}
 		});
-		button_12.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_12.setText("保存设置");
+		btn_saveAllSetting.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		btn_saveAllSetting.setText("保存设置");
 		
 		Composite composite_blackUser = new Composite(composite_12, SWT.NONE);
 		composite_blackUser.setLayout(new FillLayout(SWT.HORIZONTAL));

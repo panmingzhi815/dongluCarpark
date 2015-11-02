@@ -28,7 +28,9 @@ import com.dongluhitec.card.blservice.DatabaseServiceProvider;
 import com.dongluhitec.card.blservice.HardwareFacility;
 import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.security.LocalSecurityManager;
 import com.dongluhitec.card.domain.security.impl.SecurityManagerImpl;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -53,11 +55,20 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -140,6 +151,8 @@ public class Login {
 			}
 		}
 	}
+
+	
 
 	/**
 	 * Create contents of the window.
@@ -274,6 +287,7 @@ public class Login {
 		String type = null;
 		try {
 			sp.start();
+			autoDeletePhoto();
 			SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(txt_userName.getText(), txt_password.getText());
 			if (StrUtil.isEmpty(findByNameAndPassword)) {
 				lbl_msg.setText("用户名或密码错误");
@@ -315,5 +329,48 @@ public class Login {
 //			shell.setVisible(true);
 			System.exit(0);
 		}
+	}
+	//自动删除图片
+	private void autoDeletePhoto() {
+		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+			public void run() {
+				SingleCarparkSystemSetting ss1 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.是否自动删除图片.name());
+				if (StrUtil.isEmpty(ss1) || ss1.getSettingValue().equals(SystemSettingTypeEnum.是否自动删除图片.getDefaultValue())) {
+					return;
+				}
+				Boolean valueOf = Boolean.valueOf(ss1.getSettingValue());
+				if (!valueOf) {
+					return;
+				}
+				SingleCarparkSystemSetting ss2 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存多少月.name());
+				int saveMonth = Integer.valueOf(ss2 == null ? SystemSettingTypeEnum.图片保存多少月.getDefaultValue() : ss2.getSettingValue());
+				SingleCarparkSystemSetting ss3 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存位置.name());
+				String savePath = (ss3 == null ? SystemSettingTypeEnum.图片保存位置.getDefaultValue() : ss3.getSettingValue())+"/img/";
+				Date d=new Date();
+				DateTime deleteTime = new DateTime(d).minusMonths(saveMonth+2);
+				int year = deleteTime.getYear();
+				int month = deleteTime.getMonthOfYear();
+				File file;
+				while(true){
+					String pathname = savePath+year+"/"+month;
+					LOGGER.info("检测文件夹{}是否存在",pathname);
+					file=new File(pathname);
+					if (file.isDirectory()) {
+						LOGGER.info("文件夹{}存在,准备删除文件夹",pathname);
+						file.delete();
+					}else{
+						LOGGER.info("文件夹{}不存在,退出任务",pathname);
+						break;
+					}
+					if (month==1) {
+						month=12;
+						year-=1;
+					}else{
+						month-=1;
+					}
+				}
+			}
+		}, 1, 60*24, TimeUnit.MINUTES);
 	}
 }

@@ -10,7 +10,7 @@ public enum SystemSettingTypeEnum {
 	固定车出场确认("false"),
 	数据库备份位置(""),
 	图片保存位置(System.getProperty("user.dir")),
-	图片保存多少天("999"),
+	图片保存多少月("12"),
 	是否自动删除图片("false"),
 	同一车牌识别间隔("10");
 	private String defaultValue;
