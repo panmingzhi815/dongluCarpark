@@ -7,47 +7,50 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
+import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 
-import com.donglu.carpark.server.CarparkHardwareGuiceModule;
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.ServerUI;
 import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.server.servlet.ServerServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
-import com.dongluhitec.card.blservice.HardwareFacility;
+import com.donglu.carpark.service.CarparkService;
+import com.donglu.carpark.ui.Login;
+import com.donglu.carpark.ui.wizard.sn.ImportSNModel;
+import com.donglu.carpark.ui.wizard.sn.ImportSNWizard;
+import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
+import com.dongluhitec.card.domain.db.setting.SNSettingType;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.hardware.util.HardwareFacilityImpl;
 import com.dongluhitec.card.server.ServerUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
-import com.google.common.collect.Maps;
+import com.dongluhitec.core.crypto.appauth.AppAuthorization;
+import com.dongluhitec.core.crypto.appauth.AppVerifier;
+import com.dongluhitec.core.crypto.appauth.AppVerifierImpl;
+import com.dongluhitec.core.crypto.softdog.SoftDogWin;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 
 import org.eclipse.swt.layout.GridData;
@@ -57,13 +60,23 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.observable.Realm;
+import org.eclipse.jface.databinding.swt.SWTObservables;
 
 public class ImageServerUI {
+	
+	private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
+	public static final String YYYY_MM_DD = "yyyy-MM-dd";
+
+	private DataBindingContext m_bindingContext;
 
 	public static final String IMAGE_SAVE_DIRECTORY = "directory";
 	protected Shell shell;
@@ -74,6 +87,8 @@ public class ImageServerUI {
 	private ServerUI ui;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
+	@Inject
+	private CommonUIFacility commonui;
 	
 	private String filePath="";
 
@@ -85,14 +100,19 @@ public class ImageServerUI {
 	};
 	private TrayItem trayItem;
 
+	private AppVerifier av;
+
 	/**
 	 * Launch the application.
 	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		try {
-			Injector createInjector = Guice.createInjector(new CommonUIGuiceModule(),new AbstractModule() {
+		Display display = Display.getDefault();
+		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
+			public void run() {
+				try {
+					Injector createInjector = Guice.createInjector(new CommonUIGuiceModule(),new AbstractModule() {
                 @Override
                 protected void configure() {
                     this.bindConstant().annotatedWith(Names.named("HBM2DDL")).to("update");
@@ -100,11 +120,13 @@ public class ImageServerUI {
                     bind(CarparkDatabaseServiceProvider.class).to(CarparkLocalVMServiceProvider.class);
                 }
             });
-			ImageServerUI window = createInjector.getInstance(ImageServerUI.class);
-			window.open();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+					ImageServerUI window = createInjector.getInstance(ImageServerUI.class);
+					window.open();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	/**
@@ -114,6 +136,7 @@ public class ImageServerUI {
 		Display display = Display.getDefault();
 //		init();
 		createContents();
+		m_bindingContext = initDataBindings();
 		shell.open();
 		shell.setImage(JFaceUtil.getImage("carpark_16"));
 		
@@ -128,6 +151,16 @@ public class ImageServerUI {
 			}
 		});
 		btnTest.setText("配    置");
+		
+		Button button = new Button(shell, SWT.NONE);
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				importSN();
+			}
+		});
+		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button.setText("注册码");
 		shell.layout();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -135,6 +168,28 @@ public class ImageServerUI {
 			}
 		}
 		System.exit(0);
+	}
+
+	protected void importSN() {
+		try {
+			sp.start();
+			CarparkService carparkService = sp.getCarparkService();
+			Map<SNSettingType, String> mapSN=carparkService.findAllSN();
+			
+			ImportSNModel m=new ImportSNModel();
+			if (!StrUtil.isEmpty(mapSN)) {
+				m.setSn(mapSN.get(SNSettingType.sn));
+				m.setCompanyName(mapSN.get(SNSettingType.companyName));
+				m.setProjectName(mapSN.get(SNSettingType.projectName));
+				m.setModules(mapSN.get(SNSettingType.modules));
+			}
+			av = new AppVerifierImpl(new SoftDogWin());
+			ImportSNWizard importSNWizard = new ImportSNWizard(av, sp,m);
+			commonui.showWizard(importSNWizard);
+			sp.stop();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void init() {
@@ -159,9 +214,9 @@ public class ImageServerUI {
 	 */
 	protected void createContents() {
 		shell = new Shell();
-		shell.setSize(522, 86);
+		shell.setSize(589, 86);
 		shell.setText("服务器");
-		shell.setLayout(new GridLayout(5, false));
+		shell.setLayout(new GridLayout(6, false));
 		shell.addShellListener(new ShellAdapter() {
 
 			@Override
@@ -287,7 +342,10 @@ public class ImageServerUI {
 			s.setSettingKey(SystemSettingTypeEnum.图片保存位置.name());
 			s.setSettingValue(open);
 			sp.getCarparkService().saveSystemSetting(s);
-			sp.stop();
+			if (Boolean.valueOf(System.getProperty(Login.CHECK_SOFT_DOG)==null?"true":"false")) {
+				autoCheckSoftDog();
+			}
+//			sp.stop();
 			this.server = new Server(8899);
 			ServletHandler servletHandler = new ServletHandler();
 			server.setHandler(servletHandler);
@@ -304,5 +362,50 @@ public class ImageServerUI {
 			e.printStackTrace();
 		}
 	}
+	//定时检测加密狗
+	private void autoCheckSoftDog() {
+		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					SingleCarparkSystemSetting sn = sp.getCarparkService().findSystemSettingByKey(SNSettingType.sn.name());
+					LOGGER.info("从数据库获取注册码信息{}",sn);
+					if (StrUtil.isEmpty(sn)) {
+						return;
+					}
+					Date dateOfExpire = null;
+					try {
+						LOGGER.info("解析从数据库获取注册码信息");
+						av=new AppVerifierImpl(new SoftDogWin());
+						AppAuthorization decrypt = av.decrypt(sn.getSettingValue());
+						dateOfExpire = decrypt.getDateOfExpire();
+//						dateOfExpire=new DateTime(2015,12,8,1,1).toDate();
+						if (StrUtil.getTodayBottomTime(dateOfExpire).before(new Date())) {
+							LOGGER.info("解析从数据库获取注册码信息成功,已过期{}",dateOfExpire);
+							dateOfExpire=null;
+						}
+						LOGGER.info("解析从数据库获取注册码信息成功");
+					} catch (Exception e) {
+						LOGGER.info("解析从数据库获取注册码信息失败");
+					}
+					SingleCarparkSystemSetting vilidTo=new SingleCarparkSystemSetting();
+					vilidTo.setSettingKey(SNSettingType.validTo.name());
+					vilidTo.setSettingValue(StrUtil.formatDate(dateOfExpire, YYYY_MM_DD));
+					sp.getCarparkService().saveSystemSetting(vilidTo);
+					LOGGER.info("把解析到的信息保存到数据库");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}, 10, 60*30, TimeUnit.SECONDS);
+		
+	}
 
+	protected DataBindingContext initDataBindings() {
+		DataBindingContext bindingContext = new DataBindingContext();
+		//
+		return bindingContext;
+	}
 }

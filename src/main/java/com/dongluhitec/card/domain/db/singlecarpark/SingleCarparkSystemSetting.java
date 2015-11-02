@@ -13,6 +13,7 @@ public class SingleCarparkSystemSetting extends DomainObject {
 	private static final long serialVersionUID = 2546271381567702939L;
 	@Column(unique=true)
 	private String settingKey;
+	@Column(length=999)
 	private String settingValue;
 	
 	public static long getSerialversionuid() {

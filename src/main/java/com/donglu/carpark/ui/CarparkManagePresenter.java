@@ -67,6 +67,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.mapper.BeanUtil;
+import com.dongluhitec.card.server.util.DatabaseUtil;
+import com.dongluhitec.card.ui.util.FileUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -418,7 +420,13 @@ public class CarparkManagePresenter {
 		List<SingleCarparkSystemSetting> findAllSystemSetting = sp.getCarparkService().findAllSystemSetting();
 		for (SingleCarparkSystemSetting singleCarparkSystemSetting : findAllSystemSetting) {
 			if (!StrUtil.isEmpty(singleCarparkSystemSetting.getSettingValue())) {
-				mapSystemSetting.put(SystemSettingTypeEnum.valueOf(singleCarparkSystemSetting.getSettingKey()), singleCarparkSystemSetting.getSettingValue());
+				SystemSettingTypeEnum valueOf;
+				try {
+					valueOf = SystemSettingTypeEnum.valueOf(singleCarparkSystemSetting.getSettingKey());
+				} catch (Exception e) {
+					continue;
+				}
+				mapSystemSetting.put(valueOf, singleCarparkSystemSetting.getSettingValue());
 			}
 		}
 	}
@@ -773,8 +781,20 @@ public class CarparkManagePresenter {
 	}
 
 	// 数据库备份
-	public void backup(String text) {
-
+	public void backup(String path) {
+		CarparkClientConfig ccc=(CarparkClientConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
+		if (StrUtil.isEmpty(ccc)) {
+			return;
+		}
+		String sql="backup database carpark to disk='"+path+"'";
+		System.out.println(sql);
+		boolean executeSQL = DatabaseUtil.executeSQL(ccc.getDbServerIp(), ccc.getDbServerPort(), "master", ccc.getDbServerUsername(), ccc.getDbServerPassword(), sql, "SQLSERVER 2008");
+		if (executeSQL) {
+			commonui.info("成功", "备份数据库到"+path+"成功");
+		}else{
+			commonui.error("失败", "备份数据库到"+path+"失败");
+		}
+		
 	}
 
 	/**

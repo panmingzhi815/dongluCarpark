@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.service.CarparkService;
 import com.dongluhitec.card.blservice.DongluServiceException;
+import com.dongluhitec.card.domain.db.setting.SNSettingType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationPrice;
@@ -701,6 +703,25 @@ public class CarparkServiceImpl implements CarparkService {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
 			c.add(Restrictions.eq("code", code));
 			return (SingleCarparkCarpark) c.getSingleResultOrNull();
+		}catch(Exception e){
+			return null;
+		}finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public Map<SNSettingType, String> findAllSN() {
+		unitOfWork.begin();
+		try {
+			Map<SNSettingType, String> map=new HashMap<>();
+			for (SNSettingType t:SNSettingType.values()) {
+				Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkSystemSetting.class);
+				c.add(Restrictions.eq("settingKey", t.name()));
+				SingleCarparkSystemSetting ss = (SingleCarparkSystemSetting) c.getSingleResultOrNull();
+				map.put(t, ss==null?null:ss.getSettingValue());
+			}
+			return map;
 		}catch(Exception e){
 			return null;
 		}finally{

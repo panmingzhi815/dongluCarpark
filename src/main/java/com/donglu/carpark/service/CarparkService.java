@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.dongluhitec.card.domain.db.setting.SNSettingType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
@@ -249,6 +250,5 @@ public interface CarparkService {
 	public List<CarparkChargeStandard> findAllCarparkChargeStandard();
 	
 	public SingleCarparkCarpark findCarparkByCode(String code);
-	
-	
+	public Map<SNSettingType, String> findAllSN();
 }

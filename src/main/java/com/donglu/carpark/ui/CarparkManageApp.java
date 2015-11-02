@@ -186,7 +186,8 @@ public class CarparkManageApp extends AbstractApp{
 	protected void createContents() {
 		shell = new Shell();
 		shell.setSize(896, 621);
-		shell.setText("停车场管理界面("+CarparkClientConfig.getInstance().getDbServerIp()+")");
+		String dbServerIp = CarparkClientConfig.getInstance().getDbServerIp();
+		shell.setText("停车场管理界面("+dbServerIp+")");
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
@@ -853,8 +854,13 @@ public class CarparkManageApp extends AbstractApp{
 		label_5.setText("秒");
 		
 		Composite composite_14 = new Composite(group_4, SWT.NONE);
-		composite_14.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
-		composite_14.setLayout(new GridLayout(3, false));
+		GridData gd_composite_14 = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
+		if (dbServerIp.equals("localhost")||dbServerIp.equals("127.0.0.1")||dbServerIp.equals(StrUtil.getHostIp())) {
+			
+		}else
+		gd_composite_14.exclude = true;
+		composite_14.setLayoutData(gd_composite_14);
+		composite_14.setLayout(new GridLayout(4, false));
 		
 		Label label_11 = new Label(composite_14, SWT.NONE);
 		label_11.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -883,19 +889,34 @@ public class CarparkManageApp extends AbstractApp{
 		String string = mapSystemSetting.get(SystemSettingTypeEnum.数据库备份位置);
 		text_setting_dataBaseSave.setText(string==null?SystemSettingTypeEnum.数据库备份位置.getDefaultValue():string);
 		
+		Button button_10 = new Button(composite_14, SWT.NONE);
+		button_10.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				FileDialog fileDialog = new FileDialog(shell, SWT.SINGLE);
+				fileDialog.setText("请选择路径");
+				String open = fileDialog.open();
+				if (StrUtil.isEmpty(open)) {
+					return;
+				}
+				text_setting_dataBaseSave.setText(open);
+				mapSystemSetting.put(SystemSettingTypeEnum.数据库备份位置, open);
+			}
+		});
+		button_10.setText("...");
+		
 		Button button_8 = new Button(composite_14, SWT.NONE);
 		button_8.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				presenter.backup(text_setting_dataBaseSave.getText());
-				
 			}
 		});
 		button_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_8.setText("备份");
 		
 		Composite composite_15 = new Composite(group_4, SWT.NONE);
-		composite_15.setLayout(new GridLayout(4, false));
+		composite_15.setLayout(new GridLayout(5, false));
 		composite_15.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
 		
 		Label label_12 = new Label(composite_15, SWT.NONE);
@@ -927,6 +948,21 @@ public class CarparkManageApp extends AbstractApp{
 		text_setting_imgSave.setLayoutData(gd_text_setting_imgSave);
 		String imgSavePath = (String) FileUtils.readObject(CLIENT_IMAGE_SAVE_FILE_PATH);
 		text_setting_imgSave.setText(imgSavePath==null?System.getProperty("user.dir"):imgSavePath);
+		
+		Button button_9 = new Button(composite_15, SWT.NONE);
+		button_9.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				DirectoryDialog directoryDialog=new DirectoryDialog(shell,SWT.SINGLE);
+				String open = directoryDialog.open();
+				if (StrUtil.isEmpty(open)) {
+					return;
+				}
+				text_setting_imgSave.setText(open);
+				FileUtils.writeObject(CLIENT_IMAGE_SAVE_FILE_PATH, open);
+			}
+		});
+		button_9.setText("...");
 		
 		Button btn_imgSaveMonth = new Button(composite_15, SWT.CHECK);
 		btn_imgSaveMonth.addSelectionListener(new SelectionAdapter() {

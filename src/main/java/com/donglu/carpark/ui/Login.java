@@ -26,8 +26,10 @@ import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
 import com.donglu.carpark.ui.common.App;
 import com.dongluhitec.card.blservice.DatabaseServiceProvider;
 import com.dongluhitec.card.blservice.HardwareFacility;
+import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
+import com.dongluhitec.card.domain.db.setting.SNSettingType;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
@@ -66,6 +68,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -81,6 +84,8 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.graphics.Point;
 
 public class Login {
+	public static final String CHECK_SOFT_DOG = "checkSoftDog";
+
 	private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
 	
 	protected Shell shell;
@@ -98,6 +103,8 @@ public class Login {
 	private App app;
 	@Inject
 	private ClientConfigUI clientConfigUI;
+	@Inject
+	private CommonUIFacility commonui;
 	
 
 	/**
@@ -288,6 +295,10 @@ public class Login {
 		try {
 			sp.start();
 			autoDeletePhoto();
+			if (Boolean.valueOf(System.getProperty(CHECK_SOFT_DOG)==null?"true":"false")) {
+				checkSoftDog();
+			}
+			
 			SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(txt_userName.getText(), txt_password.getText());
 			if (StrUtil.isEmpty(findByNameAndPassword)) {
 				lbl_msg.setText("用户名或密码错误");
@@ -330,6 +341,28 @@ public class Login {
 			System.exit(0);
 		}
 	}
+	//检测加密狗
+	private void checkSoftDog() {
+		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+			
+			@Override
+			public void run() {
+				LOGGER.info("从数据库获取注册信息");
+				Map<SNSettingType, String> findAllSN = sp.getCarparkService().findAllSN();
+				String sn = findAllSN.get(SNSettingType.sn);
+				String validTo = findAllSN.get(SNSettingType.validTo);
+				if (StrUtil.isEmpty(sn)||StrUtil.isEmpty(validTo)) {
+					LOGGER.info("没有检测到注册码，请检测服务器加密狗");
+					commonui.error("检查失败", "没有检测到注册码，请检测服务器加密狗");
+					System.exit(0);
+					return;
+				}
+				LOGGER.info("检查注册码成功,有效期至{}",validTo);
+			}
+		}, 1, 60*3, TimeUnit.MINUTES);
+	}
+
 	//自动删除图片
 	private void autoDeletePhoto() {
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
@@ -345,8 +378,8 @@ public class Login {
 				}
 				SingleCarparkSystemSetting ss2 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存多少月.name());
 				int saveMonth = Integer.valueOf(ss2 == null ? SystemSettingTypeEnum.图片保存多少月.getDefaultValue() : ss2.getSettingValue());
-				SingleCarparkSystemSetting ss3 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存位置.name());
-				String savePath = (ss3 == null ? SystemSettingTypeEnum.图片保存位置.getDefaultValue() : ss3.getSettingValue())+"/img/";
+				String imgSavePath = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
+				String savePath = (imgSavePath == null ? System.getProperty("user.dir") : imgSavePath)+"/img/";
 				Date d=new Date();
 				DateTime deleteTime = new DateTime(d).minusMonths(saveMonth+2);
 				int year = deleteTime.getYear();
