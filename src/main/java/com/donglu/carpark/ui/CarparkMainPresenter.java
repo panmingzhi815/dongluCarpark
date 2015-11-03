@@ -129,10 +129,8 @@ public class CarparkMainPresenter {
 
 	/**
 	 * 弹窗添加设备
-	 * 
-	 * @param string
 	 * @param tabFolder
-	 * 
+	 * @param type
 	 */
 	public void addDevice(CTabFolder tabFolder, String type) {
 		try {
@@ -693,7 +691,7 @@ public class CarparkMainPresenter {
 	}
 	/**
 	 *人工查找
-	 * @param data 
+	 * @param plateNO
 	 */
 	public void showManualSearch(String plateNO) {
 		try {

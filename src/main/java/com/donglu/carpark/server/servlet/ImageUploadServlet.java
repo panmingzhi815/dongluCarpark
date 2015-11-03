@@ -1,6 +1,7 @@
 package com.donglu.carpark.server.servlet;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Charsets;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -30,6 +32,8 @@ public class ImageUploadServlet extends HttpServlet {
 
     private static final long serialVersionUID = 884523916637749569L;
 
+    public final static String charset = Charsets.UTF_8.name();
+
     private String root;
 
     public void setFolder(String folderName) {
@@ -38,16 +42,17 @@ public class ImageUploadServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    	req.setCharacterEncoding("UTF-8");
-    	resp.setCharacterEncoding("UTF-8");
+    	req.setCharacterEncoding(charset);
+    	resp.setCharacterEncoding(charset);
     	
         String id = req.getParameter("id");
+        if(Strings.isNullOrEmpty(id)){
+            return;
+        }
+        id = new String(Base64.getDecoder().decode(id), Charsets.UTF_8);
         Object o=FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);
         LOGGER.info("服务器图片保存位置{}，接收到请求图片：{}",o,id);
-//        System.out.println(o+"========"+id);
         String filePathFromId = parseFilePathFromId(id,o+"\\img\\");
-//        System.out.println();
-//        System.out.println(filePathFromId);
         LOGGER.info("服务器图片位置：{}",filePathFromId);
         byte[] bytes = getBytes(filePathFromId);
 

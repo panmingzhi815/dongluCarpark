@@ -28,9 +28,13 @@ java.net.URL;
 import java.util.Base64;
 import java.util.Map;
 
+import com.google.common.base.Charsets;
 import org.apache.commons.io.input.CharSequenceInputStream;
 
 public class FileuploadSend {
+
+	public static final Integer TIMEOUT = 2000;
+	public static final Integer SUCCESS = 200;
 
 	public static String upload(String actionUrl, String FileName) throws IOException {
 		String BOUNDARY = java.util.UUID.randomUUID().toString();
@@ -100,33 +104,15 @@ public class FileuploadSend {
 	}
 
 	public static byte[] download(String actionUrl, String FileName) throws IOException {
-		String BOUNDARY = java.util.UUID.randomUUID().toString();
-		String PREFFIX = "--", LINEND = "\r\n";
-		String MULTIPART_FROM_DATA = "multipart/form-data";
-		String CHARSET = "UTF-8";
-
-		URL uri = new URL(actionUrl + "?id=" + FileName);
+		URL uri = new URL(actionUrl + "?id=" + Base64.getEncoder().encodeToString(FileName.getBytes(Charsets.UTF_8)));
 		HttpURLConnection conn = (HttpURLConnection) uri.openConnection();
-		// 设置从主机读取数据超时
-		conn.setReadTimeout(2 * 1000);
-		conn.setDoInput(true);
-		conn.setDoOutput(true);
-		conn.setUseCaches(false);
+		conn.setReadTimeout(TIMEOUT);
 		conn.setRequestMethod("GET");
-		conn.setRequestProperty("connection", "keep-alive");
-		conn.setRequestProperty("Charset", "UTF-8");
-		conn.setRequestProperty("Content-Type", MULTIPART_FROM_DATA + ";boundary=" + BOUNDARY);
-		// 得到响应码
-		int res = conn.getResponseCode();
-		// System.out.println(res);
-		InputStream in = null;
-		// 上传成功返回200
-		if (res == 200) {
-			in = conn.getInputStream();
-			return input2byte(in);
+		if(conn.getResponseCode() != SUCCESS){
+			return null;
 		}
-		// 如果数据不为空，则以字符串方式返回数据，否则返回null
-		return in == null ? null : input2byte(in);
+		InputStream in = conn.getInputStream();
+		return input2byte(in);
 	}
 
 	public static final byte[] input2byte(InputStream inStream) throws IOException {
