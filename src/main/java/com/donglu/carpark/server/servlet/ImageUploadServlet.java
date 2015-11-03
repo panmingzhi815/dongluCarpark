@@ -43,10 +43,12 @@ public class ImageUploadServlet extends HttpServlet {
     	
         String id = req.getParameter("id");
         Object o=FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);
-        System.out.println(o+"========"+id);
+        LOGGER.info("服务器图片保存位置{}，接收到请求图片：{}",o,id);
+//        System.out.println(o+"========"+id);
         String filePathFromId = parseFilePathFromId(id,o+"\\img\\");
-        System.out.println(filePathFromId);
-
+//        System.out.println();
+//        System.out.println(filePathFromId);
+        LOGGER.info("服务器图片位置：{}",filePathFromId);
         byte[] bytes = getBytes(filePathFromId);
 
         if (bytes == null) {

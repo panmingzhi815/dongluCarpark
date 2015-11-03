@@ -57,6 +57,8 @@ public class SingleCarparkCarpark extends DomainObject {
 	@Min(value = 0, message = "临时车位总数不能小于0")
 	private Integer tempNumberOfSlot;
 	
+	private Boolean fixCarOneIn;
+	
 	public String getCode() {
 		return code;
 	}
@@ -171,6 +173,14 @@ public class SingleCarparkCarpark extends DomainObject {
 	@Override
 	public String getLabelString() {
 		return "("+code+")"+name;
+	}
+	public Boolean getFixCarOneIn() {
+		return fixCarOneIn;
+	}
+	public void setFixCarOneIn(Boolean fixCarOneIn) {
+		this.fixCarOneIn = fixCarOneIn;
+		if (pcs != null)
+			pcs.firePropertyChange("fixCarOneIn", null, null);
 	}
 	
 	

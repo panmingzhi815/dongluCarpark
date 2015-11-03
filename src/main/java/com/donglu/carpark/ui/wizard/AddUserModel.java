@@ -12,6 +12,7 @@ public class AddUserModel extends SingleCarparkUser {
 	private List<SingleCarparkCarpark> allList=Lists.newArrayList();
 	
 	private MonthlyUserPayModel model;
+	private int totalSlot=0;
 
 	public List<SingleCarparkCarpark> getAllList() {
 		return allList;
@@ -69,5 +70,15 @@ public class AddUserModel extends SingleCarparkUser {
 		this.model = model;
 		if (pcs != null)
 			pcs.firePropertyChange("model", null, null);
+	}
+
+	public int getTotalSlot() {
+		return totalSlot;
+	}
+
+	public void setTotalSlot(int totalSlot) {
+		this.totalSlot = totalSlot;
+		if (pcs != null)
+			pcs.firePropertyChange("totalSlot", null, null);
 	}
 }

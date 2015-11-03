@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -24,23 +26,27 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	 */
 	private static final long serialVersionUID = -6080299047343306789L;
 	
-	
+	@Column(length=20)
 	private String plateNo;
+	@Column(length=20)
 	private String userName;
+	
 	private Long userId;
+	@Column(length=20)
 	private String carType;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date inTime;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date outTime;
-	
+	@Column(length=40)
 	private String inDevice;
+	@Column(length=40)
 	private String outDevice;
 	
 	private Float shouldMoney;
 	private Float factMoney;
 	private Float freeMoney;
-	
+	@Column(length=20)
 	private String operaName;
 	
 	private Long returnAccount;
@@ -51,8 +57,9 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private String outBigImg;
 	private String inPlateNO;
 	private String outPlateNO;
-	
+	@Column(length=20)
 	private String inPhotographType;
+	@Column(length=20)
 	private String outPhotographType;
 
 	public String getPlateNo() {

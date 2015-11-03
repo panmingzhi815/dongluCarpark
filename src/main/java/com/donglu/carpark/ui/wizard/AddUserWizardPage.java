@@ -29,13 +29,15 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 
 public class AddUserWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
 	private Text text;
 	private Text text_1;
 	private Text text_3;
-	private Text text_4;
+	private Text txt_carNO;
 	AddUserModel model;
 	private ComboViewer comboViewer_carpark;
 	private Combo combo_carpark;
@@ -129,11 +131,36 @@ public class AddUserWizardPage extends WizardPage {
 		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_4.setText("车位");
 		
-		text_4 = new Text(composite, SWT.BORDER);
-		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		txt_carNO = new Text(composite, SWT.BORDER);
+		txt_carNO.addKeyListener(new KeyAdapter() {
+			String txt="";
+			@Override
+			public void keyReleased(KeyEvent e) {
+				String text2 = txt_carNO.getText();
+				try {
+					Integer valueOf = Integer.valueOf(text2);
+					
+					if (valueOf<model.getTotalSlot()) {
+						txt=text2;
+					}else{
+						setTxt();
+					}
+				} catch (NumberFormatException e1) {
+					setTxt();
+				}
+			}
+			/**
+			 * 
+			 */
+			private void setTxt() {
+				txt_carNO.setText("");
+				txt_carNO.append(txt);
+			}
+		});
+		txt_carNO.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_text_4 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_4.widthHint = 150;
-		text_4.setLayoutData(gd_text_4);
+		txt_carNO.setLayoutData(gd_text_4);
 		
 		Label label_5 = new Label(composite, SWT.NONE);
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -171,7 +198,7 @@ public class AddUserWizardPage extends WizardPage {
 		IObservableValue addressModelObserveValue = BeanProperties.value("address").observe(model);
 		bindingContext.bindValue(observeTextText_3ObserveWidget, addressModelObserveValue, null, null);
 		//
-		IObservableValue observeTextText_4ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_4);
+		IObservableValue observeTextText_4ObserveWidget = WidgetProperties.text(SWT.Modify).observe(txt_carNO);
 		IObservableValue carparkNoModelObserveValue = BeanProperties.value("carparkNo").observe(model);
 		bindingContext.bindValue(observeTextText_4ObserveWidget, carparkNoModelObserveValue, null, null);
 		//

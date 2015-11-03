@@ -5,29 +5,26 @@ import java.util.Date;
 import java.util.List;
 
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
-import com.donglu.carpark.service.CarparkService;
+import com.donglu.carpark.ui.CarparkManageApp;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
-import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
-import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
-import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
-import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.ui.util.FileUtils;
 import com.google.inject.Inject;
 
 public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarparkInOutHistory>{
+	private static final Logger LOGGER = LoggerFactory.getLogger(ImageUploadServlet.class);
 	private InOutHistoryListView v;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
@@ -117,10 +114,12 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 			}
 			SingleCarparkInOutHistory h =v.getModel().getSelected().get(0);
 			
-			SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存位置.name());
+			
+			
+			String file = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 			
 			InOutHistoryDetailWizard wizard =new InOutHistoryDetailWizard(h,
-					findSystemSettingByKey.getSettingValue()==null?SystemSettingTypeEnum.图片保存位置.getDefaultValue():findSystemSettingByKey.getSettingValue());
+					file);
 			inOutHistory = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
 			
 			
@@ -136,9 +135,10 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 	public void mouseDoubleClick(List<SingleCarparkInOutHistory> list) {
 		try {
 			SingleCarparkInOutHistory h =list.get(0);
-			SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存位置.name());
+			String file = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
+			LOGGER.info("本地文件存放位置{}",file);
 			InOutHistoryDetailWizard wizard =new InOutHistoryDetailWizard(h,
-					findSystemSettingByKey.getSettingValue()==null?SystemSettingTypeEnum.图片保存位置.getDefaultValue():findSystemSettingByKey.getSettingValue());
+					file);
 			inOutHistory = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
 		} catch (Exception e) {
 			e.printStackTrace();

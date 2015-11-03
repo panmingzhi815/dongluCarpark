@@ -37,15 +37,21 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 
 	@Override
 	public boolean performFinish() {
+		String regex="^[\u4e00-\u9fa5][A-Za-z0-9]{6}$";
+		
+		String[] split = model.getPlateNo().split(",");
+		for (String string : split) {
+			if (!string.matches(regex)) {
+				page.setErrorMessage("车牌:"+string+"不正确,请输入正确车牌");
+				return false;
+			}
+		}
+		
 		if (!StrUtil.isEmpty(model.getModel())) {
 			if (StrUtil.isEmpty(model.getModel().getOverdueTime())) {
 				page.setErrorMessage("固定用户必须有个有效期");
 				return false;
 			}
-		}
-		if (model.getPlateNo().length()>8) {
-			page.setErrorMessage("请输入正确车牌");
-			return false;
 		}
 		return true;
 	}
@@ -67,5 +73,9 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 		m.setCreateTimeLabel(m.getCreateTimeLabel());
 		return super.getNextPage(page);
 	}
-
+	public static void main(String[] args) {
+		String s="^[\u4e00-\u9fa5][A-Za-z0-9]{6}$";
+		boolean matches = "月sssssss".matches(s);
+		System.out.println(matches);
+	}
 }

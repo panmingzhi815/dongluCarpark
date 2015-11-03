@@ -167,60 +167,6 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 			e.printStackTrace();
 		}
 	}
-	protected Image getImage(byte[] image, Label lbl,Shell shell) {
-		if (image==null||image.length<=0) {
-			return null;
-		}
-		ByteArrayInputStream stream = null;
-		try {
-			stream = new ByteArrayInputStream(image);
-			Image newImg = new Image(shell.getDisplay(), stream);
-			Rectangle rectangle = lbl.getBounds();
-			System.out.println(rectangle);
-			if (rectangle.width==0) {
-				return newImg;
-			}
-			ImageData data = newImg.getImageData().scaledTo(rectangle.width, rectangle.height);
-			ImageDescriptor createFromImageData = ImageDescriptor.createFromImageData(data);
-			Image createImg = createFromImageData.createImage();
-			newImg.dispose();
-			newImg = null;
-			return createImg;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}finally{
-			if (stream!=null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	protected byte[] getImageByte(String filePath,String img) {
-		if (StrUtil.isEmpty(img)) {
-			return null;
-		}
-		try {
-			byte[] image;
-			File file=new File(filePath+"/img/"+img);
-			if (file.exists()) {
-				image=Files.toByteArray(file);
-			}else{
-				String substring = img.substring(img.lastIndexOf("/")+1);
-				String actionUrl = "http://"+CarparkClientConfig.getInstance().getDbServerIp()+":8899/carparkImage";
-				image = FileuploadSend.download(actionUrl, substring);
-			}
-			return image;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
 	@Override
 	public InOutHistoryDetailWizard getWizard() {
 		

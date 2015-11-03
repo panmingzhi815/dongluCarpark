@@ -262,6 +262,7 @@ public class CarparkManagePresenter {
 			AddUserModel addUserModel = new AddUserModel();
 			addUserModel.setAllList(list);
 			addUserModel.setModel(model);
+			addUserModel.setTotalSlot(sp.getCarparkInOutService().findFixSlotIsNow());
 			AddUserWizard addUserWizard = new AddUserWizard(addUserModel);
 			AddUserModel m = (AddUserModel) commonui.showWizard(addUserWizard);
 			if (m == null) {

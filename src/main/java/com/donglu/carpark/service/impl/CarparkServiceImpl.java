@@ -304,6 +304,7 @@ public class CarparkServiceImpl implements CarparkService {
 		try {
 			Criteria criteria = CriteriaUtils.createCriteria(emprovider.get(),
 					CarparkCarType.class);
+			criteria.addOrder(Order.asc("id"));
 			return criteria.getResultList();
 		} catch (Exception e) {
 			throw new DongluServiceException("获取停车场车类型列表失败!", e);

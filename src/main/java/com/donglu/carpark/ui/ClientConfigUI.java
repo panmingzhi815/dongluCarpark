@@ -28,6 +28,7 @@ import com.dongluhitec.card.blservice.DatabaseServiceProvider;
 import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIFacility.Progress;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.server.util.DatabaseUtil;
 import com.dongluhitec.card.service.DbServiceConfigurator;
@@ -132,6 +133,7 @@ public class ClientConfigUI {
 			}
 		});
 		btn_checkDataBase.setText("测试");
+		btn_checkDataBase.setImage(JFaceUtil.getImage("add_small"));
 
 	}
 

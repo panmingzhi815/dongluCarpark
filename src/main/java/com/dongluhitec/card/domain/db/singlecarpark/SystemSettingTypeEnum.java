@@ -12,7 +12,7 @@ public enum SystemSettingTypeEnum {
 	图片保存位置(System.getProperty("user.dir")),
 	图片保存多少月("12"),
 	是否自动删除图片("false"),
-	同一车牌识别间隔("10");
+	同一车牌识别间隔("1");
 	private String defaultValue;
 	
 	SystemSettingTypeEnum(String defaultValue){

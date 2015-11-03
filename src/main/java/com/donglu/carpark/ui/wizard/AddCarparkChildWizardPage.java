@@ -26,6 +26,7 @@ public class AddCarparkChildWizardPage extends WizardPage {
 	private Text text_1;
 	private SingleCarparkCarpark model;
 	private Button btnBu;
+	private Button button;
 	/**
 	 * Create the wizard.
 	 * @param model 
@@ -68,6 +69,10 @@ public class AddCarparkChildWizardPage extends WizardPage {
 		
 		btnBu = new Button(composite, SWT.CHECK);
 		btnBu.setText("不允许临时车进入");
+		new Label(composite, SWT.NONE);
+		
+		button = new Button(composite, SWT.CHECK);
+		button.setText("固定车一进一出");
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {
@@ -84,6 +89,10 @@ public class AddCarparkChildWizardPage extends WizardPage {
 		IObservableValue observeSelectionButtonObserveWidget = WidgetProperties.selection().observe(btnBu);
 		IObservableValue tempCarIsInModelObserveValue = BeanProperties.value("tempCarIsIn").observe(model);
 		bindingContext.bindValue(observeSelectionButtonObserveWidget, tempCarIsInModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionButtonObserveWidget_1 = WidgetProperties.selection().observe(button);
+		IObservableValue fixCarOneInModelObserveValue = BeanProperties.value("fixCarOneIn").observe(model);
+		bindingContext.bindValue(observeSelectionButtonObserveWidget_1, fixCarOneInModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

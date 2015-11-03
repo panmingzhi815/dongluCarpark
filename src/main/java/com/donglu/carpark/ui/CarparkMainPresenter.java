@@ -19,6 +19,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -380,9 +381,6 @@ public class CarparkMainPresenter {
 	/**
 	 * 归账
 	 */
-	/**
-	 * 
-	 */
 	public void returnAccount() {
 		try {
 			ReturnAccountModel model = new ReturnAccountModel();
@@ -643,7 +641,7 @@ public class CarparkMainPresenter {
 	 * @param bigImage
 	 *            图片字节
 	 */
-	protected void saveImage(String f, String fileName, byte[] bigImage) {
+	public void saveImage(String f, String fileName, byte[] bigImage) {
 		bigImage = bigImage == null ? new byte[0] : bigImage;
 		String fl = "/img/" + f;
 		if (!StrUtil.isEmpty(FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH))) {
@@ -728,5 +726,25 @@ public class CarparkMainPresenter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	/**
+	 * 检查车牌识别间隔,现在时间在间隔时间内返回false
+	 * 
+	 * @param plateNO
+	 */
+	public boolean checkPlateNODiscernGap(Map<String, Date> mapPlateNoDate, String plateNO, Date nowDate) {
+		Date date = mapPlateNoDate.get(plateNO);
+		if (date != null) {
+			String s = mapSystemSetting.get(SystemSettingTypeEnum.同一车牌识别间隔) == null ? SystemSettingTypeEnum.同一车牌识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.同一车牌识别间隔);
+			LOGGER.info("同一车牌识别间隔为：{}", s);
+			Integer timeGap = Integer.valueOf(s);
+			DateTime plusSeconds = new DateTime(date).plusSeconds(timeGap);
+			boolean after = plusSeconds.toDate().after(nowDate);
+			if (after) {
+				LOGGER.info("车牌{}在{}做过处理，暂不做处理", plateNO, StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss"));
+				return false;
+			}
+		}
+		return true;
 	}
 }
