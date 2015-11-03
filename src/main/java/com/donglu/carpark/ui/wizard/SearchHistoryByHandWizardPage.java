@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 
 import org.eclipse.swt.layout.GridData;
@@ -46,6 +47,8 @@ public class SearchHistoryByHandWizardPage extends WizardPage {
 		setControl(container);
 		container.setLayout(new FillLayout(SWT.HORIZONTAL));
 		presenter.go(container);
+		presenter.getModel().setBigImg(CarparkUtils.getImageByte(presenter.getModel().getSaveBigImg()));
+		presenter.getModel().setSmallImg(CarparkUtils.getImageByte(presenter.getModel().getSaveSmallImg()));
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {

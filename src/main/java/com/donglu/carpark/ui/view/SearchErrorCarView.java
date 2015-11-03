@@ -115,14 +115,14 @@ public class SearchErrorCarView extends Composite implements View{
 			public void mouseDoubleClick(MouseEvent e) {
 				if (StrUtil.isEmpty(model.getHavePlateNoSelect())) {
 					SingleCarparkInOutHistory select = model.getNoPlateNoSelect();
-					model.setBigImg(getByte(select.getBigImg()));
-					model.setSmallImg(getByte(select.getSmallImg()));
+					model.setBigImg(getByte(model.getSaveBigImg()));
+					model.setSmallImg(getByte(model.getSaveSmallImg()));
 					lbl_bigImg.setImage(getImage(getByte(select.getBigImg()),lbl_bigImg));
 				}else{
 					SingleCarparkInOutHistory select = model.getHavePlateNoSelect();
 					lbl_bigImg.setImage(getImage(getByte(select.getBigImg()),lbl_bigImg));
-					model.setBigImg(getByte(select.getBigImg()));
-					model.setSmallImg(getByte(select.getSmallImg()));
+					model.setBigImg(getByte(model.getSaveBigImg()));
+					model.setSmallImg(getByte(model.getSaveSmallImg()));
 				}
 			}
 		});

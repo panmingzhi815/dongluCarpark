@@ -162,6 +162,8 @@ public class CarInTask implements Runnable{
 		long nanoTime3 = System.nanoTime();
 		LOGGER.debug("进行黑名单判断");
 		// SingleCarparkBlackUser singleCarparkBlackUser = mapBlackUser.get(plateNO);
+		LOGGER.debug("显示车牌");
+		presenter.showPlateNOToDevice(device, plateNO);
 		SingleCarparkBlackUser singleCarparkBlackUser = sp.getCarparkService().findBlackUserByPlateNO(plateNO);
 		if (!StrUtil.isEmpty(singleCarparkBlackUser)) {
 			int hoursStart = singleCarparkBlackUser.getHoursStart();
@@ -175,6 +177,7 @@ public class CarInTask implements Runnable{
 			if (now.toDate().after(dt.toDate()) && now.toDate().before(de.toDate())) {
 				LOGGER.error("车牌：{}为黑名单,现在时间为{}，在{}点到{}点之间", plateNO, now.toString("HH:mm:ss"), hoursStart, hoursEnd);
 				model.setInShowMeg("黑名单");
+				presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
 				return;
 			}
 		}
@@ -204,7 +207,10 @@ public class CarInTask implements Runnable{
 				editPlateNo = model.getInShowPlateNO();
 			}
 			
-//			SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkById(device.getCarparkId());
+			SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkById(device.getCarpark().getId());
+			if (StrUtil.isEmpty(carpark)) {
+				return;
+			}
 //			if(carpark.getFixCarOneIn()){
 //				List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO);
 //				if (!StrUtil.isEmpty(findByNoOut)) {

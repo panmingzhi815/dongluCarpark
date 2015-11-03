@@ -118,8 +118,7 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 			
 			String file = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 			
-			InOutHistoryDetailWizard wizard =new InOutHistoryDetailWizard(h,
-					file);
+			InOutHistoryDetailWizard wizard =new InOutHistoryDetailWizard(h);
 			inOutHistory = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
 			
 			
@@ -137,8 +136,7 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 			SingleCarparkInOutHistory h =list.get(0);
 			String file = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 			LOGGER.info("本地文件存放位置{}",file);
-			InOutHistoryDetailWizard wizard =new InOutHistoryDetailWizard(h,
-					file);
+			InOutHistoryDetailWizard wizard =new InOutHistoryDetailWizard(h);
 			inOutHistory = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
 		} catch (Exception e) {
 			e.printStackTrace();

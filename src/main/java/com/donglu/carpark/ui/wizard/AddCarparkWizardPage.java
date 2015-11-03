@@ -88,7 +88,8 @@ public class AddCarparkWizardPage extends WizardPage {
 		new Label(composite, SWT.NONE);
 		
 		button = new Button(composite, SWT.CHECK);
-		button.setText("固定车一进一出");
+		button.setToolTipText("固定车车位满自动变成临时车，否则车位满后不允许进");
+		button.setText("固定车车位满自动变成临时车");
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {

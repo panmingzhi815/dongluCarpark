@@ -15,6 +15,8 @@ public class SearchErrorCarModel extends DomainObject {
 	private SingleCarparkInOutHistory noPlateNoSelect;
 	private byte[] bigImg;
 	private byte[] smallImg;
+	private String saveBigImg;
+	private String saveSmallImg;
 	private boolean inOrOut=true;
 	public List<SingleCarparkInOutHistory> getHavePlateNoList() {
 		return havePlateNoList;
@@ -85,5 +87,21 @@ public class SearchErrorCarModel extends DomainObject {
 		this.inOrOut = inOrOut;
 		if (pcs != null)
 			pcs.firePropertyChange("inOrOut", null, null);
+	}
+	public String getSaveBigImg() {
+		return saveBigImg;
+	}
+	public void setSaveBigImg(String saveBigImg) {
+		this.saveBigImg = saveBigImg;
+		if (pcs != null)
+			pcs.firePropertyChange("saveBigImg", null, null);
+	}
+	public String getSaveSmallImg() {
+		return saveSmallImg;
+	}
+	public void setSaveSmallImg(String saveSmallImg) {
+		this.saveSmallImg = saveSmallImg;
+		if (pcs != null)
+			pcs.firePropertyChange("saveSmallImg", null, null);
 	}
 }

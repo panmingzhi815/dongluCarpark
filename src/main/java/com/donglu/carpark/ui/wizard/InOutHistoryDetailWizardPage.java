@@ -1,47 +1,20 @@
 package com.donglu.carpark.ui.wizard;
 
-import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
-import com.donglu.carpark.server.imgserver.FileuploadSend;
-import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
-import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
-import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.google.common.io.Files;
 
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.FillLayout;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.core.databinding.conversion.Converter;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -52,7 +25,6 @@ import org.eclipse.swt.events.DisposeEvent;
 public class InOutHistoryDetailWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
 	private SingleCarparkInOutHistory model;
-	private String file;
 	private Label lbl_inBigImg;
 	private Label lbl_outBigImg;
 	private SashForm sashForm;
@@ -63,12 +35,11 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 	 * @param model 
 	 * @param file 
 	 */
-	public InOutHistoryDetailWizardPage(SingleCarparkInOutHistory model, String file) {
+	public InOutHistoryDetailWizardPage(SingleCarparkInOutHistory model) {
 		super("wizardPage");
 		setTitle("进出场抓拍信息");
 		setDescription("进出场抓拍信息");
 		this.model=model;
-		this.file=file;
 	}
 
 	/**
@@ -147,9 +118,9 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 				outImage=null;
 			}
 			
-			inImage = CarparkUtils.getImage(CarparkUtils.getImageByte(file,model.getBigImg()), lbl_inBigImg, getShell());
+			inImage = CarparkUtils.getImage(CarparkUtils.getImageByte(model.getBigImg()), lbl_inBigImg, getShell());
 			lbl_inBigImg.setImage(inImage);
-			outImage = CarparkUtils.getImage(CarparkUtils.getImageByte(file,model.getOutBigImg()), lbl_outBigImg, getShell());
+			outImage = CarparkUtils.getImage(CarparkUtils.getImageByte(model.getOutBigImg()), lbl_outBigImg, getShell());
 			lbl_outBigImg.setImage(outImage);
 			if (StrUtil.isEmpty(outImage)) {
 				sashForm.setWeights(new int[]{1,0});
