@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -65,6 +67,7 @@ import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongCallback.XinlutongResult;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
+import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.RateLimiter;
@@ -125,6 +128,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private static final String FIX_ROAD = "固定车通道";
 
 	protected static final String CAR_WILL_ARREARS = "车辆即将到期";
+	
+	private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	private final AtomicInteger refreshTimes = new AtomicInteger(0);
+	private final Integer refreshTimeSpeedSecond = 3;
 
 	private DataBindingContext m_bindingContext;
 
@@ -206,10 +213,13 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private ExecutorService outTheadPool;
 
 	private ExecutorService inThreadPool;
+	
+	private ScheduledExecutorService refreshService;
 
 	private Map<String, String> mapTempCharge;
 	private Button button_4;
 	private Combo combo;
+	private Text text_1;
 
 	/**
 	 * Launch the application.
@@ -332,9 +342,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			mapSystemSetting.put(valueOf, ss.getSettingValue());
 		}
 		com.dongluhitec.card.ui.util.FileUtils.writeObject(IMAGE_SAVE_SITE, mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置));
-		if (StrUtil.isEmpty(System.getProperty("autoSendPositionToDevice"))) {
-			autoSendPositionToDevice();
-		}
+		
 		presenter.init();
 		mapTempCharge = Maps.newHashMap();
 		List<CarparkChargeStandard> listTemp = sp.getCarparkService().findAllCarparkChargeStandard();
@@ -345,6 +353,13 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		
 		outTheadPool = Executors.newSingleThreadExecutor();
 		inThreadPool = Executors.newCachedThreadPool();
+		refreshService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每秒刷新停车场全局监控信息"));
+
+		if (StrUtil.isEmpty(System.getProperty("autoSendPositionToDevice"))) {
+			autoSendPositionToDevice();
+		}
+		refreshCarparkBasicInfo(refreshTimeSpeedSecond);
+
 	}
 
 	/**
@@ -795,10 +810,21 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		text_worTime.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		text_worTime.setEditable(false);
 		text_worTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label lblNewLabel_2 = new Label(group, SWT.NONE);
+		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_2.setText("当前时间");
+		
+		text_1 = new Text(group, SWT.BORDER);
+		text_1.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
+		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+		text_1.setEditable(false);
+		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		Label label_4 = new Label(group, SWT.NONE);
 		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_4.setText("收费金额");
+		label_4.setText("实收金额");
 		label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 
 		text_charge = new Text(group, SWT.BORDER | SWT.READ_ONLY);
@@ -932,7 +958,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		text_real.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		Composite composite_14 = new Composite(group, SWT.NONE);
-		composite_14.setLayout(new GridLayout(2, false));
+		GridLayout gl_composite_14 = new GridLayout(2, false);
+		gl_composite_14.horizontalSpacing = 10;
+		gl_composite_14.verticalSpacing = 0;
+		gl_composite_14.marginWidth = 0;
+		gl_composite_14.marginHeight = 0;
+		composite_14.setLayout(gl_composite_14);
 		GridData gd_composite_14 = new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1);
 		if (mapTempCharge.keySet().size() <= 1) {
 			gd_composite_14.exclude = true;
@@ -943,34 +974,26 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		GridData gd_lbl_carType = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
 		gd_lbl_carType.widthHint = 77;
 		lbl_carType.setLayoutData(gd_lbl_carType);
-		lbl_carType.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+		lbl_carType.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		lbl_carType.setText("车辆类型");
+		
+				ComboViewer comboViewer = new ComboViewer(composite_14, SWT.READ_ONLY);
+				combo = comboViewer.getCombo();
+				combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+				combo.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
 
-		Composite composite_13 = new Composite(composite_14, SWT.NONE);
-		composite_13.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		GridLayout gl_composite_13 = new GridLayout(1, false);
-		gl_composite_13.marginWidth = 0;
-		composite_13.setLayout(gl_composite_13);
-
-		ComboViewer comboViewer = new ComboViewer(composite_13, SWT.READ_ONLY);
-		combo = comboViewer.getCombo();
-		combo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-
-				if (StrUtil.isEmpty(model.getCarparkCarType())) {
-					return;
-				}
-				model.setSelectCarType(false);
-			}
-		});
-		combo.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		GridData gd_combo = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_combo.widthHint = 46;
-		combo.setLayoutData(gd_combo);
-		comboViewer.setContentProvider(new ArrayContentProvider());
-		comboViewer.setLabelProvider(new LabelProvider());
-		comboViewer.setInput(mapTempCharge.keySet());
+						if (StrUtil.isEmpty(model.getCarparkCarType())) {
+							return;
+						}
+						model.setSelectCarType(false);
+					}
+				});
+				combo.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+				comboViewer.setContentProvider(new ArrayContentProvider());
+				comboViewer.setLabelProvider(new LabelProvider());
+				comboViewer.setInput(mapTempCharge.keySet());
 		btnCharge = new Button(group, SWT.NONE);
 		btnCharge.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -1685,6 +1708,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		float freeMoney = shouldMoney - factMoney;
 		singleCarparkInOutHistory.setFactMoney(factMoney);
 		singleCarparkInOutHistory.setFreeMoney(freeMoney);
+		singleCarparkInOutHistory.setCarType("临时车");
 		sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
 		Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
 		if (tempCarNoChargeIsPass) {
@@ -1747,6 +1771,25 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		}
 		model.setBtnClick(false);
 	}
+	public void refreshCarparkBasicInfo(Integer refreshTimeSpeedSecond) {
+		refreshService.scheduleAtFixedRate(() -> {
+			try {
+				model.setCurrentTime(StrUtil.formatDateTime(new Date()));
+				if (refreshTimes.addAndGet(1) % refreshTimeSpeedSecond != 0) {
+					return;
+				}
+				String userName = System.getProperty("userName");
+				model.setTotalCharge(sp.getCarparkInOutService().findFactMoneyByName(userName));
+				model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
+				model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow());
+				model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow());
+				model.setMonthSlot(sp.getCarparkInOutService().findFixSlotIsNow());
+			} catch (Exception e) {
+				LOGGER.error("刷新停车场出错",e);
+			}
+		}, 3000, 1000, TimeUnit.MILLISECONDS);
+	}
+
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
@@ -1868,6 +1911,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue observeImageLbl_inSmallImgObserveWidget = WidgetProperties.image().observe(lbl_inSmallImg);
 		IObservableValue inShowSmallImgModelObserveValue = BeanProperties.value("inShowSmallImg").observe(model);
 		bindingContext.bindValue(observeImageLbl_inSmallImgObserveWidget, inShowSmallImgModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_1ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_1);
+		IObservableValue currentTimeModelObserveValue = BeanProperties.value("currentTime").observe(model);
+		bindingContext.bindValue(observeTextText_1ObserveWidget, currentTimeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

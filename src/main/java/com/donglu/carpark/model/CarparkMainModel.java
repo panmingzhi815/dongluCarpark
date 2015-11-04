@@ -54,6 +54,7 @@ public class CarparkMainModel extends DomainObject{
 	
 	
 	String carparkCarType;
+	private String currentTime;
 	
 	public String getUserName() {
 		return userName;
@@ -334,6 +335,14 @@ public class CarparkMainModel extends DomainObject{
 		this.comboCarTypeEnable = comboCarTypeEnable;
 		if (pcs != null)
 			pcs.firePropertyChange("comboCarTypeEnable", null, null);
+	}
+	public void setCurrentTime(String currentTime) {
+		this.currentTime=currentTime;
+		if (pcs != null)
+			pcs.firePropertyChange("currentTime", null, null);
+	}
+	public String getCurrentTime() {
+		return currentTime;
 	}
 
 }
