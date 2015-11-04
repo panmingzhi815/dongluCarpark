@@ -69,7 +69,7 @@ public class CarparkMainModel extends DomainObject{
 		return workTime;
 	}
 	public void setWorkTime(Date workTime) {
-		this.workTime = StrUtil.formatDate(workTime, "yyyy-MM-dd HH:mm");
+		this.workTime = StrUtil.formatDate(workTime, "yyyy-MM-dd HH:mm:ss");
 		if (pcs != null)
 			pcs.firePropertyChange("workTime", null, null);
 	}

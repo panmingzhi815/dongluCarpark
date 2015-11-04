@@ -694,6 +694,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		btnHandSearch.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if(txtoutplateNo.getText().isEmpty()){
+					commonui.info("提示", "请先输入车牌");
+					return;
+				}
 				model.setBtnClick(false);
 				discontinue = true;
 				String data = (String) btnHandSearch.getData(BTN_KEY_PLATENO);
@@ -750,10 +754,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		lblNewLabel = new Label(group, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		GridData gd_lblNewLabel = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_lblNewLabel.widthHint = 82;
-		lblNewLabel.setLayoutData(gd_lblNewLabel);
-		lblNewLabel.setText("剩余车位数");
+		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel.setText("剩余车位");
 
 		text_total = new Text(group, SWT.BORDER | SWT.READ_ONLY);
 		text_total.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
@@ -765,7 +767,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		Label label = new Label(group, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("临时车位数");
+		label.setText("临时车位");
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 
 		text_hours = new Text(group, SWT.BORDER | SWT.READ_ONLY);
@@ -777,7 +779,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		Label label_1 = new Label(group, SWT.NONE);
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_1.setText("月租车位数");
+		label_1.setText("月租车位");
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 
 		text_month = new Text(group, SWT.BORDER | SWT.READ_ONLY);
@@ -961,21 +963,19 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		Composite composite_14 = new Composite(group, SWT.NONE);
 		GridLayout gl_composite_14 = new GridLayout(2, false);
-		gl_composite_14.horizontalSpacing = 10;
+		gl_composite_14.horizontalSpacing = 6;
 		gl_composite_14.verticalSpacing = 0;
 		gl_composite_14.marginWidth = 0;
 		gl_composite_14.marginHeight = 0;
 		composite_14.setLayout(gl_composite_14);
-		GridData gd_composite_14 = new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1);
+		GridData gd_composite_14 = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
 		if (mapTempCharge.keySet().size() <= 1) {
 			gd_composite_14.exclude = true;
 		}
 		composite_14.setLayoutData(gd_composite_14);
 
 		Label lbl_carType = new Label(composite_14, SWT.RIGHT);
-		GridData gd_lbl_carType = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_lbl_carType.widthHint = 77;
-		lbl_carType.setLayoutData(gd_lbl_carType);
+		lbl_carType.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lbl_carType.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		lbl_carType.setText("车辆类型");
 
@@ -1009,7 +1009,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(mapTempCharge.keySet());
-		btnCharge = new Button(group, SWT.NONE);
+		
+		Composite composite_13 = new Composite(group, SWT.NONE);
+		composite_13.setLayout(new GridLayout(1, false));
+		composite_13.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true, true, 2, 1));
+		btnCharge = new Button(composite_13, SWT.NONE);
+		btnCharge.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
 		btnCharge.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1020,82 +1025,74 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				model.setComboCarTypeEnable(false);
 			}
 		});
-		btnCharge.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		GridData gd_btnNewButton = new GridData(SWT.CENTER, SWT.CENTER, true, false, 2, 1);
-		gd_btnNewButton.widthHint = 120;
-		btnCharge.setLayoutData(gd_btnNewButton);
+		btnCharge.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
 		btnCharge.setText("收费放行(F11)");
-
-		btnFree = new Button(group, SWT.NONE);
-		btnFree.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
-				SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
-				data.setFactMoney(0);
-				chargeCarPass(device, data, carOutChargeCheck);
-				model.setComboCarTypeEnable(false);
-			}
-		});
-		btnFree.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		GridData gd_btnf = new GridData(SWT.CENTER, SWT.CENTER, true, false, 2, 1);
-		gd_btnf.widthHint = 120;
-		btnFree.setLayoutData(gd_btnf);
-		btnFree.setText("免费放行(F12)");
-
-		button_4 = new Button(group, SWT.NONE);
-		button_4.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		button_4.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				discontinue = true;
-				model.setBtnClick(false);
-				model.setComboCarTypeEnable(false);
-			}
-		});
-		GridData gd_button_4 = new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1);
-		gd_button_4.widthHint = 120;
-		button_4.setLayoutData(gd_button_4);
-		button_4.setText("收费终止");
-
-		Button btnf_1 = new Button(group, SWT.NONE);
-		btnf_1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				presenter.changeUser();
-			}
-		});
-		btnf_1.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		GridData gd_btnf_1 = new GridData(SWT.CENTER, SWT.CENTER, true, false, 2, 1);
-		gd_btnf_1.widthHint = 120;
-		btnf_1.setLayoutData(gd_btnf_1);
-		btnf_1.setText("换班(F7)");
-
-		Button btnf_2 = new Button(group, SWT.NONE);
-		btnf_2.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				presenter.returnAccount();
-			}
-		});
-		btnf_2.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		GridData gd_btnf_2 = new GridData(SWT.CENTER, SWT.CENTER, true, false, 2, 1);
-		gd_btnf_2.widthHint = 120;
-		btnf_2.setLayoutData(gd_btnf_2);
-		btnf_2.setText("归账(F8)");
-
-		Button btnf_3 = new Button(group, SWT.NONE);
-		btnf_3.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				presenter.showSearchInOutHistory();
-			}
-		});
-		btnf_3.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		GridData gd_btnf_3 = new GridData(SWT.CENTER, SWT.CENTER, true, false, 2, 1);
-		gd_btnf_3.widthHint = 120;
-		btnf_3.setLayoutData(gd_btnf_3);
-		btnf_3.setText("浏览记录(F9)");
+		
+				btnFree = new Button(composite_13, SWT.NONE);
+				btnFree.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
+				btnFree.setSize(120, 29);
+				btnFree.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
+						SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
+						data.setFactMoney(0);
+						chargeCarPass(device, data, carOutChargeCheck);
+						model.setComboCarTypeEnable(false);
+					}
+				});
+				btnFree.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+				btnFree.setText("免费放行(F12)");
+				
+						button_4 = new Button(composite_13, SWT.NONE);
+						button_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
+						button_4.setSize(120, 29);
+						button_4.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+						button_4.addSelectionListener(new SelectionAdapter() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								discontinue = true;
+								model.setBtnClick(false);
+								model.setComboCarTypeEnable(false);
+							}
+						});
+						button_4.setText("取消放行");
+						
+								Button btnf_1 = new Button(composite_13, SWT.NONE);
+								btnf_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
+								btnf_1.setSize(120, 29);
+								btnf_1.addSelectionListener(new SelectionAdapter() {
+									@Override
+									public void widgetSelected(SelectionEvent e) {
+										presenter.changeUser();
+									}
+								});
+								btnf_1.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+								btnf_1.setText("换班(F7)");
+								
+										Button btnf_2 = new Button(composite_13, SWT.NONE);
+										btnf_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
+										btnf_2.setSize(120, 29);
+										btnf_2.addSelectionListener(new SelectionAdapter() {
+											@Override
+											public void widgetSelected(SelectionEvent e) {
+												presenter.returnAccount();
+											}
+										});
+										btnf_2.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+										btnf_2.setText("归账(F8)");
+										
+												Button btnf_3 = new Button(composite_13, SWT.NONE);
+												btnf_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
+												btnf_3.setSize(120, 29);
+												btnf_3.addSelectionListener(new SelectionAdapter() {
+													@Override
+													public void widgetSelected(SelectionEvent e) {
+														presenter.showSearchInOutHistory();
+													}
+												});
+												btnf_3.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+												btnf_3.setText("浏览记录(F9)");
 		createDeviceTabItem();
 		tabInFolder.setSelection(0);
 		tabOutFolder.setSelection(0);

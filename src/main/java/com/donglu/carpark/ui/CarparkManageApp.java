@@ -1,6 +1,8 @@
 package com.donglu.carpark.ui;
 
 
+import java.text.CollationKey;
+import java.text.Collator;
 import java.util.Map;
 
 import org.eclipse.core.databinding.DataBindingContext;
@@ -18,6 +20,7 @@ import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
@@ -349,7 +352,7 @@ public class CarparkManageApp extends AbstractApp{
 		toolItem_6.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				System.out.println(presenter.test1());
+				presenter.refreshCarparkCharge();
 			}
 		});
 		toolItem_6.setText("刷新");
@@ -363,6 +366,34 @@ public class CarparkManageApp extends AbstractApp{
 		
 		TableViewerColumn tableViewerColumn_20 = new TableViewerColumn(tableViewer, SWT.NONE);
 		TableColumn tblclmnNewColumn_5 = tableViewerColumn_20.getColumn();
+		tblclmnNewColumn_5.addSelectionListener(new SelectionAdapter() {
+			ViewerSorter viewerSorter;
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (StrUtil.isEmpty(viewerSorter)) {
+					viewerSorter=new ViewerSorter(new Collator() {
+						
+						@Override
+						public int hashCode() {
+							return 0;
+						}
+						
+						@Override
+						public CollationKey getCollationKey(String source) {
+							return null;
+						}
+						
+						@Override
+						public int compare(String source, String target) {
+							return 1;
+						}
+					});
+				}else{
+					viewerSorter=null;
+				}
+				tableViewer.setSorter(viewerSorter);
+			}
+		});
 		tblclmnNewColumn_5.setWidth(100);
 		tblclmnNewColumn_5.setText("编码");
 		
