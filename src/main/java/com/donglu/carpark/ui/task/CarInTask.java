@@ -30,26 +30,27 @@ public class CarInTask implements Runnable{
 	private Logger LOGGER = LoggerFactory.getLogger(CarInTask.class);
 	private static final String CAR_IN_MSG = "欢迎光临,请入场停车";
 	private static final String VILIDTO_DATE = ",有效期至yyyy年MM月dd日";
-	String plateNO;
-	String ip;
-	private CarparkMainModel model;
-	private CarparkDatabaseServiceProvider sp;
-	private CarparkMainPresenter presenter;
-	private Image inSmallImage;
-	private Image inBigImage;
-	private CLabel lbl_inBigImg;
-	private CLabel lbl_inSmallImg;
-	byte[] bigImage;
-	byte[] smallImage;
-	protected Shell shell;
+	private static Image inSmallImage;
+	private static Image inBigImage;
+	
+	private final String plateNO;
+	private final String ip;
+	private final CarparkMainModel model;
+	private final  CarparkDatabaseServiceProvider sp;
+	private final  CarparkMainPresenter presenter;
+	private final  CLabel lbl_inBigImg;
+	private final  CLabel lbl_inSmallImg;
+	private final byte[] bigImage;
+	private final byte[] smallImage;
+	private final Shell shell;
 	// 保存车牌最近的处理时间
-	Map<String, Date> mapPlateNoDate;
+	private final Map<String, Date> mapPlateNoDate;
 	// 保存设备的信息
-	Map<String, SingleCarparkDevice> mapIpToDevice ;
+	private final Map<String, SingleCarparkDevice> mapIpToDevice ;
 	// 保存设置信息
-	private Map<SystemSettingTypeEnum, String> mapSystemSetting ;
+	private final  Map<SystemSettingTypeEnum, String> mapSystemSetting ;
 	// 保存最近的手动拍照时间
-	private Map<String, Date> mapHandPhotograph;
+	private final  Map<String, Date> mapHandPhotograph;
 
 	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, CLabel lbl_inBigImg,
 			CLabel lbl_inSmallImg, Shell shell, Map<String, Date> mapPlateNoDate, Map<String, SingleCarparkDevice> mapIpToDevice, Map<SystemSettingTypeEnum, String> mapSystemSetting,
