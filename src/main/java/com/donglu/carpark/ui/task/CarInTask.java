@@ -166,10 +166,37 @@ public class CarInTask implements Runnable {
         LOGGER.debug("显示车牌");
         presenter.showPlateNOToDevice(device, plateNO);
 
+<<<<<<< HEAD
         model.setHistory(cch);
         LOGGER.debug("查找是否为固定车");
         List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO);
         SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo.get(0);
+=======
+		long nanoTime3 = System.nanoTime();
+		LOGGER.debug("进行黑名单判断");
+		// SingleCarparkBlackUser singleCarparkBlackUser = mapBlackUser.get(plateNO);
+		LOGGER.debug("显示车牌");
+		presenter.showPlateNOToDevice(device, plateNO);
+		SingleCarparkBlackUser singleCarparkBlackUser = sp.getCarparkService().findBlackUserByPlateNO(plateNO);
+		if (!StrUtil.isEmpty(singleCarparkBlackUser)) {
+			int hoursStart = singleCarparkBlackUser.getHoursStart();
+			int hoursEnd = singleCarparkBlackUser.getHoursEnd() == 0 ? 23 : singleCarparkBlackUser.getHoursEnd();
+			int minuteStart = singleCarparkBlackUser.getMinuteStart();
+			int minuteEnd = singleCarparkBlackUser.getMinuteEnd();
+			DateTime now = new DateTime(date);
+			DateTime dt = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), hoursStart, minuteStart, 00);
+			DateTime de = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), hoursEnd, minuteEnd, 59);
+			LOGGER.info("黑名单车牌：{}不能进入的时间为{}点到{}点", plateNO, hoursStart, hoursEnd);
+			if (now.toDate().after(dt.toDate()) && now.toDate().before(de.toDate())) {
+				LOGGER.error("车牌：{}为黑名单,现在时间为{}，在{}点到{}点之间", plateNO, now.toString("HH:mm:ss"), hoursStart, hoursEnd);
+				model.setInShowMeg("黑名单");
+				presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
+				return;
+			}
+		}
+		LOGGER.debug("显示车牌");
+		presenter.showPlateNOToDevice(device, plateNO);
+>>>>>>> d5b5e3968adc0383bd903388fa809d02a6adf0d6
 
         String carType = "临时车";
 
@@ -189,6 +216,7 @@ public class CarInTask implements Runnable {
                 editPlateNo = model.getInShowPlateNO();
             }
 
+<<<<<<< HEAD
             if (user.getType().equals("免费")) {
                 Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场));
                 if (!valueOf) {
@@ -197,6 +225,43 @@ public class CarInTask implements Runnable {
                         return;
                     }
                 }
+=======
+		if (!StrUtil.isEmpty(user)) {
+			carType = "固定车";
+			if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认))) {
+				model.setInCheckClick(true);
+				presenter.showPlateNOToDevice(device, model.getInShowPlateNO());
+				while (model.isInCheckClick()) {
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				presenter.showPlateNOToDevice(device, model.getInShowPlateNO());
+				editPlateNo = model.getInShowPlateNO();
+			}
+			
+			SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkById(device.getCarpark().getId());
+			if (StrUtil.isEmpty(carpark)) {
+				return;
+			}
+//			if(carpark.getFixCarOneIn()){
+//				List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO);
+//				if (!StrUtil.isEmpty(findByNoOut)) {
+//					LOGGER.info("停车场要求固定车同时只能进入一辆,用户{}已有车牌{}进场记录",user.getName(),plateNO);
+//					return;
+//				}
+//			}
+			if (user.getType().equals("免费")) {
+				Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场));
+				if (!valueOf) {
+					if (model.getTotalSlot() <= 0) {
+						LOGGER.error("车位已满,不允许免费车进入");
+						return;
+					}
+				}
+>>>>>>> d5b5e3968adc0383bd903388fa809d02a6adf0d6
 
             }
             if (user.getType().equals("普通")) {

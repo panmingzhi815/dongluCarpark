@@ -692,9 +692,12 @@ public class CarparkMainPresenter {
 	/**
 	 *人工查找
 	 * @param plateNO
+	 * @param smallImg 
+	 * @param bigImg 
 	 */
-	public void showManualSearch(String plateNO) {
+	public void showManualSearch(String plateNO, String bigImg, String smallImg) {
 		try {
+			
 			searchErrorCarPresenter.getModel().setPlateNo(model.getOutShowPlateNO());
 			searchErrorCarPresenter.getModel().setHavePlateNoSelect(null);
 			searchErrorCarPresenter.getModel().setNoPlateNoSelect(null);

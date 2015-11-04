@@ -25,8 +25,10 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.ui.CarparkClientConfig;
+import com.donglu.carpark.ui.CarparkManageApp;
 import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.ui.util.FileUtils;
 import com.google.common.io.Files;
 
 public class CarparkUtils {
@@ -184,25 +186,27 @@ public class CarparkUtils {
 	 * @param img
 	 * @return
 	 */
-	public static byte[] getImageByte(String filePath,String img) {
+	public static byte[] getImageByte(String img) {
+		
 		if (StrUtil.isEmpty(img)) {
 			return null;
 		}
+		String filePath=(String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 		try {
 			byte[] image;
 			String pathname = filePath+"/img/"+img;
 			File file=new File(pathname);
 			LOGGER.info("获取图片{}",pathname);
-//			if (file.exists()) {
-//				LOGGER.info("在本地找到图片，获取图片{}",pathname);
-//				image=Files.toByteArray(file);
-//			}else{
+			if (file.exists()) {
+				LOGGER.info("在本地找到图片，获取图片{}",pathname);
+				image=Files.toByteArray(file);
+			}else{
 				String substring = img.substring(img.lastIndexOf("/")+1);
 				String actionUrl = "http://"+CarparkClientConfig.getInstance().getDbServerIp()+":8899/carparkImage/";
 				LOGGER.info("本地未找到图片，准备发送请求{}获取图片{}",actionUrl,pathname);
 				image = FileuploadSend.download(actionUrl, substring);
 				LOGGER.info("从{}获取图片成功",actionUrl);
-//			}
+			}
 			return image;
 		} catch (IOException e) {
 			e.printStackTrace();
