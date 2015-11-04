@@ -95,6 +95,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
 public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private static final String BTN_HANDSEARCH_SMALL_IMG = "smallImg";
@@ -220,6 +221,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private Button button_4;
 	private Combo combo;
 	private Text text_1;
+	private ComboViewer comboViewer;
 
 	/**
 	 * Launch the application.
@@ -979,28 +981,31 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		lbl_carType.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		lbl_carType.setText("车辆类型");
 
-		ComboViewer comboViewer = new ComboViewer(composite_14, SWT.READ_ONLY);
+		comboViewer = new ComboViewer(composite_14, SWT.READ_ONLY);
 		combo = comboViewer.getCombo();
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		combo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-
+				
+				String carparkCarType2 = model.getCarparkCarType();
+				if (carparkCarType2.equals("请选择车型")) {
+					return;
+				}
 				if (model.isBtnClick()) {
 					SingleCarparkInOutHistory h = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
 					Date inTime = h.getInTime();
 					Date outTime = h.getOutTime();
-					CarTypeEnum carparkCarType = getCarparkCarType(model.getCarparkCarType());
+					CarTypeEnum carparkCarType = getCarparkCarType(carparkCarType2);
 					float countShouldMoney = presenter.countShouldMoney(carparkCarType, inTime, outTime);
 					
 					presenter.showContentToDevice(mapIpToDevice.get(model.getIp()), CarparkUtils.formatFloatString("请缴费"+countShouldMoney+"元"), false);
 					model.setShouldMony(countShouldMoney);
 					model.setReal(countShouldMoney);
 				}else{
-					if (StrUtil.isEmpty(model.getCarparkCarType())) {
+					if (StrUtil.isEmpty(carparkCarType2)) {
 						return;
 					}
-//					model.setSelectCarType(false);
 					model.setBtnClick(true);
 				}
 			}
@@ -1008,8 +1013,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		combo.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
-		comboViewer.setInput(mapTempCharge.keySet());
-		
+		List<String> listCarType=new ArrayList<>();
+		listCarType.add("请选择车型");
+		listCarType.addAll(mapTempCharge.keySet());
+		comboViewer.setInput(listCarType);
+		combo.select(0);
 		Composite composite_13 = new Composite(group, SWT.NONE);
 		composite_13.setLayout(new GridLayout(1, false));
 		composite_13.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true, true, 2, 1));
@@ -1025,7 +1033,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				model.setComboCarTypeEnable(false);
 			}
 		});
-		btnCharge.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+		btnCharge.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
 		btnCharge.setText("收费放行(F11)");
 		
 				btnFree = new Button(composite_13, SWT.NONE);
@@ -1041,13 +1049,13 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 						model.setComboCarTypeEnable(false);
 					}
 				});
-				btnFree.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+				btnFree.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
 				btnFree.setText("免费放行(F12)");
 				
 						button_4 = new Button(composite_13, SWT.NONE);
 						button_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
 						button_4.setSize(120, 29);
-						button_4.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+						button_4.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
 						button_4.addSelectionListener(new SelectionAdapter() {
 							@Override
 							public void widgetSelected(SelectionEvent e) {
@@ -1067,7 +1075,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 										presenter.changeUser();
 									}
 								});
-								btnf_1.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+								btnf_1.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
 								btnf_1.setText("换班(F7)");
 								
 										Button btnf_2 = new Button(composite_13, SWT.NONE);
@@ -1079,7 +1087,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 												presenter.returnAccount();
 											}
 										});
-										btnf_2.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+										btnf_2.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
 										btnf_2.setText("归账(F8)");
 										
 												Button btnf_3 = new Button(composite_13, SWT.NONE);
@@ -1091,7 +1099,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 														presenter.showSearchInOutHistory();
 													}
 												});
-												btnf_3.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+												btnf_3.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
 												btnf_3.setText("浏览记录(F9)");
 		createDeviceTabItem();
 		tabInFolder.setSelection(0);
@@ -1716,7 +1724,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 		} , 3000, 1000, TimeUnit.MILLISECONDS);
 	}
-
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
@@ -1822,10 +1829,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue comboCarTypeEnableModelObserveValue = BeanProperties.value("comboCarTypeEnable").observe(model);
 		bindingContext.bindValue(observeEnabledComboObserveWidget, comboCarTypeEnableModelObserveValue, null, null);
 		//
-		IObservableValue observeTextComboObserveWidget = WidgetProperties.text().observe(combo);
-		IObservableValue carparkCarTypeModelObserveValue = BeanProperties.value("carparkCarType").observe(model);
-		bindingContext.bindValue(observeTextComboObserveWidget, carparkCarTypeModelObserveValue, null, null);
-		//
 		IObservableValue observeEnabledText_realObserveWidget = WidgetProperties.enabled().observe(text_real);
 		bindingContext.bindValue(observeEnabledText_realObserveWidget, btnClickModelObserveValue, null, null);
 		//
@@ -1843,6 +1846,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue observeEditableTxtoutplateNoObserveWidget = WidgetProperties.editable().observe(txtoutplateNo);
 		IObservableValue outPlateNOEditableModelObserveValue = BeanProperties.value("outPlateNOEditable").observe(model);
 		bindingContext.bindValue(observeEditableTxtoutplateNoObserveWidget, outPlateNOEditableModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
+		IObservableValue carparkCarTypeModelObserveValue = BeanProperties.value("carparkCarType").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer, carparkCarTypeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}
