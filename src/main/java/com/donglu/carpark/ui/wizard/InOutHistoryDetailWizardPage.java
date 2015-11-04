@@ -79,13 +79,13 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		parent.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
 				System.out.println("InOutHistoryDetailWizardPage is dispose");
-				if (inImage!=null) {
+				if (inImage != null) {
 					inImage.dispose();
-					inImage=null;
+					inImage = null;
 				}
-				if (outImage!=null) {
+				if (outImage != null) {
 					outImage.dispose();
-					outImage=null;
+					outImage = null;
 				}
 			}
 		});
@@ -129,8 +129,8 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		
 		lbl_outBigImg = new Label(composite_5, SWT.NONE);
 		lbl_outBigImg.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		lbl_outBigImg.setBounds(0, 0, 400, 300);
-		lbl_inBigImg.setBounds(0, 0, 400, 300);
+		lbl_outBigImg.setSize(400,300);
+		lbl_inBigImg.setSize(400,300);
 		sashForm.setWeights(new int[] {1, 1});
 		setImage();
 		m_bindingContext = initDataBindings();

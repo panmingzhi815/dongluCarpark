@@ -37,6 +37,7 @@ public class CarparkMainModel extends DomainObject{
 	String inTime;
 	String outTime;
 	String totalTime;
+	private String currentTime;
 	float shouldMony;
 	float real;
 	
@@ -71,6 +72,20 @@ public class CarparkMainModel extends DomainObject{
 		if (pcs != null)
 			pcs.firePropertyChange("workTime", null, null);
 	}
+
+	public String getCurrentTime() {
+		return currentTime;
+	}
+
+	public void setCurrentTime(String currentTime) {
+		firePropertyChange("currentTime",this.currentTime,currentTime);
+	}
+
+	public void setCurrentTime(Date currentTime) {
+		String dateTime = StrUtil.formatDate(currentTime, "yyyy-MM-dd HH:mm");
+		setCurrentTime(dateTime);
+	}
+
 	public String getPlateNo() {
 		return plateNo;
 	}

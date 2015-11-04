@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,6 +140,7 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 			SingleCarparkInOutHistory h =list.get(0);
 			String file = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 			LOGGER.info("本地文件存放位置{}",file);
+
 			InOutHistoryDetailWizard wizard =new InOutHistoryDetailWizard(h,
 					file);
 			inOutHistory = (SingleCarparkInOutHistory) commonui.showWizard(wizard);

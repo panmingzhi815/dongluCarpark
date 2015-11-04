@@ -305,34 +305,7 @@ public class ImageServerUI {
 		btnStart.setText("启    动");
 
 	}
-	
-	public Image getImage(final byte[] smallImage, Label insmallimg, Shell shell) {
 
-		ByteArrayInputStream stream = null;
-		try {
-			stream = new ByteArrayInputStream(smallImage);
-			Image img = new Image(shell.getDisplay(), stream);
-			Rectangle rectangle = insmallimg.getBounds();
-			ImageData data = img.getImageData().scaledTo(rectangle.width, rectangle.height);
-			ImageDescriptor createFromImageData = ImageDescriptor.createFromImageData(data);
-			Image createImg = createFromImageData.createImage();
-			img.dispose();
-			img = null;
-			insmallimg.setText("");
-			return createImg;
-		} catch (Exception e) {
-			throw new DongluAppException("图片转换错误", e);
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
 	protected void startServer() {
 		try {
 			sp.start();
@@ -350,12 +323,7 @@ public class ImageServerUI {
 			ServletHandler servletHandler = new ServletHandler();
 			server.setHandler(servletHandler);
 			ServerUtil.startServlet("/carparkImage/*", servletHandler, imageServletProvider);
-			Provider<ServerServlet> serverServlet = new Provider<ServerServlet>() {
-				@Override
-				public ServerServlet get() {
-					return new ServerServlet();
-				}
-			};
+			Provider<ServerServlet> serverServlet = () -> new ServerServlet();
 			ServerUtil.startServlet("/server/*", servletHandler, serverServlet);
 			server.start();
 		} catch (Exception e) {
