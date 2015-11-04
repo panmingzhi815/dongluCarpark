@@ -171,10 +171,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private CLabel lbl_outSmallImg;
 	private CLabel lbl_outBigImg;
 
-	private Image inSmallImage;
-	private Image inBigImage;
-	private Image outSmallImage;
-	private Image outBigImage;
+	public static Image inSmallImage;
+	public static Image inBigImage;
+	public static Image outSmallImage;
+	public static Image outBigImage;
 
 	AtomicInteger plateNoTotal = new AtomicInteger(0);
 
@@ -1694,7 +1694,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private void chargeCarPass(SingleCarparkDevice device, SingleCarparkInOutHistory singleCarparkInOutHistory, boolean check) {
 
 		Float shouldMoney = singleCarparkInOutHistory.getShouldMoney();
-		float factMoney = model.getReal();
+		float factMoney = singleCarparkInOutHistory.getFactMoney()==null?0:singleCarparkInOutHistory.getFactMoney();
 		if (check) {
 			if (factMoney > shouldMoney) {
 				commonui.error("收费提示", "实时不能超过应收");
@@ -1749,27 +1749,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	@Override
 	public boolean isOpen() {
 		return false;
-	}
-
-	// 收费
-	private void chargeCarPass() {
-		if (!model.isBtnClick()) {
-			System.out.println("不能收费");
-			return;
-		}
-	}
-
-	// 免费
-	private void freeCarPass() {
-		if (!model.isBtnClick()) {
-			System.out.println("不能收费");
-			return;
-		}
-		boolean freeCarPass = presenter.freeCarPass();
-		if (!freeCarPass) {
-			return;
-		}
-		model.setBtnClick(false);
 	}
 	public void refreshCarparkBasicInfo(Integer refreshTimeSpeedSecond) {
 		refreshService.scheduleAtFixedRate(() -> {

@@ -701,6 +701,9 @@ public class CarparkMainPresenter {
 			searchErrorCarPresenter.getModel().setPlateNo(model.getOutShowPlateNO());
 			searchErrorCarPresenter.getModel().setHavePlateNoSelect(null);
 			searchErrorCarPresenter.getModel().setNoPlateNoSelect(null);
+			searchErrorCarPresenter.getModel().setSaveBigImg(bigImg);
+			searchErrorCarPresenter.getModel().setSaveSmallImg(smallImg);
+			
 			searchErrorCarPresenter.setSystemSetting(mapSystemSetting);
 			SearchHistoryByHandWizard wizard=new SearchHistoryByHandWizard(searchErrorCarPresenter);
 			Object showWizard = commonui.showWizard(wizard);
