@@ -704,6 +704,7 @@ public class CarparkManageApp extends AbstractApp{
 		group_4.setText("停车场设置");
 		
 		Button btnCheckButton = new Button(group_4, SWT.CHECK);
+		btnCheckButton.setToolTipText("选中后，停车场车位满允许临时车进");
 		btnCheckButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -719,6 +720,7 @@ public class CarparkManageApp extends AbstractApp{
 			btnCheckButton.setSelection(Boolean.valueOf(string4));
 		}
 		Button btnCheckButton_1 = new Button(group_4, SWT.CHECK);
+		btnCheckButton_1.setToolTipText("选中后，停车场车位满允许固定免费车进");
 		btnCheckButton_1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -736,6 +738,7 @@ public class CarparkManageApp extends AbstractApp{
 		}
 		
 		Button button_3 = new Button(group_4, SWT.CHECK);
+		button_3.setToolTipText("选中后，停车场车位满允许固定储值车进");
 		button_3.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -753,6 +756,7 @@ public class CarparkManageApp extends AbstractApp{
 		}
 		
 		Button button_4 = new Button(group_4, SWT.CHECK);
+		button_4.setToolTipText("选中后，临时车入场需要确认放行");
 		button_4.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -770,6 +774,7 @@ public class CarparkManageApp extends AbstractApp{
 		}
 		
 		Button button_6 = new Button(group_4, SWT.CHECK);
+		button_6.setToolTipText("选中后，收费0元自动放行");
 		button_6.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -785,9 +790,20 @@ public class CarparkManageApp extends AbstractApp{
 		}else{
 			button_6.setSelection(Boolean.valueOf(string8));
 		}
-		new Label(group_4, SWT.NONE);
 		
+		Button button_12 = new Button(group_4, SWT.CHECK);
+		button_12.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.是否允许无牌车进,button_12.getSelection()+"");
+			}
+		});
+		button_12.setToolTipText("选中后，无牌车可以进入停车场");
+		button_12.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_12.setText("是否允许无牌车进入");
+		button_12.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进)==null?SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进)));
 		Button button_5 = new Button(group_4, SWT.CHECK);
+		button_5.setToolTipText("选中后，固定车入场需要确认放行");
 		button_5.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -805,6 +821,7 @@ public class CarparkManageApp extends AbstractApp{
 		}
 		
 		Button button_7 = new Button(group_4, SWT.CHECK);
+		button_7.setToolTipText("选中后，固定车出场场需要确认放行");
 		button_7.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -820,7 +837,18 @@ public class CarparkManageApp extends AbstractApp{
 		}else{
 			button_7.setSelection(Boolean.valueOf(string0));
 		}
-		new Label(group_4, SWT.NONE);
+		
+		Button button_11 = new Button(group_4, SWT.CHECK);
+		button_11.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.出场确认放行, button_11.getSelection()+"");
+			}
+		});
+		button_11.setToolTipText("当选中时，出场收费放行会弹出确认框");
+		button_11.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_11.setText("出场确认放行");
+		button_11.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行)==null?SystemSettingTypeEnum.出场确认放行.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行)));
 		
 		Composite composite_6 = new Composite(group_4, SWT.NONE);
 		composite_6.setLayout(new GridLayout(3, false));

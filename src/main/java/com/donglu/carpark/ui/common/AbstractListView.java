@@ -164,14 +164,14 @@ public abstract class AbstractListView<T> extends Composite{
 			
 		}
 		Composite composite_2 = new Composite(this, SWT.NONE);
-		composite_2.setLayout(new GridLayout(4, false));
+		composite_2.setLayout(new GridLayout(5, false));
 		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		lbl_nowCount = new Label(composite_2, SWT.NONE);
 		lbl_nowCount.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lbl_nowCount.setAlignment(SWT.RIGHT);
 		GridData gd_lbl_nowCount = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lbl_nowCount.widthHint = 56;
+		gd_lbl_nowCount.widthHint = 66;
 		lbl_nowCount.setLayoutData(gd_lbl_nowCount);
 		lbl_nowCount.setText("0000000");
 		
@@ -182,9 +182,17 @@ public abstract class AbstractListView<T> extends Composite{
 		lbl_allcount = new Label(composite_2, SWT.NONE);
 		lbl_allcount.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_lbl_allcount = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lbl_allcount.widthHint = 56;
+		gd_lbl_allcount.widthHint = 64;
 		lbl_allcount.setLayoutData(gd_lbl_allcount);
 		lbl_allcount.setText("0000000");
+		
+		Composite composite_3 = new Composite(composite_2, SWT.NONE);
+		createBottomComposite(composite_3);
+		composite_3.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		composite_3.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
+//		Composite composite_4 = new Composite(composite_3, SWT.NONE);
+//		composite_4.setLayout(new GridLayout(1, false));
 		
 		
 		Button btn_more = new Button(composite_2, SWT.NONE);
@@ -195,9 +203,14 @@ public abstract class AbstractListView<T> extends Composite{
 				searchMore();
 			}
 		});
-		btn_more.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		btn_more.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		btn_more.setText("更多");
 		m_bindingContext = initDataBindings();
+	}
+
+	protected void createBottomComposite(Composite parent) {
+		Composite composite_4 = new Composite(parent, SWT.NONE);
+		composite_4.setLayout(new GridLayout(1, false));
 	}
 
 	protected void createMenuBarToolItem(ToolBar toolBar_menu) {

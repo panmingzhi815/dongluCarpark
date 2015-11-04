@@ -333,7 +333,7 @@ public class Login {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("main is error"+"界面出错======="+e);
+			LOGGER.error("main is error"+"界面出错=======",e);
 //			app.disponse();
 //			app.setShell(new Shell());
 //			app.open();

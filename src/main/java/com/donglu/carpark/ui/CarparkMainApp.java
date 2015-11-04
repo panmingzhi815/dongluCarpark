@@ -128,7 +128,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private static final String FIX_ROAD = "固定车通道";
 
 	protected static final String CAR_WILL_ARREARS = "车辆即将到期";
-	
+
 	private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private final AtomicInteger refreshTimes = new AtomicInteger(0);
 	private final Integer refreshTimeSpeedSecond = 3;
@@ -213,7 +213,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private ExecutorService outTheadPool;
 
 	private ExecutorService inThreadPool;
-	
+
 	private ScheduledExecutorService refreshService;
 
 	private Map<String, String> mapTempCharge;
@@ -342,7 +342,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			mapSystemSetting.put(valueOf, ss.getSettingValue());
 		}
 		com.dongluhitec.card.ui.util.FileUtils.writeObject(IMAGE_SAVE_SITE, mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置));
-		
+
 		presenter.init();
 		mapTempCharge = Maps.newHashMap();
 		List<CarparkChargeStandard> listTemp = sp.getCarparkService().findAllCarparkChargeStandard();
@@ -350,7 +350,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			String name = carparkChargeStandard.getCarparkCarType().getName();
 			mapTempCharge.put(name, carparkChargeStandard.getCode());
 		}
-		
+
 		outTheadPool = Executors.newSingleThreadExecutor();
 		inThreadPool = Executors.newCachedThreadPool();
 		refreshService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每秒刷新停车场全局监控信息"));
@@ -677,7 +677,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		btnOutCheck = new Button(composite_15, SWT.NONE);
 		if (!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认) == null ? SystemSettingTypeEnum.固定车出场确认.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认))) {
-//			gd_btnOutCheck.exclude = true;
+			// gd_btnOutCheck.exclude = true;
 		}
 		btnOutCheck.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
 		btnOutCheck.addSelectionListener(new SelectionAdapter() {
@@ -697,9 +697,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				model.setBtnClick(false);
 				discontinue = true;
 				String data = (String) btnHandSearch.getData(BTN_KEY_PLATENO);
-				String bigImg=(String) btnHandSearch.getData(BTN_HANDSEARCH_BIG_IMG);
-				String smallImg=(String) btnHandSearch.getData(BTN_HANDSEARCH_SMALL_IMG);
-				presenter.showManualSearch(data,bigImg,smallImg);
+				String bigImg = (String) btnHandSearch.getData(BTN_HANDSEARCH_BIG_IMG);
+				String smallImg = (String) btnHandSearch.getData(BTN_HANDSEARCH_SMALL_IMG);
+				presenter.showManualSearch(data, bigImg, smallImg);
 			}
 		});
 		btnHandSearch.setText("人工查找");
@@ -810,12 +810,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		text_worTime.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		text_worTime.setEditable(false);
 		text_worTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblNewLabel_2 = new Label(group, SWT.NONE);
 		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_2.setText("当前时间");
-		
+
 		text_1 = new Text(group, SWT.BORDER);
 		text_1.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
 		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
@@ -930,9 +930,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		label_13.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_13.setText("实收金额");
 		label_13.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-
+		Boolean carOutChargeCheck = Boolean
+				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行) == null ? SystemSettingTypeEnum.出场确认放行.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行));
 		text_real = new Text(group, SWT.BORDER | SWT.READ_ONLY);
 		text_real.addKeyListener(new KeyAdapter() {
+
 			@Override
 			public void keyReleased(KeyEvent e) {
 				// 收费放行
@@ -940,14 +942,14 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
 					SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
 					data.setFactMoney(model.getReal());
-					chargeCarPass(device, data, true);
+					chargeCarPass(device, data, carOutChargeCheck);
 				}
 				// 免费放行
 				if (e.keyCode == 16777237) {
 					SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
 					SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
 					data.setFactMoney(0);
-					chargeCarPass(device, data, true);
+					chargeCarPass(device, data, carOutChargeCheck);
 				}
 			}
 		});
@@ -976,24 +978,37 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		lbl_carType.setLayoutData(gd_lbl_carType);
 		lbl_carType.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		lbl_carType.setText("车辆类型");
-		
-				ComboViewer comboViewer = new ComboViewer(composite_14, SWT.READ_ONLY);
-				combo = comboViewer.getCombo();
-				combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-				combo.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
 
-						if (StrUtil.isEmpty(model.getCarparkCarType())) {
-							return;
-						}
-						model.setSelectCarType(false);
+		ComboViewer comboViewer = new ComboViewer(composite_14, SWT.READ_ONLY);
+		combo = comboViewer.getCombo();
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		combo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				if (model.isBtnClick()) {
+					SingleCarparkInOutHistory h = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
+					Date inTime = h.getInTime();
+					Date outTime = h.getOutTime();
+					CarTypeEnum carparkCarType = getCarparkCarType(model.getCarparkCarType());
+					float countShouldMoney = presenter.countShouldMoney(carparkCarType, inTime, outTime);
+					
+					presenter.showContentToDevice(mapIpToDevice.get(model.getIp()), CarparkUtils.formatFloatString("请缴费"+countShouldMoney+"元"), false);
+					model.setShouldMony(countShouldMoney);
+					model.setReal(countShouldMoney);
+				}else{
+					if (StrUtil.isEmpty(model.getCarparkCarType())) {
+						return;
 					}
-				});
-				combo.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-				comboViewer.setContentProvider(new ArrayContentProvider());
-				comboViewer.setLabelProvider(new LabelProvider());
-				comboViewer.setInput(mapTempCharge.keySet());
+//					model.setSelectCarType(false);
+					model.setBtnClick(true);
+				}
+			}
+		});
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+		comboViewer.setContentProvider(new ArrayContentProvider());
+		comboViewer.setLabelProvider(new LabelProvider());
+		comboViewer.setInput(mapTempCharge.keySet());
 		btnCharge = new Button(group, SWT.NONE);
 		btnCharge.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -1001,7 +1016,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
 				SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
 				data.setFactMoney(model.getReal());
-				chargeCarPass(device, data, true);
+				chargeCarPass(device, data, carOutChargeCheck);
+				model.setComboCarTypeEnable(false);
 			}
 		});
 		btnCharge.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
@@ -1017,7 +1033,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
 				SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
 				data.setFactMoney(0);
-				chargeCarPass(device, data, true);
+				chargeCarPass(device, data, carOutChargeCheck);
+				model.setComboCarTypeEnable(false);
 			}
 		});
 		btnFree.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
@@ -1033,6 +1050,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			public void widgetSelected(SelectionEvent e) {
 				discontinue = true;
 				model.setBtnClick(false);
+				model.setComboCarTypeEnable(false);
 			}
 		});
 		GridData gd_button_4 = new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1);
@@ -1083,68 +1101,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		tabOutFolder.setSelection(0);
 		m_bindingContext = initDataBindings();
 	}
-	/**
-	 * 设备背景色，可惜没有用
-	 * @param button
-	 */
-	private void fixSetBackground(Button button) {
-		org.eclipse.swt.graphics.Color foreground = button.getForeground();
-
-		org.eclipse.swt.graphics.Color background = button.getBackground();
-
-		int x = 0;
-
-		int y = 0;
-
-		Rectangle rect = button.getBounds();
-
-		int width = rect.width;
-
-		int height = rect.height;
-
-		String text = button.getText();
-
-		if (width == 0)
-
-			width = 1;
-
-		if (height == 0)
-
-			height = 1;
-
-		button.setImage(new Image(button.getParent().getDisplay(), width, height));
-
-		Image original = button.getImage();
-
-		GC gc = new GC(original);
-
-		gc.setForeground(foreground);
-
-		gc.setBackground(background);
-
-		gc.drawRectangle(x, y, width, height);
-
-		gc.fillRectangle(x, y, width, height);
-
-		Font font = button.getFont();
-
-		FontData fontData = font.getFontData()[0];
-
-		int fontSize = fontData.getHeight();
-
-		gc.setFont(button.getFont());
-
-		int ximg = (x + width) / 2 - fontSize * text.length() / 3;
-
-		int yimg = (y + height) / 2 - fontSize * 3 / 4;
-
-		gc.drawText(text, ximg < 4 ? ximg : 4, yimg < 4 ? yimg : 4,
-
-		SWT.DRAW_TRANSPARENT | SWT.DRAW_MNEMONIC);
-
-		gc.dispose();
-
-	}
 
 	/**
 	 * 手动抓拍
@@ -1172,23 +1128,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 		}, 5000, 5000, TimeUnit.MILLISECONDS);
 	}
-
-	// private void addPool(byte[] readAllBytes) {
-	//
-	// Future<?> submit = execute.submit(new Runnable() {
-	// @Override
-	// public void run() {
-	// invok("192.168.1.138", 1, "no", readAllBytes, readAllBytes);
-	// }
-	// });
-	// try {
-	// submit.get();
-	// } catch (InterruptedException e) {
-	// e.printStackTrace();
-	// } catch (ExecutionException e) {
-	// e.printStackTrace();
-	// }
-	// }
 
 	// 创建设备的监控tab页
 	private void createDeviceTabItem() {
@@ -1279,7 +1218,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 			});
 		} else if (mapDeviceType.get(ip).equals("进口")) {
-			inThreadPool.submit(new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_inBigImg, lbl_inSmallImg, shell, mapPlateNoDate, mapIpToDevice, mapSystemSetting, mapHandPhotograph));
+			inThreadPool.submit(
+					new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_inBigImg, lbl_inSmallImg, shell, mapPlateNoDate, mapIpToDevice, mapSystemSetting, mapHandPhotograph));
 		}
 	}
 
@@ -1305,7 +1245,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		final String dateString = StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss");
 		// System.out.println(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO);
 		LOGGER.info(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO);
-		
+
 		// 界面图片
 		Display.getDefault().asyncExec(new Runnable() {
 			public void run() {
@@ -1352,10 +1292,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			setBtnData(btnHandSearch, BTN_HANDSEARCH_BIG_IMG, bigImg);
 			setBtnData(btnHandSearch, BTN_HANDSEARCH_SMALL_IMG, smallImg);
 			model.setHandSearch(true);
+			model.setOutPlateNOEditable(true);
 			return;
 		}
-		
-		//没有找到入场记录
+
+		// 没有找到入场记录
 		List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO);
 		if (StrUtil.isEmpty(findByNoOut)) {
 			LOGGER.info("没有找到车牌{}的入场记录", plateNO);
@@ -1363,6 +1304,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			setBtnData(btnHandSearch, BTN_HANDSEARCH_BIG_IMG, bigImg);
 			setBtnData(btnHandSearch, BTN_HANDSEARCH_SMALL_IMG, smallImg);
 			model.setHandSearch(true);
+			model.setOutPlateNOEditable(true);
 			return;
 		}
 		SingleCarparkInOutHistory ch = findByNoOut.get(0);
@@ -1393,7 +1335,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				}
 			}
 		});
-		
+
 		presenter.showPlateNOToDevice(device, plateNO);
 		//
 		long nanoTime3 = System.nanoTime();
@@ -1408,7 +1350,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				+ "==界面操作：" + (nanoTime3 - nanoTime1));
 		boolean equals = roadType.equals(DeviceRoadTypeEnum.固定车通道.name());
 
-		
 		if (!StrUtil.isEmpty(user)) {
 			if (fixCarOutProcess(ip, plateNO, date, device, user, roadType, equals, bigImg, smallImg)) {
 				return;
@@ -1424,6 +1365,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	}
 
 	/**
+	 * 
 	 * @param ip
 	 * @param plateNO
 	 * @param date
@@ -1433,6 +1375,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	 * @param equals
 	 * @param bigImg
 	 * @param smallImg
+	 * @return 返回true终止操作
 	 */
 	private boolean fixCarOutProcess(final String ip, final String plateNO, Date date, SingleCarparkDevice device, SingleCarparkUser user, String roadType, boolean equals, String bigImg,
 			String smallImg) {
@@ -1444,15 +1387,29 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				return true;
 			}
 		}
-		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(plateNO);
-		if (StrUtil.isEmpty(findByNoCharge)) {
-			LOGGER.info("没有找到车牌{}的入场记录", plateNO);
-			setBtnData(btnHandSearch, BTN_KEY_PLATENO, plateNO);
-			model.setHandSearch(true);
-			return true;
-		}
+		String nowPlateNO = plateNO;
+		// 固定车出场确认
+		Boolean valueOf = Boolean
+				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认) == null ? SystemSettingTypeEnum.固定车出场确认.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认));
 
+		if (valueOf) {
+			model.setOutCheckClick(true);
+			while (model.isOutCheckClick()) {
+				int i = 0;
+				try {
+					if (i > 120) {
+						return true;
+					}
+					Thread.sleep(500);
+					i++;
+				} catch (InterruptedException e) {
+				}
+			}
+			nowPlateNO = model.getOutShowPlateNO();
+		}
+		//
+		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
+		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(nowPlateNO);
 		Date validTo = user.getValidTo();
 		Integer delayDays = user.getDelayDays() == null ? 0 : user.getDelayDays();
 
@@ -1463,7 +1420,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		if (StrUtil.getTodayBottomTime(time).before(date)) {
 			presenter.showContentToDevice(device, CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), VILIDTO_DATE), false);
-			LOGGER.info("车辆:{}已到期", plateNO);
+			LOGGER.info("车辆:{}已到期", nowPlateNO);
 			return true;
 		} else {
 			c.setTime(validTo);
@@ -1472,7 +1429,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			System.out.println(StrUtil.formatDate(time, "yyyy-MM-dd HH:mm:ss"));
 			if (StrUtil.getTodayBottomTime(time).before(date)) {
 				presenter.showContentToDevice(device, CAR_OUT_MSG + StrUtil.formatDate(user.getValidTo(), VILIDTO_DATE), true);
-				LOGGER.info("车辆:{}即将到期", plateNO);
+				LOGGER.info("车辆:{}即将到期", nowPlateNO);
 			} else {
 				presenter.showContentToDevice(device, CAR_OUT_MSG, true);
 			}
@@ -1483,7 +1440,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		// model.setMonthSlot(model.getMonthSlot() + 1 > carpark.getFixNumberOfSlot() ? carpark.getFixNumberOfSlot() : model.getMonthSlot() + 1);
 
 		SingleCarparkInOutHistory singleCarparkInOutHistory = findByNoCharge.get(0);
-		model.setPlateNo(plateNO);
+		model.setPlateNo(nowPlateNO);
 		model.setCarType(carType);
 		model.setOutTime(date);
 		Date inTime = singleCarparkInOutHistory.getInTime();
@@ -1514,13 +1471,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private void carparkOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg) {
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(plateNO);
-		if (StrUtil.isEmpty(findByNoCharge)) {
-			LOGGER.error("没有找到车牌：{}的进场记录", plateNO);
-			setBtnData(btnHandSearch, BTN_KEY_PLATENO, plateNO);
-			model.setHandSearch(true);
-			return;
-		}
-
 		if (!StrUtil.isEmpty(findByNoCharge)) {
 
 			SingleCarparkInOutHistory singleCarparkInOutHistory = findByNoCharge.get(0);
@@ -1552,7 +1502,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			if (mapTempCharge.keySet().size() > 1) {
 				model.setComboCarTypeEnable(true);
 				model.setSelectCarType(true);
-				while (model.isSelectCarType()) {
+				while (!model.isBtnClick()) {
 					try {
 						if (discontinue) {
 							return;
@@ -1568,7 +1518,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				list.addAll(mapTempCharge.keySet());
 				carType = getCarparkCarType(list.get(0));
 			}
-			model.setComboCarTypeEnable(false);
+//			model.setComboCarTypeEnable(false);
 			float shouldMoney = presenter.countShouldMoney(carType, inTime, date);
 			model.setShouldMony(shouldMoney);
 			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
@@ -1694,7 +1644,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private void chargeCarPass(SingleCarparkDevice device, SingleCarparkInOutHistory singleCarparkInOutHistory, boolean check) {
 
 		Float shouldMoney = singleCarparkInOutHistory.getShouldMoney();
-		float factMoney = singleCarparkInOutHistory.getFactMoney()==null?0:singleCarparkInOutHistory.getFactMoney();
+		float factMoney = singleCarparkInOutHistory.getFactMoney() == null ? 0 : singleCarparkInOutHistory.getFactMoney();
 		if (check) {
 			if (factMoney > shouldMoney) {
 				commonui.error("收费提示", "实时不能超过应收");
@@ -1750,6 +1700,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	public boolean isOpen() {
 		return false;
 	}
+
 	public void refreshCarparkBasicInfo(Integer refreshTimeSpeedSecond) {
 		refreshService.scheduleAtFixedRate(() -> {
 			try {
@@ -1764,9 +1715,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow());
 				model.setMonthSlot(sp.getCarparkInOutService().findFixSlotIsNow());
 			} catch (Exception e) {
-				LOGGER.error("刷新停车场出错",e);
+				LOGGER.error("刷新停车场出错", e);
 			}
-		}, 3000, 1000, TimeUnit.MILLISECONDS);
+		} , 3000, 1000, TimeUnit.MILLISECONDS);
 	}
 
 	protected DataBindingContext initDataBindings() {
@@ -1884,9 +1835,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue observeEditableTxtinplateNoObserveWidget = WidgetProperties.editable().observe(txtinplateNo);
 		bindingContext.bindValue(observeEditableTxtinplateNoObserveWidget, inCheckClickModelObserveValue, null, null);
 		//
-		IObservableValue observeEditableTxtoutplateNoObserveWidget = WidgetProperties.editable().observe(txtoutplateNo);
-		bindingContext.bindValue(observeEditableTxtoutplateNoObserveWidget, outCheckClickModelObserveValue, null, null);
-		//
 		IObservableValue observeImageLbl_inSmallImgObserveWidget = WidgetProperties.image().observe(lbl_inSmallImg);
 		IObservableValue inShowSmallImgModelObserveValue = BeanProperties.value("inShowSmallImg").observe(model);
 		bindingContext.bindValue(observeImageLbl_inSmallImgObserveWidget, inShowSmallImgModelObserveValue, null, null);
@@ -1894,6 +1842,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue observeTextText_1ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_1);
 		IObservableValue currentTimeModelObserveValue = BeanProperties.value("currentTime").observe(model);
 		bindingContext.bindValue(observeTextText_1ObserveWidget, currentTimeModelObserveValue, null, null);
+		//
+		IObservableValue observeEditableTxtoutplateNoObserveWidget = WidgetProperties.editable().observe(txtoutplateNo);
+		IObservableValue outPlateNOEditableModelObserveValue = BeanProperties.value("outPlateNOEditable").observe(model);
+		bindingContext.bindValue(observeEditableTxtoutplateNoObserveWidget, outPlateNOEditableModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

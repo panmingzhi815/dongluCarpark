@@ -312,6 +312,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.isNotEmpty(SingleCarparkInOutHistory.Property.plateNo.name()));
 			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.plateNo.name()));
+			c.add(Restrictions.ne(SingleCarparkInOutHistory.Property.plateNo.name(),""));
 			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
 			List<SimpleExpression> list=new ArrayList<>();
 			for (String s : CarparkUtils.splitPlateNO(plateNO)) {
@@ -339,7 +340,8 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		unitOfWork.begin();
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
-			c.add(Restrictions.or(Restrictions.isEmpty(SingleCarparkInOutHistory.Property.plateNo.name()),
+			c.add(Restrictions.or(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(),""),
+					Restrictions.isEmpty(SingleCarparkInOutHistory.Property.plateNo.name()),
 					Restrictions.isNull(SingleCarparkInOutHistory.Property.plateNo.name())));
 			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
 			if (order) {

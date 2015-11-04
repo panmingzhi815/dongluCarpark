@@ -64,6 +64,7 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 		model.setCountSearchAll(countByCondition.intValue());
 		model.AddList(findByCondition);
 		model.setCountSearch(model.getList().size());
+		countMoney();
 	}
 	public void searchMore() {
 		AbstractListView<SingleCarparkInOutHistory>.Model model = v.getModel();
@@ -98,12 +99,16 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 		}
 		int should=0;
 		int fact=0;
+		int free=0;
 		for (SingleCarparkInOutHistory singleCarparkInOutHistory : list) {
 			int i=singleCarparkInOutHistory.getShouldMoney()==null?0:singleCarparkInOutHistory.getShouldMoney().intValue();
 			int j=singleCarparkInOutHistory.getFactMoney()==null?0:singleCarparkInOutHistory.getFactMoney().intValue();
+			int k=singleCarparkInOutHistory.getFreeMoney()==null?0:singleCarparkInOutHistory.getFreeMoney().intValue();
 			should+=i;
 			fact+=j;
+			free+=k;
 		}
+		v.setMoney(should+"", fact+"", free+"");
 		return new int[]{should,fact};
 	}
 	public void lookDetail() {

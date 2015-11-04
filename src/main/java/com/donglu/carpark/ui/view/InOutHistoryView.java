@@ -35,14 +35,12 @@ public class InOutHistoryView extends Composite implements View{
 	private Text text_plateNO;
 	private Text text_userName;
 	private Text text_operaName;
-	private Text text_shouldMoney;
 	private DateChooserCombo dateChooserCombo_end;
 	private Combo combo_carType;
 	private Combo combo_inorout;
 	private Text text_inDevice;
 	private Text text_outDevice;
 	private Text text_returnAccount;
-	private Text text_factMoney;
 
 	public InOutHistoryView(Composite parent, int style) {
 		super(parent, style);
@@ -53,7 +51,7 @@ public class InOutHistoryView extends Composite implements View{
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		group.setText("查询");
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		group.setLayout(new GridLayout(14, false));
+		group.setLayout(new GridLayout(11, false));
 		
 		Label label = new Label(group, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -106,14 +104,6 @@ public class InOutHistoryView extends Composite implements View{
 			text_operaName.setEditable(false);
 			text_operaName.setText(System.getProperty("userName"));
 		}
-		Label lblNewLabel_2 = new Label(group, SWT.NONE);
-		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_2.setText("归账编号");
-		
-		text_returnAccount = new Text(group, SWT.BORDER);
-		text_returnAccount.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_returnAccount.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Button button = new Button(group, SWT.NONE);
 		button.addSelectionListener(new SelectionAdapter() {
@@ -125,16 +115,6 @@ public class InOutHistoryView extends Composite implements View{
 		});
 		button.setText("查询");
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
-		Button button_2 = new Button(group, SWT.NONE);
-		button_2.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				getPresenter().exportSearch();
-			}
-		});
-		button_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_2.setText("导出");
 		
 		Label label_4 = new Label(group, SWT.NONE);
 		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -180,42 +160,24 @@ public class InOutHistoryView extends Composite implements View{
 		text_outDevice = new Text(group, SWT.BORDER);
 		text_outDevice.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_outDevice.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		Label lblNewLabel_2 = new Label(group, SWT.NONE);
+		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_2.setText("归账编号");
 		
-		Label label_7 = new Label(group, SWT.NONE);
-		label_7.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_7.setText("应收金额");
-		label_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_returnAccount = new Text(group, SWT.BORDER);
+		text_returnAccount.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_returnAccount.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
-		text_shouldMoney = new Text(group, SWT.BORDER);
-		text_shouldMoney.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_shouldMoney.setEnabled(false);
-		text_shouldMoney.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		
-		Label label_8 = new Label(group, SWT.NONE);
-		label_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_8.setText("实收金额");
-		
-		text_factMoney = new Text(group, SWT.BORDER);
-		text_factMoney.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_factMoney.setEditable(false);
-		text_factMoney.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		
-		Button button_1 = new Button(group, SWT.NONE);
-		button_1.addSelectionListener(new SelectionAdapter() {
+		Button button_2 = new Button(group, SWT.NONE);
+		button_2.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int[] i=getPresenter().countMoney();
-				if (StrUtil.isEmpty(i)) {
-					return;
-				}
-				text_shouldMoney.setText(i[0]+"");
-				text_factMoney.setText(i[1]+"");
+				getPresenter().exportSearch();
 			}
 		});
-		button_1.setText("统计");
-		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		new Label(group, SWT.NONE);
+		button_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_2.setText("导出");
 		
 		listComposite = new Composite(this, SWT.NONE);
 		listComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));

@@ -681,12 +681,6 @@ public class CarparkMainPresenter {
 	}
 
 	public void init() {
-		countTempCarCharge=(CountTempCarChargeI) FileUtils.readObject("countTempCarCharge");
-		System.out.println(countTempCarCharge);
-		if (StrUtil.isEmpty(countTempCarCharge)) {
-			countTempCarCharge=new CountTempCarChargeImpl();
-			FileUtils.writeObject("countTempCarCharge", countTempCarCharge);
-		}
 		
 	}
 	/**
@@ -710,6 +704,7 @@ public class CarparkMainPresenter {
 			if (StrUtil.isEmpty(showWizard)) {
 				return;
 			}
+			model.setOutPlateNOEditable(false);
 			SingleCarparkInOutHistory select = searchErrorCarPresenter.getModel().getHavePlateNoSelect()==null?searchErrorCarPresenter.getModel().getNoPlateNoSelect():searchErrorCarPresenter.getModel().getHavePlateNoSelect();
 			if (StrUtil.isEmpty(select)) {
 				return;

@@ -20,6 +20,7 @@ public class CarparkMainModel extends DomainObject{
 	private String outShowMeg;
 	private Image outShowSmallImg;
 	private Image outShowBigImg;
+	private boolean outPlateNOEditable=false;
 	
 	
 	String userName;
@@ -343,6 +344,14 @@ public class CarparkMainModel extends DomainObject{
 	}
 	public String getCurrentTime() {
 		return currentTime;
+	}
+	public boolean isOutPlateNOEditable() {
+		return outPlateNOEditable;
+	}
+	public void setOutPlateNOEditable(boolean outPlateNOEditable) {
+		this.outPlateNOEditable = outPlateNOEditable;
+		if (pcs != null)
+			pcs.firePropertyChange("outPlateNOEditable", null, null);
 	}
 
 }

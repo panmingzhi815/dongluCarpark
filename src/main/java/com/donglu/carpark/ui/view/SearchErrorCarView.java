@@ -21,6 +21,7 @@ import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.io.Files;
 
@@ -86,17 +87,6 @@ public class SearchErrorCarView extends Composite implements View{
 		button.setText("使用进场车牌为准");
 		
 		TabFolder tabFolder = new TabFolder(this, SWT.NONE);
-		tabFolder.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				String text = tabFolder.getSelection()[0].getText();
-				if (text.equals("相似车")) {
-					model.setNoPlateNoSelect(null);
-				}else{
-					model.setHavePlateNoSelect(null);
-				}
-			}
-		});
 		GridData gd_tabFolder = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
 		gd_tabFolder.widthHint = 252;
 		tabFolder.setLayoutData(gd_tabFolder);
@@ -113,17 +103,11 @@ public class SearchErrorCarView extends Composite implements View{
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
-				if (StrUtil.isEmpty(model.getHavePlateNoSelect())) {
-					SingleCarparkInOutHistory select = model.getNoPlateNoSelect();
-					model.setBigImg(getByte(model.getSaveBigImg()));
-					model.setSmallImg(getByte(model.getSaveSmallImg()));
-					lbl_bigImg.setImage(getImage(getByte(select.getBigImg()),lbl_bigImg));
-				}else{
+				model.setNoPlateNoSelect(null);
 					SingleCarparkInOutHistory select = model.getHavePlateNoSelect();
-					lbl_bigImg.setImage(getImage(getByte(select.getBigImg()),lbl_bigImg));
-					model.setBigImg(getByte(model.getSaveBigImg()));
-					model.setSmallImg(getByte(model.getSaveSmallImg()));
-				}
+					lbl_bigImg.setImage(CarparkUtils.getImage(CarparkUtils.getImageByte(select.getBigImg()),lbl_bigImg, getShell()));
+					model.setBigImg(CarparkUtils.getImageByte(model.getSaveBigImg()));
+					model.setSmallImg(CarparkUtils.getImageByte(model.getSaveSmallImg()));
 			}
 		});
 		table.setLinesVisible(true);
@@ -155,6 +139,16 @@ public class SearchErrorCarView extends Composite implements View{
 		
 		tableViewer_1 = new TableViewer(composite_2, SWT.BORDER | SWT.FULL_SELECTION);
 		table_1 = tableViewer_1.getTable();
+		table_1.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				model.setHavePlateNoSelect(null);
+				SingleCarparkInOutHistory select = model.getNoPlateNoSelect();
+				model.setBigImg(CarparkUtils.getImageByte(model.getSaveBigImg()));
+				model.setSmallImg(CarparkUtils.getImageByte(model.getSaveSmallImg()));
+				lbl_bigImg.setImage(CarparkUtils.getImage(CarparkUtils.getImageByte(select.getBigImg()),lbl_bigImg, getShell()));
+			}
+		});
 		table_1.setLinesVisible(true);
 		table_1.setHeaderVisible(true);
 		
@@ -174,56 +168,6 @@ public class SearchErrorCarView extends Composite implements View{
 		Font font = SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL);
 		m_bindingContext = initDataBindings();
 	}
-
-	protected byte[] getByte(String img) {
-		try {
-			byte[] image;
-			File file=new File(mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置)+"/img/"+img);
-			if (file.exists()) {
-				image=Files.toByteArray(file);
-			}else{
-				String substring = img.substring(img.lastIndexOf("/")+1);
-				String actionUrl = "http://"+CarparkClientConfig.getInstance().getDbServerIp()+":8899";
-				image = FileuploadSend.download(actionUrl, substring);
-			}
-			return image;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
-	protected Image getImage(byte[] image, Label lbl) {
-		if (image==null) {
-			return null;
-		}
-		ByteArrayInputStream stream = null;
-		try {
-			stream = new ByteArrayInputStream(image);
-			Image newImg = new Image(getShell().getDisplay(), stream);
-			Rectangle rectangle = lbl.getBounds();
-			ImageData data = newImg.getImageData().scaledTo(rectangle.width, rectangle.height);
-			ImageDescriptor createFromImageData = ImageDescriptor.createFromImageData(data);
-			Image createImg = createFromImageData.createImage();
-			newImg.dispose();
-			newImg = null;
-			lbl.setText("");
-			return createImg;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}finally{
-			if (stream!=null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
 	@Override
 	public void setPresenter(Presenter presenter) {
 		this.presenter=presenter;
