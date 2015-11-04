@@ -1,3 +1,8 @@
 
 /target/
 /work/
+.idea/
+*.txt
+resources/bin/temp/
+*.properties
+*.iml
