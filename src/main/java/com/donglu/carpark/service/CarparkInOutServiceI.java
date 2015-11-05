@@ -62,4 +62,16 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	Long deleteAllHistory();
+	/**
+	 * 查找实收未归账的记录
+	 * @param userName
+	 * @return
+	 */
+	List<SingleCarparkInOutHistory> findHistoryFactMoneyNotReturn(String userName);
+	/**
+	 * 查找免费金额未归账的记录
+	 * @param userName
+	 * @return
+	 */
+	List<SingleCarparkInOutHistory> findHistoryFreeMoneyNotReturn(String userName);
 }

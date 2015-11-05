@@ -712,15 +712,15 @@ public class CarparkServiceImpl implements CarparkService {
 	}
 
 	@Override
-	public Map<SNSettingType, String> findAllSN() {
+	public Map<SNSettingType, SingleCarparkSystemSetting> findAllSN() {
 		unitOfWork.begin();
 		try {
-			Map<SNSettingType, String> map=new HashMap<>();
+			Map<SNSettingType, SingleCarparkSystemSetting> map=new HashMap<>();
 			for (SNSettingType t:SNSettingType.values()) {
 				Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkSystemSetting.class);
 				c.add(Restrictions.eq("settingKey", t.name()));
 				SingleCarparkSystemSetting ss = (SingleCarparkSystemSetting) c.getSingleResultOrNull();
-				map.put(t, ss==null?null:ss.getSettingValue());
+				map.put(t, ss==null?null:ss);
 			}
 			return map;
 		}catch(Exception e){

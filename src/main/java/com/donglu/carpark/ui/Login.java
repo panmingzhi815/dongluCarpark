@@ -349,14 +349,23 @@ public class Login {
 			@Override
 			public void run() {
 				LOGGER.info("从数据库获取注册信息");
-				Map<SNSettingType, String> findAllSN = sp.getCarparkService().findAllSN();
-				String sn = findAllSN.get(SNSettingType.sn);
-				String validTo = findAllSN.get(SNSettingType.validTo);
+				Map<SNSettingType, SingleCarparkSystemSetting> findAllSN = sp.getCarparkService().findAllSN();
+				String sn = findAllSN.get(SNSettingType.sn).getSettingValue();
+				String validTo = findAllSN.get(SNSettingType.validTo).getSettingValue();
+				
 				if (StrUtil.isEmpty(sn)||StrUtil.isEmpty(validTo)) {
 					LOGGER.info("没有检测到注册码，请检测服务器加密狗");
 					commonui.error("检查失败", "没有检测到注册码，请检测服务器加密狗");
 					System.exit(0);
 					return;
+				}else{
+					Date lastUpdate = findAllSN.get(SNSettingType.validTo).getLastUpdate();
+					Date date = new DateTime(lastUpdate).plusHours(3).toDate();
+					if (date.before(new Date())) {
+						commonui.error("检查失败", "获取注册码信息失败，请检测服务器加密狗");
+						System.exit(0);
+						return;
+					}
 				}
 				LOGGER.info("检查注册码成功,有效期至{}",validTo);
 			}

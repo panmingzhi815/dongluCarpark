@@ -37,6 +37,10 @@ public class ReturnAccountWizard extends Wizard implements AbstractWizard{
 			return false;
 		}
 		String property = System.getProperty("userType");
+		if (System.getProperty("userName").equals(systemUser.getUserName())) {
+			page.setErrorMessage("不能归账给自己");
+			return false;
+		}
 		if (SystemUserTypeEnum.valueOf(systemUser.getType()).getLevel()>2||SystemUserTypeEnum.valueOf(property).getLevel()>SystemUserTypeEnum.valueOf(property).getLevel()) {
 			page.setErrorMessage("用户名权限不足");
 			return false; 

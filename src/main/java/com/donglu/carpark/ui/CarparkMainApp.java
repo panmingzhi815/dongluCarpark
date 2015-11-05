@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
@@ -96,6 +97,8 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 
 public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private static final String BTN_HANDSEARCH_SMALL_IMG = "smallImg";
@@ -373,7 +376,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	protected void createContents() {
 		shell = new Shell();
 		shell.setMinimumSize(new Point(1024, 768));
-		shell.setSize(1036, 768);
+		shell.setSize(1036, 850);
 		shell.setText("停车场监控-1.0.0.3(" + CarparkClientConfig.getInstance().getDbServerIp() + ")");
 		shell.addShellListener(new ShellAdapter() {
 			@Override
@@ -614,12 +617,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				model.setInCheckClick(false);
-				SingleCarparkInOutHistory history = model.getHistory();
-				if (history == null) {
-					history = new SingleCarparkInOutHistory();
+				if (!model.getInShowPlateNO().matches(CarparkUtils.PLATENO_REGEX)) {
+					commonui.info("车牌错误", "请输入正确的车牌");
+					return;
 				}
-				history.setPlateNo(txtinplateNo.getText());
+				model.setInCheckClick(false);
 			}
 		});
 		// button.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
@@ -685,6 +687,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		btnOutCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				String outShowPlateNO = model.getOutShowPlateNO();
+				if (!outShowPlateNO.matches(CarparkUtils.PLATENO_REGEX)) {
+					commonui.info("车牌错误", "请输入正确的车牌");
+					return;
+				}
 				model.setOutCheckClick(false);
 			}
 		});
@@ -696,7 +703,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		btnHandSearch.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(txtoutplateNo.getText().isEmpty()){
+				if (txtoutplateNo.getText().isEmpty()) {
 					commonui.info("提示", "请先输入车牌");
 					return;
 				}
@@ -987,7 +994,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		combo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				String carparkCarType2 = model.getCarparkCarType();
 				if (carparkCarType2.equals("请选择车型")) {
 					return;
@@ -998,11 +1005,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					Date outTime = h.getOutTime();
 					CarTypeEnum carparkCarType = getCarparkCarType(carparkCarType2);
 					float countShouldMoney = presenter.countShouldMoney(carparkCarType, inTime, outTime);
-					
-					presenter.showContentToDevice(mapIpToDevice.get(model.getIp()), CarparkUtils.formatFloatString("请缴费"+countShouldMoney+"元"), false);
+
+					presenter.showContentToDevice(mapIpToDevice.get(model.getIp()), CarparkUtils.formatFloatString("请缴费" + countShouldMoney + "元"), false);
 					model.setShouldMony(countShouldMoney);
 					model.setReal(countShouldMoney);
-				}else{
+				} else {
 					if (StrUtil.isEmpty(carparkCarType2)) {
 						return;
 					}
@@ -1013,7 +1020,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		combo.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
-		List<String> listCarType=new ArrayList<>();
+		List<String> listCarType = new ArrayList<>();
 		listCarType.add("请选择车型");
 		listCarType.addAll(mapTempCharge.keySet());
 		comboViewer.setInput(listCarType);
@@ -1022,85 +1029,259 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		composite_13.setLayout(new GridLayout(1, false));
 		composite_13.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true, true, 2, 1));
 		btnCharge = new Button(composite_13, SWT.NONE);
-		btnCharge.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
 		btnCharge.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
 				SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
 				data.setFactMoney(model.getReal());
-				chargeCarPass(device, data, carOutChargeCheck);
+				if(!chargeCarPass(device, data, carOutChargeCheck)){
+					return;
+				}
 				model.setComboCarTypeEnable(false);
+				btnCharge.setData(BTN_CHARGE,null);
+				btnCharge.setData(BTN_CHARGE_DEVICE,null);
 			}
 		});
-		btnCharge.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
+		btnCharge.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		btnCharge.setText("收费放行(F11)");
-		
-				btnFree = new Button(composite_13, SWT.NONE);
-				btnFree.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
-				btnFree.setSize(120, 29);
-				btnFree.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
-						SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
-						data.setFactMoney(0);
-						chargeCarPass(device, data, carOutChargeCheck);
-						model.setComboCarTypeEnable(false);
-					}
-				});
-				btnFree.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
-				btnFree.setText("免费放行(F12)");
+
+		btnFree = new Button(composite_13, SWT.NONE);
+		btnFree.setSize(120, 29);
+		btnFree.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
+				SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
+				data.setFactMoney(0);
+				if(!chargeCarPass(device, data, carOutChargeCheck)){
+					return;
+				}
+				model.setComboCarTypeEnable(false);
+				btnCharge.setData(BTN_CHARGE,null);
+				btnCharge.setData(BTN_CHARGE_DEVICE,null);
+			}
+		});
+		btnFree.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+		btnFree.setText("免费放行(F12)");
+
+		button_4 = new Button(composite_13, SWT.NONE);
+		button_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		button_4.setSize(120, 29);
+		button_4.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+		button_4.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				discontinue = true;
+				model.setBtnClick(false);
+				model.setComboCarTypeEnable(false);
+				btnCharge.setData(BTN_CHARGE,null);
+				btnCharge.setData(BTN_CHARGE_DEVICE,null);
+			}
+		});
+		button_4.setText("取消放行");
+
+		Button btnf_1 = new Button(composite_13, SWT.NONE);
+		btnf_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnf_1.setSize(120, 29);
+		btnf_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.changeUser();
+			}
+		});
+		btnf_1.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+		btnf_1.setText("换班(F7)");
+
+		Button btnf_2 = new Button(composite_13, SWT.NONE);
+		btnf_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnf_2.setSize(120, 29);
+		btnf_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.returnAccount();
+			}
+		});
+		btnf_2.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+		btnf_2.setText("归账(F8)");
+
+		Button btnf_3 = new Button(composite_13, SWT.NONE);
+		btnf_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnf_3.setSize(120, 29);
+		btnf_3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.showSearchInOutHistory();
+			}
+		});
+		btnf_3.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+		btnf_3.setText("浏览记录(F9)");
+
+		Composite composite_16 = new Composite(group, SWT.NONE);
+		GridLayout gl_composite_16 = new GridLayout(2, false);
+		gl_composite_16.marginTop = 20;
+		gl_composite_16.horizontalSpacing = 15;
+		composite_16.setLayout(gl_composite_16);
+		GridData gd_composite_16 = new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1);
+		gd_composite_16.exclude = true;
+		composite_16.setLayoutData(gd_composite_16);
+
+		Label lbl_charge = new Label(composite_16, SWT.NONE);
+		lbl_charge.setCursor(new Cursor(shell.getDisplay(),SWT.CURSOR_HAND));
+		lbl_charge.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseUp(MouseEvent e) {
+				Rectangle bounds = lbl_charge.getBounds();
+				bounds.y=bounds.y+2;
+				lbl_charge.setBounds(bounds);
 				
-						button_4 = new Button(composite_13, SWT.NONE);
-						button_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
-						button_4.setSize(120, 29);
-						button_4.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
-						button_4.addSelectionListener(new SelectionAdapter() {
-							@Override
-							public void widgetSelected(SelectionEvent e) {
-								discontinue = true;
-								model.setBtnClick(false);
-								model.setComboCarTypeEnable(false);
-							}
-						});
-						button_4.setText("取消放行");
-						
-								Button btnf_1 = new Button(composite_13, SWT.NONE);
-								btnf_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
-								btnf_1.setSize(120, 29);
-								btnf_1.addSelectionListener(new SelectionAdapter() {
-									@Override
-									public void widgetSelected(SelectionEvent e) {
-										presenter.changeUser();
-									}
-								});
-								btnf_1.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
-								btnf_1.setText("换班(F7)");
-								
-										Button btnf_2 = new Button(composite_13, SWT.NONE);
-										btnf_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
-										btnf_2.setSize(120, 29);
-										btnf_2.addSelectionListener(new SelectionAdapter() {
-											@Override
-											public void widgetSelected(SelectionEvent e) {
-												presenter.returnAccount();
-											}
-										});
-										btnf_2.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
-										btnf_2.setText("归账(F8)");
-										
-												Button btnf_3 = new Button(composite_13, SWT.NONE);
-												btnf_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
-												btnf_3.setSize(120, 29);
-												btnf_3.addSelectionListener(new SelectionAdapter() {
-													@Override
-													public void widgetSelected(SelectionEvent e) {
-														presenter.showSearchInOutHistory();
-													}
-												});
-												btnf_3.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
-												btnf_3.setText("浏览记录(F9)");
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				Rectangle bounds = lbl_charge.getBounds();
+				bounds.y=bounds.y-2;
+				lbl_charge.setBounds(bounds);
+			}
+		});
+		lbl_charge.setImage(SWTResourceManager.getImage("E:\\QQDownload\\png\\f9.png"));
+		GridData gd_lblNewLabel_5 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lblNewLabel_5.heightHint = 50;
+		gd_lblNewLabel_5.widthHint = 120;
+		lbl_charge.setLayoutData(gd_lblNewLabel_5);
+		Label lbl_freeCharge = new Label(composite_16, SWT.NONE);
+		lbl_freeCharge.setCursor(new Cursor(shell.getDisplay(),SWT.CURSOR_HAND));
+		lbl_freeCharge.setImage(SWTResourceManager.getImage("E:\\QQDownload\\png\\f12.png"));
+		GridData gd_lbl_freeCharge = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lbl_freeCharge.heightHint = 50;
+		gd_lbl_freeCharge.widthHint = 120;
+		lbl_freeCharge.setLayoutData(gd_lbl_freeCharge);
+		lbl_freeCharge.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseUp(MouseEvent e) {
+				Rectangle bounds = lbl_freeCharge.getBounds();
+				bounds.y=bounds.y+2;
+				lbl_freeCharge.setBounds(bounds);
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				Rectangle bounds = lbl_freeCharge.getBounds();
+				bounds.y=bounds.y-2;
+				lbl_freeCharge.setBounds(bounds);
+			}
+		});
+		
+		Composite composite_18 = new Composite(group, SWT.NONE);
+		GridData gd_composite_18 = new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1);
+		gd_composite_18.exclude = true;
+		composite_18.setLayoutData(gd_composite_18);
+		GridLayout gl_composite_18 = new GridLayout(2, false);
+		gl_composite_18.horizontalSpacing = 15;
+		composite_18.setLayout(gl_composite_18);
+
+		Label lbl_stopCharge = new Label(composite_18, SWT.NONE);
+		GridData gd_lbl_stopCharge = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lbl_stopCharge.widthHint = 120;
+		gd_lbl_stopCharge.heightHint = 50;
+		lbl_stopCharge.setLayoutData(gd_lbl_stopCharge);
+		lbl_stopCharge.setCursor(new Cursor(shell.getDisplay(),SWT.CURSOR_HAND));
+		lbl_stopCharge.setImage(SWTResourceManager.getImage("E:\\QQDownload\\png\\esc.png"));
+		lbl_stopCharge.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseUp(MouseEvent e) {
+				Rectangle bounds = lbl_stopCharge.getBounds();
+				bounds.y=bounds.y+2;
+				lbl_stopCharge.setBounds(bounds);
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				Rectangle bounds = lbl_stopCharge.getBounds();
+				bounds.y=bounds.y-2;
+				lbl_stopCharge.setBounds(bounds);
+			}
+		});
+		Label lbl_search = new Label(composite_18, SWT.NONE);
+		GridData gd_lbl_search = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lbl_search.widthHint = 120;
+		gd_lbl_search.heightHint = 50;
+		lbl_search.setLayoutData(gd_lbl_search);
+		lbl_search.setCursor(new Cursor(shell.getDisplay(),SWT.CURSOR_HAND));
+		lbl_search.setImage(SWTResourceManager.getImage("E:\\QQDownload\\png\\jilu.png"));
+		lbl_search.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseUp(MouseEvent e) {
+				Rectangle bounds = lbl_search.getBounds();
+				bounds.y=bounds.y+2;
+				lbl_search.setBounds(bounds);
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				Rectangle bounds = lbl_search.getBounds();
+				bounds.y=bounds.y-2;
+				lbl_search.setBounds(bounds);
+			}
+		});
+		Composite composite_17 = new Composite(group, SWT.NONE);
+		GridData gd_composite_17 = new GridData(SWT.CENTER, SWT.CENTER, true, false, 2, 1);
+		gd_composite_17.exclude = true;
+		composite_17.setLayoutData(gd_composite_17);
+		GridLayout gl_composite_17 = new GridLayout(2, false);
+		gl_composite_17.horizontalSpacing = 15;
+		composite_17.setLayout(gl_composite_17);
+
+		Label lbl_returnAccount = new Label(composite_17, SWT.NONE);
+		GridData gd_lbl_returnAccount = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lbl_returnAccount.widthHint = 120;
+		gd_lbl_returnAccount.heightHint = 50;
+		lbl_returnAccount.setLayoutData(gd_lbl_returnAccount);
+		lbl_returnAccount.setCursor(new Cursor(shell.getDisplay(),SWT.CURSOR_HAND));
+		lbl_returnAccount.setImage(SWTResourceManager.getImage("E:\\QQDownload\\png\\gui.png"));
+		lbl_returnAccount.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseUp(MouseEvent e) {
+				Rectangle bounds = lbl_returnAccount.getBounds();
+				bounds.y=bounds.y+2;
+				lbl_returnAccount.setBounds(bounds);
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				Rectangle bounds = lbl_returnAccount.getBounds();
+				bounds.y=bounds.y-2;
+				lbl_returnAccount.setBounds(bounds);
+			}
+		});
+		Label lbl_changeUser = new Label(composite_17, SWT.NONE);
+		GridData gd_lbl_changeUser = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lbl_changeUser.widthHint = 120;
+		gd_lbl_changeUser.heightHint = 50;
+		lbl_changeUser.setLayoutData(gd_lbl_changeUser);
+		lbl_changeUser.setCursor(new Cursor(shell.getDisplay(),SWT.CURSOR_HAND));
+		lbl_changeUser.setImage(SWTResourceManager.getImage("E:\\QQDownload\\png\\huan.png"));
+		lbl_changeUser.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseUp(MouseEvent e) {
+				Rectangle bounds = lbl_changeUser.getBounds();
+				bounds.y=bounds.y+2;
+				lbl_changeUser.setBounds(bounds);
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				Rectangle bounds = lbl_changeUser.getBounds();
+				bounds.y=bounds.y-2;
+				lbl_changeUser.setBounds(bounds);
+			}
+		});
 		createDeviceTabItem();
 		tabInFolder.setSelection(0);
 		tabOutFolder.setSelection(0);
@@ -1507,6 +1688,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			if (mapTempCharge.keySet().size() > 1) {
 				model.setComboCarTypeEnable(true);
 				model.setSelectCarType(true);
+				CarparkUtils.setComboSelect(combo, 0);
 				while (!model.isBtnClick()) {
 					try {
 						if (discontinue) {
@@ -1523,11 +1705,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				list.addAll(mapTempCharge.keySet());
 				carType = getCarparkCarType(list.get(0));
 			}
-//			model.setComboCarTypeEnable(false);
+			// model.setComboCarTypeEnable(false);
 			float shouldMoney = presenter.countShouldMoney(carType, inTime, date);
 			model.setShouldMony(shouldMoney);
 			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
 			model.setReal(shouldMoney);
+			singleCarparkInOutHistory.setFactMoney(shouldMoney);
 			LOGGER.info("{}进场时间{}，出场时间{}，停车：{}，应收费：{}元", plateNO, model.getInTime(), model.getOutTime(), model.getTotalTime(), shouldMoney);
 			String s = "请缴费" + shouldMoney + "元";
 			s = CarparkUtils.formatFloatString(s);
@@ -1559,124 +1742,46 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				singleCarparkInOutHistory.setFactMoney(shouldMoney);
 				chargeCarPass(device, singleCarparkInOutHistory, false);
 			}
-			//
-			// if (!tempCarNoChargeIsPass) {
-			// // 自动收费放行
-			// if (!valueOf) {
-			// int i=0;
-			// presenter.showContentToDevice(device, s, false);
-			// while (model.isBtnClick()) {
-			// try {
-			// if (discontinue) {
-			// return;
-			// }
-			// if (i>120) {
-			// model.setBtnClick(false);
-			// return;
-			// }
-			// i++;
-			// Thread.sleep(500);
-			// } catch (InterruptedException e) {
-			// e.printStackTrace();
-			// }
-			// }
-			// if (discontinue) {
-			// return;
-			// }
-			// }
-			// } else {
-			// if (!valueOf) {
-			// int i=0;
-			// if (shouldMoney > 0) {
-			// presenter.showContentToDevice(device, s, false);
-			// while (model.isBtnClick()) {
-			// try {
-			// if (discontinue) {
-			// return;
-			// }
-			// if (i>120) {
-			// model.setBtnClick(false);
-			// return;
-			// }
-			// i++;
-			// Thread.sleep(500);
-			// } catch (InterruptedException e) {
-			// e.printStackTrace();
-			// }
-			// }
-			// if (discontinue) {
-			// return;
-			// }
-			// }
-			// } else {
-			// // 测试添加默认实收
-			// model.setReal(15);
-			// }
-			// }
-			// if (discontinue) {
-			// return;
-			// }
-			// //
-			//
-			// float factMoney = model.getReal();
-			//
-			// singleCarparkInOutHistory.setFactMoney(factMoney);
-			// float freeMoney = shouldMoney - factMoney;
-			// singleCarparkInOutHistory.setFreeMoney(freeMoney);
-			// // System.out.println("singleCarparkInOutHistory.getFreeMoney()=="+singleCarparkInOutHistory.getFreeMoney());
-			// carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
-			// model.setHistory(singleCarparkInOutHistory);
-			// // model.setTotalCharge(sp.getCarparkInOutService().findFactMoneyByName(userName));
-			// // model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
-			// model.setTotalCharge(model.getTotalCharge() + factMoney);
-			// model.setTotalFree(model.getTotalFree() + freeMoney);
-			// model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow());
-			// model.setBtnClick(false);
-			// if (tempCarNoChargeIsPass) {
-			// if (shouldMoney > 0) {
-			// presenter.showContentToDevice(device, CAR_OUT_MSG, true);
-			// }else{
-			// presenter.showContentToDevice(device, s + "," + CAR_OUT_MSG, true);
-			// }
-			// } else {
-			// presenter.showContentToDevice(device, CAR_OUT_MSG, true);
-			// }
-			// // presenter.openDoor(device);
-			// model.setHandSearch(false);
 		}
 	}
 
-	private void chargeCarPass(SingleCarparkDevice device, SingleCarparkInOutHistory singleCarparkInOutHistory, boolean check) {
+	private boolean chargeCarPass(SingleCarparkDevice device, SingleCarparkInOutHistory singleCarparkInOutHistory, boolean check) {
 
-		Float shouldMoney = singleCarparkInOutHistory.getShouldMoney();
-		float factMoney = singleCarparkInOutHistory.getFactMoney() == null ? 0 : singleCarparkInOutHistory.getFactMoney();
-		if (check) {
+		try {
+			Float shouldMoney = singleCarparkInOutHistory.getShouldMoney();
+			float factMoney = singleCarparkInOutHistory.getFactMoney();
 			if (factMoney > shouldMoney) {
 				commonui.error("收费提示", "实时不能超过应收");
-				return;
+				return false;
 			}
-			boolean confirm = commonui.confirm("收费确认", "车牌：" + singleCarparkInOutHistory.getPlateNo() + "应收：" + shouldMoney + "实收：" + factMoney);
-			if (!confirm) {
-				return;
+			if (check) {
+				boolean confirm = commonui.confirm("收费确认", "车牌：" + singleCarparkInOutHistory.getPlateNo() + "应收：" + shouldMoney + "实收：" + factMoney);
+				if (!confirm) {
+					return false;
+				}
 			}
-		}
-		float freeMoney = shouldMoney - factMoney;
-		singleCarparkInOutHistory.setFactMoney(factMoney);
-		singleCarparkInOutHistory.setFreeMoney(freeMoney);
-		singleCarparkInOutHistory.setCarType("临时车");
-		sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
-		Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
-		if (tempCarNoChargeIsPass) {
-			if (shouldMoney > 0) {
-				presenter.showContentToDevice(device, CAR_OUT_MSG, true);
+			float freeMoney = shouldMoney - factMoney;
+			singleCarparkInOutHistory.setFactMoney(factMoney);
+			singleCarparkInOutHistory.setFreeMoney(freeMoney);
+			singleCarparkInOutHistory.setCarType("临时车");
+			sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
+			Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
+			if (tempCarNoChargeIsPass) {
+				if (shouldMoney > 0) {
+					presenter.showContentToDevice(device, CAR_OUT_MSG, true);
+				} else {
+					presenter.showContentToDevice(device, CarparkUtils.formatFloatString("请缴费" + shouldMoney + "元") + "," + CAR_OUT_MSG, true);
+				}
 			} else {
-				presenter.showContentToDevice(device, CarparkUtils.formatFloatString("请缴费" + shouldMoney + "元") + "," + CAR_OUT_MSG, true);
+				presenter.showContentToDevice(device, CAR_OUT_MSG, true);
 			}
-		} else {
-			presenter.showContentToDevice(device, CAR_OUT_MSG, true);
+			model.setBtnClick(false);
+			model.setHandSearch(false);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
 		}
-		model.setBtnClick(false);
-		model.setHandSearch(false);
 	}
 
 	private void setBtnData(Button btnHandSearch2, String key, Object value) {
@@ -1724,6 +1829,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 		} , 3000, 1000, TimeUnit.MILLISECONDS);
 	}
+
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//

@@ -250,5 +250,5 @@ public interface CarparkService {
 	public List<CarparkChargeStandard> findAllCarparkChargeStandard();
 	
 	public SingleCarparkCarpark findCarparkByCode(String code);
-	public Map<SNSettingType, String> findAllSN();
+	public Map<SNSettingType, SingleCarparkSystemSetting> findAllSN();
 }

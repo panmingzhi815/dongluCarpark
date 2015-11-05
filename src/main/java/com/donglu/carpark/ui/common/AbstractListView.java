@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.ToolItem;
 
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.DomainObject;
 
 import org.eclipse.swt.layout.FillLayout;
@@ -20,6 +21,7 @@ import java.util.List;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.bridj.cpp.std.list;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
@@ -53,6 +55,7 @@ public abstract class AbstractListView<T> extends Composite{
 	private Label lbl_tableTitle;
 	private Label lbl_nowCount;
 	private Label lbl_allcount;
+	private Composite cmp_bottom;
 	
 	public class Model extends DomainObject{
 		private List<T> list=new ArrayList<>();
@@ -110,10 +113,11 @@ public abstract class AbstractListView<T> extends Composite{
 	/**
 	 * @param parent
 	 * @param style
+	 * @param aligns 
 	 */
-	public AbstractListView(Composite parent, int style,Class<T> tClass,String[] columnProperties,String[] nameProperties,int[] columnLenths) {
+	public AbstractListView(Composite parent, int style,Class<T> tClass,String[] columnProperties,String[] nameProperties,int[] columnLenths, int[] aligns) {
 		super(parent, style);
-//		,Class<T> tClass,String[] columnProperties,String[] nameProperties,int[] columnLenths
+//		,Class<T> tClass,String[] columnProperties,String[] nameProperties,int[] columnLenths, int[] aligns
 		this.tClass=tClass;
 		this.columnProperties=columnProperties;
 		this.nameProperties=nameProperties;
@@ -161,13 +165,23 @@ public abstract class AbstractListView<T> extends Composite{
 			TableColumn tblclmnNewColumn = tableViewerColumn.getColumn();
 			tblclmnNewColumn.setWidth(columnLenths[i]);
 			tblclmnNewColumn.setText(nameProperties[i]);
+			int num=i;
+			tblclmnNewColumn.addSelectionListener(new SelectionAdapter() {
+				boolean flag=false;
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					model.setList(CarparkUtils.sortObjectPropety(model.getList(),columnProperties[num],flag));
+					flag=!flag;
+				}
+				
+			});
 			
 		}
-		Composite composite_2 = new Composite(this, SWT.NONE);
-		composite_2.setLayout(new GridLayout(5, false));
-		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		cmp_bottom = new Composite(this, SWT.NONE);
+		cmp_bottom.setLayout(new GridLayout(5, false));
+		cmp_bottom.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
-		lbl_nowCount = new Label(composite_2, SWT.NONE);
+		lbl_nowCount = new Label(cmp_bottom, SWT.NONE);
 		lbl_nowCount.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lbl_nowCount.setAlignment(SWT.RIGHT);
 		GridData gd_lbl_nowCount = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -175,18 +189,17 @@ public abstract class AbstractListView<T> extends Composite{
 		lbl_nowCount.setLayoutData(gd_lbl_nowCount);
 		lbl_nowCount.setText("0000000");
 		
-		Label lblNewLabel_2 = new Label(composite_2, SWT.NONE);
+		Label lblNewLabel_2 = new Label(cmp_bottom, SWT.NONE);
 		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_2.setText("/");
 		
-		lbl_allcount = new Label(composite_2, SWT.NONE);
+		lbl_allcount = new Label(cmp_bottom, SWT.NONE);
 		lbl_allcount.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_lbl_allcount = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lbl_allcount.widthHint = 64;
 		lbl_allcount.setLayoutData(gd_lbl_allcount);
 		lbl_allcount.setText("0000000");
-		
-		Composite composite_3 = new Composite(composite_2, SWT.NONE);
+		Composite composite_3 = new Composite(cmp_bottom, SWT.NONE);
 		createBottomComposite(composite_3);
 		composite_3.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		composite_3.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -195,7 +208,7 @@ public abstract class AbstractListView<T> extends Composite{
 //		composite_4.setLayout(new GridLayout(1, false));
 		
 		
-		Button btn_more = new Button(composite_2, SWT.NONE);
+		Button btn_more = new Button(cmp_bottom, SWT.NONE);
 		btn_more.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btn_more.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -207,7 +220,12 @@ public abstract class AbstractListView<T> extends Composite{
 		btn_more.setText("更多");
 		m_bindingContext = initDataBindings();
 	}
-
+	public void setShowMoreBtn(boolean show){
+		GridData layoutData2 = (GridData) cmp_bottom.getLayoutData();
+		layoutData2.exclude=!show;
+		cmp_bottom.setLayoutData(layoutData2);
+		cmp_bottom.getParent().layout();
+	}
 	protected void createBottomComposite(Composite parent) {
 		Composite composite_4 = new Composite(parent, SWT.NONE);
 		composite_4.setLayout(new GridLayout(1, false));

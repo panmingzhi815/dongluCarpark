@@ -17,6 +17,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	
 	public enum Property{
 		plateNo,userName,carType,inTime,outTime,inDevice,outDevice,operaName,returnAccount,shouldMoney,factMoney,freeMoney
+		,freeReturnAccount
 	}
 	public enum Label{
 		inTimeLabel,outTimeLabel
@@ -50,6 +51,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private String operaName;
 	
 	private Long returnAccount;
+	private Long freeReturnAccount;
 	
 	private String smallImg;
 	private String bigImg;
@@ -275,6 +277,14 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		this.outPlateNO = outPlateNO;
 		if (pcs != null)
 			pcs.firePropertyChange("outPlateNO", null, null);
+	}
+	public Long getFreeReturnAccount() {
+		return freeReturnAccount;
+	}
+	public void setFreeReturnAccount(Long freeReturnAccount) {
+		this.freeReturnAccount = freeReturnAccount;
+		if (pcs != null)
+			pcs.firePropertyChange("freeReturnAccount", null, null);
 	}
 	
 }

@@ -261,6 +261,9 @@ public class CarparkManagePresenter {
 			model.setAllmonth(sp.getCarparkService().findAllMonthlyCharge());
 			AddUserModel addUserModel = new AddUserModel();
 			addUserModel.setAllList(list);
+			addUserModel.setCarpark(list.get(0));
+			addUserModel.setType("普通");
+			addUserModel.setCarparkNo("0");
 			addUserModel.setModel(model);
 			addUserModel.setTotalSlot(sp.getCarparkInOutService().findFixSlotIsNow());
 			AddUserWizard addUserWizard = new AddUserWizard(addUserModel);
@@ -276,15 +279,17 @@ public class CarparkManagePresenter {
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
 
 			MonthlyUserPayModel mm = m.getModel();
-			mm.setOperaName(System.getProperty("userName"));
-			SingleCarparkMonthlyCharge selectMonth = mm.getSelectMonth();
-			if (!StrUtil.isEmpty(selectMonth)) {
-				user.setDelayDays(selectMonth.getDelayDays());
-				user.setRemindDays(selectMonth.getExpiringDays());
-				user.setMonthChargeId(selectMonth.getId());
+			if (!StrUtil.isEmpty(mm.getSelectMonth())) {
+				mm.setOperaName(System.getProperty("userName"));
+				SingleCarparkMonthlyCharge selectMonth = mm.getSelectMonth();
+				if (!StrUtil.isEmpty(selectMonth)) {
+					user.setDelayDays(selectMonth.getDelayDays());
+					user.setRemindDays(selectMonth.getExpiringDays());
+					user.setMonthChargeId(selectMonth.getId());
+				}
+				carparkService.saveMonthlyUserPayHistory(mm.getSingleCarparkMonthlyUserPayHistory());
 			}
 			carparkUserService.saveUser(user);
-			carparkService.saveMonthlyUserPayHistory(mm.getSingleCarparkMonthlyUserPayHistory());
 			// 更新停车场信息
 //			int userSize = sp.getCarparkService().countMonthUserByHaveCarSite();
 //			SingleCarparkCarpark carpark = m.getCarpark();
@@ -295,6 +300,7 @@ public class CarparkManagePresenter {
 			refreshUser();
 		} catch (Exception e) {
 			e.printStackTrace();
+			commonui.info("操作失败", "保存用户失败!");
 		}
 
 	}

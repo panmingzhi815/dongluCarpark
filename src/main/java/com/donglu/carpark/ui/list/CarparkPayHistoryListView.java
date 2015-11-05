@@ -18,7 +18,7 @@ public class CarparkPayHistoryListView extends AbstractListView<SingleCarparkMon
 						SingleCarparkMonthlyUserPayHistory.Property.operaName.name(),
 						SingleCarparkMonthlyUserPayHistory.Label.overdueTimeLabel.name(),},
 				new String[]{"用户名","车牌号","充值金额","充值时间","操作人","过期时间"},
-				new int[]{100,100,100,200,100,200});
+				new int[]{100,100,100,200,100,200}, null);
 		this.setTableTitle("充值记录表");
 	}
 

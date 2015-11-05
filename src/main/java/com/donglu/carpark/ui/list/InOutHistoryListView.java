@@ -41,7 +41,7 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 						SingleCarparkInOutHistory.Property.freeMoney.name(),
 						SingleCarparkInOutHistory.Property.returnAccount.name(),},
 				new String[]{"车牌号","车辆类型","用户名","进场设备","进场时间","出场设备","出场时间","操作员","应收金额","实收金额","免费金额","归账编号"},
-				new int[]{100,100,100,100,200,100,200,100,90,90,90,90});
+				new int[]{100,100,100,100,200,100,200,100,90,90,90,90},new int[]{0,0,0,0,0,0,0,0,1,1,1,0});
 		this.setTableTitle("归账记录表");
 	}
 

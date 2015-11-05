@@ -15,7 +15,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
 public class SingleCarparkUser extends DomainObject {
 	public enum Property{
-		id,plateNo,name,type,address,carparkNo,createDate,validTo,remark
+		id,plateNo,name,type,address,carparkNo,createDate,validTo,remark,valitoLabel
 	}
 	
 	private String name;

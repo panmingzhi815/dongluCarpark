@@ -10,7 +10,7 @@ class TestC extends AbstractListView<SingleCarparkCarpark>{
 			super(parent, style,SingleCarparkCarpark.class,
 					new String[]{"name"},
 					new String[]{"停车场名称"},
-					new int[]{150});
+					new int[]{150}, null);
 			setTableTitle("停车场信息");
 		}
 

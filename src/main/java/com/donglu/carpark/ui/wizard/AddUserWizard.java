@@ -7,6 +7,7 @@ import org.eclipse.jface.wizard.Wizard;
 
 import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayBasicPage;
 import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayModel;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.WidgetUtil;
@@ -37,22 +38,23 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 
 	@Override
 	public boolean performFinish() {
-		String regex="^[\u4e00-\u9fa5][A-Za-z0-9]{6}$";
 		
+		if (StrUtil.isEmpty(model.getPlateNo())) {
+			page.setErrorMessage("车牌不正确,请输入正确车牌");
+			return false;
+		}
 		String[] split = model.getPlateNo().split(",");
 		for (String string : split) {
-			if (!string.matches(regex)) {
+			if (!string.matches(CarparkUtils.PLATENO_REGEX)) {
 				page.setErrorMessage("车牌:"+string+"不正确,请输入正确车牌");
 				return false;
 			}
 		}
-		
-		if (!StrUtil.isEmpty(model.getModel())) {
-			if (StrUtil.isEmpty(model.getModel().getOverdueTime())) {
-				page.setErrorMessage("固定用户必须有个有效期");
-				return false;
-			}
+		if (StrUtil.isEmpty(model.getName())) {
+			page.setErrorMessage("用户名不能为空");
+			return false;
 		}
+		page.setErrorMessage(null);
 		return true;
 	}
 

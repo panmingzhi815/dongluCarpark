@@ -1,7 +1,11 @@
 package com.dongluhitec.card.domain.db.singlecarpark;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 
@@ -15,6 +19,8 @@ public class SingleCarparkSystemSetting extends DomainObject {
 	private String settingKey;
 	@Column(length=999)
 	private String settingValue;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date lastUpdate=new Date();
 	
 	public static long getSerialversionuid() {
 		return serialVersionUID;
@@ -38,6 +44,16 @@ public class SingleCarparkSystemSetting extends DomainObject {
 		this.settingValue = settingValue;
 		if (pcs != null)
 			pcs.firePropertyChange("settingValue", null, null);
+	}
+
+	public Date getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(Date lastUpdate) {
+		this.lastUpdate = lastUpdate;
+		if (pcs != null)
+			pcs.firePropertyChange("lastUpdate", null, null);
 	}
 	
 }

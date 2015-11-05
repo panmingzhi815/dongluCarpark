@@ -5,6 +5,7 @@ import java.awt.Frame;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -385,11 +386,26 @@ public class CarparkMainPresenter {
 			String userName = this.model.getUserName();
 			model.setReturnUser(userName);
 			CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-			float shouldMoney = carparkInOutService.findShouldMoneyByName(userName);
-			float factMoney = carparkInOutService.findFactMoneyByName(userName);
-			float freeMoney = carparkInOutService.findFreeMoneyByName(userName);
-			model.setShouldReturn(shouldMoney);
-			model.setFactReturn(factMoney);
+			List<SingleCarparkInOutHistory> listFact=carparkInOutService.findHistoryFactMoneyNotReturn(userName);
+			List<SingleCarparkInOutHistory> listFree=carparkInOutService.findHistoryFreeMoneyNotReturn(userName);
+			float factMoney = 0;
+			float freeMoney = 0;
+			for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFact) {
+				Float factMoney2 = singleCarparkInOutHistory.getFactMoney();
+				if (StrUtil.isEmpty(factMoney2)) {
+					factMoney2=0F;
+				}
+				factMoney+=factMoney2;
+			}
+			for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFree) {
+				Float factMoney2 = singleCarparkInOutHistory.getFreeMoney();
+				if (StrUtil.isEmpty(factMoney2)) {
+					factMoney2=0F;
+				}
+				freeMoney+=factMoney2;
+			}
+			model.setShouldReturn(factMoney);
+			model.setFactReturn(freeMoney);
 			ReturnAccountWizard wizard = new ReturnAccountWizard(model, sp);
 			ReturnAccountModel m = (ReturnAccountModel) commonui.showWizard(wizard);
 			if (StrUtil.isEmpty(m)) {
@@ -398,16 +414,36 @@ public class CarparkMainPresenter {
 			SingleCarparkReturnAccount a = new SingleCarparkReturnAccount();
 			BeanUtil.copyProperties(m, a, "returnUser", "factReturn", "shouldReturn", "operaName");
 			a.setReturnTime(new Date());
+			if (model.isFree()) {
+				a.setFactReturn(model.getFactReturn());
+			}else{
+				if (a.getShouldReturn()<=0) {
+					return;
+				}
+				a.setFactReturn(0);
+			}
+			
 			Long saveReturnAccount = sp.getCarparkService().saveReturnAccount(a);
 
-			List<SingleCarparkInOutHistory> list = carparkInOutService.findNotReturnAccount(a.getReturnUser());
-			for (SingleCarparkInOutHistory singleCarparkInOutHistory : list) {
+			Map<Long, Long> map=new HashMap<Long, Long>();
+			for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFact) {
 				singleCarparkInOutHistory.setReturnAccount(saveReturnAccount);
+				map.put(singleCarparkInOutHistory.getId(),saveReturnAccount);
 			}
-			carparkInOutService.saveInOutHistoryOfList(list);
+			
+			if (model.isFree()) {
+				for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFree) {
+					if (!StrUtil.isEmpty(map.get(singleCarparkInOutHistory.getId()))) {
+						singleCarparkInOutHistory.setReturnAccount(saveReturnAccount);
+					}
+					singleCarparkInOutHistory.setFreeReturnAccount(saveReturnAccount);
+					singleCarparkInOutHistory.setOperaName(model.getOperaName());
+				}
+				carparkInOutService.saveInOutHistoryOfList(listFree);
+			}
+			carparkInOutService.saveInOutHistoryOfList(listFact);
 			this.model.setTotalCharge(carparkInOutService.findFactMoneyByName(userName));
 			this.model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

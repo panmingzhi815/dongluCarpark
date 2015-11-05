@@ -15,7 +15,7 @@ public class BlackUserListView extends AbstractListView<SingleCarparkBlackUser> 
 	public BlackUserListView(Composite parent, int style) {
 		super(parent, style,SingleCarparkBlackUser.class,new String[]{SingleCarparkBlackUser.Property.plateNO.name(),SingleCarparkBlackUser.Property.timeLabel.name(),
 				SingleCarparkBlackUser.Property.remark.name()}, new String[]{"车牌号","限制时间段","备注"},
-				new int[]{100,120,200});
+				new int[]{100,120,200}, null);
 	}
 
 	@Override

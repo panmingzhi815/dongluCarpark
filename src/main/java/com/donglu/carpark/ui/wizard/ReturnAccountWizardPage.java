@@ -31,6 +31,7 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.widgets.Button;
 
 public class ReturnAccountWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -40,6 +41,7 @@ public class ReturnAccountWizardPage extends WizardPage {
 	private Text text_4;
 	ReturnAccountModel model;
 	private Text text_2;
+	private Button button;
 
 	
 	/**
@@ -48,8 +50,7 @@ public class ReturnAccountWizardPage extends WizardPage {
 	 */
 	public ReturnAccountWizardPage(ReturnAccountModel model) {
 		super("wizardPage");
-		setTitle("归账");
-		setDescription("归账");
+		setDescription("请输入归账人的用户名和密码");
 		this.model=model;
 	}
 
@@ -65,7 +66,7 @@ public class ReturnAccountWizardPage extends WizardPage {
 		
 		Composite composite = new Composite(container, SWT.BORDER);
 		composite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
-		GridLayout gridLayout = new GridLayout(2, false);
+		GridLayout gridLayout = new GridLayout(3, false);
 		gridLayout.verticalSpacing = 10;
 		composite.setLayout(gridLayout);
 		
@@ -79,6 +80,7 @@ public class ReturnAccountWizardPage extends WizardPage {
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text.widthHint = 150;
 		text.setLayoutData(gd_text);
+		new Label(composite, SWT.NONE);
 		
 		Label label = new Label(composite, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -90,6 +92,7 @@ public class ReturnAccountWizardPage extends WizardPage {
 		GridData gd_text_1 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_1.widthHint = 150;
 		text_1.setLayoutData(gd_text_1);
+		new Label(composite, SWT.NONE);
 		
 		Label label_2 = new Label(composite, SWT.NONE);
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -99,11 +102,12 @@ public class ReturnAccountWizardPage extends WizardPage {
 		text_2 = new Text(composite, SWT.BORDER);
 		text_2.setEditable(false);
 		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(composite, SWT.NONE);
 		
 		Label label_3 = new Label(composite, SWT.NONE);
 		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_3.setText("应归账金额");
+		label_3.setText("实收金额");
 		
 		text_3 = new Text(composite, SWT.BORDER);
 		text_3.setEditable(false);
@@ -111,11 +115,12 @@ public class ReturnAccountWizardPage extends WizardPage {
 		GridData gd_text_3 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_3.widthHint = 150;
 		text_3.setLayoutData(gd_text_3);
+		new Label(composite, SWT.NONE);
 		
 		Label label_4 = new Label(composite, SWT.NONE);
 		label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_4.setText("实际金额");
+		label_4.setText("免费金额");
 		
 		text_4 = new Text(composite, SWT.BORDER);
 		text_4.setEditable(false);
@@ -123,6 +128,9 @@ public class ReturnAccountWizardPage extends WizardPage {
 		GridData gd_text_4 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_4.widthHint = 150;
 		text_4.setLayoutData(gd_text_4);
+		
+		button = new Button(composite, SWT.CHECK);
+		button.setToolTipText("选中之后同时归账免费金额");
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {
@@ -147,6 +155,10 @@ public class ReturnAccountWizardPage extends WizardPage {
 		IObservableValue observeTextText_1ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_1);
 		IObservableValue pwdModelObserveValue = BeanProperties.value("pwd").observe(model);
 		bindingContext.bindValue(observeTextText_1ObserveWidget, pwdModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionButtonObserveWidget = WidgetProperties.selection().observe(button);
+		IObservableValue freeModelObserveValue = BeanProperties.value("free").observe(model);
+		bindingContext.bindValue(observeSelectionButtonObserveWidget, freeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

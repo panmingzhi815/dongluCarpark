@@ -1,6 +1,11 @@
 package com.donglu.carpark.ui.list;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.Presenter;
@@ -15,10 +20,10 @@ public class UserListView extends AbstractListView<SingleCarparkUser> implements
 				SingleCarparkUser.Property.name.name(),
 				SingleCarparkUser.Property.address.name(),
 				SingleCarparkUser.Property.type.name(),
-				SingleCarparkUser.Property.validTo.name(),
+				SingleCarparkUser.Property.valitoLabel.name(),
 				SingleCarparkUser.Property.carparkNo.name(),
 				SingleCarparkUser.Property.remark.name()}, new String[]{"编号","车牌号","姓名","住址","用户类型","有效期","车位","备注"},
-				new int[]{60,100,100,100,100,200,100,100});
+				new int[]{60,100,100,100,100,200,100,100}, null);
 	}
 
 	@Override
@@ -29,4 +34,43 @@ public class UserListView extends AbstractListView<SingleCarparkUser> implements
 	@Override
 	protected void searchMore() {
 	}
+
+	@Override
+	protected void createMenuBarToolItem(ToolBar toolBar_menu) {
+		ToolItem toolItem_pay = new ToolItem(toolBar_menu, SWT.NONE);
+		toolItem_pay.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().pay();
+			}
+		});
+		toolItem_pay.setText("充值");
+		super.createMenuBarToolItem(toolBar_menu);
+		ToolItem toolItem_impot = new ToolItem(toolBar_menu, SWT.NONE);
+		toolItem_impot.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().importAll();
+			}
+		});
+		toolItem_impot.setText("导入");
+		ToolItem toolItem_export = new ToolItem(toolBar_menu, SWT.NONE);
+		toolItem_export.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().exportAll();
+			}
+		});
+		toolItem_export.setText("导出");
+		
+		ToolItem toolItem_edit = new ToolItem(toolBar_menu, SWT.NONE);
+		toolItem_edit.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().edit();
+			}
+		});
+		toolItem_edit.setText("修改");
+	}
+	
 }

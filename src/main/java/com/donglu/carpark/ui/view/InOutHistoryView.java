@@ -28,6 +28,9 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.nebula.widgets.cdatetime.CDateTime;
+import org.eclipse.nebula.widgets.cdatetime.CDT;
+import org.eclipse.nebula.widgets.formattedtext.FormattedText;
 
 public class InOutHistoryView extends Composite implements View{
 	private Presenter presenter;
@@ -51,11 +54,14 @@ public class InOutHistoryView extends Composite implements View{
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		group.setText("查询");
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		group.setLayout(new GridLayout(11, false));
+		GridLayout gl_group = new GridLayout(11, false);
+		gl_group.verticalSpacing = 10;
+		gl_group.horizontalSpacing = 10;
+		group.setLayout(gl_group);
 		
 		Label label = new Label(group, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("车牌");
+		label.setText("车      牌");
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
 		text_plateNO = new Text(group, SWT.BORDER);
@@ -66,7 +72,7 @@ public class InOutHistoryView extends Composite implements View{
 		
 		Label label_1 = new Label(group, SWT.NONE);
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_1.setText("用户");
+		label_1.setText("用      户");
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
 		text_userName = new Text(group, SWT.BORDER);
@@ -79,7 +85,7 @@ public class InOutHistoryView extends Composite implements View{
 		
 		DateChooserCombo dateChooserCombo_start = new DateChooserCombo(group, SWT.BORDER);
 		GridData gd_dateChooserCombo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_dateChooserCombo.widthHint = 117;
+		gd_dateChooserCombo.widthHint = 115;
 		dateChooserCombo_start.setLayoutData(gd_dateChooserCombo);
 		dateChooserCombo_start.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		dateChooserCombo_start.setValue(new Date());
@@ -149,7 +155,9 @@ public class InOutHistoryView extends Composite implements View{
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
 		dateChooserCombo_end = new DateChooserCombo(group, SWT.BORDER);
-		dateChooserCombo_end.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		GridData gd_dateChooserCombo_end = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_dateChooserCombo_end.widthHint = 115;
+		dateChooserCombo_end.setLayoutData(gd_dateChooserCombo_end);
 		dateChooserCombo_end.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		dateChooserCombo_end.setValue(new Date());
 		Label lblNewLabel_1 = new Label(group, SWT.NONE);

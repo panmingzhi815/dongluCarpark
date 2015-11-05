@@ -174,19 +174,16 @@ public class ImageServerUI {
 		try {
 			sp.start();
 			CarparkService carparkService = sp.getCarparkService();
-			Map<SNSettingType, String> mapSN=carparkService.findAllSN();
+			Map<SNSettingType, SingleCarparkSystemSetting> mapSN=carparkService.findAllSN();
 			
 			ImportSNModel m=new ImportSNModel();
 			if (!StrUtil.isEmpty(mapSN)) {
-				m.setSn(mapSN.get(SNSettingType.sn));
-				m.setCompanyName(mapSN.get(SNSettingType.companyName));
-				m.setProjectName(mapSN.get(SNSettingType.projectName));
-				m.setModules(mapSN.get(SNSettingType.modules));
+				SingleCarparkSystemSetting sn = mapSN.get(SNSettingType.sn);
+				m.setSn(StrUtil.isEmpty(sn)?"":sn.getSettingValue());
 			}
 			av = new AppVerifierImpl(new SoftDogWin());
 			ImportSNWizard importSNWizard = new ImportSNWizard(av, sp,m);
 			commonui.showWizard(importSNWizard);
-			sp.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -201,11 +198,6 @@ public class ImageServerUI {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally{
-			try {
-				sp.stop();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
@@ -304,33 +296,6 @@ public class ImageServerUI {
 		});
 		btnStart.setText("启    动");
 
-	}
-	
-	public Image getImage(final byte[] smallImage, Label insmallimg, Shell shell) {
-
-		ByteArrayInputStream stream = null;
-		try {
-			stream = new ByteArrayInputStream(smallImage);
-			Image img = new Image(shell.getDisplay(), stream);
-			Rectangle rectangle = insmallimg.getBounds();
-			ImageData data = img.getImageData().scaledTo(rectangle.width, rectangle.height);
-			ImageDescriptor createFromImageData = ImageDescriptor.createFromImageData(data);
-			Image createImg = createFromImageData.createImage();
-			img.dispose();
-			img = null;
-			insmallimg.setText("");
-			return createImg;
-		} catch (Exception e) {
-			throw new DongluAppException("图片转换错误", e);
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
 	}
 	
 	protected void startServer() {

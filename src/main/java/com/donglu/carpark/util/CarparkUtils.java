@@ -6,26 +6,36 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableColumn;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.donglu.carpark.info.CarparkChargeInfo;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.CarparkManageApp;
+import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
@@ -33,6 +43,8 @@ import com.google.common.io.Files;
 
 public class CarparkUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CarparkUtils.class);
+	
+	public static final String PLATENO_REGEX="^[\u4e00-\u9fa5][A-Za-z0-9]{6}$";
 	public static List<String> splitPlateNO(String plateNo){
 		if (StrUtil.isEmpty(plateNo)) {
 			return new ArrayList<>();
@@ -291,5 +303,94 @@ public class CarparkUtils {
 			return ss;
 		}
 		return s;
+	}
+	public static <T> List<T> sortObjectPropety(List<T> list, String string,boolean order) {
+		
+		Collections.sort(list, new Comparator<T>() {
+			
+			public int compare(T o1, T o2) {
+				Object obj1 = getFieldValueByName(string, o1);
+				Object obj2 = getFieldValueByName(string, o2);
+				if (obj1 instanceof String) {
+					String f1=((String)obj1)==null?"":((String)obj1);
+					String f2=((String)obj2)==null?"":((String)obj2);
+					if (order) {
+//						if (StrUtil.isEmpty(f1)) {
+//							return 0;
+//						}
+						int compareTo = f1.compareTo(f2);
+						return compareTo;
+					}else{
+//						if (StrUtil.isEmpty(f2)) {
+//							return 0;
+//						}
+						int compareTo = f2.compareTo(f1);
+						return compareTo;
+					}
+					
+				}
+				if (obj1 instanceof Float) {
+					Float f1=((Float)obj1)==null?0F:((Float)obj1);
+					Float f2=((Float)obj2)==null?0F:((Float)obj2);
+					if (order) {
+						return f1.compareTo(f2);
+					}else{
+						return f2.compareTo(f1);
+					}
+				}
+				if (obj1 instanceof Integer) {
+					Integer f1=((Integer)obj1)==null?0:((Integer)obj1);
+					Integer f2=((Integer)obj2)==null?0:((Integer)obj2);
+					if (order) {
+						return f1.compareTo(f2);
+					}else{
+						return f2.compareTo(f1);
+					}
+				}
+				if (obj1 instanceof Long) {
+					Long f1=((Long)obj1)==null?0l:((Long)obj1);
+					Long f2=((Long)obj2)==null?0l:((Long)obj2);
+					if (order) {
+						return f1.compareTo(f2);
+					}else{
+						return f2.compareTo(f1);
+					}
+				}
+				return 1;
+			}
+		});
+		return list;
+	}
+	public static void enableSort(TableViewer tableViewer) {
+		final List input = (List)tableViewer.getData("list");
+		TableColumn[] columns = tableViewer.getTable().getColumns();
+		for (TableColumn tableColumn : columns) {
+			tableColumn.addSelectionListener(new SelectionListener() {
+				boolean flag=false;
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					tableViewer.getTable().clearAll();
+					tableViewer.setInput(CarparkUtils.sortObjectPropety(input,"code",flag));
+					flag = !flag;
+				}
+				
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+					// TODO 自动生成的方法存根
+					
+				}
+			});
+		}
+		
+		
+		
+	}
+	public static void setComboSelect(Combo combo, int i) {
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				combo.select(i);
+			}
+		});
 	}
 }

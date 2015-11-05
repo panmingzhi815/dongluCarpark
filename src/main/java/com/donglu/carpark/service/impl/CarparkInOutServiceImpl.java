@@ -216,7 +216,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
-			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.returnAccount.name()));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.freeReturnAccount.name()));
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.operaName.name(), userName));
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
 			c.setProjection(Projections.sum(SingleCarparkInOutHistory.Property.freeMoney.name()));
@@ -385,6 +385,36 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		
 		
 		return 1L;
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> findHistoryFactMoneyNotReturn(String userName) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.returnAccount.name()));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.operaName.name(), userName));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
+			return c.getResultList();
+		}finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> findHistoryFreeMoneyNotReturn(String userName) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.freeReturnAccount.name()));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.operaName.name(), userName));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
+			return c.getResultList();
+		}finally{
+			unitOfWork.end();
+		}
 	}
 
 }

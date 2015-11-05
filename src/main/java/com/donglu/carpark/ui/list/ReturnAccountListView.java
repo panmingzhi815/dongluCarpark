@@ -1,12 +1,10 @@
 package com.donglu.carpark.ui.list;
 
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.ToolBar;
 
 import com.donglu.carpark.ui.common.AbstractListView;
-import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
-import com.donglu.carpark.ui.view.CarparkPayHistoryPresenter;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 
 public class ReturnAccountListView extends AbstractListView<SingleCarparkReturnAccount> implements View{
@@ -18,8 +16,8 @@ public class ReturnAccountListView extends AbstractListView<SingleCarparkReturnA
 						SingleCarparkReturnAccount.Property.shouldReturn.name(),
 						SingleCarparkReturnAccount.Property.factReturn.name(),
 						SingleCarparkReturnAccount.Property.returnTimeLabel.name()},
-				new String[]{"编号","归账人","操作员","应归账金额","实归账金额","归账时间"},
-				new int[]{100,100,100,100,100,200});
+				new String[]{"编号","归账人","操作员","归账金额","免费金额","归账时间"},
+				new int[]{100,100,100,100,100,200}, null);
 		this.setTableTitle("归账记录表");
 	}
 
@@ -30,6 +28,11 @@ public class ReturnAccountListView extends AbstractListView<SingleCarparkReturnA
 	@Override
 	public ReturnAccountListPresenter getPresenter() {
 		return (ReturnAccountListPresenter) presenter;
+	}
+
+	@Override
+	protected void createMenuBarToolItem(ToolBar toolBar_menu) {
+		
 	}
 
 }

@@ -24,9 +24,8 @@ public class UserPresenter  extends AbstractListPresenter{
 	public UserListPresenter getListPresenter() {
 		return listPresenter;
 	}
-	public void search(String userName, String plateNo) {
-		listPresenter.search(userName,plateNo);
-		
+	public void search(String userName, String plateNo, int parseInt, String text2) {
+		listPresenter.search(userName,plateNo,parseInt,text2);
 	}
 	
 }

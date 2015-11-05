@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui.wizard;
 
+import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -31,6 +32,8 @@ import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 
 public class AddUserWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -53,10 +56,8 @@ public class AddUserWizardPage extends WizardPage {
 		super("wizardPage");
 		this.model=model;
 		if (StrUtil.isEmpty(model.getPlateNo())) {
-			setTitle("添加固定用户");
 			setDescription("添加固定用户");
 		}else{
-			setTitle("修改固定用户");
 			setDescription("修改固定用户");
 		}
 	}
@@ -67,7 +68,9 @@ public class AddUserWizardPage extends WizardPage {
 	 */
 	public void createControl(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
-
+		if (StrUtil.isEmpty(model.getPlateNo())) {
+			setPageComplete(false);
+		}
 		setControl(container);
 		container.setLayout(new GridLayout(1, false));
 		
@@ -83,6 +86,12 @@ public class AddUserWizardPage extends WizardPage {
 		label.setText("车牌");
 		
 		text = new Text(composite, SWT.BORDER);
+		text.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				setPageComplete(getWizard().performFinish());
+			}
+		});
 		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text.widthHint = 150;
@@ -98,7 +107,12 @@ public class AddUserWizardPage extends WizardPage {
 		GridData gd_text_1 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_1.widthHint = 150;
 		text_1.setLayoutData(gd_text_1);
-		
+		text_1.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				setPageComplete(getWizard().performFinish());
+			}
+		});
 		Label label_2 = new Label(composite, SWT.NONE);
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -133,7 +147,7 @@ public class AddUserWizardPage extends WizardPage {
 		
 		txt_carNO = new Text(composite, SWT.BORDER);
 		txt_carNO.addKeyListener(new KeyAdapter() {
-			String txt="";
+			String txt="0";
 			@Override
 			public void keyReleased(KeyEvent e) {
 				String text2 = txt_carNO.getText();
@@ -211,5 +225,11 @@ public class AddUserWizardPage extends WizardPage {
 		bindingContext.bindValue(observeSingleSelectionComboViewer, typeModelObserveValue, null, null);
 		//
 		return bindingContext;
+	}
+
+	@Override
+	public AddUserWizard getWizard() {
+		
+		return (AddUserWizard) super.getWizard();
 	}
 }
