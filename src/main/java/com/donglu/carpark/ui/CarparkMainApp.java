@@ -1001,6 +1001,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				}
 				if (model.isBtnClick()) {
 					SingleCarparkInOutHistory h = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
+					if (StrUtil.isEmpty(h)) {
+						return;
+					}
 					Date inTime = h.getInTime();
 					Date outTime = h.getOutTime();
 					CarTypeEnum carparkCarType = getCarparkCarType(carparkCarType2);
@@ -1777,6 +1780,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 			model.setBtnClick(false);
 			model.setHandSearch(false);
+			model.setSelectCarType(false);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
