@@ -249,6 +249,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 
 	@Override
 	public int findFixSlotIsNow(SingleCarparkCarpark singleCarparkCarpark) {
+		if (StrUtil.isEmpty(singleCarparkCarpark)) {
+			return 0;
+		}
 		unitOfWork.begin();
 		try {
 			
@@ -273,6 +276,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 
 	@Override
 	public int findTempSlotIsNow(SingleCarparkCarpark singleCarparkCarpark) {
+		if (StrUtil.isEmpty(singleCarparkCarpark)) {
+			return 0;
+		}
 		unitOfWork.begin();
 		try {
 			List<SingleCarparkCarpark> findSameCarpark = findSameCarpark(singleCarparkCarpark);
@@ -297,6 +303,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 
 	@Override
 	public int findTotalSlotIsNow(SingleCarparkCarpark singleCarparkCarpark) {
+		if (StrUtil.isEmpty(singleCarparkCarpark)) {
+			return 0;
+		}
 		unitOfWork.begin();
 		try {
 			List<SingleCarparkCarpark> findSameCarpark = findSameCarpark(singleCarparkCarpark);
