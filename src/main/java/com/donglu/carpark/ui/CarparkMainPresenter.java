@@ -533,7 +533,7 @@ public class CarparkMainPresenter {
 		Link link = new Link();
 		link.setId((long) device.getLinkAddress().hashCode());
 		link.setLinkStyleEnum(LinkStyleEnum.直连设备);
-		link.setType(LinkTypeEnum.TCP);
+		link.setType(device.getType().equals("485") ? LinkTypeEnum.COM : LinkTypeEnum.TCP);
 		link.setAddress(device.getLinkAddress());
 		link.setProtocol(LinkProtocolEnum.Carpark);
 		SerialDeviceAddress address = new SerialDeviceAddress();

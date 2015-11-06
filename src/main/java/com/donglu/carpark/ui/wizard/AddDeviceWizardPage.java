@@ -106,6 +106,8 @@ public class AddDeviceWizardPage extends WizardPage {
 				System.out.println(selectionIndex);
 				GridData layoutData = (GridData) combo_linkAddress.getLayoutData();
 				GridData layoutData2 = (GridData) text_linkAddress.getLayoutData();
+				layoutData.widthHint = 101;
+				layoutData2.widthHint = 101;
 				if (selectionIndex==0) {
 					layoutData.exclude=false;
 					layoutData2.exclude=false;
@@ -121,7 +123,9 @@ public class AddDeviceWizardPage extends WizardPage {
 				}
 			}
 		});
-		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gridData.widthHint = 101;
+		combo.setLayoutData(gridData);
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(new String[]{"TCP","485"});
@@ -144,6 +148,7 @@ public class AddDeviceWizardPage extends WizardPage {
 			gd_combo_1.exclude = true;
 		}
 		
+		gd_combo_1.widthHint = 101;
 		combo_linkAddress.setLayoutData(gd_combo_1);
 		comboViewer_1.setContentProvider(new ArrayContentProvider());
 		comboViewer_1.setLabelProvider(new LabelProvider());

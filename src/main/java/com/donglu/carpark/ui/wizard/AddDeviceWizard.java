@@ -16,9 +16,14 @@ public class AddDeviceWizard extends Wizard implements AbstractWizard{
 		this.model=model;
 		setWindowTitle("添加设备");
 		model.setVoice(model.getVolume()+"");
-		if (!StrUtil.isEmpty(model.getTcpLabel())) {
-			model.setTcpAddress(model.getTcpLabel());
+		if(model.getType().equals("485")){
+//			model.setSerialAddress(model.getAddressLabel());
+		}else{
+			if (!StrUtil.isEmpty(model.getTcpLabel())) {
+				model.setTcpAddress(model.getTcpLabel());
+			}
 		}
+		
 	}
 
 	@Override

@@ -258,6 +258,10 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			List<SingleCarparkCarpark> findSameCarpark = findSameCarpark(singleCarparkCarpark);
 			int intValue=0;
 			
+			if(findSameCarpark == null){
+				return 0;
+			}
+			
 			for (SingleCarparkCarpark singleCarparkCarpark2 : findSameCarpark) {
 				Integer fixNumberOfSlot = singleCarparkCarpark2.getFixNumberOfSlot();
 				intValue+=fixNumberOfSlot==null?0:fixNumberOfSlot;
@@ -283,7 +287,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		try {
 			List<SingleCarparkCarpark> findSameCarpark = findSameCarpark(singleCarparkCarpark);
 			int intValue=0;
-			
+			if(findSameCarpark == null){
+				return 0;
+			}
 			for (SingleCarparkCarpark singleCarparkCarpark2 : findSameCarpark) {
 				Integer fixNumberOfSlot = singleCarparkCarpark2.getTempNumberOfSlot();
 				intValue+=fixNumberOfSlot==null?0:fixNumberOfSlot;
@@ -309,6 +315,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		unitOfWork.begin();
 		try {
 			List<SingleCarparkCarpark> findSameCarpark = findSameCarpark(singleCarparkCarpark);
+			if(findSameCarpark == null){
+				return 0;
+			}
 			int intValue=0;
 			
 			for (SingleCarparkCarpark singleCarparkCarpark2 : findSameCarpark) {
