@@ -41,10 +41,10 @@ public class ReturnAccountWizard extends Wizard implements AbstractWizard{
 			page.setErrorMessage("不能归账给自己");
 			return false;
 		}
-		if (SystemUserTypeEnum.valueOf(systemUser.getType()).getLevel()>2||SystemUserTypeEnum.valueOf(property).getLevel()>SystemUserTypeEnum.valueOf(property).getLevel()) {
-			page.setErrorMessage("用户名权限不足");
-			return false; 
-		}
+//		if (SystemUserTypeEnum.valueOf(systemUser.getType()).getLevel()>2||SystemUserTypeEnum.valueOf(property).getLevel()>SystemUserTypeEnum.valueOf(property).getLevel()) {
+//			page.setErrorMessage("用户名权限不足");
+//			return false; 
+//		}
 		return true;
 	}
 

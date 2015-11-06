@@ -116,7 +116,8 @@ public class SingleCarparkCarpark extends DomainObject {
 			return false;
 		}
 		SingleCarparkCarpark cp=(SingleCarparkCarpark) obj;
-		if (this.name.equals(cp.getName())) {
+		if (this.code
+				.equals(cp.getCode())) {
 			return true;
 		}
 		return false;

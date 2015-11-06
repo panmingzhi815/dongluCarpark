@@ -2,6 +2,7 @@ package com.donglu.carpark.ui.wizard;
 
 import org.eclipse.jface.wizard.Wizard;
 
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -29,6 +30,10 @@ public class AddBlackUserWizard extends Wizard implements AbstractWizard{
 	public boolean performFinish() {
 		if (StrUtil.isEmpty(model.getPlateNO())) {
 			page.setErrorMessage("车牌不能为空");
+			return false;
+		}
+		if (!model.getPlateNO().matches(CarparkUtils.PLATENO_REGEX)) {
+			page.setErrorMessage("车牌格式不正确");
 			return false;
 		}
 		String hoursStartLabel = model.getHoursStartLabel();

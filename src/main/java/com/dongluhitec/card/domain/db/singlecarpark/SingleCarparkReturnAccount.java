@@ -21,6 +21,7 @@ public class SingleCarparkReturnAccount extends DomainObject {
 	private Float shouldReturn;
 	private Date returnTime;
 	private String operaName;
+	private Long returnAccountId;
 	
 	public String getReturnTimeLabel(){
 		return StrUtil.formatDate(returnTime, "yyyy-MM-dd HH:mm:ss");
@@ -77,5 +78,13 @@ public class SingleCarparkReturnAccount extends DomainObject {
 		this.shouldReturn = shouldReturn;
 		if (pcs != null)
 			pcs.firePropertyChange("shouldReturn", null, null);
+	}
+	public Long getReturnAccountId() {
+		return returnAccountId;
+	}
+	public void setReturnAccountId(Long returnAccountId) {
+		this.returnAccountId = returnAccountId;
+		if (pcs != null)
+			pcs.firePropertyChange("returnAccountId", null, null);
 	}
 }

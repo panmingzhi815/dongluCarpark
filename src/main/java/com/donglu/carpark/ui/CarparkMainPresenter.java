@@ -4,6 +4,7 @@ import java.awt.Canvas;
 import java.awt.Frame;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.bridj.cpp.std.list;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -41,6 +43,7 @@ import com.donglu.carpark.ui.wizard.ReturnAccountWizard;
 import com.donglu.carpark.ui.wizard.SearchHistoryByHandWizard;
 import com.donglu.carpark.ui.wizard.model.ChangeUserModel;
 import com.donglu.carpark.ui.wizard.model.ReturnAccountModel;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.LPRInOutType;
 import com.dongluhitec.card.domain.LinkProtocolEnum;
@@ -50,6 +53,7 @@ import com.dongluhitec.card.domain.db.Link;
 import com.dongluhitec.card.domain.db.LinkStyleEnum;
 import com.dongluhitec.card.domain.db.SerialDeviceAddress;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
@@ -88,7 +92,7 @@ public class CarparkMainPresenter {
 	private InOutHistoryPresenter inOutHistoryPresenter;
 	@Inject
 	private SearchErrorCarPresenter searchErrorCarPresenter;
-	
+
 	private CountTempCarChargeI countTempCarCharge;
 
 	// 保存设备的进出口信息
@@ -106,6 +110,7 @@ public class CarparkMainPresenter {
 	private CarparkMainApp view;
 
 	private App app;
+
 	public void setCarNo() {
 
 	}
@@ -127,20 +132,25 @@ public class CarparkMainPresenter {
 			com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 		}
 	}
-
 	/**
 	 * 弹窗添加设备
+	 * 
 	 * @param tabFolder
 	 * @param type
 	 */
 	public void addDevice(CTabFolder tabFolder, String type) {
 		try {
-			if (tabFolder.getItems().length>=4) {
-				commonui.info("提示", type+"最多只能添加4个设备");
+			if (tabFolder.getItems().length >= 4) {
+				commonui.info("提示", type + "最多只能添加4个设备");
 				return;
 			}
 			AddDeviceModel model = new AddDeviceModel();
-			model.setList(sp.getCarparkService().findAllCarpark());
+			List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
+			
+			if (!StrUtil.isEmpty(model.getCarpark())) {
+				findAllCarpark=sp.getCarparkService().findSameCarpark(model.getCarpark());
+			}
+			model.setList(findAllCarpark);
 			model.setType("tcp");
 			AddDeviceWizard v = new AddDeviceWizard(model);
 
@@ -151,6 +161,7 @@ public class CarparkMainPresenter {
 			String ip = showWizard.getIp();
 			String name = showWizard.getName();
 			showWizard.setInType(type);
+			model.setCarpark(showWizard.getCarpark());
 			addDevice(showWizard.getDevice());
 			addDevice(tabFolder, type, ip, name);
 			showUsualContentToDevice(showWizard.getDevice(), showWizard.getDevice().getAdvertise());
@@ -306,7 +317,11 @@ public class CarparkMainPresenter {
 			AddDeviceModel model = new AddDeviceModel();
 			model.setDevice(device);
 			AddDeviceWizard v = new AddDeviceWizard(model);
-			model.setList(sp.getCarparkService().findAllCarpark());
+			List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
+			if (!StrUtil.isEmpty(model.getCarpark())) {
+				findAllCarpark=sp.getCarparkService().findSameCarpark(model.getCarpark());
+			}
+			model.setList(findAllCarpark);
 			AddDeviceModel showWizard = (AddDeviceModel) commonui.showWizard(v);
 			if (showWizard == null) {
 				return;
@@ -329,11 +344,11 @@ public class CarparkMainPresenter {
 				addDevice(showWizard.getDevice());
 				addDevice(tabFolder, type, ip, showWizard.getName());
 			}
-			
+
 		} catch (Exception e1) {
 			e1.printStackTrace();
-		}finally{
-			
+		} finally {
+
 		}
 	}
 
@@ -386,23 +401,23 @@ public class CarparkMainPresenter {
 			String userName = this.model.getUserName();
 			model.setReturnUser(userName);
 			CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-			List<SingleCarparkInOutHistory> listFact=carparkInOutService.findHistoryFactMoneyNotReturn(userName);
-			List<SingleCarparkInOutHistory> listFree=carparkInOutService.findHistoryFreeMoneyNotReturn(userName);
+			List<SingleCarparkInOutHistory> listFact = carparkInOutService.findHistoryFactMoneyNotReturn(userName);
+			List<SingleCarparkInOutHistory> listFree = carparkInOutService.findHistoryFreeMoneyNotReturn(userName);
 			float factMoney = 0;
 			float freeMoney = 0;
 			for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFact) {
 				Float factMoney2 = singleCarparkInOutHistory.getFactMoney();
 				if (StrUtil.isEmpty(factMoney2)) {
-					factMoney2=0F;
+					factMoney2 = 0F;
 				}
-				factMoney+=factMoney2;
+				factMoney += factMoney2;
 			}
 			for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFree) {
 				Float factMoney2 = singleCarparkInOutHistory.getFreeMoney();
 				if (StrUtil.isEmpty(factMoney2)) {
-					factMoney2=0F;
+					factMoney2 = 0F;
 				}
-				freeMoney+=factMoney2;
+				freeMoney += factMoney2;
 			}
 			model.setShouldReturn(factMoney);
 			model.setFactReturn(freeMoney);
@@ -416,28 +431,28 @@ public class CarparkMainPresenter {
 			a.setReturnTime(new Date());
 			if (model.isFree()) {
 				a.setFactReturn(model.getFactReturn());
-			}else{
-				if (a.getShouldReturn()<=0) {
+			} else {
+				if (a.getShouldReturn() <= 0) {
 					return;
 				}
 				a.setFactReturn(0);
 			}
-			
+
 			Long saveReturnAccount = sp.getCarparkService().saveReturnAccount(a);
 
-			Map<Long, Long> map=new HashMap<Long, Long>();
+			Map<Long, Long> map = new HashMap<Long, Long>();
 			for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFact) {
 				singleCarparkInOutHistory.setReturnAccount(saveReturnAccount);
-				map.put(singleCarparkInOutHistory.getId(),saveReturnAccount);
+				map.put(singleCarparkInOutHistory.getId(), saveReturnAccount);
 			}
-			
+
 			if (model.isFree()) {
 				for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFree) {
 					if (!StrUtil.isEmpty(map.get(singleCarparkInOutHistory.getId()))) {
 						singleCarparkInOutHistory.setReturnAccount(saveReturnAccount);
 					}
 					singleCarparkInOutHistory.setFreeReturnAccount(saveReturnAccount);
-					singleCarparkInOutHistory.setOperaName(model.getOperaName());
+					// singleCarparkInOutHistory.setOperaName(model.getOperaName());
 				}
 				carparkInOutService.saveInOutHistoryOfList(listFree);
 			}
@@ -470,21 +485,23 @@ public class CarparkMainPresenter {
 
 	/**
 	 * 发送语音
-	 * @param device 设备
+	 * 
+	 * @param device
+	 *            设备
 	 * @param content语音
 	 * @param opDoor是否需要开门
 	 * @return
 	 */
-	public boolean showContentToDevice(SingleCarparkDevice device, String content,boolean opDoor) {
+	public boolean showContentToDevice(SingleCarparkDevice device, String content, boolean opDoor) {
 		try {
 			if (opDoor) {
 				Device d = getDevice(device);
-    			Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoor(d, content, device.getVolume()==null?1:device.getVolume());
-    			openDoorToPhotograph(device.getIp());
+				Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoor(d, content, device.getVolume() == null ? 1 : device.getVolume());
+				openDoorToPhotograph(device.getIp());
 				return carparkContentVoiceAndOpenDoor;
-			}else{
-    			Device d = getDevice(device);
-    			return hardwareService.carparkContentVoice(d, content, device.getVolume()==null?1:device.getVolume());
+			} else {
+				Device d = getDevice(device);
+				return hardwareService.carparkContentVoice(d, content, device.getVolume() == null ? 1 : device.getVolume());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -545,10 +562,11 @@ public class CarparkMainPresenter {
 			return false;
 		}
 	}
-	
-	public void openDoorToPhotograph(String ip){
+
+	public void openDoorToPhotograph(String ip) {
 		xinlutongJNA.openDoor(ip);
 	}
+
 	public boolean showUsualContentToDevice(SingleCarparkDevice device, String usualContent) {
 		try {
 			Boolean carparkUsualContent = hardwareService.carparkUsualContent(getDevice(device), usualContent);
@@ -603,13 +621,29 @@ public class CarparkMainPresenter {
 
 	/**
 	 * 计算收费
-	 * @param endTime 
-	 * @param startTime 
+	 * @param carparkId 
+	 * 
+	 * @param endTime
+	 * @param startTime
 	 * 
 	 * @return
 	 */
-	public float countShouldMoney(CarTypeEnum carType, Date startTime, Date endTime) {
-		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carType.index(), startTime, endTime);
+	public float countShouldMoney(Long carparkId, CarTypeEnum carType, Date startTime, Date endTime) {
+		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), startTime, endTime);
+		boolean flag = CarparkUtils.checkDaysIsOneDay(startTime, endTime);
+		if (flag) {
+			float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType);
+			float now = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo());
+			if (max > 0) {
+				float f = max - now;
+				if (f <= 0) {
+					return 0;
+				}
+				if (f < calculateTempCharge) {
+					return f;
+				}
+			}
+		}
 		return calculateTempCharge;
 	}
 
@@ -629,20 +663,20 @@ public class CarparkMainPresenter {
 		System.setProperty("userType", systemUser.getType());
 
 		model.setBtnClick(false);
-		model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow());
+		model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow(model.getCarpark()));
 		model.setUserName(userName);
 		model.setWorkTime(new Date());
 		model.setTotalCharge(sp.getCarparkInOutService().findShouldMoneyByName(userName));
 		model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
-		model.setMonthSlot(sp.getCarparkInOutService().findFixSlotIsNow());
-		model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow());
+		model.setMonthSlot(sp.getCarparkInOutService().findFixSlotIsNow(model.getCarpark()));
+		model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow(model.getCarpark()));
 	}
 
 	/**
 	 * 打开记录查询页面
 	 */
 	public void showSearchInOutHistory() {
-		
+
 		if (app != null) {
 			if (app.isOpen()) {
 				app.focus();
@@ -695,16 +729,16 @@ public class CarparkMainPresenter {
 			String ip = CarparkClientConfig.getInstance().getDbServerIp();
 			if (true) {
 				long nanoTime = System.nanoTime();
-				LOGGER.info("准备将图片{}上传到服务器{}",finalFileName,ip);
+				LOGGER.info("准备将图片{}上传到服务器{}", finalFileName, ip);
 				try {
-					String upload = FileuploadSend.upload("http://"+ip+":8899/carparkImage/", finalFileName);
-					
-					LOGGER.info("图片上传到服务器{}成功,{}",ip,upload);
+					String upload = FileuploadSend.upload("http://" + ip + ":8899/carparkImage/", finalFileName);
+
+					LOGGER.info("图片上传到服务器{}成功,{}", ip, upload);
 				} catch (Exception e) {
 					e.printStackTrace();
-					LOGGER.error("图片上传到服务器{}失败",ip);
-				}finally{
-					LOGGER.info("上传图片花费时间：{}",System.nanoTime()-nanoTime);
+					LOGGER.error("图片上传到服务器{}失败", ip);
+				} finally {
+					LOGGER.info("上传图片花费时间：{}", System.nanoTime() - nanoTime);
 				}
 			}
 		} catch (IOException e) {
@@ -717,31 +751,34 @@ public class CarparkMainPresenter {
 	}
 
 	public void init() {
-		
+
 	}
+
 	/**
-	 *人工查找
+	 * 人工查找
+	 * 
 	 * @param plateNO
-	 * @param smallImg 
-	 * @param bigImg 
+	 * @param smallImg
+	 * @param bigImg
 	 */
 	public void showManualSearch(String plateNO, String bigImg, String smallImg) {
 		try {
-			
+
 			searchErrorCarPresenter.getModel().setPlateNo(model.getOutShowPlateNO());
 			searchErrorCarPresenter.getModel().setHavePlateNoSelect(null);
 			searchErrorCarPresenter.getModel().setNoPlateNoSelect(null);
 			searchErrorCarPresenter.getModel().setSaveBigImg(bigImg);
 			searchErrorCarPresenter.getModel().setSaveSmallImg(smallImg);
-			
+
 			searchErrorCarPresenter.setSystemSetting(mapSystemSetting);
-			SearchHistoryByHandWizard wizard=new SearchHistoryByHandWizard(searchErrorCarPresenter);
+			SearchHistoryByHandWizard wizard = new SearchHistoryByHandWizard(searchErrorCarPresenter);
 			Object showWizard = commonui.showWizard(wizard);
 			if (StrUtil.isEmpty(showWizard)) {
 				return;
 			}
 			model.setOutPlateNOEditable(false);
-			SingleCarparkInOutHistory select = searchErrorCarPresenter.getModel().getHavePlateNoSelect()==null?searchErrorCarPresenter.getModel().getNoPlateNoSelect():searchErrorCarPresenter.getModel().getHavePlateNoSelect();
+			SingleCarparkInOutHistory select = searchErrorCarPresenter.getModel().getHavePlateNoSelect() == null ? searchErrorCarPresenter.getModel().getNoPlateNoSelect()
+					: searchErrorCarPresenter.getModel().getHavePlateNoSelect();
 			if (StrUtil.isEmpty(select)) {
 				return;
 			}
@@ -752,7 +789,7 @@ public class CarparkMainPresenter {
 				List<SingleCarparkUser> findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(m.getPlateNo());
 				if (StrUtil.isEmpty(findUserByPlateNo)) {
 					select.setCarType("临时车");
-				}else{
+				} else {
 					select.setCarType("固定车");
 				}
 			}
@@ -762,6 +799,7 @@ public class CarparkMainPresenter {
 			e.printStackTrace();
 		}
 	}
+
 	/**
 	 * 检查车牌识别间隔,现在时间在间隔时间内返回false
 	 * 

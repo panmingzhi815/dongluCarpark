@@ -24,6 +24,7 @@ import com.donglu.carpark.service.CarparkClientLocalVMServiceProvider;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
 import com.donglu.carpark.ui.common.App;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.blservice.DatabaseServiceProvider;
 import com.dongluhitec.card.blservice.HardwareFacility;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -65,6 +66,9 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -360,6 +364,11 @@ public class Login {
 					return;
 				}else{
 					Date lastUpdate = findAllSN.get(SNSettingType.validTo).getLastUpdate();
+					if (StrUtil.isEmpty(lastUpdate)) {
+						commonui.error("检查失败", "获取注册码信息失败，请检测服务器加密狗");
+						System.exit(0);
+						return;
+					}
 					Date date = new DateTime(lastUpdate).plusHours(3).toDate();
 					if (date.before(new Date())) {
 						commonui.error("检查失败", "获取注册码信息失败，请检测服务器加密狗");
@@ -385,34 +394,28 @@ public class Login {
 				if (!valueOf) {
 					return;
 				}
-				SingleCarparkSystemSetting ss2 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存多少月.name());
-				int saveMonth = Integer.valueOf(ss2 == null ? SystemSettingTypeEnum.图片保存多少月.getDefaultValue() : ss2.getSettingValue());
+				SingleCarparkSystemSetting ss2 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存多少天.name());
+				int saveMonth = Integer.valueOf(ss2 == null ? SystemSettingTypeEnum.图片保存多少天.getDefaultValue() : ss2.getSettingValue());
 				String imgSavePath = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 				String savePath = (imgSavePath == null ? System.getProperty("user.dir") : imgSavePath)+"/img/";
 				Date d=new Date();
-				DateTime deleteTime = new DateTime(d).minusMonths(saveMonth+2);
-				int year = deleteTime.getYear();
-				int month = deleteTime.getMonthOfYear();
+				DateTime deleteTime = new DateTime(d).minusDays(saveMonth+1);
+				
 				File file;
 				while(true){
-					String pathname = savePath+year+"/"+month;
+					String pathname = savePath+deleteTime.getYear()+"/"+deleteTime.getMonthOfYear()+"/"+deleteTime.toString("dd");
 					LOGGER.info("检测文件夹{}是否存在",pathname);
 					file=new File(pathname);
 					if (file.isDirectory()) {
 						LOGGER.info("文件夹{}存在,准备删除文件夹",pathname);
-						file.delete();
+						CarparkUtils.deleteDir(file);
 					}else{
 						LOGGER.info("文件夹{}不存在,退出任务",pathname);
 						break;
 					}
-					if (month==1) {
-						month=12;
-						year-=1;
-					}else{
-						month-=1;
-					}
+					deleteTime=deleteTime.minusDays(1);
 				}
 			}
-		}, 1, 60*24, TimeUnit.MINUTES);
+		}, 5, 60*24, TimeUnit.SECONDS);
 	}
 }

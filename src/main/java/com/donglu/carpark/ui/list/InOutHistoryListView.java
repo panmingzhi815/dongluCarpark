@@ -20,12 +20,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHistory> implements View{
-	private Text txt_shouldMoney;
-	private Text txt_factMoney;
-	private Text txt_freeMoney;
 	
+	private Label lbl_shouldMoney;
+	private Label lbl_factMoney;
+	private Label lbl_freeMoney;
 	public InOutHistoryListView(Composite parent, int style) {
 		super(parent, style, SingleCarparkInOutHistory.class,
 				new String[]{SingleCarparkInOutHistory.Property.plateNo.name(),
@@ -41,7 +42,7 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 						SingleCarparkInOutHistory.Property.freeMoney.name(),
 						SingleCarparkInOutHistory.Property.returnAccount.name(),},
 				new String[]{"车牌号","车辆类型","用户名","进场设备","进场时间","出场设备","出场时间","操作员","应收金额","实收金额","免费金额","归账编号"},
-				new int[]{100,100,100,100,200,100,200,100,90,90,90,90},new int[]{0,0,0,0,0,0,0,0,1,1,1,0});
+				new int[]{100,100,100,100,200,100,200,100,90,90,90,90},new int[]{0,0,0,0,0,0,0,0,SWT.RIGHT,SWT.RIGHT,SWT.RIGHT,0});
 		this.setTableTitle("归账记录表");
 	}
 
@@ -85,32 +86,41 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		composite.setLayout(new GridLayout(6, false));
 		
 		Label label = new Label(composite, SWT.NONE);
+		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("应收");
+		label.setText("应收:");
 		
-		txt_shouldMoney = new Text(composite, SWT.BORDER);
-		txt_shouldMoney.setEditable(false);
-		txt_shouldMoney.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		lbl_shouldMoney = new Label(composite, SWT.NONE);
+		lbl_shouldMoney.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_lbl_shouldMoney = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
+		gd_lbl_shouldMoney.widthHint = 70;
+		lbl_shouldMoney.setLayoutData(gd_lbl_shouldMoney);
 		
 		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_2.setText("实收");
+		label_2.setText("实收:");
 		
-		txt_factMoney = new Text(composite, SWT.BORDER);
-		txt_factMoney.setEditable(false);
-		txt_factMoney.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		lbl_factMoney = new Label(composite, SWT.NONE);
+		lbl_factMoney.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_lbl_factMoney = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lbl_factMoney.widthHint = 70;
+		lbl_factMoney.setLayoutData(gd_lbl_factMoney);
 		
 		Label label_1 = new Label(composite, SWT.NONE);
+		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_1.setText("免费");
+		label_1.setText("免费:");
 		
-		txt_freeMoney = new Text(composite, SWT.BORDER);
-		txt_freeMoney.setEditable(false);
-		txt_freeMoney.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		lbl_freeMoney = new Label(composite, SWT.NONE);
+		lbl_freeMoney.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_lbl_freeMoney = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lbl_freeMoney.widthHint = 70;
+		lbl_freeMoney.setLayoutData(gd_lbl_freeMoney);
 	}
 	public void setMoney(String shouldMoney,String factMoney,String freeMoney){
-		txt_shouldMoney.setText(shouldMoney);
-		txt_factMoney.setText(factMoney);
-		txt_freeMoney.setText(freeMoney);
+		lbl_shouldMoney.setText(shouldMoney);
+		lbl_factMoney.setText(factMoney);
+		lbl_freeMoney.setText(freeMoney);
 	}
 }

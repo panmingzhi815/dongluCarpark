@@ -1,5 +1,6 @@
 package com.donglu.carpark.service.impl;
 
+import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -576,7 +577,7 @@ public class CarparkServiceImpl implements CarparkService {
 	}
 	
 	@Override
-	public float calculateTempCharge(final Long carTypeId,
+	public float calculateTempCharge(Long carparkId,final Long carTypeId,
 			final Date startTime, final Date endTime) {
 		try {
 			unitOfWork.begin();
@@ -587,14 +588,15 @@ public class CarparkServiceImpl implements CarparkService {
 					String spName = "{call upGetNewPakCarCharge(?,?,?,?)}";
 
 					CallableStatement proc = conn
-							.prepareCall("{call upGetNewPakCarCharge(?,?,?,?)}");
-					proc.setString(1, carTypeId + "");
-					proc.setTimestamp(2, new Timestamp(startTime.getTime()));
-					proc.setTimestamp(3, new Timestamp(endTime.getTime()));
-					proc.registerOutParameter(4, Types.NUMERIC);
+							.prepareCall("{call upGetNewPakCarCharge(?,?,?,?,?)}");
+					proc.setBigDecimal(1, new BigDecimal(carparkId));
+					proc.setString(2, carTypeId + "");
+					proc.setTimestamp(3, new Timestamp(startTime.getTime()));
+					proc.setTimestamp(4, new Timestamp(endTime.getTime()));
+					proc.registerOutParameter(5, Types.NUMERIC);
 					proc.execute();
 					proc.getMoreResults();
-					float money = proc.getFloat(4);
+					float money = proc.getFloat(5);
 					proc.close();
 					conn.close();
 					return money;
@@ -727,6 +729,28 @@ public class CarparkServiceImpl implements CarparkService {
 			return null;
 		}finally{
 			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkCarpark> findSameCarpark(SingleCarparkCarpark carpark) {
+		List<SingleCarparkCarpark> findCarparkToLevel = findCarparkToLevel();
+		for (SingleCarparkCarpark singleCarparkCarpark : findCarparkToLevel) {
+			List<SingleCarparkCarpark> list=new ArrayList<>();
+			getCarpaek(singleCarparkCarpark, list);
+			System.out.println(list);
+			if (list.contains(carpark)) {
+				return list;
+			}
+		}
+		return null;
+	}
+	private void getCarpaek(SingleCarparkCarpark carpark, List<SingleCarparkCarpark> list) {
+		list.add(carpark);
+		if (!StrUtil.isEmpty(carpark.getChilds())) {
+			for (SingleCarparkCarpark singleCarparkCarpark : carpark.getChilds()) {
+				getCarpaek(singleCarparkCarpark,list);
+			}
 		}
 	}
 }

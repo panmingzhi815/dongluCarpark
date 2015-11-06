@@ -306,59 +306,61 @@ public class CarparkUtils {
 	}
 	public static <T> List<T> sortObjectPropety(List<T> list, String string,boolean order) {
 		
-		Collections.sort(list, new Comparator<T>() {
-			
-			public int compare(T o1, T o2) {
-				Object obj1 = getFieldValueByName(string, o1);
-				Object obj2 = getFieldValueByName(string, o2);
-				if (obj1 instanceof String) {
-					String f1=((String)obj1)==null?"":((String)obj1);
-					String f2=((String)obj2)==null?"":((String)obj2);
-					if (order) {
-//						if (StrUtil.isEmpty(f1)) {
-//							return 0;
-//						}
-						int compareTo = f1.compareTo(f2);
-						return compareTo;
-					}else{
-//						if (StrUtil.isEmpty(f2)) {
-//							return 0;
-//						}
-						int compareTo = f2.compareTo(f1);
-						return compareTo;
+		try {
+			Collections.sort(list, new Comparator<T>() {
+				
+				public int compare(T o1, T o2) {
+					Object obj1 = getFieldValueByName(string, o1);
+					Object obj2 = getFieldValueByName(string, o2);
+					if (obj1 instanceof String) {
+						String f1=((String)obj1)==null?"":((String)obj1);
+						String f2=((String)obj2)==null?"":((String)obj2);
+						if (order) {
+							int compareTo = f1.compareTo(f2);
+							return compareTo;
+						}else{
+							int compareTo = f2.compareTo(f1);
+							return compareTo;
+						}
+						
 					}
-					
-				}
-				if (obj1 instanceof Float) {
-					Float f1=((Float)obj1)==null?0F:((Float)obj1);
-					Float f2=((Float)obj2)==null?0F:((Float)obj2);
-					if (order) {
-						return f1.compareTo(f2);
-					}else{
-						return f2.compareTo(f1);
+					if (obj1 instanceof Float) {
+						Float f1=((Float)obj1)==null?0F:((Float)obj1);
+						Float f2=((Float)obj2)==null?0F:((Float)obj2);
+						if (order) {
+							int compareTo = f1.compareTo(f2);
+							return compareTo;
+						}else{
+							int compareTo = f2.compareTo(f1);
+							return compareTo;
+						}
 					}
-				}
-				if (obj1 instanceof Integer) {
-					Integer f1=((Integer)obj1)==null?0:((Integer)obj1);
-					Integer f2=((Integer)obj2)==null?0:((Integer)obj2);
-					if (order) {
-						return f1.compareTo(f2);
-					}else{
-						return f2.compareTo(f1);
+					if (obj1 instanceof Integer) {
+						Integer f1=((Integer)obj1)==null?0:((Integer)obj1);
+						Integer f2=((Integer)obj2)==null?0:((Integer)obj2);
+						if (order) {
+							return f1.compareTo(f2);
+						}else{
+							return f2.compareTo(f1);
+						}
 					}
-				}
-				if (obj1 instanceof Long) {
-					Long f1=((Long)obj1)==null?0l:((Long)obj1);
-					Long f2=((Long)obj2)==null?0l:((Long)obj2);
-					if (order) {
-						return f1.compareTo(f2);
-					}else{
-						return f2.compareTo(f1);
+					if (obj1 instanceof Long) {
+						Long f1=((Long)obj1)==null?0l:((Long)obj1);
+						Long f2=((Long)obj2)==null?0l:((Long)obj2);
+						if (order) {
+							int compareTo = f1.compareTo(f2);
+							return compareTo;
+						}else{
+							int compareTo = f2.compareTo(f1);
+							return compareTo;
+						}
 					}
+					return 1;
 				}
-				return 1;
-			}
-		});
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return list;
 	}
 	public static void enableSort(TableViewer tableViewer) {
@@ -376,7 +378,6 @@ public class CarparkUtils {
 				
 				@Override
 				public void widgetDefaultSelected(SelectionEvent e) {
-					// TODO 自动生成的方法存根
 					
 				}
 			});
@@ -385,6 +386,24 @@ public class CarparkUtils {
 		
 		
 	}
+	/**
+	 * 删除文件夹以及其中的文件
+	 * @param dir
+	 * @return
+	 */
+	public static boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i=0; i<children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        // 目录此时为空，可以删除
+        return dir.delete();
+    }
 	public static void setComboSelect(Combo combo, int i) {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
@@ -392,5 +411,10 @@ public class CarparkUtils {
 				combo.select(i);
 			}
 		});
+	}
+	public static boolean checkDaysIsOneDay(Date startTime, Date endTime) {
+		int d1 = new DateTime(startTime).getDayOfYear();
+		int d2 = new DateTime(endTime).getDayOfYear();
+		return d1==d2;
 	}
 }

@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui.list;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolBar;
 
@@ -18,7 +19,7 @@ public class CarparkPayHistoryListView extends AbstractListView<SingleCarparkMon
 						SingleCarparkMonthlyUserPayHistory.Property.operaName.name(),
 						SingleCarparkMonthlyUserPayHistory.Label.overdueTimeLabel.name(),},
 				new String[]{"用户名","车牌号","充值金额","充值时间","操作人","过期时间"},
-				new int[]{100,100,100,200,100,200}, null);
+				new int[]{100,100,100,200,100,200}, new int[]{0,0,SWT.RIGHT,0,0,0});
 		this.setTableTitle("充值记录表");
 	}
 

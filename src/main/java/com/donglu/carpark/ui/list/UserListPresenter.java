@@ -63,7 +63,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			addUserModel.setType("普通");
 			addUserModel.setCarparkNo("0");
 			addUserModel.setModel(model);
-			addUserModel.setTotalSlot(sp.getCarparkInOutService().findFixSlotIsNow());
+			addUserModel.setTotalSlot(sp.getCarparkInOutService().findFixSlotIsNow(list.get(0)));
 			AddUserWizard addUserWizard = new AddUserWizard(addUserModel);
 			AddUserModel m = (AddUserModel) commonui.showWizard(addUserWizard);
 			if (m == null) {

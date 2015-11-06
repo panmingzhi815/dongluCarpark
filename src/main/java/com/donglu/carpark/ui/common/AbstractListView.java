@@ -51,6 +51,7 @@ public abstract class AbstractListView<T> extends Composite{
 	String[] columnProperties;
 	String[] nameProperties;
 	int[] columnLenths;
+	int[] aligns;
 	Class tClass;
 	private Label lbl_tableTitle;
 	private Label lbl_nowCount;
@@ -122,6 +123,7 @@ public abstract class AbstractListView<T> extends Composite{
 		this.columnProperties=columnProperties;
 		this.nameProperties=nameProperties;
 		this.columnLenths=columnLenths;
+		this.aligns=aligns;
 		setLayout(new GridLayout(1, false));
 		
 		Composite composite = new Composite(this, SWT.NONE);
@@ -165,6 +167,12 @@ public abstract class AbstractListView<T> extends Composite{
 			TableColumn tblclmnNewColumn = tableViewerColumn.getColumn();
 			tblclmnNewColumn.setWidth(columnLenths[i]);
 			tblclmnNewColumn.setText(nameProperties[i]);
+			if (aligns!=null) {
+				int j = aligns[i];
+				if(j!=0){
+					tblclmnNewColumn.setAlignment(j);
+				}
+			}
 			int num=i;
 			tblclmnNewColumn.addSelectionListener(new SelectionAdapter() {
 				boolean flag=false;

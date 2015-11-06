@@ -1,6 +1,7 @@
 package com.donglu.carpark.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -17,6 +18,9 @@ import org.criteria4jpa.projection.Projections;
 
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.util.CarparkUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
@@ -24,6 +28,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
@@ -242,14 +248,17 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public int findFixSlotIsNow() {
+	public int findFixSlotIsNow(SingleCarparkCarpark singleCarparkCarpark) {
 		unitOfWork.begin();
 		try {
-			Criteria cc = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
-			cc.setProjection(Projections.sum(SingleCarparkCarpark.Property.fixNumberOfSlot.name()));
-			Long singleResult2 = (Long) cc.getSingleResult();
-			int intValue = singleResult2==null?0:singleResult2.intValue();
 			
+			List<SingleCarparkCarpark> findSameCarpark = findSameCarpark(singleCarparkCarpark);
+			int intValue=0;
+			
+			for (SingleCarparkCarpark singleCarparkCarpark2 : findSameCarpark) {
+				Integer fixNumberOfSlot = singleCarparkCarpark2.getFixNumberOfSlot();
+				intValue+=fixNumberOfSlot==null?0:fixNumberOfSlot;
+			}
 //			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 //			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
 //			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "固定车"));
@@ -263,13 +272,16 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public int findTempSlotIsNow() {
+	public int findTempSlotIsNow(SingleCarparkCarpark singleCarparkCarpark) {
 		unitOfWork.begin();
 		try {
-			Criteria cc = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
-			cc.setProjection(Projections.sum(SingleCarparkCarpark.Property.tempNumberOfSlot.name()));
-			Long singleResult2 = (Long) cc.getSingleResult();
-			int intValue = singleResult2==null?0:singleResult2.intValue();
+			List<SingleCarparkCarpark> findSameCarpark = findSameCarpark(singleCarparkCarpark);
+			int intValue=0;
+			
+			for (SingleCarparkCarpark singleCarparkCarpark2 : findSameCarpark) {
+				Integer fixNumberOfSlot = singleCarparkCarpark2.getTempNumberOfSlot();
+				intValue+=fixNumberOfSlot==null?0:fixNumberOfSlot;
+			}
 			
 //			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 //			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
@@ -284,14 +296,16 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public int findTotalSlotIsNow() {
+	public int findTotalSlotIsNow(SingleCarparkCarpark singleCarparkCarpark) {
 		unitOfWork.begin();
 		try {
-			Criteria cc = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
-            cc.add(Restrictions.isNull("parent"));			
-			cc.setProjection(Projections.sum(SingleCarparkCarpark.Property.tempNumberOfSlot.name()));
-			Object singleResult2 = cc.getSingleResult();
-			int intValue = singleResult2==null?0:((Long)singleResult2).intValue();
+			List<SingleCarparkCarpark> findSameCarpark = findSameCarpark(singleCarparkCarpark);
+			int intValue=0;
+			
+			for (SingleCarparkCarpark singleCarparkCarpark2 : findSameCarpark) {
+				Integer fixNumberOfSlot = singleCarparkCarpark2.getTempNumberOfSlot();
+				intValue+=fixNumberOfSlot==null?0:fixNumberOfSlot;
+			}
 			
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
@@ -415,6 +429,83 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}finally{
 			unitOfWork.end();
 		}
+	}
+
+	@Override
+	public float findOneDayMaxCharge(CarTypeEnum carType) {
+		unitOfWork.begin();
+		try {
+			DatabaseOperation<CarparkCarType> dom = DatabaseOperation.forClass(CarparkCarType.class, emprovider.get());
+			CarparkCarType type = dom.getEntityWithId(carType.index());
+			List<CarparkChargeStandard> carparkChargeStandardList = type.getCarparkChargeStandardList();
+			for (CarparkChargeStandard carparkChargeStandard : carparkChargeStandardList) {
+				if (carparkChargeStandard.getUsing()) {
+					return carparkChargeStandard.getOnedayMaxCharge();
+				}
+			}
+			return 0;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public float countTodayCharge(String plateNo) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.ge(SingleCarparkInOutHistory.Property.outTime.name(), StrUtil.getTodayTopTime(new Date())));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plateNo));
+			c.setProjection(Projections.sum(SingleCarparkInOutHistory.Property.factMoney.name()));
+			Double singleResultOrNull = (Double) c.getSingleResultOrNull();
+			return singleResultOrNull==null?0:singleResultOrNull.floatValue();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	
+	
+	public List<SingleCarparkCarpark> findSameCarpark(SingleCarparkCarpark carpark) {
+		List<SingleCarparkCarpark> findCarparkToLevel = findCarparkToLevel();
+		for (SingleCarparkCarpark singleCarparkCarpark : findCarparkToLevel) {
+			List<SingleCarparkCarpark> list=new ArrayList<>();
+			getCarpaek(singleCarparkCarpark, list);
+//			System.out.println(list);
+			if (list.contains(carpark)) {
+				return list;
+			}
+		}
+		return null;
+	}
+	private void getCarpaek(SingleCarparkCarpark carpark, List<SingleCarparkCarpark> list) {
+		list.add(carpark);
+		if (!StrUtil.isEmpty(carpark.getChilds())) {
+			for (SingleCarparkCarpark singleCarparkCarpark : carpark.getChilds()) {
+				getCarpaek(singleCarparkCarpark,list);
+			}
+		}
+	}
+	public List<SingleCarparkCarpark> findCarparkToLevel() {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
+			List<SingleCarparkCarpark> resultList = c.getResultList();
+			
+			for (SingleCarparkCarpark singleCarparkCarpark : resultList) {
+				singleCarparkCarpark.setChilds(new ArrayList<>());
+			}
+			for (SingleCarparkCarpark carpark : resultList) {
+				if (carpark.getParent() != null) {
+					carpark.getParent().getChilds().add(carpark);
+				}
+			}
+			Collection<SingleCarparkCarpark> filter = Collections2.filter(resultList, new Predicate<SingleCarparkCarpark>() {
+				public boolean apply(SingleCarparkCarpark arg0) {
+					return arg0.getParent() == null;
+				}
+			});
+
+			List<SingleCarparkCarpark> list = new ArrayList<>(filter);
+			return list;
 	}
 
 }

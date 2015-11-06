@@ -5,6 +5,7 @@ import java.util.Date;
 import org.eclipse.swt.graphics.Image;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -56,6 +57,8 @@ public class CarparkMainModel extends DomainObject{
 	
 	String carparkCarType;
 	private String currentTime;
+	
+	private SingleCarparkCarpark carpark;
 	
 	public String getUserName() {
 		return userName;
@@ -352,6 +355,15 @@ public class CarparkMainModel extends DomainObject{
 		this.outPlateNOEditable = outPlateNOEditable;
 		if (pcs != null)
 			pcs.firePropertyChange("outPlateNOEditable", null, null);
+	}
+	public SingleCarparkCarpark getCarpark() {
+		// TODO 自动生成的方法存根
+		return carpark;
+	}
+	public void setCarpark(SingleCarparkCarpark carpark) {
+		this.carpark = carpark;
+		if (pcs != null)
+			pcs.firePropertyChange("carpark", null, null);
 	}
 
 }

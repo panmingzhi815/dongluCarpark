@@ -59,6 +59,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
@@ -274,6 +275,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	 * 构造函数
 	 */
 	public CarparkMainApp() {
+		model = new CarparkMainModel();
 		Object readObject = com.dongluhitec.card.ui.util.FileUtils.readObject("mapIpToDevice");
 		if (readObject != null) {
 			mapIpToDevice = (Map<String, SingleCarparkDevice>) readObject;
@@ -282,6 +284,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				if (StrUtil.isEmpty(singleCarparkDevice.getInType())) {
 					continue;
 				}
+				SingleCarparkCarpark carpark = singleCarparkDevice.getCarpark();
+				model.setCarpark(carpark);
 				mapDeviceType.put(key, singleCarparkDevice.getInType());
 			}
 		}
@@ -323,16 +327,16 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		presenter.setMapDeviceType(this.mapDeviceType);
 		presenter.setMapIpToDevice(mapIpToDevice);
 		presenter.setMapSystemSetting(mapSystemSetting);
-		model = new CarparkMainModel();
+		
 		presenter.setModel(model);
 		String userName = System.getProperty("userName");
 		model.setUserName(userName);
 		model.setWorkTime(new Date());
 
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		model.setTotalSlot(carparkInOutService.findTotalSlotIsNow());
-		model.setHoursSlot(carparkInOutService.findTempSlotIsNow());
-		model.setMonthSlot(carparkInOutService.findFixSlotIsNow());
+		model.setTotalSlot(carparkInOutService.findTotalSlotIsNow(model.getCarpark()));
+		model.setHoursSlot(carparkInOutService.findTempSlotIsNow(model.getCarpark()));
+		model.setMonthSlot(carparkInOutService.findFixSlotIsNow(model.getCarpark()));
 		model.setTotalCharge(carparkInOutService.findFactMoneyByName(userName));
 		model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
 		List<SingleCarparkSystemSetting> findAllSystemSetting = sp.getCarparkService().findAllSystemSetting();
@@ -680,9 +684,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		composite_15.setLayout(new GridLayout(1, false));
 
 		btnOutCheck = new Button(composite_15, SWT.NONE);
+		GridData gd_btnOutCheck = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnOutCheck.exclude = false;
 		if (!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认) == null ? SystemSettingTypeEnum.固定车出场确认.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认))) {
-			// gd_btnOutCheck.exclude = true;
+			 gd_btnOutCheck.exclude = true;
 		}
+		btnOutCheck.setLayoutData(gd_btnOutCheck);
 		btnOutCheck.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
 		btnOutCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -1001,13 +1008,14 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				}
 				if (model.isBtnClick()) {
 					SingleCarparkInOutHistory h = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
+					SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
 					if (StrUtil.isEmpty(h)) {
 						return;
 					}
 					Date inTime = h.getInTime();
 					Date outTime = h.getOutTime();
 					CarTypeEnum carparkCarType = getCarparkCarType(carparkCarType2);
-					float countShouldMoney = presenter.countShouldMoney(carparkCarType, inTime, outTime);
+					float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(),carparkCarType, inTime, outTime);
 
 					presenter.showContentToDevice(mapIpToDevice.get(model.getIp()), CarparkUtils.formatFloatString("请缴费" + countShouldMoney + "元"), false);
 					model.setShouldMony(countShouldMoney);
@@ -1653,7 +1661,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		}
 		carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
 		// model.setMonthSlot(carparkInOutService.findFixSlotIsNow());
-		model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow());
+		model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow(model.getCarpark()));
 		return false;
 	}
 
@@ -1709,7 +1717,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				carType = getCarparkCarType(list.get(0));
 			}
 			// model.setComboCarTypeEnable(false);
-			float shouldMoney = presenter.countShouldMoney(carType, inTime, date);
+			float shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(),carType, inTime, date);
 			model.setShouldMony(shouldMoney);
 			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
 			model.setReal(shouldMoney);
@@ -1780,7 +1788,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 			model.setBtnClick(false);
 			model.setHandSearch(false);
-			model.setSelectCarType(false);
+			model.setComboCarTypeEnable(false);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1825,9 +1833,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				String userName = System.getProperty("userName");
 				model.setTotalCharge(sp.getCarparkInOutService().findFactMoneyByName(userName));
 				model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
-				model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow());
-				model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow());
-				model.setMonthSlot(sp.getCarparkInOutService().findFixSlotIsNow());
+				model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow(model.getCarpark()));
+				model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow(model.getCarpark()));
+				model.setMonthSlot(sp.getCarparkInOutService().findFixSlotIsNow(model.getCarpark()));
 			} catch (Exception e) {
 				LOGGER.error("刷新停车场出错", e);
 			}

@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui.list;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolBar;
 
@@ -17,7 +18,7 @@ public class ReturnAccountListView extends AbstractListView<SingleCarparkReturnA
 						SingleCarparkReturnAccount.Property.factReturn.name(),
 						SingleCarparkReturnAccount.Property.returnTimeLabel.name()},
 				new String[]{"编号","归账人","操作员","归账金额","免费金额","归账时间"},
-				new int[]{100,100,100,100,100,200}, null);
+				new int[]{100,100,100,100,100,200}, new int[]{0,0,0,SWT.RIGHT,SWT.RIGHT,0});
 		this.setTableTitle("归账记录表");
 	}
 

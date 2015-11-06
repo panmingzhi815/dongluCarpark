@@ -38,12 +38,12 @@ public class InOutHistoryView extends Composite implements View{
 	private Text text_plateNO;
 	private Text text_userName;
 	private Text text_operaName;
-	private DateChooserCombo dateChooserCombo_end;
 	private Combo combo_carType;
 	private Combo combo_inorout;
 	private Text text_inDevice;
 	private Text text_outDevice;
 	private Text text_returnAccount;
+	private CDateTime dt_end;
 
 	public InOutHistoryView(Composite parent, int style) {
 		super(parent, style);
@@ -56,7 +56,7 @@ public class InOutHistoryView extends Composite implements View{
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridLayout gl_group = new GridLayout(11, false);
 		gl_group.verticalSpacing = 10;
-		gl_group.horizontalSpacing = 10;
+		gl_group.horizontalSpacing = 15;
 		group.setLayout(gl_group);
 		
 		Label label = new Label(group, SWT.NONE);
@@ -83,12 +83,10 @@ public class InOutHistoryView extends Composite implements View{
 		label_2.setText("开始时间");
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
-		DateChooserCombo dateChooserCombo_start = new DateChooserCombo(group, SWT.BORDER);
-		GridData gd_dateChooserCombo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_dateChooserCombo.widthHint = 115;
-		dateChooserCombo_start.setLayoutData(gd_dateChooserCombo);
-		dateChooserCombo_start.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		dateChooserCombo_start.setValue(new Date());
+		CDateTime dateTime = new CDateTime(group, CDT.BORDER);
+		dateTime.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		dateTime.setPattern("yyyy-MM-dd HH:mm");
+		dateTime.setSelection(new org.joda.time.DateTime().minusHours(1).toDate());
 		Label lblNewLabel = new Label(group, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -99,8 +97,8 @@ public class InOutHistoryView extends Composite implements View{
 		text_inDevice.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label label_3 = new Label(group, SWT.NONE);
-		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_3.setText("操作员");
+		label_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		label_3.setText("操  作  员");
 		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
 		text_operaName = new Text(group, SWT.BORDER);
@@ -115,7 +113,7 @@ public class InOutHistoryView extends Composite implements View{
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getPresenter().search(text_plateNO.getText(),text_userName.getText(),dateChooserCombo_start.getValue(),dateChooserCombo_end.getValue(),
+				getPresenter().search(text_plateNO.getText(),text_userName.getText(),dateTime.getSelection(),dt_end.getSelection(),
 						text_operaName.getText(),combo_carType.getText(),combo_inorout.getText(),text_inDevice.getText(),text_outDevice.getText(),text_returnAccount.getText());
 			}
 		});
@@ -154,12 +152,10 @@ public class InOutHistoryView extends Composite implements View{
 		label_6.setText("结束时间");
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
-		dateChooserCombo_end = new DateChooserCombo(group, SWT.BORDER);
-		GridData gd_dateChooserCombo_end = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_dateChooserCombo_end.widthHint = 115;
-		dateChooserCombo_end.setLayoutData(gd_dateChooserCombo_end);
-		dateChooserCombo_end.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		dateChooserCombo_end.setValue(new Date());
+		dt_end = new CDateTime(group, CDT.BORDER);
+		dt_end.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		dt_end.setPattern("yyyy-MM-dd HH:mm\r\n");
+		dt_end.setSelection(new Date());
 		Label lblNewLabel_1 = new Label(group, SWT.NONE);
 		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -170,7 +166,7 @@ public class InOutHistoryView extends Composite implements View{
 		text_outDevice.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		Label lblNewLabel_2 = new Label(group, SWT.NONE);
 		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_2.setText("归账编号");
 		
 		text_returnAccount = new Text(group, SWT.BORDER);

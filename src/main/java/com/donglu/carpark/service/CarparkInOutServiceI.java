@@ -3,6 +3,8 @@ package com.donglu.carpark.service;
 import java.util.Date;
 import java.util.List;
 
+import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 
 public interface CarparkInOutServiceI {
@@ -40,19 +42,22 @@ public interface CarparkInOutServiceI {
 	Long saveInOutHistoryOfList(List<SingleCarparkInOutHistory> list);
 	/**
 	 * 查询现在的固定车位数
+	 * @param singleCarparkCarpark 
 	 * @return
 	 */
-	int findFixSlotIsNow();
+	int findFixSlotIsNow(SingleCarparkCarpark singleCarparkCarpark);
 	/**
 	 * 查询现在的临时车位数
+	 * @param singleCarparkCarpark 
 	 * @return
 	 */
-	int findTempSlotIsNow();
+	int findTempSlotIsNow(SingleCarparkCarpark singleCarparkCarpark);
 	/**
 	 * 查询现在的总车位数
+	 * @param singleCarparkCarpark 
 	 * @return
 	 */
-	int findTotalSlotIsNow();
+	int findTotalSlotIsNow(SingleCarparkCarpark singleCarparkCarpark);
 
 	List<SingleCarparkInOutHistory> searchHistoryByLikePlateNO(String plateNO, boolean order);
 
@@ -74,4 +79,16 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	List<SingleCarparkInOutHistory> findHistoryFreeMoneyNotReturn(String userName);
+	/**
+	 * 查找一天最大收费
+	 * @param carType
+	 * @return
+	 */
+	float findOneDayMaxCharge(CarTypeEnum carType);
+	/**
+	 * 查找车今天缴费
+	 * @param plateNo
+	 * @return
+	 */
+	float countTodayCharge(String plateNo);
 }

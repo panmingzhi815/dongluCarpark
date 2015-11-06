@@ -217,11 +217,12 @@ public interface CarparkService {
 	/**
 	 * 计算临时收费
 	 * @param carTypeId
+	 * @param l 
 	 * @param startTime
 	 * @param endTime
 	 * @return
 	 */
-	float calculateTempCharge(Long carTypeId, Date startTime, Date endTime);
+	float calculateTempCharge(Long carTypeId, Long l, Date startTime, Date endTime);
 	/**
 	 * 查找车牌是否为黑名单
 	 * @param plateNO
@@ -251,4 +252,10 @@ public interface CarparkService {
 	
 	public SingleCarparkCarpark findCarparkByCode(String code);
 	public Map<SNSettingType, SingleCarparkSystemSetting> findAllSN();
+	/**
+	 * 查找同一类停车场
+	 * @param carpark
+	 * @return
+	 */
+	public List<SingleCarparkCarpark> findSameCarpark(SingleCarparkCarpark carpark);
 }

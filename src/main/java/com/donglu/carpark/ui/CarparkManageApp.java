@@ -88,6 +88,7 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
+import com.dongluhitec.card.common.ui.uitl.TableViewerColumnSorter;
 
 public class CarparkManageApp extends AbstractApp{
 	private static final String COLUMN = "column";
@@ -359,19 +360,18 @@ public class CarparkManageApp extends AbstractApp{
 		toolItem_6.setText("刷新");
 		
 		tableViewer = new TableViewer(composite_4, SWT.BORDER | SWT.FULL_SELECTION);
+//		tableViewer.setSorter(new TableViewerColumnSorter((TableViewerColumn) null));
 		table = tableViewer.getTable();
 		table.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 //		tableViewer.setSorter(new ViewerSorter());
-		TableViewerColumn tableViewerColumn_20 = new TableViewerColumn(tableViewer, SWT.NONE);
-		TableColumn tblclmnNewColumn_5 = tableViewerColumn_20.getColumn();
-		tblclmnNewColumn_5.setResizable(false);
-		tblclmnNewColumn_5.setData("columnName", "code");
-		tblclmnNewColumn_5.setAlignment(SWT.RIGHT);
-		tblclmnNewColumn_5.setWidth(151);
-		tblclmnNewColumn_5.setText("编码");
+		TableViewerColumn tvc_code = new TableViewerColumn(tableViewer, SWT.RIGHT);
+		TableColumn tc_code = tvc_code.getColumn();
+		tc_code.setResizable(false);
+		tc_code.setWidth(151);
+		tc_code.setText("编码");
 		TableViewerColumn tableViewerColumn_21 = new TableViewerColumn(tableViewer, SWT.NONE);
 		TableColumn tblclmnNewColumn_6 = tableViewerColumn_21.getColumn();
 		tblclmnNewColumn_6.setWidth(100);
@@ -551,41 +551,9 @@ public class CarparkManageApp extends AbstractApp{
 		}else{
 			btnCheckButton.setSelection(Boolean.valueOf(string4));
 		}
-		Button btnCheckButton_1 = new Button(group_4, SWT.CHECK);
-		btnCheckButton_1.setToolTipText("选中后，停车场车位满允许固定免费车进");
-		btnCheckButton_1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.车位满是否允许免费车入场, btnCheckButton_1.getSelection()+"");
-			}
-		});
-		btnCheckButton_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		btnCheckButton_1.setText("车位满是否允许免费车入场");
 		
 		String string5 = mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场);
-		if (string5==null) {
-			btnCheckButton_1.setSelection(Boolean.valueOf(SystemSettingTypeEnum.车位满是否允许免费车入场.getDefaultValue()));
-		}else{
-			btnCheckButton_1.setSelection(Boolean.valueOf(string5));
-		}
 		
-		Button button_3 = new Button(group_4, SWT.CHECK);
-		button_3.setToolTipText("选中后，停车场车位满允许固定储值车进");
-		button_3.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.车位满是否允许储值车入场, button_3.getSelection()+"");
-			}
-		});
-		button_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_3.setText("车位满是否允许储值车入场");
-		
-		String string6 = mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许储值车入场);
-		if (string6==null) {
-			button_3.setSelection(Boolean.valueOf(SystemSettingTypeEnum.车位满是否允许储值车入场.getDefaultValue()));
-		}else{
-			button_3.setSelection(Boolean.valueOf(string6));
-		}
 		
 		Button button_4 = new Button(group_4, SWT.CHECK);
 		button_4.setToolTipText("选中后，临时车入场需要确认放行");
@@ -597,6 +565,9 @@ public class CarparkManageApp extends AbstractApp{
 		});
 		button_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_4.setText("临时车入场是否确认");
+		
+		String string6 = mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许储值车入场);
+		
 		
 		String string7 = mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认);
 		if (string7==null) {
@@ -615,13 +586,37 @@ public class CarparkManageApp extends AbstractApp{
 		});
 		button_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_6.setText("临时车零收费是否自动出场");
-		
+		Button btnCheckButton_1 = new Button(group_4, SWT.CHECK);
+		btnCheckButton_1.setToolTipText("选中后，停车场车位满允许固定免费车进");
+		btnCheckButton_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.车位满是否允许免费车入场, btnCheckButton_1.getSelection()+"");
+			}
+		});
+		btnCheckButton_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		btnCheckButton_1.setText("车位满是否允许免费车入场");
+		if (string5==null) {
+			btnCheckButton_1.setSelection(Boolean.valueOf(SystemSettingTypeEnum.车位满是否允许免费车入场.getDefaultValue()));
+		}else{
+			btnCheckButton_1.setSelection(Boolean.valueOf(string5));
+		}
 		String string8 = mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场);
 		if (string8==null) {
 			button_6.setSelection(Boolean.valueOf(SystemSettingTypeEnum.临时车零收费是否自动出场.getDefaultValue()));
 		}else{
 			button_6.setSelection(Boolean.valueOf(string8));
 		}
+		Button button_5 = new Button(group_4, SWT.CHECK);
+		button_5.setToolTipText("选中后，固定车入场需要确认放行");
+		button_5.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.固定车入场是否确认, button_5.getSelection()+"");
+			}
+		});
+		button_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_5.setText("固定车入场是否确认");
 		
 		Button button_12 = new Button(group_4, SWT.CHECK);
 		button_12.addSelectionListener(new SelectionAdapter() {
@@ -634,16 +629,6 @@ public class CarparkManageApp extends AbstractApp{
 		button_12.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_12.setText("是否允许无牌车进入");
 		button_12.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进)==null?SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进)));
-		Button button_5 = new Button(group_4, SWT.CHECK);
-		button_5.setToolTipText("选中后，固定车入场需要确认放行");
-		button_5.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.固定车入场是否确认, button_5.getSelection()+"");
-			}
-		});
-		button_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_5.setText("固定车入场是否确认");
 		
 		String string9 = mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认);
 		if (string9==null) {
@@ -652,6 +637,21 @@ public class CarparkManageApp extends AbstractApp{
 			button_5.setSelection(Boolean.valueOf(string9));
 		}
 		
+		Button button_3 = new Button(group_4, SWT.CHECK);
+		button_3.setToolTipText("选中后，停车场车位满允许固定储值车进");
+		button_3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.车位满是否允许储值车入场, button_3.getSelection()+"");
+			}
+		});
+		button_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_3.setText("车位满是否允许储值车入场");
+		if (string6==null) {
+			button_3.setSelection(Boolean.valueOf(SystemSettingTypeEnum.车位满是否允许储值车入场.getDefaultValue()));
+		}else{
+			button_3.setSelection(Boolean.valueOf(string6));
+		}
 		Button button_7 = new Button(group_4, SWT.CHECK);
 		button_7.setToolTipText("选中后，固定车出场场需要确认放行");
 		button_7.addSelectionListener(new SelectionAdapter() {
@@ -661,7 +661,7 @@ public class CarparkManageApp extends AbstractApp{
 			}
 		});
 		button_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_7.setText("固定车出场确认");
+		button_7.setText("固定车出场是否确认");
 		
 		String string0 = mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认);
 		if (string0==null) {
@@ -830,7 +830,7 @@ public class CarparkManageApp extends AbstractApp{
 			public void widgetSelected(SelectionEvent e) {
 				mapSystemSetting.put(SystemSettingTypeEnum.是否自动删除图片, btn_imgSaveMonth.getSelection()+"");
 				if (!btn_imgSaveMonth.getSelection()) {
-					mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少月, null);
+					mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少天, null);
 					return;
 				}
 				String text = text_setting_imgSaveDays.getText();
@@ -840,7 +840,7 @@ public class CarparkManageApp extends AbstractApp{
 				} catch (NumberFormatException e1) {
 					
 				}
-				mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少月, (valueOf==0?999:valueOf)+"");
+				mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少天, (valueOf==0?999:valueOf)+"");
 			}
 		});
 		btn_imgSaveMonth.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -848,7 +848,7 @@ public class CarparkManageApp extends AbstractApp{
 		String autoDeleteImg = mapSystemSetting.get(SystemSettingTypeEnum.是否自动删除图片);
 		Boolean valueOf = Boolean.valueOf(autoDeleteImg==null?SystemSettingTypeEnum.是否自动删除图片.getDefaultValue():autoDeleteImg);
 		btn_imgSaveMonth.setSelection(valueOf.booleanValue());
-		String imgSaveMonth = mapSystemSetting.get(SystemSettingTypeEnum.图片保存多少月);
+		String imgSaveMonth = mapSystemSetting.get(SystemSettingTypeEnum.图片保存多少天);
 		
 		text_setting_imgSaveDays = new Text(composite_15, SWT.BORDER);
 		text_setting_imgSaveDays.addKeyListener(new KeyAdapter() {
@@ -859,7 +859,7 @@ public class CarparkManageApp extends AbstractApp{
 				try {
 					Integer valueOf2 = Integer.valueOf(text);
 					if (valueOf2>0) {
-						mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少月,text);
+						mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少天,text);
 					}
 					oldText=text;
 				} catch (NumberFormatException e1) {
@@ -871,7 +871,7 @@ public class CarparkManageApp extends AbstractApp{
 		text_setting_imgSaveDays.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_setting_imgSaveDays.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		text_setting_imgSaveDays.setText(imgSaveMonth==null?SystemSettingTypeEnum.图片保存多少月.getDefaultValue():imgSaveMonth);
+		text_setting_imgSaveDays.setText(imgSaveMonth==null?SystemSettingTypeEnum.图片保存多少天.getDefaultValue():imgSaveMonth);
 		Composite composite_7 = new Composite(group_4, SWT.NONE);
 		composite_7.setLayout(new GridLayout(2, false));
 		composite_7.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
