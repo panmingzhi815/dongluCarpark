@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -416,5 +417,9 @@ public class CarparkUtils {
 		int d1 = new DateTime(startTime).getDayOfYear();
 		int d2 = new DateTime(endTime).getDayOfYear();
 		return d1==d2;
+	}
+	public static Image getSwtImage(String name) {
+		String file=System.getProperty("user.dir")+"\\img\\"+name;
+		return SWTResourceManager.getImage(file);
 	}
 }

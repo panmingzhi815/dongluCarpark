@@ -100,6 +100,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseMoveListener;
 
 public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private static final String BTN_HANDSEARCH_SMALL_IMG = "smallImg";
@@ -380,7 +381,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	protected void createContents() {
 		shell = new Shell();
 		shell.setMinimumSize(new Point(1024, 768));
-		shell.setSize(1036, 850);
+		shell.setSize(1036, 889);
 		shell.setText("停车场监控-1.0.0.3(" + CarparkClientConfig.getInstance().getDbServerIp() + ")");
 		shell.addShellListener(new ShellAdapter() {
 			@Override
@@ -764,7 +765,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 5, SWT.NORMAL));
 		GridLayout gl_group = new GridLayout(2, false);
 		group.setLayout(gl_group);
-		GridData gd_group = new GridData(SWT.LEFT, SWT.FILL, false, true, 1, 1);
+		GridData gd_group = new GridData(SWT.LEFT, SWT.TOP, false, true, 1, 1);
 		gd_group.widthHint = 284;
 		group.setLayoutData(gd_group);
 
@@ -1038,21 +1039,19 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		combo.select(0);
 		Composite composite_13 = new Composite(group, SWT.NONE);
 		composite_13.setLayout(new GridLayout(1, false));
-		composite_13.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true, true, 2, 1));
+		GridData gd_composite_13 = new GridData(SWT.CENTER, SWT.FILL, true, true, 2, 1);
+		gd_composite_13.exclude = true;
+		composite_13.setLayoutData(gd_composite_13);
 		btnCharge = new Button(composite_13, SWT.NONE);
 		btnCharge.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
-				SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
-				data.setFactMoney(model.getReal());
-				if(!chargeCarPass(device, data, carOutChargeCheck)){
-					return;
-				}
-				model.setComboCarTypeEnable(false);
-				btnCharge.setData(BTN_CHARGE,null);
-				btnCharge.setData(BTN_CHARGE_DEVICE,null);
+				charge(carOutChargeCheck);
 			}
+
+			/**
+			 * @param carOutChargeCheck
+			 */
 		});
 		btnCharge.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		btnCharge.setText("收费放行(F11)");
@@ -1127,176 +1126,140 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		});
 		btnf_3.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		btnf_3.setText("浏览记录(F9)");
-
-		Composite composite_16 = new Composite(group, SWT.NONE);
-		GridLayout gl_composite_16 = new GridLayout(2, false);
-		gl_composite_16.marginTop = 20;
-		gl_composite_16.horizontalSpacing = 15;
-		composite_16.setLayout(gl_composite_16);
-		GridData gd_composite_16 = new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1);
-		gd_composite_16.exclude = true;
-		composite_16.setLayoutData(gd_composite_16);
-
-		Label lbl_charge = new Label(composite_16, SWT.NONE);
-		lbl_charge.setCursor(new Cursor(shell.getDisplay(),SWT.CURSOR_HAND));
-		lbl_charge.addMouseListener(new MouseAdapter() {
-			
-			@Override
-			public void mouseUp(MouseEvent e) {
-				Rectangle bounds = lbl_charge.getBounds();
-				bounds.y=bounds.y+2;
-				lbl_charge.setBounds(bounds);
-				
-			}
-
-			@Override
-			public void mouseDown(MouseEvent e) {
-				Rectangle bounds = lbl_charge.getBounds();
-				bounds.y=bounds.y-2;
-				lbl_charge.setBounds(bounds);
-			}
-		});
-		lbl_charge.setImage(SWTResourceManager.getImage("E:\\QQDownload\\png\\f9.png"));
-		GridData gd_lblNewLabel_5 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lblNewLabel_5.heightHint = 50;
-		gd_lblNewLabel_5.widthHint = 120;
-		lbl_charge.setLayoutData(gd_lblNewLabel_5);
-		Label lbl_freeCharge = new Label(composite_16, SWT.NONE);
-		lbl_freeCharge.setCursor(new Cursor(shell.getDisplay(),SWT.CURSOR_HAND));
-		lbl_freeCharge.setImage(SWTResourceManager.getImage("E:\\QQDownload\\png\\f12.png"));
-		GridData gd_lbl_freeCharge = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lbl_freeCharge.heightHint = 50;
-		gd_lbl_freeCharge.widthHint = 120;
-		lbl_freeCharge.setLayoutData(gd_lbl_freeCharge);
-		lbl_freeCharge.addMouseListener(new MouseAdapter() {
-			
-			@Override
-			public void mouseUp(MouseEvent e) {
-				Rectangle bounds = lbl_freeCharge.getBounds();
-				bounds.y=bounds.y+2;
-				lbl_freeCharge.setBounds(bounds);
-			}
-
-			@Override
-			public void mouseDown(MouseEvent e) {
-				Rectangle bounds = lbl_freeCharge.getBounds();
-				bounds.y=bounds.y-2;
-				lbl_freeCharge.setBounds(bounds);
-			}
-		});
 		
-		Composite composite_18 = new Composite(group, SWT.NONE);
-		GridData gd_composite_18 = new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1);
-		gd_composite_18.exclude = true;
-		composite_18.setLayoutData(gd_composite_18);
-		GridLayout gl_composite_18 = new GridLayout(2, false);
-		gl_composite_18.horizontalSpacing = 15;
-		composite_18.setLayout(gl_composite_18);
-
-		Label lbl_stopCharge = new Label(composite_18, SWT.NONE);
-		GridData gd_lbl_stopCharge = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lbl_stopCharge.widthHint = 120;
-		gd_lbl_stopCharge.heightHint = 50;
-		lbl_stopCharge.setLayoutData(gd_lbl_stopCharge);
-		lbl_stopCharge.setCursor(new Cursor(shell.getDisplay(),SWT.CURSOR_HAND));
-		lbl_stopCharge.setImage(SWTResourceManager.getImage("E:\\QQDownload\\png\\esc.png"));
-		lbl_stopCharge.addMouseListener(new MouseAdapter() {
-			
+		Composite composite_19 = new Composite(group, SWT.NONE);
+		composite_19.setLayout(new GridLayout(1, false));
+		composite_19.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false, false, 2, 1));
+		
+		Composite composite_16 = new Composite(composite_19, SWT.NONE);
+		composite_16.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		composite_16.setLayout(new GridLayout(2, false));
+		
+		Label lbl_charge = new Label(composite_16, SWT.NONE);
+		lbl_charge.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
+		lbl_charge.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
-				Rectangle bounds = lbl_stopCharge.getBounds();
-				bounds.y=bounds.y+2;
-				lbl_stopCharge.setBounds(bounds);
+				charge(carOutChargeCheck);
 			}
-
+			
 			@Override
 			public void mouseDown(MouseEvent e) {
-				Rectangle bounds = lbl_stopCharge.getBounds();
-				bounds.y=bounds.y-2;
-				lbl_stopCharge.setBounds(bounds);
 			}
 		});
-		Label lbl_search = new Label(composite_18, SWT.NONE);
-		GridData gd_lbl_search = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lbl_search.widthHint = 120;
-		gd_lbl_search.heightHint = 50;
-		lbl_search.setLayoutData(gd_lbl_search);
-		lbl_search.setCursor(new Cursor(shell.getDisplay(),SWT.CURSOR_HAND));
-		lbl_search.setImage(SWTResourceManager.getImage("E:\\QQDownload\\png\\jilu.png"));
+		lbl_charge.setImage(CarparkUtils.getSwtImage("charge.png"));
+		GridData gd_label_7 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_label_7.widthHint = 100;
+		gd_label_7.heightHint = 80;
+		lbl_charge.setLayoutData(gd_label_7);
+		
+		Label lbl_free = new Label(composite_16, SWT.NONE);
+		lbl_free.addMouseListener(new MouseAdapter() {
+			public void mouseUp(MouseEvent e) {
+				SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
+				SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
+				data.setFactMoney(0);
+				if(!chargeCarPass(device, data, carOutChargeCheck)){
+					return;
+				}
+				model.setComboCarTypeEnable(false);
+				btnCharge.setData(BTN_CHARGE,null);
+				btnCharge.setData(BTN_CHARGE_DEVICE,null);
+			}
+			@Override
+			public void mouseDown(MouseEvent e) {
+			}
+		});
+		lbl_free.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
+		lbl_free.setImage(CarparkUtils.getSwtImage("free.png"));
+		GridData gd_label_17 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_label_17.widthHint = 100;
+		gd_label_17.heightHint = 80;
+		lbl_free.setLayoutData(gd_label_17);
+		
+		Label lbl_stop = new Label(composite_19, SWT.NONE);
+		lbl_stop.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseUp(MouseEvent e) {
+				discontinue = true;
+				model.setBtnClick(false);
+				model.setComboCarTypeEnable(false);
+				btnCharge.setData(BTN_CHARGE,null);
+				btnCharge.setData(BTN_CHARGE_DEVICE,null);
+			}
+			@Override
+			public void mouseDown(MouseEvent e) {
+			}
+		});
+		lbl_stop.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
+		lbl_stop.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		lbl_stop.setImage(CarparkUtils.getSwtImage("stop.png"));
+		
+		Composite composite_17 = new Composite(composite_19, SWT.NONE);
+		composite_17.setLayout(new GridLayout(2, false));
+		
+		Label lbl_change = new Label(composite_17, SWT.NONE);
+		lbl_change.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseUp(MouseEvent e) {
+				presenter.changeUser();
+			}
+			@Override
+			public void mouseDown(MouseEvent e) {
+			}
+		});
+		lbl_change.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
+		GridData gd_label_18 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_label_18.widthHint = 100;
+		gd_label_18.heightHint = 80;
+		lbl_change.setLayoutData(gd_label_18);
+		lbl_change.setImage(CarparkUtils.getSwtImage("change.png"));
+		
+		Label lbl_return = new Label(composite_17, SWT.NONE);
+		lbl_return.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseUp(MouseEvent e) {
+				presenter.returnAccount();
+			}
+			@Override
+			public void mouseDown(MouseEvent e) {
+			}
+		});
+		lbl_return.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
+		GridData gd_label_20 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_label_20.widthHint = 100;
+		gd_label_20.heightHint = 80;
+		lbl_return.setLayoutData(gd_label_20);
+		lbl_return.setImage(CarparkUtils.getSwtImage("return.png"));
+		
+		Label lbl_search = new Label(composite_19, SWT.NONE);
 		lbl_search.addMouseListener(new MouseAdapter() {
-			
 			@Override
 			public void mouseUp(MouseEvent e) {
-				Rectangle bounds = lbl_search.getBounds();
-				bounds.y=bounds.y+2;
-				lbl_search.setBounds(bounds);
+				presenter.showSearchInOutHistory();
 			}
-
 			@Override
 			public void mouseDown(MouseEvent e) {
-				Rectangle bounds = lbl_search.getBounds();
-				bounds.y=bounds.y-2;
-				lbl_search.setBounds(bounds);
 			}
 		});
-		Composite composite_17 = new Composite(group, SWT.NONE);
-		GridData gd_composite_17 = new GridData(SWT.CENTER, SWT.CENTER, true, false, 2, 1);
-		gd_composite_17.exclude = true;
-		composite_17.setLayoutData(gd_composite_17);
-		GridLayout gl_composite_17 = new GridLayout(2, false);
-		gl_composite_17.horizontalSpacing = 15;
-		composite_17.setLayout(gl_composite_17);
-
-		Label lbl_returnAccount = new Label(composite_17, SWT.NONE);
-		GridData gd_lbl_returnAccount = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lbl_returnAccount.widthHint = 120;
-		gd_lbl_returnAccount.heightHint = 50;
-		lbl_returnAccount.setLayoutData(gd_lbl_returnAccount);
-		lbl_returnAccount.setCursor(new Cursor(shell.getDisplay(),SWT.CURSOR_HAND));
-		lbl_returnAccount.setImage(SWTResourceManager.getImage("E:\\QQDownload\\png\\gui.png"));
-		lbl_returnAccount.addMouseListener(new MouseAdapter() {
-			
-			@Override
-			public void mouseUp(MouseEvent e) {
-				Rectangle bounds = lbl_returnAccount.getBounds();
-				bounds.y=bounds.y+2;
-				lbl_returnAccount.setBounds(bounds);
-			}
-
-			@Override
-			public void mouseDown(MouseEvent e) {
-				Rectangle bounds = lbl_returnAccount.getBounds();
-				bounds.y=bounds.y-2;
-				lbl_returnAccount.setBounds(bounds);
-			}
-		});
-		Label lbl_changeUser = new Label(composite_17, SWT.NONE);
-		GridData gd_lbl_changeUser = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lbl_changeUser.widthHint = 120;
-		gd_lbl_changeUser.heightHint = 50;
-		lbl_changeUser.setLayoutData(gd_lbl_changeUser);
-		lbl_changeUser.setCursor(new Cursor(shell.getDisplay(),SWT.CURSOR_HAND));
-		lbl_changeUser.setImage(SWTResourceManager.getImage("E:\\QQDownload\\png\\huan.png"));
-		lbl_changeUser.addMouseListener(new MouseAdapter() {
-			
-			@Override
-			public void mouseUp(MouseEvent e) {
-				Rectangle bounds = lbl_changeUser.getBounds();
-				bounds.y=bounds.y+2;
-				lbl_changeUser.setBounds(bounds);
-			}
-
-			@Override
-			public void mouseDown(MouseEvent e) {
-				Rectangle bounds = lbl_changeUser.getBounds();
-				bounds.y=bounds.y-2;
-				lbl_changeUser.setBounds(bounds);
-			}
-		});
+		lbl_search.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
+		lbl_search.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		lbl_search.setImage(CarparkUtils.getSwtImage("search.png"));
 		createDeviceTabItem();
 		tabInFolder.setSelection(0);
 		tabOutFolder.setSelection(0);
 		m_bindingContext = initDataBindings();
+	}
+	private void charge(Boolean carOutChargeCheck) {
+		SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
+		SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
+		data.setFactMoney(model.getReal());
+		if(!chargeCarPass(device, data, carOutChargeCheck)){
+			return;
+		}
+		model.setComboCarTypeEnable(false);
+		btnCharge.setData(BTN_CHARGE,null);
+		btnCharge.setData(BTN_CHARGE_DEVICE,null);
 	}
 
 	/**
@@ -1763,6 +1726,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			float factMoney = singleCarparkInOutHistory.getFactMoney();
 			if (factMoney > shouldMoney) {
 				commonui.error("收费提示", "实时不能超过应收");
+				return false;
+			}
+			if (factMoney<0) {
+				commonui.error("收费提示", "实时不能小于0");
 				return false;
 			}
 			if (check) {
