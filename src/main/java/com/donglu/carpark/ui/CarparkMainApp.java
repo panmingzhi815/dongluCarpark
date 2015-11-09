@@ -227,6 +227,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private Combo combo;
 	private Text text_1;
 	private ComboViewer comboViewer;
+	private Label lbl_charge;
+	private Label lbl_free;
+	private Label lbl_stop;
 
 	/**
 	 * Launch the application.
@@ -1135,30 +1138,35 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		composite_16.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 		composite_16.setLayout(new GridLayout(2, false));
 		
-		Label lbl_charge = new Label(composite_16, SWT.NONE);
+		lbl_charge = new Label(composite_16, SWT.NONE);
 		lbl_charge.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
 		lbl_charge.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
+				setBoundsY(lbl_charge,-2);
 				charge(carOutChargeCheck);
 			}
-			
 			@Override
 			public void mouseDown(MouseEvent e) {
+				setBoundsY(lbl_charge,2);
 			}
 		});
 		lbl_charge.setImage(CarparkUtils.getSwtImage("charge.png"));
-		GridData gd_label_7 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_label_7.widthHint = 100;
-		gd_label_7.heightHint = 80;
-		lbl_charge.setLayoutData(gd_label_7);
+		GridData gd_lbl_charge = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lbl_charge.widthHint = 100;
+		gd_lbl_charge.heightHint = 80;
+		lbl_charge.setLayoutData(gd_lbl_charge);
 		
-		Label lbl_free = new Label(composite_16, SWT.NONE);
+		lbl_free = new Label(composite_16, SWT.NONE);
 		lbl_free.addMouseListener(new MouseAdapter() {
 			public void mouseUp(MouseEvent e) {
+				setBoundsY(lbl_free,-2);
 				SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
+				if (StrUtil.isEmpty(data)) {
+					return;
+				}
 				SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
-				data.setFactMoney(0);
+				model.setReal(0);
 				if(!chargeCarPass(device, data, carOutChargeCheck)){
 					return;
 				}
@@ -1168,27 +1176,32 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 			@Override
 			public void mouseDown(MouseEvent e) {
+				setBoundsY(lbl_free,2);
 			}
 		});
 		lbl_free.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
 		lbl_free.setImage(CarparkUtils.getSwtImage("free.png"));
-		GridData gd_label_17 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_label_17.widthHint = 100;
-		gd_label_17.heightHint = 80;
-		lbl_free.setLayoutData(gd_label_17);
+		GridData gd_lbl_free = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lbl_free.widthHint = 100;
+		gd_lbl_free.heightHint = 80;
+		lbl_free.setLayoutData(gd_lbl_free);
 		
-		Label lbl_stop = new Label(composite_19, SWT.NONE);
+		lbl_stop = new Label(composite_19, SWT.NONE);
 		lbl_stop.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
+				setBoundsY(lbl_stop,-2);
 				discontinue = true;
 				model.setBtnClick(false);
 				model.setComboCarTypeEnable(false);
+				model.setHandSearch(false);
+				model.setOutPlateNOEditable(false);
 				btnCharge.setData(BTN_CHARGE,null);
 				btnCharge.setData(BTN_CHARGE_DEVICE,null);
 			}
 			@Override
 			public void mouseDown(MouseEvent e) {
+				setBoundsY(lbl_stop,2);
 			}
 		});
 		lbl_stop.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
@@ -1202,10 +1215,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		lbl_change.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
+				setBoundsY(lbl_change,-2);
 				presenter.changeUser();
 			}
 			@Override
 			public void mouseDown(MouseEvent e) {
+				setBoundsY(lbl_change,2);
 			}
 		});
 		lbl_change.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
@@ -1219,10 +1234,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		lbl_return.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
+				setBoundsY(lbl_return,-2);
 				presenter.returnAccount();
 			}
 			@Override
 			public void mouseDown(MouseEvent e) {
+				setBoundsY(lbl_return,2);
 			}
 		});
 		lbl_return.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
@@ -1236,10 +1253,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		lbl_search.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
+				setBoundsY(lbl_search,-2);
 				presenter.showSearchInOutHistory();
 			}
 			@Override
 			public void mouseDown(MouseEvent e) {
+				setBoundsY(lbl_search,2);
 			}
 		});
 		lbl_search.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
@@ -1250,8 +1269,25 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		tabOutFolder.setSelection(0);
 		m_bindingContext = initDataBindings();
 	}
+	/**
+	 * @param i 
+	 * @param lbl_charge 
+	 * 
+	 */
+	private void setBoundsY(Label lbl_charge, int i) {
+		Rectangle bounds = lbl_charge.getBounds();
+		bounds.y=bounds.y+i;
+		lbl_charge.setBounds(bounds);
+	}
+	/**
+	 * 收费
+	 * @param carOutChargeCheck
+	 */
 	private void charge(Boolean carOutChargeCheck) {
 		SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
+		if (StrUtil.isEmpty(data)) {
+			return;
+		}
 		SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
 		data.setFactMoney(model.getReal());
 		if(!chargeCarPass(device, data, carOutChargeCheck)){
@@ -1723,7 +1759,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		try {
 			Float shouldMoney = singleCarparkInOutHistory.getShouldMoney();
-			float factMoney = singleCarparkInOutHistory.getFactMoney();
+			float factMoney = model.getReal();
 			if (factMoney > shouldMoney) {
 				commonui.error("收费提示", "实时不能超过应收");
 				return false;
@@ -1808,7 +1844,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 		} , 3000, 1000, TimeUnit.MILLISECONDS);
 	}
-
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//

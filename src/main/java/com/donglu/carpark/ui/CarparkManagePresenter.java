@@ -10,6 +10,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.info.CarparkChargeInfo;
 import com.donglu.carpark.model.CarparkModel;
@@ -74,7 +76,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
 public class CarparkManagePresenter {
-	// private Logger LOGGER = LoggerFactory.getLogger(CarparkManagePresenter.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(CarparkManagePresenter.class);
 	// 停车场管理界面
 	private CarparkManageApp view;
 
@@ -206,161 +208,6 @@ public class CarparkManagePresenter {
 		}
 	}
 
-	/**
-	 * 固定用户充值
-	 */
-	public void monthUserPay() {
-		try {
-			MonthlyUserPayModel model = new MonthlyUserPayModel();
-			List<SingleCarparkUser> selectList = userModel.getSelectList();
-			if (StrUtil.isEmpty(selectList)) {
-				return;
-			}
-
-			SingleCarparkUser singleCarparkUser = selectList.get(0);
-			model.setUserName(singleCarparkUser.getName());
-			model.setCreateTime(singleCarparkUser.getCreateDate());
-			model.setPlateNO(singleCarparkUser.getPlateNo());
-			model.setAllmonth(sp.getCarparkService().findAllMonthlyCharge());
-			model.setOverdueTime(singleCarparkUser.getValidTo());
-			MonthlyUserPayWizard wizard = new MonthlyUserPayWizard(model);
-			MonthlyUserPayModel m = (MonthlyUserPayModel) commonui.showWizard(wizard);
-			if (StrUtil.isEmpty(m)) {
-				return;
-			}
-			if (StrUtil.isEmpty(m.getSelectMonth())) {
-				return;
-			}
-			singleCarparkUser.setValidTo(m.getOverdueTime());
-			singleCarparkUser.setDelayDays(m.getSelectMonth().getDelayDays());
-			singleCarparkUser.setRemindDays(m.getSelectMonth().getExpiringDays());
-			singleCarparkUser.setMonthChargeId(m.getSelectMonth().getId());
-			m.setOperaName(System.getProperty("userName"));
-			sp.getCarparkUserService().saveUser(singleCarparkUser);
-			sp.getCarparkService().saveMonthlyUserPayHistory(m.getSingleCarparkMonthlyUserPayHistory());
-			commonui.info("操作成功", "充值成功");
-			refreshUser();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	/**
-	 * 添加停车场用户
-	 */
-	public void addCarparkUser() {
-		try {
-			CarparkService carparkService = sp.getCarparkService();
-			List<SingleCarparkCarpark> list = carparkService.findAllCarpark();
-			if (StrUtil.isEmpty(list)) {
-				commonui.error("错误", "请先创建停车场！！");
-				return;
-			}
-			MonthlyUserPayModel model = new MonthlyUserPayModel();
-			model.setAllmonth(sp.getCarparkService().findAllMonthlyCharge());
-			AddUserModel addUserModel = new AddUserModel();
-			addUserModel.setAllList(list);
-			addUserModel.setCarpark(list.get(0));
-			addUserModel.setType("普通");
-			addUserModel.setCarparkNo("0");
-			addUserModel.setModel(model);
-			addUserModel.setTotalSlot(sp.getCarparkInOutService().findFixSlotIsNow(list.get(0)));
-			AddUserWizard addUserWizard = new AddUserWizard(addUserModel);
-			AddUserModel m = (AddUserModel) commonui.showWizard(addUserWizard);
-			if (m == null) {
-				return;
-			}
-
-			SingleCarparkUser user = m.getSingleCarparkUser();
-			Date createDate = m.getCreateDate() == null ? new Date() : m.getCreateDate();
-			user.setCreateDate(createDate);
-			user.setValidTo(m.getModel().getOverdueTime());
-			CarparkUserService carparkUserService = sp.getCarparkUserService();
-
-			MonthlyUserPayModel mm = m.getModel();
-			if (!StrUtil.isEmpty(mm.getSelectMonth())) {
-				mm.setOperaName(System.getProperty("userName"));
-				SingleCarparkMonthlyCharge selectMonth = mm.getSelectMonth();
-				if (!StrUtil.isEmpty(selectMonth)) {
-					user.setDelayDays(selectMonth.getDelayDays());
-					user.setRemindDays(selectMonth.getExpiringDays());
-					user.setMonthChargeId(selectMonth.getId());
-				}
-				carparkService.saveMonthlyUserPayHistory(mm.getSingleCarparkMonthlyUserPayHistory());
-			}
-			carparkUserService.saveUser(user);
-			// 更新停车场信息
-//			int userSize = sp.getCarparkService().countMonthUserByHaveCarSite();
-//			SingleCarparkCarpark carpark = m.getCarpark();
-//			carpark.setLeftNumberOfSlot(carpark.getTotalNumberOfSlot() - userSize);
-//			carparkService.saveCarpark(carpark);
-			//
-			commonui.info("操作成功", "保存成功!");
-			refreshUser();
-		} catch (Exception e) {
-			e.printStackTrace();
-			commonui.info("操作失败", "保存用户失败!");
-		}
-
-	}
-
-	/**
-	 * 删除停车场用户
-	 */
-	public void delCarparkUser() {
-		List<SingleCarparkUser> selectList = userModel.getSelectList();
-		if (StrUtil.isEmpty(selectList)) {
-			return;
-		}
-		boolean confirm = commonui.confirm("删除提示", "是否确认删除选中的" + selectList.size() + "个固定用户");
-		if (!confirm) {
-			return;
-		}
-		CarparkUserService carparkUserService = sp.getCarparkUserService();
-		for (SingleCarparkUser singleCarparkUser : selectList) {
-			try {
-				carparkUserService.deleteUser(singleCarparkUser);
-			} catch (Exception e) {
-				e.printStackTrace();
-				commonui.error("操作终止", "删除用户" + singleCarparkUser.getName() + "的车牌" + singleCarparkUser.getPlateNo() + "失败");
-				return;
-			}
-		}
-		refreshUser();
-	}
-
-	/**
-	 * 编辑停车场用户
-	 */
-	public void editCarparkUser() {
-		List<SingleCarparkUser> selectList = userModel.getSelectList();
-		if (StrUtil.isEmpty(selectList)) {
-			return;
-		}
-		try {
-			CarparkService carparkService = sp.getCarparkService();
-			List<SingleCarparkCarpark> list = carparkService.findAllCarpark();
-			SingleCarparkUser singleCarparkUser = selectList.get(0);
-			AddUserModel addUserModel = new AddUserModel();
-			addUserModel.setAllList(list);
-			addUserModel.setSingleCarparkUser(singleCarparkUser);
-			AddUserWizard addUserWizard = new AddUserWizard(addUserModel);
-			AddUserModel m = (AddUserModel) commonui.showWizard(addUserWizard);
-			if (m == null) {
-				return;
-			}
-
-			SingleCarparkUser user = m.getSingleCarparkUser();
-			CarparkUserService carparkUserService = sp.getCarparkUserService();
-			carparkUserService.saveUser(user);
-			commonui.info("操作成功", "修改成功!");
-			refreshUser();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	public CarparkManageApp getView() {
 		return view;
 	}
@@ -382,43 +229,11 @@ public class CarparkManagePresenter {
 	 */
 	public void init() {
 		refreshCarpark();
-		refreshUser();
 		refreshSystemUser();
 		refreshSystemSetting();
 		refreshCarparkCharge();
 		// testDatabase();
 	}
-
-	public void testDatabase() {
-
-		// String property = System.getProperty("testDatabase");
-		// if(Strings.isNullOrEmpty(property)){}
-		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-			try {
-				SingleCarparkInOutHistory singleCarparkInOutHistory = new SingleCarparkInOutHistory();
-				// singleCarparkInOutHistory.setBigImg("2015\10\09\16\20151009162220491_粤BD021W_big.jpg");
-				// singleCarparkInOutHistory.setSmallImg("2015\10\09\16\20151009162220491_粤BD021W_big.jpg");
-				singleCarparkInOutHistory.setCarType("临时车");
-				singleCarparkInOutHistory.setFactMoney(15F);
-				singleCarparkInOutHistory.setFreeMoney(5F);
-				singleCarparkInOutHistory.setShouldMoney(20F);
-				singleCarparkInOutHistory.setInTime(new Date());
-				singleCarparkInOutHistory.setOutTime(new Date());
-				singleCarparkInOutHistory.setInDevice("进口");
-				singleCarparkInOutHistory.setOutDevice("出口");
-				singleCarparkInOutHistory.setReturnAccount(456789L);
-				singleCarparkInOutHistory.setPlateNo("京A78945");
-				singleCarparkInOutHistory.setUserId(1L);
-				singleCarparkInOutHistory.setUserName("xiaobai");
-				sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
-				// LOGGER.info("保存成功");
-			} catch (Exception e) {
-				// LOGGER.error("保存错误",e);
-			}
-
-		} , 5000, 10, TimeUnit.MILLISECONDS);
-	}
-
 	/**
 	 * 刷新系统设置
 	 */
@@ -437,16 +252,6 @@ public class CarparkManagePresenter {
 			}
 		}
 	}
-
-	/**
-	 * 刷新固定用户
-	 */
-	private void refreshUser() {
-		CarparkUserService carparkUserService = sp.getCarparkUserService();
-		List<SingleCarparkUser> findAll = carparkUserService.findAll();
-		userModel.setAllList(findAll);
-	}
-
 	/**
 	 * 刷新停车场
 	 */
@@ -985,44 +790,6 @@ public class CarparkManagePresenter {
 			e.printStackTrace();
 		}
 	}
-
-	public void importUser() {
-		try {
-			String path = commonui.selectToSave();
-			ExcelImportExport export=new ExcelImportExportImpl();
-			int excelRowNum = export.getExcelRowNum(path);
-			if (excelRowNum<3) {
-				return;
-			}
-			int importUser = export.importUser(path, sp);
-			if (importUser>0) {
-				commonui.info("导入提示", "导入完成。有"+importUser+"条数据导入失败");
-			}else{
-				commonui.info("导入提示", "导入成功");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}finally{
-			refreshUser();
-		}
-	}
-	/**
-	 * 导出固定用户信息
-	 */
-	public void exportUser() {
-		String selectToSave = commonui.selectToSave();
-		String path = StrUtil.checkPath(selectToSave,  new String[] { ".xls", ".xlsx" }, ".xls");
-		ExcelImportExport export=new ExcelImportExportImpl();
-		List<SingleCarparkUser> allList = userModel.getAllList();
-		try {
-			export.exportUser(path, allList);
-			commonui.info("导出提示", "导出成功！");
-		} catch (Exception e) {
-			e.printStackTrace();
-			commonui.error("导出提示", "导出时发生错误！"+e.getMessage());
-		}
-	}
-
 	public void deleteAllHistory() {
 		try {
 			boolean confirm = commonui.confirm("提示", "确定删除所有的进出场、充值、归账记录？");

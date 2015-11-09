@@ -129,6 +129,9 @@ public class CarparkMainPresenter {
 			mapDeviceTabItem.remove(selection);
 			mapDeviceType.remove(ip);
 			mapIpToDevice.remove(ip);
+			if (mapIpToDevice.keySet().size()<=0) {
+				model.setCarpark(null);
+			}
 			com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 		}
 	}
@@ -149,6 +152,10 @@ public class CarparkMainPresenter {
 			
 			if (!StrUtil.isEmpty(model.getCarpark())) {
 				findAllCarpark=sp.getCarparkService().findSameCarpark(model.getCarpark());
+			}
+			if (StrUtil.isEmpty(findAllCarpark)) {
+				commonui.info("提示", "请先添加停车场");
+				return;
 			}
 			model.setList(findAllCarpark);
 			model.setType("tcp");

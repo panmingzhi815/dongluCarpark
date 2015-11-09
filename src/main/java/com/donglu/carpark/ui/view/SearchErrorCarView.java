@@ -87,6 +87,18 @@ public class SearchErrorCarView extends Composite implements View{
 		button.setText("使用进场车牌为准");
 		
 		TabFolder tabFolder = new TabFolder(this, SWT.NONE);
+		tabFolder.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String text = tabFolder.getSelection()[0].getText();
+				if (text.equals("无牌车")) {
+					model.setInOrOut(false);
+				}else{
+					model.setInOrOut(true);
+				}
+				
+			}
+		});
 		GridData gd_tabFolder = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
 		gd_tabFolder.widthHint = 252;
 		tabFolder.setLayoutData(gd_tabFolder);

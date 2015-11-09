@@ -20,6 +20,7 @@ import com.beust.jcommander.JCommander;
 import com.donglu.carpark.server.CarparkHardwareGuiceModule;
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.ServerUI;
+import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.service.CarparkClientLocalVMServiceProvider;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
@@ -297,6 +298,9 @@ public class Login {
 		String pwd = null ;
 		String type = null;
 		try {
+			if (!check()) {
+				return;
+			}
 			sp.start();
 			autoDeletePhoto();
 			if (Boolean.valueOf(System.getProperty(CHECK_SOFT_DOG)==null?"true":"false")) {
@@ -345,6 +349,26 @@ public class Login {
 			System.exit(0);
 		}
 	}
+	protected boolean check() {
+		try {
+			
+			String upload = FileuploadSend.upload("http://" + CarparkClientConfig.getInstance().getDbServerIp() + ":8899/server/", null);
+			String[] s = upload.split("/");
+
+			CarparkClientConfig instance = CarparkClientConfig.getInstance();
+			instance.setDbServerPort(s[1]);
+			instance.setDbServerUsername(s[2]);
+			instance.setDbServerPassword(s[3]);
+			FileUtils.writeObject(ClientConfigUI.CARPARK_CLIENT_CONFIG, instance);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			commonui.error("连接失败", "连接失败,请检查服务器状态");
+			return false;
+		}
+
+	}
+	
 	//检测加密狗
 	private void checkSoftDog() {
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
@@ -362,19 +386,6 @@ public class Login {
 					commonui.error("检查失败", "没有检测到注册码，请检测服务器加密狗");
 					System.exit(0);
 					return;
-				}else{
-					Date lastUpdate = findAllSN.get(SNSettingType.validTo).getLastUpdate();
-					if (StrUtil.isEmpty(lastUpdate)) {
-						commonui.error("检查失败", "获取注册码信息失败，请检测服务器加密狗");
-						System.exit(0);
-						return;
-					}
-					Date date = new DateTime(lastUpdate).plusHours(3).toDate();
-					if (date.before(new Date())) {
-						commonui.error("检查失败", "获取注册码信息失败，请检测服务器加密狗");
-						System.exit(0);
-						return;
-					}
 				}
 				LOGGER.info("检查注册码成功,有效期至{}",validTo);
 			}
