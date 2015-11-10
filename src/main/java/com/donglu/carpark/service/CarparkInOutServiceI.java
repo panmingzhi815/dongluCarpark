@@ -5,7 +5,9 @@ import java.util.List;
 
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 
 public interface CarparkInOutServiceI {
 	
@@ -59,7 +61,7 @@ public interface CarparkInOutServiceI {
 	 */
 	int findTotalSlotIsNow(SingleCarparkCarpark singleCarparkCarpark);
 
-	List<SingleCarparkInOutHistory> searchHistoryByLikePlateNO(String plateNO, boolean order);
+	List<SingleCarparkInOutHistory> searchHistoryByLikePlateNO(String plateNO, boolean order, List<SingleCarparkDevice> list);
 
 	List<SingleCarparkInOutHistory> findAddNoPlateNOHistory(boolean order);
 	/**
@@ -91,4 +93,12 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	float countTodayCharge(String plateNo);
+	/**
+	 * 保存抬杆记录
+	 * @param openDoor
+	 * @return
+	 */
+	Long saveOpenDoorLog(SingleCarparkOpenDoorLog openDoor);
+
+	List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName);
 }

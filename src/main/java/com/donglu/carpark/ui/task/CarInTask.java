@@ -51,10 +51,11 @@ public class CarInTask implements Runnable {
 	private final Map<SystemSettingTypeEnum, String> mapSystemSetting;
 	// 保存最近的手动拍照时间
 	private final Map<String, Date> mapHandPhotograph;
+	private final Map<String, Boolean> mapOpenDoor;
 
 	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, CLabel lbl_inBigImg,
 			CLabel lbl_inSmallImg, Shell shell, Map<String, Date> mapPlateNoDate, Map<String, SingleCarparkDevice> mapIpToDevice, Map<SystemSettingTypeEnum, String> mapSystemSetting,
-			Map<String, Date> mapHandPhotograph) {
+			Map<String, Date> mapHandPhotograph, Map<String, Boolean> mapOpenDoor) {
 		super();
 		this.ip = ip;
 		this.plateNO = plateNO;
@@ -70,9 +71,16 @@ public class CarInTask implements Runnable {
 		this.mapIpToDevice = mapIpToDevice;
 		this.mapSystemSetting = mapSystemSetting;
 		this.mapHandPhotograph = mapHandPhotograph;
+		this.mapOpenDoor=mapOpenDoor;
 	}
 
 	public void run() {
+		Boolean boolean1 = mapOpenDoor.get(ip);
+		if (boolean1!=null&&boolean1) {
+			mapOpenDoor.put(ip, null);
+			presenter.saveOpenDoor(mapIpToDevice.get(ip),bigImage, plateNO);
+			return;
+		}
 		Date date = new Date();
 		boolean checkPlateNODiscernGap = presenter.checkPlateNODiscernGap(mapPlateNoDate, plateNO, date);
 		if (!checkPlateNODiscernGap) {

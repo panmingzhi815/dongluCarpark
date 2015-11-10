@@ -95,7 +95,6 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			commonui.info("操作成功", "保存成功!");
 			refresh();
 		} catch (Exception e) {
-			e.printStackTrace();
 			commonui.info("操作失败", "保存用户失败!");
 		}
 
@@ -114,7 +113,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 				carparkUserService.deleteUser(singleCarparkUser);
 				userName+="["+singleCarparkUser.getName()+"]";
 			}
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了用户:"+userName);
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "删除了用户:"+userName);
 			commonui.info("成功", "删除用户成功");
 			refresh();
 		} catch (Exception e) {
@@ -148,6 +147,9 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			}
 
 			SingleCarparkUser singleCarparkUser = selectList.get(0);
+			if (singleCarparkUser.getType().equals("免费")) {
+				model.setFree(false);
+			}
 			model.setUserName(singleCarparkUser.getName());
 			model.setCreateTime(singleCarparkUser.getCreateDate());
 			model.setPlateNO(singleCarparkUser.getPlateNo());
@@ -168,6 +170,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			m.setOperaName(System.getProperty("userName"));
 			sp.getCarparkUserService().saveUser(singleCarparkUser);
 			sp.getCarparkService().saveMonthlyUserPayHistory(m.getSingleCarparkMonthlyUserPayHistory());
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了用户:"+singleCarparkUser.getName());
 			commonui.info("操作成功", "充值成功");
 			refresh();
 		} catch (Exception e) {
@@ -213,6 +216,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 		List<SingleCarparkUser> allList = view.getModel().getList();
 		try {
 			export.exportUser(path, allList);
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "导出了"+allList.size()+"条记录");
 			commonui.info("导出提示", "导出成功！");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -243,6 +247,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			SingleCarparkUser user = m.getSingleCarparkUser();
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
 			carparkUserService.saveUser(user);
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了用户:"+singleCarparkUser.getName());
 			commonui.info("操作成功", "修改成功!");
 			refresh();
 		} catch (Exception e) {

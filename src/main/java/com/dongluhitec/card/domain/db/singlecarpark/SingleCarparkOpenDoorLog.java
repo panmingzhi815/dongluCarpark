@@ -2,20 +2,17 @@ package com.dongluhitec.card.domain.db.singlecarpark;
 
 import java.util.Date;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
-public class SingleCarparkSystemOperaLog extends DomainObject{
+public class SingleCarparkOpenDoorLog extends DomainObject{
 	
 	public enum Property{
-		operaName,operaDate,type,content, operaDateLabel
+		operaName,operaDate,deviceName,image, operaDateLabel
 	}
 	/**
 	 * 
@@ -23,9 +20,8 @@ public class SingleCarparkSystemOperaLog extends DomainObject{
 	private static final long serialVersionUID = -3207836534894290785L;
 	private String operaName;
 	private Date operaDate;
-	@Enumerated(EnumType.STRING)
-	private SystemOperaLogTypeEnum type;
-	private String content;
+	private String deviceName;
+	private String image;
 	
 	public String getOperaName() {
 		return operaName;
@@ -47,21 +43,20 @@ public class SingleCarparkSystemOperaLog extends DomainObject{
 		if (pcs != null)
 			pcs.firePropertyChange("operaDate", null, null);
 	}
-	public SystemOperaLogTypeEnum getType() {
-		return type;
+	public String getDeviceName() {
+		return deviceName;
 	}
-	public void setType(SystemOperaLogTypeEnum type) {
-		this.type = type;
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
 		if (pcs != null)
-			pcs.firePropertyChange("type", null, null);
+			pcs.firePropertyChange("deviceName", null, null);
 	}
-	public String getContent() {
-		return content;
+	public String getImage() {
+		return image;
 	}
-	public void setContent(String content) {
-		this.content = content;
+	public void setImage(String image) {
+		this.image = image;
 		if (pcs != null)
-			pcs.firePropertyChange("content", null, null);
+			pcs.firePropertyChange("image", null, null);
 	}
-	
 }

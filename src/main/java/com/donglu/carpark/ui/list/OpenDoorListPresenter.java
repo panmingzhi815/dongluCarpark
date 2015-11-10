@@ -23,43 +23,45 @@ import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemOperaLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
-public class SystemLogListPresenter extends AbstractListPresenter<SingleCarparkSystemOperaLog>{
-	SystemLogListView view;
-	String operaName;
-	Date start;
-	Date end;
-	SystemOperaLogTypeEnum type;
-	
+public class OpenDoorListPresenter extends AbstractListPresenter<SingleCarparkOpenDoorLog>{
+	private OpenDoorLogListView view;
+	private String operaName;
+	private Date start;
+	private Date end;
+	private String deviceName;
 	@Inject
 	private CommonUIFacility commonui;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
 	@Override
 	public void go(Composite c) {
-		view=new SystemLogListView(c,c.getStyle());
+		view=new OpenDoorLogListView(c,c.getStyle());
 		view.setPresenter(this);
-		view.setTableTitle("操作员日志");
+		view.setTableTitle("手动抬杆记录");
+//		view.setShowMoreBtn(true);
 	}
 	@Override
 	public void refresh() {
-		List<SingleCarparkSystemOperaLog> findByNameOrPlateNo = sp.getSystemOperaLogService().findBySearch(operaName,start,end,type);
+		
+		List<SingleCarparkOpenDoorLog> findByNameOrPlateNo = sp.getCarparkInOutService().findOpenDoorLogBySearch(operaName,start,end,deviceName);
 		view.getModel().setList(findByNameOrPlateNo);
 		view.getModel().setCountSearch(findByNameOrPlateNo.size());
 		view.getModel().setCountSearchAll(findByNameOrPlateNo.size());
 	}
 
 	
-	public void search(String operaName, Date start, Date end, SystemOperaLogTypeEnum type) {
+	public void search(String operaName, Date start, Date end, String deviceName) {
 		this.operaName=operaName;
 		this.start=start;
 		this.end=end;
-		this.type=type;
+		this.deviceName=deviceName;
 		refresh();
 	}
 }

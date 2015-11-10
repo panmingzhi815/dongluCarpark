@@ -11,6 +11,7 @@ import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.wizard.AddBlackUserWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
@@ -43,9 +44,12 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 			if (!confirm) {
 				return;
 			}
+			String names="";
 			for (SingleCarparkBlackUser b : list) {
 				sp.getCarparkService().deleteBlackUser(b);
+				names+="["+b.getPlateNO()+"]";
 			}
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.黑名单, "删除黑名单:"+names);
 			refresh();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -82,6 +86,11 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 				return;
 			}
 			sp.getCarparkService().saveBlackUser(b);
+			if (StrUtil.isEmpty(singleCarparkBlackUser.getPlateNO())) {
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.黑名单, "添加黑名单:"+b.getPlateNO());
+			}else{
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.黑名单, "修改黑名单:"+b.getPlateNO());
+			}
 			refresh();
 		} catch (Exception e) {
 			e.printStackTrace();

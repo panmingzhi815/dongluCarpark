@@ -15,6 +15,7 @@ import com.dongluhitec.card.ui.util.WidgetUtil;
 public class AddUserWizard extends Wizard implements AbstractWizard {
 	AddUserModel model;
 	private AddUserWizardPage page;
+	private MonthlyUserPayBasicPage page2;
 
 	public AddUserWizard(AddUserModel model) {
 		this.model = model;
@@ -30,7 +31,8 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 		page = new AddUserWizardPage(model);
 		addPage(page);
 		if (!StrUtil.isEmpty(model.getModel())) {
-			addPage(new MonthlyUserPayBasicPage(model.getModel()));
+			page2 = new MonthlyUserPayBasicPage(model.getModel());
+			addPage(page2);
 		}
 		getShell().setSize(450, 650);
 		WidgetUtil.center(getShell());
@@ -38,7 +40,33 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 
 	@Override
 	public boolean performFinish() {
-		
+		if (model.getType().equals("普通")) {
+			MonthlyUserPayModel m = model.getModel();
+			if (!StrUtil.isEmpty(m)) {
+				if (StrUtil.isEmpty(m.getSelectMonth())) {
+					page2.setErrorMessage("请选择月租类型");
+					return false;
+				}
+				if (StrUtil.isEmpty(m.getChargesMoney())) {
+					page2.setErrorMessage("请输入充值金额");
+					return false;
+				}
+			}
+		}
+		if (!StrUtil.isEmpty(model.getModel())) {
+			if (StrUtil.isEmpty(model.getModel().getOverdueTime())) {
+				page.setErrorMessage("固定用户必须有个有效期");
+				return false;
+			}
+		}
+		page.setErrorMessage(null);
+		return true;
+	}
+
+	/**
+	 * 
+	 */
+	public boolean check() {
 		if (StrUtil.isEmpty(model.getPlateNo())) {
 			page.setErrorMessage("车牌不正确,请输入正确车牌");
 			return false;
@@ -54,7 +82,6 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 			page.setErrorMessage("用户名不能为空");
 			return false;
 		}
-		page.setErrorMessage(null);
 		return true;
 	}
 
@@ -73,11 +100,11 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 		m.setUserName(model.getName());
 		m.setCreateTime(model.getCreateDate());
 		m.setCreateTimeLabel(m.getCreateTimeLabel());
+		if (model.getType().equals("免费")) {
+			m.setFree(false);
+		}else{
+			m.setFree(true);
+		}
 		return super.getNextPage(page);
-	}
-	public static void main(String[] args) {
-		String s="^[\u4e00-\u9fa5][A-Za-z0-9]{6}$";
-		boolean matches = "月sssssss".matches(s);
-		System.out.println(matches);
 	}
 }

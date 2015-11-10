@@ -16,7 +16,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
-public class CarparkPayHistoryListPresenter  extends AbstractListPresenter{
+public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<SingleCarparkMonthlyUserPayHistory>{
 	
 	private CarparkPayHistoryListView view;
 	@Inject

@@ -96,6 +96,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+			c.add(Restrictions.isNotNull("validTo"));
 			
 			if (!StrUtil.isEmpty(plateNO)) {
 				c.add(Restrictions.like("plateNo", plateNO));

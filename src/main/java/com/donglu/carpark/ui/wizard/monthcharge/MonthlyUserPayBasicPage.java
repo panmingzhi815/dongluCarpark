@@ -42,9 +42,7 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 	private MonthlyUserPayModel model;
 	private Composite container;
 	private Control text_username;
-	private Control text_userIdCard;
 	private Text text_monthMoney;
-	private Text text_createTime;
 	private Text text_chargesMoney;
 	private DateChooserCombo dateChooserCombo;
 	private ComboViewer cbv_chargesCount;
@@ -78,31 +76,19 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 
 		Label label_10 = new Label(composite, SWT.NONE);
 		label_10.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_10.setText("用户名");
+		label_10.setText("用户名称");
 		text_username = new Text(composite, SWT.BORDER | SWT.READ_ONLY);
 		text_username.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_username.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Label label_8 = new Label(composite, SWT.NONE);
-		label_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_8.setText("身份证号");
-		text_userIdCard = new Text(composite, SWT.BORDER | SWT.READ_ONLY);
-		text_userIdCard.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_userIdCard.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		GridData gd_text_username = new GridData(GridData.FILL_HORIZONTAL);
+		gd_text_username.widthHint = 150;
+		text_username.setLayoutData(gd_text_username);
 
 		Label label_9 = new Label(composite, SWT.NONE);
 		label_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_9.setText("车 牌 号");
+		label_9.setText("车牌号码");
 		carCode = new Text(composite, SWT.BORDER | SWT.READ_ONLY);
 		carCode.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		carCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-
-		Label label_1 = new Label(composite, SWT.NONE);
-		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_1.setText("创建日期");
-		text_createTime = new Text(composite, SWT.BORDER | SWT.READ_ONLY);
-		text_createTime.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_createTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
 		Label label_2 = new Label(composite, SWT.NONE);
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -220,10 +206,6 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		IObservableValue userNameModelObserveValue = BeanProperties.value("userName").observe(model);
 		bindingContext.bindValue(observeTextText_usernameObserveWidget, userNameModelObserveValue, null, null);
 		//
-		IObservableValue observeTextText_userIdCardObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_userIdCard);
-		IObservableValue userIdCardModelObserveValue = BeanProperties.value("userIdCard").observe(model);
-		bindingContext.bindValue(observeTextText_userIdCardObserveWidget, userIdCardModelObserveValue, null, null);
-		//
 		IObservableValue observeTextCarCodeObserveWidget = WidgetProperties.text(SWT.Modify).observe(carCode);
 		IObservableValue plateNOModelObserveValue = BeanProperties.value("plateNO").observe(model);
 		bindingContext.bindValue(observeTextCarCodeObserveWidget, plateNOModelObserveValue, null, null);
@@ -256,9 +238,15 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		IObservableValue chargesMoneyModelObserveValue = BeanProperties.value("chargesMoney").observe(model);
 		bindingContext.bindValue(observeTextText_chargesMoneyObserveWidget, chargesMoneyModelObserveValue, null, null);
 		//
-		IObservableValue observeTextText_createTimeObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_createTime);
-		IObservableValue createTimeLabelModelObserveValue = BeanProperties.value("createTimeLabel").observe(model);
-		bindingContext.bindValue(observeTextText_createTimeObserveWidget, createTimeLabelModelObserveValue, null, null);
+		IObservableValue observeEnabledCombo_1ObserveWidget = WidgetProperties.enabled().observe(combo_1);
+		IObservableValue freeModelObserveValue = BeanProperties.value("free").observe(model);
+		bindingContext.bindValue(observeEnabledCombo_1ObserveWidget, freeModelObserveValue, null, null);
+		//
+		IObservableValue observeEnabledComboObserveWidget = WidgetProperties.enabled().observe(combo);
+		bindingContext.bindValue(observeEnabledComboObserveWidget, freeModelObserveValue, null, null);
+		//
+		IObservableValue observeEnabledText_chargesMoneyObserveWidget = WidgetProperties.enabled().observe(text_chargesMoney);
+		bindingContext.bindValue(observeEnabledText_chargesMoneyObserveWidget, freeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

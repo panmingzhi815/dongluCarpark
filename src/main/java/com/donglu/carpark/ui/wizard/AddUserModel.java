@@ -13,6 +13,7 @@ public class AddUserModel extends SingleCarparkUser {
 	
 	private MonthlyUserPayModel model;
 	private int totalSlot=0;
+	private boolean free;
 
 	public List<SingleCarparkCarpark> getAllList() {
 		return allList;
@@ -80,5 +81,15 @@ public class AddUserModel extends SingleCarparkUser {
 		this.totalSlot = totalSlot;
 		if (pcs != null)
 			pcs.firePropertyChange("totalSlot", null, null);
+	}
+
+	public boolean isFree() {
+		return free;
+	}
+
+	public void setFree(boolean free) {
+		this.free = free;
+		if (pcs != null)
+			pcs.firePropertyChange("free", null, null);
 	}
 }

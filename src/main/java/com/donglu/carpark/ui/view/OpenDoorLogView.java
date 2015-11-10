@@ -32,12 +32,13 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.nebula.widgets.cdatetime.CDateTime;
 import org.eclipse.nebula.widgets.cdatetime.CDT;
 
-public class SystemLogView extends Composite implements View{
+public class OpenDoorLogView extends Composite implements View{
 	private Presenter presenter;
 	private Composite listComposite;
 	private Text text_name;
+	private Text text_device;
 
-	public SystemLogView(Composite parent, int style) {
+	public OpenDoorLogView(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout(1, false));
 		Font font = SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL);
@@ -55,6 +56,17 @@ public class SystemLogView extends Composite implements View{
 		text_name = new Text(group, SWT.BORDER);
 		text_name.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_name.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_3 = new Label(group, SWT.NONE);
+		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_3.setText("操作设备");
+		
+		text_device = new Text(group, SWT.BORDER);
+		text_device.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text_device = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_text_device.widthHint = 88;
+		text_device.setLayoutData(gd_text_device);
 		
 		Label label_1 = new Label(group, SWT.NONE);
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -74,29 +86,12 @@ public class SystemLogView extends Composite implements View{
 		dateTime_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		dateTime_1.setPattern("yyyy-MM-dd HH:mm");
 		dateTime_1.setSelection(new Date());
-		Label label_3 = new Label(group, SWT.NONE);
-		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_3.setText("操作对象");
-		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
-		ComboViewer comboViewer = new ComboViewer(group, SWT.NONE);
-		Combo combo = comboViewer.getCombo();
-		comboViewer.setContentProvider(new ArrayContentProvider());
-		comboViewer.setLabelProvider(new LabelProvider());
-		comboViewer.setInput(SystemOperaLogTypeEnum.values());
-		combo.select(0);
-		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		GridData gd_combo = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_combo.widthHint = 66;
-		combo.setLayoutData(gd_combo);
 		
 		Button button = new Button(group, SWT.NONE);
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
-				int selectionIndex = combo.getSelectionIndex();
-				getPresenter().search(text_name.getText(), dateTime.getSelection(), dateTime_1.getSelection(), SystemOperaLogTypeEnum.values()[selectionIndex]);
+				getPresenter().search(text_name.getText(), dateTime.getSelection(), dateTime_1.getSelection(),text_device.getText());
 			}
 		});
 		button.setText("查询");
@@ -113,8 +108,8 @@ public class SystemLogView extends Composite implements View{
 	}
 
 	@Override
-	public SystemLogPresenter getPresenter() {
-		return (SystemLogPresenter) presenter;
+	public OpenDoorLogPresenter getPresenter() {
+		return (OpenDoorLogPresenter) presenter;
 	}
 
 	public Composite getListComposite() {

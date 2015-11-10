@@ -27,8 +27,7 @@ public class SearchErrorCarPresenter implements Presenter{
 	}
 	
 	public void search(boolean order){
-		model.setHavePlateNoList(sp.getCarparkInOutService().searchHistoryByLikePlateNO(model.getPlateNo(),order));
-		model.setNoPlateNoList(sp.getCarparkInOutService().findAddNoPlateNOHistory(order));
+		model.setHavePlateNoList(sp.getCarparkInOutService().searchHistoryByLikePlateNO(model.getPlateNo(),order,model.getListDevice()));
 	}
 	private void refresh() {
 		search(false);

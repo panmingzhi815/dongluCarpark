@@ -1,9 +1,12 @@
 package com.donglu.carpark.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 
 public class SearchErrorCarModel extends DomainObject {
@@ -18,6 +21,10 @@ public class SearchErrorCarModel extends DomainObject {
 	private String saveBigImg;
 	private String saveSmallImg;
 	private boolean inOrOut=true;
+	
+	private SingleCarparkCarpark carpark;
+	
+	private List<SingleCarparkDevice> listDevice=new ArrayList<>();
 	public List<SingleCarparkInOutHistory> getHavePlateNoList() {
 		return havePlateNoList;
 	}
@@ -103,5 +110,22 @@ public class SearchErrorCarModel extends DomainObject {
 		this.saveSmallImg = saveSmallImg;
 		if (pcs != null)
 			pcs.firePropertyChange("saveSmallImg", null, null);
+	}
+	public SingleCarparkCarpark getCarpark() {
+		return carpark;
+	}
+	public void setCarpark(SingleCarparkCarpark carpark) {
+		this.carpark = carpark;
+		if (pcs != null)
+			pcs.firePropertyChange("carpark", null, null);
+	}
+	public List<SingleCarparkDevice> getListDevice() {
+		return listDevice;
+	}
+	public void setListDevice(Collection<SingleCarparkDevice> listDevice) {
+		this.listDevice.clear();
+		this.listDevice.addAll(listDevice);
+		if (pcs != null)
+			pcs.firePropertyChange("listDevice", null, null);
 	}
 }

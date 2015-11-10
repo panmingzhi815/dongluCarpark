@@ -165,7 +165,6 @@ public class CarparkManageApp extends AbstractApp{
 				display.sleep();
 			}
 		}
-		System.exit(0);
 	}
 
 	private void init() {
@@ -440,6 +439,22 @@ public class CarparkManageApp extends AbstractApp{
 		tabItem_2.setControl(composite_returnAccount_search);
 		presenter.getReturnAccountPresenter().go(composite_returnAccount_search);
 		composite_returnAccount_search.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
+		TabItem tabItem_1 = new TabItem(tabFolder_searchHistory, SWT.NONE);
+		tabItem_1.setText("操作员日志");
+		
+		Composite composite_2 = new Composite(tabFolder_searchHistory, SWT.NONE);
+		tabItem_1.setControl(composite_2);
+		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
+		presenter.getSystemLogPresenter().go(composite_2);
+		
+		TabItem tbtmNewItem_4 = new TabItem(tabFolder_searchHistory, SWT.NONE);
+		tbtmNewItem_4.setText("手动抬杆记录");
+		
+		Composite composite_17 = new Composite(tabFolder_searchHistory, SWT.NONE);
+		tbtmNewItem_4.setControl(composite_17);
+		composite_17.setLayout(new FillLayout(SWT.HORIZONTAL));
+		presenter.getOpenDoorLogPresenter().go(composite_17);
 		TabItem tbtmNewItem_1 = new TabItem(tabFolder, SWT.NONE);
 		tbtmNewItem_1.setText("系统用户");
 		
@@ -564,7 +579,7 @@ public class CarparkManageApp extends AbstractApp{
 			}
 		});
 		button_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_4.setText("临时车入场是否确认");
+		button_4.setText("临时车入场是否需要确认");
 		
 		String string6 = mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许储值车入场);
 		
@@ -616,7 +631,7 @@ public class CarparkManageApp extends AbstractApp{
 			}
 		});
 		button_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_5.setText("固定车入场是否确认");
+		button_5.setText("固定车入场是否需要确认");
 		
 		Button button_12 = new Button(group_4, SWT.CHECK);
 		button_12.addSelectionListener(new SelectionAdapter() {
@@ -627,7 +642,7 @@ public class CarparkManageApp extends AbstractApp{
 		});
 		button_12.setToolTipText("选中后，无牌车可以进入停车场");
 		button_12.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_12.setText("是否允许无牌车进入");
+		button_12.setText("是否允许无牌车进入停车场");
 		button_12.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进)==null?SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进)));
 		
 		String string9 = mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认);
@@ -661,7 +676,7 @@ public class CarparkManageApp extends AbstractApp{
 			}
 		});
 		button_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_7.setText("固定车出场是否确认");
+		button_7.setText("固定车出场是否需要确认");
 		
 		String string0 = mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认);
 		if (string0==null) {
@@ -679,7 +694,7 @@ public class CarparkManageApp extends AbstractApp{
 		});
 		button_11.setToolTipText("当选中时，出场收费放行会弹出确认框");
 		button_11.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_11.setText("出场确认放行");
+		button_11.setText("出场收费时是否需要确认");
 		button_11.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行)==null?SystemSettingTypeEnum.出场确认放行.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行)));
 		
 		Composite composite_6 = new Composite(group_4, SWT.NONE);
@@ -776,15 +791,15 @@ public class CarparkManageApp extends AbstractApp{
 		button_8.setText("备份");
 		
 		Composite composite_15 = new Composite(group_4, SWT.NONE);
-		composite_15.setLayout(new GridLayout(5, false));
+		composite_15.setLayout(new GridLayout(3, false));
 		composite_15.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
 		
 		Label label_12 = new Label(composite_15, SWT.NONE);
 		label_12.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_label_12 = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_label_12.widthHint = 108;
+		gd_label_12.widthHint = 135;
 		label_12.setLayoutData(gd_label_12);
-		label_12.setText("图片存放位置");
+		label_12.setText("抓拍图片存放位置");
 		
 		text_setting_imgSave = new Text(composite_15, SWT.BORDER);
 		text_setting_imgSave.setEditable(false);
@@ -823,8 +838,15 @@ public class CarparkManageApp extends AbstractApp{
 			}
 		});
 		button_9.setText("...");
+		String autoDeleteImg = mapSystemSetting.get(SystemSettingTypeEnum.是否自动删除图片);
+		Boolean valueOf = Boolean.valueOf(autoDeleteImg==null?SystemSettingTypeEnum.是否自动删除图片.getDefaultValue():autoDeleteImg);
+		String imgSaveMonth = mapSystemSetting.get(SystemSettingTypeEnum.图片保存多少天);
 		
-		Button btn_imgSaveMonth = new Button(composite_15, SWT.CHECK);
+		Composite composite_16 = new Composite(group_4, SWT.NONE);
+		composite_16.setLayout(new GridLayout(2, false));
+		composite_16.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
+		
+		Button btn_imgSaveMonth = new Button(composite_16, SWT.CHECK);
 		btn_imgSaveMonth.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -844,13 +866,13 @@ public class CarparkManageApp extends AbstractApp{
 			}
 		});
 		btn_imgSaveMonth.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		btn_imgSaveMonth.setText("保存多少月的照片");
-		String autoDeleteImg = mapSystemSetting.get(SystemSettingTypeEnum.是否自动删除图片);
-		Boolean valueOf = Boolean.valueOf(autoDeleteImg==null?SystemSettingTypeEnum.是否自动删除图片.getDefaultValue():autoDeleteImg);
+		btn_imgSaveMonth.setText("保存多少天的照片");
 		btn_imgSaveMonth.setSelection(valueOf.booleanValue());
-		String imgSaveMonth = mapSystemSetting.get(SystemSettingTypeEnum.图片保存多少天);
 		
-		text_setting_imgSaveDays = new Text(composite_15, SWT.BORDER);
+		text_setting_imgSaveDays = new Text(composite_16, SWT.BORDER);
+		GridData gd_text_setting_imgSaveDays = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_text_setting_imgSaveDays.widthHint = 67;
+		text_setting_imgSaveDays.setLayoutData(gd_text_setting_imgSaveDays);
 		text_setting_imgSaveDays.addKeyListener(new KeyAdapter() {
 			String oldText="";
 			@Override
@@ -869,7 +891,6 @@ public class CarparkManageApp extends AbstractApp{
 			}
 		});
 		text_setting_imgSaveDays.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_setting_imgSaveDays.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		text_setting_imgSaveDays.setText(imgSaveMonth==null?SystemSettingTypeEnum.图片保存多少天.getDefaultValue():imgSaveMonth);
 		Composite composite_7 = new Composite(group_4, SWT.NONE);

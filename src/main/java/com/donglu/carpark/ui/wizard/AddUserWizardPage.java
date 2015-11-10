@@ -89,7 +89,7 @@ public class AddUserWizardPage extends WizardPage {
 		text.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				setPageComplete(getWizard().performFinish());
+				setPageComplete(getWizard().check());
 			}
 		});
 		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -110,7 +110,7 @@ public class AddUserWizardPage extends WizardPage {
 		text_1.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				setPageComplete(getWizard().performFinish());
+				setPageComplete(getWizard().check());
 			}
 		});
 		Label label_2 = new Label(composite, SWT.NONE);

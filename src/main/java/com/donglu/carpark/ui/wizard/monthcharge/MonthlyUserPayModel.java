@@ -14,6 +14,7 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 	private List<SingleCarparkMonthlyCharge> allmonth=new ArrayList<>();
 	private SingleCarparkMonthlyCharge selectMonth;
 	private String createTimeLabel;
+	private boolean free=true;
 	public int getCount() {
 		return count;
 	}
@@ -70,5 +71,15 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 		this.createTimeLabel = createTimeLabel;
 		if (pcs != null)
 			pcs.firePropertyChange("createTimeLabel", null, null);
+	}
+
+	public boolean isFree() {
+		return free;
+	}
+
+	public void setFree(boolean free) {
+		this.free = free;
+		if (pcs != null)
+			pcs.firePropertyChange("free", null, null);
 	}
 }

@@ -21,7 +21,7 @@ public class CarparkChargeStandard extends DomainObject{
 
 	public static enum Property{
 		id,carparkCarType,code,name,carparkDurationTypeEnum,onedayMaxCharge,freeTime,carparkAcrossDayTypeEnum,
-		acrossdayChargeEnable,carparkHolidayTypeEnum,carparkDurationStandards, carpark, startStepTime, startStepPrice
+		acrossdayChargeEnable,carparkHolidayTypeEnum,carparkDurationStandards, carpark, startStepTime, startStepPrice,using
 	}
 
 	public static enum Query{

@@ -8,6 +8,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tray;
+import org.eclipse.swt.widgets.TrayItem;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -68,6 +70,9 @@ import org.eclipse.swt.events.KeyEvent;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -89,6 +94,10 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.graphics.Point;
 
 public class Login {
+	private static final String SYSTEM_TEMP = "system.temp";
+
+	private static final String MONITOR_TEMP = "monitor.temp";
+
 	public static final String CHECK_SOFT_DOG = "checkSoftDog";
 
 	private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
@@ -119,6 +128,11 @@ public class Login {
 	 */
 	public static void main(final String[] args) {
 		Display display = Display.getDefault();
+		Tray systemTray = display.getSystemTray();
+		TrayItem[] items = systemTray.getItems();
+		for (TrayItem trayItem : items) {
+			System.out.println(trayItem.getText());
+		}
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
 			public void run() {
 				try {
@@ -141,7 +155,6 @@ public class Login {
 				} catch (Exception e) {
 					e.printStackTrace();
 					LOGGER.error("main is error");
-					System.exit(0);
 				}
 			}
 		});
@@ -151,16 +164,28 @@ public class Login {
 	 * Open the window.
 	 */
 	public void open() {
-		Display display = Display.getDefault();
-		createContents();
-		WidgetUtil.center(shell);
-		shell.open();
-		shell.setImage(JFaceUtil.getImage("carpark_16"));
-		shell.layout();
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
+		try {
+			File f=new File(MONITOR_TEMP);
+			if (f.exists()) {
+				f.delete();
 			}
+			f=new File(SYSTEM_TEMP);
+			if (f.exists()) {
+				f.delete();
+			}
+			Display display = Display.getDefault();
+			createContents();
+			WidgetUtil.center(shell);
+			shell.open();
+			shell.setImage(JFaceUtil.getImage("carpark_16"));
+			shell.layout();
+			while (!shell.isDisposed()) {
+				if (!display.readAndDispatch()) {
+					display.sleep();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -198,7 +223,6 @@ public class Login {
 		lblNewLabel.setText("用户名");
 
 		txt_userName = new Text(composite, SWT.BORDER);
-		txt_userName.setText("admin");
 		txt_userName.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_txt_userName = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_txt_userName.widthHint = 150;
@@ -210,7 +234,6 @@ public class Login {
 		lblNewLabel_1.setText("密    码");
 
 		txt_password = new Text(composite, SWT.BORDER | SWT.PASSWORD);
-		txt_password.setText("admin");
 		txt_password.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
@@ -323,19 +346,41 @@ public class Login {
 			lbl_msg.setText(e1.getMessage());
 			return;
 		}
+		File file=null;
+		RandomAccessFile raf=null;
+		FileChannel channel=null;
+		FileLock tryLock=null;
 		try {
 			String loginApp=combo.getText();
 			if (type.equals("操作员")) {
 				shell.setVisible(false);
 				app=carparkMainApp;
 				app.open();
-			}
-			else{
+			}else{
 				shell.setVisible(false);
 				if (loginApp.equals("监控界面")) {
+					file=new File(MONITOR_TEMP);
+					if (file.exists()) {
+						commonui.error("错误", "已经打开了监控界面");
+						return;
+					}
+					file.createNewFile();
+					raf = new RandomAccessFile(file, "rw");
+					channel = raf.getChannel();
+					tryLock = channel.tryLock();
 					app=carparkMainApp;
 					app.open();
 				}else if(loginApp.equals("管理界面")){
+					file=new File(SYSTEM_TEMP);
+					if (file.exists()) {
+						commonui.error("错误", "已经打开了管理界面");
+						return;
+					}
+					file.createNewFile();
+					raf = new RandomAccessFile(file, "rw");
+					channel = raf.getChannel();
+					tryLock = channel.tryLock();
+					
 					app=carparkManageApp;
 					app.open();
 				}
@@ -346,6 +391,18 @@ public class Login {
 //			app.setShell(new Shell());
 //			app.open();
 //			shell.setVisible(true);
+			
+		}finally{
+			try {
+				tryLock.release();
+				raf.close();
+				boolean delete = false;
+				while (!delete) {
+					delete=file.delete();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			System.exit(0);
 		}
 	}

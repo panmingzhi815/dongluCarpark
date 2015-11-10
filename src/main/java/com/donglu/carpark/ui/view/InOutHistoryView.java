@@ -142,7 +142,7 @@ public class InOutHistoryView extends Composite implements View{
 		ComboViewer comboViewer_inout = new ComboViewer(group, SWT.READ_ONLY);
 		comboViewer_inout.setContentProvider(new ArrayContentProvider());
 		comboViewer_inout.setLabelProvider(new LabelProvider());
-		comboViewer_inout.setInput(new String[]{"无","是","否"});
+		comboViewer_inout.setInput(new String[]{"全部","是","否"});
 		combo_inorout = comboViewer_inout.getCombo();
 		combo_inorout.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		combo_inorout.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));

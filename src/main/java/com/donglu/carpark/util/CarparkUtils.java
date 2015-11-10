@@ -422,4 +422,7 @@ public class CarparkUtils {
 		String file=System.getProperty("user.dir")+"\\img\\"+name;
 		return SWTResourceManager.getImage(file);
 	}
+	public static String getUserName() {
+		return System.getProperty("userName");
+	}
 }

@@ -245,7 +245,6 @@ public class ImageServerUI {
 				shell.setFocus();
 				text.setFocus();
 			}
-			
 		});
 		
 		Label label = new Label(shell, SWT.NONE);
@@ -364,7 +363,7 @@ public class ImageServerUI {
 					e.printStackTrace();
 				}
 			}
-		}, 10, 60*30, TimeUnit.SECONDS);
+		}, 30, 60*30, TimeUnit.SECONDS);
 		
 	}
 

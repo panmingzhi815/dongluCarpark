@@ -56,6 +56,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
@@ -558,7 +559,6 @@ public class CarparkMainPresenter {
 	public boolean openDoor(SingleCarparkDevice device) {
 		try {
 			Boolean carparkOpenDoor = hardwareService.carparkOpenDoor(getDevice(device));
-			Thread.sleep(1000);
 			Set<String> keySet = mapIpToDevice.keySet();
 			for (String string : keySet) {
 				showPositionToDevice(mapIpToDevice.get(string), model.getTotalSlot());
@@ -776,7 +776,8 @@ public class CarparkMainPresenter {
 			searchErrorCarPresenter.getModel().setNoPlateNoSelect(null);
 			searchErrorCarPresenter.getModel().setSaveBigImg(bigImg);
 			searchErrorCarPresenter.getModel().setSaveSmallImg(smallImg);
-
+			searchErrorCarPresenter.getModel().setCarpark(model.getCarpark());
+			searchErrorCarPresenter.getModel().setListDevice(mapIpToDevice.values());
 			searchErrorCarPresenter.setSystemSetting(mapSystemSetting);
 			SearchHistoryByHandWizard wizard = new SearchHistoryByHandWizard(searchErrorCarPresenter);
 			Object showWizard = commonui.showWizard(wizard);
@@ -826,5 +827,20 @@ public class CarparkMainPresenter {
 			}
 		}
 		return true;
+	}
+
+	public void saveOpenDoor(SingleCarparkDevice device, byte[] image, String plateNO) {
+		Date date=new Date();
+		String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
+		String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
+		String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
+		saveImage(folder, bigImgFileName, image);
+		SingleCarparkOpenDoorLog openDoor=new SingleCarparkOpenDoorLog();
+		openDoor.setOperaName(CarparkUtils.getUserName());
+		openDoor.setOperaDate(date);
+		openDoor.setImage(bigImgFileName);
+		openDoor.setDeviceName(device.getName());
+		sp.getCarparkInOutService().saveOpenDoorLog(openDoor);
+		showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
 	}
 }

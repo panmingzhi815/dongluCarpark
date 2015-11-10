@@ -22,6 +22,9 @@ public class InOutHistoryPresenter  extends AbstractListPresenter{
 		listPresenter.go(view.getListComposite());
 	}
 	public void search(String plateNo, String returnUser, Date start, Date end, String operaName, String carType, String inout, String inDevice, String outDevice, String returnAccount) {
+		if (inout.equals("否")) {
+			listPresenter.search( null,  null,  null,  null,  null,  null,  inout,  null,  null,  null);
+		}else
 		listPresenter.search( plateNo,  returnUser,  start,  end,  operaName,  carType,  inout,  inDevice,  outDevice,  returnAccount);
 	}
 	public int[] countMoney() {

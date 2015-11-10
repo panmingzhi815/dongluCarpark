@@ -101,6 +101,7 @@ import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackAdapter;
 
 public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private static final String BTN_HANDSEARCH_SMALL_IMG = "smallImg";
@@ -123,7 +124,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 	private static final String CAR_IS_ARREARS = "车辆已到期,请联系管理员";
 
-	private static final String CAR_OUT_MSG = "祝您一路平安";
+	static final String CAR_OUT_MSG = "祝您一路平安";
 
 	private static final String CAR_IN_MSG = "欢迎光临,请入场停车";
 
@@ -195,6 +196,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private Map<SystemSettingTypeEnum, String> mapSystemSetting = Maps.newHashMap();
 	// 保存车牌最近的处理时间
 	Map<String, Date> mapPlateNoDate = Maps.newHashMap();
+	Map<String, Boolean> mapOpenDoor=Maps.newHashMap();
 	// 进口tab
 	private CTabFolder tabInFolder;
 	// 出口tab
@@ -318,8 +320,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				display.sleep();
 			}
 		}
-		commonui.confirm("提示", "车牌抓拍数：" + plateNoTotal.intValue(), new Shell());
-		System.exit(0);
 	}
 
 	/**
@@ -452,6 +452,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				if (StrUtil.isEmpty(selection)) {
 					return;
 				}
+//				mapOpenDoor.put(mapDeviceTabItem.get(selection), true);
 				presenter.showContentToDevice(mapIpToDevice.get(mapDeviceTabItem.get(selection)), CAR_IN_MSG, true);
 				// presenter.openDoor(mapIpToDevice.get(mapDeviceTabItem.get(selection)));
 			}
@@ -531,7 +532,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				if (StrUtil.isEmpty(selection)) {
 					return;
 				}
-				presenter.showContentToDevice(mapIpToDevice.get(mapDeviceTabItem.get(selection)), CAR_OUT_MSG, true);
+				
+				String ip = mapDeviceTabItem.get(selection);
+				mapOpenDoor.put(ip, true);
+				handPhotograph(ip);
+//				presenter.showContentToDevice(mapIpToDevice.get(mapDeviceTabItem.get(selection)), CAR_OUT_MSG, true);
 				// presenter.openDoor(mapIpToDevice.get(mapDeviceTabItem.get(selection)));
 			}
 		});
@@ -1139,6 +1144,16 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		composite_16.setLayout(new GridLayout(2, false));
 		
 		lbl_charge = new Label(composite_16, SWT.NONE);
+		lbl_charge.addMouseTrackListener(new MouseTrackAdapter() {
+			@Override
+			public void mouseExit(MouseEvent e) {
+				System.out.println("mouse Exit");
+			}
+			@Override
+			public void mouseHover(MouseEvent e) {
+				System.out.println("mouse hover");
+			}
+		});
 		lbl_charge.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
 		lbl_charge.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1415,12 +1430,18 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			});
 		} else if (mapDeviceType.get(ip).equals("进口")) {
 			inThreadPool.submit(
-					new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_inBigImg, lbl_inSmallImg, shell, mapPlateNoDate, mapIpToDevice, mapSystemSetting, mapHandPhotograph));
+					new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_inBigImg, lbl_inSmallImg, shell, mapPlateNoDate, mapIpToDevice, mapSystemSetting, mapHandPhotograph,mapOpenDoor));
 		}
 	}
 
 	// 停车场出
 	private void carparkOutTask(final String ip, final String plateNO, final byte[] bigImage, final byte[] smallImage) {
+		Boolean boolean1 = mapOpenDoor.get(ip);
+		if (boolean1!=null&&boolean1) {
+			mapOpenDoor.put(ip, null);
+			presenter.saveOpenDoor(mapIpToDevice.get(ip),bigImage, plateNO);
+			return;
+		}
 		discontinue = false;
 		model.setHandSearch(false);
 		long nanoTime = System.nanoTime();
@@ -1758,10 +1779,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private boolean chargeCarPass(SingleCarparkDevice device, SingleCarparkInOutHistory singleCarparkInOutHistory, boolean check) {
 
 		try {
-			Float shouldMoney = singleCarparkInOutHistory.getShouldMoney();
+			Float shouldMoney = model.getShouldMony();
 			float factMoney = model.getReal();
 			if (factMoney > shouldMoney) {
-				commonui.error("收费提示", "实时不能超过应收");
+				commonui.error("收费提示", "实时不能超过应收"+shouldMoney+"元");
 				return false;
 			}
 			if (factMoney<0) {
@@ -1775,6 +1796,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				}
 			}
 			float freeMoney = shouldMoney - factMoney;
+			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
 			singleCarparkInOutHistory.setFactMoney(factMoney);
 			singleCarparkInOutHistory.setFreeMoney(freeMoney);
 			singleCarparkInOutHistory.setCarType("临时车");
