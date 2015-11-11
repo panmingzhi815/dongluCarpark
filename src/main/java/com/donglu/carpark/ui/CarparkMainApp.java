@@ -306,7 +306,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	public void open() {
 		userType = System.getProperty("userType");
 		if (StrUtil.isEmpty(userType)) {
-			System.exit(0);
+			systemExit();
 		}
 		init();
 		Display display = Display.getDefault();
@@ -320,6 +320,18 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				display.sleep();
 			}
 		}
+		systemExit();
+	}
+
+	/**
+	 * 
+	 */
+	public void systemExit() {
+		 outTheadPool.shutdownNow();
+
+		inThreadPool.shutdownNow();
+
+		refreshService.shutdownNow();
 		System.exit(0);
 	}
 
@@ -394,7 +406,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				if (!confirm) {
 					e.doit = false;
 				}else{
-					System.exit(0);
+					systemExit();
 				}
 			}
 		});

@@ -101,7 +101,7 @@ public class Login {
 	public static final String CHECK_SOFT_DOG = "checkSoftDog";
 
 	private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
-	
+
 	protected Shell shell;
 	private Text txt_userName;
 	private Text txt_password;
@@ -113,13 +113,12 @@ public class Login {
 	private CarparkMainApp carparkMainApp;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
-	private final String selectType="LoginSelectType";
+	private final String selectType = "LoginSelectType";
 	private App app;
 	@Inject
 	private ClientConfigUI clientConfigUI;
 	@Inject
 	private CommonUIFacility commonui;
-	
 
 	/**
 	 * Launch the application.
@@ -139,17 +138,17 @@ public class Login {
 					DongluUIAppConfigurator configurator = new DongluUIAppConfigurator();
 					new JCommander(configurator, args);
 					Injector createInjector = Guice.createInjector(new AbstractModule() {
-                        @Override
-                        protected void configure() {
-                            this.bindConstant().annotatedWith(Names.named("HBM2DDL")).to("update");
-                            this.bind(HardwareFacility.class).to(HardwareFacilityImpl.class);
-                            this.bind(CarparkDatabaseServiceProvider.class).to(CarparkClientLocalVMServiceProvider.class).in(Singleton.class);
-                            this.bind(CarparkServerConfig.class).toInstance(CarparkServerConfig.getInstance());
-//                            this.bind(LocalSecurityManager.class).to(SecurityManagerImpl.class);
-                            
-                        }
-                    }, new CarparkHardwareGuiceModule(),new CommonUIGuiceModule());
-					
+						@Override
+						protected void configure() {
+							this.bindConstant().annotatedWith(Names.named("HBM2DDL")).to("update");
+							this.bind(HardwareFacility.class).to(HardwareFacilityImpl.class);
+							this.bind(CarparkDatabaseServiceProvider.class).to(CarparkClientLocalVMServiceProvider.class).in(Singleton.class);
+							this.bind(CarparkServerConfig.class).toInstance(CarparkServerConfig.getInstance());
+							// this.bind(LocalSecurityManager.class).to(SecurityManagerImpl.class);
+
+						}
+					}, new CarparkHardwareGuiceModule(), new CommonUIGuiceModule());
+
 					Login window = createInjector.getInstance(Login.class);
 					window.open();
 				} catch (Exception e) {
@@ -165,31 +164,30 @@ public class Login {
 	 */
 	public void open() {
 		try {
-			File f=new File(MONITOR_TEMP);
+			File f = new File(MONITOR_TEMP);
 			if (f.exists()) {
 				f.delete();
 			}
-			f=new File(SYSTEM_TEMP);
+			f = new File(SYSTEM_TEMP);
 			if (f.exists()) {
 				f.delete();
-			}
-			Display display = Display.getDefault();
-			createContents();
-			WidgetUtil.center(shell);
-			shell.open();
-			shell.setImage(JFaceUtil.getImage("carpark_16"));
-			shell.layout();
-			while (!shell.isDisposed()) {
-				if (!display.readAndDispatch()) {
-					display.sleep();
-				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
+		Display display = Display.getDefault();
+		createContents();
+		WidgetUtil.center(shell);
+		shell.open();
+		shell.setImage(JFaceUtil.getImage("carpark_16"));
+		shell.layout();
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
 
-	
+	}
 
 	/**
 	 * Create contents of the window.
@@ -237,7 +235,7 @@ public class Login {
 		txt_password.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				if (e.keyCode==13) {
+				if (e.keyCode == 13) {
 					login();
 				}
 			}
@@ -246,7 +244,7 @@ public class Login {
 		GridData gd_txt_password = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_txt_password.widthHint = 150;
 		txt_password.setLayoutData(gd_txt_password);
-		
+
 		Label label = new Label(composite, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -255,7 +253,7 @@ public class Login {
 		ComboViewer comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
 		comboViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
-				int i=combo.getSelectionIndex();
+				int i = combo.getSelectionIndex();
 				FileUtils.writeObject(selectType, i);
 			}
 		});
@@ -270,10 +268,10 @@ public class Login {
 		Object readObject = FileUtils.readObject(selectType);
 		if (StrUtil.isEmpty(readObject)) {
 			combo.select(0);
-		}else{
+		} else {
 			combo.select((int) readObject);
 		}
-		
+
 		Composite composite_1 = new Composite(shell, SWT.NONE);
 		composite_1.setLayout(new GridLayout(3, false));
 		composite_1.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1));
@@ -285,8 +283,8 @@ public class Login {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-					login();
-				}
+				login();
+			}
 		});
 		button.setText("登录");
 
@@ -300,7 +298,7 @@ public class Login {
 		button_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_1.setText("取消");
-		
+
 		Button button_2 = new Button(composite_1, SWT.NONE);
 		button_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_2.addSelectionListener(new SelectionAdapter() {
@@ -317,8 +315,8 @@ public class Login {
 	 * 
 	 */
 	public void login() {
-		String userName = null ;
-		String pwd = null ;
+		String userName = null;
+		String pwd = null;
 		String type = null;
 		try {
 			if (!check()) {
@@ -326,40 +324,52 @@ public class Login {
 			}
 			sp.start();
 			autoDeletePhoto();
-			if (Boolean.valueOf(System.getProperty(CHECK_SOFT_DOG)==null?"true":"false")) {
+			if (Boolean.valueOf(System.getProperty(CHECK_SOFT_DOG) == null ? "true" : "false")) {
 				checkSoftDog();
 			}
-			
+
 			SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(txt_userName.getText(), txt_password.getText());
 			if (StrUtil.isEmpty(findByNameAndPassword)) {
 				lbl_msg.setText("用户名或密码错误");
 				return;
 			}
-			userName=findByNameAndPassword.getUserName();
-			pwd=findByNameAndPassword.getPassword();
-			type=findByNameAndPassword.getType();
-			System.setProperty("userName",userName );
-			System.setProperty("password",pwd );
+			userName = findByNameAndPassword.getUserName();
+			pwd = findByNameAndPassword.getPassword();
+			type = findByNameAndPassword.getType();
+			System.setProperty("userName", userName);
+			System.setProperty("password", pwd);
 			System.setProperty("userType", type);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			lbl_msg.setText(e1.getMessage());
 			return;
 		}
-		File file=null;
-		RandomAccessFile raf=null;
-		FileChannel channel=null;
-		FileLock tryLock=null;
+		File file = null;
+		RandomAccessFile raf = null;
+		FileChannel channel = null;
+		FileLock tryLock = null;
 		try {
-			String loginApp=combo.getText();
+			String loginApp = combo.getText();
 			if (type.equals("操作员")) {
 				shell.setVisible(false);
-				app=carparkMainApp;
+
+				//
+				file = new File(MONITOR_TEMP);
+				if (file.exists()) {
+					commonui.error("错误", "已经打开了监控界面");
+					return;
+				}
+				file.createNewFile();
+				raf = new RandomAccessFile(file, "rw");
+				channel = raf.getChannel();
+				tryLock = channel.tryLock();
+				//
+				app = carparkMainApp;
 				app.open();
-			}else{
+			} else {
 				shell.setVisible(false);
 				if (loginApp.equals("监控界面")) {
-					file=new File(MONITOR_TEMP);
+					file = new File(MONITOR_TEMP);
 					if (file.exists()) {
 						commonui.error("错误", "已经打开了监控界面");
 						return;
@@ -368,10 +378,10 @@ public class Login {
 					raf = new RandomAccessFile(file, "rw");
 					channel = raf.getChannel();
 					tryLock = channel.tryLock();
-					app=carparkMainApp;
+					app = carparkMainApp;
 					app.open();
-				}else if(loginApp.equals("管理界面")){
-					file=new File(SYSTEM_TEMP);
+				} else if (loginApp.equals("管理界面")) {
+					file = new File(SYSTEM_TEMP);
 					if (file.exists()) {
 						commonui.error("错误", "已经打开了管理界面");
 						return;
@@ -380,25 +390,25 @@ public class Login {
 					raf = new RandomAccessFile(file, "rw");
 					channel = raf.getChannel();
 					tryLock = channel.tryLock();
-					
-					app=carparkManageApp;
+
+					app = carparkManageApp;
 					app.open();
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("main is error"+"界面出错=======",e);
-//			app.disponse();
-//			app.setShell(new Shell());
-//			app.open();
-//			shell.setVisible(true);
-			
-		}finally{
+			LOGGER.error("main is error" + "界面出错=======", e);
+			// app.disponse();
+			// app.setShell(new Shell());
+			// app.open();
+			// shell.setVisible(true);
+
+		} finally {
 			try {
 				tryLock.release();
 				raf.close();
 				boolean delete = false;
 				while (!delete) {
-					delete=file.delete();
+					delete = file.delete();
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -406,9 +416,10 @@ public class Login {
 			System.exit(0);
 		}
 	}
+
 	protected boolean check() {
 		try {
-			
+
 			String upload = FileuploadSend.upload("http://" + CarparkClientConfig.getInstance().getDbServerIp() + ":8899/server/", null);
 			String[] s = upload.split("/");
 
@@ -425,31 +436,31 @@ public class Login {
 		}
 
 	}
-	
-	//检测加密狗
+
+	// 检测加密狗
 	private void checkSoftDog() {
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				LOGGER.info("从数据库获取注册信息");
 				Map<SNSettingType, SingleCarparkSystemSetting> findAllSN = sp.getCarparkService().findAllSN();
 				String sn = findAllSN.get(SNSettingType.sn).getSettingValue();
 				String validTo = findAllSN.get(SNSettingType.validTo).getSettingValue();
-				
-				if (StrUtil.isEmpty(sn)||StrUtil.isEmpty(validTo)) {
+
+				if (StrUtil.isEmpty(sn) || StrUtil.isEmpty(validTo)) {
 					LOGGER.info("没有检测到注册码，请检测服务器加密狗");
 					commonui.error("检查失败", "没有检测到注册码，请检测服务器加密狗");
 					System.exit(0);
 					return;
 				}
-				LOGGER.info("检查注册码成功,有效期至{}",validTo);
+				LOGGER.info("检查注册码成功,有效期至{}", validTo);
 			}
-		}, 1, 60*3, TimeUnit.MINUTES);
+		}, 1, 60 * 3, TimeUnit.MINUTES);
 	}
 
-	//自动删除图片
+	// 自动删除图片
 	private void autoDeletePhoto() {
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
@@ -465,25 +476,25 @@ public class Login {
 				SingleCarparkSystemSetting ss2 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存多少天.name());
 				int saveMonth = Integer.valueOf(ss2 == null ? SystemSettingTypeEnum.图片保存多少天.getDefaultValue() : ss2.getSettingValue());
 				String imgSavePath = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
-				String savePath = (imgSavePath == null ? System.getProperty("user.dir") : imgSavePath)+"/img/";
-				Date d=new Date();
-				DateTime deleteTime = new DateTime(d).minusDays(saveMonth+1);
-				
+				String savePath = (imgSavePath == null ? System.getProperty("user.dir") : imgSavePath) + "/img/";
+				Date d = new Date();
+				DateTime deleteTime = new DateTime(d).minusDays(saveMonth + 1);
+
 				File file;
-				while(true){
-					String pathname = savePath+deleteTime.getYear()+"/"+deleteTime.getMonthOfYear()+"/"+deleteTime.toString("dd");
-					LOGGER.info("检测文件夹{}是否存在",pathname);
-					file=new File(pathname);
+				while (true) {
+					String pathname = savePath + deleteTime.getYear() + "/" + deleteTime.getMonthOfYear() + "/" + deleteTime.toString("dd");
+					LOGGER.info("检测文件夹{}是否存在", pathname);
+					file = new File(pathname);
 					if (file.isDirectory()) {
-						LOGGER.info("文件夹{}存在,准备删除文件夹",pathname);
+						LOGGER.info("文件夹{}存在,准备删除文件夹", pathname);
 						CarparkUtils.deleteDir(file);
-					}else{
-						LOGGER.info("文件夹{}不存在,退出任务",pathname);
+					} else {
+						LOGGER.info("文件夹{}不存在,退出任务", pathname);
 						break;
 					}
-					deleteTime=deleteTime.minusDays(1);
+					deleteTime = deleteTime.minusDays(1);
 				}
 			}
-		}, 5, 60*24, TimeUnit.SECONDS);
+		}, 5, 60 * 24, TimeUnit.SECONDS);
 	}
 }
