@@ -102,7 +102,11 @@ public class CarInTask implements Runnable {
 			LOGGER.error("没有找到ip:" + ip + "的设备");
 			return;
 		}
-
+		SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkById(device.getCarpark().getId());
+		if (StrUtil.isEmpty(carpark)) {
+			LOGGER.error("没有找到id:" + device.getCarpark().getId() + "的停车场");
+			return;
+		}
 		LOGGER.debug("开始在界面显示车牌：{}的抓拍图片", plateNO);
 		Display.getDefault().asyncExec(new Runnable() {
 			public void run() {
@@ -222,10 +226,6 @@ public class CarInTask implements Runnable {
 				}
 			}
 
-			SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkById(device.getCarpark().getId());
-			if (StrUtil.isEmpty(carpark)) {
-				return;
-			}
 			// if(carpark.getFixCarOneIn()){
 			// List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO);
 			// if (!StrUtil.isEmpty(findByNoOut)) {
@@ -307,6 +307,8 @@ public class CarInTask implements Runnable {
 		cch.setBigImg(folder + "/" + bigImgFileName);
 		cch.setSmallImg(folder + "/" + smallImgFileName);
 		cch.setCarType(carType);
+		cch.setCarparkId(carpark.getId());
+		cch.setCarparkName(carpark.getName());
 		if (!StrUtil.isEmpty(user)) {
 			cch.setUserName(user.getName());
 			cch.setUserId(user.getId());

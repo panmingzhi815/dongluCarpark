@@ -472,7 +472,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				// presenter.openDoor(mapIpToDevice.get(mapDeviceTabItem.get(selection)));
 			}
 		});
-		if (!userType.equals("操作员")) {
 
 			ToolItem addInToolItem = new ToolItem(toolBar, SWT.NONE);
 			addInToolItem.setText("添加");
@@ -507,7 +506,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					presenter.deleteDeviceTabItem(tabInFolder.getSelection());
 				}
 			});
-		}
 
 		tabInFolder.setTopRight(control);
 		tabInFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
@@ -555,7 +553,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				// presenter.openDoor(mapIpToDevice.get(mapDeviceTabItem.get(selection)));
 			}
 		});
-		if (!userType.equals("操作员")) {
 			ToolItem addOutToolItem = new ToolItem(outToolBar, SWT.NONE);
 			addOutToolItem.setText("添加");
 			addOutToolItem.setToolTipText("添加出口设备");
@@ -588,7 +585,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					presenter.deleteDeviceTabItem(tabOutFolder.getSelection());
 				}
 			});
-		}
 
 		tabOutFolder.setTopRight(control2);
 		tabOutFolder.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
@@ -1305,8 +1301,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		createDeviceTabItem();
 		tabInFolder.setSelection(0);
 		tabOutFolder.setSelection(0);
+		
 		m_bindingContext = initDataBindings();
 	}
+
 	/**
 	 * @param i 
 	 * @param lbl_charge 

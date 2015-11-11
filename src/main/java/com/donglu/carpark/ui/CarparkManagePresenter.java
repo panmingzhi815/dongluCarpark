@@ -595,35 +595,6 @@ public class CarparkManagePresenter {
 		this.inOutHistoryModel = inOutHistoryModel;
 	}
 
-	/**
-	 * 查询进出场记录
-	 * 
-	 * @param plateNo
-	 * @param userName
-	 * @param start
-	 * @param end
-	 * @param operaName
-	 * @param carType
-	 * @param inout
-	 */
-	public void search(String plateNo, String userName, Date start, Date end, String operaName, String carType, String inout) {
-		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(inOutHistoryModel.getListSearch().size(), 200, plateNo, userName, carType, inout, start, end, operaName,
-				inout, inout, null);
-		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName, inout, inout, null);
-		inOutHistoryModel.addListSearch(findByCondition);
-		inOutHistoryModel.setCountSearch(inOutHistoryModel.getListSearch().size());
-		inOutHistoryModel.setCountSearchAll(countByCondition.intValue());
-
-	}
-
-	/**
-	 * 刷新进出场记录
-	 */
-	public void refreshSearchInOut() {
-		inOutHistoryModel.setListSearch(new ArrayList<>());
-		search(null, null, null, null, null, null, null);
-	}
 
 	// 数据库备份
 	public void backup(String path) {

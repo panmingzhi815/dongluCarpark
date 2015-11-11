@@ -326,8 +326,8 @@ public class CarparkMainPresenter {
 			model.setDevice(device);
 			AddDeviceWizard v = new AddDeviceWizard(model);
 			List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
-			if (!StrUtil.isEmpty(model.getCarpark())) {
-				findAllCarpark=sp.getCarparkService().findSameCarpark(model.getCarpark());
+			if (!StrUtil.isEmpty(this.model.getCarpark())&&mapIpToDevice.keySet().size()>1) {
+				findAllCarpark=sp.getCarparkService().findSameCarpark(this.model.getCarpark());
 			}
 			model.setList(findAllCarpark);
 			AddDeviceModel showWizard = (AddDeviceModel) commonui.showWizard(v);

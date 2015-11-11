@@ -58,8 +58,8 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 		AbstractListView<SingleCarparkInOutHistory>.Model model = v.getModel();
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(model.getList().size(), 500, plateNo,
-				userName, carType, inout, start, end, operaName,inDevice,outDevice,returnAccount);
-		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName, inDevice, outDevice, returnAccount);
+				userName, carType, inout, start, end, operaName,inDevice,outDevice,returnAccount, null);
+		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName, inDevice, outDevice, returnAccount, null);
 		
 		model.setCountSearchAll(countByCondition.intValue());
 		model.AddList(findByCondition);
