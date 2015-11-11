@@ -169,7 +169,10 @@ public class CarparkServiceImpl implements CarparkService {
 		unitOfWork.begin();
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkMonthlyCharge.class);
-			c.add(Restrictions.eq("carpark", carpark));
+			if (!StrUtil.isEmpty(carpark)) {
+				c.add(Restrictions.eq("carpark", carpark));
+			}
+			
 			return c.getResultList();
 		} finally {
 			unitOfWork.end();

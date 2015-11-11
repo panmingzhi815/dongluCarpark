@@ -63,10 +63,10 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			addUserModel.setAllList(list);
 			addUserModel.setCarpark(list.get(0));
 			addUserModel.setType("普通");
-			addUserModel.setCarparkNo("0");
+			addUserModel.setCarparkNo("1");
 			addUserModel.setModel(model);
 			addUserModel.setTotalSlot(sp.getCarparkInOutService().findFixSlotIsNow(list.get(0)));
-			AddUserWizard addUserWizard = new AddUserWizard(addUserModel);
+			AddUserWizard addUserWizard = new AddUserWizard(addUserModel,sp);
 			AddUserModel m = (AddUserModel) commonui.showWizard(addUserWizard);
 			if (m == null) {
 				return;
@@ -153,7 +153,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			model.setUserName(singleCarparkUser.getName());
 			model.setCreateTime(singleCarparkUser.getCreateDate());
 			model.setPlateNO(singleCarparkUser.getPlateNo());
-			model.setAllmonth(sp.getCarparkService().findAllMonthlyCharge());
+			model.setAllmonth(sp.getCarparkService().findMonthlyChargeByCarpark(singleCarparkUser.getCarpark()));
 			model.setOverdueTime(singleCarparkUser.getValidTo());
 			MonthlyUserPayWizard wizard = new MonthlyUserPayWizard(model);
 			MonthlyUserPayModel m = (MonthlyUserPayModel) commonui.showWizard(wizard);
@@ -167,6 +167,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			singleCarparkUser.setDelayDays(m.getSelectMonth().getDelayDays());
 			singleCarparkUser.setRemindDays(m.getSelectMonth().getExpiringDays());
 			singleCarparkUser.setMonthChargeId(m.getSelectMonth().getId());
+			singleCarparkUser.setCarpark(m.getSelectMonth().getCarpark());
 			m.setOperaName(System.getProperty("userName"));
 			sp.getCarparkUserService().saveUser(singleCarparkUser);
 			sp.getCarparkService().saveMonthlyUserPayHistory(m.getSingleCarparkMonthlyUserPayHistory());
@@ -238,7 +239,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			AddUserModel addUserModel = new AddUserModel();
 			addUserModel.setAllList(list);
 			addUserModel.setSingleCarparkUser(singleCarparkUser);
-			AddUserWizard addUserWizard = new AddUserWizard(addUserModel);
+			AddUserWizard addUserWizard = new AddUserWizard(addUserModel,sp);
 			AddUserModel m = (AddUserModel) commonui.showWizard(addUserWizard);
 			if (m == null) {
 				return;

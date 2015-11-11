@@ -5,6 +5,7 @@ import java.util.Date;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 
+import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayBasicPage;
 import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayModel;
 import com.donglu.carpark.util.CarparkUtils;
@@ -16,9 +17,11 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 	AddUserModel model;
 	private AddUserWizardPage page;
 	private MonthlyUserPayBasicPage page2;
+	CarparkDatabaseServiceProvider sp;
 
-	public AddUserWizard(AddUserModel model) {
+	public AddUserWizard(AddUserModel model, CarparkDatabaseServiceProvider sp) {
 		this.model = model;
+		this.sp=sp;
 		if (StrUtil.isEmpty(model.getPlateNo())) {
 			setWindowTitle("添加固定用户");
 		} else {
@@ -86,7 +89,6 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 	}
 
 	public Object getModel() {
-
 		return model;
 	}
 
@@ -100,6 +102,7 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 		m.setUserName(model.getName());
 		m.setCreateTime(model.getCreateDate());
 		m.setCreateTimeLabel(m.getCreateTimeLabel());
+		m.setAllmonth(sp.getCarparkService().findMonthlyChargeByCarpark(model.getCarpark()));
 		if (model.getType().equals("免费")) {
 			m.setFree(false);
 		}else{
