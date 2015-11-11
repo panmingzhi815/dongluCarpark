@@ -93,6 +93,12 @@ public class SingleCarparkSystemUser extends DomainObject{
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+
+	@Override
+	public String toString() {
+		
+		return this.userName;
+	}
 	
 	
 }

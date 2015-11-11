@@ -5,6 +5,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Group;
 
 import java.util.Date;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
@@ -14,6 +15,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -35,8 +37,8 @@ import org.eclipse.nebula.widgets.cdatetime.CDT;
 public class OpenDoorLogView extends Composite implements View{
 	private Presenter presenter;
 	private Composite listComposite;
-	private Text text_name;
 	private Text text_device;
+	private ComboViewer comboViewer;
 
 	public OpenDoorLogView(Composite parent, int style) {
 		super(parent, style);
@@ -53,9 +55,14 @@ public class OpenDoorLogView extends Composite implements View{
 		label.setText("操作员");
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
-		text_name = new Text(group, SWT.BORDER);
-		text_name.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_name.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		comboViewer = new ComboViewer(group, SWT.NONE);
+		Combo combo = comboViewer.getCombo();
+		comboViewer.setContentProvider(new ArrayContentProvider());
+		comboViewer.setLabelProvider(new LabelProvider());
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_combo = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_combo.widthHint = 65;
+		combo.setLayoutData(gd_combo);
 		
 		Label label_3 = new Label(group, SWT.NONE);
 		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -91,7 +98,11 @@ public class OpenDoorLogView extends Composite implements View{
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getPresenter().search(text_name.getText(), dateTime.getSelection(), dateTime_1.getSelection(),text_device.getText());
+				String text = comboViewer.getCombo().getText();
+				if (text.equals("全部")) {
+					text=null;
+				}
+				getPresenter().search(text, dateTime.getSelection(), dateTime_1.getSelection(),text_device.getText());
 			}
 		});
 		button.setText("查询");
@@ -114,5 +125,9 @@ public class OpenDoorLogView extends Composite implements View{
 
 	public Composite getListComposite() {
 		return listComposite;
+	}
+	public void setComboValue(List<SingleCarparkSystemUser> list){
+		comboViewer.setInput(list);
+		comboViewer.getCombo().select(0);
 	}
 }

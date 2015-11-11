@@ -32,6 +32,10 @@ public class ChangeUserWizard extends Wizard implements AbstractWizard{
 
 	@Override
 	public boolean performFinish() {
+		if (model.getUserName().equals(System.getProperty("userName"))) {
+			page.setErrorMessage("自己不能跟自己换班");
+			return false;
+		}
 		SingleCarparkSystemUser systemUser=checkLogin();
 		if (StrUtil.isEmpty(systemUser)) {
 			page.setErrorMessage("用户名或密码错误");

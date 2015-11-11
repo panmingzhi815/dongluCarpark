@@ -65,6 +65,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongCallback.XinlutongResult;
@@ -196,7 +197,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private Map<SystemSettingTypeEnum, String> mapSystemSetting = Maps.newHashMap();
 	// 保存车牌最近的处理时间
 	Map<String, Date> mapPlateNoDate = Maps.newHashMap();
-	Map<String, Boolean> mapOpenDoor=Maps.newHashMap();
+	Map<String, Boolean> mapOpenDoor = Maps.newHashMap();
 	// 进口tab
 	private CTabFolder tabInFolder;
 	// 出口tab
@@ -232,6 +233,18 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private Label lbl_charge;
 	private Label lbl_free;
 	private Label lbl_stop;
+
+	private ToolItem addInToolItem;
+
+	private ToolItem editInToolItem;
+
+	private ToolItem delInToolItem;
+
+	private ToolItem addOutToolItem;
+
+	private ToolItem editOutToolItem;
+
+	private ToolItem delOutToolItem;
 
 	/**
 	 * Launch the application.
@@ -304,30 +317,35 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	 * Open the window.
 	 */
 	public void open() {
-		userType = System.getProperty("userType");
-		if (StrUtil.isEmpty(userType)) {
+		try {
+			userType = System.getProperty("userType");
+			if (StrUtil.isEmpty(userType)) {
+				systemExit();
+			}
+			init();
+			Display display = Display.getDefault();
+			createContents();
+			shell.setMaximized(true);
+			shell.setImage(JFaceUtil.getImage("carpark_16"));
+			shell.open();
+			shell.layout();
+			while (!shell.isDisposed()) {
+				if (!display.readAndDispatch()) {
+					display.sleep();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
 			systemExit();
 		}
-		init();
-		Display display = Display.getDefault();
-		createContents();
-		shell.setMaximized(true);
-		shell.setImage(JFaceUtil.getImage("carpark_16"));
-		shell.open();
-		shell.layout();
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
-			}
-		}
-		systemExit();
 	}
 
 	/**
 	 * 
 	 */
 	public void systemExit() {
-		 outTheadPool.shutdownNow();
+		outTheadPool.shutdownNow();
 
 		inThreadPool.shutdownNow();
 
@@ -344,7 +362,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		presenter.setMapDeviceType(this.mapDeviceType);
 		presenter.setMapIpToDevice(mapIpToDevice);
 		presenter.setMapSystemSetting(mapSystemSetting);
-		
+
 		presenter.setModel(model);
 		String userName = System.getProperty("userName");
 		model.setUserName(userName);
@@ -405,7 +423,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				boolean confirm = commonui.confirm("退出提示", "确定要退出监控界面！！");
 				if (!confirm) {
 					e.doit = false;
-				}else{
+				} else {
 					systemExit();
 				}
 			}
@@ -467,45 +485,48 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				if (StrUtil.isEmpty(selection)) {
 					return;
 				}
-//				mapOpenDoor.put(mapDeviceTabItem.get(selection), true);
-				presenter.showContentToDevice(mapIpToDevice.get(mapDeviceTabItem.get(selection)), CAR_IN_MSG, true);
+				String ip = mapDeviceTabItem.get(selection);
+				mapOpenDoor.put(ip, true);
+				handPhotograph(ip);
+				// mapOpenDoor.put(mapDeviceTabItem.get(selection), true);
+//				presenter.showContentToDevice(mapIpToDevice.get(mapDeviceTabItem.get(selection)), CAR_IN_MSG, true);
 				// presenter.openDoor(mapIpToDevice.get(mapDeviceTabItem.get(selection)));
 			}
 		});
 
-			ToolItem addInToolItem = new ToolItem(toolBar, SWT.NONE);
-			addInToolItem.setText("添加");
-			addInToolItem.setToolTipText("添加进口设备");
-			addInToolItem.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					presenter.addDevice(tabInFolder, "进口");
-				}
-			});
-			ToolItem editInToolItem = new ToolItem(toolBar, SWT.NONE);
-			editInToolItem.setText("修改");
-			editInToolItem.setToolTipText("修改进口设备");
-			editInToolItem.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					presenter.editDevice(tabInFolder, "进口");
-				}
-			});
+		addInToolItem = new ToolItem(toolBar, SWT.NONE);
+		addInToolItem.setText("添加");
+		addInToolItem.setToolTipText("添加进口设备");
+		addInToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.addDevice(tabInFolder, "进口");
+			}
+		});
+		editInToolItem = new ToolItem(toolBar, SWT.NONE);
+		editInToolItem.setText("修改");
+		editInToolItem.setToolTipText("修改进口设备");
+		editInToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.editDevice(tabInFolder, "进口");
+			}
+		});
 
-			ToolItem delInToolItem = new ToolItem(toolBar, SWT.NONE);
-			delInToolItem.setText("删除");
-			delInToolItem.setToolTipText("删除进口设备");
+		delInToolItem = new ToolItem(toolBar, SWT.NONE);
+		delInToolItem.setText("删除");
+		delInToolItem.setToolTipText("删除进口设备");
 
-			delInToolItem.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					boolean confirm = commonui.confirm("确定提示", "确定删除所选设备");
-					if (!confirm) {
-						return;
-					}
-					presenter.deleteDeviceTabItem(tabInFolder.getSelection());
+		delInToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				boolean confirm = commonui.confirm("确定提示", "确定删除所选设备");
+				if (!confirm) {
+					return;
 				}
-			});
+				presenter.deleteDeviceTabItem(tabInFolder.getSelection());
+			}
+		});
 
 		tabInFolder.setTopRight(control);
 		tabInFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
@@ -545,46 +566,46 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				if (StrUtil.isEmpty(selection)) {
 					return;
 				}
-				
+
 				String ip = mapDeviceTabItem.get(selection);
 				mapOpenDoor.put(ip, true);
 				handPhotograph(ip);
-//				presenter.showContentToDevice(mapIpToDevice.get(mapDeviceTabItem.get(selection)), CAR_OUT_MSG, true);
+				// presenter.showContentToDevice(mapIpToDevice.get(mapDeviceTabItem.get(selection)), CAR_OUT_MSG, true);
 				// presenter.openDoor(mapIpToDevice.get(mapDeviceTabItem.get(selection)));
 			}
 		});
-			ToolItem addOutToolItem = new ToolItem(outToolBar, SWT.NONE);
-			addOutToolItem.setText("添加");
-			addOutToolItem.setToolTipText("添加出口设备");
-			addOutToolItem.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					presenter.addDevice(tabOutFolder, "出口");
-				}
-			});
-			ToolItem editOutToolItem = new ToolItem(outToolBar, SWT.NONE);
-			editOutToolItem.setText("修改");
-			editOutToolItem.setToolTipText("修改出口设备");
-			editOutToolItem.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					presenter.editDevice(tabOutFolder, "出口");
-				}
-			});
+		addOutToolItem = new ToolItem(outToolBar, SWT.NONE);
+		addOutToolItem.setText("添加");
+		addOutToolItem.setToolTipText("添加出口设备");
+		addOutToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.addDevice(tabOutFolder, "出口");
+			}
+		});
+		editOutToolItem = new ToolItem(outToolBar, SWT.NONE);
+		editOutToolItem.setText("修改");
+		editOutToolItem.setToolTipText("修改出口设备");
+		editOutToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.editDevice(tabOutFolder, "出口");
+			}
+		});
 
-			ToolItem delOutToolItem = new ToolItem(outToolBar, SWT.NONE);
-			delOutToolItem.setText("删除");
-			delOutToolItem.setToolTipText("删除出口设备");
-			delOutToolItem.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					boolean confirm = commonui.confirm("确定提示", "确定删除所选设备");
-					if (!confirm) {
-						return;
-					}
-					presenter.deleteDeviceTabItem(tabOutFolder.getSelection());
+		delOutToolItem = new ToolItem(outToolBar, SWT.NONE);
+		delOutToolItem.setText("删除");
+		delOutToolItem.setToolTipText("删除出口设备");
+		delOutToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				boolean confirm = commonui.confirm("确定提示", "确定删除所选设备");
+				if (!confirm) {
+					return;
 				}
-			});
+				presenter.deleteDeviceTabItem(tabOutFolder.getSelection());
+			}
+		});
 
 		tabOutFolder.setTopRight(control2);
 		tabOutFolder.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
@@ -707,7 +728,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		GridData gd_btnOutCheck = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_btnOutCheck.exclude = false;
 		if (!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认) == null ? SystemSettingTypeEnum.固定车出场确认.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认))) {
-			 gd_btnOutCheck.exclude = true;
+			gd_btnOutCheck.exclude = true;
 		}
 		btnOutCheck.setLayoutData(gd_btnOutCheck);
 		btnOutCheck.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
@@ -979,7 +1000,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				if (e.keyCode == 16777296 || e.keyCode == 13 || e.keyCode == 16777236) {
 					SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
 					SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
-					
+
 					chargeCarPass(device, data, carOutChargeCheck);
 				}
 				// 免费放行
@@ -1020,7 +1041,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		combo.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				if (e.keyCode==StrUtil.SMAIL_KEY_ENTER) {
+				if (e.keyCode == StrUtil.SMAIL_KEY_ENTER) {
 					text_real.setFocus();
 				}
 			}
@@ -1043,7 +1064,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					Date inTime = h.getInTime();
 					Date outTime = h.getOutTime();
 					CarTypeEnum carparkCarType = getCarparkCarType(carparkCarType2);
-					float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(),carparkCarType, inTime, outTime);
+					float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carparkCarType, inTime, outTime);
 
 					presenter.showContentToDevice(mapIpToDevice.get(model.getIp()), CarparkUtils.formatFloatString("请缴费" + countShouldMoney + "元"), false);
 					model.setShouldMony(countShouldMoney);
@@ -1091,12 +1112,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
 				SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
 				data.setFactMoney(0);
-				if(!chargeCarPass(device, data, carOutChargeCheck)){
+				if (!chargeCarPass(device, data, carOutChargeCheck)) {
 					return;
 				}
 				model.setComboCarTypeEnable(false);
-				btnCharge.setData(BTN_CHARGE,null);
-				btnCharge.setData(BTN_CHARGE_DEVICE,null);
+				btnCharge.setData(BTN_CHARGE, null);
+				btnCharge.setData(BTN_CHARGE_DEVICE, null);
 			}
 		});
 		btnFree.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
@@ -1112,8 +1133,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				discontinue = true;
 				model.setBtnClick(false);
 				model.setComboCarTypeEnable(false);
-				btnCharge.setData(BTN_CHARGE,null);
-				btnCharge.setData(BTN_CHARGE_DEVICE,null);
+				btnCharge.setData(BTN_CHARGE, null);
+				btnCharge.setData(BTN_CHARGE_DEVICE, null);
 			}
 		});
 		button_4.setText("取消放行");
@@ -1153,21 +1174,22 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		});
 		btnf_3.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		btnf_3.setText("浏览记录(F9)");
-		
+
 		Composite composite_19 = new Composite(group, SWT.NONE);
 		composite_19.setLayout(new GridLayout(1, false));
 		composite_19.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false, false, 2, 1));
-		
+
 		Composite composite_16 = new Composite(composite_19, SWT.NONE);
 		composite_16.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 		composite_16.setLayout(new GridLayout(2, false));
-		
+
 		lbl_charge = new Label(composite_16, SWT.NONE);
 		lbl_charge.addMouseTrackListener(new MouseTrackAdapter() {
 			@Override
 			public void mouseExit(MouseEvent e) {
 				System.out.println("mouse Exit");
 			}
+
 			@Override
 			public void mouseHover(MouseEvent e) {
 				System.out.println("mouse hover");
@@ -1177,12 +1199,13 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		lbl_charge.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
-				setBoundsY(lbl_charge,-2);
+				setBoundsY(lbl_charge, -2);
 				charge(carOutChargeCheck);
 			}
+
 			@Override
 			public void mouseDown(MouseEvent e) {
-				setBoundsY(lbl_charge,2);
+				setBoundsY(lbl_charge, 2);
 			}
 		});
 		lbl_charge.setImage(CarparkUtils.getSwtImage("charge.png"));
@@ -1190,27 +1213,28 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		gd_lbl_charge.widthHint = 100;
 		gd_lbl_charge.heightHint = 80;
 		lbl_charge.setLayoutData(gd_lbl_charge);
-		
+
 		lbl_free = new Label(composite_16, SWT.NONE);
 		lbl_free.addMouseListener(new MouseAdapter() {
 			public void mouseUp(MouseEvent e) {
-				setBoundsY(lbl_free,-2);
+				setBoundsY(lbl_free, -2);
 				SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
 				if (StrUtil.isEmpty(data)) {
 					return;
 				}
 				SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
 				model.setReal(0);
-				if(!chargeCarPass(device, data, carOutChargeCheck)){
+				if (!chargeCarPass(device, data, carOutChargeCheck)) {
 					return;
 				}
 				model.setComboCarTypeEnable(false);
-				btnCharge.setData(BTN_CHARGE,null);
-				btnCharge.setData(BTN_CHARGE_DEVICE,null);
+				btnCharge.setData(BTN_CHARGE, null);
+				btnCharge.setData(BTN_CHARGE_DEVICE, null);
 			}
+
 			@Override
 			public void mouseDown(MouseEvent e) {
-				setBoundsY(lbl_free,2);
+				setBoundsY(lbl_free, 2);
 			}
 		});
 		lbl_free.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
@@ -1219,42 +1243,44 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		gd_lbl_free.widthHint = 100;
 		gd_lbl_free.heightHint = 80;
 		lbl_free.setLayoutData(gd_lbl_free);
-		
+
 		lbl_stop = new Label(composite_19, SWT.NONE);
 		lbl_stop.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
-				setBoundsY(lbl_stop,-2);
+				setBoundsY(lbl_stop, -2);
 				discontinue = true;
 				model.setBtnClick(false);
 				model.setComboCarTypeEnable(false);
 				model.setHandSearch(false);
 				model.setOutPlateNOEditable(false);
-				btnCharge.setData(BTN_CHARGE,null);
-				btnCharge.setData(BTN_CHARGE_DEVICE,null);
+				btnCharge.setData(BTN_CHARGE, null);
+				btnCharge.setData(BTN_CHARGE_DEVICE, null);
 			}
+
 			@Override
 			public void mouseDown(MouseEvent e) {
-				setBoundsY(lbl_stop,2);
+				setBoundsY(lbl_stop, 2);
 			}
 		});
 		lbl_stop.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
 		lbl_stop.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		lbl_stop.setImage(CarparkUtils.getSwtImage("stop.png"));
-		
+
 		Composite composite_17 = new Composite(composite_19, SWT.NONE);
 		composite_17.setLayout(new GridLayout(2, false));
-		
+
 		Label lbl_change = new Label(composite_17, SWT.NONE);
 		lbl_change.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
-				setBoundsY(lbl_change,-2);
+				setBoundsY(lbl_change, -2);
 				presenter.changeUser();
 			}
+
 			@Override
 			public void mouseDown(MouseEvent e) {
-				setBoundsY(lbl_change,2);
+				setBoundsY(lbl_change, 2);
 			}
 		});
 		lbl_change.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
@@ -1263,17 +1289,18 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		gd_label_18.heightHint = 80;
 		lbl_change.setLayoutData(gd_label_18);
 		lbl_change.setImage(CarparkUtils.getSwtImage("change.png"));
-		
+
 		Label lbl_return = new Label(composite_17, SWT.NONE);
 		lbl_return.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
-				setBoundsY(lbl_return,-2);
+				setBoundsY(lbl_return, -2);
 				presenter.returnAccount();
 			}
+
 			@Override
 			public void mouseDown(MouseEvent e) {
-				setBoundsY(lbl_return,2);
+				setBoundsY(lbl_return, 2);
 			}
 		});
 		lbl_return.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
@@ -1282,17 +1309,18 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		gd_label_20.heightHint = 80;
 		lbl_return.setLayoutData(gd_label_20);
 		lbl_return.setImage(CarparkUtils.getSwtImage("return.png"));
-		
+
 		Label lbl_search = new Label(composite_19, SWT.NONE);
 		lbl_search.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
-				setBoundsY(lbl_search,-2);
+				setBoundsY(lbl_search, -2);
 				presenter.showSearchInOutHistory();
 			}
+
 			@Override
 			public void mouseDown(MouseEvent e) {
-				setBoundsY(lbl_search,2);
+				setBoundsY(lbl_search, 2);
 			}
 		});
 		lbl_search.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
@@ -1301,22 +1329,40 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		createDeviceTabItem();
 		tabInFolder.setSelection(0);
 		tabOutFolder.setSelection(0);
-		
+		controlToolItem();
 		m_bindingContext = initDataBindings();
 	}
 
+	public void controlToolItem() {
+		if (System.getProperty("userType").equals(SystemUserTypeEnum.操作员.name())) {
+			if (!addInToolItem.isDisposed()) {
+				addInToolItem.dispose();
+				editInToolItem.dispose();
+				delInToolItem.dispose();
+			}
+			if (!addOutToolItem.isDisposed()) {
+				addOutToolItem.dispose();
+				editOutToolItem.dispose();
+				delOutToolItem.dispose();
+			}
+		}
+		
+	}
+
 	/**
-	 * @param i 
-	 * @param lbl_charge 
+	 * @param i
+	 * @param lbl_charge
 	 * 
 	 */
 	private void setBoundsY(Label lbl_charge, int i) {
 		Rectangle bounds = lbl_charge.getBounds();
-		bounds.y=bounds.y+i;
+		bounds.y = bounds.y + i;
 		lbl_charge.setBounds(bounds);
 	}
+
 	/**
 	 * 收费
+	 * 
 	 * @param carOutChargeCheck
 	 */
 	private void charge(Boolean carOutChargeCheck) {
@@ -1326,12 +1372,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		}
 		SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
 		data.setFactMoney(model.getReal());
-		if(!chargeCarPass(device, data, carOutChargeCheck)){
+		if (!chargeCarPass(device, data, carOutChargeCheck)) {
 			return;
 		}
 		model.setComboCarTypeEnable(false);
-		btnCharge.setData(BTN_CHARGE,null);
-		btnCharge.setData(BTN_CHARGE_DEVICE,null);
+		btnCharge.setData(BTN_CHARGE, null);
+		btnCharge.setData(BTN_CHARGE_DEVICE, null);
 	}
 
 	/**
@@ -1450,17 +1496,17 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 			});
 		} else if (mapDeviceType.get(ip).equals("进口")) {
-			inThreadPool.submit(
-					new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_inBigImg, lbl_inSmallImg, shell, mapPlateNoDate, mapIpToDevice, mapSystemSetting, mapHandPhotograph,mapOpenDoor));
+			inThreadPool.submit(new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_inBigImg, lbl_inSmallImg, shell, mapPlateNoDate, mapIpToDevice, mapSystemSetting,
+					mapHandPhotograph, mapOpenDoor));
 		}
 	}
 
 	// 停车场出
 	private void carparkOutTask(final String ip, final String plateNO, final byte[] bigImage, final byte[] smallImage) {
 		Boolean boolean1 = mapOpenDoor.get(ip);
-		if (boolean1!=null&&boolean1) {
+		if (boolean1 != null && boolean1) {
 			mapOpenDoor.put(ip, null);
-			presenter.saveOpenDoor(mapIpToDevice.get(ip),bigImage, plateNO);
+			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO);
 			return;
 		}
 		discontinue = false;
@@ -1759,7 +1805,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				carType = getCarparkCarType(list.get(0));
 			}
 			// model.setComboCarTypeEnable(false);
-			float shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(),carType, inTime, date);
+			float shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date);
 			model.setShouldMony(shouldMoney);
 			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
 			model.setReal(shouldMoney);
@@ -1804,11 +1850,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			Float shouldMoney = model.getShouldMony();
 			float factMoney = model.getReal();
 			if (factMoney > shouldMoney) {
-				commonui.error("收费提示", "实时不能超过应收"+shouldMoney+"元");
+				commonui.error("收费提示", "实收不能超过应收" + shouldMoney + "元");
 				return false;
 			}
-			if (factMoney<0) {
-				commonui.error("收费提示", "实时不能小于0");
+			if (factMoney < 0) {
+				commonui.error("收费提示", "实收不能小于0");
 				return false;
 			}
 			if (check) {
@@ -1888,6 +1934,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 		} , 3000, 1000, TimeUnit.MILLISECONDS);
 	}
+
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//

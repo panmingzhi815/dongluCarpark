@@ -1,27 +1,36 @@
 package com.donglu.carpark.ui.view;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.eclipse.swt.widgets.Composite;
 
-import com.donglu.carpark.ui.common.AbstractListPresenter;
+import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.Presenter;
-import com.donglu.carpark.ui.list.InOutHistoryListPresenter;
-import com.donglu.carpark.ui.list.ReturnAccountListPresenter;
 import com.donglu.carpark.ui.list.SystemLogListPresenter;
-import com.donglu.carpark.ui.list.UserListPresenter;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.google.inject.Inject;
 
-public class SystemLogPresenter  extends AbstractListPresenter{
+public class SystemLogPresenter implements Presenter{
 	private SystemLogView view;
 	@Inject
 	private SystemLogListPresenter listPresenter;
+	@Inject
+	private CarparkDatabaseServiceProvider sp;
 	@Override
 	public void go(Composite c) {
 		view=new SystemLogView(c, c.getStyle());
 		view.setPresenter(this);
 		listPresenter.go(view.getListComposite());
+		
+		List<SingleCarparkSystemUser> findAll = new ArrayList<>();
+		SingleCarparkSystemUser e = new SingleCarparkSystemUser();
+		e.setUserName("全部");
+		findAll.add(e);
+		findAll.addAll(sp.getSystemUserService().findAll());
+		view.setComboValue(findAll);
 	}
 	public SystemLogListPresenter getListPresenter() {
 		return listPresenter;

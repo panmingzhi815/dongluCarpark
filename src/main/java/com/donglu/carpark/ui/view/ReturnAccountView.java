@@ -4,7 +4,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Group;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
@@ -14,20 +16,29 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
 
 public class ReturnAccountView extends Composite implements View{
-	private Text text_operaName;
 	private Text text_1;
 	private Presenter presenter;
 	private Composite listComposite;
+	private ComboViewer comboViewer;
+	private List<SingleCarparkSystemUser> list;
 
 	public ReturnAccountView(Composite parent, int style) {
 		super(parent, style);
@@ -44,10 +55,15 @@ public class ReturnAccountView extends Composite implements View{
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("操作员");
 		
-		text_operaName = new Text(group, SWT.BORDER);
+		comboViewer = new ComboViewer(group, SWT.READ_ONLY);
+		Combo combo = comboViewer.getCombo();
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		comboViewer.setContentProvider(new ArrayContentProvider());
+		comboViewer.setLabelProvider(new LabelProvider());
+		GridData gd_combo = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_combo.widthHint = 55;
+		combo.setLayoutData(gd_combo);
 		Font font = SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL);
-		text_operaName.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_operaName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label label_1 = new Label(group, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -65,7 +81,7 @@ public class ReturnAccountView extends Composite implements View{
 		
 		DateChooserCombo dateChooserCombo = new DateChooserCombo(group, SWT.BORDER | SWT.READ_ONLY);
 		dateChooserCombo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
+		dateChooserCombo.setValue(new org.joda.time.DateTime(new Date()).minusDays(1).toDate());
 		Label label_3 = new Label(group, SWT.NONE);
 		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -73,13 +89,18 @@ public class ReturnAccountView extends Composite implements View{
 		
 		DateChooserCombo dateChooserCombo_1 = new DateChooserCombo(group, SWT.BORDER | SWT.READ_ONLY);
 		dateChooserCombo_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
+		dateChooserCombo_1.setValue(new Date());
 		Button button = new Button(group, SWT.NONE);
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getPresenter().search(text_operaName.getText(),text_1.getText(),dateChooserCombo.getValue(),dateChooserCombo_1.getValue());
+				SingleCarparkSystemUser singleCarparkSystemUser = list.get(comboViewer.getCombo().getSelectionIndex());
+				String operaName="";
+				if (!StrUtil.isEmpty(singleCarparkSystemUser.getId())) {
+					operaName=singleCarparkSystemUser.getUserName();
+				}
+				getPresenter().search(operaName,text_1.getText(),dateChooserCombo.getValue(),dateChooserCombo_1.getValue());
 			}
 		});
 		button.setText("查询");
@@ -111,5 +132,14 @@ public class ReturnAccountView extends Composite implements View{
 
 	public Composite getListComposite() {
 		return listComposite;
+	}
+	public void setCombo(final List<SingleCarparkSystemUser> list){
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				comboViewer.setInput(list);
+				ReturnAccountView.this.list = list;
+				comboViewer.getCombo().select(0);
+			}
+		});
 	}
 }

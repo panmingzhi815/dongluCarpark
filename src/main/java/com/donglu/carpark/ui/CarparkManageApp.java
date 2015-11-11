@@ -153,17 +153,23 @@ public class CarparkManageApp extends AbstractApp{
 	 * Open the window.
 	 */
 	public void open() {
-		Display display = Display.getDefault();
-		init();
-		createContents();
-		shell.setImage(JFaceUtil.getImage("carpark_16"));
-		shell.open();
-		shell.setMaximized(true);
-		shell.layout();
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
+		try {
+			Display display = Display.getDefault();
+			init();
+			createContents();
+			shell.setImage(JFaceUtil.getImage("carpark_16"));
+			shell.open();
+			shell.setMaximized(true);
+			shell.layout();
+			while (!shell.isDisposed()) {
+				if (!display.readAndDispatch()) {
+					display.sleep();
+				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			System.exit(0);
 		}
 	}
 

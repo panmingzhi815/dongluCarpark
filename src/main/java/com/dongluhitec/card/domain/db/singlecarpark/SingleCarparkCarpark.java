@@ -16,6 +16,7 @@ import javax.validation.constraints.NotNull;
 
 import com.dongluhitec.card.domain.db.CardUserGroup;
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity
 public class SingleCarparkCarpark extends DomainObject {
@@ -113,6 +114,9 @@ public class SingleCarparkCarpark extends DomainObject {
 	@Override
 	public boolean equals(Object obj) {
 		if (!obj.getClass().equals(SingleCarparkCarpark.class)) {
+			return false;
+		}
+		if (StrUtil.isEmpty(obj)) {
 			return false;
 		}
 		SingleCarparkCarpark cp=(SingleCarparkCarpark) obj;

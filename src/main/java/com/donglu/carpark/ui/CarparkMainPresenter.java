@@ -636,22 +636,27 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	public float countShouldMoney(Long carparkId, CarTypeEnum carType, Date startTime, Date endTime) {
-		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), startTime, endTime);
-		boolean flag = CarparkUtils.checkDaysIsOneDay(startTime, endTime);
-		if (flag) {
-			float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType);
-			float now = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo());
-			if (max > 0) {
-				float f = max - now;
-				if (f <= 0) {
-					return 0;
-				}
-				if (f < calculateTempCharge) {
-					return f;
+		try {
+			float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), startTime, endTime);
+			boolean flag = CarparkUtils.checkDaysIsOneDay(startTime, endTime);
+			if (flag) {
+				float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType);
+				float now = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo());
+				if (max > 0) {
+					float f = max - now;
+					if (f <= 0) {
+						return 0;
+					}
+					if (f < calculateTempCharge) {
+						return f;
+					}
 				}
 			}
+			return calculateTempCharge;
+		} catch (Exception e) {
+			LOGGER.error("计算收费是发生错误",e);
+			return 0;
 		}
-		return calculateTempCharge;
 	}
 
 	/**
@@ -677,6 +682,7 @@ public class CarparkMainPresenter {
 		model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
 		model.setMonthSlot(sp.getCarparkInOutService().findFixSlotIsNow(model.getCarpark()));
 		model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow(model.getCarpark()));
+		view.controlToolItem();
 	}
 
 	/**

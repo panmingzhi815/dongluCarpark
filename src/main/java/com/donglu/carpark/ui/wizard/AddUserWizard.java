@@ -85,6 +85,7 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 			page.setErrorMessage("用户名不能为空");
 			return false;
 		}
+		page.setErrorMessage(null);
 		return true;
 	}
 

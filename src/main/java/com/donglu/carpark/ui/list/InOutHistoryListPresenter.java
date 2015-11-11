@@ -18,6 +18,7 @@ import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
@@ -44,6 +45,7 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 	
 	
 	private SingleCarparkInOutHistory inOutHistory;
+	private SingleCarparkCarpark carpark=new SingleCarparkCarpark();
 	@Override
 	public void go(Composite c) {
 		v=new InOutHistoryListView( c, c.getStyle());
@@ -58,8 +60,9 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 		AbstractListView<SingleCarparkInOutHistory>.Model model = v.getModel();
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(model.getList().size(), 500, plateNo,
-				userName, carType, inout, start, end, operaName,inDevice,outDevice,returnAccount, null);
-		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName, inDevice, outDevice, returnAccount, null);
+				userName, carType, inout, start, end, operaName,inDevice,outDevice,returnAccount, carpark.getId());
+		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName, inDevice, outDevice, returnAccount, carpark.getId()
+				);
 		
 		model.setCountSearchAll(countByCondition.intValue());
 		model.AddList(findByCondition);
@@ -74,7 +77,7 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 		defaultSearch();
 	}
 	public void search(String plateNo, String userName, Date start, Date end, String operaName,
-			String carType, String inout, String inDevice, String outDevice, String returnAccount) {
+			String carType, String inout, String inDevice, String outDevice, String returnAccount, SingleCarparkCarpark carpark) {
 		this.plateNo=plateNo;
 		this.userName=userName;
 		this.start=start;
@@ -90,6 +93,7 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 		} catch (NumberFormatException e) {
 			this.returnAccount=null;
 		}
+		this.carpark=carpark;
 		refresh();		
 	}
 	public int[] countMoney() {
@@ -112,21 +116,13 @@ public class InOutHistoryListPresenter  extends AbstractListPresenter<SingleCarp
 		return new int[]{should,fact};
 	}
 	public void lookDetail() {
-		
 		try {
 			if (StrUtil.isEmpty(v.getModel().getSelected())) {
 				return;
 			}
 			SingleCarparkInOutHistory h =v.getModel().getSelected().get(0);
-			
-			
-			
-			String file = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
-			
 			InOutHistoryDetailWizard wizard =new InOutHistoryDetailWizard(h);
 			inOutHistory = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
-			
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

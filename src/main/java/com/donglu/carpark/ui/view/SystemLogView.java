@@ -5,29 +5,24 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Group;
 
 import java.util.Date;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
-import com.dongluhitec.card.domain.util.StrUtil;
-
-import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.nebula.widgets.cdatetime.CDateTime;
 import org.eclipse.nebula.widgets.cdatetime.CDT;
@@ -35,12 +30,11 @@ import org.eclipse.nebula.widgets.cdatetime.CDT;
 public class SystemLogView extends Composite implements View{
 	private Presenter presenter;
 	private Composite listComposite;
-	private Text text_name;
+	private ComboViewer comboViewer_1;
 
 	public SystemLogView(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout(1, false));
-		Font font = SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL);
 		
 		Group group = new Group(this, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -52,9 +46,14 @@ public class SystemLogView extends Composite implements View{
 		label.setText("操作员");
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
-		text_name = new Text(group, SWT.BORDER);
-		text_name.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_name.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		comboViewer_1 = new ComboViewer(group, SWT.READ_ONLY);
+		Combo combo_1 = comboViewer_1.getCombo();
+		comboViewer_1.setContentProvider(new ArrayContentProvider());
+		comboViewer_1.setLabelProvider(new LabelProvider());
+		combo_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_combo_1 = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_combo_1.widthHint = 65;
+		combo_1.setLayoutData(gd_combo_1);
 		
 		Label label_1 = new Label(group, SWT.NONE);
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -96,7 +95,11 @@ public class SystemLogView extends Composite implements View{
 			public void widgetSelected(SelectionEvent e) {
 				
 				int selectionIndex = combo.getSelectionIndex();
-				getPresenter().search(text_name.getText(), dateTime.getSelection(), dateTime_1.getSelection(), SystemOperaLogTypeEnum.values()[selectionIndex]);
+				String text = comboViewer_1.getCombo().getText();
+				if (text.equals("全部")) {
+					text=null;
+				}
+				getPresenter().search(text, dateTime.getSelection(), dateTime_1.getSelection(), SystemOperaLogTypeEnum.values()[selectionIndex]);
 			}
 		});
 		button.setText("查询");
@@ -119,5 +122,9 @@ public class SystemLogView extends Composite implements View{
 
 	public Composite getListComposite() {
 		return listComposite;
+	}
+	public void setComboValue(List<SingleCarparkSystemUser> list){
+		comboViewer_1.setInput(list);
+		comboViewer_1.getCombo().select(0);
 	}
 }

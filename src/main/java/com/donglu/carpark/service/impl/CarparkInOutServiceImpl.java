@@ -96,7 +96,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 
 			createCriteriaByCondition(c, plateNo, userName, carType, inout, start, end, operaName, outDevice, outDevice, returnAccount,carparkId);
-
 			c.setFirstResult(maxResult);
 			c.setMaxResults(size);
 			List<SingleCarparkInOutHistory> resultList = c.getResultList();
