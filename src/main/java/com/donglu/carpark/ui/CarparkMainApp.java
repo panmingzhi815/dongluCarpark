@@ -320,6 +320,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				display.sleep();
 			}
 		}
+		System.exit(0);
 	}
 
 	/**
@@ -392,6 +393,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				boolean confirm = commonui.confirm("退出提示", "确定要退出监控界面！！");
 				if (!confirm) {
 					e.doit = false;
+				}else{
+					System.exit(0);
 				}
 			}
 		});
@@ -968,14 +971,14 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				if (e.keyCode == 16777296 || e.keyCode == 13 || e.keyCode == 16777236) {
 					SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
 					SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
-					data.setFactMoney(model.getReal());
+					
 					chargeCarPass(device, data, carOutChargeCheck);
 				}
 				// 免费放行
 				if (e.keyCode == 16777237) {
 					SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
 					SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
-					data.setFactMoney(0);
+					model.setReal(0);
 					chargeCarPass(device, data, carOutChargeCheck);
 				}
 			}
@@ -1006,6 +1009,14 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		comboViewer = new ComboViewer(composite_14, SWT.READ_ONLY);
 		combo = comboViewer.getCombo();
+		combo.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.keyCode==StrUtil.SMAIL_KEY_ENTER) {
+					text_real.setFocus();
+				}
+			}
+		});
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		combo.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -1717,6 +1728,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			model.setHistory(singleCarparkInOutHistory);
 			CarTypeEnum carType = CarTypeEnum.SmallCar;
 			if (mapTempCharge.keySet().size() > 1) {
+				CarparkUtils.setFocus(combo);
 				model.setComboCarTypeEnable(true);
 				model.setSelectCarType(true);
 				CarparkUtils.setComboSelect(combo, 0);

@@ -43,6 +43,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		device.setType(getType());
 		device.setVolume(getVolume());
 		device.setAdvertise(getAdvertise());
+		device.setScreenType(getScreenType());
 		return device;
 	}
 	public String getSerialAddress() {
@@ -80,6 +81,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		}
 		setVolume(device.getVolume());
 		setAdvertise(device.getAdvertise());
+		setScreenType(device.getScreenType());
 	}
 	public String getVoice() {
 		return voice;

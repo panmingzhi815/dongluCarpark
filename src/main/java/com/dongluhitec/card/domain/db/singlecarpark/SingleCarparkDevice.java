@@ -26,6 +26,7 @@ public class SingleCarparkDevice extends DomainObject{
 	private String roadType;//通道类型
 	private Integer volume=1;
 	private String advertise="欢迎光临";
+	private ScreenTypeEnum screenType=ScreenTypeEnum.一二接口显示屏;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "carparkId", nullable = true, insertable = false, updatable = false)
@@ -142,6 +143,14 @@ public class SingleCarparkDevice extends DomainObject{
 		this.advertise = advertise;
 		if (pcs != null)
 			pcs.firePropertyChange("advertise", null, null);
+	}
+	public ScreenTypeEnum getScreenType() {
+		return screenType;
+	}
+	public void setScreenType(ScreenTypeEnum screenType) {
+		this.screenType = screenType;
+		if (pcs != null)
+			pcs.firePropertyChange("screenType", null, null);
 	}
 	
 }

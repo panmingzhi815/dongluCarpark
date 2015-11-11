@@ -111,8 +111,6 @@ public class CarparkManagePresenter {
 	@Inject
 	private OpenDoorLogPresenter openDoorLogPresenter;
 
-	@Inject
-	private TestPresenter p;
 
 	/**
 	 * 删除停车场
@@ -677,14 +675,12 @@ public class CarparkManagePresenter {
 		return returnAccountPresenter;
 	}
 
-	public TestPresenter getP() {
-		return p;
-	}
-
 	public InOutHistoryPresenter getInOutHostoryPresenter() {
 		return inOutHostoryPresenter;
 	}
-
+	/**
+	 * 编辑收费设置
+	 */
 	public void editCarparkChargeSetting() {
 		try {
 			CarparkChargeInfo carparkChargeInfo = carparkModel.getCarparkChargeInfo();
@@ -784,6 +780,9 @@ public class CarparkManagePresenter {
 	public void startUseTempCharge() {
 		try {
 			CarparkChargeInfo carparkChargeInfo = carparkModel.getCarparkChargeInfo();
+			if (StrUtil.isEmpty(carparkChargeInfo)) {
+				return;
+			}
 			if (carparkChargeInfo.getUseType().equals(CarparkChargeTypeEnum.固定月租收费)||carparkChargeInfo.getUseType().equals("已启用")) {
 				return;
 			}
@@ -815,6 +814,9 @@ public class CarparkManagePresenter {
 	public void stopUseTempCharge() {
 		try {
 			CarparkChargeInfo carparkChargeInfo = carparkModel.getCarparkChargeInfo();
+			if (StrUtil.isEmpty(carparkChargeInfo)) {
+				return;
+			}
 			if (carparkChargeInfo.getUseType().equals(CarparkChargeTypeEnum.固定月租收费)||carparkChargeInfo.getUseType().equals("未启用")) {
 				return;
 			}
@@ -823,7 +825,8 @@ public class CarparkManagePresenter {
 			sp.getCarparkService().saveCarparkChargeStandard(findCarparkChargeStandardByCode);
 			refreshCarparkCharge();
 		} catch (Exception e) {
-			commonui.error("启用失败", "未知错误"+e.getMessage());
+			LOGGER.error("禁用临时收费设置失败",e);
+			commonui.error("禁用失败", "禁用临时收费设置失败"+e);
 			e.printStackTrace();
 		}
 	}

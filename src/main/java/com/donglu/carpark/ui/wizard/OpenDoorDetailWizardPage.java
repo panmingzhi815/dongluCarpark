@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.Label;
 
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.layout.GridData;
@@ -22,23 +23,19 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.DisposeEvent;
 
-public class InOutHistoryDetailWizardPage extends WizardPage {
+public class OpenDoorDetailWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
-	private SingleCarparkInOutHistory model;
-	private Label lbl_inBigImg;
-	private Label lbl_outBigImg;
-	private SashForm sashForm;
-	private static Image inImage;
-	private Image outImage;
+	private SingleCarparkOpenDoorLog model;
+	private static Image image;
+	private Label label;
 	/**
 	 * Create the wizard.
 	 * @param model 
 	 * @param file 
 	 */
-	public InOutHistoryDetailWizardPage(SingleCarparkInOutHistory model) {
+	public OpenDoorDetailWizardPage(SingleCarparkOpenDoorLog model) {
 		super("wizardPage");
-		setTitle("进出场抓拍信息");
-		setDescription("进出场抓拍信息");
+		setDescription("开闸抓拍图片");
 		this.model=model;
 	}
 
@@ -50,13 +47,9 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		parent.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
 				System.out.println("InOutHistoryDetailWizardPage is dispose");
-				if (inImage!=null) {
-					inImage.dispose();
-					inImage=null;
-				}
-				if (outImage!=null) {
-					outImage.dispose();
-					outImage=null;
+				if (image!=null) {
+					image.dispose();
+					image=null;
 				}
 			}
 		});
@@ -86,57 +79,24 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		});
 		button.setText("刷新");
 		
-		sashForm = new SashForm(composite, SWT.NONE);
-		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
-		Composite composite_4 = new Composite(sashForm, SWT.NONE);
-		composite_4.setLayout(new GridLayout(1, false));
-		
-		lbl_inBigImg = new Label(composite_4, SWT.NONE);
-		lbl_inBigImg.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
-		Composite composite_5 = new Composite(sashForm, SWT.NONE);
-		composite_5.setLayout(new GridLayout(1, false));
-		
-		lbl_outBigImg = new Label(composite_5, SWT.NONE);
-		lbl_outBigImg.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		lbl_outBigImg.setBounds(0, 0, 400, 300);
-		lbl_inBigImg.setBounds(0, 0, 400, 300);
-		sashForm.setWeights(new int[] {1, 1});
+		label = new Label(composite, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		label.setBounds(0, 0, 500, 300);
 		setImage();
 		m_bindingContext = initDataBindings();
 	}
 	
 	private void setImage() {
 		try {
-			if (inImage!=null) {
-				inImage.dispose();
-				inImage=null;
+			if (image!=null) {
+				image.dispose();
+				image=null;
 			}
-			if (outImage!=null) {
-				outImage.dispose();
-				outImage=null;
-			}
-			
-			inImage = CarparkUtils.getImage(CarparkUtils.getImageByte(model.getBigImg()), lbl_inBigImg, getShell());
-			lbl_inBigImg.setImage(inImage);
-			outImage = CarparkUtils.getImage(CarparkUtils.getImageByte(model.getOutBigImg()), lbl_outBigImg, getShell());
-			lbl_outBigImg.setImage(outImage);
-			if (StrUtil.isEmpty(outImage)) {
-				sashForm.setWeights(new int[]{1,0});
-			}
-			
+			label.setImage(CarparkUtils.getImage(CarparkUtils.getImageByte(model.getImage()), label, getShell()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-	}
-
-	public void setBigImg(){
-		try {
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 	@Override
 	public InOutHistoryDetailWizard getWizard() {

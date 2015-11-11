@@ -22,6 +22,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -207,7 +208,7 @@ public class CarparkUtils {
 		String filePath=(String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 		try {
 			byte[] image;
-			String pathname = filePath+"/img/"+img;
+			String pathname = (filePath==null?"":filePath)+"/img/"+img;
 			File file=new File(pathname);
 			LOGGER.info("获取图片{}",pathname);
 			if (file.exists()) {
@@ -424,5 +425,13 @@ public class CarparkUtils {
 	}
 	public static String getUserName() {
 		return System.getProperty("userName");
+	}
+	public static void setFocus(Composite combo) {
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				combo.setFocus();
+			}
+		});
 	}
 }

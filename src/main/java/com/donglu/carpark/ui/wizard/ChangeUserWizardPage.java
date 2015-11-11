@@ -46,8 +46,7 @@ public class ChangeUserWizardPage extends WizardPage {
 	 */
 	public ChangeUserWizardPage(ChangeUserModel model2) {
 		super("wizardPage");
-		setTitle("换班");
-		setDescription("换班");
+		setDescription("输入用户名，密码进行换班");
 		this.model=model2;
 	}
 

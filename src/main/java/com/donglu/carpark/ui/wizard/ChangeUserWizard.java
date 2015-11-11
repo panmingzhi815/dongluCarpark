@@ -19,7 +19,7 @@ public class ChangeUserWizard extends Wizard implements AbstractWizard{
 	public ChangeUserWizard(ChangeUserModel model, CarparkDatabaseServiceProvider sp) {
 		this.model=model;
 		this.sp=sp;
-		setWindowTitle("归账");
+		setWindowTitle("换班");
 	}
 
 	@Override

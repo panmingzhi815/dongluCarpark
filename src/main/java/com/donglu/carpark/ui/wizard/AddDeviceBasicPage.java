@@ -35,6 +35,8 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.Arrays;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
+
+import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 
@@ -74,6 +76,9 @@ public class AddDeviceBasicPage extends WizardPage {
 	private ComboViewer comboViewer_2;
 	private Label label_3;
 	private Text text_4;
+	private Label label_9;
+	private Combo combo_3;
+	private ComboViewer comboViewer_3;
 
 	/**
 	 * Create the wizard.
@@ -231,7 +236,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		
 		label_7 = new Label(composite, SWT.NONE);
 		label_7.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_7.setText("停车场");
+		label_7.setText("所属停车场");
 		
 		comboViewer_1 = new ComboViewer(composite, SWT.READ_ONLY);
 		combo_1 = comboViewer_1.getCombo();
@@ -243,6 +248,17 @@ public class AddDeviceBasicPage extends WizardPage {
 		
 		text_4 = new Text(composite, SWT.BORDER);
 		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		label_9 = new Label(composite, SWT.NONE);
+		label_9.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_9.setText("显示屏类型");
+		
+		comboViewer_3 = new ComboViewer(composite, SWT.READ_ONLY);
+		combo_3 = comboViewer_3.getCombo();
+		combo_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		comboViewer_3.setContentProvider(new ArrayContentProvider());
+		comboViewer_3.setLabelProvider(new LabelProvider());
+		comboViewer_3.setInput(ScreenTypeEnum.values());
 		if (model.getType().equals("tcp")) {
 			address_stack.topControl = text_tcpip;
 			address_stack_container.layout();
@@ -308,6 +324,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue observeTextText_4ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_4);
 		IObservableValue advertiseModelObserveValue = BeanProperties.value("advertise").observe(model);
 		bindingContext.bindValue(observeTextText_4ObserveWidget, advertiseModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer_3 = ViewerProperties.singleSelection().observe(comboViewer_3);
+		IObservableValue screenTypeModelObserveValue = BeanProperties.value("screenType").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer_3, screenTypeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

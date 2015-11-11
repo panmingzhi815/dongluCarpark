@@ -14,6 +14,7 @@ import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.wizard.AddBlackUserWizard;
 import com.donglu.carpark.ui.wizard.AddUserModel;
 import com.donglu.carpark.ui.wizard.AddUserWizard;
+import com.donglu.carpark.ui.wizard.OpenDoorDetailWizard;
 import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayModel;
 import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayWizard;
 import com.donglu.carpark.util.ExcelImportExport;
@@ -63,5 +64,11 @@ public class OpenDoorListPresenter extends AbstractListPresenter<SingleCarparkOp
 		this.end=end;
 		this.deviceName=deviceName;
 		refresh();
+	}
+	@Override
+	public void mouseDoubleClick(List<SingleCarparkOpenDoorLog> list) {
+		SingleCarparkOpenDoorLog singleCarparkOpenDoorLog = list.get(0);
+		OpenDoorDetailWizard wizard=new OpenDoorDetailWizard(singleCarparkOpenDoorLog);
+		commonui.showWizard(wizard);
 	}
 }
