@@ -17,6 +17,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -71,14 +72,14 @@ public class CarInTask implements Runnable {
 		this.mapIpToDevice = mapIpToDevice;
 		this.mapSystemSetting = mapSystemSetting;
 		this.mapHandPhotograph = mapHandPhotograph;
-		this.mapOpenDoor=mapOpenDoor;
+		this.mapOpenDoor = mapOpenDoor;
 	}
 
 	public void run() {
 		Boolean boolean1 = mapOpenDoor.get(ip);
-		if (boolean1!=null&&boolean1) {
+		if (boolean1 != null && boolean1) {
 			mapOpenDoor.put(ip, null);
-			presenter.saveOpenDoor(mapIpToDevice.get(ip),bigImage, plateNO);
+			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO);
 			return;
 		}
 		Date date = new Date();
@@ -152,7 +153,7 @@ public class CarInTask implements Runnable {
 				editPlateNo = model.getInShowPlateNO();
 			} else {
 				String string = mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进);
-				Boolean valueOf = Boolean.valueOf(string==null?SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue():string);
+				Boolean valueOf = Boolean.valueOf(string == null ? SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue() : string);
 				if (!valueOf) {
 					return;
 				}
@@ -183,6 +184,18 @@ public class CarInTask implements Runnable {
 		presenter.showPlateNOToDevice(device, plateNO);
 		SingleCarparkBlackUser singleCarparkBlackUser = sp.getCarparkService().findBlackUserByPlateNO(plateNO);
 		if (!StrUtil.isEmpty(singleCarparkBlackUser)) {
+			Holiday findHolidayByDate = sp.getCarparkService().findHolidayByDate(new Date());
+			if (!StrUtil.isEmpty(findHolidayByDate) && !StrUtil.isEmpty(singleCarparkBlackUser.getHolidayIn()) && singleCarparkBlackUser.getHolidayIn()) {
+				model.setInShowMeg("黑名单");
+				presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
+				return;
+			}
+			if (StrUtil.isEmpty(findHolidayByDate) && !StrUtil.isEmpty(singleCarparkBlackUser.getWeekDayIn()) && singleCarparkBlackUser.getWeekDayIn()) {
+				model.setInShowMeg("黑名单");
+				presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
+				return;
+			}
+
 			int hoursStart = singleCarparkBlackUser.getHoursStart();
 			int hoursEnd = singleCarparkBlackUser.getHoursEnd() == 0 ? 23 : singleCarparkBlackUser.getHoursEnd();
 			int minuteStart = singleCarparkBlackUser.getMinuteStart();
@@ -190,12 +203,22 @@ public class CarInTask implements Runnable {
 			DateTime now = new DateTime(date);
 			DateTime dt = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), hoursStart, minuteStart, 00);
 			DateTime de = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), hoursEnd, minuteEnd, 59);
-			LOGGER.info("黑名单车牌：{}不能进入的时间为{}点到{}点", plateNO, hoursStart, hoursEnd);
-			if (now.toDate().after(dt.toDate()) && now.toDate().before(de.toDate())) {
-				LOGGER.error("车牌：{}为黑名单,现在时间为{}，在{}点到{}点之间", plateNO, now.toString("HH:mm:ss"), hoursStart, hoursEnd);
-				model.setInShowMeg("黑名单");
-				presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
-				return;
+			if (singleCarparkBlackUser.getTimeIn()) {
+				LOGGER.info("黑名单车牌：{}允许进入的时间为{}点到{}点", plateNO, hoursStart, hoursEnd);
+				if (now.isBefore(dt.getMillis())||now.isAfter(de.getMillis())) {
+					model.setInShowMeg("黑名单");
+					presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
+					return;
+				}
+				
+			} else {
+				LOGGER.info("黑名单车牌：{}不能进入的时间为{}点到{}点", plateNO, hoursStart, hoursEnd);
+				if (now.toDate().after(dt.toDate()) && now.toDate().before(de.toDate())) {
+					LOGGER.error("车牌：{}为黑名单,现在时间为{}，在{}点到{}点之间", plateNO, now.toString("HH:mm:ss"), hoursStart, hoursEnd);
+					model.setInShowMeg("黑名单");
+					presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
+					return;
+				}
 			}
 		}
 		LOGGER.debug("显示车牌");
@@ -205,7 +228,7 @@ public class CarInTask implements Runnable {
 		LOGGER.debug("查找是否为固定车");
 		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO);
 		SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo.get(0);
-
+		
 		String carType = "临时车";
 
 		if (!StrUtil.isEmpty(user)) {

@@ -529,7 +529,7 @@ public class CarparkMainPresenter {
 		try {
 			Device d = getDevice(device);
 
-			return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(device.getInType()));
+			return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(device.getInType()),(byte)(device.getScreenType().getType()));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;

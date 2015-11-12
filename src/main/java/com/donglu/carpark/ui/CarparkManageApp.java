@@ -741,7 +741,7 @@ public class CarparkManageApp extends AbstractApp{
 		}else
 		gd_composite_14.exclude = true;
 		composite_14.setLayoutData(gd_composite_14);
-		composite_14.setLayout(new GridLayout(4, false));
+		composite_14.setLayout(new GridLayout(5, false));
 		
 		Label label_11 = new Label(composite_14, SWT.NONE);
 		label_11.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -795,6 +795,16 @@ public class CarparkManageApp extends AbstractApp{
 		});
 		button_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_8.setText("备份");
+		
+		Button button_2 = new Button(composite_14, SWT.NONE);
+		button_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.restoreDataBase(text_setting_dataBaseSave.getText());
+			}
+		});
+		button_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_2.setText("还原");
 		
 		Composite composite_15 = new Composite(group_4, SWT.NONE);
 		composite_15.setLayout(new GridLayout(3, false));

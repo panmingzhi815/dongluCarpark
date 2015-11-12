@@ -187,17 +187,21 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	AtomicInteger plateNoTotal = new AtomicInteger(0);
 
 	// 保存设备的进出口信息
-	Map<String, String> mapDeviceType = Maps.newHashMap();
+	public static Map<String, String> mapDeviceType = Maps.newHashMap();
 
 	// 保存设备的界面信息
-	Map<CTabItem, String> mapDeviceTabItem = Maps.newHashMap();
+	public static Map<CTabItem, String> mapDeviceTabItem = Maps.newHashMap();
 	// 保存设备的信息
-	Map<String, SingleCarparkDevice> mapIpToDevice = Maps.newHashMap();
+	public static Map<String, SingleCarparkDevice> mapIpToDevice = Maps.newHashMap();
 	// 保存设置信息
-	private Map<SystemSettingTypeEnum, String> mapSystemSetting = Maps.newHashMap();
+	public static  Map<SystemSettingTypeEnum, String> mapSystemSetting = Maps.newHashMap();
 	// 保存车牌最近的处理时间
-	Map<String, Date> mapPlateNoDate = Maps.newHashMap();
-	Map<String, Boolean> mapOpenDoor = Maps.newHashMap();
+	public static Map<String, Date> mapPlateNoDate = Maps.newHashMap();
+	
+	public static Map<String, Boolean> mapOpenDoor = Maps.newHashMap();
+	
+	// 保存最近的手动拍照时间
+	public static Map<String, Date> mapHandPhotograph = Maps.newHashMap();
 	// 进口tab
 	private CTabFolder tabInFolder;
 	// 出口tab
@@ -207,8 +211,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private Label lblNewLabel;
 	private Button btnCharge;
 	private Button btnFree;
-	// 保存最近的手动拍照时间
-	private Map<String, Date> mapHandPhotograph = Maps.newHashMap();
+	
 	// 是否中断收费操作
 	private boolean discontinue = false;
 	// 保存出场排队任务信息
@@ -394,7 +397,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			String name = carparkChargeStandard.getCarparkCarType().getName();
 			mapTempCharge.put(name, carparkChargeStandard.getCode());
 		}
-
+		
+		
 		outTheadPool = Executors.newSingleThreadExecutor();
 		inThreadPool = Executors.newCachedThreadPool();
 		refreshService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每秒刷新停车场全局监控信息"));
@@ -1626,6 +1630,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO);
 		SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo.get(0);
 		String carType = "临时车";
+		Date userOutTime = new DateTime(user.getValidTo()).plusDays(user.getDelayDays()==null?0:user.getDelayDays()).toDate();
+		
+		if (!StrUtil.isEmpty(user)&&userOutTime.after(date)) {
+			carType="固定车";
+		}
 		String roadType = device.getRoadType();
 		LOGGER.info("车辆类型为：{}==通道类型为：{}", carType, roadType);
 		// System.out.println("=====车辆类型为："+carType+"通道类型为："+roadType);
@@ -1634,7 +1643,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				+ "==界面操作：" + (nanoTime3 - nanoTime1));
 		boolean equals = roadType.equals(DeviceRoadTypeEnum.固定车通道.name());
 
-		if (!StrUtil.isEmpty(user)) {
+		if (carType.equals("固定车")) {
 			if (fixCarOutProcess(ip, plateNO, date, device, user, roadType, equals, bigImg, smallImg)) {
 				return;
 			}

@@ -1,6 +1,7 @@
 package com.donglu.carpark.ui.wizard;
 
 import org.eclipse.jface.wizard.Wizard;
+import org.joda.time.DateTime;
 
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.AbstractWizard;
@@ -65,6 +66,12 @@ public class AddBlackUserWizard extends Wizard implements AbstractWizard{
 			if (me<0||me>=60) {
 				 page.setErrorMessage("请输入正确时间");
 					return false;
+			}
+			DateTime start = new DateTime(2015,1,1,hs,ms);
+			DateTime end = new DateTime(2015,1,1,he,me);
+			if (end.isBefore(start.getMillis())) {
+				page.setErrorMessage("请输入正确时间段");
+				return false;
 			}
 			model.setHoursStart(hs);
 			model.setHoursEnd(he);

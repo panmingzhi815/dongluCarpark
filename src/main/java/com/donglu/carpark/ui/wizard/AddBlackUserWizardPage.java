@@ -20,6 +20,7 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.swt.widgets.Button;
 
 public class AddBlackUserWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -30,6 +31,9 @@ public class AddBlackUserWizardPage extends WizardPage {
 	private Text text_3;
 	private Text text_4;
 	private Text text_5;
+	private Button button;
+	private Button button_1;
+	private Button btnCheckButton;
 
 	/**
 	 * Create the wizard.
@@ -128,6 +132,21 @@ public class AddBlackUserWizardPage extends WizardPage {
 		GridData gd_text_1 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_1.heightHint = 99;
 		text_1.setLayoutData(gd_text_1);
+		new Label(composite, SWT.NONE);
+		
+		button = new Button(composite, SWT.CHECK);
+		button.setToolTipText("选中后，限制车辆只允许在限制时间进入");
+		button.setText("只允许限制时段进场");
+		new Label(composite, SWT.NONE);
+		
+		button_1 = new Button(composite, SWT.CHECK);
+		button_1.setToolTipText("选中后，限制车辆节假日不允许进入");
+		button_1.setText("节假日不允许进入");
+		new Label(composite, SWT.NONE);
+		
+		btnCheckButton = new Button(composite, SWT.CHECK);
+		btnCheckButton.setToolTipText("选中后，限制车辆工作日不允许进入");
+		btnCheckButton.setText("工作日不允许进入");
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {
@@ -156,6 +175,18 @@ public class AddBlackUserWizardPage extends WizardPage {
 		IObservableValue observeTextText_5ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_5);
 		IObservableValue minuteEndLabelModelObserveValue = BeanProperties.value("minuteEndLabel").observe(model);
 		bindingContext.bindValue(observeTextText_5ObserveWidget, minuteEndLabelModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionButtonObserveWidget = WidgetProperties.selection().observe(button);
+		IObservableValue timeInModelObserveValue = BeanProperties.value("timeIn").observe(model);
+		bindingContext.bindValue(observeSelectionButtonObserveWidget, timeInModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionButton_1ObserveWidget = WidgetProperties.selection().observe(button_1);
+		IObservableValue holidayInModelObserveValue = BeanProperties.value("holidayIn").observe(model);
+		bindingContext.bindValue(observeSelectionButton_1ObserveWidget, holidayInModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionBtnCheckButtonObserveWidget = WidgetProperties.selection().observe(btnCheckButton);
+		IObservableValue weekDayInModelObserveValue = BeanProperties.value("weekDayIn").observe(model);
+		bindingContext.bindValue(observeSelectionBtnCheckButtonObserveWidget, weekDayInModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

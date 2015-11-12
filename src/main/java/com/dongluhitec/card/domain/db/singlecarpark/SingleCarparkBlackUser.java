@@ -24,6 +24,10 @@ public class SingleCarparkBlackUser extends DomainObject {
 	private int hoursEnd = 23;
 	private int minuteStart = 0;
 	private int minuteEnd = 59;
+	private Boolean timeIn=false;
+	private Boolean weekDayIn=false;
+	private Boolean holidayIn=false;
+	
 	@Transient
 	private String hoursStartLabel;
 	@Transient
@@ -170,6 +174,36 @@ public class SingleCarparkBlackUser extends DomainObject {
 		this.minuteEndLabel = minuteEndLabel;
 		if (pcs != null)
 			pcs.firePropertyChange("minuteEndLabel", null, null);
+	}
+
+	public Boolean getTimeIn() {
+		return timeIn;
+	}
+
+	public void setTimeIn(Boolean timeIn) {
+		this.timeIn = timeIn;
+		if (pcs != null)
+			pcs.firePropertyChange("timeIn", null, null);
+	}
+
+	public Boolean getWeekDayIn() {
+		return weekDayIn;
+	}
+
+	public void setWeekDayIn(Boolean weekDayIn) {
+		this.weekDayIn = weekDayIn;
+		if (pcs != null)
+			pcs.firePropertyChange("weekDayIn", null, null);
+	}
+
+	public Boolean getHolidayIn() {
+		return holidayIn;
+	}
+
+	public void setHolidayIn(Boolean holidayIn) {
+		this.holidayIn = holidayIn;
+		if (pcs != null)
+			pcs.firePropertyChange("holidayIn", null, null);
 	}
 
 }

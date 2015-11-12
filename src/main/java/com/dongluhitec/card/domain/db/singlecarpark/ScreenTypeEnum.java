@@ -2,7 +2,7 @@ package com.dongluhitec.card.domain.db.singlecarpark;
 
 public enum ScreenTypeEnum {
 	零八接口显示小屏,零八接口显示大屏,一二接口显示屏,七五接口显示屏;
-	int getType(){
+	public int getType(){
 		switch (this) {
 		case 零八接口显示小屏:
 			return 1;

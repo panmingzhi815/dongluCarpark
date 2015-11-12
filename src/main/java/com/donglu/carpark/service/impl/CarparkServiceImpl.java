@@ -547,7 +547,7 @@ public class CarparkServiceImpl implements CarparkService {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), Holiday.class);
-//			c.
+			c.add(Restrictions.eq("start", date));
 			return (Holiday) c.getSingleResultOrNull();
 		}catch(Exception e){
 			e.printStackTrace();

@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -173,6 +174,12 @@ public class CarparkManagePresenter {
 	 */
 	public void addChildCapark() {
 		SingleCarparkCarpark model = new SingleCarparkCarpark();
+		SingleCarparkCarpark carpark = carparkModel.getCarpark();
+		if (carpark == null) {
+			commonui.info("提示", "请先选择一个停车场");
+			return;
+		}
+		model.setParent(carpark);
 		addAndEditChildCarpark(model);
 	}
 
@@ -181,19 +188,13 @@ public class CarparkManagePresenter {
 	 */
 	private void addAndEditChildCarpark(SingleCarparkCarpark model) {
 		try {
-			SingleCarparkCarpark carpark = carparkModel.getCarpark();
-			if (carpark == null) {
-				commonui.info("提示", "请先选择一个停车场");
-				return;
-			}
+			
 			CarparkService carparkService = sp.getCarparkService();
 			AddCarparkChildWizard w = new AddCarparkChildWizard(model,sp);
 			SingleCarparkCarpark showWizard = (SingleCarparkCarpark) commonui.showWizard(w);
 			if (StrUtil.isEmpty(showWizard)) {
 				return;
 			}
-			
-			showWizard.setParent(carpark);
 			showWizard.setTempNumberOfSlot(0);
 			showWizard.setLeftNumberOfSlot(0);
 			showWizard.setTotalNumberOfSlot(0);
@@ -726,25 +727,7 @@ public class CarparkManagePresenter {
 		return userPresenter;
 	}
 
-	public float test1() {
-		float money = 0;
-		CountTempCarChargeI c=new CountTempCarChargeImpl();
-		DateTime start = new DateTime(2015, 10, 22, 00, 00, 00);
-		DateTime end = new DateTime(2015, 10, 29, 23, 59, 59);
-		money=c.charge(2L, start.toDate(), end.toDate(), sp);
-		return money;
-	}
-
-	public static void main(String[] args) {
-		Date start = new DateTime(2015, 10, 22, 8, 30).toDate();
-		Date end = new DateTime(2015, 10, 22, 17, 35).toDate();
-		int minusMinute = StrUtil.MinusMinute(start, end);
-		System.out.println(minusMinute + "===" + minusMinute / 60 + "===" + minusMinute % 60);
-		List<Date> cutDaysByDay = CarparkUtils.cutDaysByDay(start, end);
-		for (Date date : cutDaysByDay) {
-			System.out.println(StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss"));
-		}
-	}
+	
 	/**
 	 * 启用临时收费设置
 	 */
@@ -822,6 +805,36 @@ public class CarparkManagePresenter {
 
 	public OpenDoorLogPresenter getOpenDoorLogPresenter() {
 		return openDoorLogPresenter;
+	}
+
+	public void restoreDataBase(String path) {
+		try {
+			File f=new File(path);
+			if (!f.exists()) {
+				commonui.error("错误", "没有找到数据库备份文件");
+				return;
+			}
+			CarparkClientConfig ccc=(CarparkClientConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
+			if (StrUtil.isEmpty(ccc)) {
+				return;
+			}
+			String onlineSql="ALTER DATABASE carpark SET ONLINE WITH ROLLBACK IMMEDIATE";
+			String restoreSql="USE master ALTER DATABASE carpark SET OFFLINE WITH ROLLBACK IMMEDIATE;RESTORE DATABASE carpark FROM disk = '"+path+"' WITH REPLACE;";
+			boolean executeSQL = DatabaseUtil.executeSQL(ccc.getDbServerIp(), ccc.getDbServerPort(), "master", ccc.getDbServerUsername(), ccc.getDbServerPassword(), restoreSql, "SQLSERVER 2008");
+			boolean executeSQL2 = DatabaseUtil.executeSQL(ccc.getDbServerIp(), ccc.getDbServerPort(), "master", ccc.getDbServerUsername(), ccc.getDbServerPassword(), onlineSql, "SQLSERVER 2008");
+			if (!executeSQL&&!executeSQL2) {
+				if (!executeSQL) {
+					commonui.error("还原失败", "还原数据库失败");
+				}
+				if (!executeSQL2) {
+					commonui.error("失败", "重新建立数据库连接失败，请重启程序");
+				}
+			}
+			commonui.info("成功", "还原数据库成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	
