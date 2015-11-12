@@ -127,7 +127,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 	static final String CAR_OUT_MSG = "祝您一路平安";
 
-	private static final String CAR_IN_MSG = "欢迎光临,请入场停车";
+	static final String CAR_IN_MSG = "欢迎光临,请入场停车";
 
 	private static final String NOT_PERMIT_TEMPCAR_IN_MSG = "固定停车场，不容许临时车进入";
 
@@ -361,11 +361,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	 */
 	private void init() {
 		presenter.setView(this);
-		presenter.setMapDeviceTabItem(this.mapDeviceTabItem);
-		presenter.setMapDeviceType(this.mapDeviceType);
-		presenter.setMapIpToDevice(mapIpToDevice);
-		presenter.setMapSystemSetting(mapSystemSetting);
-
 		presenter.setModel(model);
 		String userName = System.getProperty("userName");
 		model.setUserName(userName);
@@ -1500,8 +1495,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 			});
 		} else if (mapDeviceType.get(ip).equals("进口")) {
-			inThreadPool.submit(new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_inBigImg, lbl_inSmallImg, shell, mapPlateNoDate, mapIpToDevice, mapSystemSetting,
-					mapHandPhotograph, mapOpenDoor));
+			inThreadPool.submit(new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_inBigImg, lbl_inSmallImg, shell));
 		}
 	}
 
@@ -1510,7 +1504,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		Boolean boolean1 = mapOpenDoor.get(ip);
 		if (boolean1 != null && boolean1) {
 			mapOpenDoor.put(ip, null);
-			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO);
+			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO, false);
 			return;
 		}
 		discontinue = false;
@@ -1630,10 +1624,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO);
 		SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo.get(0);
 		String carType = "临时车";
-		Date userOutTime = new DateTime(user.getValidTo()).plusDays(user.getDelayDays()==null?0:user.getDelayDays()).toDate();
 		
-		if (!StrUtil.isEmpty(user)&&userOutTime.after(date)) {
-			carType="固定车";
+		if (!StrUtil.isEmpty(user)) {
+			Date userOutTime = new DateTime(user.getValidTo()).plusDays(user.getDelayDays()==null?0:user.getDelayDays()).toDate();
+			if (userOutTime.after(date)) {
+				carType="固定车";
+			}
 		}
 		String roadType = device.getRoadType();
 		LOGGER.info("车辆类型为：{}==通道类型为：{}", carType, roadType);
@@ -1943,7 +1939,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 		} , 3000, 1000, TimeUnit.MILLISECONDS);
 	}
-
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
@@ -2049,9 +2044,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue comboCarTypeEnableModelObserveValue = BeanProperties.value("comboCarTypeEnable").observe(model);
 		bindingContext.bindValue(observeEnabledComboObserveWidget, comboCarTypeEnableModelObserveValue, null, null);
 		//
-		IObservableValue observeEnabledText_realObserveWidget = WidgetProperties.enabled().observe(text_real);
-		bindingContext.bindValue(observeEnabledText_realObserveWidget, btnClickModelObserveValue, null, null);
-		//
 		IObservableValue observeEditableTxtinplateNoObserveWidget = WidgetProperties.editable().observe(txtinplateNo);
 		bindingContext.bindValue(observeEditableTxtinplateNoObserveWidget, inCheckClickModelObserveValue, null, null);
 		//
@@ -2070,6 +2062,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
 		IObservableValue carparkCarTypeModelObserveValue = BeanProperties.value("carparkCarType").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer, carparkCarTypeModelObserveValue, null, null);
+		//
+		IObservableValue observeEditableText_realObserveWidget = WidgetProperties.editable().observe(text_real);
+		bindingContext.bindValue(observeEditableText_realObserveWidget, btnClickModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

@@ -94,17 +94,16 @@ public class CarparkMainPresenter {
 	@Inject
 	private SearchErrorCarPresenter searchErrorCarPresenter;
 
-	private CountTempCarChargeI countTempCarCharge;
 
 	// 保存设备的进出口信息
-	Map<String, String> mapDeviceType;
+	Map<String, String> mapDeviceType=CarparkMainApp.mapDeviceType;
 
 	// 保存设备的界面信息
-	Map<CTabItem, String> mapDeviceTabItem;
+	Map<CTabItem, String> mapDeviceTabItem=CarparkMainApp.mapDeviceTabItem;
 	// 保存设备的信息
-	Map<String, SingleCarparkDevice> mapIpToDevice;
+	Map<String, SingleCarparkDevice> mapIpToDevice=CarparkMainApp.mapIpToDevice;
 	// 保存设置信息
-	private Map<SystemSettingTypeEnum, String> mapSystemSetting;
+	private Map<SystemSettingTypeEnum, String> mapSystemSetting=CarparkMainApp.mapSystemSetting;
 
 	private CarparkMainModel model;
 
@@ -368,30 +367,6 @@ public class CarparkMainPresenter {
 		this.view = view;
 	}
 
-	public Map<String, String> getMapDeviceType() {
-		return mapDeviceType;
-	}
-
-	public void setMapDeviceType(Map<String, String> mapDeviceType) {
-		this.mapDeviceType = mapDeviceType;
-	}
-
-	public Map<CTabItem, String> getMapDeviceTabItem() {
-		return mapDeviceTabItem;
-	}
-
-	public void setMapDeviceTabItem(Map<CTabItem, String> mapDeviceTabItem) {
-		this.mapDeviceTabItem = mapDeviceTabItem;
-	}
-
-	public Map<String, SingleCarparkDevice> getMapIpToDevice() {
-		return mapIpToDevice;
-	}
-
-	public void setMapIpToDevice(Map<String, SingleCarparkDevice> mapIpToDevice) {
-		this.mapIpToDevice = mapIpToDevice;
-	}
-
 	public CarparkMainModel getModel() {
 		return model;
 	}
@@ -583,49 +558,6 @@ public class CarparkMainPresenter {
 			return false;
 		}
 	}
-
-	/**
-	 * 免费放行
-	 */
-	public boolean freeCarPass() {
-		String plateNo = model.getPlateNo();
-		SingleCarparkInOutHistory history = model.getHistory();
-
-		float real = 0;
-		float shouldMony = model.getShouldMony();
-		boolean confirm = commonui.confirm("收费确认", "车牌：" + plateNo + "应收：" + shouldMony + "免费放行");
-		if (!confirm) {
-			return false;
-		}
-		model.setReal(real);
-		return true;
-		// history.setFactMoney(real);
-		// history.setFreeMoney(shouldMony-real);
-		// sp.getCarparkInOutService().saveInOutHistory(history);
-
-	}
-
-	/**
-	 * 收费放行
-	 */
-	public boolean chargeCarPass() {
-
-		String plateNo = model.getPlateNo();
-		SingleCarparkInOutHistory history = model.getHistory();
-
-		float real = model.getReal();
-		float shouldMony = model.getShouldMony();
-		if (real > shouldMony) {
-			commonui.error("收费提示", "实时不能超过应收");
-			return false;
-		}
-		boolean confirm = commonui.confirm("收费确认", "车牌：" + plateNo + "应收：" + shouldMony + "实收：" + real);
-		if (!confirm) {
-			return false;
-		}
-		return true;
-	}
-
 	/**
 	 * 计算收费
 	 * @param carparkId 
@@ -759,10 +691,6 @@ public class CarparkMainPresenter {
 		}
 	}
 
-	public void setMapSystemSetting(Map<SystemSettingTypeEnum, String> mapSystemSetting) {
-		this.mapSystemSetting = mapSystemSetting;
-	}
-
 	public void init() {
 
 	}
@@ -835,7 +763,7 @@ public class CarparkMainPresenter {
 		return true;
 	}
 
-	public void saveOpenDoor(SingleCarparkDevice device, byte[] image, String plateNO) {
+	public void saveOpenDoor(SingleCarparkDevice device, byte[] image, String plateNO, boolean inOrOut) {
 		Date date=new Date();
 		String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
 		String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
@@ -847,6 +775,11 @@ public class CarparkMainPresenter {
 		openDoor.setImage(bigImgFileName);
 		openDoor.setDeviceName(device.getName());
 		sp.getCarparkInOutService().saveOpenDoorLog(openDoor);
-		showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
+		showPlateNOToDevice(device, "");
+		if (inOrOut) {
+			showContentToDevice(device, CarparkMainApp.CAR_IN_MSG, true);
+		}else{
+			showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
+		}
 	}
 }

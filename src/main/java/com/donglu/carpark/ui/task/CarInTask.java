@@ -45,18 +45,17 @@ public class CarInTask implements Runnable {
 	private final byte[] smallImage;
 	private final Shell shell;
 	// 保存车牌最近的处理时间
-	private final Map<String, Date> mapPlateNoDate;
+	private final Map<String, Date> mapPlateNoDate=CarparkMainApp.mapPlateNoDate;
 	// 保存设备的信息
-	private final Map<String, SingleCarparkDevice> mapIpToDevice;
+	private final Map<String, SingleCarparkDevice> mapIpToDevice=CarparkMainApp.mapIpToDevice;
 	// 保存设置信息
-	private final Map<SystemSettingTypeEnum, String> mapSystemSetting;
+	private final Map<SystemSettingTypeEnum, String> mapSystemSetting=CarparkMainApp.mapSystemSetting;
 	// 保存最近的手动拍照时间
-	private final Map<String, Date> mapHandPhotograph;
-	private final Map<String, Boolean> mapOpenDoor;
+	private final Map<String, Date> mapHandPhotograph=CarparkMainApp.mapHandPhotograph;
+	private final Map<String, Boolean> mapOpenDoor=CarparkMainApp.mapOpenDoor;
 
 	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, CLabel lbl_inBigImg,
-			CLabel lbl_inSmallImg, Shell shell, Map<String, Date> mapPlateNoDate, Map<String, SingleCarparkDevice> mapIpToDevice, Map<SystemSettingTypeEnum, String> mapSystemSetting,
-			Map<String, Date> mapHandPhotograph, Map<String, Boolean> mapOpenDoor) {
+			CLabel lbl_inSmallImg, Shell shell) {
 		super();
 		this.ip = ip;
 		this.plateNO = plateNO;
@@ -68,18 +67,13 @@ public class CarInTask implements Runnable {
 		this.lbl_inBigImg = lbl_inBigImg;
 		this.lbl_inSmallImg = lbl_inSmallImg;
 		this.shell = shell;
-		this.mapPlateNoDate = mapPlateNoDate;
-		this.mapIpToDevice = mapIpToDevice;
-		this.mapSystemSetting = mapSystemSetting;
-		this.mapHandPhotograph = mapHandPhotograph;
-		this.mapOpenDoor = mapOpenDoor;
 	}
 
 	public void run() {
 		Boolean boolean1 = mapOpenDoor.get(ip);
 		if (boolean1 != null && boolean1) {
 			mapOpenDoor.put(ip, null);
-			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO);
+			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO,true);
 			return;
 		}
 		Date date = new Date();
