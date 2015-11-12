@@ -13,7 +13,7 @@ public interface CarparkInOutServiceI {
 	
 	Long saveInOutHistory(SingleCarparkInOutHistory inout);
 	
-	List<SingleCarparkInOutHistory> findByNoOut(String plateNo);
+	List<SingleCarparkInOutHistory> findByNoOut(String plateNo, SingleCarparkCarpark carpark);
 
 	float findTotalCharge(String userName);
 	

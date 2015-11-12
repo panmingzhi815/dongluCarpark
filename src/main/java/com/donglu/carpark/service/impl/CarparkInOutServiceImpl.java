@@ -58,12 +58,16 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		return inout.getId();
 	}
 
-	public List<SingleCarparkInOutHistory> findByNoOut(String plateNo) {
+	public List<SingleCarparkInOutHistory> findByNoOut(String plateNo, SingleCarparkCarpark carpark) {
 		unitOfWork.begin();
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.eq("plateNo", plateNo));
 			c.add(Restrictions.isNull("outTime"));
+//			List<SingleCarparkCarpark> findSameCarpark = findSameCarpark(carpark);
+//			for (SingleCarparkCarpark singleCarparkCarpark : findSameCarpark) {
+			c.add(Restrictions.eq("carparkId", carpark.getId()));
+//			}
 			c.addOrder(Order.asc("inTime"));
 			return c.getResultList();
 		} finally {

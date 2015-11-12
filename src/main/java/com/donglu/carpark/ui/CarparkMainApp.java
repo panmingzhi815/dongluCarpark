@@ -400,9 +400,25 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		if (StrUtil.isEmpty(System.getProperty("autoSendPositionToDevice"))) {
 			autoSendPositionToDevice();
+			autoSendTimeToDevice();
 		}
 		refreshCarparkBasicInfo(refreshTimeSpeedSecond);
 
+	}
+
+	private void autoSendTimeToDevice() {
+		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+
+			@Override
+			public void run() {
+				Set<String> keySet = mapIpToDevice.keySet();
+				for (String c : keySet) {
+					presenter.showNowTimeToDevice(mapIpToDevice.get(c));
+				}
+			}
+		}, 5, 60*60, TimeUnit.SECONDS);
+		
 	}
 
 	/**
@@ -1564,6 +1580,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			LOGGER.info("没有找到ip为：" + ip + "的设备");
 			return;
 		}
+		SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkById(device.getCarpark().getId());
+		
+		if (StrUtil.isEmpty(carpark)) {
+			LOGGER.info("没有找到名字为：" + carpark + "的停车场");
+			return;
+		}
 		model.setIp(ip);
 		String bigImg = folder + "/" + bigImgFileName;
 		String smallImg = folder + "/" + smallImgFileName;
@@ -1579,7 +1601,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		}
 
 		// 没有找到入场记录
-		List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO);
+		List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO,carpark);
 		if (StrUtil.isEmpty(findByNoOut)) {
 			LOGGER.info("没有找到车牌{}的入场记录", plateNO);
 			setBtnData(btnHandSearch, BTN_KEY_PLATENO, plateNO);
@@ -1698,7 +1720,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		}
 		//
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(nowPlateNO);
+		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(nowPlateNO,device.getCarpark());
 		Date validTo = user.getValidTo();
 		Integer delayDays = user.getDelayDays() == null ? 0 : user.getDelayDays();
 
@@ -1759,7 +1781,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 	private void carparkOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg) {
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(plateNO);
+		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(plateNO,device.getCarpark());
 		if (!StrUtil.isEmpty(findByNoCharge)) {
 
 			SingleCarparkInOutHistory singleCarparkInOutHistory = findByNoCharge.get(0);
@@ -1787,6 +1809,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			model.setInTime(inTime);
 			model.setTotalTime(StrUtil.MinusTime2(inTime, date));
 			model.setHistory(singleCarparkInOutHistory);
+			model.setShouldMony(0);
+			model.setReal(0);
 			CarTypeEnum carType = CarTypeEnum.SmallCar;
 			if (mapTempCharge.keySet().size() > 1) {
 				CarparkUtils.setFocus(combo);

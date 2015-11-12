@@ -551,6 +551,7 @@ public class CarparkMainPresenter {
 
 	public boolean showUsualContentToDevice(SingleCarparkDevice device, String usualContent) {
 		try {
+			showNowTimeToDevice(device);
 			Boolean carparkUsualContent = hardwareService.carparkUsualContent(getDevice(device), usualContent);
 			return carparkUsualContent;
 		} catch (Exception e) {
@@ -781,5 +782,9 @@ public class CarparkMainPresenter {
 		}else{
 			showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
 		}
+	}
+
+	public void showNowTimeToDevice(SingleCarparkDevice singleCarparkDevice) {
+		hardwareService.setDate(getDevice(singleCarparkDevice), new Date());
 	}
 }
