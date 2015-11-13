@@ -19,6 +19,7 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class AddCarparkChildWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -32,8 +33,6 @@ public class AddCarparkChildWizardPage extends WizardPage {
 	 */
 	public AddCarparkChildWizardPage(SingleCarparkCarpark model) {
 		super("wizardPage");
-		setTitle("添加停车场");
-		setDescription("添加停车场");
 		this.model=model;
 	}
 
@@ -52,21 +51,26 @@ public class AddCarparkChildWizardPage extends WizardPage {
 		composite.setLayout(new GridLayout(2, false));
 		
 		Label label = new Label(composite, SWT.NONE);
+		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("停车场编码");
 		
 		text = new Text(composite, SWT.BORDER);
+		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label label_1 = new Label(composite, SWT.NONE);
+		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_1.setText("停车场名称");
 		
 		text_1 = new Text(composite, SWT.BORDER);
+		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(composite, SWT.NONE);
 		
 		btnBu = new Button(composite, SWT.CHECK);
+		btnBu.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btnBu.setText("不允许临时车进入");
 		m_bindingContext = initDataBindings();
 	}

@@ -3,6 +3,7 @@ package com.donglu.carpark.ui.wizard;
 import org.eclipse.jface.wizard.Wizard;
 
 import com.dongluhitec.card.common.ui.AbstractWizard;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -20,6 +21,7 @@ public class InOutHistoryDetailWizard extends Wizard implements AbstractWizard{
 		page = new InOutHistoryDetailWizardPage(model);
 		addPage(page);
 		getShell().setSize(840, 630);
+		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 	}
 
 	@Override

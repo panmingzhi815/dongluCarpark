@@ -83,7 +83,7 @@ public class AddUserWizardPage extends WizardPage {
 		Label label = new Label(composite, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("车牌");
+		label.setText("车牌号码");
 		
 		text = new Text(composite, SWT.BORDER);
 		text.addFocusListener(new FocusAdapter() {
@@ -100,7 +100,7 @@ public class AddUserWizardPage extends WizardPage {
 		Label label_1 = new Label(composite, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_1.setText("用户名");
+		label_1.setText("用户名字");
 		
 		text_1 = new Text(composite, SWT.BORDER);
 		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -132,7 +132,7 @@ public class AddUserWizardPage extends WizardPage {
 		Label label_3 = new Label(composite, SWT.NONE);
 		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_3.setText("住址");
+		label_3.setText("用户住址");
 		
 		text_3 = new Text(composite, SWT.BORDER);
 		text_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -143,7 +143,7 @@ public class AddUserWizardPage extends WizardPage {
 		Label label_4 = new Label(composite, SWT.NONE);
 		label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_4.setText("车位");
+		label_4.setText("车位数量");
 		
 		txt_carNO = new Text(composite, SWT.BORDER);
 		txt_carNO.addKeyListener(new KeyAdapter() {

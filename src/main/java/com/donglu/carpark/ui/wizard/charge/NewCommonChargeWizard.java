@@ -10,6 +10,7 @@ import com.donglu.carpark.service.CarparkService;
 import com.dongluhitec.card.blservice.DatabaseServiceDaemon;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.carpark.MonthlyCarparkCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationStandard;
@@ -48,7 +49,7 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
     public void addPages() {
         page = new NewCommonChargeBasicPage(model);
         addPage(page);
-
+        getShell().setImage(JFaceUtil.getImage("carpark_32"));
         getShell().setSize(700, 700);
     }
 

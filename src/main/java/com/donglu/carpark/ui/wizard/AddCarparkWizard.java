@@ -4,6 +4,7 @@ import org.eclipse.jface.wizard.Wizard;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.dongluhitec.card.common.ui.AbstractWizard;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -27,6 +28,7 @@ public class AddCarparkWizard extends Wizard implements AbstractWizard{
 	public void addPages() {
 		page = new AddCarparkWizardPage(model);
 		addPage(page);
+		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 	}
 
 	@Override

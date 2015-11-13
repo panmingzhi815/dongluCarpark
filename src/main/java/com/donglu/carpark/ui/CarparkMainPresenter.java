@@ -181,6 +181,7 @@ public class CarparkMainPresenter {
 		String ip = device.getIp();
 		SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(ip);
 		if (!StrUtil.isEmpty(singleCarparkDevice)) {
+			commonui.error("提示", "ip" + ip + "的设备已存在");
 			throw new Exception("ip" + ip + "的设备已存在");
 		}
 		mapIpToDevice.put(ip, device);
@@ -345,7 +346,7 @@ public class CarparkMainPresenter {
 			} else {
 				if (mapDeviceType.get(ip) != null) {
 					commonui.error("修改失败", "设备" + ip + "已存在");
-					return;
+//					return;
 				}
 				deleteDeviceTabItem(selection);
 				addDevice(showWizard.getDevice());
@@ -597,7 +598,10 @@ public class CarparkMainPresenter {
 	 * 换班
 	 */
 	public void changeUser() {
-
+		if (model.isBtnClick()) {
+			commonui.info("提示", "正在收费，请收完在换班");
+			return;
+		}
 		ChangeUserWizard wizard = new ChangeUserWizard(new ChangeUserModel(), sp);
 		ChangeUserModel showWizard = (ChangeUserModel) commonui.showWizard(wizard);
 		if (StrUtil.isEmpty(showWizard)) {

@@ -24,6 +24,7 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class AddSystemUserWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -41,8 +42,6 @@ public class AddSystemUserWizardPage extends WizardPage {
 	 */
 	public AddSystemUserWizardPage(SystemUserModel model) {
 		super("wizardPage");
-		setTitle("添加系统用户");
-		setDescription("添加系统用户");
 		this.model=model;
 	}
 
@@ -61,40 +60,52 @@ public class AddSystemUserWizardPage extends WizardPage {
 		composite.setLayout(new GridLayout(2, false));
 		
 		Label label_1 = new Label(composite, SWT.NONE);
+		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_1.setText("用户名");
+		label_1.setText("用户名称");
 		
 		text = new Text(composite, SWT.BORDER);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text.widthHint = 200;
+		text.setLayoutData(gd_text);
 		
 		Label lblNewLabel = new Label(composite, SWT.NONE);
+		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel.setText("密码");
+		lblNewLabel.setText("用户密码");
 		
 		text_1 = new Text(composite, SWT.BORDER | SWT.PASSWORD);
+		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
+		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_1.setText("确认密码");
 		
 		text_2 = new Text(composite, SWT.BORDER | SWT.PASSWORD);
+		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblNewLabel_2 = new Label(composite, SWT.NONE);
+		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_2.setText("用户类型");
 		
 		comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
 		combo = comboViewer.getCombo();
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(SystemUserTypeEnum.values());
 		Label label = new Label(composite, SWT.NONE);
+		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("备注");
+		label.setText("备注信息");
 		text_4 = new Text(composite, SWT.BORDER);
+		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		m_bindingContext = initDataBindings();
 	}

@@ -3,6 +3,7 @@ package com.donglu.carpark.ui.wizard;
 import org.eclipse.jface.wizard.Wizard;
 
 import com.dongluhitec.card.common.ui.AbstractWizard;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -31,6 +32,7 @@ public class AddDeviceWizard extends Wizard implements AbstractWizard{
 		
 		page = new AddDeviceBasicPage(model);
 		addPage(page);
+		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 	}
 
 	@Override

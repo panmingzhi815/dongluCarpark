@@ -330,6 +330,13 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			createContents();
 			shell.setMaximized(true);
 			shell.setImage(JFaceUtil.getImage("carpark_16"));
+			shell.addDisposeListener(new DisposeListener() {
+				
+				@Override
+				public void widgetDisposed(DisposeEvent e) {
+					System.exit(0);
+				}
+			});
 			shell.open();
 			shell.layout();
 			while (!shell.isDisposed()) {

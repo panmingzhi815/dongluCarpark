@@ -82,7 +82,6 @@ public class AddYearHolidayPage extends WizardPage {
 
 		setImageDescriptor(JFaceUtil.getImageDescriptor("attendanceholidaygrup_72"));
 		setMessage("请选择日期");
-		setTitle("编辑节假日");
 		setDescription("Wizard Page description");
 		model.setSelect();
 	}

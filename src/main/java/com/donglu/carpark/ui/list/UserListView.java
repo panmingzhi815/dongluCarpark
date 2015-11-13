@@ -44,7 +44,7 @@ public class UserListView extends AbstractListView<SingleCarparkUser> implements
 				getPresenter().pay();
 			}
 		});
-		toolItem_pay.setText("充值");
+		toolItem_pay.setText("续费");
 		super.createMenuBarToolItem(toolBar_menu);
 		ToolItem toolItem_impot = new ToolItem(toolBar_menu, SWT.NONE);
 		toolItem_impot.addSelectionListener(new SelectionAdapter() {

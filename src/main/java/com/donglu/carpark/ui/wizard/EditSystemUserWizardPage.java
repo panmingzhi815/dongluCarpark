@@ -23,6 +23,7 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class EditSystemUserWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -58,32 +59,42 @@ public class EditSystemUserWizardPage extends WizardPage {
 		composite.setLayout(new GridLayout(2, false));
 		
 		Label label_1 = new Label(composite, SWT.NONE);
+		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_1.setText("用户名");
+		label_1.setText("用户名称");
 		
 		text = new Text(composite, SWT.BORDER);
+		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text.setEnabled(false);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text.widthHint = 200;
+		text.setLayoutData(gd_text);
 		
 		Label lblNewLabel = new Label(composite, SWT.NONE);
+		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel.setText("新密码");
+		lblNewLabel.setText("新的密码");
 		
 		text_1 = new Text(composite, SWT.BORDER | SWT.PASSWORD);
+		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
+		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_1.setText("确认密码");
 		
 		text_2 = new Text(composite, SWT.BORDER | SWT.PASSWORD);
+		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label label = new Label(composite, SWT.NONE);
-		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("备注");
+		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
+		label.setText("备注信息");
 		
 		text_3 = new Text(composite, SWT.BORDER | SWT.MULTI);
+		text_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_text_3 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_3.heightHint = 50;
 		text_3.setLayoutData(gd_text_3);

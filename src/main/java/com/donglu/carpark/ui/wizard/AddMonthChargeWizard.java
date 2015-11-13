@@ -1,17 +1,14 @@
 package com.donglu.carpark.ui.wizard;
 
-import com.dongluhitec.card.ui.carpark.pay.storein.wizard.NewCarparkStoreInHistoryModel;
 import org.eclipse.jface.wizard.Wizard;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.wizard.model.AddMonthChargeModel;
 import com.dongluhitec.card.common.ui.AbstractWizard;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.ui.cache.MonthlyCarparkChargeInfo;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 
 public class AddMonthChargeWizard extends Wizard implements AbstractWizard {
 
@@ -29,6 +26,7 @@ public class AddMonthChargeWizard extends Wizard implements AbstractWizard {
 	public void addPages() {
 		page = new AddMonthChargeWizardPage(model);
 		this.addPage(page);
+		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 	}
 
 	@Override
@@ -69,7 +67,7 @@ public class AddMonthChargeWizard extends Wizard implements AbstractWizard {
 				page.setErrorMessage("编码只能是0-99的数字");
 				return false;
 			}
-			if (parseInt>=0&&parseInt<=9) {
+			if (parseInt>=0&&parseInt<=99) {
 				model.setChargeCode("0"+parseInt);
 			}
 		} catch (NumberFormatException e) {
@@ -81,7 +79,7 @@ public class AddMonthChargeWizard extends Wizard implements AbstractWizard {
 			page.setErrorMessage("月租月数必须大于0");
 			return false;
 		}
-		if (checkCode(code)) {
+		if (checkCode(model.getChargeCode())) {
 			page.setErrorMessage("编码已存在");
 			return false;
 		}

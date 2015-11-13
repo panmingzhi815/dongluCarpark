@@ -5,6 +5,7 @@ import org.eclipse.jface.wizard.Wizard;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.wizard.model.ReturnAccountModel;
 import com.dongluhitec.card.common.ui.AbstractWizard;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -27,6 +28,7 @@ public class ReturnAccountWizard extends Wizard implements AbstractWizard{
 		addPage(page);
 		getShell().setSize(450,550);
 		WidgetUtil.center(getShell());
+		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 	}
 
 	@Override

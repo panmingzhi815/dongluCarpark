@@ -73,7 +73,7 @@ public class ReturnAccountWizardPage extends WizardPage {
 		Label label_1 = new Label(composite, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_1.setText("用户名");
+		label_1.setText("用户名称");
 		
 		text = new Text(composite, SWT.BORDER);
 		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -85,7 +85,7 @@ public class ReturnAccountWizardPage extends WizardPage {
 		Label label = new Label(composite, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("密码");
+		label.setText("用户密码");
 		
 		text_1 = new Text(composite, SWT.BORDER | SWT.PASSWORD);
 		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

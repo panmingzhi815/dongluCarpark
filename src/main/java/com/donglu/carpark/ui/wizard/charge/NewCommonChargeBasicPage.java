@@ -108,7 +108,6 @@ public class NewCommonChargeBasicPage extends WizardPage {
         super("wizardPage");
         this.model = model;
 
-        setTitle("添加停车场临时收费标准");
         setDescription("请输入收费标准详细参数");
     }
     

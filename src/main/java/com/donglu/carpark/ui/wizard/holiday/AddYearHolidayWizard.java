@@ -42,7 +42,7 @@ public class AddYearHolidayWizard extends Wizard implements AbstractWizard{
 	public void addPages() {
 		this.addYearHolidayPage=new AddYearHolidayPage(model);
 		addPage(addYearHolidayPage);
-		getShell().setImage(JFaceUtil.getImage("attendanceholidaygrup_16"));
+		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 		getShell().setSize(600, 760);
 	}
 

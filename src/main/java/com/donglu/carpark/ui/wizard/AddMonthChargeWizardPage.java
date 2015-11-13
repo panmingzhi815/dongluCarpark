@@ -2,6 +2,8 @@ package com.donglu.carpark.ui.wizard;
 
 import net.miginfocom.swt.MigLayout;
 
+import java.util.ArrayList;
+
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoObservables;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -22,13 +24,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import com.donglu.carpark.ui.wizard.model.AddMonthChargeModel;
-import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.CardTypeEnum;
-import com.dongluhitec.card.domain.db.carpark.CarTypeEnum;
-import com.dongluhitec.card.domain.db.carpark.ParkingLotTypeEnum;
-import com.dongluhitec.card.ui.cache.MonthlyCarparkChargeInfo;
-import com.dongluhitec.card.ui.init.InitModel;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class AddMonthChargeWizardPage extends WizardPage{
 	private DataBindingContext m_bindingContext;
@@ -36,22 +35,20 @@ public class AddMonthChargeWizardPage extends WizardPage{
 	private final String Txt_column_layout = "wrap,grow y,w 100:110:130";
 	private AddMonthChargeModel model;
 	private Composite container;
-	private Text txt_chargeCode;
-	private Text txt_chargeName;
-	private Combo combo_carType;
-	private ComboViewer cbv_carType;
-	private Text txt_rentingDays;
-	private Text txt_expiringDays;
-	private Text txt_price;
-	private ComboViewer cbv_parkType;
-	private Combo combo_parkType;
-	private Text txt_note;
-	private Text txt_delayDays;
+	private Text text;
+	private Text text_1;
+	private Text text_2;
+	private Text text_3;
+	private Text text_4;
+	private Text text_5;
+	private Text text_6;
+	private ComboViewer comboViewer;
+	private ComboViewer comboViewer_1;
 
 	public AddMonthChargeWizardPage(AddMonthChargeModel model2) {
 		super("wizardPage");
 		this.model = model2;
-		setTitle("添加月租收费信息");
+		
 		setDescription("请输入月租用户收费标准的信息");
 	}
 
@@ -59,107 +56,144 @@ public class AddMonthChargeWizardPage extends WizardPage{
 	public void createControl(Composite parent) {
 		container = new Composite(parent, SWT.NULL);
 		setControl(container);
-		container.setLayout(new MigLayout("fill", "", ""));
-
-		Composite mainComposite = new Composite(container, SWT.BORDER);
-		mainComposite.setLayoutData("align center");
-		mainComposite.setLayout(new MigLayout("", "[]20[grow]", "[][][][][][][]"));
+		container.setLayout(new GridLayout(1, false));
 		
-		Label lbl_chargeCode = new Label(mainComposite,SWT.NONE);
-		lbl_chargeCode.setText("月租类型编码");
-		txt_chargeCode = new Text(mainComposite,SWT.BORDER);
-		txt_chargeCode.setLayoutData(Txt_column_layout);
+		Composite composite = new Composite(container, SWT.BORDER);
+		GridData gd_composite = new GridData(SWT.CENTER, SWT.CENTER, true, false, 1, 1);
+		gd_composite.widthHint = 334;
+		composite.setLayoutData(gd_composite);
+		composite.setLayout(new GridLayout(2, false));
 		
-		Label lbl_chargeName = new Label(mainComposite,SWT.NONE);
-		lbl_chargeName.setText("月租类型名称");
-		txt_chargeName = new Text(mainComposite,SWT.BORDER);
-		txt_chargeName.setLayoutData(Txt_column_layout);
+		Label label = new Label(composite, SWT.NONE);
+		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("月租类型编码");
 		
-		Label lbl_carType = new Label(mainComposite,SWT.NONE);
-		lbl_carType.setText("车辆类型");
-		cbv_carType = new ComboViewer(mainComposite,SWT.BORDER|SWT.READ_ONLY);
-		combo_carType = cbv_carType.getCombo();
-		combo_carType.setLayoutData(Txt_column_layout);
+		text = new Text(composite, SWT.BORDER);
+		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_text.widthHint = 200;
+		text.setLayoutData(gd_text);
 		
-		Label lbl_rentingDays = new Label(mainComposite,SWT.NONE);
-		lbl_rentingDays.setText("月租月数");
-		txt_rentingDays = new Text(mainComposite,SWT.BORDER);
-		txt_rentingDays.setLayoutData(Txt_column_layout);
+		Label label_1 = new Label(composite, SWT.NONE);
+		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_1.setText("月租类型名称");
 		
-		Label lbl_expiringDays = new Label(mainComposite,SWT.NONE);
-		lbl_expiringDays.setText("到期提醒天数");
-		txt_expiringDays = new Text(mainComposite,SWT.BORDER);
-		txt_expiringDays.setLayoutData(Txt_column_layout);
-
-		Label lbl_delayDays = new Label(mainComposite,SWT.NONE);
-		lbl_delayDays.setText("到期延迟天数");
-		txt_delayDays = new Text(mainComposite,SWT.BORDER);
-		txt_delayDays.setLayoutData(Txt_column_layout);
+		text_1 = new Text(composite, SWT.BORDER);
+		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
-		Label lbl_price = new Label(mainComposite,SWT.NONE);
-		lbl_price.setText("租赁金额");
-		txt_price = new Text(mainComposite,SWT.BORDER);
-		txt_price.setLayoutData(Txt_column_layout);
+		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_2.setText("车辆类型");
 		
-		Label lbl_parkType = new Label(mainComposite,SWT.NONE);
-		lbl_parkType.setText("车位类型");
-		cbv_parkType = new ComboViewer(mainComposite,SWT.BORDER|SWT.READ_ONLY);
-		combo_parkType = cbv_parkType.getCombo();
-		combo_parkType.setLayoutData(Txt_column_layout);
+		comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
+		Combo combo = comboViewer.getCombo();
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		comboViewer.setContentProvider(new ArrayContentProvider());
+		comboViewer.setLabelProvider(new LabelProvider());
+		comboViewer.setInput(new String[]{"大车","小车","摩托车"});
 		
-		Label lbl_note = new Label(mainComposite,SWT.NONE);
-		lbl_note.setText("备注");
-		txt_note = new Text(mainComposite,SWT.BORDER | SWT.MULTI);
-		txt_note.setLayoutData(Txt_column_layout);
+		Label label_3 = new Label(composite, SWT.NONE);
+		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_3.setText("月租月数");
 		
-		//绑定enum
-		cbv_carType.setLabelProvider(new LabelProvider());
-		cbv_carType.setContentProvider(new ArrayContentProvider());
-		cbv_carType.setInput(new String[]{"摩托车","小车","大车"});
+		text_2 = new Text(composite, SWT.BORDER);
+		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
-		cbv_parkType.setLabelProvider(new LabelProvider());
-		cbv_parkType.setContentProvider(new ArrayContentProvider());
-		cbv_parkType.setInput(new String[]{"固定车位","非固定车位"});
+		Label label_4 = new Label(composite, SWT.NONE);
+		label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_4.setText("到期提醒天数");
+		
+		text_3 = new Text(composite, SWT.BORDER);
+		text_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_5 = new Label(composite, SWT.NONE);
+		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_5.setText("到期延迟天数");
+		
+		text_4 = new Text(composite, SWT.BORDER);
+		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_6 = new Label(composite, SWT.NONE);
+		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_6.setText("租赁金额");
+		
+		text_5 = new Text(composite, SWT.BORDER);
+		text_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_7 = new Label(composite, SWT.NONE);
+		label_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_7.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_7.setText("车位类型");
+		
+		comboViewer_1 = new ComboViewer(composite, SWT.READ_ONLY);
+		Combo combo_1 = comboViewer_1.getCombo();
+		combo_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		comboViewer_1.setContentProvider(new ArrayContentProvider());
+		comboViewer_1.setLabelProvider(new LabelProvider());
+		comboViewer_1.setInput(new String[]{"固定车位","非固定车位"});
+		
+		Label label_8 = new Label(composite, SWT.NONE);
+		label_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_8.setText("备注信息");
+		
+		text_6 = new Text(composite, SWT.BORDER | SWT.MULTI);
+		text_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
-		IObservableValue observeTextTxt_chargeCodeObserveWidget = WidgetProperties.text(SWT.Modify).observe(txt_chargeCode);
+		IObservableValue observeTextTextObserveWidget = WidgetProperties.text(SWT.Modify).observe(text);
 		IObservableValue chargeCodeModelObserveValue = BeanProperties.value("chargeCode").observe(model);
-		bindingContext.bindValue(observeTextTxt_chargeCodeObserveWidget, chargeCodeModelObserveValue, null, null);
+		bindingContext.bindValue(observeTextTextObserveWidget, chargeCodeModelObserveValue, null, null);
 		//
-		IObservableValue observeTextTxt_chargeNameObserveWidget = WidgetProperties.text(SWT.Modify).observe(txt_chargeName);
+		IObservableValue observeTextText_1ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_1);
 		IObservableValue chargeNameModelObserveValue = BeanProperties.value("chargeName").observe(model);
-		bindingContext.bindValue(observeTextTxt_chargeNameObserveWidget, chargeNameModelObserveValue, null, null);
+		bindingContext.bindValue(observeTextText_1ObserveWidget, chargeNameModelObserveValue, null, null);
 		//
-		IObservableValue observeSingleSelectionCbv_carType = ViewerProperties.singleSelection().observe(cbv_carType);
-		IObservableValue carTypeModelObserveValue = BeanProperties.value("carType").observe(model);
-		bindingContext.bindValue(observeSingleSelectionCbv_carType, carTypeModelObserveValue, null, null);
-		//
-		IObservableValue observeTextTxt_rentingDaysObserveWidget = WidgetProperties.text(SWT.Modify).observe(txt_rentingDays);
-		IObservableValue rentingDaysModelObserveValue = BeanProperties.value("rentingDays").observe(model);
-		bindingContext.bindValue(observeTextTxt_rentingDaysObserveWidget, rentingDaysModelObserveValue, null, null);
-		//
-		IObservableValue observeTextTxt_expiringDaysObserveWidget = WidgetProperties.text(SWT.Modify).observe(txt_expiringDays);
-		IObservableValue expiringDaysModelObserveValue = BeanProperties.value("expiringDays").observe(model);
-		bindingContext.bindValue(observeTextTxt_expiringDaysObserveWidget, expiringDaysModelObserveValue, null, null);
-		//
-		IObservableValue observeTextTxt_delayDaysObserveWidget = WidgetProperties.text(SWT.Modify).observe(txt_delayDays);
-		IObservableValue delayDaysModelObserveValue = BeanProperties.value("delayDays").observe(model);
-		bindingContext.bindValue(observeTextTxt_delayDaysObserveWidget, delayDaysModelObserveValue, null, null);
-		//
-		IObservableValue observeTextTxt_priceObserveWidget = WidgetProperties.text(SWT.Modify).observe(txt_price);
+		IObservableValue observeTextText_5ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_5);
 		IObservableValue priceModelObserveValue = BeanProperties.value("price").observe(model);
-		bindingContext.bindValue(observeTextTxt_priceObserveWidget, priceModelObserveValue, null, null);
+		bindingContext.bindValue(observeTextText_5ObserveWidget, priceModelObserveValue, null, null);
 		//
-		IObservableValue observeSingleSelectionCbv_parkType = ViewerProperties.singleSelection().observe(cbv_parkType);
+		IObservableValue observeTextText_4ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_4);
+		IObservableValue delayDaysModelObserveValue = BeanProperties.value("delayDays").observe(model);
+		bindingContext.bindValue(observeTextText_4ObserveWidget, delayDaysModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_2ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_2);
+		IObservableValue rentingDaysModelObserveValue = BeanProperties.value("rentingDays").observe(model);
+		bindingContext.bindValue(observeTextText_2ObserveWidget, rentingDaysModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
+		IObservableValue expiringDaysModelObserveValue = BeanProperties.value("expiringDays").observe(model);
+		bindingContext.bindValue(observeTextText_3ObserveWidget, expiringDaysModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
+		IObservableValue carTypeModelObserveValue = BeanProperties.value("carType").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer, carTypeModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer_1 = ViewerProperties.singleSelection().observe(comboViewer_1);
 		IObservableValue parkTypeModelObserveValue = BeanProperties.value("parkType").observe(model);
-		bindingContext.bindValue(observeSingleSelectionCbv_parkType, parkTypeModelObserveValue, null, null);
+		bindingContext.bindValue(observeSingleSelectionComboViewer_1, parkTypeModelObserveValue, null, null);
 		//
-		IObservableValue observeTextTxt_noteObserveWidget = WidgetProperties.text(SWT.Modify).observe(txt_note);
+		IObservableValue observeTextText_6ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_6);
 		IObservableValue noteModelObserveValue = BeanProperties.value("note").observe(model);
-		bindingContext.bindValue(observeTextTxt_noteObserveWidget, noteModelObserveValue, null, null);
+		bindingContext.bindValue(observeTextText_6ObserveWidget, noteModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

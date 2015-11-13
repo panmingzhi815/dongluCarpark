@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.AbstractWizard;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -19,12 +20,14 @@ public class AddBlackUserWizard extends Wizard implements AbstractWizard{
 		}else{
 			setWindowTitle("修改黑名单");
 		}
+		
 	}
 
 	@Override
 	public void addPages() {
 		page = new AddBlackUserWizardPage(model);
 		addPage(page);
+		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 	}
 
 	@Override

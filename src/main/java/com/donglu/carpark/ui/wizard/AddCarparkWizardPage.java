@@ -19,6 +19,7 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class AddCarparkWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -35,8 +36,6 @@ public class AddCarparkWizardPage extends WizardPage {
 	 */
 	public AddCarparkWizardPage(SingleCarparkCarpark model) {
 		super("wizardPage");
-		setTitle("添加停车场");
-		setDescription("添加停车场");
 		this.model=model;
 	}
 
@@ -51,43 +50,54 @@ public class AddCarparkWizardPage extends WizardPage {
 		container.setLayout(new GridLayout(1, false));
 		
 		Composite composite = new Composite(container, SWT.BORDER);
+		composite.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		composite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
 		composite.setLayout(new GridLayout(2, false));
 		
 		Label label = new Label(composite, SWT.NONE);
+		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("停车场编码");
 		
 		text = new Text(composite, SWT.BORDER);
+		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label label_1 = new Label(composite, SWT.NONE);
+		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_1.setText("停车场名称");
 		
 		text_1 = new Text(composite, SWT.BORDER);
+		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblNewLabel = new Label(composite, SWT.NONE);
+		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel.setText("总车位数");
+		lblNewLabel.setText("总共车位数");
 		
 		text_2 = new Text(composite, SWT.BORDER);
+		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_2.setText("固定车位数");
 		
 		text_4 = new Text(composite, SWT.BORDER);
+		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		new Label(composite, SWT.NONE);
 		
 		btnBu = new Button(composite, SWT.CHECK);
+		btnBu.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btnBu.setText("不允许临时车进入");
 		new Label(composite, SWT.NONE);
 		
 		button = new Button(composite, SWT.CHECK);
+		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button.setToolTipText("固定车车位满自动变成临时车，否则车位满后不允许进");
 		button.setText("固定车车位满自动变成临时车");
 		m_bindingContext = initDataBindings();

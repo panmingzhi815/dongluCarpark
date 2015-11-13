@@ -60,7 +60,6 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		this.model = model;
 		this.initOverdueTime = model.getOverdueTime();
 
-		setTitle("车牌月租用户缴费");
 		setDescription("请输入缴费金额、到期时间");
 	}
 

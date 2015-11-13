@@ -4,6 +4,7 @@ import org.eclipse.jface.wizard.Wizard;
 
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
 import com.dongluhitec.card.common.ui.AbstractWizard;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 
 
@@ -18,6 +19,7 @@ public class SearchHistoryByHandWizard extends Wizard implements AbstractWizard{
 	public void addPages() {
 		addPage(new SearchHistoryByHandWizardPage(searchErrorCarPresenter));
 		getShell().setSize(900, 600);
+		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 	}
 
 	@Override

@@ -24,6 +24,8 @@ import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
@@ -158,6 +160,14 @@ public class CarparkManageApp extends AbstractApp{
 			init();
 			createContents();
 			shell.setImage(JFaceUtil.getImage("carpark_16"));
+			shell.addDisposeListener(new DisposeListener() {
+				
+				@Override
+				public void widgetDisposed(DisposeEvent e) {
+					System.exit(0);
+					
+				}
+			});
 			shell.open();
 			shell.setMaximized(true);
 			shell.layout();
@@ -420,6 +430,7 @@ public class CarparkManageApp extends AbstractApp{
 		composite_5.setLayout(new GridLayout(1, false));
 		
 		TabFolder tabFolder_searchHistory = new TabFolder(composite_5, SWT.BOTTOM);
+		tabFolder_searchHistory.setFont(SWTResourceManager.getFont("微软雅黑", 9, SWT.BOLD));
 		tabFolder_searchHistory.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		TabItem tbtmNewItem_3 = new TabItem(tabFolder_searchHistory, SWT.NONE);

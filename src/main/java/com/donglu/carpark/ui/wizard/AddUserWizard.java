@@ -10,6 +10,7 @@ import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayBasicPage;
 import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayModel;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.AbstractWizard;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.WidgetUtil;
 
@@ -39,6 +40,7 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 		}
 		getShell().setSize(450, 650);
 		WidgetUtil.center(getShell());
+		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 	}
 
 	@Override
