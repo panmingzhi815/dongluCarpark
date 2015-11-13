@@ -741,7 +741,7 @@ public class CarparkManagePresenter {
 			if (StrUtil.isEmpty(carparkChargeInfo)) {
 				return;
 			}
-			if (carparkChargeInfo.getUseType().equals(CarparkChargeTypeEnum.固定月租收费)||carparkChargeInfo.getUseType().equals("已启用")) {
+			if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.固定月租收费.name())||carparkChargeInfo.getUseType().equals("已启用")) {
 				return;
 			}
 			List<CarparkChargeInfo> listCarparkCharge = carparkModel.getListCarparkCharge();
@@ -757,12 +757,11 @@ public class CarparkManagePresenter {
 					}
 				}
 			}
-			CarparkChargeStandard findCarparkChargeStandardByCode = sp.getCarparkService().findCarparkChargeStandardByCode(carparkChargeInfo.getCode());
-			findCarparkChargeStandardByCode.setUsing(true);
-			sp.getCarparkService().saveCarparkChargeStandard(findCarparkChargeStandardByCode);
+			sp.getCarparkService().changeChargeStandardState(carparkChargeInfo.getId(),true);
 			refreshCarparkCharge();
 		} catch (Exception e) {
 			LOGGER.error("启用收费设置异常",e);
+			e.printStackTrace();
 			commonui.error("启用失败", "启用收费设置异常");
 		}
 	}
@@ -775,12 +774,10 @@ public class CarparkManagePresenter {
 			if (StrUtil.isEmpty(carparkChargeInfo)) {
 				return;
 			}
-			if (carparkChargeInfo.getUseType().equals(CarparkChargeTypeEnum.固定月租收费)||carparkChargeInfo.getUseType().equals("未启用")) {
+			if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.固定月租收费.name())||carparkChargeInfo.getUseType().equals("未启用")) {
 				return;
 			}
-			CarparkChargeStandard findCarparkChargeStandardByCode = sp.getCarparkService().findCarparkChargeStandardByCode(carparkChargeInfo.getCode());
-			findCarparkChargeStandardByCode.setUsing(false);
-			sp.getCarparkService().saveCarparkChargeStandard(findCarparkChargeStandardByCode);
+			sp.getCarparkService().changeChargeStandardState(carparkChargeInfo.getId(),false);
 			refreshCarparkCharge();
 		} catch (Exception e) {
 			LOGGER.error("禁用临时收费设置失败",e);
