@@ -43,10 +43,8 @@ public class AddBlackUserWizardPage extends WizardPage {
 		super("wizardPage");
 		this.model=model;
 		if (StrUtil.isEmpty(model.getPlateNO())) {
-			setTitle("添加黑名单");
 			setDescription("添加黑名单");
 		}else{
-			setTitle("修改黑名单");
 			setDescription("修改黑名单");
 		}
 	}

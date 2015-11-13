@@ -1013,17 +1013,20 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			public void keyReleased(KeyEvent e) {
 				// 收费放行
 				if (e.keyCode == 16777296 || e.keyCode == 13 || e.keyCode == 16777236) {
-					SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
-					SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
-
-					chargeCarPass(device, data, carOutChargeCheck);
+					charge(carOutChargeCheck);
 				}
 				// 免费放行
 				if (e.keyCode == 16777237) {
-					SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
-					SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
-					model.setReal(0);
-					chargeCarPass(device, data, carOutChargeCheck);
+					free(carOutChargeCheck);
+				}
+				if (e.keyCode == 16777232) {
+					presenter.changeUser();
+				}
+				if (e.keyCode == 16777233) {
+					presenter.returnAccount();
+				}
+				if (e.keyCode == 16777234) {
+					presenter.showSearchInOutHistory();
 				}
 			}
 		});
@@ -1056,8 +1059,26 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		combo.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				if (e.keyCode == StrUtil.SMAIL_KEY_ENTER) {
+				if (e.keyCode == StrUtil.SMAIL_KEY_ENTER||e.keyCode == 13) {
 					text_real.setFocus();
+					text_real.selectAll();
+				}
+				// 收费放行
+				if (e.keyCode == 16777236) {
+					charge(true);
+				}
+				// 免费放行
+				if (e.keyCode == 16777237) {
+					free(carOutChargeCheck);
+				}
+				if (e.keyCode == 16777232) {
+					presenter.changeUser();
+				}
+				if (e.keyCode == 16777233) {
+					presenter.returnAccount();
+				}
+				if (e.keyCode == 16777234) {
+					presenter.showSearchInOutHistory();
 				}
 			}
 		});
@@ -1232,19 +1253,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		lbl_free = new Label(composite_16, SWT.NONE);
 		lbl_free.addMouseListener(new MouseAdapter() {
 			public void mouseUp(MouseEvent e) {
+				free(carOutChargeCheck);
 				setBoundsY(lbl_free, -2);
-				SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
-				if (StrUtil.isEmpty(data)) {
-					return;
-				}
-				SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
-				model.setReal(0);
-				if (!chargeCarPass(device, data, carOutChargeCheck)) {
-					return;
-				}
-				model.setComboCarTypeEnable(false);
-				btnCharge.setData(BTN_CHARGE, null);
-				btnCharge.setData(BTN_CHARGE_DEVICE, null);
 			}
 
 			@Override
@@ -1265,12 +1275,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			public void mouseUp(MouseEvent e) {
 				setBoundsY(lbl_stop, -2);
 				discontinue = true;
-				model.setBtnClick(false);
-				model.setComboCarTypeEnable(false);
-				model.setHandSearch(false);
-				model.setOutPlateNOEditable(false);
-				btnCharge.setData(BTN_CHARGE, null);
-				btnCharge.setData(BTN_CHARGE_DEVICE, null);
+				stop();
 			}
 
 			@Override
@@ -1813,8 +1818,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			model.setReal(0);
 			CarTypeEnum carType = CarTypeEnum.SmallCar;
 			if (mapTempCharge.keySet().size() > 1) {
-				CarparkUtils.setFocus(combo);
 				model.setComboCarTypeEnable(true);
+				CarparkUtils.setFocus(combo);
 				model.setSelectCarType(true);
 				CarparkUtils.setComboSelect(combo, 0);
 				while (!model.isBtnClick()) {
@@ -2091,5 +2096,35 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		bindingContext.bindValue(observeEditableText_realObserveWidget, btnClickModelObserveValue, null, null);
 		//
 		return bindingContext;
+	}
+
+	/**
+	 * @param carOutChargeCheck
+	 */
+	public void free(Boolean carOutChargeCheck) {
+		SingleCarparkInOutHistory data = (SingleCarparkInOutHistory) btnCharge.getData(BTN_CHARGE);
+		SingleCarparkDevice device = (SingleCarparkDevice) btnCharge.getData(BTN_CHARGE_DEVICE);
+		if (StrUtil.isEmpty(data)||StrUtil.isEmpty(device)) {
+			return;
+		}
+		model.setReal(0);
+		if(chargeCarPass(device, data, carOutChargeCheck)){
+			return;
+		}
+		model.setComboCarTypeEnable(false);
+		btnCharge.setData(BTN_CHARGE, null);
+		btnCharge.setData(BTN_CHARGE_DEVICE, null);
+	}
+
+	/**
+	 * 
+	 */
+	public void stop() {
+		model.setBtnClick(false);
+		model.setComboCarTypeEnable(false);
+		model.setHandSearch(false);
+		model.setOutPlateNOEditable(false);
+		btnCharge.setData(BTN_CHARGE, null);
+		btnCharge.setData(BTN_CHARGE_DEVICE, null);
 	}
 }

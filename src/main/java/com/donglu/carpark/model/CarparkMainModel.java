@@ -53,6 +53,7 @@ public class CarparkMainModel extends DomainObject{
 	
 	boolean selectCarType=false;
 	boolean comboCarTypeEnable=false;
+	boolean comboCarTypeFocos=false;
 	
 	
 	String carparkCarType;
@@ -364,6 +365,14 @@ public class CarparkMainModel extends DomainObject{
 		this.carpark = carpark;
 		if (pcs != null)
 			pcs.firePropertyChange("carpark", null, null);
+	}
+	public boolean isComboCarTypeFocos() {
+		return comboCarTypeFocos;
+	}
+	public void setComboCarTypeFocos(boolean comboCarTypeFocos) {
+		this.comboCarTypeFocos = comboCarTypeFocos;
+		if (pcs != null)
+			pcs.firePropertyChange("comboCarTypeFocos", null, null);
 	}
 
 }

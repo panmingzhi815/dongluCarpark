@@ -618,6 +618,10 @@ public class CarparkManagePresenter {
 	 * 保存设置信息
 	 */
 	public void saveAllSystemSetting() {
+		boolean confirm = commonui.confirm("提示", "确定保存设置信息？");
+		if (!confirm) {
+			return;
+		}
 		Map<SystemSettingTypeEnum, String> mapSystemSetting = view.getMapSystemSetting();
 		CarparkService carparkService = sp.getCarparkService();
 		for (SystemSettingTypeEnum t : mapSystemSetting.keySet()) {
@@ -626,7 +630,7 @@ public class CarparkManagePresenter {
 			h.setSettingValue(mapSystemSetting.get(t) == null ? t.getDefaultValue() : mapSystemSetting.get(t));
 			carparkService.saveSystemSetting(h);
 		}
-		
+		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "保存了设置信息");
 	}
 
 	public void searchCharge(CarparkPayHistoryListView carparkPayHistoryListView, String userName, String operaName, Date start, Date end) {

@@ -16,6 +16,8 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
+import com.google.common.util.concurrent.RateLimiter;
+
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
@@ -50,6 +52,9 @@ public class InOutHistoryView extends Composite implements View{
 	private InOutHistoryModel model;
 	private ComboViewer comboViewer;
 	private ComboViewer comboViewer_1;
+	private ComboViewer comboViewer_2;
+	
+	private RateLimiter rateLimiter = RateLimiter.create(2);
 
 	public InOutHistoryView(Composite parent, int style) {
 		super(parent, style);
@@ -132,6 +137,9 @@ public class InOutHistoryView extends Composite implements View{
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if (!rateLimiter.tryAcquire()) {
+					return;
+				}
 				SingleCarparkCarpark singleCarparkCarpark = model.getListCarpark().get(comboViewer.getCombo().getSelectionIndex());
 				String text = combo_1.getText();
 				if (text.equals("全部")) {
@@ -139,7 +147,7 @@ public class InOutHistoryView extends Composite implements View{
 				}
 				getPresenter().search(text_plateNO.getText(),text_userName.getText(),dateTime.getSelection(),dt_end.getSelection(),
 						text,combo_carType.getText(),combo_inorout.getText(),text_inDevice.getText(),
-						text_outDevice.getText(),text_returnAccount.getText(),singleCarparkCarpark);
+						text_outDevice.getText(),text_returnAccount.getText(),singleCarparkCarpark,comboViewer_2.getCombo().getText());
 			}
 		});
 		button.setText("查询");
@@ -197,9 +205,21 @@ public class InOutHistoryView extends Composite implements View{
 		text_returnAccount = new Text(group, SWT.BORDER);
 		text_returnAccount.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_returnAccount.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		new Label(group, SWT.NONE);
-		new Label(group, SWT.NONE);
 		
+		Label label_8 = new Label(group, SWT.NONE);
+		label_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_8.setText("改车牌");
+		label_8.setVisible(false);
+		comboViewer_2 = new ComboViewer(group, SWT.READ_ONLY);
+		Combo combo_2 = comboViewer_2.getCombo();
+		combo_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		combo_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		comboViewer_2.setContentProvider(new ArrayContentProvider());
+		comboViewer_2.setLabelProvider(new LabelProvider());
+		comboViewer_2.setInput(new String[]{"全部","所有车牌","进场车牌","出场车牌"});
+		combo_2.select(0);
+		combo_2.setVisible(false);
 		Button button_2 = new Button(group, SWT.NONE);
 		button_2.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -237,10 +257,6 @@ public class InOutHistoryView extends Composite implements View{
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
-		//
-		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
-		IObservableValue selectCarparkModelObserveValue = BeanProperties.value("selectCarpark").observe(model);
-		bindingContext.bindValue(observeSingleSelectionComboViewer, selectCarparkModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

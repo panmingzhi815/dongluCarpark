@@ -14,6 +14,10 @@ import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity
 public class SingleCarparkUser extends DomainObject {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1116467109412674474L;
 	public enum Property{
 		id,plateNo,name,type,address,carparkNo,createDate,validTo,remark,valitoLabel
 	}

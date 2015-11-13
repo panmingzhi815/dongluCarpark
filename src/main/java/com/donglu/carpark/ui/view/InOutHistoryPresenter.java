@@ -47,11 +47,11 @@ public class InOutHistoryPresenter  implements Presenter{
 		findAll.addAll(sp.getSystemUserService().findAll());
 		view.setComboValue(findAll);
 	}
-	public void search(String plateNo, String returnUser, Date start, Date end, String operaName, String carType, String inout, String inDevice, String outDevice, String returnAccount, SingleCarparkCarpark carpark) {
+	public void search(String plateNo, String returnUser, Date start, Date end, String operaName, String carType, String inout, String inDevice, String outDevice, String returnAccount, SingleCarparkCarpark carpark, String modifyPlateNO) {
 		if (inout.equals("否")) {
-			listPresenter.search( null,  null,  null,  null,  null,  null,  inout,  null,  null,  null,carpark);
+			listPresenter.search( null,  null,  null,  null,  null,  null,  inout,  null,  null,  null,carpark,modifyPlateNO);
 		}else
-		listPresenter.search( plateNo,  returnUser,  start,  end,  operaName,  carType,  inout,  inDevice,  outDevice,  returnAccount,carpark);
+		listPresenter.search( plateNo,  returnUser,  start,  end,  operaName,  carType,  inout,  inDevice,  outDevice,  returnAccount,carpark,modifyPlateNO);
 	}
 	public int[] countMoney() {
 		

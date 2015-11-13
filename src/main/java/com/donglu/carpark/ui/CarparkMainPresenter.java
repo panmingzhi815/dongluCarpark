@@ -350,6 +350,7 @@ public class CarparkMainPresenter {
 				deleteDeviceTabItem(selection);
 				addDevice(showWizard.getDevice());
 				addDevice(tabFolder, type, ip, showWizard.getName());
+				this.model.setCarpark(showWizard.getDevice().getCarpark());
 			}
 
 		} catch (Exception e1) {

@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
@@ -13,14 +15,26 @@ import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity
+@NamedQueries({
+	@NamedQuery(name = "SingleCarparkInOutHistory.findModifyPlateNO", query = "select c from SingleCarparkInOutHistory c"
+			+ "  where (c.inPlateNO!=c.plateNo or c.plateNo!=c.outPlateNO) and c.outTime is not null"),
+	})
 public class SingleCarparkInOutHistory extends DomainObject{
 	
 	public enum Property{
 		plateNo,userName,carType,inTime,outTime,inDevice,outDevice,operaName,returnAccount,shouldMoney,factMoney,freeMoney
-		,freeReturnAccount,carparkId
+		,freeReturnAccount,carparkId,inPlateNO,outPlateNO
 	}
 	public enum Label{
 		inTimeLabel,outTimeLabel
+	}
+	public enum Query{
+		deleteAll;
+		public String toString() {
+			
+			return super.toString();
+		}
+		
 	}
 	/**
 	 * 

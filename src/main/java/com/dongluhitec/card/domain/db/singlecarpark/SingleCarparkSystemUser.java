@@ -27,6 +27,12 @@ public class SingleCarparkSystemUser extends DomainObject{
 	private String lastEditUser; 
 	private String remark;
 	
+	
+	public void setLast(){
+		lastEditDate=new Date();
+		lastEditUser=System.getProperty("userName");
+	}
+	
 	public String getCreateDateLabel() {
 		return StrUtil.formatDate(getCreateDate(), "yyyy-MM-dd HH:mm:ss");
 	}
