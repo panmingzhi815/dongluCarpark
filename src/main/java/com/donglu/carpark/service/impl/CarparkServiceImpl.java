@@ -756,4 +756,12 @@ public class CarparkServiceImpl implements CarparkService {
 			}
 		}
 	}
+
+	@Transactional
+	public void changeChargeStandardState(Long id, boolean b) {
+		DatabaseOperation<CarparkChargeStandard> dom = DatabaseOperation.forClass(CarparkChargeStandard.class, emprovider.get());
+		CarparkChargeStandard entityWithId = dom.getEntityWithId(id);
+		entityWithId.setUsing(b);
+	}
+		
 }

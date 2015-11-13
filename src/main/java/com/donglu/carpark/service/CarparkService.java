@@ -258,4 +258,10 @@ public interface CarparkService {
 	 * @return
 	 */
 	public List<SingleCarparkCarpark> findSameCarpark(SingleCarparkCarpark carpark);
+	/**
+	 * 
+	 * @param id
+	 * @param b
+	 */
+	void changeChargeStandardState(Long id, boolean b);
 }
