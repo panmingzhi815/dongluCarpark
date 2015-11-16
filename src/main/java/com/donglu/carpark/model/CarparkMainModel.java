@@ -5,6 +5,7 @@ import java.util.Date;
 import org.eclipse.swt.graphics.Image;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -60,6 +61,7 @@ public class CarparkMainModel extends DomainObject{
 	private String currentTime;
 	
 	private SingleCarparkCarpark carpark;
+	private CarTypeEnum carTypeEnum;
 	
 	public String getUserName() {
 		return userName;
@@ -373,6 +375,12 @@ public class CarparkMainModel extends DomainObject{
 		this.comboCarTypeFocos = comboCarTypeFocos;
 		if (pcs != null)
 			pcs.firePropertyChange("comboCarTypeFocos", null, null);
+	}
+	public void setCartypeEnum(CarTypeEnum carTypeEnum) {
+		this.carTypeEnum=carTypeEnum;
+	}
+	public CarTypeEnum getCarTypeEnum() {
+		return carTypeEnum;
 	}
 
 }

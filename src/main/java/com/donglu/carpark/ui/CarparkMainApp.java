@@ -1107,8 +1107,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					Date inTime = h.getInTime();
 					Date outTime = h.getOutTime();
 					CarTypeEnum carparkCarType = getCarparkCarType(carparkCarType2);
+					model.setCartypeEnum(carparkCarType);
 					float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carparkCarType, inTime, outTime);
-
+					LOGGER.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", h.getPlateNo(),device.getCarpark(),model.getCarTypeEnum(), model.getInTime(), model.getOutTime(), model.getTotalTime(), countShouldMoney);
 					presenter.showContentToDevice(mapIpToDevice.get(model.getIp()), CarparkUtils.formatFloatString("请缴费" + countShouldMoney + "元"), false);
 					model.setShouldMony(countShouldMoney);
 					model.setReal(countShouldMoney);
@@ -1851,7 +1852,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
 			model.setReal(shouldMoney);
 			singleCarparkInOutHistory.setFactMoney(shouldMoney);
-			LOGGER.info("{}进场时间{}，出场时间{}，停车：{}，应收费：{}元", plateNO, model.getInTime(), model.getOutTime(), model.getTotalTime(), shouldMoney);
+			model.setCartypeEnum(carType);
+			LOGGER.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", plateNO,device.getCarpark(),carType, model.getInTime(), model.getOutTime(), model.getTotalTime(), shouldMoney);
 			String s = "请缴费" + shouldMoney + "元";
 			s = CarparkUtils.formatFloatString(s);
 
@@ -1904,6 +1906,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					return false;
 				}
 			}
+			LOGGER.info("车辆收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", singleCarparkInOutHistory.getPlateNo(),device.getCarpark(),model.getCarTypeEnum(), model.getInTime(), model.getOutTime(), model.getTotalTime(), shouldMoney);
 			float freeMoney = shouldMoney - factMoney;
 			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
 			singleCarparkInOutHistory.setFactMoney(factMoney);
