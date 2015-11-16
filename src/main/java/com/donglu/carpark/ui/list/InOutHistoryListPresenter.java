@@ -141,24 +141,24 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		refresh();
 	}
 
-	public int[] countMoney() {
+	public float[] countMoney() {
 		List<SingleCarparkInOutHistory> list = v.getModel().getList();
 		if (StrUtil.isEmpty(list)) {
 			return null;
 		}
-		int should = 0;
-		int fact = 0;
-		int free = 0;
+		float should = 0;
+		float fact = 0;
+		float free = 0;
 		for (SingleCarparkInOutHistory singleCarparkInOutHistory : list) {
-			int i = singleCarparkInOutHistory.getShouldMoney() == null ? 0 : singleCarparkInOutHistory.getShouldMoney().intValue();
-			int j = singleCarparkInOutHistory.getFactMoney() == null ? 0 : singleCarparkInOutHistory.getFactMoney().intValue();
-			int k = singleCarparkInOutHistory.getFreeMoney() == null ? 0 : singleCarparkInOutHistory.getFreeMoney().intValue();
+			float i = singleCarparkInOutHistory.getShouldMoney() == null ? 0 : singleCarparkInOutHistory.getShouldMoney().floatValue();
+			float j = singleCarparkInOutHistory.getFactMoney() == null ? 0 : singleCarparkInOutHistory.getFactMoney().floatValue();
+			float k = singleCarparkInOutHistory.getFreeMoney() == null ? 0 : singleCarparkInOutHistory.getFreeMoney().floatValue();
 			should += i;
 			fact += j;
 			free += k;
 		}
 		v.setMoney(should + "", fact + "", free + "");
-		return new int[] { should, fact };
+		return new float[] { should, fact };
 	}
 
 	public void lookDetail() {

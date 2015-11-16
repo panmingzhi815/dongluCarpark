@@ -30,7 +30,7 @@ public class CountTempCarChargeImpl implements CountTempCarChargeI {
 	Map<String, Date> mapHoliday=Maps.newHashMap();
 
 	@Override
-	public float charge(Long carType, Date inTime, Date outTime, CarparkDatabaseServiceProvider sp) {
+	public float charge(Long carparkId,Long carType, Date inTime, Date outTime, CarparkDatabaseServiceProvider sp) {
 		float money = 0;
 		DateTime start = new DateTime(inTime);
 		DateTime end = new DateTime(outTime);

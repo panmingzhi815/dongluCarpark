@@ -13,5 +13,5 @@ import com.google.inject.ImplementedBy;
  *
  */
 public interface CountTempCarChargeI extends Serializable {
-	public float charge(Long carType, Date inTime, Date outTime,CarparkDatabaseServiceProvider sp);
+	public float charge(Long carparkId,Long carType, Date inTime, Date outTime,CarparkDatabaseServiceProvider sp);
 }

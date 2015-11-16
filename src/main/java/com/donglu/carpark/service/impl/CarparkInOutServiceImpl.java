@@ -214,7 +214,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			c.setProjection(Projections.sum(SingleCarparkInOutHistory.Property.shouldMoney.name()));
 			Object singleResult2 = c.getSingleResult();
 			Double singleResult = (Double) c.getSingleResult();
-			return singleResult == null ? 0 : singleResult.intValue();
+			return singleResult == null ? 0 : singleResult.floatValue();
 		} finally {
 			unitOfWork.end();
 		}
@@ -231,7 +231,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
 			c.setProjection(Projections.sum(SingleCarparkInOutHistory.Property.factMoney.name()));
 			Double singleResult = (Double) c.getSingleResult();
-			return singleResult == null ? 0 : singleResult.intValue();
+			return singleResult == null ? 0 : singleResult.floatValue();
 		} finally {
 			unitOfWork.end();
 		}
@@ -248,7 +248,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
 			c.setProjection(Projections.sum(SingleCarparkInOutHistory.Property.freeMoney.name()));
 			Double singleResult = (Double) c.getSingleResult();
-			return singleResult == null ? 0 : singleResult.intValue();
+			return singleResult == null ? 0 : singleResult.floatValue();
 		} finally {
 			unitOfWork.end();
 		}

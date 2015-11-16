@@ -1427,14 +1427,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 			@Override
 			public void run() {
-				Set<String> keySet = mapIpToDevice.keySet();
-				for (String c : keySet) {
-					presenter.showPositionToDevice(mapIpToDevice.get(c), model.getTotalSlot());
-				}
+				presenter.sendPositionToAllDevice(true);
 			}
 		}, 5000, 5000, TimeUnit.MILLISECONDS);
 	}
-
+	
 	// 创建设备的监控tab页
 	private void createDeviceTabItem() {
 		Set<String> keySet = mapDeviceType.keySet();
@@ -1473,7 +1470,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					}
 				});
 			}
-			presenter.showUsualContentToDevice(singleCarparkDevice, USUAL_MSG);
+			presenter.showUsualContentToDevice(singleCarparkDevice);
 		}
 
 	}

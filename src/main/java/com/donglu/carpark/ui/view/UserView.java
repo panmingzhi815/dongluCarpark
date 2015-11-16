@@ -65,7 +65,7 @@ public class UserView extends Composite implements View{
 		
 		Label label_2 = new Label(group, SWT.NONE);
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_2.setText("即将过期");
+		label_2.setText("即将过期天数");
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
 		text_willOverdue = new Text(group, SWT.BORDER);

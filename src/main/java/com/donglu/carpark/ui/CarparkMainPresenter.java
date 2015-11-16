@@ -106,6 +106,8 @@ public class CarparkMainPresenter {
 	private Map<SystemSettingTypeEnum, String> mapSystemSetting=CarparkMainApp.mapSystemSetting;
 
 	private CarparkMainModel model;
+	
+	CountTempCarChargeI countTempCarCharge;
 
 	private CarparkMainApp view;
 
@@ -171,7 +173,7 @@ public class CarparkMainPresenter {
 			this.model.setCarpark(showWizard.getCarpark());
 			addDevice(showWizard.getDevice());
 			addDevice(tabFolder, type, ip, name);
-			showUsualContentToDevice(showWizard.getDevice(), showWizard.getDevice().getAdvertise());
+			showUsualContentToDevice(showWizard.getDevice());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -186,8 +188,22 @@ public class CarparkMainPresenter {
 		}
 		mapIpToDevice.put(ip, device);
 		com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
+		sendPositionToAllDevice(true);
 	}
-
+	
+	/**
+	 * 
+	 */
+	public void sendPositionToAllDevice(boolean isreturn) {
+		Set<String> keySet = mapIpToDevice.keySet();
+		for (String c : keySet) {
+			if (isreturn) {
+				showPositionToDevice(mapIpToDevice.get(c), model.getTotalSlot());
+			}else{
+				showPositionToDeviceNoReturn(mapIpToDevice.get(c), model.getTotalSlot());
+			}
+		}
+	}
 	/**
 	 * 普通添加设备
 	 * 
@@ -341,7 +357,8 @@ public class CarparkMainPresenter {
 				mapIpToDevice.put(ip, showWizard.getDevice());
 				com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 				commonui.info("修改成功", "修改设备" + ip + "成功");
-				showUsualContentToDevice(showWizard.getDevice(), showWizard.getDevice().getAdvertise());
+				showUsualContentToDevice(showWizard.getDevice());
+				sendPositionToAllDevice(true);
 				return;
 			} else {
 				if (mapDeviceType.get(ip) != null) {
@@ -353,7 +370,6 @@ public class CarparkMainPresenter {
 				addDevice(tabFolder, type, ip, showWizard.getName());
 				this.model.setCarpark(showWizard.getDevice().getCarpark());
 			}
-
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		} finally {
@@ -512,6 +528,21 @@ public class CarparkMainPresenter {
 			return false;
 		}
 	}
+	/**
+	 * 显示车为数
+	 * 
+	 * @param device
+	 * @param content
+	 * @param voice
+	 */
+	public void showPositionToDeviceNoReturn(SingleCarparkDevice device, int position) {
+		try {
+			Device d = getDevice(device);
+			hardwareService.carparkPosition(d, position);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	private Device getDevice(SingleCarparkDevice device) {
 		Device d = new Device();
@@ -551,10 +582,10 @@ public class CarparkMainPresenter {
 		xinlutongJNA.openDoor(ip);
 	}
 
-	public boolean showUsualContentToDevice(SingleCarparkDevice device, String usualContent) {
+	public boolean showUsualContentToDevice(SingleCarparkDevice device) {
 		try {
-			showNowTimeToDevice(device);
-			Boolean carparkUsualContent = hardwareService.carparkUsualContent(getDevice(device), usualContent);
+//			showNowTimeToDevice(device);
+			Boolean carparkUsualContent = hardwareService.carparkUsualContent(getDevice(device), device.getAdvertise());
 			return carparkUsualContent;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -572,6 +603,14 @@ public class CarparkMainPresenter {
 	 */
 	public float countShouldMoney(Long carparkId, CarTypeEnum carType, Date startTime, Date endTime) {
 		try {
+			countTempCarCharge=new CountTempCarChargeImpl();
+			float charge = countTempCarCharge.charge(carparkId, carType.index(), startTime, endTime, sp);
+			System.out.println("charge==========="+charge);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
+		try {
 			float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), startTime, endTime);
 			boolean flag = CarparkUtils.checkDaysIsOneDay(startTime, endTime);
 			if (flag) {
@@ -587,6 +626,7 @@ public class CarparkMainPresenter {
 					}
 				}
 			}
+			
 			return calculateTempCharge;
 		} catch (Exception e) {
 			LOGGER.error("计算收费是发生错误",e);
