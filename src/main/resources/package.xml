@@ -12,7 +12,7 @@
                不使用项目的artifact，第三方jar不要解压，打包进zip文件的lib目录
            -->
             <useProjectArtifact>false</useProjectArtifact>
-            <outputDirectory>${dev.build.version}/lib</outputDirectory>
+            <outputDirectory>bin/lib</outputDirectory>
             <unpack>false</unpack>
         </dependencySet>
     </dependencySets>
@@ -59,27 +59,20 @@
         
         <fileSet>
             <directory>${sun.boot.library.path}/../</directory>
-            <outputDirectory>${dev.build.version}/jre/</outputDirectory>
+            <outputDirectory>bin/jre/</outputDirectory>
         </fileSet>
        
          <fileSet>
             <directory>resources/</directory>
             <outputDirectory>/</outputDirectory>
-            <includes>
-            	<include>*.ini</include>
-            	<include>*.exe</include>
-            </includes>
         </fileSet>
         
-         <fileSet>
-            <directory>resources/bin/</directory>
-            <outputDirectory>/${dev.build.version}/</outputDirectory>
-        </fileSet>
+       
         
         <!-- 把项目自己编译出来的jar文件，打包进zip文件的根目录 -->
         <fileSet>
             <directory>${project.build.directory}</directory>
-            <outputDirectory>${dev.build.version}/jar/</outputDirectory>
+            <outputDirectory>bin/jar/</outputDirectory>
             <includes>
                 <include>*.jar</include>
             </includes>
