@@ -1776,6 +1776,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		singleCarparkInOutHistory.setCarType(carType);
 		singleCarparkInOutHistory.setOutBigImg(bigImg);
 		singleCarparkInOutHistory.setOutSmallImg(smallImg);
+		singleCarparkInOutHistory.setUserId(user.getId());
+		singleCarparkInOutHistory.setUserName(user.getName());
 		Date handPhotographDate = mapHandPhotograph.get(ip);
 		if (!StrUtil.isEmpty(handPhotographDate)) {
 			DateTime plusSeconds = new DateTime(handPhotographDate).plusSeconds(3);
