@@ -5,16 +5,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import org.controlsfx.control.ButtonBar;
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.DialogAction;
-import org.controlsfx.dialog.Dialogs;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
@@ -22,26 +13,11 @@ import org.eclipse.swt.widgets.Text;
 
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
-import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
-import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
-import com.dongluhitec.card.blservice.DatabaseServiceProvider;
-import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
-import com.dongluhitec.card.common.ui.CommonUIFacility.Progress;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.server.util.DatabaseUtil;
-import com.dongluhitec.card.service.DbServiceConfigurator;
-import com.dongluhitec.card.service.impl.LocalVMServiceProvider;
 import com.dongluhitec.card.ui.util.FileUtils;
-import com.dongluhitec.card.ui.util.ProcessBarMonitor;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.name.Names;
-
-import javafx.concurrent.Task;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;

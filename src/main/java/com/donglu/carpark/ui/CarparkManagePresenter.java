@@ -52,8 +52,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.mapper.BeanUtil;
-import com.dongluhitec.card.server.util.DatabaseUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
+import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.inject.Inject;
 
 public class CarparkManagePresenter {
