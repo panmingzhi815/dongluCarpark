@@ -1026,7 +1026,7 @@ public class CarparkManageApp extends AbstractApp{
 		Label lblNewLabel_3 = new Label(composite_21, SWT.NONE);
 		lblNewLabel_3.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		lblNewLabel_3.setText("1.0.0.0");
-		
+		lblNewLabel_3.setText(SystemSettingTypeEnum.软件版本.getDefaultValue());
 		Label label_31 = new Label(composite_21, SWT.NONE);
 		label_31.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_31.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
@@ -1034,7 +1034,7 @@ public class CarparkManageApp extends AbstractApp{
 		
 		Label label_4 = new Label(composite_21, SWT.NONE);
 		label_4.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		label_4.setText("1.0.0.0");
+		label_4.setText(mapSystemSetting.get(SystemSettingTypeEnum.DateBase_version));
 		
 		Label label_51 = new Label(composite_21, SWT.NONE);
 		label_51.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));

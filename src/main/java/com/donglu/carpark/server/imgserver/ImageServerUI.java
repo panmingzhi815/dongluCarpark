@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
@@ -32,6 +33,7 @@ import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.wizard.sn.ImportSNModel;
 import com.donglu.carpark.ui.wizard.sn.ImportSNWizard;
+import com.donglu.carpark.util.SystemUpdate;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
@@ -300,6 +302,18 @@ public class ImageServerUI {
 	protected void startServer() {
 		try {
 			sp.start();
+			SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.DateBase_version.name());
+			if (StrUtil.isEmpty(findSystemSettingByKey)) {
+				findSystemSettingByKey=new SingleCarparkSystemSetting();
+				findSystemSettingByKey.setSettingKey(SystemSettingTypeEnum.DateBase_version.name());
+				findSystemSettingByKey.setSettingValue(SystemSettingTypeEnum.DateBase_version.getDefaultValue());
+				sp.getCarparkService().saveSystemSetting(findSystemSettingByKey);
+			}
+			
+			if (!findSystemSettingByKey.getSettingValue().equals( SystemSettingTypeEnum.软件版本.getDefaultValue())) {
+				SystemUpdate update=new SystemUpdate();
+				update.systemUpdate(findSystemSettingByKey.getSettingValue(), SystemSettingTypeEnum.软件版本.getDefaultValue());
+			}
 			String open = text.getText();
 			FileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
 			SingleCarparkSystemSetting s=new SingleCarparkSystemSetting();
