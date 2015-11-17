@@ -14,7 +14,7 @@ public enum SystemSettingTypeEnum {
 	是否自动删除图片("false"),
 	是否允许无牌车进("false"),
 	同一车牌识别间隔("1"), 出场确认放行("false"),
-	DateBase_version("1.0.0.0"),软件版本("1.0.0.1");
+	DateBase_version("1.0.0.0"),软件版本("1.0.0.0");
 	;
 	
 	private String defaultValue;
