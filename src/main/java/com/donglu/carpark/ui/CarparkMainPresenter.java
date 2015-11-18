@@ -352,12 +352,14 @@ public class CarparkMainPresenter {
 			}
 			String ip = showWizard.getIp();
 
+			SingleCarparkDevice device2 = showWizard.getDevice();
+			device2.setCarpark(sp.getCarparkService().findCarparkById(device2.getCarpark().getId()));
 			if (ip.equals(oldIp)) {
 				selection.setText(showWizard.getName());
-				mapIpToDevice.put(ip, showWizard.getDevice());
+				mapIpToDevice.put(ip, device2);
 				com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 				commonui.info("修改成功", "修改设备" + ip + "成功");
-				showUsualContentToDevice(showWizard.getDevice());
+				showUsualContentToDevice(device2);
 				sendPositionToAllDevice(true);
 				return;
 			} else {
@@ -366,9 +368,9 @@ public class CarparkMainPresenter {
 //					return;
 				}
 				deleteDeviceTabItem(selection);
-				addDevice(showWizard.getDevice());
+				addDevice(device2);
 				addDevice(tabFolder, type, ip, showWizard.getName());
-				this.model.setCarpark(showWizard.getDevice().getCarpark());
+				this.model.setCarpark(device2.getCarpark());
 			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
