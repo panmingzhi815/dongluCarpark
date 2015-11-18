@@ -207,7 +207,9 @@ public class AddDeviceBasicPage extends WizardPage {
         label_5.setText("控制器地址");
 		
 		text_3 = new Text(composite, SWT.BORDER);
-		text_3.setEditable(false);
+		if (model.getType().equals("tcp")) {
+			text_3.setEditable(false);
+		}
 		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		label_8 = new Label(composite, SWT.NONE);

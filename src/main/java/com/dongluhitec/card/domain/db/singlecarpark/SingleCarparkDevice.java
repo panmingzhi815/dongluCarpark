@@ -23,7 +23,7 @@ public class SingleCarparkDevice extends DomainObject{
 	private String type;//设备类型  tcp or 485
 	private String linkAddress;//连接地址
 	private String address="1.1";//设备地址
-	private String roadType;//通道类型
+	private String roadType="混合车通道";//通道类型
 	private Integer volume=1;
 	private String advertise="欢迎光临";
 	private ScreenTypeEnum screenType=ScreenTypeEnum.一二接口显示屏;

@@ -160,6 +160,7 @@ public class CarparkMainPresenter {
 				return;
 			}
 			model.setList(findAllCarpark);
+			model.setCarpark(findAllCarpark.get(0));
 			model.setType("tcp");
 			AddDeviceWizard v = new AddDeviceWizard(model);
 
