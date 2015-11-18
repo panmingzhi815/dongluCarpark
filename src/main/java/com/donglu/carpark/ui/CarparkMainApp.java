@@ -1788,7 +1788,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			singleCarparkInOutHistory.setOutPhotographType("自动");
 			singleCarparkInOutHistory.setOutBigImg(bigImg);
 			singleCarparkInOutHistory.setOutSmallImg(smallImg);
-
+			//
 			Date handPhotographDate = mapHandPhotograph.get(ip);
 			if (!StrUtil.isEmpty(handPhotographDate)) {
 				DateTime plusSeconds = new DateTime(handPhotographDate).plusSeconds(3);
@@ -1800,7 +1800,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 			// 临时车操作
 			model.setPlateNo(plateNO);
-			model.setCarType(singleCarparkInOutHistory.getCarType());
+			model.setCarType("临时车");
 			model.setOutTime(date);
 			model.setInTime(inTime);
 			model.setTotalTime(StrUtil.MinusTime2(inTime, date));
