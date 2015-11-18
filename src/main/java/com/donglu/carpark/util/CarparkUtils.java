@@ -37,10 +37,12 @@ import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.CarparkManageApp;
+import com.donglu.carpark.ui.ClientConfigUI;
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
+import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.common.io.Files;
 
 public class CarparkUtils {
@@ -433,5 +435,11 @@ public class CarparkUtils {
 				combo.setFocus();
 			}
 		});
+	}
+	public static boolean backupDateBase(String path,String ip,String port,String userName,String password) {
+		String sql="backup database carpark to disk='"+path+"'";
+		System.out.println(sql);
+		boolean executeSQL = DatabaseUtil.executeSQL(ip, port, "master", userName, password, sql, "SQLSERVER 2008");
+		return executeSQL;
 	}
 }

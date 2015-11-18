@@ -98,8 +98,7 @@ public class AddCarparkWizardPage extends WizardPage {
 		
 		button = new Button(composite, SWT.CHECK);
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button.setToolTipText("固定车车位满自动变成临时车，否则车位满后不允许进");
-		button.setText("固定车车位满自动变成临时车");
+		button.setText("是否收费");
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {
@@ -126,8 +125,8 @@ public class AddCarparkWizardPage extends WizardPage {
 		bindingContext.bindValue(observeTextText_4ObserveWidget, fixNumberOfSlotModelObserveValue, null, null);
 		//
 		IObservableValue observeSelectionButtonObserveWidget_1 = WidgetProperties.selection().observe(button);
-		IObservableValue fixCarOneInModelObserveValue = BeanProperties.value("fixCarOneIn").observe(model);
-		bindingContext.bindValue(observeSelectionButtonObserveWidget_1, fixCarOneInModelObserveValue, null, null);
+		IObservableValue isChargeModelObserveValue = BeanProperties.value("isCharge").observe(model);
+		bindingContext.bindValue(observeSelectionButtonObserveWidget_1, isChargeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

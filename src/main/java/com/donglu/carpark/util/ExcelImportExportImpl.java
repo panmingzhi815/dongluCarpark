@@ -414,21 +414,23 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		HSSFSheet sheet = wb.getSheetAt(0);
 		int currentRow = 0;
 		HSSFRow row = sheet.createRow(currentRow);
-		row.createCell(0).setCellValue("编号");
+//		row.createCell(0).setCellValue("编号");
 		for (int i = 0; i < names.length; i++) {
 			String string = names[i];
 			HSSFCell createCell = row.createCell(i+1);
 			row.createCell(i+1).setCellValue(string);
 		}
-		currentRow++;
+//		currentRow++;
 		for (int i = 0; i < list.size(); i++) {
 			row = sheet.createRow(currentRow + i);
 			Object o = list.get(i);
-			row.createCell(0).setCellValue(i+1);
+			
+//			row.createCell(0).setCellValue(i+1);
 			for (int j = 0; j < cloumns.length; j++) {
 				String string = cloumns[j];
 				Object fieldValueByName = CarparkUtils.getFieldValueByName(string, o);
-				row.createCell(j+1).setCellValue(fieldValueByName+"");
+//				row.createCell(j+1).setCellValue(fieldValueByName+"");
+				row.createCell(j).setCellValue(fieldValueByName+"");
 			}
 		}
 		FileOutputStream fileOut = new FileOutputStream(path);

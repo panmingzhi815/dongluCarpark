@@ -23,8 +23,6 @@ public class CarparkServerConfig implements Serializable{
 	private String dbServerUsername;
 	private String dbServerPassword;
 	
-	private String dbServerDriver;
-	private String dbServerURL;
 	
 	private CarparkServerConfig(){}
 	

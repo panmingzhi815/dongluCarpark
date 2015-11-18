@@ -38,6 +38,7 @@ import com.donglu.carpark.ui.wizard.charge.NewCommonChargeWizard;
 import com.donglu.carpark.ui.wizard.holiday.AddYearHolidayModel;
 import com.donglu.carpark.ui.wizard.holiday.AddYearHolidayWizard;
 import com.donglu.carpark.ui.wizard.model.AddMonthChargeModel;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeTypeEnum;
@@ -579,9 +580,8 @@ public class CarparkManagePresenter {
 		if (StrUtil.isEmpty(ccc)) {
 			return;
 		}
-		String sql="backup database carpark to disk='"+path+"'";
-		System.out.println(sql);
-		boolean executeSQL = DatabaseUtil.executeSQL(ccc.getDbServerIp(), ccc.getDbServerPort(), "master", ccc.getDbServerUsername(), ccc.getDbServerPassword(), sql, "SQLSERVER 2008");
+		boolean executeSQL = 
+				CarparkUtils.backupDateBase(path, ccc.getDbServerIp(), ccc.getDbServerPort(), ccc.getDbServerUsername(), ccc.getDbServerPassword());
 		if (executeSQL) {
 			commonui.info("成功", "备份数据库到"+path+"成功");
 		}else{

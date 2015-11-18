@@ -59,6 +59,7 @@ public class SingleCarparkCarpark extends DomainObject {
 	private Integer tempNumberOfSlot;
 	
 	private Boolean fixCarOneIn;
+	private Boolean isCharge=true;
 	
 	public String getCode() {
 		return code;
@@ -188,6 +189,14 @@ public class SingleCarparkCarpark extends DomainObject {
 		this.fixCarOneIn = fixCarOneIn;
 		if (pcs != null)
 			pcs.firePropertyChange("fixCarOneIn", null, null);
+	}
+	public Boolean getIsCharge() {
+		return isCharge;
+	}
+	public void setIsCharge(Boolean isCharge) {
+		this.isCharge = isCharge;
+		if (pcs != null)
+			pcs.firePropertyChange("isCharge", null, null);
 	}
 	
 	

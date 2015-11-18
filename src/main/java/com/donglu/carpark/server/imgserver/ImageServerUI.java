@@ -312,7 +312,11 @@ public class ImageServerUI {
 			
 			if (!findSystemSettingByKey.getSettingValue().equals( SystemSettingTypeEnum.软件版本.getDefaultValue())) {
 				SystemUpdate update=new SystemUpdate();
-				update.systemUpdate(findSystemSettingByKey.getSettingValue(), SystemSettingTypeEnum.软件版本.getDefaultValue());
+				try {
+					update.systemUpdate(findSystemSettingByKey.getSettingValue(), SystemSettingTypeEnum.软件版本.getDefaultValue());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 			String open = text.getText();
 			FileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);

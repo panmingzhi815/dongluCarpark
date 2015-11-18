@@ -28,7 +28,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.collect.Maps;
 
 public class CarInTask implements Runnable {
-	private Logger LOGGER = LoggerFactory.getLogger(CarInTask.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(CarInTask.class);
 	private static final String CAR_IN_MSG = "欢迎光临,请入场停车";
 	private static final String VILIDTO_DATE = ",有效期至yyyy年MM月dd日";
 	private static Image inSmallImage;
