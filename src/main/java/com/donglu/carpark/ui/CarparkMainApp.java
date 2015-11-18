@@ -1642,10 +1642,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		String carType = "临时车";
 
 		if (!StrUtil.isEmpty(user)) {
-			Date userOutTime = new DateTime(user.getValidTo()).plusDays(user.getDelayDays() == null ? 0 : user.getDelayDays()).toDate();
-			if (userOutTime.after(date)) {
+//			Date userOutTime = new DateTime(user.getValidTo()).plusDays(user.getDelayDays() == null ? 0 : user.getDelayDays()).toDate();
+//			if (userOutTime.after(date)) {
 				carType = "固定车";
-			}
+//			}
 		}
 		String roadType = device.getRoadType();
 		LOGGER.info("车辆类型为：{}==通道类型为：{}", carType, roadType);

@@ -33,6 +33,7 @@ import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.wizard.sn.ImportSNModel;
 import com.donglu.carpark.ui.wizard.sn.ImportSNWizard;
+import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.SystemUpdate;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
@@ -309,7 +310,16 @@ public class ImageServerUI {
 				findSystemSettingByKey.setSettingValue(SystemSettingTypeEnum.DateBase_version.getDefaultValue());
 				sp.getCarparkService().saveSystemSetting(findSystemSettingByKey);
 			}
-			
+			File f=new File(System.getProperty("user.dir"));
+//			System.out.println(f.getPath());
+//			String[] list = f.list();
+//			for (String string : list) {
+//				boolean matches = string.matches("^[0-9]{8}.txt$");
+//				if (matches) {
+//					System.out.println("========="+matches);
+////					CarparkUtils.loadIniFromFile(new File("../升级.ini"));
+//				}
+//			}
 			if (!findSystemSettingByKey.getSettingValue().equals( SystemSettingTypeEnum.软件版本.getDefaultValue())) {
 				SystemUpdate update=new SystemUpdate();
 				try {

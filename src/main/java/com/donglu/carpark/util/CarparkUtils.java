@@ -28,6 +28,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.ini4j.Config;
+import org.ini4j.Ini;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -453,4 +455,14 @@ public class CarparkUtils {
 		}
 		return day.intValue();
 	}
+	public static Ini loadIniFromFile(File file) throws IOException {
+        Ini ini = new Ini();
+        Config global = Config.getGlobal();
+        global.setGlobalSection(true);
+        ini.setConfig(global);
+
+        ini.setFile(file);
+        ini.load();
+        return ini;
+    }
 }

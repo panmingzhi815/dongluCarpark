@@ -210,6 +210,7 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 			commonui.info("操作成功", "导出成功");
 		} catch (Exception e) {
 			e.printStackTrace();
+			commonui.info("操作失败", "操作失败"+e.getMessage());
 		}
 	}
 }
