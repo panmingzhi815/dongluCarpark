@@ -1665,7 +1665,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				presenter.showContentToDevice(device, FIX_ROAD, false);
 				return;
 			}
-			carparkOutProcess(ip, plateNO, device, date, bigImg, smallImg);
+			tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg);
 		}
 	}
 
@@ -1726,14 +1726,16 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		if (StrUtil.getTodayBottomTime(time).before(date)) {
 			presenter.showContentToDevice(device, CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), VILIDTO_DATE), false);
 			LOGGER.info("车辆:{}已到期", nowPlateNO);
+			if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车到期变临时车)==null?SystemSettingTypeEnum.固定车到期变临时车.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.固定车到期变临时车))) {
+				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg);
+			}
 			return true;
 		} else {
 			c.setTime(validTo);
 			c.add(Calendar.DATE, user.getRemindDays() == null ? 0 : user.getRemindDays() * -1);
 			time = c.getTime();
-			System.out.println(StrUtil.formatDate(time, "yyyy-MM-dd HH:mm:ss"));
 			if (StrUtil.getTodayBottomTime(time).before(date)) {
-				presenter.showContentToDevice(device, CAR_OUT_MSG + StrUtil.formatDate(user.getValidTo(), VILIDTO_DATE), true);
+				presenter.showContentToDevice(device, CAR_OUT_MSG + ",剩余"+CarparkUtils.countDayByBetweenTime(date, user.getValidTo())+"天", true);
 				LOGGER.info("车辆:{}即将到期", nowPlateNO);
 			} else {
 				presenter.showContentToDevice(device, CAR_OUT_MSG, true);
@@ -1775,7 +1777,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		return false;
 	}
 
-	private void carparkOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg) {
+	private void tempCarOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg) {
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(plateNO, device.getCarpark());
 		if (!StrUtil.isEmpty(findByNoCharge)) {

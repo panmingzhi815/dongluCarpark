@@ -185,7 +185,7 @@ public class CarparkMainPresenter {
 		SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(ip);
 		if (!StrUtil.isEmpty(singleCarparkDevice)) {
 			commonui.error("提示", "ip" + ip + "的设备已存在");
-			throw new Exception("ip" + ip + "的设备已存在");
+//			throw new Exception("ip" + ip + "的设备已存在");
 		}
 		mapIpToDevice.put(ip, device);
 		com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
@@ -216,7 +216,7 @@ public class CarparkMainPresenter {
 	public void addDevice(CTabFolder tabFolder, String type, String ip, String name) {
 		if (mapDeviceType.get(ip) != null) {
 			commonui.error("添加失败", "设备" + ip + "已存在");
-			return;
+//			return;
 		}
 		CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
 		tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));

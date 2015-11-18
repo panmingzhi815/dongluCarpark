@@ -442,4 +442,15 @@ public class CarparkUtils {
 		boolean executeSQL = DatabaseUtil.executeSQL(ip, port, "master", userName, password, sql, "SQLSERVER 2008");
 		return executeSQL;
 	}
+	public static int countDayByBetweenTime(Date start,Date end){
+		Long l=end.getTime()-start.getTime();
+		Long day=l/(1000*60*60*24);
+		Long dayMore=l%(1000*60*60*24);
+		if (dayMore>0) {
+			day+=1;
+		}else if(dayMore<0){
+			day-=1;
+		}
+		return day.intValue();
+	}
 }
