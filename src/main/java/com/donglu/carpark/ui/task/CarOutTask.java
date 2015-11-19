@@ -387,6 +387,7 @@ public class CarOutTask implements Runnable{
 			Boolean isCharge = device.getCarpark().getIsCharge();
 			if (StrUtil.isEmpty(isCharge) || !isCharge) {
 				sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
+				presenter.showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
 			} else {
 				CarTypeEnum carType = CarTypeEnum.SmallCar;
 				if (mapTempCharge.keySet().size() > 1) {
