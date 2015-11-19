@@ -587,8 +587,8 @@ public class CarparkMainPresenter {
 
 	public boolean showUsualContentToDevice(SingleCarparkDevice device) {
 		try {
-//			showNowTimeToDevice(device);
 			Boolean carparkUsualContent = hardwareService.carparkUsualContent(getDevice(device), device.getAdvertise());
+			showNowTimeToDevice(device);
 			return carparkUsualContent;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -834,5 +834,99 @@ public class CarparkMainPresenter {
 
 	public void showNowTimeToDevice(SingleCarparkDevice singleCarparkDevice) {
 		hardwareService.setDate(getDevice(singleCarparkDevice), new Date());
+	}
+	
+	/**
+	 * 进行收费
+	 * @param carOutChargeCheck 是否需要确认
+	 */
+	public void charge(Boolean carOutChargeCheck) {
+		SingleCarparkInOutHistory data = model.getChargeHistory();
+		if (StrUtil.isEmpty(data)) {
+			return;
+		}
+		SingleCarparkDevice device = model.getChargeDevice();
+		data.setFactMoney(model.getReal());
+		if (!chargeCarPass(device, data, carOutChargeCheck)) {
+			return;
+		}
+		model.setComboCarTypeEnable(false);
+		model.setChargeDevice(null);
+		model.setChargeHistory(null);
+	}
+	
+	/**
+	 * 进行免费
+	 * @param carOutChargeCheck 是否需要确认
+	 */
+	public void free(Boolean carOutChargeCheck) {
+		SingleCarparkInOutHistory data = model.getChargeHistory();
+		SingleCarparkDevice device = model.getChargeDevice();
+		if (StrUtil.isEmpty(data) || StrUtil.isEmpty(device)) {
+			return;
+		}
+		model.setReal(0);
+		if (chargeCarPass(device, data, carOutChargeCheck)) {
+			return;
+		}
+		model.setComboCarTypeEnable(false);
+		model.setChargeDevice(null);
+		model.setChargeHistory(null);
+	}
+	
+	/**
+	 * 收费操作
+	 * @param device
+	 * @param singleCarparkInOutHistory
+	 * @param check
+	 * @return
+	 */
+	public boolean chargeCarPass(SingleCarparkDevice device, SingleCarparkInOutHistory singleCarparkInOutHistory, boolean check) {
+
+		try {
+			Float shouldMoney = model.getShouldMony();
+			float factMoney = model.getReal();
+			if (factMoney > shouldMoney) {
+				commonui.error("收费提示", "实收不能超过应收" + shouldMoney + "元");
+				return false;
+			}
+			if (factMoney < 0) {
+				commonui.error("收费提示", "实收不能小于0");
+				return false;
+			}
+			if (check) {
+				boolean confirm = commonui.confirm("收费确认", "车牌：" + singleCarparkInOutHistory.getPlateNo() + "应收：" + shouldMoney + "实收：" + factMoney);
+				if (!confirm) {
+					return false;
+				}
+			}
+			LOGGER.info("车辆收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", singleCarparkInOutHistory.getPlateNo(), device.getCarpark(), model.getCarTypeEnum(), model.getInTime(),
+					model.getOutTime(), model.getTotalTime(), shouldMoney);
+			float freeMoney = shouldMoney - factMoney;
+			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
+			singleCarparkInOutHistory.setFactMoney(factMoney);
+			singleCarparkInOutHistory.setFreeMoney(freeMoney);
+			singleCarparkInOutHistory.setCarType("临时车");
+			sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
+			Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
+			if (tempCarNoChargeIsPass) {
+				if (shouldMoney > 0) {
+					showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
+				} else {
+					showContentToDevice(device, CarparkUtils.formatFloatString("请缴费" + shouldMoney + "元") + "," + CarparkMainApp.CAR_OUT_MSG, true);
+				}
+			} else {
+				showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
+			}
+			model.setBtnClick(false);
+			model.setHandSearch(false);
+			model.setComboCarTypeEnable(false);
+			model.setChargeDevice(null);
+			model.setChargeHistory(null);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 }

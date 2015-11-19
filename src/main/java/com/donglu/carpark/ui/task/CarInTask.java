@@ -30,9 +30,8 @@ import com.google.common.collect.Maps;
 public class CarInTask implements Runnable {
 	private static Logger LOGGER = LoggerFactory.getLogger(CarInTask.class);
 	private static final String CAR_IN_MSG = "欢迎光临,请入场停车";
-	private static final String VILIDTO_DATE = ",有效期至yyyy年MM月dd日";
-	private static Image inSmallImage;
-	private static Image inBigImage;
+	static Image inSmallImage;
+	static Image inBigImage;
 
 	private final String plateNO;
 	private final String ip;
@@ -414,5 +413,4 @@ public class CarInTask implements Runnable {
 		}
 		return false;
 	}
-
 }

@@ -7,16 +7,19 @@ import org.eclipse.swt.graphics.Image;
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 public class CarparkMainModel extends DomainObject{
+	//进口显示信息
 	private String inShowPlateNO;
 	private String inShowTime;
 	private String inShowMeg;
 	private Image inShowSmallImg;
 	private Image inShowBigImg;
 	
+	//出口显示信息
 	private String outShowPlateNO;
 	private String outShowTime;
 	private String outShowMeg;
@@ -59,6 +62,17 @@ public class CarparkMainModel extends DomainObject{
 	
 	String carparkCarType;
 	private String currentTime;
+	
+	//收费时的临时信息
+	SingleCarparkInOutHistory chargeHistory;
+	SingleCarparkDevice chargeDevice;
+	
+	//查询时的临时信息
+	String searchPlateNo;
+	String searchBigImage;
+	String searchSmallImage;
+	
+	Boolean disContinue;
 	
 	private SingleCarparkCarpark carpark;
 	private CarTypeEnum carTypeEnum;
@@ -381,6 +395,42 @@ public class CarparkMainModel extends DomainObject{
 	}
 	public CarTypeEnum getCarTypeEnum() {
 		return carTypeEnum;
+	}
+	public SingleCarparkInOutHistory getChargeHistory() {
+		return chargeHistory;
+	}
+	public void setChargeHistory(SingleCarparkInOutHistory chargeHistory) {
+		this.chargeHistory = chargeHistory;
+	}
+	public SingleCarparkDevice getChargeDevice() {
+		return chargeDevice;
+	}
+	public void setChargeDevice(SingleCarparkDevice chargeDevice) {
+		this.chargeDevice = chargeDevice;
+	}
+	public String getSearchPlateNo() {
+		return searchPlateNo;
+	}
+	public void setSearchPlateNo(String searchPlateNo) {
+		this.searchPlateNo = searchPlateNo;
+	}
+	public String getSearchBigImage() {
+		return searchBigImage;
+	}
+	public void setSearchBigImage(String searchBigImage) {
+		this.searchBigImage = searchBigImage;
+	}
+	public String getSearchSmallImage() {
+		return searchSmallImage;
+	}
+	public void setSearchSmallImage(String searchSmallImage) {
+		this.searchSmallImage = searchSmallImage;
+	}
+	public Boolean getDisContinue() {
+		return disContinue;
+	}
+	public void setDisContinue(Boolean disContinue) {
+		this.disContinue = disContinue;
 	}
 
 }

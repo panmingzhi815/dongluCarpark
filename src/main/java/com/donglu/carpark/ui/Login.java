@@ -467,34 +467,72 @@ public class Login {
 			public void run() {
 				SingleCarparkSystemSetting ss1 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.是否自动删除图片.name());
 				if (StrUtil.isEmpty(ss1) || ss1.getSettingValue().equals(SystemSettingTypeEnum.是否自动删除图片.getDefaultValue())) {
-					return;
-				}
-				Boolean valueOf = Boolean.valueOf(ss1.getSettingValue());
-				if (!valueOf) {
+					LOGGER.info("是否自动删除图片设置为{}", StrUtil.isEmpty(ss1)?null:ss1.getSettingValue());
 					return;
 				}
 				SingleCarparkSystemSetting ss2 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存多少天.name());
 				int saveMonth = Integer.valueOf(ss2 == null ? SystemSettingTypeEnum.图片保存多少天.getDefaultValue() : ss2.getSettingValue());
+				LOGGER.info("图片保存多少天设置为{}", saveMonth);
 				String imgSavePath = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 				String savePath = (imgSavePath == null ? System.getProperty("user.dir") : imgSavePath) + "/img/";
 				Date d = new Date();
 				DateTime deleteTime = new DateTime(d).minusDays(saveMonth + 1);
-
+				String nowMonth=deleteTime.toString("MM");
+				String day = deleteTime.toString("dd");
+				String month = deleteTime.toString("MM");
+				int year = deleteTime.getYear();
+				int nowYear=deleteTime.getYear();
 				File file;
 				while (true) {
-					String pathname = savePath + deleteTime.getYear() + "/" + deleteTime.getMonthOfYear() + "/" + deleteTime.toString("dd");
+					String pathname = savePath + year + "/" + month;
 					LOGGER.info("检测文件夹{}是否存在", pathname);
 					file = new File(pathname);
 					if (file.isDirectory()) {
 						LOGGER.info("文件夹{}存在,准备删除文件夹", pathname);
-						CarparkUtils.deleteDir(file);
+						if (month.equals(nowMonth)) {
+							for (File f : file.listFiles()) {
+								try {
+									if (Integer.valueOf(f.getName())<=Integer.valueOf(day)) {
+										CarparkUtils.deleteDir(f);
+									}
+								} catch (NumberFormatException e) {
+									continue;
+								}
+							}
+						}else{
+							CarparkUtils.deleteDir(file);
+						}
 					} else {
-						LOGGER.info("文件夹{}不存在,退出任务", pathname);
+						while (true) {
+    						String pathname1 = savePath + (year);
+    						LOGGER.info("检测文件夹{}是否存在", pathname1);
+    						file = new File(pathname1);
+    						if (file.isDirectory()) {
+    							LOGGER.info("文件夹{}存在,准备删除文件夹", pathname1);
+    							if (year==nowYear) {
+    								for (File f : file.listFiles()) {
+    									try {
+    										if (Integer.valueOf(f.getName())<=Integer.valueOf(month)) {
+    											CarparkUtils.deleteDir(f);
+    										}
+    									} catch (NumberFormatException e) {
+    										continue;
+    									}
+    								}
+    							}else{
+    								CarparkUtils.deleteDir(file);
+    							}
+    						}else{
+        						LOGGER.info("文件夹{}不存在,退出任务", pathname1);
+        						break;
+    						}
+    						year-=1;
+						}
 						break;
 					}
-					deleteTime = deleteTime.minusDays(1);
+					month=deleteTime.minusMonths(1).toString("MM");
 				}
 			}
-		}, 5, 60 * 24, TimeUnit.SECONDS);
+		}, 5, 60 * 24, TimeUnit.MINUTES);
 	}
 }
