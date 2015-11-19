@@ -1,6 +1,7 @@
 package com.donglu.carpark.model;
 
 import java.util.Date;
+import java.util.Map;
 
 import org.eclipse.swt.graphics.Image;
 
@@ -66,6 +67,7 @@ public class CarparkMainModel extends DomainObject{
 	//收费时的临时信息
 	SingleCarparkInOutHistory chargeHistory;
 	SingleCarparkDevice chargeDevice;
+	Map<Long, SingleCarparkInOutHistory> childCarparkInOut;
 	
 	//查询时的临时信息
 	String searchPlateNo;
@@ -374,7 +376,6 @@ public class CarparkMainModel extends DomainObject{
 			pcs.firePropertyChange("outPlateNOEditable", null, null);
 	}
 	public SingleCarparkCarpark getCarpark() {
-		// TODO 自动生成的方法存根
 		return carpark;
 	}
 	public void setCarpark(SingleCarparkCarpark carpark) {
@@ -431,6 +432,12 @@ public class CarparkMainModel extends DomainObject{
 	}
 	public void setDisContinue(Boolean disContinue) {
 		this.disContinue = disContinue;
+	}
+	public Map<Long, SingleCarparkInOutHistory> getChildCarparkInOut() {
+		return childCarparkInOut;
+	}
+	public void setChildCarparkInOut(Map<Long, SingleCarparkInOutHistory> childCarparkInOut) {
+		this.childCarparkInOut = childCarparkInOut;
 	}
 
 }

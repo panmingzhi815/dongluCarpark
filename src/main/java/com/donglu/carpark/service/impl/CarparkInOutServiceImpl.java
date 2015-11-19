@@ -550,7 +550,14 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 		}
 	}
-
+	private void getChildCarpaek(SingleCarparkCarpark carpark, List<SingleCarparkCarpark> list) {
+		if (!StrUtil.isEmpty(carpark.getChilds())) {
+			for (SingleCarparkCarpark singleCarparkCarpark : carpark.getChilds()) {
+				list.add(singleCarparkCarpark);
+				getCarpaek(singleCarparkCarpark, list);
+			}
+		}
+	}
 	public List<SingleCarparkCarpark> findCarparkToLevel() {
 		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
 		List<SingleCarparkCarpark> resultList = c.getResultList();
@@ -603,6 +610,29 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return c.getResultList();
 		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut(Long carparkId, String plateNO, Date inTime, Date outTime) {
+		unitOfWork.begin();
+		try {
+			DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
+			SingleCarparkCarpark entityWithId = dom.getEntityWithId(carparkId);
+			if (StrUtil.isEmpty(entityWithId)) {
+				return new ArrayList<>();
+			}
+			List<SingleCarparkCarpark> list=new ArrayList<>();
+			getChildCarpaek(entityWithId, list);
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.between(SingleCarparkInOutHistory.Property.inTime.name(), inTime, outTime));
+			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.between(SingleCarparkInOutHistory.Property.outTime.name(), inTime, outTime));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plateNO));
+			c.add(Restrictions.in(SingleCarparkInOutHistory.Property.carparkId.name(), StrUtil.getListIdByEntity(list)));
+			return c.getResultList();
+		} finally{
 			unitOfWork.end();
 		}
 	}

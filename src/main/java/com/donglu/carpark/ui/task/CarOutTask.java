@@ -3,6 +3,7 @@ package com.donglu.carpark.ui.task;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -320,7 +321,6 @@ public class CarOutTask implements Runnable{
 			}
 		}
 
-
 		SingleCarparkInOutHistory singleCarparkInOutHistory = findByNoCharge.get(0);
 		model.setPlateNo(nowPlateNO);
 		model.setCarType(carType);
@@ -357,7 +357,16 @@ public class CarOutTask implements Runnable{
 		if (!StrUtil.isEmpty(findByNoCharge)) {
 
 			SingleCarparkInOutHistory singleCarparkInOutHistory = findByNoCharge.get(0);
-
+			
+//			List<SingleCarparkInOutHistory> listChildCarparkInOutHistory= carparkInOutService.findHistoryByChildCarparkInOut(singleCarparkInOutHistory.getCarparkId(),plateNO,singleCarparkInOutHistory.getInTime(),date);
+//			if (StrUtil.isEmpty(listChildCarparkInOutHistory)) {
+//				Map<Long, SingleCarparkInOutHistory> map=new HashMap<>();
+//				for (SingleCarparkInOutHistory singleCarparkInOutHistory2 : listChildCarparkInOutHistory) {
+//					map.put(singleCarparkInOutHistory2.getId(), singleCarparkInOutHistory2);
+//				}
+//				model.setChildCarparkInOut(map);
+//			}
+		
 			singleCarparkInOutHistory.setOutTime(date);
 			singleCarparkInOutHistory.setOperaName(model.getUserName());
 			singleCarparkInOutHistory.setOutDevice(device.getName());
@@ -420,7 +429,7 @@ public class CarOutTask implements Runnable{
 				model.setCartypeEnum(carType);
 				LOGGER.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", plateNO, device.getCarpark(), carType, model.getInTime(), model.getOutTime(), model.getTotalTime(), shouldMoney);
 				String s = "请缴费" + shouldMoney + "元";
-				s = CarparkUtils.formatFloatString(s);
+				s = CarparkUtils.getCarStillTime(model.getTotalTime())+CarparkUtils.formatFloatString(s);
 
 				String property = System.getProperty(CarparkMainApp.TEMP_CAR_AUTO_PASS);
 				Boolean valueOf = Boolean.valueOf(property);

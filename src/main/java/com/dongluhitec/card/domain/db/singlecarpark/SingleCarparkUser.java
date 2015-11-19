@@ -37,6 +37,7 @@ public class SingleCarparkUser extends DomainObject {
 	private Long monthChargeId;//月租编号
 	
 	private String remark;
+	private String tempCarTime;
 	@ManyToOne
 	private SingleCarparkCarpark carpark;
 	
@@ -138,5 +139,13 @@ public class SingleCarparkUser extends DomainObject {
 		this.monthChargeId = monthChargeId;
 		if (pcs != null)
 			pcs.firePropertyChange("monthChargeId", null, null);
+	}
+	public String getTempCarTime() {
+		return tempCarTime;
+	}
+	public void setTempCarTime(String tempCarTime) {
+		this.tempCarTime = tempCarTime;
+		if (pcs != null)
+			pcs.firePropertyChange("tempCarTime", null, null);
 	}
 }

@@ -133,7 +133,8 @@ public class CarInTask implements Runnable {
 		// 空车牌处理
 		if (StrUtil.isEmpty(plateNO)) {
 			LOGGER.info("空的车牌");
-			if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认)) || Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认))) {
+			Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进) == null ? SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进));
+			if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认)) || Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认))||!valueOf) {
 				model.setInCheckClick(true);
 				isEmptyPlateNo = true;
 				while (model.isInCheckClick()) {
@@ -145,8 +146,6 @@ public class CarInTask implements Runnable {
 				}
 				editPlateNo = model.getInShowPlateNO();
 			} else {
-				String string = mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进);
-				Boolean valueOf = Boolean.valueOf(string == null ? SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue() : string);
 				if (!valueOf) {
 					return;
 				}
@@ -400,7 +399,9 @@ public class CarInTask implements Runnable {
 				}
 			}
 		}
-
+		
+//		int parseInt = Integer.parseInt(StrUtil.isEmpty(user.getCarparkNo())?"0":user.getCarparkNo());
+		
 		Date date2 = new DateTime(user.getValidTo()).minusDays(user.getRemindDays() == null ? 0 : user.getRemindDays()).toDate();
 		if (StrUtil.getTodayBottomTime(date2).before(date)) {
 			String content = CAR_IN_MSG + ",剩余"+CarparkUtils.countDayByBetweenTime(date, user.getValidTo())+"天";

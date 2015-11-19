@@ -43,6 +43,7 @@ import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
@@ -192,11 +193,18 @@ public class CarparkManagePresenter {
 	 */
 	public void editCarpark() {
 		try {
+			
 			SingleCarparkCarpark carpark = carparkModel.getCarpark();
 			if (StrUtil.isEmpty(carpark.getParent())) {
 				addAndEditCarpark(carpark);
 			}else{
 				addAndEditChildCarpark(carpark);
+			}
+			for (String ip : CarparkMainApp.mapIpToDevice.keySet()) {
+				SingleCarparkDevice singleCarparkDevice = CarparkMainApp.mapIpToDevice.get(ip);
+				SingleCarparkCarpark findCarparkById = sp.getCarparkService().findCarparkById(singleCarparkDevice.getCarpark().getId());
+				singleCarparkDevice.setCarpark(findCarparkById);
+				CarparkMainApp.mapIpToDevice.put(ip, singleCarparkDevice);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -80,6 +80,8 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	
 	private Long carparkId;
 	private String carparkName;
+	
+	private Date reviseInTime;
 
 	public String getPlateNo() {
 		return plateNo;
@@ -318,6 +320,14 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		this.carparkName = carparkName;
 		if (pcs != null)
 			pcs.firePropertyChange("carparkName", null, null);
+	}
+	public Date getReviseInTime() {
+		return reviseInTime;
+	}
+	public void setReviseInTime(Date reviseInTime) {
+		this.reviseInTime = reviseInTime;
+		if (pcs != null)
+			pcs.firePropertyChange("reviseInTime", null, null);
 	}
 	
 }

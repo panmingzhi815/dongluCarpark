@@ -465,4 +465,14 @@ public class CarparkUtils {
         ini.load();
         return ini;
     }
+	public static String getCarStillTime(String totalTime) {
+		String[] split = totalTime.split(":");
+		Integer valueOf = Integer.valueOf(split[0].trim());
+		String string ="";
+		if (valueOf>0) {
+			string = split[0]+"小时";
+		}
+		String s="停车"+string+split[1]+"分钟,";
+		return s;
+	}
 }

@@ -605,16 +605,28 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	public float countShouldMoney(Long carparkId, CarTypeEnum carType, Date startTime, Date endTime) {
-		try {
-			countTempCarCharge=new CountTempCarChargeImpl();
-			float charge = countTempCarCharge.charge(carparkId, carType.index(), startTime, endTime, sp);
-			System.out.println("charge==========="+charge);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+//		try {
+//			countTempCarCharge=new CountTempCarChargeImpl();
+//			float charge = countTempCarCharge.charge(carparkId, carType.index(), startTime, endTime, sp);
+//			System.out.println("charge==========="+charge);
+//		} catch (Exception e1) {
+//			e1.printStackTrace();
+//		}
 		
 		try {
-			float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), startTime, endTime);
+			float calculateTempCharge = 0;
+			int minute=0;
+//			Map<Long, SingleCarparkInOutHistory> childCarparkInOut = model.getChildCarparkInOut();
+//			if (!StrUtil.isEmpty(childCarparkInOut)) {
+//				for (Long id: childCarparkInOut.keySet()) {
+//					SingleCarparkInOutHistory singleCarparkInOutHistory = childCarparkInOut.get(id);
+//					Date inTime = singleCarparkInOutHistory.getInTime();
+//					Date outTime = singleCarparkInOutHistory.getOutTime();
+//					minute+=StrUtil.MinusMinute(inTime, outTime);
+//					calculateTempCharge+=sp.getCarparkService().calculateTempCharge(singleCarparkInOutHistory.getCarparkId(),carType.index(), inTime, outTime);
+//				}
+//			}
+			calculateTempCharge+=sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), startTime, new DateTime(endTime).minusMinutes(minute).toDate());
 			boolean flag = CarparkUtils.checkDaysIsOneDay(startTime, endTime);
 			if (flag) {
 				float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType);

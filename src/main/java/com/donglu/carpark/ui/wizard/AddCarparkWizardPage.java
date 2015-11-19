@@ -97,6 +97,7 @@ public class AddCarparkWizardPage extends WizardPage {
 		new Label(composite, SWT.NONE);
 		
 		button = new Button(composite, SWT.CHECK);
+		button.setToolTipText("选中则表示停车场需要收费");
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button.setText("是否收费");
 		m_bindingContext = initDataBindings();

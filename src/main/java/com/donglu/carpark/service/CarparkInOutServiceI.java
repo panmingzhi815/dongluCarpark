@@ -101,4 +101,6 @@ public interface CarparkInOutServiceI {
 	Long saveOpenDoorLog(SingleCarparkOpenDoorLog openDoor);
 
 	List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName);
+
+	List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut(Long carparkId,String plateNO, Date inTime, Date outTime);
 }
