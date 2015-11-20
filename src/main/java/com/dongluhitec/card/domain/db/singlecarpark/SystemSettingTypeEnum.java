@@ -15,6 +15,7 @@ public enum SystemSettingTypeEnum {
 	是否允许无牌车进("false"),
 	同一车牌识别间隔("1"), 出场确认放行("false"),
 	固定车到期变临时车("false"),
+	双摄像头识别间隔("0"),
 	
 	DateBase_version("1.0.0.0"),软件版本("1.0.0.0"), ;
 	;

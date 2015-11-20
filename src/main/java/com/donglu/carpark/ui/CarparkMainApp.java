@@ -1,6 +1,12 @@
 package com.donglu.carpark.ui;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
@@ -50,12 +56,10 @@ import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
-import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -93,6 +97,8 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
 
 public class CarparkMainApp extends AbstractApp implements XinlutongResult {
+
+	public static final String MAP_IP_TO_DEVICE = "mapIpToDevice";
 
 	public static final String VILIDTO_DATE = ",有效期至yyyy年MM月dd日";
 
@@ -148,7 +154,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
 
-	private CarparkMainModel model;
+	private final CarparkMainModel model=new CarparkMainModel();
 
 	private CLabel lbl_inBigImg;
 	private CLabel lbl_inSmallImg;
@@ -179,6 +185,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	// 保存最近的手动拍照时间
 	public static final Map<String, Date> mapHandPhotograph = Maps.newHashMap();
 	
+	public static final Map<String, CarInTask> mapInTwoCameraTask = Maps.newHashMap();
+	public static final Map<String, CarOutTask> mapOutTwoCameraTask = Maps.newHashMap();
+	
+	public static final Map<String, Boolean> mapIsTwoChanel = Maps.newHashMap();
+	
 	public static Map<String, String> mapTempCharge;
 	// 进口tab
 	private CTabFolder tabInFolder;
@@ -188,8 +199,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private String userType;
 	private Label lblNewLabel;
 
-	// 是否中断收费操作
-	private Boolean discontinue = false;
 	// 保存出场排队任务信息
 	private List<String> listOutTask = new ArrayList<>();
 
@@ -239,41 +248,21 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 		});
 	}
-
-	/**
-	 * 计算两个日期的天数
-	 * 
-	 * @param smdate
-	 * @param bdate
-	 * @return
-	 */
-	public static int daysBetween(Date smdate, Date bdate) {
-		try {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			smdate = sdf.parse(sdf.format(smdate));
-			bdate = sdf.parse(sdf.format(bdate));
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(smdate);
-			long time1 = cal.getTimeInMillis();
-			cal.setTime(bdate);
-			long time2 = cal.getTimeInMillis();
-			long between_days = (time2 - time1) / (1000 * 3600 * 24);
-
-			return Integer.parseInt(String.valueOf(between_days));
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		return 0;
-	}
-
 	/**
 	 * 构造函数
 	 */
 	public CarparkMainApp() {
-		model = new CarparkMainModel();
-		Object readObject = com.dongluhitec.card.ui.util.FileUtils.readObject("mapIpToDevice");
+		readDevices();
+		for (SystemSettingTypeEnum t : SystemSettingTypeEnum.values()) {
+			mapSystemSetting.put(t, null);
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public void readDevices() {
+		Object readObject = com.dongluhitec.card.ui.util.FileUtils.readObject(MAP_IP_TO_DEVICE);
 		if (readObject != null) {
 			Map<String, SingleCarparkDevice> map = (Map<String, SingleCarparkDevice>) readObject;
 			for (String key : map.keySet()) {
@@ -287,9 +276,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				mapIpToDevice.put(key, singleCarparkDevice);
 			}
 		}
-		for (SystemSettingTypeEnum t : SystemSettingTypeEnum.values()) {
-			mapSystemSetting.put(t, null);
-		}
+		
 	}
 
 	/**
@@ -315,6 +302,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			});
 			shell.open();
 			shell.layout();
+			antoCheckDevices();
 			while (!shell.isDisposed()) {
 				if (!display.readAndDispatch()) {
 					display.sleep();
@@ -345,6 +333,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private void init() {
 		presenter.setView(this);
 		presenter.setModel(model);
+		presenter.setIsTwoChanel();
 		String userName = System.getProperty("userName");
 		model.setUserName(userName);
 		model.setWorkTime(new Date());
@@ -385,9 +374,40 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			autoSendTimeToDevice();
 		}
 		refreshCarparkBasicInfo(refreshTimeSpeedSecond);
-
+		
 	}
 
+	private void antoCheckDevices() {
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					WatchService watchService = FileSystems.getDefault().newWatchService();
+					Paths.get("temp").register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+					while (true) {
+						WatchKey key = watchService.poll();
+						if (StrUtil.isEmpty(key)) {
+							Thread.sleep(5000);
+							continue;
+						}
+						for (WatchEvent<?> event : key.pollEvents()) {
+							System.out.println(event.context().toString().substring(0, MAP_IP_TO_DEVICE.length()) + "发生了" + event.kind() + "事件");
+							boolean equals = event.context().toString().substring(0, MAP_IP_TO_DEVICE.length()).equals(MAP_IP_TO_DEVICE);
+							if (equals) {
+								readDevices();
+							}
+						}
+						if (!key.reset()) {
+							System.out.println("temp/mapIpToDevice.temp key.reset()" + key.reset());
+							break;
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+
+	}
 	private void autoSendTimeToDevice() {
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
@@ -1348,23 +1368,43 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	/**
 	 * 车牌识别监控
 	 */
-	public void invok(final String ip, int channel, final String plateNO, final byte[] bigImage, final byte[] smallImage) {
-		LOGGER.info("车辆{}在设备{}通道{}处进场", plateNO, ip, channel);
+	public void invok(final String ip, int channel, final String plateNO, final byte[] bigImage, final byte[] smallImage,float rightSize) {
+		LOGGER.info("车辆{}在设备{}通道{}处进场,可信度：{}", plateNO, ip, channel,rightSize);
 		try {
 			Preconditions.checkNotNull(mapDeviceType.get(ip), "not monitor device:" + ip);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
 		}
+		boolean equals = (mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔))
+				.equals(SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue());
+		String linkAddress = mapIpToDevice.get(ip).getLinkAddress();
+
 		if (mapDeviceType.get(ip).equals("出口")) {
+			//是否是双摄像头
+			if (!equals && mapIsTwoChanel.get(linkAddress)) {
+				CarOutTask carOutTask = mapOutTwoCameraTask.get(linkAddress);
+				if (!StrUtil.isEmpty(carOutTask)) {
+					if (carOutTask.getRightSize() < rightSize) {
+						carOutTask.setBigImage(bigImage);
+						carOutTask.setPlateNO(plateNO);
+						carOutTask.setSmallImage(smallImage);
+						carOutTask.setRightSize(rightSize);
+					}
+					carOutTask.alreadyFinshWait();
+					return;
+				}
+			}
 			if (listOutTask.size() > 5) {
 				LOGGER.info("已经有5个任务正在等待处理暂不添加任务{}", listOutTask);
 				return;
 			}
 			String key = new Date() + "current has device:" + ip + " with plate:" + plateNO + " process";
 			listOutTask.add(key);
-			outTheadPool.submit(new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_outBigImg, lbl_outSmallImg, lbl_inBigImg, lbl_inSmallImg, carTypeSelectCombo, text_real, shell));
-			
+			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_outBigImg, lbl_outSmallImg, lbl_inBigImg, lbl_inSmallImg, carTypeSelectCombo, text_real,
+					shell, rightSize);
+			outTheadPool.submit(task);
+			mapOutTwoCameraTask.put(linkAddress, task);
 			outTheadPool.submit(() -> {
 				while (model.isBtnClick()) {
 					int i = 0;
@@ -1382,7 +1422,23 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				plateNoTotal.addAndGet(1);
 			});
 		} else if (mapDeviceType.get(ip).equals("进口")) {
-			inThreadPool.submit(new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_inBigImg, lbl_inSmallImg, shell));
+			if (!equals && mapIsTwoChanel.get(linkAddress)) {
+				CarInTask carInTask = mapInTwoCameraTask.get(linkAddress);
+				if (!StrUtil.isEmpty(carInTask)) {
+					if (carInTask.getRightSize() < rightSize) {
+						carInTask.setBigImage(bigImage);
+						carInTask.setPlateNO(plateNO);
+						carInTask.setSmallImage(smallImage);
+						carInTask.setIp(ip);
+						carInTask.setRightSize(rightSize);
+					}
+					carInTask.alreadyFinshWait();
+					return;
+				}
+			}
+			CarInTask task = new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_inBigImg, lbl_inSmallImg, shell, rightSize);
+			inThreadPool.submit(task);
+			mapInTwoCameraTask.put(linkAddress, task);
 		}
 	}
 	
@@ -1437,6 +1493,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		model.setOutPlateNOEditable(false);
 		model.setChargeDevice(null);
 		model.setChargeHistory(null);
+		mapOutTwoCameraTask.clear();
 //		btnCharge.setData(BTN_CHARGE, null);
 //		btnCharge.setData(BTN_CHARGE_DEVICE, null);
 	}

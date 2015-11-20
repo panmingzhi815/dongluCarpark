@@ -33,15 +33,15 @@ public class CarInTask implements Runnable {
 	static Image inSmallImage;
 	static Image inBigImage;
 
-	private final String plateNO;
-	private final String ip;
+	private String plateNO;
+	private String ip;
 	private final CarparkMainModel model;
 	private final CarparkDatabaseServiceProvider sp;
 	private final CarparkMainPresenter presenter;
 	private final CLabel lbl_inBigImg;
 	private final CLabel lbl_inSmallImg;
-	private final byte[] bigImage;
-	private final byte[] smallImage;
+	private byte[] bigImage;
+	private byte[] smallImage;
 	private final Shell shell;
 	// 保存车牌最近的处理时间
 	private final Map<String, Date> mapPlateNoDate = CarparkMainApp.mapPlateNoDate;
@@ -51,10 +51,17 @@ public class CarInTask implements Runnable {
 	private final Map<SystemSettingTypeEnum, String> mapSystemSetting = CarparkMainApp.mapSystemSetting;
 	// 保存最近的手动拍照时间
 	private final Map<String, Date> mapHandPhotograph = CarparkMainApp.mapHandPhotograph;
+	
 	private final Map<String, Boolean> mapOpenDoor = CarparkMainApp.mapOpenDoor;
+	
+	private Float rightSize;
+	
+	private long startTime=System.currentTimeMillis();
+	
 
-	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, CLabel lbl_inBigImg,
-			CLabel lbl_inSmallImg, Shell shell) {
+	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, 
+			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, CLabel lbl_inBigImg,
+			CLabel lbl_inSmallImg, Shell shell,Float rightSize) {
 		super();
 		this.ip = ip;
 		this.plateNO = plateNO;
@@ -66,15 +73,37 @@ public class CarInTask implements Runnable {
 		this.lbl_inBigImg = lbl_inBigImg;
 		this.lbl_inSmallImg = lbl_inSmallImg;
 		this.shell = shell;
+		this.rightSize=rightSize;
 	}
 
 	public void run() {
+		SingleCarparkDevice device = mapIpToDevice.get(ip);
+		//开闸
 		Boolean boolean1 = mapOpenDoor.get(ip);
 		if (boolean1 != null && boolean1) {
 			mapOpenDoor.put(ip, null);
 			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO, true);
 			return;
 		}
+		//双摄像头等待
+		Boolean isTwoChanel=CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress())==null?false:CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress());
+		if (isTwoChanel) {
+			try {
+				Integer two = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔)==null?SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
+				long l = System.currentTimeMillis()-startTime;
+				while (l<two) {
+					Thread.sleep(50);
+					l = System.currentTimeMillis()-startTime;
+				}
+				CarparkMainApp.mapInTwoCameraTask.remove(device.getLinkAddress());
+			} catch (NumberFormatException e1) {
+				e1.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} 
+		}
+		
+		
 		Date date = new Date();
 		boolean checkPlateNODiscernGap = presenter.checkPlateNODiscernGap(mapPlateNoDate, plateNO, date);
 		if (!checkPlateNODiscernGap) {
@@ -91,7 +120,7 @@ public class CarInTask implements Runnable {
 		long nanoTime1 = System.nanoTime();
 
 		LOGGER.info(dateString + "==" + ip + "====" + plateNO);
-		SingleCarparkDevice device = mapIpToDevice.get(ip);
+		
 		if (StrUtil.isEmpty(device)) {
 			LOGGER.error("没有找到ip:" + ip + "的设备");
 			return;
@@ -413,5 +442,48 @@ public class CarInTask implements Runnable {
 			LOGGER.info("固定车：{}，{}", plateNO, content);
 		}
 		return false;
+	}
+
+	public String getPlateNO() {
+		return plateNO;
+	}
+
+	public void setPlateNO(String plateNO) {
+		this.plateNO = plateNO;
+	}
+
+	public byte[] getBigImage() {
+		return bigImage;
+	}
+
+	public void setBigImage(byte[] bigImage) {
+		this.bigImage = bigImage;
+	}
+
+	public byte[] getSmallImage() {
+		return smallImage;
+	}
+
+	public void setSmallImage(byte[] smallImage) {
+		this.smallImage = smallImage;
+	}
+
+	public Float getRightSize() {
+		return rightSize;
+	}
+
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+	public void setRightSize(Float rightSize) {
+		this.rightSize = rightSize;
+	}
+	public void alreadyFinshWait(){
+		this.startTime=0l;
 	}
 }

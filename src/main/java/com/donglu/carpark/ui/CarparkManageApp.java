@@ -129,6 +129,7 @@ public class CarparkManageApp extends AbstractApp{
 
 	private Composite composite_returnAccount_search;
 	private Text text_1;
+	private Text text_twoCarema;
 	
 	/**
 	 * Launch the application.
@@ -744,6 +745,47 @@ public class CarparkManageApp extends AbstractApp{
 		Label label_5 = new Label(composite_6, SWT.NONE);
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_5.setText("秒");
+		
+		Composite composite_19 = new Composite(group_4, SWT.NONE);
+		composite_19.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+		composite_19.setLayout(new GridLayout(3, false));
+		
+		Label label_2 = new Label(composite_19, SWT.NONE);
+		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_2.setText("双摄像头等待间隔");
+		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		
+		text_twoCarema = new Text(composite_19, SWT.BORDER);
+		text_twoCarema.setToolTipText("0表示无双摄像头");
+		text_twoCarema.setText("1");
+		text_twoCarema.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text_2 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_text_2.widthHint = 82;
+		text_twoCarema.setLayoutData(gd_text_2);
+		text_twoCarema.setText(mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔)==null?SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
+		text_twoCarema.addKeyListener(new KeyAdapter() {
+			String flag="0";
+			@Override
+			public void keyReleased(KeyEvent e) {
+				try {
+					String text = text_twoCarema.getText();
+					if (StrUtil.isEmpty(text)) {
+						flag="0";
+					}
+					Integer valueOf = Integer.valueOf(text);
+					if (valueOf<0) {
+						text_twoCarema.setText(flag);
+					}
+					flag=text;
+					mapSystemSetting.put(SystemSettingTypeEnum.双摄像头识别间隔, text);
+				} catch (NumberFormatException e1) {
+					text_twoCarema.setText(flag);
+				}
+			}
+		});
+		Label label_7 = new Label(composite_19, SWT.NONE);
+		label_7.setText("毫秒");
+		label_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
 		Composite composite_14 = new Composite(group_4, SWT.NONE);
 		GridData gd_composite_14 = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);

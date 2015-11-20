@@ -5,6 +5,7 @@ import java.awt.Frame;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -188,10 +189,26 @@ public class CarparkMainPresenter {
 //			throw new Exception("ip" + ip + "的设备已存在");
 		}
 		mapIpToDevice.put(ip, device);
+		setIsTwoChanel();
 		com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 		sendPositionToAllDevice(true);
 	}
 	
+	public void setIsTwoChanel() {
+		CarparkMainApp.mapIsTwoChanel.clear();
+		Map<String, SingleCarparkDevice> map=new HashMap<>();
+		Collection<SingleCarparkDevice> values = mapIpToDevice.values();
+		for (SingleCarparkDevice singleCarparkDevice : values) {
+			String linkAddress = singleCarparkDevice.getLinkAddress();
+			SingleCarparkDevice singleCarparkDevice2 = map.get(linkAddress);
+			if (StrUtil.isEmpty(singleCarparkDevice2)) {
+				map.put(linkAddress, singleCarparkDevice);
+			}else{
+				CarparkMainApp.mapIsTwoChanel.put(linkAddress, true);
+			}
+		}
+	}
+
 	/**
 	 * 
 	 */
@@ -797,7 +814,7 @@ public class CarparkMainPresenter {
 				}
 			}
 			sp.getCarparkInOutService().saveInOutHistory(select);
-			view.invok(model.getIp(), 0, select.getPlateNo(), m.getBigImg(), m.getSmallImg());
+			view.invok(model.getIp(), 0, select.getPlateNo(), m.getBigImg(), m.getSmallImg(),1);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

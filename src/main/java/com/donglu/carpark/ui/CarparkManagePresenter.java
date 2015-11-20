@@ -206,6 +206,8 @@ public class CarparkManagePresenter {
 				singleCarparkDevice.setCarpark(findCarparkById);
 				CarparkMainApp.mapIpToDevice.put(ip, singleCarparkDevice);
 			}
+			FileUtils.writeObject(CarparkMainApp.MAP_IP_TO_DEVICE, CarparkMainApp.mapIpToDevice);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
