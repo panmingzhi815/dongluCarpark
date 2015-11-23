@@ -365,8 +365,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			mapTempCharge.put(name, carparkChargeStandard.getCode());
 		}
 
-		outTheadPool = Executors.newSingleThreadExecutor();
-		inThreadPool = Executors.newCachedThreadPool();
+		outTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("进场任务"));
+		inThreadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("出场任务"));
 		refreshService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每秒刷新停车场全局监控信息"));
 
 		if (StrUtil.isEmpty(System.getProperty("autoSendPositionToDevice"))) {
@@ -1312,7 +1312,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	 * 没隔5秒自动发送车位
 	 */
 	private void autoSendPositionToDevice() {
-		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("没隔5秒发送车位数"));
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
 
 			@Override

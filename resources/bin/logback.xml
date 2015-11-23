@@ -67,8 +67,7 @@
     <logger name="com.dongluhitec.card.service" level="INFO">
         <appender-ref ref="SERVICES_MESSAGE_DEBUG"/>
     </logger>
-
-    <logger name="com.donglu.carpark" level="INFO">
+    <logger name="com.donglu.carpark.ui" level="INFO">
         <appender-ref ref="UI_MESSAGE_DEBUG"/>
     </logger>
  	<logger name="org.eclipse.jetty" level="ERROR"></logger> 

@@ -95,184 +95,188 @@ public class CarOutTask implements Runnable{
 	}
 	
 	public void run(){
-		SingleCarparkDevice device = mapIpToDevice.get(ip);
-		//开闸
-		Boolean boolean1 = mapOpenDoor.get(ip);
-		if (boolean1 != null && boolean1) {
-			mapOpenDoor.put(ip, null);
-			presenter.saveOpenDoor(device, bigImage, plateNO, false);
-			return;
-		}
-		Boolean isTwoChanel = CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress()) == null ? false : CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress());
-		if (isTwoChanel) {
-			// 双摄像头等待
-			try {
-				Integer two = Integer.valueOf(
-						mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
-				long l = System.currentTimeMillis()-startTime;
-				while (l<two) {
-					System.out.println(l+"===two"+two+"===startTime="+startTime);
-					Thread.sleep(50);
-					l = System.currentTimeMillis()-startTime;
-				}
-				CarparkMainApp.mapInTwoCameraTask.remove(device.getLinkAddress());
-			} catch (NumberFormatException e1) {
-				e1.printStackTrace();
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
-		}
-		//
-		
-		
-		model.setDisContinue(false);
-		model.setHandSearch(false);
-		long nanoTime = System.nanoTime();
-		Date date = new Date();
-		boolean checkPlateNODiscernGap = presenter.checkPlateNODiscernGap(mapPlateNoDate, plateNO, date);
-		if (!checkPlateNODiscernGap) {
-			return;
-		}
-		mapPlateNoDate.put(plateNO, date);
-		//
-		String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
-		String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
-		String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
-		presenter.saveImage(folder, bigImgFileName, bigImage);
-		String smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
-		presenter.saveImage(folder, smallImgFileName, smallImage);
-		long nanoTime1 = System.nanoTime();
-		final String dateString = StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss");
-		// System.out.println(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO);
-		LOGGER.info(dateString + "==" + ip + "====" + plateNO);
-
-		// 界面图片
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
-				if (outSmallImage != null) {
-					LOGGER.info("出口小图片销毁图片");
-					outSmallImage.dispose();
-					lbl_outSmallImg.setBackgroundImage(null);
-				}
-				if (outBigImage != null) {
-					LOGGER.info("出口大图片销毁图片");
-					outBigImage.dispose();
-					lbl_outBigImg.setBackgroundImage(null);
-				}
-
-				outSmallImage = CarparkUtils.getImage(smallImage, lbl_outSmallImg, shell);
-				if (outSmallImage != null) {
-					lbl_outSmallImg.setBackgroundImage(outSmallImage);
-				}
-
-				outBigImage = CarparkUtils.getImage(bigImage, lbl_outBigImg, shell);
-				if (outBigImage != null) {
-					lbl_outBigImg.setBackgroundImage(outBigImage);
-				}
-
-				text_real.setFocus();
-				text_real.selectAll();
-			}
-		});
-		model.setOutShowPlateNO(plateNO);
-		model.setOutShowTime(dateString);
-		//
-		if (StrUtil.isEmpty(device)) {
-			LOGGER.info("没有找到ip为：" + ip + "的设备");
-			return;
-		}
-		SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkById(device.getCarpark().getId());
-		
-		if (StrUtil.isEmpty(carpark)) {
-			LOGGER.info("没有找到名字为：" + carpark + "的停车场");
-			return;
-		}
-		model.setIp(ip);
-		String bigImg = folder + "/" + bigImgFileName;
-		String smallImg = folder + "/" + smallImgFileName;
-		//
-		if (StrUtil.isEmpty(plateNO)) {
-			LOGGER.error("空的车牌");
-			model.setSearchPlateNo(plateNO);
-			model.setSearchBigImage(bigImg);
-			model.setSearchSmallImage(smallImg);
-			model.setHandSearch(true);
-			model.setOutPlateNOEditable(true);
-			return;
-		}
-
-		// 没有找到入场记录
-		List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO,carpark);
-		if (StrUtil.isEmpty(findByNoOut)) {
-			LOGGER.info("没有找到车牌{}的入场记录", plateNO);
-			model.setSearchPlateNo(plateNO);
-			model.setSearchBigImage(bigImg);
-			model.setSearchSmallImage(smallImg);
-			model.setHandSearch(true);
-			model.setOutPlateNOEditable(true);
-			return;
-		}
-		SingleCarparkInOutHistory ch = findByNoOut.get(0);
-		model.setInShowTime(StrUtil.formatDate(ch.getInTime(), "yyyy-MM-dd HH:mm:ss"));
-		model.setInShowPlateNO(ch.getPlateNo());
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
-				if (CarInTask.inSmallImage != null) {
-					LOGGER.info("进场小图片销毁图片");
-					CarInTask.inSmallImage.dispose();
-					CarInTask.inSmallImage = null;
-					lbl_inSmallImg.setBackgroundImage(null);
-				}
-				if (CarInTask.inBigImage != null) {
-					LOGGER.info("进场大图片销毁图片");
-					CarInTask.inBigImage.dispose();
-					CarInTask.inBigImage = null;
-					lbl_inBigImg.setBackgroundImage(null);
-				}
-				CarInTask.inSmallImage = CarparkUtils.getImage(CarparkUtils.getImageByte(ch.getSmallImg()), lbl_inSmallImg, shell);
-				if (CarInTask.inSmallImage != null) {
-					lbl_inSmallImg.setBackgroundImage(CarInTask.inSmallImage);
-				}
-
-				CarInTask.inBigImage = CarparkUtils.getImage(CarparkUtils.getImageByte(ch.getBigImg()), lbl_inBigImg, shell);
-				if (CarInTask.inBigImage != null) {
-					lbl_inBigImg.setBackgroundImage(CarInTask.inBigImage);
-				}
-			}
-		});
-
-		presenter.showPlateNOToDevice(device, plateNO);
-		//
-		long nanoTime3 = System.nanoTime();
-		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO);
-		SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo.get(0);
-		String carType = "临时车";
-		
-		if (!StrUtil.isEmpty(user)) {
-			Date userOutTime = new DateTime(user.getValidTo()).plusDays(user.getDelayDays()==null?0:user.getDelayDays()).toDate();
-			if (userOutTime.after(date)) {
-				carType="固定车";
-			}
-		}
-		String roadType = device.getRoadType();
-		LOGGER.info("车辆类型为：{}==通道类型为：{}", carType, roadType);
-		// System.out.println("=====车辆类型为："+carType+"通道类型为："+roadType);
-		long nanoTime2 = System.nanoTime();
-		LOGGER.info(dateString + "==" + ip + "==" + device.getInType() + "==" + plateNO + "车辆类型：" + carType + "" + "保存图片：" + (nanoTime1 - nanoTime) + "==查找固定用户：" + (nanoTime2 - nanoTime3)
-				+ "==界面操作：" + (nanoTime3 - nanoTime1));
-		boolean equals = roadType.equals(DeviceRoadTypeEnum.固定车通道.name());
-
-		if (carType.equals("固定车")) {
-			if (fixCarOutProcess(ip, plateNO, date, device, user, roadType, equals, bigImg, smallImg)) {
+		try {
+			SingleCarparkDevice device = mapIpToDevice.get(ip);
+			//开闸
+			Boolean boolean1 = mapOpenDoor.get(ip);
+			if (boolean1 != null && boolean1) {
+				mapOpenDoor.put(ip, null);
+				presenter.saveOpenDoor(device, bigImage, plateNO, false);
 				return;
 			}
-		} else {// 临时车操作
-			// 固定车通道
-			if (equals) {
-				presenter.showContentToDevice(device, CarparkMainApp.FIX_ROAD, false);
+			Boolean isTwoChanel = CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress()) == null ? false : CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress());
+			if (isTwoChanel) {
+				// 双摄像头等待
+				try {
+					Integer two = Integer.valueOf(
+							mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
+					long l = System.currentTimeMillis()-startTime;
+					while (l<two) {
+						System.out.println(l+"===two"+two+"===startTime="+startTime);
+						Thread.sleep(50);
+						l = System.currentTimeMillis()-startTime;
+					}
+					CarparkMainApp.mapInTwoCameraTask.remove(device.getLinkAddress());
+				} catch (NumberFormatException e1) {
+					e1.printStackTrace();
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			}
+			//
+			
+			
+			model.setDisContinue(false);
+			model.setHandSearch(false);
+			long nanoTime = System.nanoTime();
+			Date date = new Date();
+			boolean checkPlateNODiscernGap = presenter.checkPlateNODiscernGap(mapPlateNoDate, plateNO, date);
+			if (!checkPlateNODiscernGap) {
 				return;
 			}
-			tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg);
+			mapPlateNoDate.put(plateNO, date);
+			//
+			String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
+			String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
+			String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
+			presenter.saveImage(folder, bigImgFileName, bigImage);
+			String smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
+			presenter.saveImage(folder, smallImgFileName, smallImage);
+			long nanoTime1 = System.nanoTime();
+			final String dateString = StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss");
+			// System.out.println(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO);
+			LOGGER.info(dateString + "==" + ip + "====" + plateNO);
+
+			// 界面图片
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					if (outSmallImage != null) {
+						LOGGER.info("出口小图片销毁图片");
+						outSmallImage.dispose();
+						lbl_outSmallImg.setBackgroundImage(null);
+					}
+					if (outBigImage != null) {
+						LOGGER.info("出口大图片销毁图片");
+						outBigImage.dispose();
+						lbl_outBigImg.setBackgroundImage(null);
+					}
+
+					outSmallImage = CarparkUtils.getImage(smallImage, lbl_outSmallImg, shell);
+					if (outSmallImage != null) {
+						lbl_outSmallImg.setBackgroundImage(outSmallImage);
+					}
+
+					outBigImage = CarparkUtils.getImage(bigImage, lbl_outBigImg, shell);
+					if (outBigImage != null) {
+						lbl_outBigImg.setBackgroundImage(outBigImage);
+					}
+
+					text_real.setFocus();
+					text_real.selectAll();
+				}
+			});
+			model.setOutShowPlateNO(plateNO);
+			model.setOutShowTime(dateString);
+			//
+			if (StrUtil.isEmpty(device)) {
+				LOGGER.info("没有找到ip为：" + ip + "的设备");
+				return;
+			}
+			SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkById(device.getCarpark().getId());
+			
+			if (StrUtil.isEmpty(carpark)) {
+				LOGGER.info("没有找到名字为：" + carpark + "的停车场");
+				return;
+			}
+			model.setIp(ip);
+			String bigImg = folder + "/" + bigImgFileName;
+			String smallImg = folder + "/" + smallImgFileName;
+			//
+			if (StrUtil.isEmpty(plateNO)) {
+				LOGGER.error("空的车牌");
+				model.setSearchPlateNo(plateNO);
+				model.setSearchBigImage(bigImg);
+				model.setSearchSmallImage(smallImg);
+				model.setHandSearch(true);
+				model.setOutPlateNOEditable(true);
+				return;
+			}
+
+			// 没有找到入场记录
+			List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO,carpark);
+			if (StrUtil.isEmpty(findByNoOut)) {
+				LOGGER.info("没有找到车牌{}的入场记录", plateNO);
+				model.setSearchPlateNo(plateNO);
+				model.setSearchBigImage(bigImg);
+				model.setSearchSmallImage(smallImg);
+				model.setHandSearch(true);
+				model.setOutPlateNOEditable(true);
+				return;
+			}
+			SingleCarparkInOutHistory ch = findByNoOut.get(0);
+			model.setInShowTime(StrUtil.formatDate(ch.getInTime(), "yyyy-MM-dd HH:mm:ss"));
+			model.setInShowPlateNO(ch.getPlateNo());
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					if (CarInTask.inSmallImage != null) {
+						LOGGER.info("进场小图片销毁图片");
+						CarInTask.inSmallImage.dispose();
+						CarInTask.inSmallImage = null;
+						lbl_inSmallImg.setBackgroundImage(null);
+					}
+					if (CarInTask.inBigImage != null) {
+						LOGGER.info("进场大图片销毁图片");
+						CarInTask.inBigImage.dispose();
+						CarInTask.inBigImage = null;
+						lbl_inBigImg.setBackgroundImage(null);
+					}
+					CarInTask.inSmallImage = CarparkUtils.getImage(CarparkUtils.getImageByte(ch.getSmallImg()), lbl_inSmallImg, shell);
+					if (CarInTask.inSmallImage != null) {
+						lbl_inSmallImg.setBackgroundImage(CarInTask.inSmallImage);
+					}
+
+					CarInTask.inBigImage = CarparkUtils.getImage(CarparkUtils.getImageByte(ch.getBigImg()), lbl_inBigImg, shell);
+					if (CarInTask.inBigImage != null) {
+						lbl_inBigImg.setBackgroundImage(CarInTask.inBigImage);
+					}
+				}
+			});
+
+			presenter.showPlateNOToDevice(device, plateNO);
+			//
+			long nanoTime3 = System.nanoTime();
+			List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO);
+			SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo.get(0);
+			String carType = "临时车";
+			
+			if (!StrUtil.isEmpty(user)) {
+				Date userOutTime = new DateTime(user.getValidTo()).plusDays(user.getDelayDays()==null?0:user.getDelayDays()).toDate();
+				if (userOutTime.after(date)) {
+					carType="固定车";
+				}
+			}
+			String roadType = device.getRoadType();
+			LOGGER.info("车辆类型为：{}==通道类型为：{}", carType, roadType);
+			// System.out.println("=====车辆类型为："+carType+"通道类型为："+roadType);
+			long nanoTime2 = System.nanoTime();
+			LOGGER.info(dateString + "==" + ip + "==" + device.getInType() + "==" + plateNO + "车辆类型：" + carType + "" + "保存图片：" + (nanoTime1 - nanoTime) + "==查找固定用户：" + (nanoTime2 - nanoTime3)
+					+ "==界面操作：" + (nanoTime3 - nanoTime1));
+			boolean equals = roadType.equals(DeviceRoadTypeEnum.固定车通道.name());
+
+			if (carType.equals("固定车")) {
+				if (fixCarOutProcess(ip, plateNO, date, device, user, roadType, equals, bigImg, smallImg)) {
+					return;
+				}
+			} else {// 临时车操作
+				// 固定车通道
+				if (equals) {
+					presenter.showContentToDevice(device, CarparkMainApp.FIX_ROAD, false);
+					return;
+				}
+				tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg);
+			}
+		} catch (Exception e) {
+			LOGGER.error("车辆出场时发生错误",e);
 		}
 	
 	}
@@ -291,7 +295,7 @@ public class CarOutTask implements Runnable{
 	 * @return 返回true终止操作
 	 */
 	private boolean fixCarOutProcess(final String ip, final String plateNO, Date date, SingleCarparkDevice device, SingleCarparkUser user, String roadType, boolean equals, String bigImg,
-			String smallImg) {
+			String smallImg) throws Exception {
 		String carType;
 		carType = "固定车";
 		if (!equals) {
@@ -380,7 +384,7 @@ public class CarOutTask implements Runnable{
 		return false;
 	}
 
-	private void tempCarOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg) {
+	private void tempCarOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg) throws Exception{
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(plateNO, device.getCarpark());
 		if (!StrUtil.isEmpty(findByNoCharge)) {
