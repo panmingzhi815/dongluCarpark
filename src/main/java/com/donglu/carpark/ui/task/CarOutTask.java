@@ -381,6 +381,7 @@ public class CarOutTask implements Runnable{
 		}
 		carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
 		model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow(model.getCarpark()));
+		model.setBtnClick(false);
 		return false;
 	}
 

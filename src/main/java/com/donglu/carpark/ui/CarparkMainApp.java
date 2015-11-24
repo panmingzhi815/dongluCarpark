@@ -1494,6 +1494,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		model.setChargeDevice(null);
 		model.setChargeHistory(null);
 		mapOutTwoCameraTask.clear();
+//		listOutTask.clear();
+//		outTheadPool.shutdownNow();
 //		btnCharge.setData(BTN_CHARGE, null);
 //		btnCharge.setData(BTN_CHARGE_DEVICE, null);
 	}
