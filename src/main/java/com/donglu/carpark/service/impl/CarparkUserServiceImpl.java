@@ -92,7 +92,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		}
 	}
 	@Override
-	public List<SingleCarparkUser> findUserByPlateNo(String plateNO) {
+	public List<SingleCarparkUser> findUserByPlateNo(String plateNO,Long carparkId) {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
@@ -102,6 +102,10 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 				c.add(Restrictions.like("plateNo", plateNO));
 			}else{
 				return new ArrayList<>();
+			}
+			if (!StrUtil.isEmpty(carparkId)) {
+				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
+				c.add(Restrictions.eq("carpark", dom.getEntityWithId(carparkId)));
 			}
 			return c.getResultList();
 		}finally{

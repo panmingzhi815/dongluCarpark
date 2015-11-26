@@ -249,7 +249,7 @@ public class CarInTask implements Runnable {
 
 			model.setHistory(cch);
 			LOGGER.debug("查找是否为固定车");
-			List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO);
+			List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO,device.getCarpark().getId());
 			SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo.get(0);
 
 			String carType = "临时车";
@@ -280,7 +280,7 @@ public class CarInTask implements Runnable {
 				// }
 				// }
 				if (flag) {
-					List<SingleCarparkUser> findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(editPlateNo);
+					List<SingleCarparkUser> findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(editPlateNo,device.getCarpark().getId());
 					SingleCarparkUser singleCarparkUser = StrUtil.isEmpty(findUserByPlateNo) ? null : findUserByPlateNo.get(0);
 					if (StrUtil.isEmpty(singleCarparkUser)) {
 						LOGGER.debug("判断是否允许临时车进");
@@ -326,7 +326,7 @@ public class CarInTask implements Runnable {
 					}
 				}
 				if (flag) {
-					List<SingleCarparkUser> findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(editPlateNo);
+					List<SingleCarparkUser> findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(editPlateNo,device.getCarpark().getId());
 					SingleCarparkUser singleCarparkUser = StrUtil.isEmpty(findUserByPlateNo) ? null : findUserByPlateNo.get(0);
 					if (StrUtil.isEmpty(singleCarparkUser)) {
 						LOGGER.debug("判断是否允许临时车进");

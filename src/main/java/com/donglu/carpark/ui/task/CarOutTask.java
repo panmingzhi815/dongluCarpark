@@ -245,7 +245,7 @@ public class CarOutTask implements Runnable{
 			presenter.showPlateNOToDevice(device, plateNO);
 			//
 			long nanoTime3 = System.nanoTime();
-			List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO);
+			List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO,device.getCarpark().getId());
 			SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo.get(0);
 			String carType = "临时车";
 			
