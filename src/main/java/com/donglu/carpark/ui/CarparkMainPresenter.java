@@ -467,6 +467,7 @@ public class CarparkMainPresenter {
 				map.put(singleCarparkInOutHistory.getId(), saveReturnAccount);
 			}
 
+			carparkInOutService.saveInOutHistoryOfList(listFact);
 			if (model.isFree()) {
 				for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFree) {
 					if (!StrUtil.isEmpty(map.get(singleCarparkInOutHistory.getId()))) {
@@ -477,7 +478,6 @@ public class CarparkMainPresenter {
 				}
 				carparkInOutService.saveInOutHistoryOfList(listFree);
 			}
-			carparkInOutService.saveInOutHistoryOfList(listFact);
 			this.model.setTotalCharge(carparkInOutService.findFactMoneyByName(userName));
 			this.model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
 		} catch (Exception e) {
