@@ -26,6 +26,7 @@ import com.donglu.carpark.ui.view.CarparkPayHistoryPresenter;
 import com.donglu.carpark.ui.view.InOutHistoryPresenter;
 import com.donglu.carpark.ui.view.OpenDoorLogPresenter;
 import com.donglu.carpark.ui.view.ReturnAccountPresenter;
+import com.donglu.carpark.ui.view.StorePresenter;
 import com.donglu.carpark.ui.view.SystemLogPresenter;
 import com.donglu.carpark.ui.view.UserPresenter;
 import com.donglu.carpark.ui.wizard.AddCarparkChildWizard;
@@ -89,6 +90,8 @@ public class CarparkManagePresenter {
 	private SystemLogPresenter systemLogPresenter;
 	@Inject
 	private OpenDoorLogPresenter openDoorLogPresenter;
+	@Inject
+	private StorePresenter storePresenter;
 
 
 	/**
@@ -822,6 +825,10 @@ public class CarparkManagePresenter {
 			e.printStackTrace();
 		}
 		
+	}
+
+	public StorePresenter getStorePresenter() {
+		return storePresenter;
 	}
 
 	

@@ -21,5 +21,7 @@ public interface CarparkDatabaseServiceProvider {
 	
 	CarparkInOutServiceI getCarparkInOutService();
 	SystemOperaLogServiceI getSystemOperaLogService();
+	
+	StoreServiceI getStoreService();
 }
 

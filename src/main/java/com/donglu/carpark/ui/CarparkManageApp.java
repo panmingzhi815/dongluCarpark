@@ -552,6 +552,13 @@ public class CarparkManageApp extends AbstractApp{
 		tableColumn.setWidth(100);
 		tableColumn.setText("备注");
 		
+		TabItem tabItem_5 = new TabItem(tabFolder, SWT.NONE);
+		tabItem_5.setText("商铺消费");
+		
+		Composite composite_20 = new Composite(tabFolder, SWT.NONE);
+		tabItem_5.setControl(composite_20);
+		composite_20.setLayout(new FillLayout(SWT.HORIZONTAL));
+		presenter.getStorePresenter().go(composite_20);
 		TabItem tabItem_3 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_3.setText("参数设置");
 		

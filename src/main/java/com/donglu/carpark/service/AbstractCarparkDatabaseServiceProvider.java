@@ -6,6 +6,7 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 	private SystemUserServiceI SystemUserService;
 	private CarparkInOutServiceI carparkInOutService;
 	private SystemOperaLogServiceI systemOperaLogService;
+	private StoreServiceI storeService;
 	
 	private boolean started=false;
 
@@ -77,6 +78,15 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 
 	public void setSystemOperaLogService(SystemOperaLogServiceI systemOperaLogService) {
 		this.systemOperaLogService = systemOperaLogService;
+	}
+
+	public StoreServiceI getStoreService() {
+		checkState();
+		return storeService;
+	}
+
+	public void setStoreService(StoreServiceI storeService) {
+		this.storeService = storeService;
 	}
 
 }

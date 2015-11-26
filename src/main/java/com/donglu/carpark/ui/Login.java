@@ -318,11 +318,14 @@ public class Login {
 		String userName = null;
 		String pwd = null;
 		String type = null;
+		long nanoTime = System.nanoTime();
 		try {
 			if (!check()) {
 				return;
 			}
 			sp.start();
+			
+			LOGGER.info("服务启动花费时间{}",System.nanoTime()-nanoTime);
 			autoDeletePhoto();
 			if (Boolean.valueOf(System.getProperty(CHECK_SOFT_DOG) == null ? "true" : "false")) {
 				checkSoftDog();
@@ -344,6 +347,7 @@ public class Login {
 			lbl_msg.setText(e1.getMessage());
 			return;
 		}
+		LOGGER.info("用户验证花费时间{}",System.nanoTime()-nanoTime);
 		File file = null;
 		RandomAccessFile raf = null;
 		FileChannel channel = null;
@@ -395,6 +399,7 @@ public class Login {
 					app.open();
 				}
 			}
+			LOGGER.info("界面打开花费时间{}",System.nanoTime()-nanoTime);
 		} catch (Exception e) {
 			LOGGER.error("main is error" + "界面出错=======", e);
 			// app.disponse();

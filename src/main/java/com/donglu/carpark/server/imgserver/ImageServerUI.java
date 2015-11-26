@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
@@ -27,6 +28,7 @@ import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.ServerUI;
 import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.server.servlet.ServerServlet;
+import com.donglu.carpark.server.servlet.StoreServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
 import com.donglu.carpark.service.CarparkService;
@@ -75,7 +77,7 @@ import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 
 public class ImageServerUI {
-	
+
 	private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
 	public static final String YYYY_MM_DD = "yyyy-MM-dd";
 
@@ -92,15 +94,15 @@ public class ImageServerUI {
 	private CarparkDatabaseServiceProvider sp;
 	@Inject
 	private CommonUIFacility commonui;
-	
-	private String filePath="";
 
-	private final Provider<ImageUploadServlet> imageServletProvider = new Provider<ImageUploadServlet>() {
-		@Override
-		public ImageUploadServlet get() {
-			return new ImageUploadServlet();
-		}
-	};
+	private String filePath = "";
+	@Inject
+	private Provider<ImageUploadServlet> imageServletProvider;
+	@Inject
+	private Provider<StoreServlet> storeServletProvider;
+	@Inject
+	private Provider<ServerServlet> serverServletProvider;
+
 	private TrayItem trayItem;
 
 	private AppVerifier av;
@@ -111,18 +113,33 @@ public class ImageServerUI {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+//		try {
+//			Server s=new Server(8888);
+//			WebAppContext context = new WebAppContext(); 
+//			context.setContextPath("/store");  
+//			context.setDescriptor("store/WEB-INF/web.xml");  
+//			context.setResourceBase("store");  
+//			context.setParentLoaderPriority(true);
+//			s.setHandler(context);
+//			s.start();
+//			System.out.println("started");
+//		} catch (Exception e) {
+//			// TODO 自动生成的 catch 块
+//			e.printStackTrace();
+//		}
+		
 		Display display = Display.getDefault();
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
 			public void run() {
 				try {
-					Injector createInjector = Guice.createInjector(new CommonUIGuiceModule(),new AbstractModule() {
-                @Override
-                protected void configure() {
-                    this.bindConstant().annotatedWith(Names.named("HBM2DDL")).to("update");
-                    bind(CarparkServerConfig.class).toInstance(CarparkServerConfig.getInstance());
-                    bind(CarparkDatabaseServiceProvider.class).to(CarparkLocalVMServiceProvider.class);
-                }
-            });
+					Injector createInjector = Guice.createInjector(new CommonUIGuiceModule(), new AbstractModule() {
+						@Override
+						protected void configure() {
+							this.bindConstant().annotatedWith(Names.named("HBM2DDL")).to("update");
+							bind(CarparkServerConfig.class).toInstance(CarparkServerConfig.getInstance());
+							bind(CarparkDatabaseServiceProvider.class).to(CarparkLocalVMServiceProvider.class);
+						}
+					});
 					ImageServerUI window = createInjector.getInstance(ImageServerUI.class);
 					window.open();
 				} catch (Exception e) {
@@ -137,12 +154,12 @@ public class ImageServerUI {
 	 */
 	public void open() {
 		Display display = Display.getDefault();
-//		init();
+		// init();
 		createContents();
 		m_bindingContext = initDataBindings();
 		shell.open();
 		shell.setImage(JFaceUtil.getImage("carpark_16"));
-		
+
 		Button btnTest = new Button(shell, SWT.NONE);
 		btnTest.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btnTest.addSelectionListener(new SelectionAdapter() {
@@ -154,7 +171,7 @@ public class ImageServerUI {
 			}
 		});
 		btnTest.setText("配    置");
-		
+
 		Button button = new Button(shell, SWT.NONE);
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -177,15 +194,15 @@ public class ImageServerUI {
 		try {
 			sp.start();
 			CarparkService carparkService = sp.getCarparkService();
-			Map<SNSettingType, SingleCarparkSystemSetting> mapSN=carparkService.findAllSN();
-			
-			ImportSNModel m=new ImportSNModel();
+			Map<SNSettingType, SingleCarparkSystemSetting> mapSN = carparkService.findAllSN();
+
+			ImportSNModel m = new ImportSNModel();
 			if (!StrUtil.isEmpty(mapSN)) {
 				SingleCarparkSystemSetting sn = mapSN.get(SNSettingType.sn);
-				m.setSn(StrUtil.isEmpty(sn)?"":sn.getSettingValue());
+				m.setSn(StrUtil.isEmpty(sn) ? "" : sn.getSettingValue());
 			}
 			av = new AppVerifierImpl(new SoftDogWin());
-			ImportSNWizard importSNWizard = new ImportSNWizard(av, sp,m);
+			ImportSNWizard importSNWizard = new ImportSNWizard(av, sp, m);
 			commonui.showWizard(importSNWizard);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -196,11 +213,11 @@ public class ImageServerUI {
 		try {
 			sp.start();
 			SingleCarparkSystemSetting s = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存位置.name());
-			filePath=StrUtil.isEmpty(s)?System.getProperty("user.dir"):s.getSettingValue();
+			filePath = StrUtil.isEmpty(s) ? System.getProperty("user.dir") : s.getSettingValue();
 			FileUtils.writeObject(IMAGE_SAVE_DIRECTORY, filePath);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}finally{
+		} finally {
 		}
 	}
 
@@ -219,21 +236,22 @@ public class ImageServerUI {
 				shell.forceActive();
 				MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION | SWT.APPLICATION_MODAL);
 
-		        box.setText("退出提示");
-		        box.setMessage("确认退出服务器？退出服务器后客户端的图片将不会在服务器端备份！");
-		        int open = box.open();
-		        if (open == SWT.YES) {
-		        	trayItem.dispose();
+				box.setText("退出提示");
+				box.setMessage("确认退出服务器？退出服务器后客户端的图片将不会在服务器端备份！");
+				int open = box.open();
+				if (open == SWT.YES) {
+					trayItem.dispose();
 					System.exit(0);
-				}else{
-					e.doit=false;
+				} else {
+					e.doit = false;
 				}
 			}
+
 			@Override
 			public void shellIconified(ShellEvent e) {
 				shell.setVisible(false);
 			}
-			
+
 		});
 		Display default1 = Display.getDefault();
 		Tray systemTray = default1.getSystemTray();
@@ -249,7 +267,7 @@ public class ImageServerUI {
 				text.setFocus();
 			}
 		});
-		
+
 		Label label = new Label(shell, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -262,13 +280,13 @@ public class ImageServerUI {
 		gd_text.widthHint = 214;
 		text.setLayoutData(gd_text);
 		Object readObject = FileUtils.readObject(IMAGE_SAVE_DIRECTORY);
-		text.setText(readObject==null?System.getProperty("user.dir"):(String) readObject);
+		text.setText(readObject == null ? System.getProperty("user.dir") : (String) readObject);
 		Button button = new Button(shell, SWT.NONE);
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				DirectoryDialog directoryDialog=new DirectoryDialog(shell,SWT.SINGLE);
+				DirectoryDialog directoryDialog = new DirectoryDialog(shell, SWT.SINGLE);
 				String open = directoryDialog.open();
 				if (StrUtil.isEmpty(open)) {
 					return;
@@ -299,29 +317,29 @@ public class ImageServerUI {
 		btnStart.setText("启    动");
 
 	}
-	
+
 	protected void startServer() {
 		try {
 			sp.start();
 			SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.DateBase_version.name());
 			if (StrUtil.isEmpty(findSystemSettingByKey)) {
-				findSystemSettingByKey=new SingleCarparkSystemSetting();
+				findSystemSettingByKey = new SingleCarparkSystemSetting();
 				findSystemSettingByKey.setSettingKey(SystemSettingTypeEnum.DateBase_version.name());
 				findSystemSettingByKey.setSettingValue(SystemSettingTypeEnum.DateBase_version.getDefaultValue());
 				sp.getCarparkService().saveSystemSetting(findSystemSettingByKey);
 			}
-			File f=new File(System.getProperty("user.dir"));
-//			System.out.println(f.getPath());
-//			String[] list = f.list();
-//			for (String string : list) {
-//				boolean matches = string.matches("^[0-9]{8}.txt$");
-//				if (matches) {
-//					System.out.println("========="+matches);
-////					CarparkUtils.loadIniFromFile(new File("../升级.ini"));
-//				}
-//			}
-			if (!findSystemSettingByKey.getSettingValue().equals( SystemSettingTypeEnum.软件版本.getDefaultValue())) {
-				SystemUpdate update=new SystemUpdate();
+			File f = new File(System.getProperty("user.dir"));
+			// System.out.println(f.getPath());
+			// String[] list = f.list();
+			// for (String string : list) {
+			// boolean matches = string.matches("^[0-9]{8}.txt$");
+			// if (matches) {
+			// System.out.println("========="+matches);
+			//// CarparkUtils.loadIniFromFile(new File("../升级.ini"));
+			// }
+			// }
+			if (!findSystemSettingByKey.getSettingValue().equals(SystemSettingTypeEnum.软件版本.getDefaultValue())) {
+				SystemUpdate update = new SystemUpdate();
 				try {
 					update.systemUpdate(findSystemSettingByKey.getSettingValue(), SystemSettingTypeEnum.软件版本.getDefaultValue());
 				} catch (Exception e) {
@@ -330,59 +348,75 @@ public class ImageServerUI {
 			}
 			String open = text.getText();
 			FileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
-			SingleCarparkSystemSetting s=new SingleCarparkSystemSetting();
+			SingleCarparkSystemSetting s = new SingleCarparkSystemSetting();
 			s.setSettingKey(SystemSettingTypeEnum.图片保存位置.name());
 			s.setSettingValue(open);
 			sp.getCarparkService().saveSystemSetting(s);
-			if (Boolean.valueOf(System.getProperty(Login.CHECK_SOFT_DOG)==null?"true":"false")) {
+			if (Boolean.valueOf(System.getProperty(Login.CHECK_SOFT_DOG) == null ? "true" : "false")) {
 				autoCheckSoftDog();
 			}
-//			sp.stop();
+			// sp.stop();
 			this.server = new Server(8899);
 			ServletHandler servletHandler = new ServletHandler();
 			server.setHandler(servletHandler);
 			ServerUtil.startServlet("/carparkImage/*", servletHandler, imageServletProvider);
-			Provider<ServerServlet> serverServlet = new Provider<ServerServlet>() {
-				@Override
-				public ServerServlet get() {
-					return new ServerServlet();
-				}
-			};
-			ServerUtil.startServlet("/server/*", servletHandler, serverServlet);
+
+			ServerUtil.startServlet("/server/*", servletHandler, serverServletProvider);
+			ServerUtil.startServlet("/store/*", servletHandler, storeServletProvider);
+
+			// startWeb();
+
 			server.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	//定时检测加密狗
+
+	private void startWeb() {
+		try {
+			Server server = new Server(8080);
+
+			WebAppContext context = new WebAppContext();
+			context.setContextPath("/store");
+			context.setWar("store.war");
+			server.setHandler(context);
+			server.start();
+			server.join();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	// 定时检测加密狗
 	private void autoCheckSoftDog() {
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				try {
 					SingleCarparkSystemSetting sn = sp.getCarparkService().findSystemSettingByKey(SNSettingType.sn.name());
-					LOGGER.info("从数据库获取注册码信息{}",sn);
+					LOGGER.info("从数据库获取注册码信息{}", sn);
 					if (StrUtil.isEmpty(sn)) {
 						return;
 					}
 					Date dateOfExpire = null;
 					try {
 						LOGGER.info("解析从数据库获取注册码信息");
-						av=new AppVerifierImpl(new SoftDogWin());
+						av = new AppVerifierImpl(new SoftDogWin());
 						AppAuthorization decrypt = av.decrypt(sn.getSettingValue());
 						dateOfExpire = decrypt.getDateOfExpire();
-//						dateOfExpire=new DateTime(2015,12,8,1,1).toDate();
+						// dateOfExpire=new DateTime(2015,12,8,1,1).toDate();
 						if (StrUtil.getTodayBottomTime(dateOfExpire).before(new Date())) {
-							LOGGER.info("解析从数据库获取注册码信息成功,已过期{}",dateOfExpire);
-							dateOfExpire=null;
+							LOGGER.info("解析从数据库获取注册码信息成功,已过期{}", dateOfExpire);
+							dateOfExpire = null;
 						}
 						LOGGER.info("解析从数据库获取注册码信息成功");
 					} catch (Exception e) {
 						LOGGER.info("解析从数据库获取注册码信息失败");
 					}
-					SingleCarparkSystemSetting vilidTo=new SingleCarparkSystemSetting();
+					SingleCarparkSystemSetting vilidTo = new SingleCarparkSystemSetting();
 					vilidTo.setSettingKey(SNSettingType.validTo.name());
 					vilidTo.setSettingValue(StrUtil.formatDate(dateOfExpire, YYYY_MM_DD));
 					sp.getCarparkService().saveSystemSetting(vilidTo);
@@ -391,8 +425,8 @@ public class ImageServerUI {
 					e.printStackTrace();
 				}
 			}
-		}, 30, 60*30, TimeUnit.SECONDS);
-		
+		}, 30, 60 * 30, TimeUnit.SECONDS);
+
 	}
 
 	protected DataBindingContext initDataBindings() {
