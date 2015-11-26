@@ -1486,6 +1486,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	 * 
 	 */
 	public void stop() {
+		boolean confirm = commonui.confirm("提示", "确认终止收费？");
+		if (!confirm) {
+			return;
+		}
 		model.setDisContinue(true);
 		model.setBtnClick(false);
 		model.setComboCarTypeEnable(false);

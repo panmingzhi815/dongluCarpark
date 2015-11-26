@@ -617,6 +617,7 @@ public class CarparkManagePresenter {
 			carparkService.saveSystemSetting(h);
 		}
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "保存了设置信息");
+		commonui.info("成功", "保存设置成功，请重启监控界面！");
 	}
 
 	public void searchCharge(CarparkPayHistoryListView carparkPayHistoryListView, String userName, String operaName, Date start, Date end) {
