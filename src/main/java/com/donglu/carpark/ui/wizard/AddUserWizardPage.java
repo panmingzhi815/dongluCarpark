@@ -32,6 +32,8 @@ import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 
@@ -86,11 +88,13 @@ public class AddUserWizardPage extends WizardPage {
 		label.setText("车牌号码");
 		
 		text = new Text(composite, SWT.BORDER);
-		text.addFocusListener(new FocusAdapter() {
+		text.addKeyListener(new KeyAdapter() {
+
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void keyReleased(KeyEvent arg0) {
 				setPageComplete(getWizard().check());
 			}
+			
 		});
 		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -107,11 +111,13 @@ public class AddUserWizardPage extends WizardPage {
 		GridData gd_text_1 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_1.widthHint = 150;
 		text_1.setLayoutData(gd_text_1);
-		text_1.addFocusListener(new FocusAdapter() {
+		text_1.addKeyListener(new KeyAdapter() {
+
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void keyReleased(KeyEvent arg0) {
 				setPageComplete(getWizard().check());
 			}
+			
 		});
 		Label label_2 = new Label(composite, SWT.NONE);
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -183,6 +189,12 @@ public class AddUserWizardPage extends WizardPage {
 		
 		comboViewer_carpark = new ComboViewer(composite, SWT.READ_ONLY);
 		combo_carpark = comboViewer_carpark.getCombo();
+		combo_carpark.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				getWizard().loadSlot();
+			}
+		});
 		combo_carpark.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_combo_carpark = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_combo_carpark.widthHint = 150;

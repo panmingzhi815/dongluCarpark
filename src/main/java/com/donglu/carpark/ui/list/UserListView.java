@@ -14,16 +14,17 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 
 public class UserListView extends AbstractListView<SingleCarparkUser> implements View {
+	//SingleCarparkUser.Property.id.name(),"编号",60,
 	public UserListView(Composite parent, int style) {
-		super(parent, style,SingleCarparkUser.class,new String[]{SingleCarparkUser.Property.id.name(),
+		super(parent, style,SingleCarparkUser.class,new String[]{
 				SingleCarparkUser.Property.plateNo.name(),
 				SingleCarparkUser.Property.name.name(),
 				SingleCarparkUser.Property.address.name(),
 				SingleCarparkUser.Property.type.name(),
 				SingleCarparkUser.Property.valitoLabel.name(),
 				SingleCarparkUser.Property.carparkNo.name(),
-				SingleCarparkUser.Property.remark.name()}, new String[]{"编号","车牌号","姓名","住址","用户类型","有效期","车位","备注"},
-				new int[]{60,100,100,100,100,200,100,100}, null);
+				SingleCarparkUser.Property.remark.name()}, new String[]{"车牌号","姓名","住址","用户类型","有效期","车位","备注"},
+				new int[]{100,100,100,100,200,100,100}, null);
 	}
 
 	@Override

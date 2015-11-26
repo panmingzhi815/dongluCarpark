@@ -78,7 +78,7 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 		}
 		String[] split = model.getPlateNo().split(",");
 		for (String string : split) {
-			if (!string.matches(CarparkUtils.PLATENO_REGEX)) {
+			if (string.length()>8) {
 				page.setErrorMessage("车牌:"+string+"不正确,请输入正确车牌");
 				return false;
 			}
@@ -112,5 +112,9 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 			m.setFree(true);
 		}
 		return super.getNextPage(page);
+	}
+
+	public void loadSlot() {
+		model.setTotalSlot(sp.getCarparkInOutService().findFixSlotIsNow(model.getCarpark()));
 	}
 }

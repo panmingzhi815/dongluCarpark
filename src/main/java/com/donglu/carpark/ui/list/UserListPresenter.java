@@ -66,6 +66,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			addUserModel.setCarparkNo("1");
 			addUserModel.setModel(model);
 			addUserModel.setTotalSlot(sp.getCarparkInOutService().findFixSlotIsNow(list.get(0)));
+			System.out.println(addUserModel.getTotalSlot());
 			AddUserWizard addUserWizard = new AddUserWizard(addUserModel,sp);
 			AddUserModel m = (AddUserModel) commonui.showWizard(addUserWizard);
 			if (m == null) {
@@ -239,6 +240,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			AddUserModel addUserModel = new AddUserModel();
 			addUserModel.setAllList(list);
 			addUserModel.setSingleCarparkUser(singleCarparkUser);
+			addUserModel.setTotalSlot(sp.getCarparkInOutService().findFixSlotIsNow(singleCarparkUser.getCarpark()));
 			AddUserWizard addUserWizard = new AddUserWizard(addUserModel,sp);
 			AddUserModel m = (AddUserModel) commonui.showWizard(addUserWizard);
 			if (m == null) {
