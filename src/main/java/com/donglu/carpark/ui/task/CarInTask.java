@@ -437,11 +437,11 @@ public class CarInTask implements Runnable {
 		
 		Date date2 = new DateTime(user.getValidTo()).minusDays(user.getRemindDays() == null ? 0 : user.getRemindDays()).toDate();
 		if (StrUtil.getTodayBottomTime(date2).before(date)) {
-			String content = CAR_IN_MSG + ",剩余"+CarparkUtils.countDayByBetweenTime(date, user.getValidTo())+"天";
+			String content ="月租车辆,"+ CAR_IN_MSG + ",剩余"+CarparkUtils.countDayByBetweenTime(date, user.getValidTo())+"天";
 			presenter.showContentToDevice(device, content, true);
 			LOGGER.info("固定车：{}，{}", plateNO, content);
 		} else {
-			String content = CAR_IN_MSG;
+			String content = "月租车辆,"+ CAR_IN_MSG;
 			presenter.showContentToDevice(device, content, true);
 			LOGGER.info("固定车：{}，{}", plateNO, content);
 		}

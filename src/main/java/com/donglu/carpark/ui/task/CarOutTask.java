@@ -347,10 +347,10 @@ public class CarOutTask implements Runnable{
 			c.add(Calendar.DATE, user.getRemindDays() == null ? 0 : user.getRemindDays() * -1);
 			time = c.getTime();
 			if (StrUtil.getTodayBottomTime(time).before(date)) {
-				presenter.showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG + ",剩余"+CarparkUtils.countDayByBetweenTime(date, user.getValidTo())+"天", true);
+				presenter.showContentToDevice(device, "月租车辆,"+CarparkMainApp.CAR_OUT_MSG + ",剩余"+CarparkUtils.countDayByBetweenTime(date, user.getValidTo())+"天", true);
 				LOGGER.info("车辆:{}即将到期", nowPlateNO);
 			} else {
-				presenter.showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
+				presenter.showContentToDevice(device, "月租车辆,"+CarparkMainApp.CAR_OUT_MSG, true);
 			}
 		}
 
