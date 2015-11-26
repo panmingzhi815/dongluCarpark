@@ -482,6 +482,9 @@ public class CarparkUtils {
 		if (minute>0) {
 			string+=minute+"分钟,";
 		}
+		if (string.length()==2) {
+			string+="0分钟";
+		}
 		return string;
 	}
 }

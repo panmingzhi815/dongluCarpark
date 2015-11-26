@@ -10,7 +10,7 @@ public interface CarparkUserService {
 	
 	List<SingleCarparkUser> findAll();
 	List<SingleCarparkUser> findByNameOrPlateNo(String name,String plateNo, int willOverdue, String overdue);
-	List<SingleCarparkUser> findUserByPlateNo(String plateNO);
+	List<SingleCarparkUser> findUserByPlateNo(String plateNO, Long carparkId);
 	
 	List<SingleCarparkUser> findUserByMonthChargeId(Long id);
 	Long saveUserByMany(List<SingleCarparkUser> list);

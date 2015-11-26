@@ -467,6 +467,7 @@ public class CarparkMainPresenter {
 				map.put(singleCarparkInOutHistory.getId(), saveReturnAccount);
 			}
 
+			carparkInOutService.saveInOutHistoryOfList(listFact);
 			if (model.isFree()) {
 				for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFree) {
 					if (!StrUtil.isEmpty(map.get(singleCarparkInOutHistory.getId()))) {
@@ -477,7 +478,6 @@ public class CarparkMainPresenter {
 				}
 				carparkInOutService.saveInOutHistoryOfList(listFree);
 			}
-			carparkInOutService.saveInOutHistoryOfList(listFact);
 			this.model.setTotalCharge(carparkInOutService.findFactMoneyByName(userName));
 			this.model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
 		} catch (Exception e) {
@@ -806,12 +806,12 @@ public class CarparkMainPresenter {
 			select.setOutPlateNO(plateNO);
 			if (!m.isInOrOut()) {
 				select.setPlateNo(m.getPlateNo());
-				List<SingleCarparkUser> findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(m.getPlateNo());
-				if (StrUtil.isEmpty(findUserByPlateNo)) {
-					select.setCarType("临时车");
-				} else {
-					select.setCarType("固定车");
-				}
+//				List<SingleCarparkUser> findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(m.getPlateNo(),model.getCarpark().getId());
+//				if (StrUtil.isEmpty(findUserByPlateNo)) {
+//					select.setCarType("临时车");
+//				} else {
+//					select.setCarType("固定车");
+//				}
 			}
 			sp.getCarparkInOutService().saveInOutHistory(select);
 			view.invok(model.getIp(), 0, select.getPlateNo(), m.getBigImg(), m.getSmallImg(),1);

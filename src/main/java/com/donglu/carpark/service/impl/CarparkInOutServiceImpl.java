@@ -68,7 +68,8 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 //			for (SingleCarparkCarpark singleCarparkCarpark : findSameCarpark) {
 			c.add(Restrictions.eq("carparkId", carpark.getId()));
 //			}
-			c.addOrder(Order.asc("inTime"));
+			c.setFirstResult(0);
+			c.setMaxResults(10);
 			return c.getResultList();
 		} finally {
 			unitOfWork.end();

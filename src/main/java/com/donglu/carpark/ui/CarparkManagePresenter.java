@@ -90,9 +90,9 @@ public class CarparkManagePresenter {
 	private SystemLogPresenter systemLogPresenter;
 	@Inject
 	private OpenDoorLogPresenter openDoorLogPresenter;
+	
 	@Inject
 	private StorePresenter storePresenter;
-
 
 	/**
 	 * 删除停车场
@@ -109,7 +109,7 @@ public class CarparkManagePresenter {
 				return;
 			}
 			carparkService.deleteCarpark(carpark);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "删除了停车场:"+carpark.getCode());
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "删除了停车场:" + carpark.getCode());
 			commonui.info("提示", "删除成功！");
 			refreshCarpark();
 		} catch (Exception e) {
@@ -132,7 +132,7 @@ public class CarparkManagePresenter {
 	private void addAndEditCarpark(SingleCarparkCarpark model) {
 		try {
 			CarparkService carparkService = sp.getCarparkService();
-			AddCarparkWizard w = new AddCarparkWizard(model,sp);
+			AddCarparkWizard w = new AddCarparkWizard(model, sp);
 			SingleCarparkCarpark showWizard = (SingleCarparkCarpark) commonui.showWizard(w);
 			if (StrUtil.isEmpty(showWizard)) {
 				return;
@@ -141,15 +141,16 @@ public class CarparkManagePresenter {
 			showWizard.setLeftNumberOfSlot(showWizard.getTotalNumberOfSlot());
 			carparkService.saveCarpark(showWizard);
 			if (StrUtil.isEmpty(model.getCode())) {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "添加了停车场:"+showWizard.getCode());
-			}else{
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "修改了停车场:"+showWizard.getCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "添加了停车场:" + showWizard.getCode());
+			} else {
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "修改了停车场:" + showWizard.getCode());
 			}
 			refreshCarpark();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+
 	/**
 	 * 添加子停车场
 	 */
@@ -169,9 +170,9 @@ public class CarparkManagePresenter {
 	 */
 	private void addAndEditChildCarpark(SingleCarparkCarpark model) {
 		try {
-			
+
 			CarparkService carparkService = sp.getCarparkService();
-			AddCarparkChildWizard w = new AddCarparkChildWizard(model,sp);
+			AddCarparkChildWizard w = new AddCarparkChildWizard(model, sp);
 			SingleCarparkCarpark showWizard = (SingleCarparkCarpark) commonui.showWizard(w);
 			if (StrUtil.isEmpty(showWizard)) {
 				return;
@@ -181,9 +182,9 @@ public class CarparkManagePresenter {
 			showWizard.setTotalNumberOfSlot(0);
 			carparkService.saveCarpark(showWizard);
 			if (StrUtil.isEmpty(model.getCode())) {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "添加了子停车场:"+showWizard.getCode());
-			}else{
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "修改了子停车场:"+showWizard.getCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "添加了子停车场:" + showWizard.getCode());
+			} else {
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "修改了子停车场:" + showWizard.getCode());
 			}
 			refreshCarpark();
 		} catch (Exception e) {
@@ -196,11 +197,11 @@ public class CarparkManagePresenter {
 	 */
 	public void editCarpark() {
 		try {
-			
+
 			SingleCarparkCarpark carpark = carparkModel.getCarpark();
 			if (StrUtil.isEmpty(carpark.getParent())) {
 				addAndEditCarpark(carpark);
-			}else{
+			} else {
 				addAndEditChildCarpark(carpark);
 			}
 			for (String ip : CarparkMainApp.mapIpToDevice.keySet()) {
@@ -210,7 +211,7 @@ public class CarparkManagePresenter {
 				CarparkMainApp.mapIpToDevice.put(ip, singleCarparkDevice);
 			}
 			FileUtils.writeObject(CarparkMainApp.MAP_IP_TO_DEVICE, CarparkMainApp.mapIpToDevice);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -242,6 +243,7 @@ public class CarparkManagePresenter {
 		refreshCarparkCharge();
 		// testDatabase();
 	}
+
 	/**
 	 * 刷新系统设置
 	 */
@@ -260,6 +262,7 @@ public class CarparkManagePresenter {
 			}
 		}
 	}
+
 	/**
 	 * 刷新停车场
 	 */
@@ -305,7 +308,7 @@ public class CarparkManagePresenter {
 			systemUser.setUserName(m.getUserName());
 			SystemUserServiceI systemUserService = sp.getSystemUserService();
 			systemUserService.saveSystemUser(systemUser);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "添加了系统用户:"+systemUser.getUserName());
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "添加了系统用户:" + systemUser.getUserName());
 			commonui.info("操作成功", "添加用户成功！");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -337,7 +340,7 @@ public class CarparkManagePresenter {
 			}
 			try {
 				systemUserService.removeSystemUser(singleCarparkSystemUser);
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "删除了系统用户:"+singleCarparkSystemUser.getUserName());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "删除了系统用户:" + singleCarparkSystemUser.getUserName());
 				commonui.info("操作成功", "删除系统用户成功");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -377,7 +380,7 @@ public class CarparkManagePresenter {
 		singleCarparkSystemUser.setRemark(m.getRemark());
 		try {
 			sp.getSystemUserService().saveSystemUser(singleCarparkSystemUser);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "修改了系统用户:"+singleCarparkSystemUser.getUserName());
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "修改了系统用户:" + singleCarparkSystemUser.getUserName());
 			commonui.info("提示", "修改成功！");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -422,9 +425,9 @@ public class CarparkManagePresenter {
 			carparkChargeStandard.setCarpark(current);
 			carparkService.saveCarparkChargeStandard(carparkChargeStandard);
 			if (StrUtil.isEmpty(carparkCharge)) {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.临时收费设置, "添加临时收费:"+carparkChargeStandard.getCode());
-			}else{
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.临时收费设置, "修改临时收费:"+carparkChargeStandard.getCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.临时收费设置, "添加临时收费:" + carparkChargeStandard.getCode());
+			} else {
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.临时收费设置, "修改临时收费:" + carparkChargeStandard.getCode());
 			}
 			refreshCarparkCharge();
 		} catch (Exception e) {
@@ -452,15 +455,15 @@ public class CarparkManagePresenter {
 
 	private void addAndEditMonthCharge(AddMonthChargeModel init) {
 		try {
-			AddMonthChargeWizard w = new AddMonthChargeWizard(init,sp);
+			AddMonthChargeWizard w = new AddMonthChargeWizard(init, sp);
 			AddMonthChargeModel m = (AddMonthChargeModel) commonui.showWizard(w);
 			if (m == null) {
 				return;
 			}
-			SingleCarparkMonthlyCharge monthlyCharge=m.getSingleCarparkMonthlyCharge();
-			
+			SingleCarparkMonthlyCharge monthlyCharge = m.getSingleCarparkMonthlyCharge();
+
 			if (!StrUtil.isEmpty(monthlyCharge.getId())) {
-				List<SingleCarparkUser> list=sp.getCarparkUserService().findUserByMonthChargeId(monthlyCharge.getId());
+				List<SingleCarparkUser> list = sp.getCarparkUserService().findUserByMonthChargeId(monthlyCharge.getId());
 				for (SingleCarparkUser singleCarparkUser : list) {
 					singleCarparkUser.setRemindDays(monthlyCharge.getExpiringDays());
 					singleCarparkUser.setDelayDays(monthlyCharge.getDelayDays());
@@ -469,9 +472,9 @@ public class CarparkManagePresenter {
 			}
 			sp.getCarparkService().saveMonthlyCharge(monthlyCharge);
 			if (StrUtil.isEmpty(init.getChargeCode())) {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定收费设置, "添加固定收费:"+monthlyCharge.getChargeCode());
-			}else{
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定收费设置, "修改固定收费:"+monthlyCharge.getChargeCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定收费设置, "添加固定收费:" + monthlyCharge.getChargeCode());
+			} else {
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定收费设置, "修改固定收费:" + monthlyCharge.getChargeCode());
 			}
 			refreshCarparkCharge();
 		} catch (Exception e) {
@@ -532,9 +535,9 @@ public class CarparkManagePresenter {
 			cci.setCode(t.getCode());
 			cci.setName(t.getName());
 			cci.setId(t.getId());
-			if (t.getUsing()==null||!t.getUsing()) {
+			if (t.getUsing() == null || !t.getUsing()) {
 				cci.setUseType("未启用");
-			}else{
+			} else {
 				cci.setUseType("已启用");
 			}
 			cci.setCarType(t.getCarparkCarType().getName());
@@ -568,13 +571,13 @@ public class CarparkManagePresenter {
 		}
 		if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.固定月租收费.name())) {
 			sp.getCarparkService().deleteMonthlyCharge(carparkChargeInfo.getId());
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定收费设置, "删除固定收费:"+carparkChargeInfo.getCode());
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定收费设置, "删除固定收费:" + carparkChargeInfo.getCode());
 		}
 		if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.临时收费.name())) {
 			sp.getCarparkService().deleteTempCharge(carparkChargeInfo.getId());
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.临时收费设置, "删除临时收费:"+carparkChargeInfo.getCode());
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.临时收费设置, "删除临时收费:" + carparkChargeInfo.getCode());
 		}
-		
+
 		refreshCarparkCharge();
 	}
 
@@ -586,21 +589,19 @@ public class CarparkManagePresenter {
 		this.inOutHistoryModel = inOutHistoryModel;
 	}
 
-
 	// 数据库备份
 	public void backup(String path) {
-		CarparkClientConfig ccc=(CarparkClientConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
+		CarparkClientConfig ccc = (CarparkClientConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
 		if (StrUtil.isEmpty(ccc)) {
 			return;
 		}
-		boolean executeSQL = 
-				CarparkUtils.backupDateBase(path, ccc.getDbServerIp(), ccc.getDbServerPort(), ccc.getDbServerUsername(), ccc.getDbServerPassword());
+		boolean executeSQL = CarparkUtils.backupDateBase(path, ccc.getDbServerIp(), ccc.getDbServerPort(), ccc.getDbServerUsername(), ccc.getDbServerPassword());
 		if (executeSQL) {
-			commonui.info("成功", "备份数据库到"+path+"成功");
-		}else{
-			commonui.error("失败", "备份数据库到"+path+"失败");
+			commonui.info("成功", "备份数据库到" + path + "成功");
+		} else {
+			commonui.error("失败", "备份数据库到" + path + "失败");
 		}
-		
+
 	}
 
 	/**
@@ -620,6 +621,7 @@ public class CarparkManagePresenter {
 			carparkService.saveSystemSetting(h);
 		}
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "保存了设置信息");
+		commonui.info("成功", "保存设置成功，请重启监控界面！");
 	}
 
 	public void searchCharge(CarparkPayHistoryListView carparkPayHistoryListView, String userName, String operaName, Date start, Date end) {
@@ -643,6 +645,7 @@ public class CarparkManagePresenter {
 	public InOutHistoryPresenter getInOutHostoryPresenter() {
 		return inOutHostoryPresenter;
 	}
+
 	/**
 	 * 编辑收费设置
 	 */
@@ -712,7 +715,7 @@ public class CarparkManagePresenter {
 	}
 
 	public void searchUser(String name, String plateNo, int willOverdue, String overdue) {
-		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(name, plateNo,willOverdue,overdue);
+		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(name, plateNo, willOverdue, overdue);
 		userModel.setAllList(findByNameOrPlateNo);
 	}
 
@@ -720,7 +723,6 @@ public class CarparkManagePresenter {
 		return userPresenter;
 	}
 
-	
 	/**
 	 * 启用临时收费设置
 	 */
@@ -730,30 +732,31 @@ public class CarparkManagePresenter {
 			if (StrUtil.isEmpty(carparkChargeInfo)) {
 				return;
 			}
-			if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.固定月租收费.name())||carparkChargeInfo.getUseType().equals("已启用")) {
+			if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.固定月租收费.name()) || carparkChargeInfo.getUseType().equals("已启用")) {
 				return;
 			}
 			List<CarparkChargeInfo> listCarparkCharge = carparkModel.getListCarparkCharge();
 			for (CarparkChargeInfo carparkChargeInfo2 : listCarparkCharge) {
-				if(!carparkChargeInfo.getUseType().equals(CarparkChargeTypeEnum.固定月租收费)){
+				if (!carparkChargeInfo.getUseType().equals(CarparkChargeTypeEnum.固定月租收费)) {
 					if (carparkChargeInfo.getCarType().equals(carparkChargeInfo2.getCarType())) {
 						if (carparkChargeInfo.getHolidayType().equals(carparkChargeInfo2.getHolidayType())) {
 							if (carparkChargeInfo2.getUseType().equals("已启用")) {
-								commonui.error("启用失败", "已有车辆类型["+carparkChargeInfo2.getCarType()+"]节假日类型["+carparkChargeInfo2.getHolidayType()+"]的临时收费设置已被启用，请先禁止！");
+								commonui.error("启用失败", "已有车辆类型[" + carparkChargeInfo2.getCarType() + "]节假日类型[" + carparkChargeInfo2.getHolidayType() + "]的临时收费设置已被启用，请先禁止！");
 								return;
 							}
 						}
 					}
 				}
 			}
-			sp.getCarparkService().changeChargeStandardState(carparkChargeInfo.getId(),true);
+			sp.getCarparkService().changeChargeStandardState(carparkChargeInfo.getId(), true);
 			refreshCarparkCharge();
 		} catch (Exception e) {
-			LOGGER.error("启用收费设置异常",e);
+			LOGGER.error("启用收费设置异常", e);
 			e.printStackTrace();
 			commonui.error("启用失败", "启用收费设置异常");
 		}
 	}
+
 	/**
 	 * 停用临时收费设置
 	 */
@@ -763,17 +766,18 @@ public class CarparkManagePresenter {
 			if (StrUtil.isEmpty(carparkChargeInfo)) {
 				return;
 			}
-			if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.固定月租收费.name())||carparkChargeInfo.getUseType().equals("未启用")) {
+			if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.固定月租收费.name()) || carparkChargeInfo.getUseType().equals("未启用")) {
 				return;
 			}
-			sp.getCarparkService().changeChargeStandardState(carparkChargeInfo.getId(),false);
+			sp.getCarparkService().changeChargeStandardState(carparkChargeInfo.getId(), false);
 			refreshCarparkCharge();
 		} catch (Exception e) {
-			LOGGER.error("禁用临时收费设置失败",e);
-			commonui.error("禁用失败", "禁用临时收费设置失败"+e);
+			LOGGER.error("禁用临时收费设置失败", e);
+			commonui.error("禁用失败", "禁用临时收费设置失败" + e);
 			e.printStackTrace();
 		}
 	}
+
 	public void deleteAllHistory() {
 		try {
 			boolean confirm = commonui.confirm("提示", "确定删除所有的进出场、充值、归账记录？");
@@ -786,7 +790,7 @@ public class CarparkManagePresenter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public SystemLogPresenter getSystemLogPresenter() {
@@ -799,20 +803,20 @@ public class CarparkManagePresenter {
 
 	public void restoreDataBase(String path) {
 		try {
-			File f=new File(path);
+			File f = new File(path);
 			if (!f.exists()) {
 				commonui.error("错误", "没有找到数据库备份文件");
 				return;
 			}
-			CarparkClientConfig ccc=(CarparkClientConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
+			CarparkClientConfig ccc = (CarparkClientConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
 			if (StrUtil.isEmpty(ccc)) {
 				return;
 			}
-			String onlineSql="ALTER DATABASE carpark SET ONLINE WITH ROLLBACK IMMEDIATE";
-			String restoreSql="USE master ALTER DATABASE carpark SET OFFLINE WITH ROLLBACK IMMEDIATE;RESTORE DATABASE carpark FROM disk = '"+path+"' WITH REPLACE;";
+			String onlineSql = "ALTER DATABASE carpark SET ONLINE WITH ROLLBACK IMMEDIATE";
+			String restoreSql = "USE master ALTER DATABASE carpark SET OFFLINE WITH ROLLBACK IMMEDIATE;RESTORE DATABASE carpark FROM disk = '" + path + "' WITH REPLACE;";
 			boolean executeSQL = DatabaseUtil.executeSQL(ccc.getDbServerIp(), ccc.getDbServerPort(), "master", ccc.getDbServerUsername(), ccc.getDbServerPassword(), restoreSql, "SQLSERVER 2008");
 			boolean executeSQL2 = DatabaseUtil.executeSQL(ccc.getDbServerIp(), ccc.getDbServerPort(), "master", ccc.getDbServerUsername(), ccc.getDbServerPassword(), onlineSql, "SQLSERVER 2008");
-			if (!executeSQL&&!executeSQL2) {
+			if (!executeSQL && !executeSQL2) {
 				if (!executeSQL) {
 					commonui.error("还原失败", "还原数据库失败");
 				}
@@ -824,12 +828,11 @@ public class CarparkManagePresenter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public StorePresenter getStorePresenter() {
 		return storePresenter;
 	}
 
-	
 }

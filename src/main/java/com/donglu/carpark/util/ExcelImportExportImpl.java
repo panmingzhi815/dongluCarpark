@@ -362,7 +362,7 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				if (StrUtil.isEmpty(plateNO)) {
 					throw new Exception("空的车牌");
 				}
-				List<SingleCarparkUser> findUserByPlateNo = carparkUserService.findUserByPlateNo(plateNO);
+				List<SingleCarparkUser> findUserByPlateNo = carparkUserService.findUserByPlateNo(plateNO,null);
 				if (!StrUtil.isEmpty(findUserByPlateNo)) {
 					throw new Exception("车牌已存在");
 				}
