@@ -276,6 +276,7 @@ public abstract class AbstractListView<T> extends Composite {
 		tltm_refresh.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				model.setSelected(new ArrayList<>());
 				presenter.refresh();
 			}
 		});

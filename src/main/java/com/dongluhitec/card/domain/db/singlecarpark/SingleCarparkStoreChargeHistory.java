@@ -7,27 +7,35 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity
 public class SingleCarparkStoreChargeHistory extends DomainObject{
-	
+	public enum Property{
+		storyId,storeName,loginName,payMoney,freeMoney,freeHours,couponNum,operaName,payType,remark,createTimeLabel
+	}
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2651979792443728013L;
 	
 	private Long storyId;
-	private String storyName;
+	private String storeName;
+	private String loginName;
 	private Float payMoney;
 	private Float freeMoney;
 	private Float freeHours;
+	private Integer couponNum;
 	private String operaName;
 	private String payType;
+	private String remark;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createTime;
 
-
+	public String getCreateTimeLabel(){
+		return StrUtil.formatDate(createTime, StrUtil.DATETIME_PATTERN);
+	}
 	public Long getStoryId() {
 		return storyId;
 	}
@@ -37,18 +45,6 @@ public class SingleCarparkStoreChargeHistory extends DomainObject{
 		this.storyId = storyId;
 		if (pcs != null)
 			pcs.firePropertyChange("storyId", null, null);
-	}
-
-
-	public String getStoryName() {
-		return storyName;
-	}
-
-
-	public void setStoryName(String storyName) {
-		this.storyName = storyName;
-		if (pcs != null)
-			pcs.firePropertyChange("storyName", null, null);
 	}
 
 
@@ -121,6 +117,54 @@ public class SingleCarparkStoreChargeHistory extends DomainObject{
 		this.payType = payType;
 		if (pcs != null)
 			pcs.firePropertyChange("payType", null, null);
+	}
+
+
+	public Integer getCouponNum() {
+		return couponNum;
+	}
+
+
+	public void setCouponNum(Integer couponNum) {
+		this.couponNum = couponNum;
+		if (pcs != null)
+			pcs.firePropertyChange("couponNum", null, null);
+	}
+
+
+	public String getRemark() {
+		return remark;
+	}
+
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+		if (pcs != null)
+			pcs.firePropertyChange("remark", null, null);
+	}
+
+
+	public String getLoginName() {
+		return loginName;
+	}
+
+
+	public void setLoginName(String loginName) {
+		this.loginName = loginName;
+		if (pcs != null)
+			pcs.firePropertyChange("loginName", null, null);
+	}
+
+
+	public String getStoreName() {
+		return storeName;
+	}
+
+
+	public void setStoreName(String storeName) {
+		this.storeName = storeName;
+		if (pcs != null)
+			pcs.firePropertyChange("storeName", null, null);
 	}
 	
 }

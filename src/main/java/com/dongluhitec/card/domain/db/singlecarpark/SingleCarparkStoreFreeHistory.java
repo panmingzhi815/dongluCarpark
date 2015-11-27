@@ -7,10 +7,13 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity
 public class SingleCarparkStoreFreeHistory extends DomainObject{
-	
+	public enum Property{
+		storeName,storeId,freePlateNo,createTime,freeHour,freeMoney,coupon,used, createTimeLabel
+	}
 	/**
 	 * 
 	 */
@@ -25,6 +28,9 @@ public class SingleCarparkStoreFreeHistory extends DomainObject{
 	private String coupon;
 	private String used;
 	
+	public String getCreateTimeLabel(){
+		return StrUtil.formatDate(createTime, StrUtil.DATETIME_PATTERN);
+	}
 	public String getStoreName() {
 		return storeName;
 	}

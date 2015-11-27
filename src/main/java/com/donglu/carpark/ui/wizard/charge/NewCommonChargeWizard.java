@@ -143,11 +143,11 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
      */
     public boolean checkCodeHasOverride(){
     	final CarparkService carparkService = sp.getCarparkService();
-    	CarparkChargeStandard carparkChargeStandard = carparkService.findCarparkChargeStandardByCode(this.model.getCode());
+    	CarparkChargeStandard carparkChargeStandard = carparkService.findCarparkChargeStandardByCode(this.model.getCode(),model.getCarpark());
     	if(carparkChargeStandard != null && carparkChargeStandard.getId() != this.getModel().getId()){
     		return true;
     	}
-    	SingleCarparkMonthlyCharge findMonthlyChargeByCode = sp.getCarparkService().findMonthlyChargeByCode(model.getCode());
+    	SingleCarparkMonthlyCharge findMonthlyChargeByCode = sp.getCarparkService().findMonthlyChargeByCode(model.getCode(),model.getCarpark());
     	if (!StrUtil.isEmpty(findMonthlyChargeByCode)) {
 			return true;
 		}

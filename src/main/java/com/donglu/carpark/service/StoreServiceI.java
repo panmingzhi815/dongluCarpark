@@ -40,10 +40,12 @@ public interface StoreServiceI {
 	 * @param plateNO
 	 * @param start
 	 * @param end
+	 * @param end2 
+	 * @param end2 
 	 * @return
 	 */
-	public List<SingleCarparkStoreFreeHistory> findByPlateNO(int page,int rows,String plateNO,String used,Date start,Date end);
-	public Long countByPlateNO(String plateNO,String used,Date start,Date end);
+	public List<SingleCarparkStoreFreeHistory> findByPlateNO(int page,int rows,String storeName,String plateNO,String used,Date start,Date end);
+	public Long countByPlateNO(String storeName, String plateNO,String used,Date start,Date end);
 	
 	/**
 	 * 保存商铺充值记录
@@ -57,12 +59,23 @@ public interface StoreServiceI {
 	 * @param page
 	 * @param rows
 	 * @param operaName
+	 * @param storeName 
 	 * @param start
 	 * @param end
 	 * @return
 	 */
-	public List<SingleCarparkStoreChargeHistory> findStoreChargeHistoryByTime(int page, int rows, String operaName, Date start,Date end);
-	public Long countStoreChargeHistoryByTime(String operaName,Date start, Date end);
+	public List<SingleCarparkStoreChargeHistory> findStoreChargeHistoryByTime(int page, int rows,  String storeName,String operaName, Date start,Date end);
+	public Long countStoreChargeHistoryByTime(String storeName,String operaName,Date start, Date end);
 	
 	public SingleCarparkStoreFreeHistory findStoreFreeById(Long id);
+	
+	/**
+	 * 查找商铺信息
+	 * @param start
+	 * @param max
+	 * @param storeName
+	 * @return
+	 */
+	public List<SingleCarparkStore> findStoreByCondition(int start, int max, String storeName);
+	public Long countStoreByCondition(String storeName);
 }

@@ -48,6 +48,7 @@ public class AddUserWizardPage extends WizardPage {
 	private Combo combo_carpark;
 	private Combo combo;
 	private ComboViewer comboViewer;
+	private Text text_2;
 
 	
 	/**
@@ -185,7 +186,7 @@ public class AddUserWizardPage extends WizardPage {
 		Label label_5 = new Label(composite, SWT.NONE);
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_5.setText("停车场");
+		label_5.setText("停 车 场");
 		
 		comboViewer_carpark = new ComboViewer(composite, SWT.READ_ONLY);
 		combo_carpark = comboViewer_carpark.getCombo();
@@ -199,7 +200,24 @@ public class AddUserWizardPage extends WizardPage {
 		GridData gd_combo_carpark = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_combo_carpark.widthHint = 150;
 		combo_carpark.setLayoutData(gd_combo_carpark);
+		
+		Label label_6 = new Label(composite, SWT.NONE);
+		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_6.setText("备      注");
+		
+		text_2 = new Text(composite, SWT.BORDER);
+		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_text_2 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_2.heightHint = 60;
+		text_2.setLayoutData(gd_text_2);
 		m_bindingContext = initDataBindings();
+	}
+
+	@Override
+	public AddUserWizard getWizard() {
+		
+		return (AddUserWizard) super.getWizard();
 	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
@@ -236,12 +254,10 @@ public class AddUserWizardPage extends WizardPage {
 		IObservableValue typeModelObserveValue = BeanProperties.value("type").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer, typeModelObserveValue, null, null);
 		//
+		IObservableValue observeTextText_2ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_2);
+		IObservableValue remarkModelObserveValue = BeanProperties.value("remark").observe(model);
+		bindingContext.bindValue(observeTextText_2ObserveWidget, remarkModelObserveValue, null, null);
+		//
 		return bindingContext;
-	}
-
-	@Override
-	public AddUserWizard getWizard() {
-		
-		return (AddUserWizard) super.getWizard();
 	}
 }

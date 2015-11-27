@@ -124,7 +124,7 @@ public interface CarparkService {
 	public SingleCarparkSystemSetting findSystemSettingByKey(String key);
 	
 	//停车场临时收费
-	public CarparkChargeStandard findCarparkChargeStandardByCode(String code);
+	public CarparkChargeStandard findCarparkChargeStandardByCode(String code, SingleCarparkCarpark carpark);
 	/**
 	 * 获取停车场车类型列表
 	 * 
@@ -244,9 +244,10 @@ public interface CarparkService {
 	/**
 	 * 根据编码查找月租设置
 	 * @param code
+	 * @param carpark 
 	 * @return
 	 */
-	public SingleCarparkMonthlyCharge findMonthlyChargeByCode(String code);
+	public SingleCarparkMonthlyCharge findMonthlyChargeByCode(String code, SingleCarparkCarpark carpark);
 	
 	public List<CarparkChargeStandard> findAllCarparkChargeStandard();
 	

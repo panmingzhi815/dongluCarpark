@@ -194,7 +194,7 @@ public class Login {
 	 */
 	protected void createContents() {
 		shell = new Shell();
-		shell.setSize(300, 280);
+		shell.setSize(300, 291);
 		shell.setText("用户登录");
 		GridLayout gridLayout = new GridLayout(1, false);
 		gridLayout.verticalSpacing = 15;
@@ -333,7 +333,7 @@ public class Login {
 
 			SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(txt_userName.getText(), txt_password.getText());
 			if (StrUtil.isEmpty(findByNameAndPassword)) {
-				lbl_msg.setText("用户名或密码错误");
+				commonui.error("提示", "用户名或密码错误！");
 				return;
 			}
 			userName = findByNameAndPassword.getUserName();

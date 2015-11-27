@@ -26,9 +26,11 @@ import com.donglu.carpark.ui.view.CarparkPayHistoryPresenter;
 import com.donglu.carpark.ui.view.InOutHistoryPresenter;
 import com.donglu.carpark.ui.view.OpenDoorLogPresenter;
 import com.donglu.carpark.ui.view.ReturnAccountPresenter;
-import com.donglu.carpark.ui.view.StorePresenter;
 import com.donglu.carpark.ui.view.SystemLogPresenter;
 import com.donglu.carpark.ui.view.UserPresenter;
+import com.donglu.carpark.ui.view.store.StoreChargePresenter;
+import com.donglu.carpark.ui.view.store.StoreFreePresenter;
+import com.donglu.carpark.ui.view.store.StorePresenter;
 import com.donglu.carpark.ui.wizard.AddCarparkChildWizard;
 import com.donglu.carpark.ui.wizard.AddCarparkWizard;
 import com.donglu.carpark.ui.wizard.AddMonthChargeWizard;
@@ -93,6 +95,11 @@ public class CarparkManagePresenter {
 	
 	@Inject
 	private StorePresenter storePresenter;
+	
+	@Inject
+	private StoreChargePresenter storeChargePresenter;
+	@Inject
+	private StoreFreePresenter storeFreePresenter;
 
 	/**
 	 * 删除停车场
@@ -403,6 +410,7 @@ public class CarparkManagePresenter {
 		final CarparkChargeStandard carparkChargeStandard = new CarparkChargeStandard();
 
 		NewCommonChargeModel model = new NewCommonChargeModel();
+		model.setCarpark(current);
 		if (carparkCharge != null) {
 			BeanUtil.copyProperties(carparkCharge, model, CarparkChargeStandard.Property.values());
 			model.setFreeTimeEnable(model.getAcrossdayChargeEnable() == 1 ? "是" : "否");
@@ -663,7 +671,7 @@ public class CarparkManagePresenter {
 				addAndEditMonthCharge(init);
 			}
 			if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.临时收费.name())) {
-				CarparkChargeStandard findCarparkChargeStandardByCode = carparkService.findCarparkChargeStandardByCode(carparkChargeInfo.getCode());
+				CarparkChargeStandard findCarparkChargeStandardByCode = carparkService.findCarparkChargeStandardByCode(carparkChargeInfo.getCode(),carparkModel.getCarpark());
 				addTempCharge(findCarparkChargeStandardByCode);
 			}
 		} catch (Exception e) {
@@ -833,6 +841,14 @@ public class CarparkManagePresenter {
 
 	public StorePresenter getStorePresenter() {
 		return storePresenter;
+	}
+
+	public StoreChargePresenter getStoreChargePresenter() {
+		return storeChargePresenter;
+	}
+
+	public StoreFreePresenter getStoreFreePresenter() {
+		return storeFreePresenter;
 	}
 
 }

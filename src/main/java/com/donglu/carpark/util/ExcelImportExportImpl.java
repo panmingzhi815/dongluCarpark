@@ -26,6 +26,7 @@ import com.dongluhitec.card.domain.db.attendance.PersonAttendanceDetail;
 import com.dongluhitec.card.domain.db.carpark.*;
 import com.dongluhitec.card.domain.db.consumption.ConsumptionRecord;
 import com.dongluhitec.card.domain.db.consumption.ConsumptionUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.cache.CarparkUsageInfo;
@@ -325,7 +326,9 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 			row.createCell(4).setCellValue(user.getType());
 			row.createCell(5).setCellValue(StrUtil.formatDate(user.getValidTo(), USER_VALIDTO));
 			row.createCell(6).setCellValue(user.getCarparkNo());
-			row.createCell(7).setCellValue(user.getRemark());
+			row.createCell(7).setCellValue(user.getCarpark().getCode());
+			row.createCell(8).setCellValue(user.getCarpark().getName());
+			row.createCell(9).setCellValue(user.getRemark());
 		}
 		FileOutputStream fileOut = new FileOutputStream(path);
 		wb.write(fileOut);
@@ -342,7 +345,7 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		int currentRow = 2;
 		HSSFRow row = sheet.getRow(currentRow);
 		int rowIndex = 1;
-
+		Map<String, SingleCarparkCarpark> map=new HashMap<>();
 		CellStyle cellStyle = wb.createCellStyle();
 		cellStyle.setBorderBottom((short) 1);
 		cellStyle.setBorderLeft((short) 1);
@@ -371,7 +374,19 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				type=getCellStringValue(row, 4);
 				validTo=getCellStringValue(row, 5);
 				carparkNo=getCellStringValue(row, 6);
-				remark=getCellStringValue(row, 7);
+				String caparkCode=getCellStringValue(row, 7);
+				String caparkName=getCellStringValue(row, 8);
+				
+				if (map.get(caparkCode) == null) {
+					SingleCarparkCarpark findCarparkByCode = sp.getCarparkService().findCarparkByCode(caparkCode);
+					if (StrUtil.isEmpty(findCarparkByCode)) {
+						throw new Exception("停车场未找到");
+					}else{
+						map.put(caparkCode, findCarparkByCode);
+					}
+				}
+				
+				remark=getCellStringValue(row, 9);
 				SingleCarparkUser user=new SingleCarparkUser();
 				user.setName(name);
 				user.setPlateNo(plateNO);
@@ -381,12 +396,13 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				user.setCarparkNo(carparkNo);
 				user.setRemark(remark);
 				user.setCreateDate(new Date());
+				user.setCarpark(map.get(caparkCode));
 				carparkUserService.saveUser(user);
-				setCellStringvalue(row, 8, "处理成功", cellStyle);
+				setCellStringvalue(row, 10, "处理成功", cellStyle);
 			} catch (Exception e) {
 				failNum++;
 				e.printStackTrace();
-				setCellStringvalue(row, 8, "保存失败" + e.getMessage(), cellStyle);
+				setCellStringvalue(row, 10, "保存失败" + e.getMessage(), cellStyle);
 			} finally {
 				currentRow++;
 				row = sheet.getRow(currentRow);

@@ -2,6 +2,7 @@ package com.dongluhitec.card.domain.db.singlecarpark;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -18,7 +19,7 @@ public class SingleCarparkStore extends DomainObject {
 	 */
 	private static final long serialVersionUID = -4875162570044797127L;
 	
-	
+	@Column(unique=true)
 	private String storeName;
 	private String address;
 	private String userName;

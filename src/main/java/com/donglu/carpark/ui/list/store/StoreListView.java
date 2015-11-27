@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.list;
+package com.donglu.carpark.ui.list.store;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;

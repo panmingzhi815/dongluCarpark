@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui.list;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -197,6 +198,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			if (importUser>0) {
 				commonui.info("导入提示", "导入完成。有"+importUser+"条数据导入失败");
 			}else{
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "导入了"+(excelRowNum-3)+"条记录");
 				commonui.info("导入提示", "导入成功");
 			}
 		} catch (Exception e) {
@@ -250,7 +252,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			SingleCarparkUser user = m.getSingleCarparkUser();
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
 			carparkUserService.saveUser(user);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了用户:"+singleCarparkUser.getName());
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "修改了用户:"+singleCarparkUser.getName());
 			commonui.info("操作成功", "修改成功!");
 			refresh();
 		} catch (Exception e) {

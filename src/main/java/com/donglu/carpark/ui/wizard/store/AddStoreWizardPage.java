@@ -64,22 +64,6 @@ public class AddStoreWizardPage extends WizardPage {
 		gd_text.widthHint = 131;
 		text.setLayoutData(gd_text);
 		
-		Label label_2 = new Label(composite, SWT.NONE);
-		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_2.setText("商铺地址");
-		
-		text_1 = new Text(composite, SWT.BORDER);
-		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
-		Label label_1 = new Label(composite, SWT.NONE);
-		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
-		label_1.setText("商铺主人");
-		
-		text_2 = new Text(composite, SWT.BORDER);
-		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
 		Label lblNewLabel = new Label(composite, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -88,6 +72,24 @@ public class AddStoreWizardPage extends WizardPage {
 		text_3 = new Text(composite, SWT.BORDER);
 		text_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_2.setText("商铺地址");
+		
+		text_1 = new Text(composite, SWT.BORDER);
+		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label label_1 = new Label(composite, SWT.NONE);
+		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
+		label_1.setText("商铺主人");
+		
+		text_2 = new Text(composite, SWT.BORDER);
+		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {

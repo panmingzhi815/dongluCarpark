@@ -17,6 +17,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.handler.RequestHandlerBase;
+import org.apache.solr.handler.RequestHandlerUtils;
+import org.eclipse.jetty.http.HttpParser;
+import org.eclipse.jetty.http.HttpParser.RequestHandler;
+import org.eclipse.jetty.http.MetaData.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,8 +119,8 @@ public class StoreServlet extends HttpServlet{
 			
 			StoreServiceI storeService = sp.getStoreService();
 			Grid grid = new Grid();
-			grid.setTotal(storeService.countStoreChargeHistoryByTime(operaName,start,end));
-			List<SingleCarparkStoreChargeHistory> findStoreChargeHistoryByTime = storeService.findStoreChargeHistoryByTime(0,50,operaName,start,end);
+			grid.setTotal(storeService.countStoreChargeHistoryByTime("",operaName,start,end));
+			List<SingleCarparkStoreChargeHistory> findStoreChargeHistoryByTime = storeService.findStoreChargeHistoryByTime(0,50,"",operaName,start,end);
 			System.out.println("======"+findStoreChargeHistoryByTime.size());
 			grid.setRows(findStoreChargeHistoryByTime);
 			writeJson(grid, req, resp);
@@ -139,11 +144,11 @@ public class StoreServlet extends HttpServlet{
 			Date end = StrUtil.parse(endTimes==null?null:endTimes[0], "yyyy-MM-dd HH:mm:ss");
 			String plateNO = plateNOs==null?null:plateNOs[0];
 			String used = useds==null?null:useds[0];
-			
+			String storeName="";
 			StoreServiceI storeService = sp.getStoreService();
 			Grid grid = new Grid();
-			grid.setTotal(storeService.countByPlateNO(plateNO, used, start, end));
-			grid.setRows(storeService.findByPlateNO(Integer.parseInt(map.get("page")[0]), Integer.parseInt(map.get("rows")[0]), plateNO, used, start, end));
+			grid.setTotal(storeService.countByPlateNO(storeName,plateNO, used, start, end));
+			grid.setRows(storeService.findByPlateNO(Integer.parseInt(map.get("page")[0]), Integer.parseInt(map.get("rows")[0]),storeName, plateNO, used, start, end));
 			writeJson(grid, req, resp);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -217,6 +222,8 @@ public class StoreServlet extends HttpServlet{
 	}
 
 	private void login(HttpServletRequest req, HttpServletResponse resp) {
+//		HttpSession session = req.getSession(true);
+
 		Json json = new Json();
 		try {
 			System.out.println("login");

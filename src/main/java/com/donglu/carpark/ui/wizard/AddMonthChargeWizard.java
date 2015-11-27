@@ -40,12 +40,12 @@ public class AddMonthChargeWizard extends Wizard implements AbstractWizard {
 	 */
 	private boolean checkCode(String code) {
 		
-		SingleCarparkMonthlyCharge m=sp.getCarparkService().findMonthlyChargeByCode(code);
+		SingleCarparkMonthlyCharge m=sp.getCarparkService().findMonthlyChargeByCode(code,model.getCarpark());
 		if (!StrUtil.isEmpty(m)&&m.getId()!=model.getId()) {
 			return true;
 		}
 		
-		CarparkChargeStandard findCarparkChargeStandardByCode = sp.getCarparkService().findCarparkChargeStandardByCode(code);
+		CarparkChargeStandard findCarparkChargeStandardByCode = sp.getCarparkService().findCarparkChargeStandardByCode(code,model.getCarpark());
 		if (!StrUtil.isEmpty(findCarparkChargeStandardByCode)) {
 			return true;
 		}

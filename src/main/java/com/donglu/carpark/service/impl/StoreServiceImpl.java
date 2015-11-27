@@ -83,11 +83,11 @@ public class StoreServiceImpl implements StoreServiceI {
 	}
 
 	@Override
-	public List<SingleCarparkStoreFreeHistory> findByPlateNO(int page, int rows, String plateNO, String used, Date start, Date end) {
+	public List<SingleCarparkStoreFreeHistory> findByPlateNO(int page, int rows,String storeName, String plateNO, String used, Date start, Date end) {
 		unitOfWork.begin();
 		try {
-			Criteria c = createFindStoreFreeHistoryCriteria(plateNO, used, start, end);
-			c.setFirstResult((page - 1) * rows);
+			Criteria c = createFindStoreFreeHistoryCriteria(storeName,plateNO, used, start, end);
+			c.setFirstResult((page) * rows);
 			c.setMaxResults(rows);
 			return c.getResultList();
 		} finally {
@@ -96,10 +96,10 @@ public class StoreServiceImpl implements StoreServiceI {
 	}
 
 	@Override
-	public Long countByPlateNO(String plateNO, String used, Date start, Date end) {
+	public Long countByPlateNO(String storeName,String plateNO, String used, Date start, Date end) {
 		unitOfWork.begin();
 		try {
-			Criteria c = createFindStoreFreeHistoryCriteria(plateNO, used, start, end);
+			Criteria c = createFindStoreFreeHistoryCriteria(storeName,plateNO, used,  start, end);
 			c.setProjection(Projections.rowCount());
 			return (Long) c.getSingleResultOrNull();
 		} finally {
@@ -113,8 +113,11 @@ public class StoreServiceImpl implements StoreServiceI {
 	 * @param end
 	 * @return
 	 */
-	private Criteria createFindStoreFreeHistoryCriteria(String plateNO, String used, Date start, Date end) {
+	private Criteria createFindStoreFreeHistoryCriteria(String storeName,String plateNO, String used, Date start, Date end) {
 		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkStoreFreeHistory.class);
+		if (!StrUtil.isEmpty(storeName)) {
+			c.add(Restrictions.like("storeName", storeName, MatchMode.ANYWHERE));
+		}
 		if (!StrUtil.isEmpty(plateNO)) {
 			c.add(Restrictions.like("freePlateNo", plateNO, MatchMode.ANYWHERE));
 		}
@@ -131,16 +134,22 @@ public class StoreServiceImpl implements StoreServiceI {
 		return c;
 	}
 
-	@Override
+	@Transactional
 	public Long saveStorePay(SingleCarparkStoreChargeHistory storePay) {
-		return null;
+		DatabaseOperation<SingleCarparkStoreChargeHistory> dom = DatabaseOperation.forClass(SingleCarparkStoreChargeHistory.class, emprovider.get());
+		if (storePay.getId() == null) {
+			dom.insert(storePay);
+		} else {
+			dom.save(storePay);
+		}
+		return storePay.getId();
 	}
 
 	@Override
-	public List<SingleCarparkStoreChargeHistory> findStoreChargeHistoryByTime(int page, int rows, String operaName, Date start, Date end) {
+	public List<SingleCarparkStoreChargeHistory> findStoreChargeHistoryByTime(int page, int rows, String storeName,String operaName, Date start, Date end) {
 		unitOfWork.begin();
 		try {
-			Criteria c = createFindStoreChargeHistoryCriteria(operaName, start, end);
+			Criteria c = createFindStoreChargeHistoryCriteria(storeName, operaName, start, end);
 			c.setFirstResult(page * rows);
 			c.setMaxResults(rows);
 			return c.getResultList();
@@ -155,8 +164,11 @@ public class StoreServiceImpl implements StoreServiceI {
 	 * @param end
 	 * @return
 	 */
-	private Criteria createFindStoreChargeHistoryCriteria(String operaName, Date start, Date end) {
+	private Criteria createFindStoreChargeHistoryCriteria(String storeName,String operaName, Date start, Date end) {
 		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkStoreChargeHistory.class);
+		if (!StrUtil.isEmpty(storeName)) {
+			c.add(Restrictions.like("storeName", storeName, MatchMode.ANYWHERE));
+		}
 		if (!StrUtil.isEmpty(operaName)) {
 			c.add(Restrictions.like("operaName", operaName, MatchMode.ANYWHERE));
 		}
@@ -170,10 +182,10 @@ public class StoreServiceImpl implements StoreServiceI {
 	}
 
 	@Override
-	public Long countStoreChargeHistoryByTime(String operaName, Date start, Date end) {
+	public Long countStoreChargeHistoryByTime(String storeName,String operaName, Date start, Date end) {
 		unitOfWork.begin();
 		try {
-			Criteria c = createFindStoreChargeHistoryCriteria(operaName, start, end);
+			Criteria c = createFindStoreChargeHistoryCriteria(storeName, operaName, start, end);
 			c.setProjection(Projections.rowCount());
 			Long r = (Long) c.getSingleResultOrNull();
 			return r;
@@ -189,6 +201,41 @@ public class StoreServiceImpl implements StoreServiceI {
 			DatabaseOperation<SingleCarparkStoreFreeHistory> dom = DatabaseOperation.forClass(SingleCarparkStoreFreeHistory.class, emprovider.get());
 			SingleCarparkStoreFreeHistory entityWithId = dom.getEntityWithId(id);
 			return entityWithId;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkStore> findStoreByCondition(int start, int max, String storeName) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindStoreCriteria(storeName);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	/**
+	 * @param storeName
+	 * @return
+	 */
+	private Criteria createFindStoreCriteria(String storeName) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkStore.class);
+		if (!StrUtil.isEmpty(storeName)) {
+			c.add(Restrictions.eq("storeName", storeName));
+		}
+		return c;
+	}
+
+	@Override
+	public Long countStoreByCondition(String storeName) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindStoreCriteria(storeName);
+			c.setProjection(Projections.rowCount());
+			return (Long) c.getSingleResultOrNull();
 		} finally {
 			unitOfWork.end();
 		}

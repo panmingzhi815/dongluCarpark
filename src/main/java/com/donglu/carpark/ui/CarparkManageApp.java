@@ -473,6 +473,22 @@ public class CarparkManageApp extends AbstractApp{
 		tbtmNewItem_4.setControl(composite_17);
 		composite_17.setLayout(new FillLayout(SWT.HORIZONTAL));
 		presenter.getOpenDoorLogPresenter().go(composite_17);
+		
+		TabItem tabItem_6 = new TabItem(tabFolder_searchHistory, SWT.NONE);
+		tabItem_6.setText("商铺充值记录");
+		
+		Composite composite_22 = new Composite(tabFolder_searchHistory, SWT.NONE);
+		tabItem_6.setControl(composite_22);
+		presenter.getStoreChargePresenter().go(composite_22);
+		composite_22.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
+		TabItem tbtmS = new TabItem(tabFolder_searchHistory, SWT.NONE);
+		tbtmS.setText("商铺免费记录");
+		
+		Composite composite_23 = new Composite(tabFolder_searchHistory, SWT.NONE);
+		tbtmS.setControl(composite_23);
+		presenter.getStoreFreePresenter().go(composite_23);
+		composite_23.setLayout(new FillLayout(SWT.HORIZONTAL));
 		TabItem tbtmNewItem_1 = new TabItem(tabFolder, SWT.NONE);
 		tbtmNewItem_1.setText("系统用户");
 		

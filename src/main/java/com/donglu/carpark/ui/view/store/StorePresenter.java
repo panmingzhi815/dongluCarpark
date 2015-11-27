@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.view;
+package com.donglu.carpark.ui.view.store;
 
 
 import org.eclipse.swt.widgets.Composite;
@@ -21,8 +21,8 @@ public class StorePresenter  extends AbstractListPresenter<SingleCarparkStore>{
 	public StoreListPresenter getListPresenter() {
 		return listPresenter;
 	}
-	public void search(String userName, String plateNo, int parseInt, String text2) {
-		listPresenter.search(userName,plateNo,parseInt,text2);
+	public void search(String userName) {
+		listPresenter.search(userName);
 	}
 	
 }

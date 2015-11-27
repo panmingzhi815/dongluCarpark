@@ -41,16 +41,20 @@ public class AddCarparkChildWizard extends Wizard implements AbstractWizard{
 		try {
 			String code = model.getCode();
 			int parseInt = Integer.parseInt(code);
-			if (parseInt<0||parseInt>99) {
-				page.setErrorMessage("编码只能是0-99的数字");
-				return false;
-			}
-			if (parseInt>=0&&parseInt<=9) {
-				model.setCode("0"+parseInt);
-			}
+//			if (parseInt<0||parseInt>99) {
+//				page.setErrorMessage("编码只能是0-99的数字");
+//				return false;
+//			}
+//			if (parseInt>=0&&parseInt<=9) {
+//				model.setCode("0"+parseInt);
+//			}
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
-			page.setErrorMessage("编码只能是0-99的数字");
+			page.setErrorMessage("编码只能是数字");
+			return false;
+		}
+		if (model.getCode().length()>20) {
+			page.setErrorMessage("编码不能太长");
 			return false;
 		}
 		if (checkCode()) {

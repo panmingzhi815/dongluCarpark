@@ -604,8 +604,9 @@ public class CarparkMainPresenter {
 
 	public boolean showUsualContentToDevice(SingleCarparkDevice device) {
 		try {
+			System.out.println("===="+device.getAdvertise().length());
 			Boolean carparkUsualContent = hardwareService.carparkUsualContent(getDevice(device), device.getAdvertise());
-			showNowTimeToDevice(device);
+//			showNowTimeToDevice(device);
 			return carparkUsualContent;
 		} catch (Exception e) {
 			e.printStackTrace();

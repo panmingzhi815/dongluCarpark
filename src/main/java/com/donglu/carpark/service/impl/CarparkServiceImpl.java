@@ -279,12 +279,13 @@ public class CarparkServiceImpl implements CarparkService {
 	}
 
 	@Override
-	public CarparkChargeStandard findCarparkChargeStandardByCode(String code) {
+	public CarparkChargeStandard findCarparkChargeStandardByCode(String code, SingleCarparkCarpark carpark) {
 		unitOfWork.begin();
 		try {
 			Criteria criteria = CriteriaUtils.createCriteria(emprovider.get(),
 					CarparkChargeStandard.class);
 			criteria.add(Restrictions.eq(CarparkChargeStandard.Property.code.name(), code));
+			criteria.add(Restrictions.eq("carpark", carpark));
 			Object singleResultOrNull = criteria.getSingleResultOrNull();
 			if (StrUtil.isEmpty(singleResultOrNull)) {
 				return null;
@@ -675,11 +676,12 @@ public class CarparkServiceImpl implements CarparkService {
 	}
 
 	@Override
-	public SingleCarparkMonthlyCharge findMonthlyChargeByCode(String code) {
+	public SingleCarparkMonthlyCharge findMonthlyChargeByCode(String code, SingleCarparkCarpark carpark) {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkMonthlyCharge.class);
 			c.add(Restrictions.eq("chargeCode", code));
+			c.add(Restrictions.eq("carpark", carpark));
 			return (SingleCarparkMonthlyCharge) c.getSingleResultOrNull();
 		}catch(Exception e){
 			return null;
