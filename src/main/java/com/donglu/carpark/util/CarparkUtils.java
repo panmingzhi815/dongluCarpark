@@ -466,13 +466,22 @@ public class CarparkUtils {
         return ini;
     }
 	public static String getCarStillTime(String totalTime) {
+		//停车满1天语音播报天数
 		String[] split = totalTime.split(":");
 		Integer valueOf = Integer.valueOf(split[0].trim());
-		String string ="";
-		if (valueOf>0) {
-			string = split[0]+"小时";
+		Integer day=valueOf/24;
+		Integer hour=valueOf%24;
+		String string ="停车";
+		if (day>0) {
+			string += day+"天";
 		}
-		String s="停车"+string+split[1]+"分钟,";
-		return s;
+		if (hour>0&&valueOf>0) {
+			string += hour+"小时";
+		}
+		Integer minute = Integer.valueOf(split[1].trim());
+		if (minute>0) {
+			string+=minute+"分钟,";
+		}
+		return string;
 	}
 }
