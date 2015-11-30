@@ -365,15 +365,6 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				if (StrUtil.isEmpty(plateNO)) {
 					throw new Exception("空的车牌");
 				}
-				List<SingleCarparkUser> findUserByPlateNo = carparkUserService.findUserByPlateNo(plateNO,null);
-				if (!StrUtil.isEmpty(findUserByPlateNo)) {
-					throw new Exception("车牌已存在");
-				}
-				name = getCellStringValue(row, 1);
-				address=getCellStringValue(row, 3);
-				type=getCellStringValue(row, 4);
-				validTo=getCellStringValue(row, 5);
-				carparkNo=getCellStringValue(row, 6);
 				String caparkCode=getCellStringValue(row, 7);
 				String caparkName=getCellStringValue(row, 8);
 				
@@ -385,6 +376,15 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 						map.put(caparkCode, findCarparkByCode);
 					}
 				}
+				SingleCarparkUser findUserByPlateNo = carparkUserService.findUserByPlateNo(plateNO,map.get(caparkCode).getId());
+				if (!StrUtil.isEmpty(findUserByPlateNo)) {
+					throw new Exception("车牌已存在");
+				}
+				name = getCellStringValue(row, 1);
+				address=getCellStringValue(row, 3);
+				type=getCellStringValue(row, 4);
+				validTo=getCellStringValue(row, 5);
+				carparkNo=getCellStringValue(row, 6);
 				
 				remark=getCellStringValue(row, 9);
 				SingleCarparkUser user=new SingleCarparkUser();

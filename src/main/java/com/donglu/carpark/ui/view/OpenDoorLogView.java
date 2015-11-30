@@ -98,11 +98,15 @@ public class OpenDoorLogView extends Composite implements View{
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String text = comboViewer.getCombo().getText();
-				if (text.equals("全部")) {
-					text=null;
+				try {
+					String text = comboViewer.getCombo().getText();
+					if (text.equals("全部")) {
+						text=null;
+					}
+					getPresenter().search(text, dateTime.getSelection(), dateTime_1.getSelection(),text_device.getText());
+				} catch (Exception e1) {
+					e1.printStackTrace();
 				}
-				getPresenter().search(text, dateTime.getSelection(), dateTime_1.getSelection(),text_device.getText());
 			}
 		});
 		button.setText("查询");

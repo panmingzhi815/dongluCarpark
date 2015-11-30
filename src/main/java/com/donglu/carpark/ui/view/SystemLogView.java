@@ -94,12 +94,16 @@ public class SystemLogView extends Composite implements View{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
-				int selectionIndex = combo.getSelectionIndex();
-				String text = comboViewer_1.getCombo().getText();
-				if (text.equals("全部")) {
-					text=null;
+				try {
+					int selectionIndex = combo.getSelectionIndex();
+					String text = comboViewer_1.getCombo().getText();
+					if (text.equals("全部")) {
+						text=null;
+					}
+					getPresenter().search(text, dateTime.getSelection(), dateTime_1.getSelection(), SystemOperaLogTypeEnum.values()[selectionIndex]);
+				} catch (Exception e1) {
+					e1.printStackTrace();
 				}
-				getPresenter().search(text, dateTime.getSelection(), dateTime_1.getSelection(), SystemOperaLogTypeEnum.values()[selectionIndex]);
 			}
 		});
 		button.setText("查询");

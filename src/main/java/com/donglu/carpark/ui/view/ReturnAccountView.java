@@ -95,12 +95,16 @@ public class ReturnAccountView extends Composite implements View{
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				SingleCarparkSystemUser singleCarparkSystemUser = list.get(comboViewer.getCombo().getSelectionIndex());
-				String operaName="";
-				if (!StrUtil.isEmpty(singleCarparkSystemUser.getId())) {
-					operaName=singleCarparkSystemUser.getUserName();
+				try {
+					SingleCarparkSystemUser singleCarparkSystemUser = list.get(comboViewer.getCombo().getSelectionIndex());
+					String operaName="";
+					if (!StrUtil.isEmpty(singleCarparkSystemUser.getId())) {
+						operaName=singleCarparkSystemUser.getUserName();
+					}
+					getPresenter().search(operaName,text_1.getText(),dateChooserCombo.getValue(),dateChooserCombo_1.getValue());
+				} catch (Exception e1) {
+					e1.printStackTrace();
 				}
-				getPresenter().search(operaName,text_1.getText(),dateChooserCombo.getValue(),dateChooserCombo_1.getValue());
 			}
 		});
 		button.setText("查询");

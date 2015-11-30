@@ -93,7 +93,16 @@ public class CarOutTask implements Runnable{
 		this.shell = shell;
 		this.rightSize=rightSize;
 	}
-	
+	public static void main(String[] args) {
+		String s="2015-11-30 08:44:46,2015-11-30 08:47:10,2015-11-30 08:55:06,2015-11-30 08:55:10,2015-11-30 08:55:12";
+		String t="2015-11-30 08:55:12";
+		int flag=0;
+		int beginIndex = s.indexOf(t)+t.length();
+		if (beginIndex<s.length()) {
+			flag++;
+		}
+		System.out.println(s.substring(beginIndex+flag));
+	}
 	public void run(){
 		try {
 			SingleCarparkDevice device = mapIpToDevice.get(ip);
@@ -245,8 +254,8 @@ public class CarOutTask implements Runnable{
 			presenter.showPlateNOToDevice(device, plateNO);
 			//
 			long nanoTime3 = System.nanoTime();
-			List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO,device.getCarpark().getId());
-			SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo.get(0);
+			SingleCarparkUser findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO,device.getCarpark().getId());
+			SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo;
 			String carType = "临时车";
 			
 			if (!StrUtil.isEmpty(user)) {
@@ -273,7 +282,7 @@ public class CarOutTask implements Runnable{
 					presenter.showContentToDevice(device, CarparkMainApp.FIX_ROAD, false);
 					return;
 				}
-				tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg);
+				tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg,null);
 			}
 		} catch (Exception e) {
 			LOGGER.error("车辆出场时发生错误",e);
@@ -296,6 +305,11 @@ public class CarOutTask implements Runnable{
 	 */
 	private boolean fixCarOutProcess(final String ip, final String plateNO, Date date, SingleCarparkDevice device, SingleCarparkUser user, String roadType, boolean equals, String bigImg,
 			String smallImg) throws Exception {
+		if (!StrUtil.isEmpty(user.getTempCarTime())) {
+			tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg,StrUtil.parse(user.getTempCarTime().split(",")[0], StrUtil.DATETIME_PATTERN));
+			model.setUser(user);
+			return true;
+		}
 		String carType;
 		carType = "固定车";
 		if (!equals) {
@@ -323,6 +337,12 @@ public class CarOutTask implements Runnable{
 				}
 			}
 			nowPlateNO = model.getOutShowPlateNO();
+			SingleCarparkUser findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(nowPlateNO, device.getCarpark().getId());
+			if (StrUtil.isEmpty(findUserByPlateNo)) {
+				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg,null);
+			}else{
+				user=findUserByPlateNo;
+			}
 		}
 		//
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
@@ -338,8 +358,8 @@ public class CarOutTask implements Runnable{
 		if (StrUtil.getTodayBottomTime(time).before(date)) {
 			presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
 			LOGGER.info("车辆:{}已到期", nowPlateNO);
-			if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车到期变临时车)==null?SystemSettingTypeEnum.固定车到期变临时车.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.固定车到期变临时车))) {
-				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg);
+			if (Boolean.valueOf(getSettingValue())) {
+				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg,null);
 			}
 			return true;
 		} else {
@@ -385,13 +405,24 @@ public class CarOutTask implements Runnable{
 		return false;
 	}
 
-	private void tempCarOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg) throws Exception{
+	/**
+	 * @return
+	 */
+	private String getSettingValue() {
+		return mapSystemSetting.get(SystemSettingTypeEnum.固定车到期变临时车)==null?SystemSettingTypeEnum.固定车到期变临时车.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.固定车到期变临时车);
+	}
+
+	private void tempCarOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg, Date reviseInTime) throws Exception{
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(plateNO, device.getCarpark());
 		if (!StrUtil.isEmpty(findByNoCharge)) {
 
 			SingleCarparkInOutHistory singleCarparkInOutHistory = findByNoCharge.get(0);
-			
+			if (!StrUtil.isEmpty(reviseInTime)) {
+				singleCarparkInOutHistory.setReviseInTime(reviseInTime);
+			}else{
+				singleCarparkInOutHistory.setReviseInTime(singleCarparkInOutHistory.getInTime());
+			}
 //			List<SingleCarparkInOutHistory> listChildCarparkInOutHistory= carparkInOutService.findHistoryByChildCarparkInOut(singleCarparkInOutHistory.getCarparkId(),plateNO,singleCarparkInOutHistory.getInTime(),date);
 //			if (StrUtil.isEmpty(listChildCarparkInOutHistory)) {
 //				Map<Long, SingleCarparkInOutHistory> map=new HashMap<>();
@@ -415,7 +446,7 @@ public class CarOutTask implements Runnable{
 				if (after)
 					singleCarparkInOutHistory.setOutPhotographType("手动");
 			}
-			Date inTime = singleCarparkInOutHistory.getInTime();
+			Date inTime = singleCarparkInOutHistory.getReviseInTime();
 
 			// 临时车操作
 			model.setPlateNo(plateNO);

@@ -1,6 +1,7 @@
 package com.donglu.carpark.model;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.custom.CTabItem;
@@ -13,6 +14,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.collect.Maps;
@@ -112,6 +115,10 @@ public class CarparkMainModel extends DomainObject{
 	
 	private SingleCarparkCarpark carpark;
 	private CarTypeEnum carTypeEnum;
+
+	private List<SingleCarparkStoreFreeHistory> stroeFrees;
+
+	private SingleCarparkUser user;
 	
 	public String getUserName() {
 		return userName;
@@ -472,6 +479,18 @@ public class CarparkMainModel extends DomainObject{
 	}
 	public void setChildCarparkInOut(Map<Long, SingleCarparkInOutHistory> childCarparkInOut) {
 		this.childCarparkInOut = childCarparkInOut;
+	}
+	public void setStroeFrees(List<SingleCarparkStoreFreeHistory> stroeFrees) {
+		this.stroeFrees=stroeFrees;
+	}
+	public List<SingleCarparkStoreFreeHistory> getStroeFrees() {
+		return stroeFrees;
+	}
+	public void setUser(SingleCarparkUser user) {
+		this.user=user;
+	}
+	public SingleCarparkUser getUser() {
+		return user;
 	}
 
 }

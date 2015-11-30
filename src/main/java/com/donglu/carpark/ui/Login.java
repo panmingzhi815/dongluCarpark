@@ -353,9 +353,9 @@ public class Login {
 		FileChannel channel = null;
 		FileLock tryLock = null;
 		try {
+			shell.setVisible(false);
 			String loginApp = combo.getText();
 			if (type.equals("操作员")) {
-				shell.setVisible(false);
 
 				//
 				file = new File(MONITOR_TEMP);
@@ -371,7 +371,6 @@ public class Login {
 				app = carparkMainApp;
 				app.open();
 			} else {
-				shell.setVisible(false);
 				if (loginApp.equals("监控界面")) {
 					file = new File(MONITOR_TEMP);
 					if (file.exists()) {

@@ -103,4 +103,11 @@ public interface CarparkInOutServiceI {
 	List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName);
 
 	List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut(Long carparkId,String plateNO, Date inTime, Date outTime);
+	/**
+	 * 查找自动停车场的指定车牌的为出场纪录
+	 * @param id
+	 * @param pn
+	 * @return
+	 */
+	List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(Long id, String pn);
 }

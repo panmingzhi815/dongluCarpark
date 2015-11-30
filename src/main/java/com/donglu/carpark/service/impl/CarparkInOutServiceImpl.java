@@ -638,4 +638,19 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}
 	}
 
+	@Override
+	public List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(Long id, String plateNO) {
+		unitOfWork.begin();
+		try {
+			DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plateNO));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), id));
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
 }

@@ -91,18 +91,22 @@ public class UserView extends Composite implements View{
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String text = text_willOverdue.getText();
-				int parseInt=0;
 				try {
-					parseInt = Integer.parseInt(text);
-				} catch (NumberFormatException e1) {
+					String text = text_willOverdue.getText();
+					int parseInt=0;
+					try {
+						parseInt = Integer.parseInt(text);
+					} catch (NumberFormatException e1) {
+					}
+					
+					String text2 = combo.getText();
+					if (text2.equals("全部")) {
+						text2=null;
+					}
+					getPresenter().search(text_name.getText(), text_plateNO.getText(),parseInt,text2);
+				} catch (Exception e1) {
+					e1.printStackTrace();
 				}
-				
-				String text2 = combo.getText();
-				if (text2.equals("全部")) {
-					text2=null;
-				}
-				getPresenter().search(text_name.getText(), text_plateNO.getText(),parseInt,text2);
 			}
 		});
 		button.setText("查询");

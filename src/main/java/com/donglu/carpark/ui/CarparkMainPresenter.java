@@ -59,6 +59,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
@@ -203,6 +204,7 @@ public class CarparkMainPresenter {
 			SingleCarparkDevice singleCarparkDevice2 = map.get(linkAddress);
 			if (StrUtil.isEmpty(singleCarparkDevice2)) {
 				map.put(linkAddress, singleCarparkDevice);
+				CarparkMainApp.mapIsTwoChanel.put(linkAddress, false);
 			}else{
 				CarparkMainApp.mapIsTwoChanel.put(linkAddress, true);
 			}
@@ -630,7 +632,24 @@ public class CarparkMainPresenter {
 //		} catch (Exception e1) {
 //			e1.printStackTrace();
 //		}
-		
+		Float money=0F;//免费金额
+		Float hour=0F;//免费时间
+		//查找优惠信息
+		List<SingleCarparkStoreFreeHistory>  findByPlateNO= sp.getStoreService().findByPlateNO(0, Integer.MAX_VALUE, null, model.getPlateNo(), "未使用", startTime, endTime);
+		if (!StrUtil.isEmpty(findByPlateNO)) {
+			for (SingleCarparkStoreFreeHistory free : findByPlateNO) {
+				if (!StrUtil.isEmpty(free.getFreeHour())) {
+					hour+=free.getFreeHour();
+				}
+				if (!StrUtil.isEmpty(free.getFreeMoney())) {
+					money+=free.getFreeMoney();
+				}
+			}
+		}
+		LOGGER.info("车牌{}在时间{}-{}内优惠金额{}元，优惠时间{}小时",model.getPlateNo(),startTime,endTime,money,hour);
+		model.setStroeFrees(findByPlateNO);
+		//变更收费时间
+		startTime=new DateTime(startTime).plusHours(hour.intValue()).plusMinutes(Float.valueOf((hour%1F)).intValue()).toDate();
 		try {
 			float calculateTempCharge = 0;
 			int minute=0;
@@ -660,13 +679,13 @@ public class CarparkMainPresenter {
 				}
 			}
 			
-			return calculateTempCharge;
+			return calculateTempCharge-money<0?0:calculateTempCharge-money;
 		} catch (Exception e) {
 			LOGGER.error("计算收费是发生错误",e);
 			return 0;
 		}
 	}
-
+	
 	/**
 	 * 换班
 	 */
@@ -914,6 +933,11 @@ public class CarparkMainPresenter {
 	public boolean chargeCarPass(SingleCarparkDevice device, SingleCarparkInOutHistory singleCarparkInOutHistory, boolean check) {
 
 		try {
+			if (!StrUtil.isEmpty(model.getUser())) {
+				SingleCarparkUser user = model.getUser();
+				user.setTempCarTime(CarparkUtils.removeString(user.getTempCarTime(),model.getInTime()));
+				sp.getCarparkUserService().saveUser(user);
+			}
 			Float shouldMoney = model.getShouldMony();
 			float factMoney = model.getReal();
 			if (factMoney > shouldMoney) {
@@ -948,6 +972,13 @@ public class CarparkMainPresenter {
 			} else {
 				showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
 			}
+			if (!StrUtil.isEmpty(model.getStroeFrees())) {
+				for (SingleCarparkStoreFreeHistory free : model.getStroeFrees()) {
+					free.setUsed("已使用");
+					sp.getStoreService().saveStoreFree(free);
+				}
+			}
+			model.setStroeFrees(null);
 			model.setBtnClick(false);
 			model.setHandSearch(false);
 			model.setComboCarTypeEnable(false);

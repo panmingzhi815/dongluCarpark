@@ -77,7 +77,7 @@ public class StoreServlet extends HttpServlet{
 		}
 		else if (method.equals("searchPay")) {
 			searchPay(req,resp);
-		}
+		}else
 		logger.error("没有找到方法为{}的方法",method);
 	}
 
@@ -148,7 +148,7 @@ public class StoreServlet extends HttpServlet{
 			StoreServiceI storeService = sp.getStoreService();
 			Grid grid = new Grid();
 			grid.setTotal(storeService.countByPlateNO(storeName,plateNO, used, start, end));
-			grid.setRows(storeService.findByPlateNO(Integer.parseInt(map.get("page")[0]), Integer.parseInt(map.get("rows")[0]),storeName, plateNO, used, start, end));
+			grid.setRows(storeService.findByPlateNO(Integer.parseInt(map.get("page")[0])-1, Integer.parseInt(map.get("rows")[0]),storeName, plateNO, used, start, end));
 			writeJson(grid, req, resp);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -238,7 +238,7 @@ public class StoreServlet extends HttpServlet{
 			if (!StrUtil.isEmpty(store)) {
 				json.setSuccess(true);
 				json.setObj(store);
-				req.getRequestDispatcher(req.getContextPath()+"loginsuccess.jsp?userName="+store.getLoginName()+"&storeName="+store.getStoreName()+"").forward(req, resp);
+//				req.getRequestDispatcher(req.getContextPath()+"loginsuccess.jsp?userName="+store.getLoginName()+"&storeName="+store.getStoreName()+"").forward(req, resp);
 			}else{
 				json.setMsg("用户名或密码错误");
 				writeJson(json, req, resp);

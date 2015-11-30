@@ -137,17 +137,21 @@ public class InOutHistoryView extends Composite implements View{
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (!rateLimiter.tryAcquire()) {
-					return;
+				try {
+					if (!rateLimiter.tryAcquire()) {
+						return;
+					}
+					SingleCarparkCarpark singleCarparkCarpark = model.getListCarpark().get(comboViewer.getCombo().getSelectionIndex());
+					String text = combo_1.getText();
+					if (text.equals("全部")) {
+						text=null;
+					}
+					getPresenter().search(text_plateNO.getText(),text_userName.getText(),dateTime.getSelection(),dt_end.getSelection(),
+							text,combo_carType.getText(),combo_inorout.getText(),text_inDevice.getText(),
+							text_outDevice.getText(),text_returnAccount.getText(),singleCarparkCarpark,comboViewer_2.getCombo().getText());
+				} catch (Exception e1) {
+					e1.printStackTrace();
 				}
-				SingleCarparkCarpark singleCarparkCarpark = model.getListCarpark().get(comboViewer.getCombo().getSelectionIndex());
-				String text = combo_1.getText();
-				if (text.equals("全部")) {
-					text=null;
-				}
-				getPresenter().search(text_plateNO.getText(),text_userName.getText(),dateTime.getSelection(),dt_end.getSelection(),
-						text,combo_carType.getText(),combo_inorout.getText(),text_inDevice.getText(),
-						text_outDevice.getText(),text_returnAccount.getText(),singleCarparkCarpark,comboViewer_2.getCombo().getText());
 			}
 		});
 		button.setText("查询");

@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui.task;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -249,9 +250,9 @@ public class CarInTask implements Runnable {
 
 			model.setHistory(cch);
 			LOGGER.debug("查找是否为固定车");
-			List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO,device.getCarpark().getId());
-			SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo.get(0);
-
+			SingleCarparkUser findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO,device.getCarpark().getId());
+			SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo;
+			
 			String carType = "临时车";
 
 			if (!StrUtil.isEmpty(user)) {
@@ -280,8 +281,8 @@ public class CarInTask implements Runnable {
 				// }
 				// }
 				if (flag) {
-					List<SingleCarparkUser> findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(editPlateNo,device.getCarpark().getId());
-					SingleCarparkUser singleCarparkUser = StrUtil.isEmpty(findUserByPlateNo) ? null : findUserByPlateNo.get(0);
+					SingleCarparkUser findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(editPlateNo,device.getCarpark().getId());
+					SingleCarparkUser singleCarparkUser = StrUtil.isEmpty(findUserByPlateNo) ? null : findUserByPlateNo;
 					if (StrUtil.isEmpty(singleCarparkUser)) {
 						LOGGER.debug("判断是否允许临时车进");
 						if (device.getCarpark().isTempCarIsIn()) {
@@ -326,8 +327,8 @@ public class CarInTask implements Runnable {
 					}
 				}
 				if (flag) {
-					List<SingleCarparkUser> findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(editPlateNo,device.getCarpark().getId());
-					SingleCarparkUser singleCarparkUser = StrUtil.isEmpty(findUserByPlateNo) ? null : findUserByPlateNo.get(0);
+					SingleCarparkUser findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(editPlateNo,device.getCarpark().getId());
+					SingleCarparkUser singleCarparkUser = StrUtil.isEmpty(findUserByPlateNo) ? null : findUserByPlateNo;
 					if (StrUtil.isEmpty(singleCarparkUser)) {
 						LOGGER.debug("判断是否允许临时车进");
 						if (device.getCarpark().isTempCarIsIn()) {
@@ -413,6 +414,25 @@ public class CarInTask implements Runnable {
 	 * @return 是否需要退出
 	 */
 	public boolean fixCarShowToDevice(Date date, SingleCarparkDevice device, SingleCarparkUser user) throws Exception {
+		Boolean valueOf2 = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费)==null?"false":mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));
+		List<SingleCarparkInOutHistory> list=new ArrayList<>();
+		String[] plateNos = user.getPlateNo().split(",");
+		for (String pn : plateNos) {
+			List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut = sp.getCarparkInOutService().findInOutHistoryByCarparkAndPlateNO(user.getCarpark().getId(), pn);
+			list.addAll(findHistoryByChildCarparkInOut);
+		}
+		if (valueOf2) {
+			if (Integer.valueOf(user.getCarparkNo())<=list.size()) {
+				setFixCarToTemIn(date, user);
+				LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，作临时车进入",valueOf2,user.getCarparkNo(),list.size());
+			}
+		}else{
+			if (Integer.valueOf(user.getCarparkNo())<=list.size()) {
+				LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，不允许进入",valueOf2,user.getCarparkNo(),list.size());
+				return true;
+			}
+		}
+		
 		if (user.getType().equals("免费")) {
 			Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场));
 			if (!valueOf) {
@@ -446,6 +466,15 @@ public class CarInTask implements Runnable {
 			LOGGER.info("固定车：{}，{}", plateNO, content);
 		}
 		return false;
+	}
+
+	/**
+	 * @param date
+	 * @param user
+	 */
+	private synchronized void setFixCarToTemIn(Date date, SingleCarparkUser user) {
+		user.setTempCarTime((StrUtil.isEmpty(user.getTempCarTime())?"":user.getTempCarTime()+",")+StrUtil.formatDate(date, StrUtil.DATETIME_PATTERN));
+		sp.getCarparkUserService().saveUser(user);
 	}
 
 	public String getPlateNO() {

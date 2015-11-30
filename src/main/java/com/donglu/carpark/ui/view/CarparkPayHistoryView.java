@@ -88,11 +88,15 @@ public class CarparkPayHistoryView extends Composite implements View {
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String text = comboViewer.getCombo().getText();
-				if (text.equals("全部")) {
-					text = null;
+				try {
+					String text = comboViewer.getCombo().getText();
+					if (text.equals("全部")) {
+						text = null;
+					}
+					getPresenter().searchCharge(text_pay_userName.getText(), text, dateChooserCombo.getValue(), dateChooserCombo_1.getValue());
+				} catch (Exception e1) {
+					e1.printStackTrace();
 				}
-				getPresenter().searchCharge(text_pay_userName.getText(), text, dateChooserCombo.getValue(), dateChooserCombo_1.getValue());
 			}
 		});
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

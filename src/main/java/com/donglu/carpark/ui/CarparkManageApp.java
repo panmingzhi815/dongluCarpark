@@ -738,6 +738,20 @@ public class CarparkManageApp extends AbstractApp{
 		button_11.setText("出场收费时是否需要确认");
 		button_11.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行)==null?SystemSettingTypeEnum.出场确认放行.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行)));
 		
+		Button button_13 = new Button(group_4, SWT.CHECK);
+		button_13.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.固定车车位满作临时车计费,button_13.getSelection()+"");
+			}
+		});
+		button_13.setToolTipText("选择之后，固定用户车位停满后再进车就会当作临时车计费，否则固定车车位满就不允许进入");
+		button_13.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_13.setText("固定车车位满作临时车计费");
+		button_13.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费)==null?SystemSettingTypeEnum.固定车车位满作临时车计费.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费)));
+		new Label(group_4, SWT.NONE);
+		new Label(group_4, SWT.NONE);
+		
 		Composite composite_6 = new Composite(group_4, SWT.NONE);
 		composite_6.setLayout(new GridLayout(3, false));
 		composite_6.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));

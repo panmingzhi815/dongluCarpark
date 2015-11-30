@@ -487,4 +487,23 @@ public class CarparkUtils {
 		}
 		return string;
 	}
+	/**
+	 * 移除逗号连接的字符串中的一段
+	 * @param source
+	 * @param move
+	 * @return
+	 */
+	public static String removeString(String source, String move) {
+		try {
+			int flag=0;
+			int beginIndex = source.indexOf(move)+move.length();
+			if (beginIndex<source.length()) {
+				flag++;
+			}
+			return source.substring(beginIndex+flag);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
 }
