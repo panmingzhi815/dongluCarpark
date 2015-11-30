@@ -120,6 +120,8 @@ public class Login {
 	@Inject
 	private CommonUIFacility commonui;
 
+	private Button btn_login;
+
 	/**
 	 * Launch the application.
 	 * 
@@ -201,10 +203,16 @@ public class Login {
 		shell.setLayout(gridLayout);
 
 		Composite composite_2 = new Composite(shell, SWT.NONE);
-		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
-		composite_2.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1));
+		GridLayout gl_composite_2 = new GridLayout(1, false);
+		gl_composite_2.marginHeight = 0;
+		gl_composite_2.marginWidth = 0;
+		gl_composite_2.verticalSpacing = 0;
+		gl_composite_2.horizontalSpacing = 0;
+		composite_2.setLayout(gl_composite_2);
+		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 
 		lbl_msg = new Label(composite_2, SWT.NONE);
+		lbl_msg.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		lbl_msg.setAlignment(SWT.CENTER);
 		lbl_msg.setFont(SWTResourceManager.getFont("微软雅黑", 16, SWT.BOLD));
 		lbl_msg.setText("停车场用户登录");
@@ -276,17 +284,18 @@ public class Login {
 		composite_1.setLayout(new GridLayout(3, false));
 		composite_1.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1));
 
-		Button button = new Button(composite_1, SWT.NONE);
-		button.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
-		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button.addSelectionListener(new SelectionAdapter() {
+		btn_login = new Button(composite_1, SWT.NONE);
+		btn_login.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		btn_login.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		btn_login.addSelectionListener(new SelectionAdapter() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				btn_login.setEnabled(false);
 				login();
 			}
 		});
-		button.setText("登录");
+		btn_login.setText("登录");
 
 		Button button_1 = new Button(composite_1, SWT.NONE);
 		button_1.addSelectionListener(new SelectionAdapter() {
@@ -315,110 +324,119 @@ public class Login {
 	 * 
 	 */
 	public void login() {
-		String userName = null;
-		String pwd = null;
-		String type = null;
-		long nanoTime = System.nanoTime();
-		try {
-			if (!check()) {
-				return;
-			}
-			sp.start();
-			
-			LOGGER.info("服务启动花费时间{}",System.nanoTime()-nanoTime);
-			autoDeletePhoto();
-			if (Boolean.valueOf(System.getProperty(CHECK_SOFT_DOG) == null ? "true" : "false")) {
-				checkSoftDog();
-			}
+		new Thread(new Runnable() {
+			public void run() {
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						String userName = null;
+						String pwd = null;
+						String type = null;
+						long nanoTime = System.nanoTime();
+						try {
+							if (!check()) {
+								return;
+							}
+							sp.start();
 
-			SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(txt_userName.getText(), txt_password.getText());
-			if (StrUtil.isEmpty(findByNameAndPassword)) {
-				commonui.error("提示", "用户名或密码错误！");
-				return;
-			}
-			userName = findByNameAndPassword.getUserName();
-			pwd = findByNameAndPassword.getPassword();
-			type = findByNameAndPassword.getType();
-			System.setProperty("userName", userName);
-			System.setProperty("password", pwd);
-			System.setProperty("userType", type);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			lbl_msg.setText(e1.getMessage());
-			return;
-		}
-		LOGGER.info("用户验证花费时间{}",System.nanoTime()-nanoTime);
-		File file = null;
-		RandomAccessFile raf = null;
-		FileChannel channel = null;
-		FileLock tryLock = null;
-		try {
-			shell.setVisible(false);
-			String loginApp = combo.getText();
-			if (type.equals("操作员")) {
+							LOGGER.info("服务启动花费时间{}", System.nanoTime() - nanoTime);
+							autoDeletePhoto();
+							if (Boolean.valueOf(System.getProperty(CHECK_SOFT_DOG) == null ? "true" : "false")) {
+								checkSoftDog();
+							}
 
-				//
-				file = new File(MONITOR_TEMP);
-				if (file.exists()) {
-					commonui.error("错误", "已经打开了监控界面");
-					return;
-				}
-				file.createNewFile();
-				raf = new RandomAccessFile(file, "rw");
-				channel = raf.getChannel();
-				tryLock = channel.tryLock();
-				//
-				app = carparkMainApp;
-				app.open();
-			} else {
-				if (loginApp.equals("监控界面")) {
-					file = new File(MONITOR_TEMP);
-					if (file.exists()) {
-						commonui.error("错误", "已经打开了监控界面");
-						return;
+							SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(txt_userName.getText(), txt_password.getText());
+							if (StrUtil.isEmpty(findByNameAndPassword)) {
+								commonui.error("提示", "用户名或密码错误！");
+								btn_login.setEnabled(true);
+								return;
+							}
+							userName = findByNameAndPassword.getUserName();
+							pwd = findByNameAndPassword.getPassword();
+							type = findByNameAndPassword.getType();
+							System.setProperty("userName", userName);
+							System.setProperty("password", pwd);
+							System.setProperty("userType", type);
+						} catch (Exception e1) {
+							e1.printStackTrace();
+							lbl_msg.setText(e1.getMessage());
+							return;
+						}
+						LOGGER.info("用户验证花费时间{}", System.nanoTime() - nanoTime);
+						File file = null;
+						RandomAccessFile raf = null;
+						FileChannel channel = null;
+						FileLock tryLock = null;
+						try {
+							shell.setVisible(false);
+							String loginApp = combo.getText();
+							if (type.equals("操作员")) {
+								//
+								file = new File(MONITOR_TEMP);
+								if (file.exists()) {
+									commonui.error("错误", "已经打开了监控界面");
+									return;
+								}
+								file.createNewFile();
+								raf = new RandomAccessFile(file, "rw");
+								channel = raf.getChannel();
+								tryLock = channel.tryLock();
+								//
+								app = carparkMainApp;
+								app.open();
+							} else {
+								if (loginApp.equals("监控界面")) {
+									file = new File(MONITOR_TEMP);
+									if (file.exists()) {
+										commonui.error("错误", "已经打开了监控界面");
+										return;
+									}
+									file.createNewFile();
+									raf = new RandomAccessFile(file, "rw");
+									channel = raf.getChannel();
+									tryLock = channel.tryLock();
+									app = carparkMainApp;
+									app.open();
+								} else if (loginApp.equals("管理界面")) {
+									file = new File(SYSTEM_TEMP);
+									if (file.exists()) {
+										commonui.error("错误", "已经打开了管理界面");
+										return;
+									}
+									file.createNewFile();
+									raf = new RandomAccessFile(file, "rw");
+									channel = raf.getChannel();
+									tryLock = channel.tryLock();
+
+									app = carparkManageApp;
+									app.open();
+								}
+							}
+							LOGGER.info("界面打开花费时间{}", System.nanoTime() - nanoTime);
+						} catch (Exception e) {
+							LOGGER.error("main is error" + "界面出错=======", e);
+							// app.disponse();
+							// app.setShell(new Shell());
+							// app.open();
+							// shell.setVisible(true);
+
+						} finally {
+							try {
+								tryLock.release();
+								raf.close();
+								boolean delete = false;
+								while (!delete) {
+									delete = file.delete();
+								}
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+							System.exit(0);
+						}
 					}
-					file.createNewFile();
-					raf = new RandomAccessFile(file, "rw");
-					channel = raf.getChannel();
-					tryLock = channel.tryLock();
-					app = carparkMainApp;
-					app.open();
-				} else if (loginApp.equals("管理界面")) {
-					file = new File(SYSTEM_TEMP);
-					if (file.exists()) {
-						commonui.error("错误", "已经打开了管理界面");
-						return;
-					}
-					file.createNewFile();
-					raf = new RandomAccessFile(file, "rw");
-					channel = raf.getChannel();
-					tryLock = channel.tryLock();
-
-					app = carparkManageApp;
-					app.open();
-				}
+				});
 			}
-			LOGGER.info("界面打开花费时间{}",System.nanoTime()-nanoTime);
-		} catch (Exception e) {
-			LOGGER.error("main is error" + "界面出错=======", e);
-			// app.disponse();
-			// app.setShell(new Shell());
-			// app.open();
-			// shell.setVisible(true);
-
-		} finally {
-			try {
-				tryLock.release();
-				raf.close();
-				boolean delete = false;
-				while (!delete) {
-					delete = file.delete();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			System.exit(0);
-		}
+		}).start();
 	}
 
 	protected boolean check() {
