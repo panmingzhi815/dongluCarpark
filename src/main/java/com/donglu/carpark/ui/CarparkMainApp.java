@@ -1124,7 +1124,15 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		comboViewer.setLabelProvider(new LabelProvider());
 		List<String> listCarType = new ArrayList<>();
 		listCarType.add("请选择车型");
-		listCarType.addAll(mapTempCharge.keySet());
+		if (!StrUtil.isEmpty(mapTempCharge.get("大车"))) {
+			listCarType.add("大车");
+		}
+		if (!StrUtil.isEmpty(mapTempCharge.get("小车"))) {
+			listCarType.add("小车");
+		}
+		if (!StrUtil.isEmpty(mapTempCharge.get("摩托车"))) {
+			listCarType.add("摩托车");
+		}
 		comboViewer.setInput(listCarType);
 		carTypeSelectCombo.select(0);
 

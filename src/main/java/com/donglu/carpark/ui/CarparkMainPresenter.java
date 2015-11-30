@@ -899,9 +899,6 @@ public class CarparkMainPresenter {
 		if (!chargeCarPass(device, data, carOutChargeCheck)) {
 			return;
 		}
-		model.setComboCarTypeEnable(false);
-		model.setChargeDevice(null);
-		model.setChargeHistory(null);
 	}
 	
 	/**
@@ -915,12 +912,9 @@ public class CarparkMainPresenter {
 			return;
 		}
 		model.setReal(0);
-		if (chargeCarPass(device, data, carOutChargeCheck)) {
+		if (!chargeCarPass(device, data, carOutChargeCheck)) {
 			return;
 		}
-		model.setComboCarTypeEnable(false);
-		model.setChargeDevice(null);
-		model.setChargeHistory(null);
 	}
 	
 	/**

@@ -36,6 +36,7 @@ import com.donglu.carpark.server.json.Tree;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.StoreServiceI;
 import com.donglu.carpark.ui.CarparkMainApp;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStore;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreChargeHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
@@ -237,7 +238,10 @@ public class StoreServlet extends HttpServlet{
 			//!StrUtil.isEmpty(store)
 			if (!StrUtil.isEmpty(store)) {
 				json.setSuccess(true);
-				json.setObj(store);
+				SessionInfo info=new SessionInfo();
+				info.setStoreName(CarparkUtils.encod(store.getStoreName()));
+				info.setLoginName(CarparkUtils.encod(store.getLoginName()));
+				json.setObj(info);
 //				req.getRequestDispatcher(req.getContextPath()+"loginsuccess.jsp?userName="+store.getLoginName()+"&storeName="+store.getStoreName()+"").forward(req, resp);
 			}else{
 				json.setMsg("用户名或密码错误");

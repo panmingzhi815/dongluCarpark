@@ -3,9 +3,11 @@ package com.donglu.carpark.util;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -51,6 +53,8 @@ public class CarparkUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CarparkUtils.class);
 	
 	public static final String PLATENO_REGEX="^[\u4e00-\u9fa5][A-Za-z0-9]{6}$";
+
+	private static final String defaultKey = "donglucarpark";
 	public static List<String> splitPlateNO(String plateNo){
 		if (StrUtil.isEmpty(plateNo)) {
 			return new ArrayList<>();
@@ -504,6 +508,30 @@ public class CarparkUtils {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "";
+		}
+	}
+	public static String encod(String s) {
+		try {
+			String ss = Base64.getEncoder().encodeToString(s.getBytes("utf-8"));
+			ss=StrUtil.StringXor(ss, defaultKey);
+			String sss = Base64.getEncoder().encodeToString(ss.getBytes("utf-8"));
+			return sss;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	public static String decod(String s) {
+		try {
+			byte[] decode2 = Base64.getDecoder().decode(s);
+			String ss = new String(decode2,"utf-8");
+			ss=StrUtil.StringXor(ss, defaultKey);
+			byte[] decode = Base64.getDecoder().decode(ss);
+			String string = new String(decode,"utf-8");
+			return string;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 }

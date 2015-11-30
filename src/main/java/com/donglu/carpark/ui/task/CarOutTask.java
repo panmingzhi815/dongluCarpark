@@ -1,6 +1,8 @@
 package com.donglu.carpark.ui.task;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -94,14 +96,13 @@ public class CarOutTask implements Runnable{
 		this.rightSize=rightSize;
 	}
 	public static void main(String[] args) {
-		String s="2015-11-30 08:44:46,2015-11-30 08:47:10,2015-11-30 08:55:06,2015-11-30 08:55:10,2015-11-30 08:55:12";
-		String t="2015-11-30 08:55:12";
-		int flag=0;
-		int beginIndex = s.indexOf(t)+t.length();
-		if (beginIndex<s.length()) {
-			flag++;
+		try {
+			String s="东陆高新";
+			System.out.println(CarparkUtils.encod(s));
+			System.out.println(CarparkUtils.decod(CarparkUtils.encod(s)));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		System.out.println(s.substring(beginIndex+flag));
 	}
 	public void run(){
 		try {
@@ -347,6 +348,7 @@ public class CarOutTask implements Runnable{
 		//
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(nowPlateNO, device.getCarpark());
+		SingleCarparkInOutHistory singleCarparkInOutHistory = findByNoCharge.get(0);
 		Date validTo = user.getValidTo();
 		Integer delayDays = user.getDelayDays() == null ? 0 : user.getDelayDays();
 
@@ -359,7 +361,13 @@ public class CarOutTask implements Runnable{
 			presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
 			LOGGER.info("车辆:{}已到期", nowPlateNO);
 			if (Boolean.valueOf(getSettingValue(mapSystemSetting,SystemSettingTypeEnum.固定车到期变临时车))) {
-				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg,null);
+				Date d=null;
+				if (singleCarparkInOutHistory.getInTime().before(validTo)) {
+					d=validTo;
+				}else{
+					d=singleCarparkInOutHistory.getInTime();
+				}
+				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg,d);
 			}
 			return true;
 		} else {
@@ -374,7 +382,6 @@ public class CarOutTask implements Runnable{
 			}
 		}
 
-		SingleCarparkInOutHistory singleCarparkInOutHistory = findByNoCharge.get(0);
 		model.setPlateNo(nowPlateNO);
 		model.setCarType(carType);
 		model.setOutTime(date);
@@ -408,7 +415,7 @@ public class CarOutTask implements Runnable{
 	/**
 	 * @return
 	 */
-	private String getSettingValue(Map<?,?> map,SystemSettingTypeEnum type) {
+	private String getSettingValue(Map<SystemSettingTypeEnum,String> map,SystemSettingTypeEnum type) {
 		return map.get(type)==null?type.getDefaultValue():mapSystemSetting.get(type);
 	}
 
@@ -468,8 +475,9 @@ public class CarOutTask implements Runnable{
 					model.setComboCarTypeEnable(true);
 					CarparkUtils.setFocus(carTypeSelectCombo);
 					model.setSelectCarType(true);
-					CarparkUtils.setComboSelect(carTypeSelectCombo, 0);
-					while (!model.isBtnClick()) {
+					CarparkUtils.setComboSelect(carTypeSelectCombo, 2);
+					Boolean autoSelectCarType = Boolean.valueOf(getSettingValue(mapSystemSetting, SystemSettingTypeEnum.自动识别出场车辆类型));
+					while (!autoSelectCarType&&!model.isBtnClick()) {
 						try {
 							if (model.getDisContinue()) {
 								return;
@@ -477,6 +485,19 @@ public class CarOutTask implements Runnable{
 							Thread.sleep(500);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+						}
+					}
+					//自动识别大车小车
+					if (autoSelectCarType) {
+						if (!StrUtil.isEmpty(model.getOutPlateNOColor())) {
+							boolean b = !StrUtil.isEmpty(mapTempCharge.get("大车"));
+							if (model.getOutPlateNOColor().equals("黄")&&b) {
+								model.setCarparkCarType("大车");
+								CarparkUtils.setComboSelect(carTypeSelectCombo, 1);
+							}else{
+								model.setCarparkCarType("小车");
+								CarparkUtils.setComboSelect(carTypeSelectCombo, 2);
+							}
 						}
 					}
 					carType = getCarparkCarType(model.getCarparkCarType());
