@@ -1623,4 +1623,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		//
 		return bindingContext;
 	}
+	@Override
+	public void invok(String ip, int channel, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize,String plateColor) {
+		model.setOutPlateNOColor(plateColor);
+		invok(ip, channel, plateNO, bigImage, smallImage, rightSize);
+	}
 }

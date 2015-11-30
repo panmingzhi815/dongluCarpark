@@ -749,7 +749,11 @@ public class CarparkManageApp extends AbstractApp{
 		button_13.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_13.setText("固定车车位满作临时车计费");
 		button_13.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费)==null?SystemSettingTypeEnum.固定车车位满作临时车计费.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费)));
-		new Label(group_4, SWT.NONE);
+		
+		Button button_14 = new Button(group_4, SWT.CHECK);
+		button_14.setToolTipText("选中时，自动把黄牌车识别为大车，其他为小车");
+		button_14.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_14.setText("自动识别出场车辆类型");
 		new Label(group_4, SWT.NONE);
 		
 		Composite composite_6 = new Composite(group_4, SWT.NONE);

@@ -358,7 +358,7 @@ public class CarOutTask implements Runnable{
 		if (StrUtil.getTodayBottomTime(time).before(date)) {
 			presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
 			LOGGER.info("车辆:{}已到期", nowPlateNO);
-			if (Boolean.valueOf(getSettingValue())) {
+			if (Boolean.valueOf(getSettingValue(mapSystemSetting,SystemSettingTypeEnum.固定车到期变临时车))) {
 				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg,null);
 			}
 			return true;
@@ -408,8 +408,8 @@ public class CarOutTask implements Runnable{
 	/**
 	 * @return
 	 */
-	private String getSettingValue() {
-		return mapSystemSetting.get(SystemSettingTypeEnum.固定车到期变临时车)==null?SystemSettingTypeEnum.固定车到期变临时车.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.固定车到期变临时车);
+	private String getSettingValue(Map<?,?> map,SystemSettingTypeEnum type) {
+		return map.get(type)==null?type.getDefaultValue():mapSystemSetting.get(type);
 	}
 
 	private void tempCarOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg, Date reviseInTime) throws Exception{

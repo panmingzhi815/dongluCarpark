@@ -119,6 +119,8 @@ public class CarparkMainModel extends DomainObject{
 	private List<SingleCarparkStoreFreeHistory> stroeFrees;
 
 	private SingleCarparkUser user;
+
+	private String outPlateNOColor;
 	
 	public String getUserName() {
 		return userName;
@@ -491,6 +493,12 @@ public class CarparkMainModel extends DomainObject{
 	}
 	public SingleCarparkUser getUser() {
 		return user;
+	}
+	public void setOutPlateNOColor(String outPlateNOColor) {
+		this.outPlateNOColor=outPlateNOColor;
+	}
+	public String getOutPlateNOColor() {
+		return outPlateNOColor;
 	}
 
 }
