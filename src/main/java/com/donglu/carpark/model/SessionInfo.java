@@ -14,6 +14,7 @@ public class SessionInfo implements java.io.Serializable {
 	private String loginName;
 	private String loginPassword;
 	private String storeName;
+	private String userName;
 	
 	public String getLoginName() {
 		return loginName;
@@ -37,5 +38,13 @@ public class SessionInfo implements java.io.Serializable {
 
 	public void setStoreName(String storeName) {
 		this.storeName = storeName;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 }

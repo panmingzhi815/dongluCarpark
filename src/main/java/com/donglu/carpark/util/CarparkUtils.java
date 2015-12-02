@@ -510,6 +510,11 @@ public class CarparkUtils {
 			return "";
 		}
 	}
+	/**
+	 * 家码
+	 * @param s
+	 * @return
+	 */
 	public static String encod(String s) {
 		try {
 			String ss = Base64.getEncoder().encodeToString(s.getBytes("utf-8"));
@@ -521,6 +526,11 @@ public class CarparkUtils {
 			return null;
 		}
 	}
+	/**
+	 * 解码
+	 * @param s
+	 * @return
+	 */
 	public static String decod(String s) {
 		try {
 			byte[] decode2 = Base64.getDecoder().decode(s);

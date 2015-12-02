@@ -44,6 +44,8 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 public class StoreServlet extends HttpServlet{
+	private static final String STORE_SESSION = "storeSession";
+
 	private Logger logger = LoggerFactory.getLogger(CarparkMainApp.class);
 	
 	/**
@@ -78,8 +80,30 @@ public class StoreServlet extends HttpServlet{
 		}
 		else if (method.equals("searchPay")) {
 			searchPay(req,resp);
-		}else
+		}else if (method.equals("getFreeById")) {
+			getFreeById(req,resp);
+		}
 		logger.error("没有找到方法为{}的方法",method);
+	}
+
+
+	private void getFreeById(HttpServletRequest req, HttpServletResponse resp) {
+		SingleCarparkStoreFreeHistory free = null;
+		try {
+			String id = req.getParameter("id");
+			if (StrUtil.isEmpty(id)) {
+				return;
+			}
+			String storeName = req.getParameter("storeName");
+			if (StrUtil.isEmpty(storeName)) {
+				return;
+			}
+			StoreServiceI storeService = sp.getStoreService();
+			free = storeService.findStoreFreeById(Long.valueOf(id));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		writeJson(free, req, resp);
 	}
 
 
@@ -107,10 +131,22 @@ public class StoreServlet extends HttpServlet{
 
 	private void searchPay(HttpServletRequest req, HttpServletResponse resp) {
 		try {
+			HttpSession session = req.getSession();
+			System.out.println("qqqqqqqqqqqqq"+session);
 			System.out.println("searchPay");
 			sp.start();
+			StoreServiceI storeService = sp.getStoreService();
 			
 			Map<String, String[]> map = req.getParameterMap();
+			String storeName = map.get("storeName")==null?null:map.get("storeName")[0];
+			if (StrUtil.isEmpty(storeName)) {
+				throw new Exception("没有找到商铺信息");
+			}
+			storeName=CarparkUtils.decod(storeName);
+			List<SingleCarparkStore> findStoreByCondition = storeService.findStoreByCondition(0, Integer.MAX_VALUE, storeName);
+			if (StrUtil.isEmpty(findStoreByCondition)) {
+				throw new Exception("商铺信息不正确");
+			}
 			String[] operaNames = map.get("searchOperaName");
 			String[] startTimes = map.get("searchStartTime");
 			String[] endTimes = map.get("searchEndTime");
@@ -118,11 +154,9 @@ public class StoreServlet extends HttpServlet{
 			Date start = StrUtil.parse(startTimes==null?null:startTimes[0], "yyyy-MM-dd HH:mm:ss");
 			Date end = StrUtil.parse(endTimes==null?null:endTimes[0], "yyyy-MM-dd HH:mm:ss");
 			
-			StoreServiceI storeService = sp.getStoreService();
 			Grid grid = new Grid();
-			grid.setTotal(storeService.countStoreChargeHistoryByTime("",operaName,start,end));
-			List<SingleCarparkStoreChargeHistory> findStoreChargeHistoryByTime = storeService.findStoreChargeHistoryByTime(0,50,"",operaName,start,end);
-			System.out.println("======"+findStoreChargeHistoryByTime.size());
+			grid.setTotal(storeService.countStoreChargeHistoryByTime(storeName,operaName,start,end));
+			List<SingleCarparkStoreChargeHistory> findStoreChargeHistoryByTime = storeService.findStoreChargeHistoryByTime(0,50,storeName,operaName,start,end);
 			grid.setRows(findStoreChargeHistoryByTime);
 			writeJson(grid, req, resp);
 		} catch (Exception e) {
@@ -135,17 +169,17 @@ public class StoreServlet extends HttpServlet{
 		try {
 			sp.start();
 			Map<String, String[]> map = req.getParameterMap();
-			String[] operaNames = map.get("searchOperaName");
+			String[] storeNames = map.get("storeName");
 			String[] plateNOs = map.get("searchPlateNO");
 			String[] useds = map.get("searchUsed");
 			String[] startTimes = map.get("searchStartTime");
 			String[] endTimes = map.get("searchEndTime");
-			String operaName=operaNames==null?null:operaNames[0];
 			Date start = StrUtil.parse(startTimes==null?null:startTimes[0], "yyyy-MM-dd HH:mm:ss");
 			Date end = StrUtil.parse(endTimes==null?null:endTimes[0], "yyyy-MM-dd HH:mm:ss");
 			String plateNO = plateNOs==null?null:plateNOs[0];
 			String used = useds==null?null:useds[0];
-			String storeName="";
+			String storeName=storeNames==null?null:storeNames[0];
+			storeName=CarparkUtils.decod(storeName);
 			StoreServiceI storeService = sp.getStoreService();
 			Grid grid = new Grid();
 			grid.setTotal(storeService.countByPlateNO(storeName,plateNO, used, start, end));
@@ -194,23 +228,34 @@ public class StoreServlet extends HttpServlet{
 			sp.start();
 			StoreServiceI storeService = sp.getStoreService();
 			Map<String, String[]> map = req.getParameterMap();
+			String storeName=map.get("storeName")==null?null:map.get("storeName")[0];
+			storeName=CarparkUtils.decod(storeName);
+			if (StrUtil.isEmpty(storeName)) {
+				throw new Exception("没有找到商铺信息");
+			}
+			List<SingleCarparkStore> findStoreByCondition = storeService.findStoreByCondition(0, Integer.MAX_VALUE, storeName);
+			if (StrUtil.isEmpty(findStoreByCondition)) {
+				throw new Exception("商铺信息不正确");
+			}
 			String id=map.get("id")==null?null:map.get("id")[0];
 			String plateNo = map.get("plateNo")==null?null:map.get("plateNo")[0];
 			String hour = map.get("freehours")==null?null:map.get("freehours")[0];
 			String money=map.get("freeMoney")==null?null:map.get("freeMoney")[0];
 			System.out.println(plateNo+"===="+hour+"========="+money);
-			
 			SingleCarparkStoreFreeHistory free=new SingleCarparkStoreFreeHistory();
 			if (!StrUtil.isEmpty(id)) {
 				free=storeService.findStoreFreeById(Long.valueOf(id));
+				if (!free.getStoreName().equals(storeName)) {
+					throw new Exception("商铺信息不对应");
+				}
 			}else{
 				free.setCreateTime(new Date());
 				free.setUsed("未使用");
+				free.setStoreName(storeName);
 			}
 			free.setFreePlateNo(plateNo);
 			free.setFreeHour(hour==null?0:Float.valueOf(hour));
 			free.setFreeMoney(money==null?0:Float.valueOf(money));
-			
 			storeService.saveStoreFree(free);
 			json.setSuccess(true);
 			json.setMsg("保存成功！");
@@ -223,7 +268,7 @@ public class StoreServlet extends HttpServlet{
 	}
 
 	private void login(HttpServletRequest req, HttpServletResponse resp) {
-//		HttpSession session = req.getSession(true);
+//		HttpSession session = req.getSession();
 
 		Json json = new Json();
 		try {
@@ -237,21 +282,23 @@ public class StoreServlet extends HttpServlet{
 			SingleCarparkStore store = storeService.findByLogin(userName, password);
 			//!StrUtil.isEmpty(store)
 			if (!StrUtil.isEmpty(store)) {
+//				session.setAttribute(STORE_SESSION, store);
+//				session.setMaxInactiveInterval(1000*60*15);
 				json.setSuccess(true);
 				SessionInfo info=new SessionInfo();
 				info.setStoreName(CarparkUtils.encod(store.getStoreName()));
 				info.setLoginName(CarparkUtils.encod(store.getLoginName()));
+				info.setUserName(store.getUserName());
 				json.setObj(info);
 //				req.getRequestDispatcher(req.getContextPath()+"loginsuccess.jsp?userName="+store.getLoginName()+"&storeName="+store.getStoreName()+"").forward(req, resp);
 			}else{
 				json.setMsg("用户名或密码错误");
-				writeJson(json, req, resp);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			json.setMsg("登录时发生错误"+e);
-			writeJson(json, req, resp);
 		}
+		writeJson(json, req, resp);
 	}
 
 	private void writeJson(Object object, HttpServletRequest req, HttpServletResponse resp) {
@@ -292,4 +339,5 @@ public class StoreServlet extends HttpServlet{
 			e.printStackTrace();
 		}
 	}
+	
 }

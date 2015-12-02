@@ -341,9 +341,6 @@ public class Login {
 
 							LOGGER.info("服务启动花费时间{}", System.nanoTime() - nanoTime);
 							autoDeletePhoto();
-							if (Boolean.valueOf(System.getProperty(CHECK_SOFT_DOG) == null ? "true" : "false")) {
-								checkSoftDog();
-							}
 
 							SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(txt_userName.getText(), txt_password.getText());
 							if (StrUtil.isEmpty(findByNameAndPassword)) {
@@ -437,6 +434,9 @@ public class Login {
 				});
 			}
 		}).start();
+		if (Boolean.valueOf(System.getProperty(CHECK_SOFT_DOG) == null ? "true" : "false")) {
+			checkSoftDog();
+		}
 	}
 
 	protected boolean check() {
@@ -463,23 +463,27 @@ public class Login {
 	private void checkSoftDog() {
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
-
 			@Override
 			public void run() {
-				LOGGER.info("从数据库获取注册信息");
-				Map<SNSettingType, SingleCarparkSystemSetting> findAllSN = sp.getCarparkService().findAllSN();
-				String sn = findAllSN.get(SNSettingType.sn).getSettingValue();
-				String validTo = findAllSN.get(SNSettingType.validTo).getSettingValue();
+				try {
+					LOGGER.info("客户端从数据库获取注册信息");
+					Map<SNSettingType, SingleCarparkSystemSetting> findAllSN = sp.getCarparkService().findAllSN();
+					String sn = findAllSN.get(SNSettingType.sn).getSettingValue();
+					String validTo = findAllSN.get(SNSettingType.validTo).getSettingValue();
 
-				if (StrUtil.isEmpty(sn) || StrUtil.isEmpty(validTo)) {
-					LOGGER.info("没有检测到注册码，请检测服务器加密狗");
+					if (StrUtil.isEmpty(sn) || StrUtil.isEmpty(validTo)) {
+						LOGGER.info("没有检测到注册码，请检测服务器加密狗");
+						commonui.error("检查失败", "没有检测到注册码，请检测服务器加密狗");
+						System.exit(0);
+						return;
+					}
+					LOGGER.info("检查注册码成功,有效期至{}", validTo);
+				} catch (Exception e) {
+					e.printStackTrace();
 					commonui.error("检查失败", "没有检测到注册码，请检测服务器加密狗");
-					System.exit(0);
-					return;
 				}
-				LOGGER.info("检查注册码成功,有效期至{}", validTo);
 			}
-		}, 1, 60 * 3, TimeUnit.MINUTES);
+		}, 10, 60 * 3, TimeUnit.SECONDS);
 	}
 
 	// 自动删除图片

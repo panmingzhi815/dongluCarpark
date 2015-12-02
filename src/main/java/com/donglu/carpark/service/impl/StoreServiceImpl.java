@@ -167,7 +167,7 @@ public class StoreServiceImpl implements StoreServiceI {
 	private Criteria createFindStoreChargeHistoryCriteria(String storeName,String operaName, Date start, Date end) {
 		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkStoreChargeHistory.class);
 		if (!StrUtil.isEmpty(storeName)) {
-			c.add(Restrictions.like("storeName", storeName, MatchMode.ANYWHERE));
+			c.add(Restrictions.eq("storeName", storeName));
 		}
 		if (!StrUtil.isEmpty(operaName)) {
 			c.add(Restrictions.like("operaName", operaName, MatchMode.ANYWHERE));

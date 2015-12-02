@@ -15,8 +15,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.SessionManager;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.session.HashSessionManager;
+import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -358,14 +365,22 @@ public class ImageServerUI {
 			// sp.stop();
 			this.server = new Server(8899);
 			ServletHandler servletHandler = new ServletHandler();
-			server.setHandler(servletHandler);
 			ServerUtil.startServlet("/carparkImage/*", servletHandler, imageServletProvider);
 
 			ServerUtil.startServlet("/server/*", servletHandler, serverServletProvider);
 			ServerUtil.startServlet("/store/*", servletHandler, storeServletProvider);
 
 			// startWeb();
+//			ContextHandlerCollection contexts = new ContextHandlerCollection();
+//			ServletContextHandler hand = new ServletContextHandler(ServletContextHandler.SESSIONS);
+//		    hand.setContextPath("/store");
+//		    hand.addServlet(new ServletHolder(storeServletProvider.get()),"/*");
+//		    SessionManager sm = new HashSessionManager();
+//	        hand.setSessionHandler(new SessionHandler(sm));
+//
+//		    contexts.setHandlers(new Handler[] { servletHandler, hand });
 
+		    server.setHandler(servletHandler);
 			server.start();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -376,10 +391,17 @@ public class ImageServerUI {
 		try {
 			Server server = new Server(8080);
 
-			WebAppContext context = new WebAppContext();
+			/*WebAppContext context = new WebAppContext();
 			context.setContextPath("/store");
-			context.setWar("store.war");
-			server.setHandler(context);
+			context.setWar("store.war");*/
+			
+			 ServletContextHandler context0 = new ServletContextHandler(ServletContextHandler.SESSIONS);
+
+		     context0.setContextPath("/store");
+
+		     context0.addServlet(new ServletHolder(new StoreServlet()),"/*");
+
+			server.setHandler(context0);
 			server.start();
 			server.join();
 		} catch (Exception e) {
