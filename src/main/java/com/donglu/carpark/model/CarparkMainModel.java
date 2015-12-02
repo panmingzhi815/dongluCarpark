@@ -1,5 +1,6 @@
 package com.donglu.carpark.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -121,6 +122,8 @@ public class CarparkMainModel extends DomainObject{
 	private SingleCarparkUser user;
 
 	private String outPlateNOColor;
+	
+	private List<SingleCarparkInOutHistory> inHistorys=new ArrayList<SingleCarparkInOutHistory>();
 	
 	public String getUserName() {
 		return userName;
@@ -499,6 +502,25 @@ public class CarparkMainModel extends DomainObject{
 	}
 	public String getOutPlateNOColor() {
 		return outPlateNOColor;
+	}
+	public List<SingleCarparkInOutHistory> getInHistorys() {
+		return inHistorys;
+	}
+	public void setInHistorys(List<SingleCarparkInOutHistory> inHistorys) {
+		this.inHistorys = inHistorys;
+		if (pcs != null)
+			pcs.firePropertyChange("inHistorys", null, null);
+	}
+	public void addInHistorys(SingleCarparkInOutHistory inHistory) {
+		if (StrUtil.isEmpty(inHistory)) {
+			return;
+		}
+		if (this.inHistorys.size()>50) {
+			this.inHistorys.remove(0);
+		}
+		this.inHistorys.add(inHistory);
+		if (pcs != null)
+			pcs.firePropertyChange("inHistorys", null, null);
 	}
 
 }

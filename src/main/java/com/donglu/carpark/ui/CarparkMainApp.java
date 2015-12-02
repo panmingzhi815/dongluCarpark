@@ -95,6 +95,17 @@ import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
+import org.eclipse.core.databinding.observable.map.IObservableMap;
+import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
+import org.eclipse.core.databinding.observable.list.IObservableList;
 
 public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
@@ -142,8 +153,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private Text text_totalTime;
 	private Text text_should;
 	private Text text_real;
-	private Text txtinplateNo;
-	private Text text_in_time;
 	private Text txtoutplateNo;
 	private Text text_out_time;
 
@@ -155,9 +164,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private CarparkDatabaseServiceProvider sp;
 
 	private final CarparkMainModel model=new CarparkMainModel();
-
-	private CLabel lbl_inBigImg;
-	private CLabel lbl_inSmallImg;
 	private CLabel lbl_outSmallImg;
 	private CLabel lbl_outBigImg;
 
@@ -201,8 +207,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 	// 保存出场排队任务信息
 	private List<String> listOutTask = new ArrayList<>();
-
-	private Button button;
 	private Button btnOutCheck;
 	private Button btnHandSearch;
 	private RateLimiter rateLimiter = RateLimiter.create(1);
@@ -232,6 +236,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private ToolItem editOutToolItem;
 
 	private ToolItem delOutToolItem;
+	private Table table;
+	private TableViewer tableViewer;
+
+	private CTabFolder tabInFolder2;
 
 	/**
 	 * Launch the application.
@@ -629,81 +637,113 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		tabOutFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
 
 		Composite composite_2 = new Composite(composite, SWT.NONE);
-		composite_2.setLayout(new GridLayout(1, false));
+		composite_2.setLayout(new GridLayout(2, false));
+		
+		Composite composite_5 = new Composite(composite_2, SWT.NONE);
+		composite_5.setLayout(new FillLayout(SWT.HORIZONTAL));
+		GridData gd_composite_5 = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 2);
+		gd_composite_5.widthHint = 357;
+		composite_5.setLayoutData(gd_composite_5);
+		
+		tabInFolder2 = new CTabFolder(composite_5, SWT.BORDER | SWT.FLAT);
+		
+		
+		Composite control3 = new Composite(tabInFolder2, SWT.NONE);
+		GridLayout layout3 = new GridLayout();
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		control3.setLayout(layout3);
+		ToolBar toolBar3 = new ToolBar(control3, SWT.NONE);
+		ToolItem toolItem_in_photograph3 = new ToolItem(toolBar3, SWT.NONE);
+		toolItem_in_photograph3.setText("拍照");
+		toolItem_in_photograph3.setToolTipText("进口2手动抓拍");
+		toolItem_in_photograph3.setSelection(true);
+		toolItem_in_photograph3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (!rateLimiter.tryAcquire()) {
+					return;
+				}
+				CTabItem selection = tabInFolder2.getSelection();
+				if (StrUtil.isEmpty(selection)) {
+					return;
+				}
+				handPhotograph(mapDeviceTabItem.get(selection));
+			}
+		});
+		ToolItem toolItem_in_openDoor3 = new ToolItem(toolBar3, SWT.NONE);
+		toolItem_in_openDoor3.setText("抬杆");
+		toolItem_in_openDoor3.setToolTipText("进口2手动抬杆");
+		toolItem_in_openDoor3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
 
+				if (!rateLimiter.tryAcquire()) {
+					return;
+				}
+				CTabItem selection = tabInFolder2.getSelection();
+				if (StrUtil.isEmpty(selection)) {
+					return;
+				}
+				String ip = mapDeviceTabItem.get(selection);
+				mapOpenDoor.put(ip, true);
+				handPhotograph(ip);
+			}
+		});
+
+		ToolItem addInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
+		addInToolItem3.setText("添加");
+		addInToolItem3.setToolTipText("添加进口2设备");
+		addInToolItem3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.addDevice(tabInFolder2, "进口2");
+			}
+		});
+		ToolItem editInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
+		editInToolItem3.setText("修改");
+		editInToolItem3.setToolTipText("修改进口2设备");
+		editInToolItem3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.editDevice(tabInFolder2, "进口2");
+			}
+		});
+
+		ToolItem delInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
+		delInToolItem3.setText("删除");
+		delInToolItem3.setToolTipText("删除进口2设备");
+
+		delInToolItem3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				boolean confirm = commonui.confirm("确定提示", "确定删除所选设备");
+				if (!confirm) {
+					return;
+				}
+				presenter.deleteDeviceTabItem(tabInFolder2.getSelection());
+			}
+		});
+		tabInFolder2.setTopRight(control3);
+		tabInFolder2.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
+		tabInFolder2.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+		
+		
+		
+		
+		
+		
+		
 		Composite composite_3 = new Composite(composite_2, SWT.NONE);
 		composite_3.setLayout(new FillLayout(SWT.HORIZONTAL));
-		composite_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-		Composite composite_5 = new Composite(composite_3, SWT.NONE);
-		composite_5.setLayout(new GridLayout(3, false));
-
-		Composite composite_9 = new Composite(composite_5, SWT.NONE);
-		composite_9.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-		GridLayout gl_composite_9 = new GridLayout(2, false);
-		composite_9.setLayout(gl_composite_9);
-		composite_9.setBounds(0, 0, 64, 64);
-
-		Label lblNewLabel_3 = new Label(composite_9, SWT.NONE);
-		lblNewLabel_3.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		lblNewLabel_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_3.setBounds(0, 0, 61, 17);
-		lblNewLabel_3.setText("车牌号码");
-
-		txtinplateNo = new Text(composite_9, SWT.BORDER);
-		txtinplateNo.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
-		txtinplateNo.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		txtinplateNo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-		Label lblNewLabel_4 = new Label(composite_9, SWT.NONE);
-		lblNewLabel_4.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		lblNewLabel_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_4.setText("入场时间");
-
-		text_in_time = new Text(composite_9, SWT.BORDER);
-		text_in_time.setEditable(false);
-		text_in_time.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
-		text_in_time.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		text_in_time.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-		button = new Button(composite_5, SWT.NONE);
-		// button.setImage(JFaceUtil.getImage("add_small"));
-		GridData gd_button = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
+		GridData gd_composite_3 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_composite_3.widthHint = 355;
+		composite_3.setLayoutData(gd_composite_3);
 		if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认) == null ? SystemSettingTypeEnum.临时车入场是否确认.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认))
 				|| Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认) == null ? SystemSettingTypeEnum.固定车入场是否确认.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认))
 				||!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进) == null ? SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进))) {
 		} else {
-			gd_button.exclude = true;
 		}
-		button.setLayoutData(gd_button);
-		button.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (!model.getInShowPlateNO().matches(CarparkUtils.PLATENO_REGEX)) {
-					commonui.info("车牌错误", "请输入正确的车牌");
-					return;
-				}
-				model.setInCheckClick(false);
-			}
-		});
-		// button.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-		button.setFont(SWTResourceManager.getFont("微软雅黑", 9, SWT.BOLD));
-		button.setSelection(true);
-		button.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
-		button.setText("入场确认");
-
-		Composite composite_10 = new Composite(composite_5, SWT.BORDER);
-		GridData gd_composite_10 = new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1);
-		gd_composite_10.widthHint = 120;
-		composite_10.setLayoutData(gd_composite_10);
-		composite_10.setLayout(new FillLayout(SWT.HORIZONTAL));
-		composite_10.setBounds(0, 0, 64, 64);
-
-		lbl_inSmallImg = new CLabel(composite_10, SWT.NONE);
-		lbl_inSmallImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
-		lbl_inSmallImg.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
-		lbl_inSmallImg.setAlignment(SWT.CENTER);
-		lbl_inSmallImg.setText("入场车牌");
 
 		Composite composite_6 = new Composite(composite_3, SWT.NONE);
 		composite_6.setLayout(new GridLayout(3, false));
@@ -800,15 +840,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		composite_4.setLayout(fl_composite_4);
 		composite_4.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
-		Composite composite_7 = new Composite(composite_4, SWT.BORDER);
-		composite_7.setLayout(new FillLayout(SWT.HORIZONTAL));
-
-		lbl_inBigImg = new CLabel(composite_7, SWT.NONE);
-		lbl_inBigImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
-		lbl_inBigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));
-		lbl_inBigImg.setAlignment(SWT.CENTER);
-		lbl_inBigImg.setText("入场车牌");
-
 		Composite composite_8 = new Composite(composite_4, SWT.BORDER);
 		composite_8.setLayout(new FillLayout(SWT.HORIZONTAL));
 
@@ -825,106 +856,130 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		GridData gd_group = new GridData(SWT.LEFT, SWT.TOP, false, true, 1, 1);
 		gd_group.widthHint = 284;
 		group.setLayoutData(gd_group);
-		new Label(group, SWT.NONE);
-		new Label(group, SWT.NONE);
-
-		lblNewLabel = new Label(group, SWT.NONE);
-		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel.setText("剩余车位");
-
-		text_total = new Text(group, SWT.BORDER | SWT.READ_ONLY);
-		text_total.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		text_total.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-		text_total.setEditable(false);
-		text_total.setText("1000");
-		text_total.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		text_total.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-		Label label = new Label(group, SWT.NONE);
-		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("临时车位");
-		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-
-		text_hours = new Text(group, SWT.BORDER | SWT.READ_ONLY);
-		text_hours.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
-		text_hours.setText("1000");
-		text_hours.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		text_hours.setEditable(false);
-		text_hours.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-		Label label_1 = new Label(group, SWT.NONE);
-		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_1.setText("月租车位");
-		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-
-		text_month = new Text(group, SWT.BORDER | SWT.READ_ONLY);
-		text_month.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
-		text_month.setText("1000");
-		text_month.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		text_month.setEditable(false);
-		text_month.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-		Label label_2 = new Label(group, SWT.NONE);
-		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_2.setText("当前值班");
-		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-
-		txt_userName = new Text(group, SWT.BORDER | SWT.READ_ONLY);
-		txt_userName.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
-		txt_userName.setText("panmingzhi");
-		txt_userName.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		txt_userName.setEditable(false);
-		txt_userName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-		Label label_3 = new Label(group, SWT.NONE);
-		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_3.setText("上班时间");
-		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-
-		text_worTime = new Text(group, SWT.BORDER | SWT.READ_ONLY);
-		text_worTime.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
-		text_worTime.setText("2015-8-15 12:30:20");
-		text_worTime.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		text_worTime.setEditable(false);
-		text_worTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-		Label lblNewLabel_2 = new Label(group, SWT.NONE);
-		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_2.setText("当前时间");
-
-		text_1 = new Text(group, SWT.BORDER);
-		text_1.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
-		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		text_1.setEditable(false);
-		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-		Label label_4 = new Label(group, SWT.NONE);
-		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_4.setText("实收金额");
-		label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-
-		text_charge = new Text(group, SWT.BORDER | SWT.READ_ONLY);
-		text_charge.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-		text_charge.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		text_charge.setText("1000");
-		text_charge.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		text_charge.setEditable(false);
-		text_charge.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-		Label label_5 = new Label(group, SWT.NONE);
-		label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_5.setText("免费金额");
-		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-
-		text_free = new Text(group, SWT.BORDER | SWT.READ_ONLY);
-		text_free.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		text_free.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-		text_free.setText("1000");
-		text_free.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-		text_free.setEditable(false);
-		text_free.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		TabFolder tabFolder = new TabFolder(group, SWT.NONE);
+		GridData gd_tabFolder = new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1);
+		gd_tabFolder.widthHint = 272;
+		tabFolder.setLayoutData(gd_tabFolder);
+		
+		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
+		tabItem.setText("基本信息");
+		
+		Composite composite_13 = new Composite(tabFolder, SWT.NONE);
+		tabItem.setControl(composite_13);
+		composite_13.setLayout(new GridLayout(2, false));
+		
+				lblNewLabel = new Label(composite_13, SWT.NONE);
+				lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+				lblNewLabel.setText("剩余车位");
+								
+										text_total = new Text(composite_13, SWT.BORDER | SWT.READ_ONLY);
+										text_total.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+										text_total.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+										text_total.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+										text_total.setEditable(false);
+										text_total.setText("1000");
+										text_total.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+						
+								Label label = new Label(composite_13, SWT.NONE);
+								label.setText("临时车位");
+								label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+												
+														text_hours = new Text(composite_13, SWT.BORDER | SWT.READ_ONLY);
+														text_hours.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+														text_hours.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
+														text_hours.setText("1000");
+														text_hours.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+														text_hours.setEditable(false);
+										
+												Label label_1 = new Label(composite_13, SWT.NONE);
+												label_1.setText("月租车位");
+												label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+														
+																text_month = new Text(composite_13, SWT.BORDER | SWT.READ_ONLY);
+																text_month.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+																text_month.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
+																text_month.setText("1000");
+																text_month.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+																text_month.setEditable(false);
+		
+				Label label_2 = new Label(composite_13, SWT.NONE);
+				label_2.setText("当前值班");
+				label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		
+				txt_userName = new Text(composite_13, SWT.BORDER | SWT.READ_ONLY);
+				txt_userName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+				txt_userName.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
+				txt_userName.setText("panmingzhi");
+				txt_userName.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+				txt_userName.setEditable(false);
+		
+				Label label_3 = new Label(composite_13, SWT.NONE);
+				label_3.setText("上班时间");
+				label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		
+				text_worTime = new Text(composite_13, SWT.BORDER | SWT.READ_ONLY);
+				text_worTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+				text_worTime.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
+				text_worTime.setText("2015-8-15 12:30:20");
+				text_worTime.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+				text_worTime.setEditable(false);
+		
+				Label lblNewLabel_2 = new Label(composite_13, SWT.NONE);
+				lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+				lblNewLabel_2.setText("当前时间");
+		
+				text_1 = new Text(composite_13, SWT.BORDER);
+				text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+				text_1.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
+				text_1.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+				text_1.setEditable(false);
+		
+				Label label_4 = new Label(composite_13, SWT.NONE);
+				label_4.setText("实收金额");
+				label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		
+				text_charge = new Text(composite_13, SWT.BORDER | SWT.READ_ONLY);
+				text_charge.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+				text_charge.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+				text_charge.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+				text_charge.setText("1000");
+				text_charge.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+				text_charge.setEditable(false);
+		
+				Label label_5 = new Label(composite_13, SWT.NONE);
+				label_5.setText("免费金额");
+				label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		
+				text_free = new Text(composite_13, SWT.BORDER | SWT.READ_ONLY);
+				text_free.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+				text_free.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+				text_free.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+				text_free.setText("1000");
+				text_free.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+				text_free.setEditable(false);
+				
+				TabItem tabItem_1 = new TabItem(tabFolder, SWT.NONE);
+				tabItem_1.setText("进场记录");
+				
+				Composite composite_18 = new Composite(tabFolder, SWT.NONE);
+				tabItem_1.setControl(composite_18);
+				composite_18.setLayout(new FillLayout(SWT.HORIZONTAL));
+				
+				tableViewer = new TableViewer(composite_18, SWT.BORDER | SWT.FULL_SELECTION);
+				table = tableViewer.getTable();
+				table.setLinesVisible(true);
+				table.setHeaderVisible(true);
+				
+				TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.NONE);
+				TableColumn tableColumn = tableViewerColumn.getColumn();
+				tableColumn.setWidth(113);
+				tableColumn.setText("车牌");
+				
+				TableViewerColumn tableViewerColumn_1 = new TableViewerColumn(tableViewer, SWT.NONE);
+				TableColumn tableColumn_1 = tableViewerColumn_1.getColumn();
+				tableColumn_1.setWidth(143);
+				tableColumn_1.setText("进场时间");
 
 		Label lblNewLabel_1 = new Label(group, SWT.SEPARATOR | SWT.HORIZONTAL);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
@@ -1272,6 +1327,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		lbl_search.setImage(CarparkUtils.getSwtImage("search.png"));
 		createDeviceTabItem();
 		tabInFolder.setSelection(0);
+		tabInFolder2.setSelection(0);
 		tabOutFolder.setSelection(0);
 		controlToolItem();
 		m_bindingContext = initDataBindings();
@@ -1367,6 +1423,21 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 						composite.dispose();
 					}
 				});
+			}else if (type.equals("进口2")) {
+				CTabItem tabItem = new CTabItem(tabInFolder2, SWT.NONE);
+				tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
+				tabItem.setText(singleCarparkDevice.getName() == null ? ip : singleCarparkDevice.getName());
+				final Composite composite = new Composite(tabInFolder2, SWT.BORDER | SWT.EMBEDDED);
+				tabItem.setControl(composite);
+				composite.setLayout(new FillLayout());
+				presenter.createLeftCameraBottom(ip, composite);
+				mapDeviceTabItem.put(tabItem, ip);
+				tabItem.addDisposeListener(new DisposeListener() {
+
+					public void widgetDisposed(DisposeEvent e) {
+						composite.dispose();
+					}
+				});
 			}
 			presenter.showUsualContentToDevice(singleCarparkDevice);
 		}
@@ -1409,7 +1480,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 			String key = new Date() + "current has device:" + ip + " with plate:" + plateNO + " process";
 			listOutTask.add(key);
-			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_outBigImg, lbl_outSmallImg, lbl_inBigImg, lbl_inSmallImg, carTypeSelectCombo, text_real,
+			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_outBigImg, lbl_outSmallImg, carTypeSelectCombo, text_real,
 					shell, rightSize);
 			outTheadPool.submit(task);
 			mapOutTwoCameraTask.put(linkAddress, task);
@@ -1429,7 +1500,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				listOutTask.remove(key);
 				plateNoTotal.addAndGet(1);
 			});
-		} else if (mapDeviceType.get(ip).equals("进口")) {
+		} else if (mapDeviceType.get(ip).equals("进口")||mapDeviceType.get(ip).equals("进口2")) {
 			if (!equals && mapIsTwoChanel.get(linkAddress)) {
 				CarInTask carInTask = mapInTwoCameraTask.get(linkAddress);
 				if (!StrUtil.isEmpty(carInTask)) {
@@ -1444,7 +1515,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					return;
 				}
 			}
-			CarInTask task = new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_inBigImg, lbl_inSmallImg, shell, rightSize);
+			CarInTask task = new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, shell, rightSize);
 			inThreadPool.submit(task);
 			mapInTwoCameraTask.put(linkAddress, task);
 		}
@@ -1511,6 +1582,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 //		btnCharge.setData(BTN_CHARGE, null);
 //		btnCharge.setData(BTN_CHARGE_DEVICE, null);
 	}
+	@Override
+	public void invok(String ip, int channel, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize,String plateColor) {
+		model.setOutPlateNOColor(plateColor);
+		invok(ip, channel, plateNO, bigImage, smallImage, rightSize);
+	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
@@ -1570,17 +1646,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue realModelObserveValue = BeanProperties.value("real").observe(model);
 		bindingContext.bindValue(observeTextText_realObserveWidget, realModelObserveValue, null, null);
 		//
-		IObservableValue observeTextInBigImgObserveWidget = WidgetProperties.text().observe(lbl_inBigImg);
-		IObservableValue inShowMegModelObserveValue = BeanProperties.value("inShowMeg").observe(model);
-		bindingContext.bindValue(observeTextInBigImgObserveWidget, inShowMegModelObserveValue, null, null);
-		//
 		IObservableValue observeTextTxtoutplateNoObserveWidget = WidgetProperties.text(SWT.Modify).observe(txtoutplateNo);
 		IObservableValue outShowPlateNOModelObserveValue = BeanProperties.value("outShowPlateNO").observe(model);
 		bindingContext.bindValue(observeTextTxtoutplateNoObserveWidget, outShowPlateNOModelObserveValue, null, null);
-		//
-		IObservableValue observeEnabledButtonObserveWidget = WidgetProperties.enabled().observe(button);
-		IObservableValue inCheckClickModelObserveValue = BeanProperties.value("inCheckClick").observe(model);
-		bindingContext.bindValue(observeEnabledButtonObserveWidget, inCheckClickModelObserveValue, null, null);
 		//
 		IObservableValue observeEnabledButton_1ObserveWidget = WidgetProperties.enabled().observe(btnOutCheck);
 		IObservableValue outCheckClickModelObserveValue = BeanProperties.value("outCheckClick").observe(model);
@@ -1594,24 +1662,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue outShowTimeModelObserveValue = BeanProperties.value("outShowTime").observe(model);
 		bindingContext.bindValue(observeTextText_out_timeObserveWidget, outShowTimeModelObserveValue, null, null);
 		//
-		IObservableValue observeTextTxtinplateNoObserveWidget = WidgetProperties.text(SWT.Modify).observe(txtinplateNo);
-		IObservableValue inShowPlateNOModelObserveValue = BeanProperties.value("inShowPlateNO").observe(model);
-		bindingContext.bindValue(observeTextTxtinplateNoObserveWidget, inShowPlateNOModelObserveValue, null, null);
-		//
-		IObservableValue observeTextText_in_timeObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_in_time);
-		IObservableValue inShowTimeModelObserveValue = BeanProperties.value("inShowTime").observe(model);
-		bindingContext.bindValue(observeTextText_in_timeObserveWidget, inShowTimeModelObserveValue, null, null);
-		//
 		IObservableValue observeEnabledComboObserveWidget = WidgetProperties.enabled().observe(carTypeSelectCombo);
 		IObservableValue comboCarTypeEnableModelObserveValue = BeanProperties.value("comboCarTypeEnable").observe(model);
 		bindingContext.bindValue(observeEnabledComboObserveWidget, comboCarTypeEnableModelObserveValue, null, null);
-		//
-		IObservableValue observeEditableTxtinplateNoObserveWidget = WidgetProperties.editable().observe(txtinplateNo);
-		bindingContext.bindValue(observeEditableTxtinplateNoObserveWidget, inCheckClickModelObserveValue, null, null);
-		//
-		IObservableValue observeImageLbl_inSmallImgObserveWidget = WidgetProperties.image().observe(lbl_inSmallImg);
-		IObservableValue inShowSmallImgModelObserveValue = BeanProperties.value("inShowSmallImg").observe(model);
-		bindingContext.bindValue(observeImageLbl_inSmallImgObserveWidget, inShowSmallImgModelObserveValue, null, null);
 		//
 		IObservableValue observeTextText_1ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_1);
 		IObservableValue currentTimeModelObserveValue = BeanProperties.value("currentTime").observe(model);
@@ -1629,11 +1682,14 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue btnClickModelObserveValue = BeanProperties.value("btnClick").observe(model);
 		bindingContext.bindValue(observeEditableText_realObserveWidget, btnClickModelObserveValue, null, null);
 		//
+		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
+		IObservableMap[] observeMaps = BeansObservables.observeMaps(listContentProvider.getKnownElements(), SingleCarparkInOutHistory.class, new String[]{"plateNo", "inTimeLabel"});
+		tableViewer.setLabelProvider(new ObservableMapLabelProvider(observeMaps));
+		tableViewer.setContentProvider(listContentProvider);
+		//
+		IObservableList inHistorysModelObserveList = BeanProperties.list("inHistorys").observe(model);
+		tableViewer.setInput(inHistorysModelObserveList);
+		//
 		return bindingContext;
-	}
-	@Override
-	public void invok(String ip, int channel, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize,String plateColor) {
-		model.setOutPlateNOColor(plateColor);
-		invok(ip, channel, plateNO, bigImage, smallImage, rightSize);
 	}
 }

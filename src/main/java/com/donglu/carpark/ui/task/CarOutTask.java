@@ -48,8 +48,6 @@ public class CarOutTask implements Runnable{
 	private final CarparkMainPresenter presenter;
 	private final CLabel lbl_outBigImg;
 	private final CLabel lbl_outSmallImg;
-	private final CLabel lbl_inBigImg;
-	private final CLabel lbl_inSmallImg;
 	
 	private final Text text_real;
 	
@@ -76,7 +74,7 @@ public class CarOutTask implements Runnable{
 	
 	public CarOutTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage,CarparkMainModel model,
 			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, CLabel lbl_outBigImg,
-			CLabel lbl_outSmallImg,CLabel lbl_inBigImg,CLabel lbl_inSmallImg,Combo carTypeSelectCombo,
+			CLabel lbl_outSmallImg,Combo carTypeSelectCombo,
 			Text text_real,Shell shell,Float rightSize) {
 		super();
 		this.ip = ip;
@@ -88,8 +86,6 @@ public class CarOutTask implements Runnable{
 		this.presenter = presenter;
 		this.lbl_outBigImg = lbl_outBigImg;
 		this.lbl_outSmallImg = lbl_outSmallImg;
-		this.lbl_inBigImg=lbl_inBigImg;
-		this.lbl_inSmallImg=lbl_inSmallImg;
 		this.carTypeSelectCombo=carTypeSelectCombo;
 		this.text_real=text_real;
 		this.shell = shell;
@@ -226,31 +222,6 @@ public class CarOutTask implements Runnable{
 			SingleCarparkInOutHistory ch = findByNoOut.get(0);
 			model.setInShowTime(StrUtil.formatDate(ch.getInTime(), "yyyy-MM-dd HH:mm:ss"));
 			model.setInShowPlateNO(ch.getPlateNo());
-			Display.getDefault().asyncExec(new Runnable() {
-				public void run() {
-					if (CarInTask.inSmallImage != null) {
-						LOGGER.info("进场小图片销毁图片");
-						CarInTask.inSmallImage.dispose();
-						CarInTask.inSmallImage = null;
-						lbl_inSmallImg.setBackgroundImage(null);
-					}
-					if (CarInTask.inBigImage != null) {
-						LOGGER.info("进场大图片销毁图片");
-						CarInTask.inBigImage.dispose();
-						CarInTask.inBigImage = null;
-						lbl_inBigImg.setBackgroundImage(null);
-					}
-					CarInTask.inSmallImage = CarparkUtils.getImage(CarparkUtils.getImageByte(ch.getSmallImg()), lbl_inSmallImg, shell);
-					if (CarInTask.inSmallImage != null) {
-						lbl_inSmallImg.setBackgroundImage(CarInTask.inSmallImage);
-					}
-
-					CarInTask.inBigImage = CarparkUtils.getImage(CarparkUtils.getImageByte(ch.getBigImg()), lbl_inBigImg, shell);
-					if (CarInTask.inBigImage != null) {
-						lbl_inBigImg.setBackgroundImage(CarInTask.inBigImage);
-					}
-				}
-			});
 
 			presenter.showPlateNOToDevice(device, plateNO);
 			//

@@ -247,10 +247,53 @@ public class CarparkMainPresenter {
 			createLeftCamera(ip, composite);
 		} else if (type.equals("出口")) {
 			createRightCamera(ip, composite);
+		}else if(type.equals("进口2")){
+			createLeftCameraBottom(ip, composite);
 		}
 		tabFolder.setSelection(tabItem);
 		mapDeviceTabItem.put(tabItem, ip);
 		mapDeviceType.put(ip, type);
+	}
+
+	public void createLeftCameraBottom(String ip, Composite southCamera) {
+		Frame new_Frame1 = SWT_AWT.new_Frame(southCamera);
+		Canvas canvas1 = new Canvas();
+		new_Frame1.add(canvas1);
+		new_Frame1.pack();
+		new_Frame1.setVisible(true);
+		final String url = "rtsp://" + ip + ":554/h264ESVideoTest";
+		final EmbeddedMediaPlayer createPlayLeft = webCameraDevice.createPlay(new_Frame1, url);
+		createPlayLeft.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
+			@Override
+			public void finished(final MediaPlayer mediaPlayer) {
+				new Runnable() {
+					public void run() {
+						while (!mediaPlayer.isPlaying()) {
+							LOGGER.info("设备连接{}已断开", url);
+							mediaPlayer.playMedia(url);
+							Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
+						}
+					}
+				}.run();
+			}
+
+			@Override
+			public void error(MediaPlayer mediaPlayer) {
+
+			}
+		});
+		getView().shell.addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				createPlayLeft.release();
+			}
+		});
+		southCamera.addDisposeListener(new DisposeListener() {
+
+			public void widgetDisposed(DisposeEvent e) {
+				createPlayLeft.release();
+			}
+		});
+		xinlutongJNA.openEx(ip, getView());
 	}
 
 	/**

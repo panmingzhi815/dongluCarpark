@@ -39,8 +39,6 @@ public class CarInTask implements Runnable {
 	private final CarparkMainModel model;
 	private final CarparkDatabaseServiceProvider sp;
 	private final CarparkMainPresenter presenter;
-	private final CLabel lbl_inBigImg;
-	private final CLabel lbl_inSmallImg;
 	private byte[] bigImage;
 	private byte[] smallImage;
 	private final Shell shell;
@@ -61,8 +59,7 @@ public class CarInTask implements Runnable {
 	
 
 	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, 
-			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, CLabel lbl_inBigImg,
-			CLabel lbl_inSmallImg, Shell shell,Float rightSize) {
+			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, Shell shell,Float rightSize) {
 		super();
 		this.ip = ip;
 		this.plateNO = plateNO;
@@ -71,8 +68,6 @@ public class CarInTask implements Runnable {
 		this.model = model;
 		this.sp = sp;
 		this.presenter = presenter;
-		this.lbl_inBigImg = lbl_inBigImg;
-		this.lbl_inSmallImg = lbl_inSmallImg;
 		this.shell = shell;
 		this.rightSize=rightSize;
 	}
@@ -133,32 +128,6 @@ public class CarInTask implements Runnable {
 				return;
 			}
 			LOGGER.debug("开始在界面显示车牌：{}的抓拍图片", plateNO);
-			Display.getDefault().asyncExec(new Runnable() {
-				public void run() {
-					if (inSmallImage != null) {
-						LOGGER.info("进场小图片销毁图片");
-						inSmallImage.dispose();
-						inSmallImage = null;
-						lbl_inSmallImg.setBackgroundImage(null);
-					}
-					if (inBigImage != null) {
-						LOGGER.info("进场大图片销毁图片");
-						inBigImage.dispose();
-						inBigImage = null;
-						lbl_inBigImg.setBackgroundImage(null);
-					}
-
-					inSmallImage = CarparkUtils.getImage(smallImage, lbl_inSmallImg, shell);
-					if (inSmallImage != null) {
-						lbl_inSmallImg.setBackgroundImage(inSmallImage);
-					}
-
-					inBigImage = CarparkUtils.getImage(bigImage, lbl_inBigImg, shell);
-					if (inBigImage != null) {
-						lbl_inBigImg.setBackgroundImage(inBigImage);
-					}
-				}
-			});
 			String editPlateNo = null;
 			boolean isEmptyPlateNo = false;
 			// 空车牌处理
@@ -382,7 +351,9 @@ public class CarInTask implements Runnable {
 				int total = model.getTotalSlot() - 1;
 				model.setTotalSlot(total <= 0 ? 0 : total);
 			}
-			sp.getCarparkInOutService().saveInOutHistory(cch);
+			Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(cch);
+			cch.setId(saveInOutHistory);
+			model.addInHistorys(cch);
 			LOGGER.debug("保存车牌：{}的进场记录到数据库成功", plateNO);
 			model.setHistory(null);
 		} catch (Exception e) {
