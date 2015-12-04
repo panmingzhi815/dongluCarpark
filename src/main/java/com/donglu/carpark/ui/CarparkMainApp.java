@@ -241,6 +241,13 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 	private CTabFolder tabInFolder2;
 
+	private ToolItem addInToolItem3;
+
+	private ToolItem editInToolItem3;
+
+	private ToolItem delInToolItem3;
+	private Text text;
+
 	/**
 	 * Launch the application.
 	 * 
@@ -382,6 +389,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			autoSendTimeToDevice();
 		}
 		refreshCarparkBasicInfo(refreshTimeSpeedSecond);
+		
+		
+		model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
 		
 	}
 
@@ -691,7 +701,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 		});
 
-		ToolItem addInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
+		addInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
 		addInToolItem3.setText("添加");
 		addInToolItem3.setToolTipText("添加进口2设备");
 		addInToolItem3.addSelectionListener(new SelectionAdapter() {
@@ -700,7 +710,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				presenter.addDevice(tabInFolder2, "进口2");
 			}
 		});
-		ToolItem editInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
+		editInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
 		editInToolItem3.setText("修改");
 		editInToolItem3.setToolTipText("修改进口2设备");
 		editInToolItem3.addSelectionListener(new SelectionAdapter() {
@@ -710,7 +720,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 		});
 
-		ToolItem delInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
+		delInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
 		delInToolItem3.setText("删除");
 		delInToolItem3.setToolTipText("删除进口2设备");
 
@@ -858,7 +868,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		group.setLayoutData(gd_group);
 		
 		TabFolder tabFolder = new TabFolder(group, SWT.NONE);
-		GridData gd_tabFolder = new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1);
+		GridData gd_tabFolder = new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1);
+		gd_tabFolder.heightHint = 244;
 		gd_tabFolder.widthHint = 272;
 		tabFolder.setLayoutData(gd_tabFolder);
 		
@@ -964,10 +975,30 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				
 				Composite composite_18 = new Composite(tabFolder, SWT.NONE);
 				tabItem_1.setControl(composite_18);
-				composite_18.setLayout(new FillLayout(SWT.HORIZONTAL));
+				composite_18.setLayout(new GridLayout(1, false));
+				
+				Composite composite_7 = new Composite(composite_18, SWT.NONE);
+				composite_7.setLayout(new GridLayout(2, false));
+				composite_7.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+				
+				text = new Text(composite_7, SWT.BORDER);
+				GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+				gd_text.widthHint = 128;
+				text.setLayoutData(gd_text);
+				
+				Button btnNewButton = new Button(composite_7, SWT.NONE);
+				btnNewButton.setText("手动入场");
 				
 				tableViewer = new TableViewer(composite_18, SWT.BORDER | SWT.FULL_SELECTION);
 				table = tableViewer.getTable();
+				table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+				table.addMouseListener(new MouseAdapter() {
+					
+					@Override
+					public void mouseDoubleClick(MouseEvent e) {
+						presenter.showHistory(model.getInHistorySelect());
+					}
+				});
 				table.setLinesVisible(true);
 				table.setHeaderVisible(true);
 				
@@ -1345,6 +1376,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				editOutToolItem.dispose();
 				delOutToolItem.dispose();
 			}
+			if (!addInToolItem3.isDisposed()) {
+				addInToolItem3.dispose();
+				editInToolItem3.dispose();
+				delInToolItem3.dispose();
+			}
 		}
 
 	}
@@ -1650,10 +1686,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue outShowPlateNOModelObserveValue = BeanProperties.value("outShowPlateNO").observe(model);
 		bindingContext.bindValue(observeTextTxtoutplateNoObserveWidget, outShowPlateNOModelObserveValue, null, null);
 		//
-		IObservableValue observeEnabledButton_1ObserveWidget = WidgetProperties.enabled().observe(btnOutCheck);
-		IObservableValue outCheckClickModelObserveValue = BeanProperties.value("outCheckClick").observe(model);
-		bindingContext.bindValue(observeEnabledButton_1ObserveWidget, outCheckClickModelObserveValue, null, null);
-		//
 		IObservableValue observeEnabledButton_2ObserveWidget = WidgetProperties.enabled().observe(btnHandSearch);
 		IObservableValue handSearchModelObserveValue = BeanProperties.value("handSearch").observe(model);
 		bindingContext.bindValue(observeEnabledButton_2ObserveWidget, handSearchModelObserveValue, null, null);
@@ -1689,6 +1721,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		//
 		IObservableList inHistorysModelObserveList = BeanProperties.list("inHistorys").observe(model);
 		tableViewer.setInput(inHistorysModelObserveList);
+		//
+		IObservableValue observeSingleSelectionTableViewer = ViewerProperties.singleSelection().observe(tableViewer);
+		IObservableValue inHistorySelectModelObserveValue = BeanProperties.value("inHistorySelect").observe(model);
+		bindingContext.bindValue(observeSingleSelectionTableViewer, inHistorySelectModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

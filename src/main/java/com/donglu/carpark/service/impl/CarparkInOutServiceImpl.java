@@ -653,4 +653,70 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}
 	}
 
+	@Override
+	public List<SingleCarparkInOutHistory> findCarInHistorys(int size) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.addOrder(Order.desc(SingleCarparkInOutHistory.Property.inTime.name()));
+			c.setFirstResult(0);
+			c.setMaxResults(size);
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public SingleCarparkInOutHistory findInOutHistoryByPlateNO(String plateNO) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plateNO));
+			c.setFirstResult(0);
+			c.setMaxResults(1);
+			return (SingleCarparkInOutHistory) c.getSingleResultOrNull();
+		} catch(Exception e){
+			return null;
+		}finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> searchHistoryByLikePlateNO(List<String> plateNOs, boolean order, SingleCarparkCarpark carpark) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNotEmpty(SingleCarparkInOutHistory.Property.plateNo.name()));
+			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.plateNo.name()));
+			c.add(Restrictions.ne(SingleCarparkInOutHistory.Property.plateNo.name(), ""));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			List<SimpleExpression> list = new ArrayList<>();
+			for (String s : plateNOs) {
+				SimpleExpression like = Restrictions.like(SingleCarparkInOutHistory.Property.plateNo.name(), s, MatchMode.ANYWHERE);
+				list.add(like);
+			}
+			c.add(Restrictions.or(list.toArray(new SimpleExpression[list.size()])));
+			List<SimpleExpression> listD = new ArrayList<>();
+			for (SingleCarparkCarpark d : findSameCarpark(carpark)) {
+				SimpleExpression eq = Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), d.getId());
+				listD.add(eq);
+			}
+			c.add(Restrictions.or(listD.toArray(new SimpleExpression[listD.size()])));
+			if (order) {
+				c.addOrder(Order.asc(SingleCarparkInOutHistory.Property.inTime.name()));
+			} else {
+				c.addOrder(Order.desc(SingleCarparkInOutHistory.Property.inTime.name()));
+			}
+			return c.getResultList();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ArrayList<>();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
 }

@@ -106,7 +106,11 @@ public class CarInTask implements Runnable {
 			if (!checkPlateNODiscernGap) {
 				return;
 			}
-			SingleCarparkInOutHistory cch = new SingleCarparkInOutHistory();
+			SingleCarparkInOutHistory cch = sp.getCarparkInOutService().findInOutHistoryByPlateNO(plateNO);
+			if (StrUtil.isEmpty(cch)) {
+				cch = new SingleCarparkInOutHistory();
+			}
+			cch = new SingleCarparkInOutHistory();
 			cch.setPlateNo(plateNO);
 			cch.setInPlateNO(plateNO);
 
@@ -354,6 +358,7 @@ public class CarInTask implements Runnable {
 			Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(cch);
 			cch.setId(saveInOutHistory);
 			model.addInHistorys(cch);
+			model.setInHistorySelect(cch);
 			LOGGER.debug("保存车牌：{}的进场记录到数据库成功", plateNO);
 			model.setHistory(null);
 		} catch (Exception e) {

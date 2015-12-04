@@ -40,6 +40,7 @@ import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
 import com.donglu.carpark.ui.wizard.AddDeviceModel;
 import com.donglu.carpark.ui.wizard.AddDeviceWizard;
 import com.donglu.carpark.ui.wizard.ChangeUserWizard;
+import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
 import com.donglu.carpark.ui.wizard.ReturnAccountWizard;
 import com.donglu.carpark.ui.wizard.SearchHistoryByHandWizard;
 import com.donglu.carpark.ui.wizard.model.ChangeUserModel;
@@ -422,6 +423,7 @@ public class CarparkMainPresenter {
 				mapIpToDevice.put(ip, device2);
 				com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 				commonui.info("修改成功", "修改设备" + ip + "成功");
+				LOGGER.info("发送平时显示类容");
 				showUsualContentToDevice(device2);
 				sendPositionToAllDevice(true);
 				return;
@@ -587,7 +589,11 @@ public class CarparkMainPresenter {
 		try {
 			Device d = getDevice(device);
 
-			return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(device.getInType()),(byte)(device.getScreenType().getType()));
+			String inType = device.getInType();
+			if (inType.equals("进口2")) {
+				inType="进口";
+			}
+			return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType),(byte)(device.getScreenType().getType()));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -675,6 +681,7 @@ public class CarparkMainPresenter {
 //		} catch (Exception e1) {
 //			e1.printStackTrace();
 //		}
+		float totalCharge=0;
 		Float money=0F;//免费金额
 		Float hour=0F;//免费时间
 		//查找优惠信息
@@ -693,6 +700,9 @@ public class CarparkMainPresenter {
 		model.setStroeFrees(findByPlateNO);
 		//变更收费时间
 		startTime=new DateTime(startTime).plusHours(hour.intValue()).plusMinutes(Float.valueOf((hour%1F)).intValue()).toDate();
+		List<Date> cutDaysByHours = CarparkUtils.cutDaysByHours(startTime, endTime);
+		Date start=startTime;
+		Date end=endTime;
 		try {
 			float calculateTempCharge = 0;
 			int minute=0;
@@ -706,10 +716,16 @@ public class CarparkMainPresenter {
 //					calculateTempCharge+=sp.getCarparkService().calculateTempCharge(singleCarparkInOutHistory.getCarparkId(),carType.index(), inTime, outTime);
 //				}
 //			}
-			calculateTempCharge+=sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), startTime, new DateTime(endTime).minusMinutes(minute).toDate());
-			boolean flag = CarparkUtils.checkDaysIsOneDay(startTime, endTime);
+//			for (int i=1;i< cutDaysByHours.size() ; i++) {
+//				
+//			}
+			calculateTempCharge+=sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), startTime, endTime);
+			boolean flag = true;
+//			CarparkUtils.checkDaysIsOneDay(startTime, endTime)
 			if (flag) {
+				int countDayByBetweenTime = CarparkUtils.countDayByBetweenTime(startTime, endTime);
 				float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType);
+				max=max*countDayByBetweenTime;
 				float now = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo());
 				if (max > 0) {
 					float f = max - now;
@@ -721,12 +737,13 @@ public class CarparkMainPresenter {
 					}
 				}
 			}
-			
-			return calculateTempCharge-money<0?0:calculateTempCharge-money;
+			totalCharge+=calculateTempCharge-money<0?0:calculateTempCharge-money;
+//			return calculateTempCharge-money<0?0:calculateTempCharge-money;
 		} catch (Exception e) {
 			LOGGER.error("计算收费是发生错误",e);
 			return 0;
 		}
+		return totalCharge-money<0?0:totalCharge-money;
 	}
 	
 	/**
@@ -916,6 +933,7 @@ public class CarparkMainPresenter {
 		openDoor.setImage(bigImgFileName);
 		openDoor.setDeviceName(device.getName());
 		sp.getCarparkInOutService().saveOpenDoorLog(openDoor);
+		LOGGER.info("对设备{}，地址{}-{}开闸",device.getName(),device.getLinkAddress(),device.getAddress());
 		showPlateNOToDevice(device, "");
 		if (inOrOut) {
 			showContentToDevice(device, CarparkMainApp.CAR_IN_MSG, true);
@@ -1026,5 +1044,13 @@ public class CarparkMainPresenter {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	public void showHistory(SingleCarparkInOutHistory h) {
+		if (h==null) {
+			return;
+		}
+		InOutHistoryDetailWizard wizard = new InOutHistoryDetailWizard(h);
+		commonui.showWizard(wizard);
 	}
 }

@@ -110,4 +110,25 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(Long id, String pn);
+	/**
+	 * 查找一定数量的进场纪录
+	 * @param size
+	 * @return
+	 */
+	List<SingleCarparkInOutHistory> findCarInHistorys(int size);
+	/**
+	 * 查找车牌的一条进场纪录
+	 * @param plateNO
+	 * @return
+	 */
+	SingleCarparkInOutHistory findInOutHistoryByPlateNO(String plateNO);
+	/**
+	 * 查找一些车牌的纪录
+	 * @param plateNOs
+	 * @param order
+	 * @param carpark
+	 * @return
+	 */
+	List<SingleCarparkInOutHistory> searchHistoryByLikePlateNO(List<String> plateNOs, boolean order,
+			SingleCarparkCarpark carpark);
 }

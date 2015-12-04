@@ -297,7 +297,7 @@ public class CarparkUtils {
 
 	
 	public static void main(String[] args) {
-		System.out.println(splitPlateNO("粤BD021W"));
+		splitString("粤BD021W", 5);
 	}
 	/**
 	 * 0.0返回0
@@ -459,6 +459,7 @@ public class CarparkUtils {
 		}
 		return day.intValue();
 	}
+	
 	public static Ini loadIniFromFile(File file) throws IOException {
         Ini ini = new Ini();
         Config global = Config.getGlobal();
@@ -543,5 +544,20 @@ public class CarparkUtils {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public static List<String> splitString(String s,int size){
+		List<String> list=new ArrayList<>();
+		if (s.length()<=size) {
+			list.add(s);
+			return list;
+		}
+		
+		for (int i = 0; i <= s.length()-size; i++) {
+			String substring = s.substring(i, i+size);
+			list.add(substring);
+		}
+		
+		return list;
 	}
 }

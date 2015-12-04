@@ -212,6 +212,7 @@ public class CarOutTask implements Runnable{
 			List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO,carpark);
 			if (StrUtil.isEmpty(findByNoOut)) {
 				LOGGER.info("没有找到车牌{}的入场记录", plateNO);
+				presenter.showContentToDevice(device, "此车未入场", false);
 				model.setSearchPlateNo(plateNO);
 				model.setSearchBigImage(bigImg);
 				model.setSearchSmallImage(smallImg);

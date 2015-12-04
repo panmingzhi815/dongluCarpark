@@ -329,5 +329,23 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		if (pcs != null)
 			pcs.firePropertyChange("reviseInTime", null, null);
 	}
+	@Override
+	public boolean equals(Object obj) {
+		if(obj!=null){
+			if (!obj.getClass().equals(this.getClass()) ) {
+				return false;
+			}
+			SingleCarparkInOutHistory h=(SingleCarparkInOutHistory) obj;
+			if (h.getId()==null) {
+				return false;
+			}
+			if (h.getId()==this.getId()) {
+				return true;
+			}else{
+				return false;
+			}
+		}
+		return super.equals(obj);
+	}
 	
 }

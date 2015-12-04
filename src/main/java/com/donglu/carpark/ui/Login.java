@@ -94,6 +94,8 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.graphics.Point;
 
 public class Login {
+	private static final String USER_NAMES = "userNames";
+
 	private static final String SYSTEM_TEMP = "system.temp";
 
 	private static final String MONITOR_TEMP = "monitor.temp";
@@ -103,7 +105,6 @@ public class Login {
 	private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
 
 	protected Shell shell;
-	private Text txt_userName;
 	private Text txt_password;
 	private Label lbl_msg;
 	private Combo combo;
@@ -121,6 +122,10 @@ public class Login {
 	private CommonUIFacility commonui;
 
 	private Button btn_login;
+
+	private Combo cbo_userName;
+
+	private List<String> list;
 
 	/**
 	 * Launch the application.
@@ -227,13 +232,18 @@ public class Login {
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel.setText("用户名");
-
-		txt_userName = new Text(composite, SWT.BORDER);
-		txt_userName.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		GridData gd_txt_userName = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_txt_userName.widthHint = 150;
-		txt_userName.setLayoutData(gd_txt_userName);
-
+		
+		ComboViewer comboViewer_1 = new ComboViewer(composite, SWT.NONE);
+		cbo_userName = comboViewer_1.getCombo();
+		cbo_userName.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		cbo_userName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		comboViewer_1.setContentProvider(new ArrayContentProvider());
+		comboViewer_1.setLabelProvider(new LabelProvider());
+		list = (List<String>) FileUtils.readObject(USER_NAMES);
+		if (list==null) {
+			list=new ArrayList<>();
+		}
+		comboViewer_1.setInput(list);
 		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
 		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -342,13 +352,17 @@ public class Login {
 							LOGGER.info("服务启动花费时间{}", System.nanoTime() - nanoTime);
 							autoDeletePhoto();
 
-							SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(txt_userName.getText(), txt_password.getText());
+							SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(cbo_userName.getText(), txt_password.getText());
 							if (StrUtil.isEmpty(findByNameAndPassword)) {
 								commonui.error("提示", "用户名或密码错误！");
 								btn_login.setEnabled(true);
 								return;
 							}
 							userName = findByNameAndPassword.getUserName();
+							if (!list.contains(userName)) {
+								list.add(userName);
+								FileUtils.writeObject(USER_NAMES, list);
+							}
 							pwd = findByNameAndPassword.getPassword();
 							type = findByNameAndPassword.getType();
 							System.setProperty("userName", userName);
@@ -481,9 +495,10 @@ public class Login {
 				} catch (Exception e) {
 					e.printStackTrace();
 					commonui.error("检查失败", "没有检测到注册码，请检测服务器加密狗");
+					System.exit(0);
 				}
 			}
-		}, 10, 60 * 3, TimeUnit.SECONDS);
+		}, 5, 60 * 3, TimeUnit.MINUTES);
 	}
 
 	// 自动删除图片

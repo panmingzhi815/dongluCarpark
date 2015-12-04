@@ -125,6 +125,12 @@ public class CarparkMainModel extends DomainObject{
 	
 	private List<SingleCarparkInOutHistory> inHistorys=new ArrayList<SingleCarparkInOutHistory>();
 	
+	private List<SingleCarparkInOutHistory> outHistorys=new ArrayList<SingleCarparkInOutHistory>();
+	private SingleCarparkInOutHistory inHistorySelect;
+	private SingleCarparkInOutHistory outHistorySelect;
+	
+	
+	private String handPlateNO;
 	public String getUserName() {
 		return userName;
 	}
@@ -521,6 +527,49 @@ public class CarparkMainModel extends DomainObject{
 		this.inHistorys.add(inHistory);
 		if (pcs != null)
 			pcs.firePropertyChange("inHistorys", null, null);
+	}
+	public List<SingleCarparkInOutHistory> getOutHistorys() {
+		return outHistorys;
+	}
+	public void setOutHistorys(List<SingleCarparkInOutHistory> outHistorys) {
+		this.outHistorys = outHistorys;
+		if (pcs != null)
+			pcs.firePropertyChange("outHistorys", null, null);
+	}
+	public void addOutHistorys(SingleCarparkInOutHistory inHistory) {
+		if (StrUtil.isEmpty(inHistory)) {
+			return;
+		}
+		if (this.outHistorys.size()>50) {
+			this.outHistorys.remove(0);
+		}
+		this.inHistorys.add(inHistory);
+		if (pcs != null)
+			pcs.firePropertyChange("outHistorys", null, null);
+	}
+	public SingleCarparkInOutHistory getInHistorySelect() {
+		return inHistorySelect;
+	}
+	public void setInHistorySelect(SingleCarparkInOutHistory inHistorySelect) {
+		this.inHistorySelect = inHistorySelect;
+		if (pcs != null)
+			pcs.firePropertyChange("inHistorySelect", null, null);
+	}
+	public SingleCarparkInOutHistory getOutHistorySelect() {
+		return outHistorySelect;
+	}
+	public void setOutHistorySelect(SingleCarparkInOutHistory outHistorySelect) {
+		this.outHistorySelect = outHistorySelect;
+		if (pcs != null)
+			pcs.firePropertyChange("outHistorySelect", null, null);
+	}
+	public String getHandPlateNO() {
+		return handPlateNO;
+	}
+	public void setHandPlateNO(String handPlateNO) {
+		this.handPlateNO = handPlateNO;
+		if (pcs != null)
+			pcs.firePropertyChange("handPlateNO", null, null);
 	}
 
 }

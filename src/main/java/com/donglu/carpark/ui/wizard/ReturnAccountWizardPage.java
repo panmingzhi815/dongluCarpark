@@ -42,6 +42,7 @@ public class ReturnAccountWizardPage extends WizardPage {
 	ReturnAccountModel model;
 	private Text text_2;
 	private Button button;
+	private Text text_5;
 
 	
 	/**
@@ -131,6 +132,17 @@ public class ReturnAccountWizardPage extends WizardPage {
 		
 		button = new Button(composite, SWT.CHECK);
 		button.setToolTipText("选中之后同时归账免费金额");
+		
+		Label label_5 = new Label(composite, SWT.NONE);
+		label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_5.setText("备      注");
+		
+		text_5 = new Text(composite, SWT.BORDER);
+		GridData gd_text_5 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_5.heightHint = 68;
+		text_5.setLayoutData(gd_text_5);
+		new Label(composite, SWT.NONE);
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {

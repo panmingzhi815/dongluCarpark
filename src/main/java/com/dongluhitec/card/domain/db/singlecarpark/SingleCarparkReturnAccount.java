@@ -22,7 +22,16 @@ public class SingleCarparkReturnAccount extends DomainObject {
 	private Date returnTime;
 	private String operaName;
 	private Long returnAccountId;
+	private String remark;
 	
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+		if (pcs != null)
+			pcs.firePropertyChange("remark", null, null);
+	}
 	public String getReturnTimeLabel(){
 		return StrUtil.formatDate(returnTime, "yyyy-MM-dd HH:mm:ss");
 	}
