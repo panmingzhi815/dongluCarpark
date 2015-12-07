@@ -130,7 +130,7 @@ public class CarparkMainModel extends DomainObject{
 	private SingleCarparkInOutHistory outHistorySelect;
 	
 	
-	private String handPlateNO;
+	private String handPlateNO; //手动入场车牌
 	public String getUserName() {
 		return userName;
 	}
@@ -523,6 +523,11 @@ public class CarparkMainModel extends DomainObject{
 		}
 		if (this.inHistorys.size()>50) {
 			this.inHistorys.remove(0);
+		}
+		if (this.inHistorys.contains(inHistory)) {
+			this.inHistorys.remove(inHistory);
+			if (pcs != null)
+				pcs.firePropertyChange("inHistorys", null, null);
 		}
 		this.inHistorys.add(inHistory);
 		if (pcs != null)

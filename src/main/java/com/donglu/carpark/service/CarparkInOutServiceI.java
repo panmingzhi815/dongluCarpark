@@ -88,11 +88,11 @@ public interface CarparkInOutServiceI {
 	 */
 	float findOneDayMaxCharge(CarTypeEnum carType);
 	/**
-	 * 查找车今天缴费
+	 * 查找车指定日期缴费金额
 	 * @param plateNo
 	 * @return
 	 */
-	float countTodayCharge(String plateNo);
+	float countTodayCharge(String plateNo,Date date);
 	/**
 	 * 保存抬杆记录
 	 * @param openDoor
@@ -131,4 +131,13 @@ public interface CarparkInOutServiceI {
 	 */
 	List<SingleCarparkInOutHistory> searchHistoryByLikePlateNO(List<String> plateNOs, boolean order,
 			SingleCarparkCarpark carpark);
+	/**
+	 * 查询场内车
+	 * @return
+	 */
+	int findTotalCarIn();
+
+	int findTotalTempCarIn();
+
+	int findTotalFixCarIn();
 }

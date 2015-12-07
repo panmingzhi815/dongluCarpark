@@ -1,47 +1,47 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.donglu</groupId>
-  <artifactId>carpark</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
+	<groupId>com.donglu</groupId>
+	<artifactId>carpark</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
-  <name>carpark</name>
-  <url>http://maven.apache.org</url>
+	<name>carpark</name>
+	<url>http://maven.apache.org</url>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
-    <dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
-    <dev.build.version>V1.0.0.0</dev.build.version>
-  </properties>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+		<dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
+		<dev.build.version>V1.0.0.0</dev.build.version>
+	</properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>com.dongluhitec.card</groupId>
-      <artifactId>ui</artifactId>
-      <version>1.0-SNAPSHOT</version>
-      <exclusions>
-      	<exclusion>
-      		<artifactId>javassist</artifactId>
-      		<groupId>org.javassist</groupId>
-      	</exclusion>
-      </exclusions>
-    </dependency>
-    
-   <dependency>
-		<groupId>org.javassist</groupId>
-		<artifactId>javassist</artifactId>
-		<version>3.20.0-GA</version>
-	</dependency>
-	<dependency>
-	<groupId>commons-fileupload</groupId>
-	<artifactId>commons-fileupload</artifactId>
-	<version>1.3.1</version>
-	</dependency>
-	
-    <!-- 加入jstl依赖包 -->
+	<dependencies>
+		<dependency>
+			<groupId>com.dongluhitec.card</groupId>
+			<artifactId>ui</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>javassist</artifactId>
+					<groupId>org.javassist</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>3.20.0-GA</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+
+		<!-- 加入jstl依赖包 -->
 		<dependency>
 			<groupId>jstl</groupId>
 			<artifactId>jstl</artifactId>
@@ -89,81 +89,70 @@
 			<artifactId>jsp-2.1-glassfish</artifactId>
 			<version>9.1.02.B04.p0</version>
 		</dependency>
-  </dependencies>
-  <build>
-    <plugins>
-        <!-- The configuration of maven-jar-plugin -->
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <version>2.4</version>
-            <!-- The configuration of the plugin -->
-            <configuration>
-                <!-- Configuration of the archiver -->
-                <archive>
+	</dependencies>
+	<build>
+		<plugins>
+			<!-- The configuration of maven-jar-plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+				<!-- The configuration of the plugin -->
+				<configuration>
+					<!-- Configuration of the archiver -->
+					<archive>
 
-                    <!--
-                        生成的jar中，不要包含pom.xml和pom.properties这两个文件
-                    -->
-                    <addMavenDescriptor>false</addMavenDescriptor>
+						<!-- 生成的jar中，不要包含pom.xml和pom.properties这两个文件 -->
+						<addMavenDescriptor>false</addMavenDescriptor>
 
-                    <!-- Manifest specific configuration -->
-                    <manifest>
-                        <!--
-                            是否要把第三方jar放到manifest的classpath中
-                        -->
-                        <addClasspath>true</addClasspath>
-                        <!--
-                           生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下，所以classpath的前缀是lib/
-                       -->
-                        <classpathPrefix>lib/</classpathPrefix>
-                        <!--
-                            应用的main class
-                        
-                        <mainClass>com.donglu.carpark.Login</mainClass>-->
-                    </manifest>
-                </archive>
-                <!--
-                    过滤掉不希望包含在jar中的文件
-                -->
-                <excludes>
-                    <exclude>${project.basedir}/xml/*</exclude>
-                </excludes>
-            </configuration>
-        </plugin>
-		<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-        <!-- The configuration of maven-assembly-plugin -->
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <version>2.4</version>
-            <!-- The configuration of the plugin -->
-            <configuration>
-                <!-- Specifies the configuration file of the assembly plugin -->
-                	<appendAssemblyId>false</appendAssemblyId>
+						<!-- Manifest specific configuration -->
+						<manifest>
+							<!-- 是否要把第三方jar放到manifest的classpath中 -->
+							<addClasspath>true</addClasspath>
+							<!-- 生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下，所以classpath的前缀是lib/ -->
+							<classpathPrefix>lib/</classpathPrefix>
+							<!-- 应用的main class <mainClass>com.donglu.carpark.Login</mainClass> -->
+						</manifest>
+					</archive>
+					<!-- 过滤掉不希望包含在jar中的文件 -->
+					<excludes>
+						<exclude>${project.basedir}/xml/*</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<!-- The configuration of maven-assembly-plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<!-- The configuration of the plugin -->
+				<configuration>
+					<!-- Specifies the configuration file of the assembly plugin -->
+					<appendAssemblyId>false</appendAssemblyId>
 					<finalName>carpark-${dev.build.timestamp}-${dev.build.version}</finalName>
-                <descriptors>
-                    <descriptor>src/main/resources/package.xml</descriptor>
-                </descriptors>
-            </configuration>
-            <executions>
-                <execution>
-                    <id>make-assembly</id>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>single</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-</build>
+					<descriptors>
+						<descriptor>src/main/resources/package.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

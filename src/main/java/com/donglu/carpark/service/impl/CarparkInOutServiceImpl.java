@@ -506,12 +506,12 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public float countTodayCharge(String plateNo) {
+	public float countTodayCharge(String plateNo,Date date) {
 		unitOfWork.begin();
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
-			c.add(Restrictions.ge(SingleCarparkInOutHistory.Property.outTime.name(), StrUtil.getTodayTopTime(new Date())));
+			c.add(Restrictions.ge(SingleCarparkInOutHistory.Property.outTime.name(), StrUtil.getTodayTopTime(date)));
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plateNo));
 			c.setProjection(Projections.sum(SingleCarparkInOutHistory.Property.factMoney.name()));
 			Double singleResultOrNull = (Double) c.getSingleResultOrNull();
@@ -659,9 +659,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
-			c.addOrder(Order.desc(SingleCarparkInOutHistory.Property.inTime.name()));
 			c.setFirstResult(0);
 			c.setMaxResults(size);
+			c.addOrder(Order.asc(SingleCarparkInOutHistory.Property.inTime.name()));
 			return c.getResultList();
 		} finally{
 			unitOfWork.end();
@@ -674,6 +674,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plateNO));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
 			c.setFirstResult(0);
 			c.setMaxResults(1);
 			return (SingleCarparkInOutHistory) c.getSingleResultOrNull();
@@ -715,6 +716,54 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			e.printStackTrace();
 			return new ArrayList<>();
 		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public int findTotalCarIn() {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+//		c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.setProjection(Projections.rowCount());
+			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
+			
+			return singleResultOrNull==null?0:singleResultOrNull.intValue();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public int findTotalTempCarIn() {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.setProjection(Projections.rowCount());
+			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
+			
+			return singleResultOrNull==null?0:singleResultOrNull.intValue();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public int findTotalFixCarIn() {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "固定车"));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.setProjection(Projections.rowCount());
+			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
+			
+			return singleResultOrNull==null?0:singleResultOrNull.intValue();
+		} finally{
 			unitOfWork.end();
 		}
 	}

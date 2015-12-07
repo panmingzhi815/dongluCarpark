@@ -110,7 +110,6 @@ public class CarInTask implements Runnable {
 			if (StrUtil.isEmpty(cch)) {
 				cch = new SingleCarparkInOutHistory();
 			}
-			cch = new SingleCarparkInOutHistory();
 			cch.setPlateNo(plateNO);
 			cch.setInPlateNO(plateNO);
 

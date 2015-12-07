@@ -36,7 +36,7 @@ public class SearchErrorCarPresenter implements Presenter{
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> list = new ArrayList<>();
 //		list = carparkInOutService.searchHistoryByLikePlateNO(model.getPlateNo(),order,model.getCarpark());
-		for (int i = model.getPlateNo().length(); i >0; i--) {
+		for (int i = model.getPlateNo().length(); i >1; i--) {
 			List<String> plateNOs=CarparkUtils.splitString(model.getPlateNo(), i);
 			List<SingleCarparkInOutHistory> searchHistoryByLikePlateNO = carparkInOutService.searchHistoryByLikePlateNO(plateNOs, order, model.getCarpark());
 			for (SingleCarparkInOutHistory singleCarparkInOutHistory : searchHistoryByLikePlateNO) {

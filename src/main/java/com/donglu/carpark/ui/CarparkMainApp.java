@@ -30,6 +30,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Group;
@@ -248,6 +249,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private ToolItem delInToolItem3;
 	private Text text;
 
+	private Boolean carOutChargeCheck;
+
 	/**
 	 * Launch the application.
 	 * 
@@ -315,6 +318,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					System.exit(0);
 				}
 			});
+			
 			shell.open();
 			shell.layout();
 			antoCheckDevices();
@@ -987,6 +991,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				text.setLayoutData(gd_text);
 				
 				Button btnNewButton = new Button(composite_7, SWT.NONE);
+				btnNewButton.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						presenter.carInByHand();
+					}
+				});
 				btnNewButton.setText("手动入场");
 				
 				tableViewer = new TableViewer(composite_18, SWT.BORDER | SWT.FULL_SELECTION);
@@ -1094,30 +1104,14 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		label_13.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_13.setText("实收金额");
 		label_13.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		Boolean carOutChargeCheck = Boolean
+		carOutChargeCheck = Boolean
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行) == null ? SystemSettingTypeEnum.出场确认放行.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行));
 		text_real = new Text(group, SWT.BORDER | SWT.READ_ONLY);
 		text_real.addKeyListener(new KeyAdapter() {
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				// 收费放行
-				if (e.keyCode == 16777296 || e.keyCode == 13 || e.keyCode == 16777236) {
-					presenter.charge(carOutChargeCheck);
-				}
-				// 免费放行
-				if (e.keyCode == 16777237) {
-					presenter.free(carOutChargeCheck);
-				}
-				if (e.keyCode == 16777232) {
-					presenter.changeUser();
-				}
-				if (e.keyCode == 16777233) {
-					presenter.returnAccount();
-				}
-				if (e.keyCode == 16777234) {
-					presenter.showSearchInOutHistory();
-				}
+				keyReleasedByControl(carOutChargeCheck, e);
 			}
 		});
 		text_real.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
@@ -1149,27 +1143,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		carTypeSelectCombo.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				if (e.keyCode == StrUtil.SMAIL_KEY_ENTER || e.keyCode == 13) {
-					text_real.setFocus();
-					text_real.selectAll();
-				}
-				// 收费放行
-				if (e.keyCode == 16777236) {
-					presenter.charge(carOutChargeCheck);
-				}
-				// 免费放行
-				if (e.keyCode == 16777237) {
-					presenter.free(carOutChargeCheck);
-				}
-				if (e.keyCode == 16777232) {
-					presenter.changeUser();
-				}
-				if (e.keyCode == 16777233) {
-					presenter.returnAccount();
-				}
-				if (e.keyCode == 16777234) {
-					presenter.showSearchInOutHistory();
-				}
+				keyReleasedByControl(carOutChargeCheck, e);
 			}
 		});
 		carTypeSelectCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -1384,7 +1358,24 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		}
 
 	}
-
+	void addKeyLisenter(Control control){
+		Control[] children=null;
+		if (control instanceof Shell) {
+			children = ((Shell)control).getChildren();
+		}
+		
+		if (!StrUtil.isEmpty(children)) {
+			for (Control c : children) {
+				c.addKeyListener(new KeyAdapter() {
+					@Override
+					public void keyReleased(KeyEvent e) {
+						keyReleasedByControl(carOutChargeCheck, e);
+					}
+					
+				});
+			}
+		}
+	}
 	/**
 	 * @param i
 	 * @param lbl_charge
@@ -1726,6 +1717,37 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		IObservableValue inHistorySelectModelObserveValue = BeanProperties.value("inHistorySelect").observe(model);
 		bindingContext.bindValue(observeSingleSelectionTableViewer, inHistorySelectModelObserveValue, null, null);
 		//
+		IObservableValue observeTextTextObserveWidget = WidgetProperties.text(SWT.Modify).observe(text);
+		IObservableValue handPlateNOModelObserveValue = BeanProperties.value("handPlateNO").observe(model);
+		bindingContext.bindValue(observeTextTextObserveWidget, handPlateNOModelObserveValue, null, null);
+		//
 		return bindingContext;
+	}
+	/**
+	 * @param carOutChargeCheck
+	 * @param e
+	 */
+	private void keyReleasedByControl(Boolean carOutChargeCheck, KeyEvent e) {
+		if (e.keyCode == StrUtil.SMAIL_KEY_ENTER || e.keyCode == 13) {
+			text_real.setFocus();
+			text_real.selectAll();
+		}
+		// 收费放行
+		if (e.keyCode == 16777236) {
+			presenter.charge(carOutChargeCheck);
+		}
+		// 免费放行
+		if (e.keyCode == 16777237) {
+			presenter.free(carOutChargeCheck);
+		}
+		if (e.keyCode == 16777232) {
+			presenter.changeUser();
+		}
+		if (e.keyCode == 16777233) {
+			presenter.returnAccount();
+		}
+		if (e.keyCode == 16777234) {
+			presenter.showSearchInOutHistory();
+		}
 	}
 }

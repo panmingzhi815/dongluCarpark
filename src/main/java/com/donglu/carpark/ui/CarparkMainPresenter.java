@@ -719,25 +719,47 @@ public class CarparkMainPresenter {
 //			for (int i=1;i< cutDaysByHours.size() ; i++) {
 //				
 //			}
-			calculateTempCharge+=sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), startTime, endTime);
-			boolean flag = true;
+//			calculateTempCharge+=sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), startTime, endTime);
+//			boolean flag = true;
 //			CarparkUtils.checkDaysIsOneDay(startTime, endTime)
-			if (flag) {
-				int countDayByBetweenTime = CarparkUtils.countDayByBetweenTime(startTime, endTime);
+			
+			
+			for (int i = 1; i < cutDaysByHours.size(); i++) {
+				Date s = cutDaysByHours.get(i-1);
+				Date  e= cutDaysByHours.get(i);
+				float should = sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), s, e);
 				float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType);
-				max=max*countDayByBetweenTime;
-				float now = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo());
+				float now = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo(),s);
 				if (max > 0) {
 					float f = max - now;
 					if (f <= 0) {
-						return 0;
+						totalCharge+=0;
 					}
-					if (f < calculateTempCharge) {
-						return f;
+					if (f < should) {
+						totalCharge+=f;
+					}else{
+						totalCharge+=should;
 					}
+				}else{
+					totalCharge+=should;
 				}
 			}
-			totalCharge+=calculateTempCharge-money<0?0:calculateTempCharge-money;
+//			if (flag) {
+//				int countDayByBetweenTime = CarparkUtils.countDayByBetweenTime(startTime, endTime);
+//				float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType);
+//				max=max*countDayByBetweenTime;
+//				float now = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo(),new Date());
+//				if (max > 0) {
+//					float f = max - now;
+//					if (f <= 0) {
+//						return 0;
+//					}
+//					if (f < calculateTempCharge) {
+//						return f;
+//					}
+//				}
+//			}
+//			totalCharge+=calculateTempCharge-money<0?0:calculateTempCharge-money;
 //			return calculateTempCharge-money<0?0:calculateTempCharge-money;
 		} catch (Exception e) {
 			LOGGER.error("计算收费是发生错误",e);
@@ -1052,5 +1074,30 @@ public class CarparkMainPresenter {
 		}
 		InOutHistoryDetailWizard wizard = new InOutHistoryDetailWizard(h);
 		commonui.showWizard(wizard);
+	}
+
+	public void carInByHand() {
+		String handPlateNO = model.getHandPlateNO();
+		if (StrUtil.isEmpty(handPlateNO)) {
+			return;
+		}
+		boolean confirm = commonui.confirm("提示", "确认让车牌"+handPlateNO+"入场");
+		if (!confirm) {
+			return;
+		}
+		SingleCarparkInOutHistory h=sp.getCarparkInOutService().findInOutHistoryByPlateNO(handPlateNO);
+		if (StrUtil.isEmpty(h)) {
+			h = new SingleCarparkInOutHistory();
+		}
+		h.setPlateNo(handPlateNO);
+		h.setInPhotographType("手动");
+		h.setCarparkId(model.getCarpark().getId());
+		h.setCarparkName(model.getCarpark().getName());
+		h.setInTime(new Date());
+		Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(h);
+		h.setId(saveInOutHistory);
+		h.setOperaName(System.getProperty("userName"));
+		model.addInHistorys(h);
+		model.setInHistorySelect(h);
 	}
 }

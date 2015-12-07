@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.CarparkUserService;
+import com.donglu.carpark.service.WebService;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.Presenter;
@@ -41,6 +42,8 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 	private CommonUIFacility commonui;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
+	@Inject
+	private WebService ws;
 	@Override
 	public void go(Composite c) {
 		view=new UserListView(c,c.getStyle());

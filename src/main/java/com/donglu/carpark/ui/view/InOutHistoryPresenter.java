@@ -49,7 +49,7 @@ public class InOutHistoryPresenter  implements Presenter{
 	}
 	public void search(String plateNo, String returnUser, Date start, Date end, String operaName, String carType, String inout, String inDevice, String outDevice, String returnAccount, SingleCarparkCarpark carpark, String modifyPlateNO) {
 		if (inout.equals("否")) {
-			listPresenter.search( null,  null,  null,  null,  null,  null,  inout,  null,  null,  null,carpark,modifyPlateNO);
+			listPresenter.search( plateNo,  null,  null,  null,  operaName,  carType,  inout,  null,  null,  null,carpark,modifyPlateNO);
 		}else
 		listPresenter.search( plateNo,  returnUser,  start,  end,  operaName,  carType,  inout,  inDevice,  outDevice,  returnAccount,carpark,modifyPlateNO);
 	}
