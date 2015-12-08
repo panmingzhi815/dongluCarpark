@@ -247,7 +247,7 @@ public class CarparkMainPresenter {
 		composite.setLayout(new FillLayout());
 		if (type.equals("进口")) {
 			createLeftCamera(ip, composite);
-		} else if (type.equals("出口")) {
+		} else if (type.equals("出口")||type.equals("出口2")) {
 			createRightCamera(ip, composite);
 		}else if(type.equals("进口2")){
 			createLeftCameraBottom(ip, composite);
@@ -426,7 +426,7 @@ public class CarparkMainPresenter {
 				commonui.info("修改成功", "修改设备" + ip + "成功");
 				LOGGER.info("发送平时显示类容");
 				showUsualContentToDevice(device2);
-				sendPositionToAllDevice(true);
+//				sendPositionToAllDevice(true);
 				return;
 			} else {
 				if (mapDeviceType.get(ip) != null) {
@@ -594,6 +594,10 @@ public class CarparkMainPresenter {
 			if (inType.equals("进口2")) {
 				inType="进口";
 			}
+			if (inType.equals("出口2")) {
+				inType="出口";
+			}
+			
 			return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType),(byte)(device.getScreenType().getType()));
 		} catch (Exception e) {
 			e.printStackTrace();

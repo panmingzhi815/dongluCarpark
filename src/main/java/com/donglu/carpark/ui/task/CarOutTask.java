@@ -156,25 +156,27 @@ public class CarOutTask implements Runnable{
 			// 界面图片
 			Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
-					if (outSmallImage != null) {
-						LOGGER.info("出口小图片销毁图片");
-						outSmallImage.dispose();
-						lbl_outSmallImg.setBackgroundImage(null);
-					}
-					if (outBigImage != null) {
-						LOGGER.info("出口大图片销毁图片");
-						outBigImage.dispose();
-						lbl_outBigImg.setBackgroundImage(null);
-					}
-
-					outSmallImage = CarparkUtils.getImage(smallImage, lbl_outSmallImg, shell);
-					if (outSmallImage != null) {
-						lbl_outSmallImg.setBackgroundImage(outSmallImage);
-					}
-
-					outBigImage = CarparkUtils.getImage(bigImage, lbl_outBigImg, shell);
-					if (outBigImage != null) {
-						lbl_outBigImg.setBackgroundImage(outBigImage);
+					if (!StrUtil.isEmpty(lbl_outSmallImg)) {
+						if (outSmallImage != null) {
+							LOGGER.info("出口小图片销毁图片");
+							outSmallImage.dispose();
+							lbl_outSmallImg.setBackgroundImage(null);
+						}
+						if (outBigImage != null) {
+							LOGGER.info("出口大图片销毁图片");
+							outBigImage.dispose();
+							lbl_outBigImg.setBackgroundImage(null);
+						}
+						
+						outSmallImage = CarparkUtils.getImage(smallImage, lbl_outSmallImg, shell);
+						if (outSmallImage != null) {
+							lbl_outSmallImg.setBackgroundImage(outSmallImage);
+						}
+						
+						outBigImage = CarparkUtils.getImage(bigImage, lbl_outBigImg, shell);
+						if (outBigImage != null) {
+							lbl_outBigImg.setBackgroundImage(outBigImage);
+						}
 					}
 
 					text_real.setFocus();

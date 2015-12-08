@@ -834,6 +834,30 @@ public class CarparkManageApp extends AbstractApp{
 		label_7.setText("毫秒");
 		label_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
+		Composite composite_24 = new Composite(group_4, SWT.NONE);
+		composite_24.setLayout(new GridLayout(2, false));
+		composite_24.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+		
+		Button btnCheckButton_2 = new Button(composite_24, SWT.CHECK);
+		btnCheckButton_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.左下监控, btnCheckButton_2.getSelection()+"");
+			}
+		});
+		btnCheckButton_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		btnCheckButton_2.setText("左下监控");
+		btnCheckButton_2.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.左下监控)==null?SystemSettingTypeEnum.左下监控.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.左下监控)));
+		Button btnCheckButton_3 = new Button(composite_24, SWT.CHECK);
+		btnCheckButton_3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.右下监控, btnCheckButton_3.getSelection()+"");
+			}
+		});
+		btnCheckButton_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		btnCheckButton_3.setText("右下监控");
+		btnCheckButton_3.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.右下监控)==null?SystemSettingTypeEnum.右下监控.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.右下监控)));
 		Composite composite_14 = new Composite(group_4, SWT.NONE);
 		GridData gd_composite_14 = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
 		if (dbServerIp.equals("localhost")||dbServerIp.equals("127.0.0.1")||dbServerIp.equals(StrUtil.getHostIp())) {

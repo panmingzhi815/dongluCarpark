@@ -50,16 +50,19 @@ public class CarInTask implements Runnable {
 	private final Map<SystemSettingTypeEnum, String> mapSystemSetting = CarparkMainApp.mapSystemSetting;
 	// 保存最近的手动拍照时间
 	private final Map<String, Date> mapHandPhotograph = CarparkMainApp.mapHandPhotograph;
-	
-	private final Map<String, Boolean> mapOpenDoor = CarparkMainApp.mapOpenDoor;
-	
-	private Float rightSize;
-	
-	private long startTime=System.currentTimeMillis();
-	
 
-	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, 
-			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, Shell shell,Float rightSize) {
+	private final Map<String, Boolean> mapOpenDoor = CarparkMainApp.mapOpenDoor;
+
+	private Float rightSize;
+
+	private long startTime = System.currentTimeMillis();
+
+	private final CLabel lbl_inSmallImg;
+
+	private final CLabel lbl_inBigImg;
+
+	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, Shell shell,
+			Float rightSize, CLabel lbl_inSmallImg, CLabel lbl_inBigImg) {
 		super();
 		this.ip = ip;
 		this.plateNO = plateNO;
@@ -69,38 +72,40 @@ public class CarInTask implements Runnable {
 		this.sp = sp;
 		this.presenter = presenter;
 		this.shell = shell;
-		this.rightSize=rightSize;
+		this.rightSize = rightSize;
+		this.lbl_inSmallImg = lbl_inSmallImg;
+		this.lbl_inBigImg = lbl_inBigImg;
 	}
 
 	public void run() {
 		try {
 			SingleCarparkDevice device = mapIpToDevice.get(ip);
-			//开闸
+			// 开闸
 			Boolean boolean1 = mapOpenDoor.get(ip);
 			if (boolean1 != null && boolean1) {
 				mapOpenDoor.put(ip, null);
 				presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO, true);
 				return;
 			}
-			//双摄像头等待
-			Boolean isTwoChanel=CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress())==null?false:CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress());
+			// 双摄像头等待
+			Boolean isTwoChanel = CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress()) == null ? false : CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress());
 			if (isTwoChanel) {
 				try {
-					Integer two = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔)==null?SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
-					long l = System.currentTimeMillis()-startTime;
-					while (l<two) {
+					Integer two = Integer.valueOf(
+							mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
+					long l = System.currentTimeMillis() - startTime;
+					while (l < two) {
 						Thread.sleep(50);
-						l = System.currentTimeMillis()-startTime;
+						l = System.currentTimeMillis() - startTime;
 					}
 					CarparkMainApp.mapInTwoCameraTask.remove(device.getLinkAddress());
 				} catch (NumberFormatException e1) {
 					e1.printStackTrace();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-				} 
+				}
 			}
-			
-			
+
 			Date date = new Date();
 			boolean checkPlateNODiscernGap = presenter.checkPlateNODiscernGap(mapPlateNoDate, plateNO, date);
 			if (!checkPlateNODiscernGap) {
@@ -120,7 +125,7 @@ public class CarInTask implements Runnable {
 			long nanoTime1 = System.nanoTime();
 
 			LOGGER.info(dateString + "==" + ip + "====" + plateNO);
-			
+
 			if (StrUtil.isEmpty(device)) {
 				LOGGER.error("没有找到ip:" + ip + "的设备");
 				return;
@@ -131,13 +136,45 @@ public class CarInTask implements Runnable {
 				return;
 			}
 			LOGGER.debug("开始在界面显示车牌：{}的抓拍图片", plateNO);
+			// 界面图片
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					if (StrUtil.isEmpty(lbl_inSmallImg)) {
+						return;
+					}
+					if (inSmallImage != null) {
+						LOGGER.info("出口小图片销毁图片");
+						inSmallImage.dispose();
+						lbl_inSmallImg.setBackgroundImage(null);
+					}
+					if (inBigImage != null) {
+						LOGGER.info("出口大图片销毁图片");
+						inBigImage.dispose();
+						lbl_inBigImg.setBackgroundImage(null);
+					}
+
+					inSmallImage = CarparkUtils.getImage(smallImage, lbl_inSmallImg, shell);
+					if (inSmallImage != null) {
+						lbl_inSmallImg.setBackgroundImage(inSmallImage);
+					}
+
+					inBigImage = CarparkUtils.getImage(bigImage, lbl_inBigImg, shell);
+					if (inBigImage != null) {
+						lbl_inBigImg.setBackgroundImage(inBigImage);
+					}
+				}
+			});
+			model.setInShowPlateNO(plateNO);
+			model.setInShowTime(dateString);
+			
 			String editPlateNo = null;
 			boolean isEmptyPlateNo = false;
 			// 空车牌处理
 			if (StrUtil.isEmpty(plateNO)) {
 				LOGGER.info("空的车牌");
-				Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进) == null ? SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进));
-				if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认)) || Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认))||!valueOf) {
+				Boolean valueOf = Boolean.valueOf(
+						mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进) == null ? SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进));
+				if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认)) || Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认)) || !valueOf) {
 					model.setInCheckClick(true);
 					isEmptyPlateNo = true;
 					while (model.isInCheckClick()) {
@@ -222,9 +259,9 @@ public class CarInTask implements Runnable {
 
 			model.setHistory(cch);
 			LOGGER.debug("查找是否为固定车");
-			SingleCarparkUser findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO,device.getCarpark().getId());
+			SingleCarparkUser findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO, device.getCarpark().getId());
 			SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo;
-			
+
 			String carType = "临时车";
 
 			if (!StrUtil.isEmpty(user)) {
@@ -253,7 +290,7 @@ public class CarInTask implements Runnable {
 				// }
 				// }
 				if (flag) {
-					SingleCarparkUser findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(editPlateNo,device.getCarpark().getId());
+					SingleCarparkUser findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(editPlateNo, device.getCarpark().getId());
 					SingleCarparkUser singleCarparkUser = StrUtil.isEmpty(findUserByPlateNo) ? null : findUserByPlateNo;
 					if (StrUtil.isEmpty(singleCarparkUser)) {
 						LOGGER.debug("判断是否允许临时车进");
@@ -265,16 +302,16 @@ public class CarInTask implements Runnable {
 							return;
 						}
 					} else {
-						if (fixCarShowToDevice(date, device, user,cch.getId())) {
+						if (fixCarShowToDevice(date, device, user, cch.getId())) {
 							return;
 						}
-						carType="固定车";
+						carType = "固定车";
 					}
 				} else {
-					if (fixCarShowToDevice(date, device, user,cch.getId())) {
+					if (fixCarShowToDevice(date, device, user, cch.getId())) {
 						return;
 					}
-					carType="固定车";
+					carType = "固定车";
 				}
 			} else {
 				LOGGER.debug("判断是否允许临时车进");
@@ -285,7 +322,7 @@ public class CarInTask implements Runnable {
 				boolean flag = false;
 				if (!isEmptyPlateNo) {
 					if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认))) {
-						flag=true;
+						flag = true;
 						model.setInCheckClick(true);
 						while (model.isInCheckClick()) {
 							try {
@@ -299,7 +336,7 @@ public class CarInTask implements Runnable {
 					}
 				}
 				if (flag) {
-					SingleCarparkUser findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(editPlateNo,device.getCarpark().getId());
+					SingleCarparkUser findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(editPlateNo, device.getCarpark().getId());
 					SingleCarparkUser singleCarparkUser = StrUtil.isEmpty(findUserByPlateNo) ? null : findUserByPlateNo;
 					if (StrUtil.isEmpty(singleCarparkUser)) {
 						LOGGER.debug("判断是否允许临时车进");
@@ -311,7 +348,7 @@ public class CarInTask implements Runnable {
 							return;
 						}
 					} else {
-						if (fixCarShowToDevice(date, device, user,cch.getId())) {
+						if (fixCarShowToDevice(date, device, user, cch.getId())) {
 							return;
 						}
 					}
@@ -323,8 +360,8 @@ public class CarInTask implements Runnable {
 			LOGGER.debug("车辆类型为：{}==t通道类型为：{}", carType, device.getRoadType());
 			// showInDevice(device, plateNO, user);
 			long nanoTime2 = System.nanoTime();
-			LOGGER.debug(
-					dateString + "==" + ip + "====" + plateNO + "车辆类型：" + carType + "==" + "保存图片：" + (nanoTime1 - nanoTime) + "==查找固定用户：" + (nanoTime2 - nanoTime3) + "==界面操作：" + (nanoTime3 - nanoTime1));
+			LOGGER.debug(dateString + "==" + ip + "====" + plateNO + "车辆类型：" + carType + "==" + "保存图片：" + (nanoTime1 - nanoTime) + "==查找固定用户：" + (nanoTime2 - nanoTime3) + "==界面操作："
+					+ (nanoTime3 - nanoTime1));
 			LOGGER.info("把车牌:{}的进场记录保存到数据库", plateNO);
 			if (!StrUtil.isEmpty(editPlateNo)) {
 				cch.setPlateNo(editPlateNo);
@@ -361,7 +398,7 @@ public class CarInTask implements Runnable {
 			LOGGER.debug("保存车牌：{}的进场记录到数据库成功", plateNO);
 			model.setHistory(null);
 		} catch (Exception e) {
-			LOGGER.error("车辆进场时发生错误，",e);
+			LOGGER.error("车辆进场时发生错误，", e);
 		}
 
 	}
@@ -388,7 +425,7 @@ public class CarInTask implements Runnable {
 	 * @param user
 	 * @return 是否需要退出
 	 */
-	public boolean fixCarShowToDevice(Date date, SingleCarparkDevice device, SingleCarparkUser user,Long inId) throws Exception {
+	public boolean fixCarShowToDevice(Date date, SingleCarparkDevice device, SingleCarparkUser user, Long inId) throws Exception {
 		if (StrUtil.isEmpty(inId)) {
 			Boolean valueOf2 = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费) == null ? "false" : mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));
 			List<SingleCarparkInOutHistory> list = new ArrayList<>();
@@ -407,7 +444,7 @@ public class CarInTask implements Runnable {
 					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，不允许进入", valueOf2, user.getCarparkNo(), list.size());
 					return true;
 				}
-			} 
+			}
 		}
 		if (user.getType().equals("免费")) {
 			Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场));
@@ -428,16 +465,16 @@ public class CarInTask implements Runnable {
 				}
 			}
 		}
-		
-//		int parseInt = Integer.parseInt(StrUtil.isEmpty(user.getCarparkNo())?"0":user.getCarparkNo());
-		
+
+		// int parseInt = Integer.parseInt(StrUtil.isEmpty(user.getCarparkNo())?"0":user.getCarparkNo());
+
 		Date date2 = new DateTime(user.getValidTo()).minusDays(user.getRemindDays() == null ? 0 : user.getRemindDays()).toDate();
 		if (StrUtil.getTodayBottomTime(date2).before(date)) {
-			String content ="月租车辆,"+ CAR_IN_MSG + ",剩余"+CarparkUtils.countDayByBetweenTime(date, user.getValidTo())+"天";
+			String content = "月租车辆," + CAR_IN_MSG + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天";
 			presenter.showContentToDevice(device, content, true);
 			LOGGER.info("固定车：{}，{}", plateNO, content);
 		} else {
-			String content = "月租车辆,"+ CAR_IN_MSG;
+			String content = "月租车辆," + CAR_IN_MSG;
 			presenter.showContentToDevice(device, content, true);
 			LOGGER.info("固定车：{}，{}", plateNO, content);
 		}
@@ -449,7 +486,7 @@ public class CarInTask implements Runnable {
 	 * @param user
 	 */
 	private synchronized void setFixCarToTemIn(Date date, SingleCarparkUser user) {
-		user.setTempCarTime((StrUtil.isEmpty(user.getTempCarTime())?"":user.getTempCarTime()+",")+StrUtil.formatDate(date, StrUtil.DATETIME_PATTERN));
+		user.setTempCarTime((StrUtil.isEmpty(user.getTempCarTime()) ? "" : user.getTempCarTime() + ",") + StrUtil.formatDate(date, StrUtil.DATETIME_PATTERN));
 		sp.getCarparkUserService().saveUser(user);
 	}
 
@@ -492,7 +529,8 @@ public class CarInTask implements Runnable {
 	public void setRightSize(Float rightSize) {
 		this.rightSize = rightSize;
 	}
-	public void alreadyFinshWait(){
-		this.startTime=0l;
+
+	public void alreadyFinshWait() {
+		this.startTime = 0l;
 	}
 }

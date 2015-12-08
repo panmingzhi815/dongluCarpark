@@ -131,8 +131,8 @@ public class StoreServlet extends HttpServlet{
 
 	private void searchPay(HttpServletRequest req, HttpServletResponse resp) {
 		try {
-			HttpSession session = req.getSession();
-			System.out.println("qqqqqqqqqqqqq"+session);
+//			HttpSession session = req.getSession();
+//			System.out.println("qqqqqqqqqqqqq"+session);
 			System.out.println("searchPay");
 			sp.start();
 			StoreServiceI storeService = sp.getStoreService();
@@ -247,6 +247,9 @@ public class StoreServlet extends HttpServlet{
 				free=storeService.findStoreFreeById(Long.valueOf(id));
 				if (!free.getStoreName().equals(storeName)) {
 					throw new Exception("商铺信息不对应");
+				}
+				if (free.getUsed().equals("已使用")) {
+					throw new Exception("该优惠已使用");
 				}
 			}else{
 				free.setCreateTime(new Date());

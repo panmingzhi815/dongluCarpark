@@ -131,6 +131,9 @@ public class CarparkMainModel extends DomainObject{
 	
 	
 	private String handPlateNO; //手动入场车牌
+
+	private CTabItem selectTabSelect;
+	
 	public String getUserName() {
 		return userName;
 	}
@@ -575,6 +578,12 @@ public class CarparkMainModel extends DomainObject{
 		this.handPlateNO = handPlateNO;
 		if (pcs != null)
 			pcs.firePropertyChange("handPlateNO", null, null);
+	}
+	public void setSelectTabSelect(CTabItem selectTabSelect) {
+		this.selectTabSelect=selectTabSelect;
+	}
+	public CTabItem getSelectTabSelect() {
+		return selectTabSelect;
 	}
 
 }

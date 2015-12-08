@@ -72,7 +72,13 @@ public class DevicePresenter  implements Presenter{
 	public void createRightCamera(String ip, Composite composite) {
 		presenter.createLeftCamera(ip, composite);
 	}
-	public void controlItem(){
-		view.controlItem();
+	public void controlItem(Boolean dispose){
+		if (StrUtil.isEmpty(view)) {
+			return;
+		}
+		view.controlItem(dispose);
+	}
+	public void setModel(CarparkMainModel model) {
+		this.model = model;
 	}
 }

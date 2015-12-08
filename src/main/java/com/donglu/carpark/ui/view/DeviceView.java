@@ -46,17 +46,26 @@ public class DeviceView extends Composite implements View{
 	private CarparkMainModel model;
 	private CTabFolder tabFolder;
 	private RateLimiter rateLimiter = RateLimiter.create(1);
-	private ToolItem addInToolItem3;
+	private ToolItem addToolItem;
 
-	private ToolItem editInToolItem3;
+	private ToolItem editToolItem;
 
-	private ToolItem delInToolItem3;
+	private ToolItem delToolItem;
 
 	public DeviceView(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		tabFolder = new CTabFolder(this, SWT.BORDER);
+		tabFolder.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				System.out.println(tabFolder.getSelection());
+//				model.setSelectTabSelect(tabFolder.getSelection());
+			}
+			
+		});
 		Composite control3 = new Composite(tabFolder, SWT.NONE);
 		GridLayout layout3 = new GridLayout();
 		layout3.marginHeight = 0;
@@ -100,30 +109,30 @@ public class DeviceView extends Composite implements View{
 			}
 		});
 
-		addInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
-		addInToolItem3.setText("添加");
-		addInToolItem3.setToolTipText("添加进口2设备");
-		addInToolItem3.addSelectionListener(new SelectionAdapter() {
+		addToolItem = new ToolItem(toolBar3, SWT.NONE);
+		addToolItem.setText("添加");
+		addToolItem.setToolTipText("添加进口2设备");
+		addToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				getPresenter().addDevice(tabFolder);
 			}
 		});
-		editInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
-		editInToolItem3.setText("修改");
-		editInToolItem3.setToolTipText("修改进口2设备");
-		editInToolItem3.addSelectionListener(new SelectionAdapter() {
+		editToolItem = new ToolItem(toolBar3, SWT.NONE);
+		editToolItem.setText("修改");
+		editToolItem.setToolTipText("修改进口2设备");
+		editToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				getPresenter().editDevice(tabFolder);
 			}
 		});
 
-		delInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
-		delInToolItem3.setText("删除");
-		delInToolItem3.setToolTipText("删除进口2设备");
+		delToolItem = new ToolItem(toolBar3, SWT.NONE);
+		delToolItem.setText("删除");
+		delToolItem.setToolTipText("删除进口2设备");
 
-		delInToolItem3.addSelectionListener(new SelectionAdapter() {
+		delToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				getPresenter().deleteDevice(tabFolder.getSelection());
@@ -178,8 +187,12 @@ public class DeviceView extends Composite implements View{
 		tabFolder.setSelection(0);
 	}
 
-	public void controlItem() {
-		
+	public void controlItem(Boolean dispose) {
+		if (dispose) {
+			addToolItem.dispose();
+			editToolItem.dispose();
+			delToolItem.dispose();
+		}
 		
 	}
 }
