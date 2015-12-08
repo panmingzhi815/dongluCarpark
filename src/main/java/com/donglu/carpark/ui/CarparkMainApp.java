@@ -52,6 +52,7 @@ import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.ui.common.AbstractApp;
 import com.donglu.carpark.ui.task.CarInTask;
 import com.donglu.carpark.ui.task.CarOutTask;
+import com.donglu.carpark.ui.view.DevicePresenter;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
@@ -196,6 +197,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	public static final Map<String, CarOutTask> mapOutTwoCameraTask = Maps.newHashMap();
 	
 	public static final Map<String, Boolean> mapIsTwoChanel = Maps.newHashMap();
+		Map<String, List<SingleCarparkDevice>> mapTypeDevices= Maps.newHashMap();
 	
 	public static Map<String, String> mapTempCharge;
 	// 进口tab
@@ -239,17 +241,15 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private ToolItem delOutToolItem;
 	private Table table;
 	private TableViewer tableViewer;
-
-	private CTabFolder tabInFolder2;
-
-	private ToolItem addInToolItem3;
-
-	private ToolItem editInToolItem3;
-
-	private ToolItem delInToolItem3;
 	private Text text;
 
 	private Boolean carOutChargeCheck;
+	@Inject
+	private DevicePresenter inDevicePresenter;
+	@Inject
+	private DevicePresenter outDevicePresenter;
+	@Inject
+	private DevicePresenter inDevicePresenter2;
 
 	/**
 	 * Launch the application.
@@ -285,13 +285,20 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			Map<String, SingleCarparkDevice> map = (Map<String, SingleCarparkDevice>) readObject;
 			for (String key : map.keySet()) {
 				SingleCarparkDevice singleCarparkDevice = map.get(key);
-				if (StrUtil.isEmpty(singleCarparkDevice.getInType())) {
+				String inType = singleCarparkDevice.getInType();
+				if (StrUtil.isEmpty(inType)) {
 					continue;
 				}
 				SingleCarparkCarpark carpark = singleCarparkDevice.getCarpark();
 				model.setCarpark(carpark);
-				mapDeviceType.put(key, singleCarparkDevice.getInType());
+				mapDeviceType.put(key, inType);
 				mapIpToDevice.put(key, singleCarparkDevice);
+				List<SingleCarparkDevice> list = mapTypeDevices.get(inType);
+				if (StrUtil.isEmpty(list)) {
+					list=new ArrayList<>();
+				}
+				list.add(singleCarparkDevice);
+				mapTypeDevices.put(inType, list);
 			}
 		}
 		
@@ -398,7 +405,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
 		
 	}
-
+	/**
+	 * 自动更新设备信息
+	 */
 	private void antoCheckDevices() {
 		new Thread(new Runnable() {
 			public void run() {
@@ -658,89 +667,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		GridData gd_composite_5 = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 2);
 		gd_composite_5.widthHint = 357;
 		composite_5.setLayoutData(gd_composite_5);
-		
-		tabInFolder2 = new CTabFolder(composite_5, SWT.BORDER | SWT.FLAT);
-		
-		
-		Composite control3 = new Composite(tabInFolder2, SWT.NONE);
-		GridLayout layout3 = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
-		control3.setLayout(layout3);
-		ToolBar toolBar3 = new ToolBar(control3, SWT.NONE);
-		ToolItem toolItem_in_photograph3 = new ToolItem(toolBar3, SWT.NONE);
-		toolItem_in_photograph3.setText("拍照");
-		toolItem_in_photograph3.setToolTipText("进口2手动抓拍");
-		toolItem_in_photograph3.setSelection(true);
-		toolItem_in_photograph3.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (!rateLimiter.tryAcquire()) {
-					return;
-				}
-				CTabItem selection = tabInFolder2.getSelection();
-				if (StrUtil.isEmpty(selection)) {
-					return;
-				}
-				handPhotograph(mapDeviceTabItem.get(selection));
-			}
-		});
-		ToolItem toolItem_in_openDoor3 = new ToolItem(toolBar3, SWT.NONE);
-		toolItem_in_openDoor3.setText("抬杆");
-		toolItem_in_openDoor3.setToolTipText("进口2手动抬杆");
-		toolItem_in_openDoor3.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-
-				if (!rateLimiter.tryAcquire()) {
-					return;
-				}
-				CTabItem selection = tabInFolder2.getSelection();
-				if (StrUtil.isEmpty(selection)) {
-					return;
-				}
-				String ip = mapDeviceTabItem.get(selection);
-				mapOpenDoor.put(ip, true);
-				handPhotograph(ip);
-			}
-		});
-
-		addInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
-		addInToolItem3.setText("添加");
-		addInToolItem3.setToolTipText("添加进口2设备");
-		addInToolItem3.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				presenter.addDevice(tabInFolder2, "进口2");
-			}
-		});
-		editInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
-		editInToolItem3.setText("修改");
-		editInToolItem3.setToolTipText("修改进口2设备");
-		editInToolItem3.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				presenter.editDevice(tabInFolder2, "进口2");
-			}
-		});
-
-		delInToolItem3 = new ToolItem(toolBar3, SWT.NONE);
-		delInToolItem3.setText("删除");
-		delInToolItem3.setToolTipText("删除进口2设备");
-
-		delInToolItem3.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				boolean confirm = commonui.confirm("确定提示", "确定删除所选设备");
-				if (!confirm) {
-					return;
-				}
-				presenter.deleteDeviceTabItem(tabInFolder2.getSelection());
-			}
-		});
-		tabInFolder2.setTopRight(control3);
-		tabInFolder2.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
-		tabInFolder2.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+		inDevicePresenter2.setPresenter(presenter);
+		inDevicePresenter2.setType("进口2");
+		inDevicePresenter2.setListDevice(mapTypeDevices.get("进口2"));
+		inDevicePresenter2.go(composite_5);
 		
 		
 		
@@ -1332,7 +1264,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		lbl_search.setImage(CarparkUtils.getSwtImage("search.png"));
 		createDeviceTabItem();
 		tabInFolder.setSelection(0);
-		tabInFolder2.setSelection(0);
 		tabOutFolder.setSelection(0);
 		controlToolItem();
 		m_bindingContext = initDataBindings();
@@ -1350,11 +1281,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				editOutToolItem.dispose();
 				delOutToolItem.dispose();
 			}
-			if (!addInToolItem3.isDisposed()) {
-				addInToolItem3.dispose();
-				editInToolItem3.dispose();
-				delInToolItem3.dispose();
-			}
+//			if (!addInToolItem3.isDisposed()) {
+//				addInToolItem3.dispose();
+//				editInToolItem3.dispose();
+//				delInToolItem3.dispose();
+//			}
 		}
 
 	}
@@ -1450,22 +1381,23 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 						composite.dispose();
 					}
 				});
-			}else if (type.equals("进口2")) {
-				CTabItem tabItem = new CTabItem(tabInFolder2, SWT.NONE);
-				tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
-				tabItem.setText(singleCarparkDevice.getName() == null ? ip : singleCarparkDevice.getName());
-				final Composite composite = new Composite(tabInFolder2, SWT.BORDER | SWT.EMBEDDED);
-				tabItem.setControl(composite);
-				composite.setLayout(new FillLayout());
-				presenter.createLeftCameraBottom(ip, composite);
-				mapDeviceTabItem.put(tabItem, ip);
-				tabItem.addDisposeListener(new DisposeListener() {
-
-					public void widgetDisposed(DisposeEvent e) {
-						composite.dispose();
-					}
-				});
 			}
+//			else if (type.equals("进口2")) {
+//				CTabItem tabItem = new CTabItem(tabInFolder2, SWT.NONE);
+//				tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
+//				tabItem.setText(singleCarparkDevice.getName() == null ? ip : singleCarparkDevice.getName());
+//				final Composite composite = new Composite(tabInFolder2, SWT.BORDER | SWT.EMBEDDED);
+//				tabItem.setControl(composite);
+//				composite.setLayout(new FillLayout());
+//				presenter.createLeftCameraBottom(ip, composite);
+//				mapDeviceTabItem.put(tabItem, ip);
+//				tabItem.addDisposeListener(new DisposeListener() {
+//
+//					public void widgetDisposed(DisposeEvent e) {
+//						composite.dispose();
+//					}
+//				});
+//			}
 			presenter.showUsualContentToDevice(singleCarparkDevice);
 		}
 
@@ -1749,5 +1681,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		if (e.keyCode == 16777234) {
 			presenter.showSearchInOutHistory();
 		}
+	}
+	@Override
+	public Shell getShell() {
+		
+		return shell;
 	}
 }

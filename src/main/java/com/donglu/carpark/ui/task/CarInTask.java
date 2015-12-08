@@ -265,13 +265,13 @@ public class CarInTask implements Runnable {
 							return;
 						}
 					} else {
-						if (fixCarShowToDevice(date, device, user)) {
+						if (fixCarShowToDevice(date, device, user,cch.getId())) {
 							return;
 						}
 						carType="固定车";
 					}
 				} else {
-					if (fixCarShowToDevice(date, device, user)) {
+					if (fixCarShowToDevice(date, device, user,cch.getId())) {
 						return;
 					}
 					carType="固定车";
@@ -311,7 +311,7 @@ public class CarInTask implements Runnable {
 							return;
 						}
 					} else {
-						if (fixCarShowToDevice(date, device, user)) {
+						if (fixCarShowToDevice(date, device, user,cch.getId())) {
 							return;
 						}
 					}
@@ -388,26 +388,27 @@ public class CarInTask implements Runnable {
 	 * @param user
 	 * @return 是否需要退出
 	 */
-	public boolean fixCarShowToDevice(Date date, SingleCarparkDevice device, SingleCarparkUser user) throws Exception {
-		Boolean valueOf2 = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费)==null?"false":mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));
-		List<SingleCarparkInOutHistory> list=new ArrayList<>();
-		String[] plateNos = user.getPlateNo().split(",");
-		for (String pn : plateNos) {
-			List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut = sp.getCarparkInOutService().findInOutHistoryByCarparkAndPlateNO(user.getCarpark().getId(), pn);
-			list.addAll(findHistoryByChildCarparkInOut);
-		}
-		if (valueOf2) {
-			if (Integer.valueOf(user.getCarparkNo())<=list.size()) {
-				setFixCarToTemIn(date, user);
-				LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，作临时车进入",valueOf2,user.getCarparkNo(),list.size());
+	public boolean fixCarShowToDevice(Date date, SingleCarparkDevice device, SingleCarparkUser user,Long inId) throws Exception {
+		if (StrUtil.isEmpty(inId)) {
+			Boolean valueOf2 = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费) == null ? "false" : mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));
+			List<SingleCarparkInOutHistory> list = new ArrayList<>();
+			String[] plateNos = user.getPlateNo().split(",");
+			for (String pn : plateNos) {
+				List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut = sp.getCarparkInOutService().findInOutHistoryByCarparkAndPlateNO(user.getCarpark().getId(), pn);
+				list.addAll(findHistoryByChildCarparkInOut);
 			}
-		}else{
-			if (Integer.valueOf(user.getCarparkNo())<=list.size()) {
-				LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，不允许进入",valueOf2,user.getCarparkNo(),list.size());
-				return true;
-			}
+			if (valueOf2) {
+				if (Integer.valueOf(user.getCarparkNo()) <= list.size()) {
+					setFixCarToTemIn(date, user);
+					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，作临时车进入", valueOf2, user.getCarparkNo(), list.size());
+				}
+			} else {
+				if (Integer.valueOf(user.getCarparkNo()) <= list.size()) {
+					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，不允许进入", valueOf2, user.getCarparkNo(), list.size());
+					return true;
+				}
+			} 
 		}
-		
 		if (user.getType().equals("免费")) {
 			Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场));
 			if (!valueOf) {

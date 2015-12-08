@@ -55,6 +55,10 @@ public class CarparkUtils {
 	public static final String PLATENO_REGEX="^[\u4e00-\u9fa5][A-Za-z0-9]{6}$";
 
 	private static final String defaultKey = "donglucarpark";
+
+	public static final String DATE_MINUTE_PATTEN = "yyyy-MM-dd HH-mm";
+
+	public static final String DATE_PATTERN = "yyyy-MM-dd";
 	public static List<String> splitPlateNO(String plateNo){
 		if (StrUtil.isEmpty(plateNo)) {
 			return new ArrayList<>();

@@ -125,7 +125,7 @@ public class CarparkMainPresenter {
 	 * 
 	 * @param selection
 	 */
-	protected void deleteDeviceTabItem(CTabItem selection) {
+	public void deleteDeviceTabItem(CTabItem selection) {
 		if (selection != null) {
 			String ip = mapDeviceTabItem.get(selection);
 			System.out.println("删除设备" + ip);
@@ -174,10 +174,11 @@ public class CarparkMainPresenter {
 			String ip = showWizard.getIp();
 			String name = showWizard.getName();
 			showWizard.setInType(type);
-			this.model.setCarpark(showWizard.getCarpark());
-			addDevice(showWizard.getDevice());
+			SingleCarparkDevice device = showWizard.getDevice();
+			this.model.setCarpark(device.getCarpark());
+			addDevice(device);
 			addDevice(tabFolder, type, ip, name);
-			showUsualContentToDevice(showWizard.getDevice());
+			showUsualContentToDevice(device);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -821,7 +822,6 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 		xinlutongJNA.tigger(ip);
-
 	}
 
 	/**

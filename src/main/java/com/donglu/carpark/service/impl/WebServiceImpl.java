@@ -22,24 +22,20 @@ import com.google.inject.Inject;
 public class WebServiceImpl implements  WebService{
 	private static final Logger LOGGER = LoggerFactory.getLogger(CarparkMainPresenter.class);
 	private static final String url="http://112.124.115.117/WebService/RQDataExchange.asmx?WSDL";
-	private static final String company="深圳市彩生活物业管理有限公司";
-	private static final String area="和亨广场";
+	private static final String company="深圳市元诺智能系统有限公司";
+	private static final String area="测试停车场";
 	private JaxWsDynamicClientFactory factory;
 	private Client client;
 	
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
-	/**
-	 * 上传月租信息到云平台
-	 * @param u
-	 * @return
-	 */
+	@Override
 	public boolean sendUser(SingleCarparkUser u) {
 		String content="<Root LicenseNumber =\"{}\" KaTypeName=\"{}\" Back=\"{}\" CLAdder=\"{}\" CLName=\"{}\" "
 				+ "CLDH=\"{}\" StartDate =\"{}\" EndDate =\"{}\" DutyNumber =\"\" DutyName =\"\" "
 				+ "ChargesAmount =\"{}\" Company =\"{}\" Area=\"{}\"></Root>";
 		Object send = send(url,content,u.getPlateNo(),"",u.getRemark(),u.getAddress(),u.getName(),"",
-				StrUtil.formatDate(u.getCreateDate(), StrUtil.DATE_PATTERN),StrUtil.formatDate(u.getValidTo(), StrUtil.DATE_PATTERN),200,company,area);
+				StrUtil.formatDate(u.getCreateDate(), CarparkUtils.DATE_PATTERN),StrUtil.formatDate(u.getValidTo(), CarparkUtils.DATE_PATTERN),200,company,area);
 		String s=(String) send;
 		
 		int parseInt = Integer.parseInt(s.substring(13, 14));
@@ -50,19 +46,14 @@ public class WebServiceImpl implements  WebService{
 			return false;
 		}
 	}
-	/**
-	 * 上传进场信息到云平台
-	 * @param out
-	 * @return
-	 */
+	@Override
 	public boolean sendInHistory(SingleCarparkInOutHistory in){
 		String content="<Root  EntereDate=\"{}\" LicenseNumber=\"{}\" Category=\"0\" CarType=\"{}\" DutyNumber=\"\" "
 				+ "DutyName=\"\" PortCharges=\"\" Company=\"{}\" Area=\"{}\" PD=\"0\"><Document xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" "
 				+ "dt:dt=\"bin.base64\" DocumentName=\"{}\" DocumentExt=\"{}\">{}</Document></Root>";
 		
 		String encodeToString = Base64.getEncoder().encodeToString(CarparkUtils.getImageByte(in.getBigImg()));
-		Object send = send(url, content, StrUtil.formatDate(in.getInTime(), StrUtil.DATE_MINUTE_PATTEN),in.getPlateNo(),in.getCarType(),company,area,
-				in.getBigImg().substring(in.getBigImg().lastIndexOf("/"), in.getBigImg().lastIndexOf(".")),"jpg",encodeToString);
+		Object send = send(url, content, StrUtil.formatDate(in.getInTime(), CarparkUtils.DATE_MINUTE_PATTEN),in.getPlateNo(),in.getCarType(),company,area,in.getBigImg().substring(in.getBigImg().lastIndexOf("/")),"jpg",encodeToString);
 		String s=(String) send;
 		int parseInt = Integer.parseInt(s.substring(13, 14));
 		if (parseInt==1) {
@@ -72,11 +63,7 @@ public class WebServiceImpl implements  WebService{
 			return false;
 		}
 	}
-	/**
-	 * 上传出场信息到云平台
-	 * @param out
-	 * @return
-	 */
+	@Override
 	public boolean sendOutHistory(SingleCarparkInOutHistory out){
 		String content="<Root  OutDate=\"{}\" EntereDate=\"{}\" KaTypeName=\"\" LicenseNumber=\"{}\" "
 				+ "Category=\"1\"  CarType=\"{}\" DutyNumber=\"\" DutyName=\"\" PortCharges=\"\" ChargesAmount=\"{}\" "
@@ -84,11 +71,16 @@ public class WebServiceImpl implements  WebService{
 						+ "PreferentialReason=\"\" Company =\"\" Area=\"\"> <Document xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" "
 						+ "dt:dt=\"bin.base64\" DocumentName=\"{}\" DocumentExt=\"{}\">{}</Document></Root>";
 		String encodeToString = Base64.getEncoder().encodeToString(CarparkUtils.getImageByte(out.getOutBigImg()));
-		int ifFree=out.getFactMoney()<=0?1:0;
-		int IfPreferential=out.getFactMoney()>0&&out.getFreeMoney()>0?1:0;
-		Object send = send(url, content,StrUtil.formatDate(out.getOutTime(), StrUtil.DATE_MINUTE_PATTEN),StrUtil.formatDate(out.getInTime(), StrUtil.DATE_MINUTE_PATTEN),
-				out.getPlateNo(),out.getCarType(),out.getFactMoney(),ifFree,out.getFreeMoney(),IfPreferential,out.getFreeMoney(),
-				out.getBigImg().substring(out.getBigImg().lastIndexOf("/"), out.getBigImg().lastIndexOf(".")),"jpg",encodeToString);
+		Float factMoney = out.getFactMoney();
+		int ifFree=factMoney<=0?1:0;
+		Float freeMoney = out.getFreeMoney();
+		int IfPreferential=factMoney>0&&freeMoney>0?1:0;
+		String outTime = StrUtil.formatDate(out.getOutTime(), CarparkUtils.DATE_MINUTE_PATTEN);
+		String inTime = StrUtil.formatDate(out.getInTime(), CarparkUtils.DATE_MINUTE_PATTEN);
+		String imgName = out.getBigImg().substring(out.getBigImg().lastIndexOf("/"));
+		String plateNo = out.getPlateNo();
+		String carType = out.getCarType();
+		Object send = send(url, content,outTime,inTime,plateNo,carType,factMoney,ifFree,freeMoney,IfPreferential,freeMoney,imgName,"jpg",encodeToString);
 		String s=(String) send;
 		int parseInt = Integer.parseInt(s.substring(13, 14));
 		if (parseInt==1) {
@@ -98,10 +90,7 @@ public class WebServiceImpl implements  WebService{
 			return false;
 		}
 	}
-	/**
-	 * 上传停车场信息到云平台
-	 * @return
-	 */
+	@Override
 	public boolean sendCarparkInfo(){
 		String content="<Root TYCode=\"9083783\" TNum01=\"{}\" TNum02=\"{}\"  TNum03=\"{}\"  TNum04=\"0\" TNum05=\"0\"  Num02=\"0\"  "
 				+ "Num06=\"0\"  Company =\"{}\" Area=\"{}\"></Root>";
@@ -130,9 +119,9 @@ public class WebServiceImpl implements  WebService{
 	    try {
 	    	
 			String message = MessageFormatter.arrayFormat(content, o).getMessage();
-			System.out.println(message);
 			LOGGER.info("上传{}信息到{}",message,url);
 			Object[] obj =client.invoke("MonthCardData",message);
+			System.out.println("上传{"+message+"}信息到{"+url+"}");
 			System.out.println("resp:"+obj[0]);
 			return obj[0];
 		} catch (Exception e) {
@@ -143,14 +132,16 @@ public class WebServiceImpl implements  WebService{
 	
 	public static void main(String[] args) {
 		WebServiceImpl w=new WebServiceImpl();
+		w.userTest();
+	}
+	private void userTest(){
 		SingleCarparkUser u = new SingleCarparkUser();
 		u.setPlateNo("粤A12345");
 		u.setName("黄XX");
 		u.setCreateDate(new Date());
 		u.setRemark("去去去去去去");
 		u.setAddress("西乡");
-		u.setValidTo(new DateTime(new Date()).plusMonths(12).toDate());
-		w.sendUser(u);
+		u.setValidTo(new DateTime(2888,12,12,1,1).toDate());
+		sendUser(u);
 	}
-
 }
