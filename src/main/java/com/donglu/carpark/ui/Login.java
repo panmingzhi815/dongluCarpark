@@ -345,6 +345,7 @@ public class Login {
 						long nanoTime = System.nanoTime();
 						try {
 							if (!check()) {
+								btn_login.setEnabled(true);
 								return;
 							}
 							sp.start();

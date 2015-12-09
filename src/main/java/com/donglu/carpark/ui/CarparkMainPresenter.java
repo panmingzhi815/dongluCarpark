@@ -138,6 +138,7 @@ public class CarparkMainPresenter {
 				model.setCarpark(null);
 			}
 			com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
+			setIsTwoChanel();
 		}
 	}
 	/**
@@ -1076,8 +1077,16 @@ public class CarparkMainPresenter {
 		if (h==null) {
 			return;
 		}
-		InOutHistoryDetailWizard wizard = new InOutHistoryDetailWizard(h);
-		commonui.showWizard(wizard);
+		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.进场允许修改车牌)==null?SystemSettingTypeEnum.进场允许修改车牌.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.进场允许修改车牌));
+		LOGGER.info("系统设置：[进场允许修改车牌]为:[{}]",valueOf);
+		InOutHistoryDetailWizard wizard = new InOutHistoryDetailWizard(h,valueOf);
+		SingleCarparkInOutHistory m = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
+		if (valueOf) {
+			if (StrUtil.isEmpty(m)) {
+				return;
+			}
+			sp.getCarparkInOutService().saveInOutHistory(m);
+		}
 	}
 
 	public void carInByHand() {
@@ -1103,5 +1112,6 @@ public class CarparkMainPresenter {
 		h.setOperaName(System.getProperty("userName"));
 		model.addInHistorys(h);
 		model.setInHistorySelect(h);
+		model.setHandPlateNO(null);
 	}
 }

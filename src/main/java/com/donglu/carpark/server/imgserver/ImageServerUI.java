@@ -6,9 +6,11 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -379,9 +381,10 @@ public class ImageServerUI {
 //	        hand.setSessionHandler(new SessionHandler(sm));
 //
 //		    contexts.setHandlers(new Handler[] { servletHandler, hand });
-
+			
 		    server.setHandler(servletHandler);
 			server.start();
+//			startWeb();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -389,26 +392,30 @@ public class ImageServerUI {
 
 	private void startWeb() {
 		try {
-			Server server = new Server(8080);
-
-			/*WebAppContext context = new WebAppContext();
-			context.setContextPath("/store");
-			context.setWar("store.war");*/
-			
-			 ServletContextHandler context0 = new ServletContextHandler(ServletContextHandler.SESSIONS);
-
-		     context0.setContextPath("/store");
-
-		     context0.addServlet(new ServletHolder(new StoreServlet()),"/*");
-
-			server.setHandler(context0);
-			server.start();
-			server.join();
+			String cmdline ="cmd.exe /c "+ System.getProperty("user.dir")+"\\tomcat\\bin\\startup.bat";
+			LOGGER.info("准备执行文件{}",cmdline);
+			CmdExec(cmdline);
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.out.println("启动tomcat时发生错误");
 		}
 
 	}
+	
+	public void CmdExec(String cmdline) {
+		try {
+			String line;
+			Process p = Runtime.getRuntime().exec(cmdline);
+			BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			while ((line = input.readLine()) != null) {
+				System.out.println(line);
+			}
+			input.close();
+		} catch (Exception err) {
+			err.printStackTrace();
+		}
+	} 
+
 
 	// 定时检测加密狗
 	private void autoCheckSoftDog() {

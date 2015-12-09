@@ -122,7 +122,7 @@ public class CarOutTask implements Runnable{
 						Thread.sleep(50);
 						l = System.currentTimeMillis()-startTime;
 					}
-					CarparkMainApp.mapInTwoCameraTask.remove(device.getLinkAddress());
+					CarparkMainApp.mapOutTwoCameraTask.remove(device.getLinkAddress());
 				} catch (NumberFormatException e1) {
 					e1.printStackTrace();
 				} catch (InterruptedException e1) {

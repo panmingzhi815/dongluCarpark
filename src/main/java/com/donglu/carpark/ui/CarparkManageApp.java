@@ -589,7 +589,7 @@ public class CarparkManageApp extends AbstractApp{
 		gd_group_4.heightHint = 106;
 		gd_group_4.widthHint = 669;
 		group_4.setLayoutData(gd_group_4);
-		group_4.setText("停车场设置");
+		group_4.setText("停车场基本设置");
 		
 		Button btnCheckButton = new Button(group_4, SWT.CHECK);
 		btnCheckButton.setToolTipText("选中后，停车场车位满允许临时车进");
@@ -839,6 +839,7 @@ public class CarparkManageApp extends AbstractApp{
 		composite_24.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 		
 		Button btnCheckButton_2 = new Button(composite_24, SWT.CHECK);
+		btnCheckButton_2.setToolTipText("选中开启监控界面左下视频监控");
 		btnCheckButton_2.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -849,6 +850,7 @@ public class CarparkManageApp extends AbstractApp{
 		btnCheckButton_2.setText("左下监控");
 		btnCheckButton_2.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.左下监控)==null?SystemSettingTypeEnum.左下监控.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.左下监控)));
 		Button btnCheckButton_3 = new Button(composite_24, SWT.CHECK);
+		btnCheckButton_3.setToolTipText("选中开启监控界面右下视频监控");
 		btnCheckButton_3.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -987,6 +989,7 @@ public class CarparkManageApp extends AbstractApp{
 		composite_16.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
 		
 		Button btn_imgSaveMonth = new Button(composite_16, SWT.CHECK);
+		btn_imgSaveMonth.setToolTipText("选中之后，表示会自动删除照片");
 		btn_imgSaveMonth.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

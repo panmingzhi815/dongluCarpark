@@ -21,6 +21,10 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.core.databinding.beans.BeanProperties;
 
 public class InOutHistoryDetailWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -30,6 +34,7 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 	private SashForm sashForm;
 	private static Image inImage;
 	private Image outImage;
+	private Text text;
 	/**
 	 * Create the wizard.
 	 * @param model 
@@ -74,7 +79,16 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		
 		Composite composite_1 = new Composite(composite, SWT.NONE);
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		composite_1.setLayout(new GridLayout(1, false));
+		composite_1.setLayout(new GridLayout(3, false));
+		
+		Label label = new Label(composite_1, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("车牌");
+		
+		text = new Text(composite_1, SWT.BORDER);
+		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_text.widthHint = 99;
+		text.setLayoutData(gd_text);
 		
 		Button button = new Button(composite_1, SWT.NONE);
 		button.setLayoutData(new GridData(SWT.LEFT, SWT.BOTTOM, false, false, 1, 1));
@@ -145,6 +159,10 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
+		//
+		IObservableValue observeTextTextObserveWidget = WidgetProperties.text(SWT.Modify).observe(text);
+		IObservableValue plateNoModelObserveValue = BeanProperties.value("plateNo").observe(model);
+		bindingContext.bindValue(observeTextTextObserveWidget, plateNoModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

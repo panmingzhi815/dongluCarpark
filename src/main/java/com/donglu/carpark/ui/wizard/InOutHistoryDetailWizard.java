@@ -11,9 +11,15 @@ import com.dongluhitec.card.domain.util.StrUtil;
 public class InOutHistoryDetailWizard extends Wizard implements AbstractWizard{
 	private SingleCarparkInOutHistory model;
 	private InOutHistoryDetailWizardPage page;
+	private Boolean isEdit=false;
 	public InOutHistoryDetailWizard(SingleCarparkInOutHistory model) {
 		setWindowTitle("查看进出记录");
 		this.model=model;
+	}
+
+	public InOutHistoryDetailWizard(SingleCarparkInOutHistory h, Boolean isEdit) {
+		this(h);
+		this.isEdit=isEdit;
 	}
 
 	@Override
@@ -26,7 +32,7 @@ public class InOutHistoryDetailWizard extends Wizard implements AbstractWizard{
 
 	@Override
 	public boolean performFinish() {
-		return false;
+		return true;
 	}
 
 	@Override

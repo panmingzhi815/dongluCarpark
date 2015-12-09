@@ -98,6 +98,7 @@ public class CarInTask implements Runnable {
 						Thread.sleep(50);
 						l = System.currentTimeMillis() - startTime;
 					}
+					LOGGER.info("双摄像头等待时间{},已过{}",two,l);
 					CarparkMainApp.mapInTwoCameraTask.remove(device.getLinkAddress());
 				} catch (NumberFormatException e1) {
 					e1.printStackTrace();

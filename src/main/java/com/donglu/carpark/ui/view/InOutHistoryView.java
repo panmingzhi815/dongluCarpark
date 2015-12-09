@@ -33,9 +33,6 @@ import org.eclipse.core.databinding.DataBindingContext;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 
-import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
 public class InOutHistoryView extends Composite implements View{
 	private DataBindingContext m_bindingContext;
