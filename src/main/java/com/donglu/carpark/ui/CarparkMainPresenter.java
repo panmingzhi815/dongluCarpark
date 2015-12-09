@@ -194,7 +194,7 @@ public class CarparkMainPresenter {
 		mapIpToDevice.put(ip, device);
 		setIsTwoChanel();
 		com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
-		sendPositionToAllDevice(true);
+//		sendPositionToAllDevice(true);
 	}
 	
 	public void setIsTwoChanel() {
@@ -728,12 +728,12 @@ public class CarparkMainPresenter {
 //			boolean flag = true;
 //			CarparkUtils.checkDaysIsOneDay(startTime, endTime)
 			
-			
+			//
 			for (int i = 1; i < cutDaysByHours.size(); i++) {
 				Date s = cutDaysByHours.get(i-1);
 				Date  e= cutDaysByHours.get(i);
 				float should = sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), s, e);
-				float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType);
+				float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType,carparkId);
 				float now = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo(),s);
 				if (max > 0) {
 					float f = max - now;

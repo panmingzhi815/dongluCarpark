@@ -177,9 +177,14 @@ public class CarInTask implements Runnable {
 				if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认)) || Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认)) || !valueOf) {
 					model.setInCheckClick(true);
 					isEmptyPlateNo = true;
+					int i=0;
 					while (model.isInCheckClick()) {
 						try {
-							Thread.sleep(500);
+							i++;
+							if (i>120) {
+								return;
+							}
+							Thread.sleep(250);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}

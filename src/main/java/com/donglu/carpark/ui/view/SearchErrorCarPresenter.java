@@ -58,4 +58,10 @@ public class SearchErrorCarPresenter implements Presenter{
 	public void setSystemSetting(Map<SystemSettingTypeEnum, String> mapSystemSetting) {
 		this.mapSystemSetting=mapSystemSetting;
 	}
+
+	public void Order(boolean order) {
+		List<SingleCarparkInOutHistory> havePlateNoList = model.getHavePlateNoList();
+		List<SingleCarparkInOutHistory> sortObjectPropety = CarparkUtils.sortObjectPropety(havePlateNoList, "inTimeLabel", order);
+		model.setHavePlateNoList(sortObjectPropety);
+	}
 }

@@ -136,7 +136,7 @@ public class SearchErrorCarView extends Composite implements View{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				search=!search;
-				getPresenter().search(search);
+				getPresenter().Order(search);
 			}
 		});
 		tableColumn_1.setWidth(148);
