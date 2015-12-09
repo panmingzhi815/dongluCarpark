@@ -24,6 +24,8 @@ public class AddStoreWizardPage extends WizardPage {
 	private Text text_1;
 	private Text text_2;
 	private Text text_3;
+	private Text text_4;
+	private Text text_repwd;
 
 	/**
 	 * Create the wizard.
@@ -33,9 +35,9 @@ public class AddStoreWizardPage extends WizardPage {
 		super("wizardPage");
 		this.model=model;
 		if (StrUtil.isEmpty(model.getId())) {
-			setDescription("添加黑名单");
+			setDescription("添加商铺");
 		}else{
-			setDescription("修改黑名单");
+			setDescription("修改商铺");
 		}
 	}
 
@@ -72,6 +74,24 @@ public class AddStoreWizardPage extends WizardPage {
 		text_3 = new Text(composite, SWT.BORDER);
 		text_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
+		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_1.setText("用户密码");
+		
+		text_4 = new Text(composite, SWT.BORDER | SWT.PASSWORD);
+		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label lblNewLabel_2 = new Label(composite, SWT.NONE);
+		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_2.setText("确认密码");
+		
+		text_repwd = new Text(composite, SWT.BORDER | SWT.PASSWORD);
+		text_repwd.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_repwd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label label_2 = new Label(composite, SWT.NONE);
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -110,6 +130,14 @@ public class AddStoreWizardPage extends WizardPage {
 		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
 		IObservableValue loginNameModelObserveValue = BeanProperties.value("loginName").observe(model);
 		bindingContext.bindValue(observeTextText_3ObserveWidget, loginNameModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_4ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_4);
+		IObservableValue loginPawwordModelObserveValue = BeanProperties.value("loginPawword").observe(model);
+		bindingContext.bindValue(observeTextText_4ObserveWidget, loginPawwordModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_repwdObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_repwd);
+		IObservableValue rePawwordModelObserveValue = BeanProperties.value("rePawword").observe(model);
+		bindingContext.bindValue(observeTextText_repwdObserveWidget, rePawwordModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

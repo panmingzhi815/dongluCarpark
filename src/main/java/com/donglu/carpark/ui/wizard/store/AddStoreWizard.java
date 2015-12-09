@@ -33,7 +33,22 @@ public class AddStoreWizard extends Wizard implements AbstractWizard{
 
 	@Override
 	public boolean performFinish() {
-		
+		if (StrUtil.isEmpty(model.getStoreName())) {
+			page.setErrorMessage("商铺主人不能为空");
+			return false;
+		}
+		if (StrUtil.isEmpty(model.getLoginName())) {
+			page.setErrorMessage("账号名称不能为空");
+			return false;
+		}
+		if (StrUtil.isEmpty(model.getLoginPawword())) {
+			page.setErrorMessage("账号密码不能为空");
+			return false;
+		}
+		if (!model.getLoginPawword().equals(model.getRePawword())) {
+			page.setErrorMessage("两次输入的密码必须一致");
+			return false;
+		}
 		return true;
 	}
 

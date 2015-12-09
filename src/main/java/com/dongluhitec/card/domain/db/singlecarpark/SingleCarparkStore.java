@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 @Entity
@@ -29,7 +30,8 @@ public class SingleCarparkStore extends DomainObject {
 	private Float leftFreeMoney;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createTime;
-	
+	@Transient
+	private String rePawword;
 	public String getStoreName() {
 		return storeName;
 	}
@@ -93,5 +95,13 @@ public class SingleCarparkStore extends DomainObject {
 		this.address = address;
 		if (pcs != null)
 			pcs.firePropertyChange("address", null, null);
+	}
+	public String getRePawword() {
+		return rePawword;
+	}
+	public void setRePawword(String rePawword) {
+		this.rePawword = rePawword;
+		if (pcs != null)
+			pcs.firePropertyChange("rePawword", null, null);
 	}
 }

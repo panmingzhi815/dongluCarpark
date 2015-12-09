@@ -849,9 +849,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		text_free.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		text_free.setEditable(false);
 
+		
 		TabItem tabItem_1 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_1.setText("进场记录");
-
+		
 		Composite composite_18 = new Composite(tabFolder, SWT.NONE);
 		tabItem_1.setControl(composite_18);
 		composite_18.setLayout(new GridLayout(1, false));
@@ -905,7 +906,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_6.setText("车牌号码");
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-
+		
+		if (!Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.左下监控))) {
+			tabItem_1.dispose();
+		}
 		txt_plateNO = new Text(group, SWT.BORDER | SWT.READ_ONLY);
 		txt_plateNO.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
 		txt_plateNO.setText("京A23456");

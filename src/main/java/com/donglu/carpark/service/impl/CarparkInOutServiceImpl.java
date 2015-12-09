@@ -768,4 +768,16 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}
 	}
 
+	@Override
+	public SingleCarparkInOutHistory findInOutById(Long id) {
+		unitOfWork.begin();
+		try {
+    		DatabaseOperation<SingleCarparkInOutHistory> dom = DatabaseOperation.forClass(SingleCarparkInOutHistory.class, emprovider.get());
+    		SingleCarparkInOutHistory entityWithId = dom.getEntityWithId(id);
+    		return entityWithId;
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
 }

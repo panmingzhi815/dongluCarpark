@@ -112,12 +112,7 @@ public class CarInTask implements Runnable {
 			if (!checkPlateNODiscernGap) {
 				return;
 			}
-			SingleCarparkInOutHistory cch = sp.getCarparkInOutService().findInOutHistoryByPlateNO(plateNO);
-			if (StrUtil.isEmpty(cch)) {
-				cch = new SingleCarparkInOutHistory();
-			}
-			cch.setPlateNo(plateNO);
-			cch.setInPlateNO(plateNO);
+			
 
 			String dateString = StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss");
 			model.setInShowPlateNO(plateNO);
@@ -197,7 +192,14 @@ public class CarInTask implements Runnable {
 					}
 				}
 			}
-
+			SingleCarparkInOutHistory cch = sp.getCarparkInOutService().findInOutHistoryByPlateNO(plateNO);
+			if (StrUtil.isEmpty(cch)) {
+				cch = new SingleCarparkInOutHistory();
+			}
+			cch.setPlateNo(plateNO);
+			cch.setInPlateNO(plateNO);
+			
+			
 			LOGGER.debug("开始保存车牌：{}的图片", plateNO);
 			long nanoTime = System.nanoTime();
 
@@ -276,9 +278,14 @@ public class CarInTask implements Runnable {
 					if (flag) {
 						model.setInCheckClick(true);
 						presenter.showPlateNOToDevice(device, model.getInShowPlateNO());
+						int i=0;
 						while (model.isInCheckClick()) {
+							if (i>120) {
+								return;
+							}
 							try {
 								Thread.sleep(500);
+								i++;
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}

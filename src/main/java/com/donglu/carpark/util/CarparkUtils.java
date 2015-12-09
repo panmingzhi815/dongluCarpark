@@ -43,6 +43,7 @@ import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.CarparkManageApp;
 import com.donglu.carpark.ui.ClientConfigUI;
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
@@ -563,5 +564,9 @@ public class CarparkUtils {
 		}
 		
 		return list;
+	}
+	public static String getSettingValue(Map<SystemSettingTypeEnum, String> map, SystemSettingTypeEnum type) {
+		
+		return map.get(type)==null?type.getDefaultValue():map.get(type);
 	}
 }

@@ -427,6 +427,7 @@ public class CarparkMainPresenter {
 				commonui.info("修改成功", "修改设备" + ip + "成功");
 				LOGGER.info("发送平时显示类容");
 				showUsualContentToDevice(device2);
+				setIsTwoChanel();
 //				sendPositionToAllDevice(true);
 				return;
 			} else {
@@ -1082,6 +1083,11 @@ public class CarparkMainPresenter {
 		InOutHistoryDetailWizard wizard = new InOutHistoryDetailWizard(h,valueOf);
 		SingleCarparkInOutHistory m = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
 		if (valueOf) {
+			SingleCarparkInOutHistory findInOutById = sp.getCarparkInOutService().findInOutById(m.getId());
+			if (!StrUtil.isEmpty(findInOutById.getOutTime())) {
+				commonui.info("修改失败", "该车已经出场");
+				return;
+			}
 			if (StrUtil.isEmpty(m)) {
 				return;
 			}

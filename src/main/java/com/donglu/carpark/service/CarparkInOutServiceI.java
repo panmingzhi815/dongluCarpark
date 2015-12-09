@@ -141,4 +141,6 @@ public interface CarparkInOutServiceI {
 	int findTotalTempCarIn();
 
 	int findTotalFixCarIn();
+
+	SingleCarparkInOutHistory findInOutById(Long id);
 }
