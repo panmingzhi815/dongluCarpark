@@ -1092,6 +1092,7 @@ public class CarparkMainPresenter {
 				return;
 			}
 			sp.getCarparkInOutService().saveInOutHistory(m);
+			model.addInHistorys(h);
 		}
 	}
 

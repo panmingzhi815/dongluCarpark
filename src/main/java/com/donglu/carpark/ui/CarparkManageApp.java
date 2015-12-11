@@ -835,7 +835,7 @@ public class CarparkManageApp extends AbstractApp{
 		label_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
 		Composite composite_24 = new Composite(group_4, SWT.NONE);
-		composite_24.setLayout(new GridLayout(2, false));
+		composite_24.setLayout(new GridLayout(4, false));
 		composite_24.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 		
 		Button btnCheckButton_2 = new Button(composite_24, SWT.CHECK);
@@ -860,6 +860,28 @@ public class CarparkManageApp extends AbstractApp{
 		btnCheckButton_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btnCheckButton_3.setText("右下监控");
 		btnCheckButton_3.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.右下监控)==null?SystemSettingTypeEnum.右下监控.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.右下监控)));
+		
+		Button button_15 = new Button(composite_24, SWT.CHECK);
+		button_15.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.进场允许修改车牌, button_15.getSelection()+"");
+			}
+		});
+		button_15.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_15.setText("允许修改进场车牌");
+		button_15.setSelection(Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.进场允许修改车牌)));
+		
+		Button button_16 = new Button(composite_24, SWT.CHECK);
+		button_16.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.进场允许手动入场, button_16.getSelection()+"");
+			}
+		});
+		button_16.setSelection(Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.进场允许手动入场)));
+		button_16.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_16.setText("允许手动入场");
 		Composite composite_14 = new Composite(group_4, SWT.NONE);
 		GridData gd_composite_14 = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
 		if (dbServerIp.equals("localhost")||dbServerIp.equals("127.0.0.1")||dbServerIp.equals(StrUtil.getHostIp())) {

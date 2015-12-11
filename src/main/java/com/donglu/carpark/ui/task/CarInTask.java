@@ -78,6 +78,7 @@ public class CarInTask implements Runnable {
 	}
 
 	public void run() {
+		model.setInCheckClick(false);
 		try {
 			SingleCarparkDevice device = mapIpToDevice.get(ip);
 			// 开闸
@@ -186,6 +187,9 @@ public class CarInTask implements Runnable {
 						}
 					}
 					editPlateNo = model.getInShowPlateNO();
+					if (StrUtil.isEmpty(editPlateNo)) {
+						return;
+					}
 				} else {
 					if (!valueOf) {
 						return;

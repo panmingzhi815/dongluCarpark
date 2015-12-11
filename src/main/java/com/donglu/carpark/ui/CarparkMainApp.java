@@ -874,7 +874,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 		});
 		btnNewButton.setText("手动入场");
-
+		btnNewButton.setEnabled(Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.进场允许手动入场)));
 		tableViewer = new TableViewer(composite_18, SWT.BORDER | SWT.FULL_SELECTION);
 		table = tableViewer.getTable();
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -907,9 +907,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		label_6.setText("车牌号码");
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		
-		if (!Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.左下监控))) {
-			tabItem_1.dispose();
-		}
+//		if (!Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.左下监控))) {
+//			tabItem_1.dispose();
+//		}
 		txt_plateNO = new Text(group, SWT.BORDER | SWT.READ_ONLY);
 		txt_plateNO.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
 		txt_plateNO.setText("京A23456");
