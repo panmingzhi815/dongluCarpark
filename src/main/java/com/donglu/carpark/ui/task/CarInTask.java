@@ -281,7 +281,7 @@ public class CarInTask implements Runnable {
 				if (!isEmptyPlateNo) {
 					if (flag) {
 						model.setInCheckClick(true);
-						presenter.showPlateNOToDevice(device, model.getInShowPlateNO());
+						presenter.showContentToDevice(device, "固定车等待确认", false);
 						int i=0;
 						while (model.isInCheckClick()) {
 							if (i>120) {
@@ -341,14 +341,25 @@ public class CarInTask implements Runnable {
 					if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认))) {
 						flag = true;
 						model.setInCheckClick(true);
+						presenter.showContentToDevice(device, "临时车等待确认", false);
+						int i=0;
 						while (model.isInCheckClick()) {
 							try {
+								if (i>60) {
+									return;
+								}
 								Thread.sleep(500);
+								i++;
 							} catch (InterruptedException e) {
-								e.printStackTrace();
+								LOGGER.error("临时车入场是否确认发生错误",e);
 							}
 						}
-						presenter.showPlateNOToDevice(device, model.getHistory().getPlateNo());
+						editPlateNo=model.getInShowPlateNO();
+						if (StrUtil.isEmpty(editPlateNo)||!model.isInCheckIsClick()) {
+							return;
+						}
+						model.setInCheckIsClick(false);
+						presenter.showPlateNOToDevice(device,editPlateNo );
 						editPlateNo = model.getInShowPlateNO();
 					}
 				}
@@ -402,11 +413,6 @@ public class CarInTask implements Runnable {
 				boolean after = plusSeconds.toDate().after(date);
 				if (after)
 					cch.setInPhotographType("手动");
-			}
-
-			if (carType.equals("临时车")) {
-				int total = model.getTotalSlot() - 1;
-				model.setTotalSlot(total <= 0 ? 0 : total);
 			}
 			Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(cch);
 			cch.setId(saveInOutHistory);

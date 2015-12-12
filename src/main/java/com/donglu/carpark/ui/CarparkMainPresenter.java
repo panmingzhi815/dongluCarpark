@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.bridj.cpp.std.list;
@@ -70,6 +72,7 @@ import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
 import com.dongluhitec.card.mapper.BeanUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
+import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Inject;
@@ -115,6 +118,8 @@ public class CarparkMainPresenter {
 	private CarparkMainApp view;
 
 	private App app;
+	
+	private ExecutorService saveImageTheadPool;
 
 	public void setCarNo() {
 
@@ -840,45 +845,53 @@ public class CarparkMainPresenter {
 	 * @param bigImage
 	 *            图片字节
 	 */
-	public void saveImage(String f, String fileName, byte[] bigImage) {
-		bigImage = bigImage == null ? new byte[0] : bigImage;
-		String fl = "/img/" + f;
-		if (!StrUtil.isEmpty(FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH))) {
-			String string = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
-			fl = string + fl;
-		}
-		try {
-			File file = new File(fl);
-			if (!file.exists() && !file.isDirectory()) {
-				Files.createParentDirs(file);
-				file.mkdir();
-			}
-			String finalFileName = fl + "/" + fileName;
-			File file2 = new File(finalFileName);
-			file2.createNewFile();
-			Files.write(bigImage, file2);
-			String ip = CarparkClientConfig.getInstance().getDbServerIp();
-			if (true) {
-				long nanoTime = System.nanoTime();
-				LOGGER.info("准备将图片{}上传到服务器{}", finalFileName, ip);
+	public void saveImage(final String f, final String fileName, final byte[] bigImage1) {
+		
+		Runnable runnable = new Runnable() {
+			public void run() {
 				try {
-					String upload = FileuploadSend.upload("http://" + ip + ":8899/carparkImage/", finalFileName);
+					byte[] bigImage = bigImage1 == null ? new byte[0] : bigImage1;
+					String fl = "/img/" + f;
+					if (!StrUtil.isEmpty(FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH))) {
+						String string = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
+						fl = string + fl;
+					}
+					File file = new File(fl);
+					if (!file.exists() && !file.isDirectory()) {
+						Files.createParentDirs(file);
+						file.mkdir();
+					}
+					String finalFileName = fl + "/" + fileName;
+					File file2 = new File(finalFileName);
+					file2.createNewFile();
+					Files.write(bigImage, file2);
+					String ip = CarparkClientConfig.getInstance().getDbServerIp();
+					if (true) {
+						long nanoTime = System.nanoTime();
+						LOGGER.info("准备将图片{}上传到服务器{}", finalFileName, ip);
+						try {
+							String upload = FileuploadSend.upload("http://" + ip + ":8899/carparkImage/", finalFileName);
 
-					LOGGER.info("图片上传到服务器{}成功,{}", ip, upload);
-				} catch (Exception e) {
+							LOGGER.info("图片上传到服务器{}成功,{}", ip, upload);
+						} catch (Exception e) {
+							e.printStackTrace();
+							LOGGER.error("图片上传到服务器{}失败", ip);
+						} finally {
+							LOGGER.info("上传图片花费时间：{}", System.nanoTime() - nanoTime);
+						}
+					}
+				} catch (IOException e) {
 					e.printStackTrace();
-					LOGGER.error("图片上传到服务器{}失败", ip);
-				} finally {
-					LOGGER.info("上传图片花费时间：{}", System.nanoTime() - nanoTime);
+					LOGGER.error("上传图片出错",e);
 				}
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		};
+		
+		saveImageTheadPool.submit(runnable);
 	}
 
 	public void init() {
-
+		saveImageTheadPool=Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("保存图片任务"));
 	}
 
 	/**

@@ -385,8 +385,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			mapTempCharge.put(name, carparkChargeStandard.getCode());
 		}
 
-		outTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("进场任务"));
-		inThreadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("出场任务"));
+		outTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("出场任务"));
+		inThreadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("进场任务"));
 		refreshService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每秒刷新停车场全局监控信息"));
 
 		if (StrUtil.isEmpty(System.getProperty("autoSendPositionToDevice"))) {
@@ -569,13 +569,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					String inShowPlateNO = model.getInShowPlateNO();
-					if (StrUtil.isEmpty(inShowPlateNO)) {
-						return;
-					}
 					if (inShowPlateNO.length() < 3 || inShowPlateNO.length() > 7) {
 						return;
 					}
 					model.setInCheckClick(false);
+					model.setInCheckIsClick(true);
 				}
 			});
 			GridData gd_button = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -1430,8 +1428,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 	@Override
 	public void invok(String ip, int channel, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize, String plateColor) {
-		model.setOutPlateNOColor(plateColor);
-		invok(ip, channel, plateNO, bigImage, smallImage, rightSize);
+		try {
+			model.setOutPlateNOColor(plateColor);
+			invok(ip, channel, plateNO, bigImage, smallImage, rightSize);
+		} catch (Exception e) {
+			LOGGER.error("",e);
+		}
 	}
 
 	/**

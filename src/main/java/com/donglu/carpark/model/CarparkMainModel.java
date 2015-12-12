@@ -66,6 +66,7 @@ public class CarparkMainModel extends DomainObject{
 	private Image outShowBigImg;
 	private boolean outPlateNOEditable=false;
 	
+	private boolean inCheckIsClick=false;
 	
 	String userName;
 	String workTime;
@@ -584,6 +585,12 @@ public class CarparkMainModel extends DomainObject{
 	}
 	public CTabItem getSelectTabSelect() {
 		return selectTabSelect;
+	}
+	public boolean isInCheckIsClick() {
+		return inCheckIsClick;
+	}
+	public void setInCheckIsClick(boolean inCheckIsClick) {
+		this.inCheckIsClick = inCheckIsClick;
 	}
 
 }
