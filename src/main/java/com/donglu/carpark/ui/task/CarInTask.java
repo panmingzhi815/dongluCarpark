@@ -266,8 +266,6 @@ public class CarInTask implements Runnable {
 					}
 				}
 			}
-			LOGGER.debug("显示车牌");
-			presenter.showPlateNOToDevice(device, plateNO);
 
 			model.setHistory(cch);
 			LOGGER.debug("查找是否为固定车");
