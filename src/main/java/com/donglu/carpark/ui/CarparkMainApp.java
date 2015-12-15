@@ -318,7 +318,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 				@Override
 				public void widgetDisposed(DisposeEvent e) {
-					System.exit(0);
+					systemExit();
 				}
 			});
 
@@ -470,7 +470,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		shell = new Shell();
 		shell.setMinimumSize(new Point(1024, 768));
 		shell.setSize(1036, 889);
-		shell.setText("停车场监控-1.0.0.3(" + CarparkClientConfig.getInstance().getDbServerIp() + ")");
+		shell.setText("停车场监控-"+SystemSettingTypeEnum.软件版本.getDefaultValue()+"(" + CarparkClientConfig.getInstance().getDbServerIp() + ")");
 		shell.addShellListener(new ShellAdapter() {
 			@Override
 			public void shellClosed(ShellEvent e) {
