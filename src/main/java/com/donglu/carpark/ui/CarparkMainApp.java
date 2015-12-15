@@ -244,6 +244,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 	private CLabel lbl_inBigImg;
 
+	private int sendPositionToDeviceTime=5;
+
 	/**
 	 * Launch the application.
 	 * 
@@ -334,7 +336,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 //			shell.dispose();
 //			open();
 		} finally {
-			LOGGER.info("系统退出");
+			LOGGER.error("系统退出");
 			systemExit();
 		}
 	}
@@ -392,7 +394,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		outTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("出场任务"));
 		inThreadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("进场任务"));
 		refreshService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每秒刷新停车场全局监控信息"));
-
 		if (StrUtil.isEmpty(System.getProperty("autoSendPositionToDevice"))) {
 			autoSendPositionToDevice();
 			autoSendTimeToDevice();
@@ -401,6 +402,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
 
+		try {
+			sendPositionToDeviceTime = Integer.parseInt(System.getProperty("SendPositionToDeviceTime"));
+		} catch (NumberFormatException e) {
+		}finally{
+			LOGGER.info("发送车位数间隔SendPositionToDeviceTime为:{}",sendPositionToDeviceTime);
+		}
 	}
 
 	/**
@@ -1286,7 +1293,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			public void run() {
 				presenter.sendPositionToAllDevice(true);
 			}
-		}, 5000, 5000, TimeUnit.MILLISECONDS);
+		}, sendPositionToDeviceTime, sendPositionToDeviceTime, TimeUnit.SECONDS);
 	}
 
 	/**

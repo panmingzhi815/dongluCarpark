@@ -201,11 +201,11 @@ public class CarOutTask implements Runnable{
 				model.setOutPlateNOEditable(true);
 				return;
 			}
-
 			// 没有找到入场记录
 			List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO,carpark);
 			if (StrUtil.isEmpty(findByNoOut)) {
 				LOGGER.info("没有找到车牌{}的入场记录", plateNO);
+				presenter.showPlateNOToDevice(device, plateNO);
 				presenter.showContentToDevice(device, "此车未入场", false);
 				model.setSearchPlateNo(plateNO);
 				model.setSearchBigImage(bigImg);

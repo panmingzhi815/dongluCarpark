@@ -79,6 +79,7 @@ public class DeviceView extends Composite implements View{
 		toolItem_in_photograph3.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				System.out.println(rateLimiter.tryAcquire());
 				if (!rateLimiter.tryAcquire()) {
 					return;
 				}
