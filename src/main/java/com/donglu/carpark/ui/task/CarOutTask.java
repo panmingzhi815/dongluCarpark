@@ -320,12 +320,12 @@ public class CarOutTask implements Runnable{
 				}
 			}
 			nowPlateNO = model.getOutShowPlateNO();
-			SingleCarparkUser findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(nowPlateNO, device.getCarpark().getId());
-			if (StrUtil.isEmpty(findUserByPlateNo)) {
-				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg,null);
-				return true;
-			}else{
-				user=findUserByPlateNo;
+			if (!nowPlateNO.equals(plateNO)) {
+				SingleCarparkUser findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(nowPlateNO, device.getCarpark().getId());
+				if (StrUtil.isEmpty(findUserByPlateNo)) {
+					tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg,null);
+					return true;
+				}
 			}
 		}
 		//
@@ -390,7 +390,6 @@ public class CarOutTask implements Runnable{
 				singleCarparkInOutHistory.setOutPhotographType("手动");
 		}
 		carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
-		model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow(model.getCarpark()));
 		model.setBtnClick(false);
 		return false;
 	}
