@@ -21,7 +21,7 @@ public class CarparkChargeStandard extends DomainObject{
 
 	public static enum Property{
 		id,carparkCarType,code,name,carparkDurationTypeEnum,onedayMaxCharge,freeTime,carparkAcrossDayTypeEnum,
-		acrossdayChargeEnable,carparkHolidayTypeEnum,carparkDurationStandards, carpark, startStepTime, startStepPrice,using
+		acrossdayChargeEnable,carparkHolidayTypeEnum,carparkDurationStandards, carpark, startStepTime, startStepPrice,using,acrossDayPrice
 	}
 
 	public static enum Query{
@@ -79,6 +79,8 @@ public class CarparkChargeStandard extends DomainObject{
 	@Enumerated
 	@Column(name = "workday_type")
 	private CarparkHolidayTypeEnum carparkHolidayTypeEnum;
+	@Min(value=0,message="起步收费金额必须大于等于0")
+	private Float acrossDayPrice=0F;
 	//是否启用
 	private Boolean using;
 	
@@ -231,5 +233,15 @@ public class CarparkChargeStandard extends DomainObject{
 		this.using = using;
 		if (pcs != null)
 			pcs.firePropertyChange("using", null, null);
+	}
+
+	public Float getAcrossDayPrice() {
+		return acrossDayPrice;
+	}
+
+	public void setAcrossDayPrice(Float acrossDayPrice) {
+		this.acrossDayPrice = acrossDayPrice;
+		if (pcs != null)
+			pcs.firePropertyChange("acrossDayPrice", null, null);
 	}
 }

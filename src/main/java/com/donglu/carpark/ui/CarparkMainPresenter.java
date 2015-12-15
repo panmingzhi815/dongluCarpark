@@ -120,6 +120,7 @@ public class CarparkMainPresenter {
 	private App app;
 	
 	private ExecutorService saveImageTheadPool;
+	private ExecutorService openDoorTheadPool;
 
 	public void setCarNo() {
 
@@ -715,38 +716,21 @@ public class CarparkMainPresenter {
 		List<Date> cutDaysByHours = CarparkUtils.cutDaysByHours(startTime, endTime);
 		Date start=startTime;
 		Date end=endTime;
+		float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType,carparkId);
+		float acrossDayPrice=sp.getCarparkInOutService().findAcrossDayPrice(carType,carparkId);
+		acrossDayPrice=acrossDayPrice*(cutDaysByHours.size()-2);
 		try {
-			float calculateTempCharge = 0;
-			int minute=0;
-//			Map<Long, SingleCarparkInOutHistory> childCarparkInOut = model.getChildCarparkInOut();
-//			if (!StrUtil.isEmpty(childCarparkInOut)) {
-//				for (Long id: childCarparkInOut.keySet()) {
-//					SingleCarparkInOutHistory singleCarparkInOutHistory = childCarparkInOut.get(id);
-//					Date inTime = singleCarparkInOutHistory.getInTime();
-//					Date outTime = singleCarparkInOutHistory.getOutTime();
-//					minute+=StrUtil.MinusMinute(inTime, outTime);
-//					calculateTempCharge+=sp.getCarparkService().calculateTempCharge(singleCarparkInOutHistory.getCarparkId(),carType.index(), inTime, outTime);
-//				}
-//			}
-//			for (int i=1;i< cutDaysByHours.size() ; i++) {
-//				
-//			}
-//			calculateTempCharge+=sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), startTime, endTime);
-//			boolean flag = true;
-//			CarparkUtils.checkDaysIsOneDay(startTime, endTime)
-			
 			//
 			for (int i = 1; i < cutDaysByHours.size(); i++) {
 				Date s = cutDaysByHours.get(i-1);
 				Date  e= cutDaysByHours.get(i);
 				float should = sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), s, e);
-				float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType,carparkId);
-				float now = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo(),s);
+				float now = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo(),s,e);
 				if (max > 0) {
 					float f = max - now;
 					if (f <= 0) {
 						totalCharge+=0;
-					}
+					}else
 					if (f < should) {
 						totalCharge+=f;
 					}else{
@@ -756,28 +740,11 @@ public class CarparkMainPresenter {
 					totalCharge+=should;
 				}
 			}
-//			if (flag) {
-//				int countDayByBetweenTime = CarparkUtils.countDayByBetweenTime(startTime, endTime);
-//				float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType);
-//				max=max*countDayByBetweenTime;
-//				float now = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo(),new Date());
-//				if (max > 0) {
-//					float f = max - now;
-//					if (f <= 0) {
-//						return 0;
-//					}
-//					if (f < calculateTempCharge) {
-//						return f;
-//					}
-//				}
-//			}
-//			totalCharge+=calculateTempCharge-money<0?0:calculateTempCharge-money;
-//			return calculateTempCharge-money<0?0:calculateTempCharge-money;
 		} catch (Exception e) {
 			LOGGER.error("计算收费是发生错误",e);
 			return 0;
 		}
-		return totalCharge-money<0?0:totalCharge-money;
+		return (totalCharge-money<0?0:totalCharge-money)+acrossDayPrice;
 	}
 	
 	/**
@@ -892,6 +859,7 @@ public class CarparkMainPresenter {
 
 	public void init() {
 		saveImageTheadPool=Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("保存图片任务"));
+		openDoorTheadPool=Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
 	}
 
 	/**
@@ -962,25 +930,30 @@ public class CarparkMainPresenter {
 		return true;
 	}
 
-	public void saveOpenDoor(SingleCarparkDevice device, byte[] image, String plateNO, boolean inOrOut) {
-		Date date=new Date();
-		String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
-		String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
-		String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
-		saveImage(folder, bigImgFileName, image);
-		SingleCarparkOpenDoorLog openDoor=new SingleCarparkOpenDoorLog();
-		openDoor.setOperaName(CarparkUtils.getUserName());
-		openDoor.setOperaDate(date);
-		openDoor.setImage(bigImgFileName);
-		openDoor.setDeviceName(device.getName());
-		sp.getCarparkInOutService().saveOpenDoorLog(openDoor);
-		LOGGER.info("对设备{}，地址{}-{}开闸",device.getName(),device.getLinkAddress(),device.getAddress());
-		showPlateNOToDevice(device, "");
-		if (inOrOut) {
-			showContentToDevice(device, CarparkMainApp.CAR_IN_MSG, true);
-		}else{
-			showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
-		}
+	public void saveOpenDoor(final SingleCarparkDevice device, final byte[] image, final String plateNO, final boolean inOrOut) {
+		Runnable runnable = new Runnable() {
+			public void run() {
+				Date date = new Date();
+				String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
+				String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
+				String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
+				saveImage(folder, bigImgFileName, image);
+				SingleCarparkOpenDoorLog openDoor = new SingleCarparkOpenDoorLog();
+				openDoor.setOperaName(CarparkUtils.getUserName());
+				openDoor.setOperaDate(date);
+				openDoor.setImage(bigImgFileName);
+				openDoor.setDeviceName(device.getName());
+				sp.getCarparkInOutService().saveOpenDoorLog(openDoor);
+				LOGGER.info("对设备{}，地址{}-{}开闸", device.getName(), device.getLinkAddress(), device.getAddress());
+				showPlateNOToDevice(device, "");
+				if (inOrOut) {
+					showContentToDevice(device, CarparkMainApp.CAR_IN_MSG, true);
+				} else {
+					showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
+				}
+			}
+		};
+		openDoorTheadPool.submit(runnable);
 	}
 
 	public void showNowTimeToDevice(SingleCarparkDevice singleCarparkDevice) {
@@ -1133,5 +1106,56 @@ public class CarparkMainPresenter {
 		model.addInHistorys(h);
 		model.setInHistorySelect(h);
 		model.setHandPlateNO(null);
+	}
+
+	public void saveImage(String f, String smallImgFileName, String bigImgFileName, byte[] smallImage1, byte[] bigImage1) {
+		Runnable runnable = new Runnable() {
+			public void run() {
+				try {
+					byte[] bigImage = bigImage1 == null ? new byte[0] : bigImage1;
+					byte[] smallImage = smallImage1 == null ? new byte[0] : smallImage1;
+					String fl = "/img/" + f;
+					if (!StrUtil.isEmpty(FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH))) {
+						String string = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
+						fl = string + fl;
+					}
+					File file = new File(fl);
+					if (!file.exists() && !file.isDirectory()) {
+						Files.createParentDirs(file);
+						file.mkdir();
+					}
+					String finalBigFileName = fl + "/" + bigImgFileName;
+					String finalSmallFileName = fl + "/" + smallImgFileName;
+					
+					File bigFile = new File(finalBigFileName);
+					bigFile.createNewFile();
+					Files.write(bigImage, bigFile);
+					
+					File smallFile = new File(finalSmallFileName);
+					smallFile.createNewFile();
+					Files.write(smallImage, smallFile);
+					
+					String ip = CarparkClientConfig.getInstance().getDbServerIp();
+					if (true) {
+						long nanoTime = System.nanoTime();
+						LOGGER.info("准备将图片{}上传到服务器{}", finalBigFileName, ip);
+						try {
+							String bigUpload = FileuploadSend.upload("http://" + ip + ":8899/carparkImage/", finalBigFileName);
+							String smallUpload = FileuploadSend.upload("http://" + ip + ":8899/carparkImage/", finalSmallFileName);
+							LOGGER.info("图片上传到服务器{}成功,{}", ip, bigUpload+"=="+smallUpload);
+						} catch (Exception e) {
+							e.printStackTrace();
+							LOGGER.error("图片上传到服务器{}失败", ip);
+						} finally {
+							LOGGER.info("上传图片花费时间：{}", System.nanoTime() - nanoTime);
+						}
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+					LOGGER.error("上传图片出错",e);
+				}
+			}
+		};
+		saveImageTheadPool.submit(runnable);
 	}
 }

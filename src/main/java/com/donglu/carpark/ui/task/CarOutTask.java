@@ -1,11 +1,8 @@
 package com.donglu.carpark.ui.task;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,13 +30,13 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.google.common.collect.Maps;
 
 public class CarOutTask implements Runnable{
 	private static Logger LOGGER = LoggerFactory.getLogger(CarInTask.class);
 	
 	private static Image outSmallImage;
 	private static Image outBigImage;
+	private static Image inBigImage;
 	
 	private String plateNO;
 	private String ip;
@@ -48,6 +45,7 @@ public class CarOutTask implements Runnable{
 	private final CarparkMainPresenter presenter;
 	private final CLabel lbl_outBigImg;
 	private final CLabel lbl_outSmallImg;
+	private final CLabel lbl_inBigImg;
 	
 	private final Text text_real;
 	
@@ -64,7 +62,6 @@ public class CarOutTask implements Runnable{
 	private final Map<SystemSettingTypeEnum, String> mapSystemSetting = CarparkMainApp.mapSystemSetting;
 	// 保存最近的手动拍照时间
 	private final Map<String, Date> mapHandPhotograph = CarparkMainApp.mapHandPhotograph;
-	private final Map<String, Boolean> mapOpenDoor = CarparkMainApp.mapOpenDoor;
 
 	private Float rightSize;
 
@@ -74,7 +71,7 @@ public class CarOutTask implements Runnable{
 	
 	public CarOutTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage,CarparkMainModel model,
 			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, CLabel lbl_outBigImg,
-			CLabel lbl_outSmallImg,Combo carTypeSelectCombo,
+			CLabel lbl_outSmallImg,CLabel lbl_inBigImg, Combo carTypeSelectCombo,
 			Text text_real,Shell shell,Float rightSize) {
 		super();
 		this.ip = ip;
@@ -90,6 +87,7 @@ public class CarOutTask implements Runnable{
 		this.text_real=text_real;
 		this.shell = shell;
 		this.rightSize=rightSize;
+		this.lbl_inBigImg=lbl_inBigImg;
 	}
 	public static void main(String[] args) {
 		try {
@@ -103,13 +101,7 @@ public class CarOutTask implements Runnable{
 	public void run(){
 		try {
 			SingleCarparkDevice device = mapIpToDevice.get(ip);
-			//开闸
-			Boolean boolean1 = mapOpenDoor.get(ip);
-			if (boolean1 != null && boolean1) {
-				mapOpenDoor.put(ip, null);
-				presenter.saveOpenDoor(device, bigImage, plateNO, false);
-				return;
-			}
+			
 			Boolean isTwoChanel = CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress()) == null ? false : CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress());
 			if (isTwoChanel) {
 				// 双摄像头等待
@@ -145,9 +137,9 @@ public class CarOutTask implements Runnable{
 			String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
 			String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
 			String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
-			presenter.saveImage(folder, bigImgFileName, bigImage);
 			String smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
-			presenter.saveImage(folder, smallImgFileName, smallImage);
+			
+			presenter.saveImage(folder, smallImgFileName, bigImgFileName, smallImage, bigImage);
 			long nanoTime1 = System.nanoTime();
 			final String dateString = StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss");
 			// System.out.println(dateString + "==" + ip + "==" + mapDeviceType.get(ip) + "==" + plateNO);
@@ -223,8 +215,24 @@ public class CarOutTask implements Runnable{
 				return;
 			}
 			SingleCarparkInOutHistory ch = findByNoOut.get(0);
-			model.setInShowTime(StrUtil.formatDate(ch.getInTime(), "yyyy-MM-dd HH:mm:ss"));
-			model.setInShowPlateNO(ch.getPlateNo());
+			LOGGER.error("显示进口图片");
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					if (!StrUtil.isEmpty(lbl_inBigImg)) {
+						if (inBigImage != null) {
+							LOGGER.info("出口大图片销毁图片");
+							inBigImage.dispose();
+							lbl_inBigImg.setBackgroundImage(null);
+						}
+						inBigImage = CarparkUtils.getImage(CarparkUtils.getImageByte(ch.getBigImg()), lbl_outBigImg, shell);
+						if (outBigImage != null) {
+							lbl_inBigImg.setBackgroundImage(outBigImage);
+						}
+					}
+				}
+			});
+			
+			
 
 			presenter.showPlateNOToDevice(device, plateNO);
 			//
@@ -315,6 +323,7 @@ public class CarOutTask implements Runnable{
 			SingleCarparkUser findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(nowPlateNO, device.getCarpark().getId());
 			if (StrUtil.isEmpty(findUserByPlateNo)) {
 				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg,null);
+				return true;
 			}else{
 				user=findUserByPlateNo;
 			}

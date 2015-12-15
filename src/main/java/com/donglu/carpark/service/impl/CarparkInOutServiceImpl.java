@@ -495,7 +495,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			CarparkCarType type = dom.getEntityWithId(carType.index());
 			List<CarparkChargeStandard> carparkChargeStandardList = type.getCarparkChargeStandardList();
 			for (CarparkChargeStandard carparkChargeStandard : carparkChargeStandardList) {
-				if (carparkChargeStandard.getUsing()&&carparkChargeStandard.getCarpark().getId().equals(carparkId)) {
+				if (!StrUtil.isEmpty(carparkChargeStandard.getUsing())&&carparkChargeStandard.getUsing()&&carparkChargeStandard.getCarpark().getId().equals(carparkId)) {
 					return carparkChargeStandard.getOnedayMaxCharge();
 				}
 			}
@@ -506,12 +506,12 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public float countTodayCharge(String plateNo,Date date) {
+	public float countTodayCharge(String plateNo,Date date, Date e) {
 		unitOfWork.begin();
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
-			c.add(Restrictions.ge(SingleCarparkInOutHistory.Property.outTime.name(), StrUtil.getTodayTopTime(date)));
+			c.add(Restrictions.between(SingleCarparkInOutHistory.Property.outTime.name(), date,e));
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plateNo));
 			c.setProjection(Projections.sum(SingleCarparkInOutHistory.Property.factMoney.name()));
 			Double singleResultOrNull = (Double) c.getSingleResultOrNull();
@@ -776,6 +776,24 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
     		SingleCarparkInOutHistory entityWithId = dom.getEntityWithId(id);
     		return entityWithId;
 		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public float findAcrossDayPrice(CarTypeEnum carType, Long carparkId) {
+		unitOfWork.begin();
+		try {
+			DatabaseOperation<CarparkCarType> dom = DatabaseOperation.forClass(CarparkCarType.class, emprovider.get());
+			CarparkCarType type = dom.getEntityWithId(carType.index());
+			List<CarparkChargeStandard> carparkChargeStandardList = type.getCarparkChargeStandardList();
+			for (CarparkChargeStandard carparkChargeStandard : carparkChargeStandardList) {
+				if (!StrUtil.isEmpty(carparkChargeStandard.getUsing())&&carparkChargeStandard.getUsing()&&carparkChargeStandard.getCarpark().getId().equals(carparkId)) {
+					return carparkChargeStandard.getAcrossDayPrice()==null?0:carparkChargeStandard.getAcrossDayPrice();
+				}
+			}
+			return 0;
+		} finally {
 			unitOfWork.end();
 		}
 	}

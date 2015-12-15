@@ -330,7 +330,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			LOGGER.error("系统发生异常",e);
+//			shell.dispose();
+//			open();
 		} finally {
+			LOGGER.info("系统退出");
 			systemExit();
 		}
 	}
@@ -1296,6 +1300,16 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			e.printStackTrace();
 			return;
 		}
+		//开闸
+		Boolean boolean1 = mapOpenDoor.get(ip);
+		if (boolean1 != null && boolean1) {
+			mapOpenDoor.put(ip, null);
+			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO, true);
+			return;
+		}
+		
+		
+		
 		boolean equals = (mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔))
 				.equals(SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue());
 		String linkAddress = mapIpToDevice.get(ip).getLinkAddress();
@@ -1322,7 +1336,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 			String key = new Date() + "current has device:" + ip + " with plate:" + plateNO + " process";
 			listOutTask.add(key);
-			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_outBigImg, lbl_outSmallImg, carTypeSelectCombo, text_real, shell, rightSize);
+			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_outBigImg, lbl_outSmallImg,lbl_inBigImg, carTypeSelectCombo, text_real, shell, rightSize);
 			outTheadPool.submit(task);
 			if (isNotOpenDoor) {
 				mapOutTwoCameraTask.put(linkAddress, task);

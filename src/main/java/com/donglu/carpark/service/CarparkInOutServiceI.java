@@ -91,9 +91,10 @@ public interface CarparkInOutServiceI {
 	/**
 	 * 查找车指定日期缴费金额
 	 * @param plateNo
+	 * @param e 
 	 * @return
 	 */
-	float countTodayCharge(String plateNo,Date date);
+	float countTodayCharge(String plateNo,Date date, Date e);
 	/**
 	 * 保存抬杆记录
 	 * @param openDoor
@@ -143,4 +144,11 @@ public interface CarparkInOutServiceI {
 	int findTotalFixCarIn();
 
 	SingleCarparkInOutHistory findInOutById(Long id);
+	/**
+	 * 查找跨天收费金额
+	 * @param carType
+	 * @param carparkId
+	 * @return
+	 */
+	float findAcrossDayPrice(CarTypeEnum carType, Long carparkId);
 }

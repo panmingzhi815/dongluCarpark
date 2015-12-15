@@ -104,6 +104,8 @@ public class NewCommonChargeBasicPage extends WizardPage {
 	private ComboViewer comboViewer_3;
 	private ComboViewer comboViewer_4;
 
+	private Text text_acrossDayPrice;
+
     public NewCommonChargeBasicPage(NewCommonChargeModel model) {
         super("wizardPage");
         this.model = model;
@@ -302,6 +304,10 @@ public class NewCommonChargeBasicPage extends WizardPage {
         new Label(composite1,SWT.NONE).setText("起步收费金额");
         text_startStepPrice = new Text(composite1, SWT.BORDER);
         text_startStepPrice.setLayoutData(INPUTLAYOUTDATA+",wrap");
+        
+        new Label(composite1,SWT.NONE).setText("跨天收费金额");
+        text_acrossDayPrice = new Text(composite1, SWT.BORDER);
+        text_acrossDayPrice.setLayoutData(INPUTLAYOUTDATA+",wrap");
         
         Label label = new Label(composite1,SWT.NONE);
         label.setText("收费时段设置");
@@ -590,6 +596,10 @@ public class NewCommonChargeBasicPage extends WizardPage {
 		//
 		IObservableValue observeSingleSelectionComboViewer_4 = ViewerProperties.singleSelection().observe(comboViewer_4);
 		bindingContext.bindValue(observeSingleSelectionComboViewer_4, observe_carType_model, null, null);
+		//
+		IObservableValue observeTextText_acrossDayPriceObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_acrossDayPrice);
+		IObservableValue acrossDayPriceModelObserveValue = BeanProperties.value("acrossDayPrice").observe(model);
+		bindingContext.bindValue(observeTextText_acrossDayPriceObserveWidget, acrossDayPriceModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}
