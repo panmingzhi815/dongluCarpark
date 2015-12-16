@@ -74,7 +74,7 @@ public class DeviceView extends Composite implements View{
 		ToolBar toolBar3 = new ToolBar(control3, SWT.NONE);
 		ToolItem toolItem_in_photograph3 = new ToolItem(toolBar3, SWT.NONE);
 		toolItem_in_photograph3.setText("拍照");
-		toolItem_in_photograph3.setToolTipText("进口2手动抓拍");
+		toolItem_in_photograph3.setToolTipText("手动抓拍");
 		toolItem_in_photograph3.setSelection(true);
 		toolItem_in_photograph3.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -92,7 +92,7 @@ public class DeviceView extends Composite implements View{
 		});
 		ToolItem toolItem_in_openDoor3 = new ToolItem(toolBar3, SWT.NONE);
 		toolItem_in_openDoor3.setText("抬杆");
-		toolItem_in_openDoor3.setToolTipText("进口2手动抬杆");
+		toolItem_in_openDoor3.setToolTipText("手动抬杆");
 		toolItem_in_openDoor3.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -112,7 +112,7 @@ public class DeviceView extends Composite implements View{
 
 		addToolItem = new ToolItem(toolBar3, SWT.NONE);
 		addToolItem.setText("添加");
-		addToolItem.setToolTipText("添加进口2设备");
+		addToolItem.setToolTipText("添加设备");
 		addToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -121,7 +121,7 @@ public class DeviceView extends Composite implements View{
 		});
 		editToolItem = new ToolItem(toolBar3, SWT.NONE);
 		editToolItem.setText("修改");
-		editToolItem.setToolTipText("修改进口2设备");
+		editToolItem.setToolTipText("修改设备");
 		editToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -131,7 +131,7 @@ public class DeviceView extends Composite implements View{
 
 		delToolItem = new ToolItem(toolBar3, SWT.NONE);
 		delToolItem.setText("删除");
-		delToolItem.setToolTipText("删除进口2设备");
+		delToolItem.setToolTipText("删除设备");
 
 		delToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override

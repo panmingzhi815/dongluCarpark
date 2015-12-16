@@ -350,6 +350,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		inThreadPool.shutdownNow();
 
 		refreshService.shutdownNow();
+		presenter.systemExit();
 		System.exit(0);
 	}
 
@@ -1147,6 +1148,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		lbl_stop.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
+				if (!model.isBtnClick()) {
+					return;
+				}
 				setBoundsY(lbl_stop, -2);
 				stop();
 			}
@@ -1311,7 +1315,11 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		Boolean boolean1 = mapOpenDoor.get(ip);
 		if (boolean1 != null && boolean1) {
 			mapOpenDoor.put(ip, null);
-			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO, true);
+			boolean inOrOut = true;
+			if (mapDeviceType.get(ip).equals("出口")||mapDeviceType.get(ip).equals("出口2")) {
+				inOrOut = false;
+			}
+			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO, inOrOut);
 			return;
 		}
 		

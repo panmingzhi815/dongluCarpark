@@ -187,7 +187,7 @@ public class CarparkMainPresenter {
 			addDevice(tabFolder, type, ip, name);
 			showUsualContentToDevice(device);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("添加设备时发生错误",e);
 		}
 	}
 
@@ -929,7 +929,13 @@ public class CarparkMainPresenter {
 		}
 		return true;
 	}
-
+	/**
+	 * 手动开闸并且保存开闸记录
+	 * @param device
+	 * @param image
+	 * @param plateNO
+	 * @param inOrOut
+	 */
 	public void saveOpenDoor(final SingleCarparkDevice device, final byte[] image, final String plateNO, final boolean inOrOut) {
 		Runnable runnable = new Runnable() {
 			public void run() {
@@ -1157,5 +1163,13 @@ public class CarparkMainPresenter {
 			}
 		};
 		saveImageTheadPool.submit(runnable);
+	}
+	
+	/**
+	 * 释放资源
+	 */
+	public void systemExit() {
+		openDoorTheadPool.shutdownNow();
+		saveImageTheadPool.shutdownNow();
 	}
 }

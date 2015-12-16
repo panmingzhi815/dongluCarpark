@@ -262,7 +262,7 @@ public class CarInTask implements Runnable {
 
 			String carType = "临时车";
 
-			if (!StrUtil.isEmpty(user)) {
+			if (!StrUtil.isEmpty(user)) {//固定车操作
 				boolean flag = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认));
 				if (!isEmptyPlateNo) {
 					if (flag) {

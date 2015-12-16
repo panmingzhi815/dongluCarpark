@@ -215,7 +215,7 @@ public class CarOutTask implements Runnable{
 				return;
 			}
 			SingleCarparkInOutHistory ch = findByNoOut.get(0);
-			LOGGER.error("显示进口图片");
+			LOGGER.info("显示进口图片");
 			Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
 					if (!StrUtil.isEmpty(lbl_inBigImg)) {

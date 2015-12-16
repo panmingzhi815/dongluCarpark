@@ -155,7 +155,8 @@ public class CarparkUtils {
 			cl.setText("");
 			return createImg;
 		} catch (Exception e) {
-			throw new DongluAppException("图片转换错误", e);
+			LOGGER.error("图片转换错误",e);
+			return null;
 		} finally {
 			if (stream != null) {
 				try {
@@ -194,7 +195,7 @@ public class CarparkUtils {
 			newImg = null;
 			return createImg;
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("获取图片失败",e);
 			return null;
 		}finally{
 			if (stream!=null) {
