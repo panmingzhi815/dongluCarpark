@@ -181,6 +181,7 @@ public class CarparkUtils {
 			lastImage.dispose();
 			cLabel.setBackgroundImage(null);
 			cLabel.setData("lastImage",null);
+			LOGGER.info("销毁图片成功！");
 		}
 
 		if (imageBytes == null || imageBytes.length <= 0) {

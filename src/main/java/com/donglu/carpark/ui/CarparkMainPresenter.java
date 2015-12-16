@@ -304,7 +304,7 @@ public class CarparkMainPresenter {
 		});
 		xinlutongJNA.openEx(ip, getView());
 	}
-
+	Map<String, MediaPlayer> mapPlayer;
 	/**
 	 * 创建出口监控
 	 * 
@@ -326,7 +326,7 @@ public class CarparkMainPresenter {
 				new Runnable() {
 					public void run() {
 						while (!mediaPlayer.isPlaying()) {
-							// LOGGER.info("设备连接{}已断开", url);
+							 LOGGER.info("设备连接{}已断开", url);
 							mediaPlayer.playMedia(url);
 							Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
 						}
