@@ -179,6 +179,7 @@ public class CarparkUtils {
 		if (cLabel.getData("lastImage") != null){
 			Image lastImage = (Image)cLabel.getData("lastImage");
 			lastImage.dispose();
+			cLabel.setBackgroundImage(null);
 			cLabel.setData("lastImage",null);
 		}
 

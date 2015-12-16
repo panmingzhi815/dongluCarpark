@@ -28,6 +28,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 public class CarInTask implements Runnable {
+	private static final Display DEFAULT_DISPLAY = Display.getDefault();
 	private static Logger LOGGER = LoggerFactory.getLogger(CarInTask.class);
 	private static final String CAR_IN_MSG = "欢迎光临,请入场停车";
 	static Image inSmallImage;
@@ -125,31 +126,34 @@ public class CarInTask implements Runnable {
 			}
 			LOGGER.debug("开始在界面显示车牌：{}的抓拍图片", plateNO);
 			// 界面图片
-			Display.getDefault().asyncExec(new Runnable() {
+			DEFAULT_DISPLAY.asyncExec(new Runnable() {
 				public void run() {
 					if (StrUtil.isEmpty(lbl_inSmallImg)) {
 						return;
 					}
-					if (inSmallImage != null) {
-						LOGGER.info("出口小图片销毁图片");
-						inSmallImage.dispose();
-						lbl_inSmallImg.setBackgroundImage(null);
-					}
-					if (inBigImage != null) {
-						LOGGER.info("出口大图片销毁图片");
-						inBigImage.dispose();
-						lbl_inBigImg.setBackgroundImage(null);
-					}
-
-					inSmallImage = CarparkUtils.getImage(smallImage, lbl_inSmallImg, shell);
-					if (inSmallImage != null) {
-						lbl_inSmallImg.setBackgroundImage(inSmallImage);
-					}
-
-					inBigImage = CarparkUtils.getImage(bigImage, lbl_inBigImg, shell);
-					if (inBigImage != null) {
-						lbl_inBigImg.setBackgroundImage(inBigImage);
-					}
+//					if (inSmallImage != null) {
+//						LOGGER.info("出口小图片销毁图片");
+//						inSmallImage.dispose();
+//						lbl_inSmallImg.setBackgroundImage(null);
+//					}
+//					if (inBigImage != null) {
+//						LOGGER.info("出口大图片销毁图片");
+//						inBigImage.dispose();
+//						lbl_inBigImg.setBackgroundImage(null);
+//					}
+//
+//					inSmallImage = CarparkUtils.getImage(smallImage, lbl_inSmallImg, shell);
+//					if (inSmallImage != null) {
+//						lbl_inSmallImg.setBackgroundImage(inSmallImage);
+//					}
+//
+//					inBigImage = CarparkUtils.getImage(bigImage, lbl_inBigImg, shell);
+//					if (inBigImage != null) {
+//						lbl_inBigImg.setBackgroundImage(inBigImage);
+//					}
+					
+					CarparkUtils.setBackgroundImage(smallImage, lbl_inSmallImg, DEFAULT_DISPLAY);
+					CarparkUtils.setBackgroundImage(bigImage, lbl_inBigImg, DEFAULT_DISPLAY);
 				}
 			});
 			model.setInShowPlateNO(plateNO);
