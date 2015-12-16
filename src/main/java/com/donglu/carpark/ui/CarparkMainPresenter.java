@@ -209,7 +209,7 @@ public class CarparkMainPresenter {
 		Map<String, SingleCarparkDevice> map=new HashMap<>();
 		Collection<SingleCarparkDevice> values = mapIpToDevice.values();
 		for (SingleCarparkDevice singleCarparkDevice : values) {
-			String linkAddress = singleCarparkDevice.getLinkAddress();
+			String linkAddress = singleCarparkDevice.getLinkAddress()+singleCarparkDevice.getAddress();
 			SingleCarparkDevice singleCarparkDevice2 = map.get(linkAddress);
 			if (StrUtil.isEmpty(singleCarparkDevice2)) {
 				map.put(linkAddress, singleCarparkDevice);

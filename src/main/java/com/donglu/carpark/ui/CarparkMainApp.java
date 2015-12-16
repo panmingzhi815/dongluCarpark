@@ -1327,7 +1327,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		
 		boolean equals = (mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔))
 				.equals(SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue());
-		String linkAddress = mapIpToDevice.get(ip).getLinkAddress();
+		String linkAddress = mapIpToDevice.get(ip).getLinkAddress()+mapIpToDevice.get(ip).getAddress();
 
 		boolean isNotOpenDoor = mapOpenDoor.get(ip)==null||!mapOpenDoor.get(ip);
 		if (mapDeviceType.get(ip).equals("出口")||mapDeviceType.get(ip).equals("出口2")) {

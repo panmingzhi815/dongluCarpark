@@ -81,7 +81,8 @@ public class CarInTask implements Runnable {
 		try {
 			SingleCarparkDevice device = mapIpToDevice.get(ip);
 			// 双摄像头等待
-			Boolean isTwoChanel = CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress()) == null ? false : CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress());
+			String key = device.getLinkAddress()+device.getAddress();
+			Boolean isTwoChanel = CarparkMainApp.mapIsTwoChanel.get(key) == null ? false : CarparkMainApp.mapIsTwoChanel.get(key);
 			if (isTwoChanel) {
 				try {
 					Integer two = Integer.valueOf(
@@ -92,11 +93,9 @@ public class CarInTask implements Runnable {
 						l = System.currentTimeMillis() - startTime;
 					}
 					LOGGER.info("双摄像头等待时间{},已过{}",two,l);
-					CarparkMainApp.mapInTwoCameraTask.remove(device.getLinkAddress());
-				} catch (NumberFormatException e1) {
-					e1.printStackTrace();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+					CarparkMainApp.mapInTwoCameraTask.remove(key);
+				} catch (Exception e1) {
+					LOGGER.error("双摄像头出错",e1);
 				}
 			}
 

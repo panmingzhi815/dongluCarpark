@@ -102,7 +102,8 @@ public class CarOutTask implements Runnable{
 		try {
 			SingleCarparkDevice device = mapIpToDevice.get(ip);
 			
-			Boolean isTwoChanel = CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress()) == null ? false : CarparkMainApp.mapIsTwoChanel.get(device.getLinkAddress());
+			String linkAddress = device.getLinkAddress()+device.getAddress();
+			Boolean isTwoChanel = CarparkMainApp.mapIsTwoChanel.get(linkAddress) == null ? false : CarparkMainApp.mapIsTwoChanel.get(linkAddress);
 			if (isTwoChanel) {
 				// 双摄像头等待
 				try {
@@ -114,11 +115,9 @@ public class CarOutTask implements Runnable{
 						Thread.sleep(50);
 						l = System.currentTimeMillis()-startTime;
 					}
-					CarparkMainApp.mapOutTwoCameraTask.remove(device.getLinkAddress());
-				} catch (NumberFormatException e1) {
-					e1.printStackTrace();
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
+					CarparkMainApp.mapOutTwoCameraTask.remove(linkAddress);
+				} catch (Exception e1) {
+					LOGGER.error("双摄像头出错",e1);
 				}
 			}
 			//
