@@ -167,6 +167,38 @@ public class CarparkUtils {
 			}
 		}
 	}
+
+	/**
+	 * 将图片数据直接显示至cLabel背景
+	 * 每次显示图片后，将图片保存至clabel的引用中，下次再要显示时，先判断是否有引用，如果有引用，则先要销毁以前的引用，避免swt 的 handler 资源泄漏
+	 * @param imageBytes 数据原始二进制数据
+	 * @param cLabel 显示控件
+	 * @param device 当前显示的窗体 display
+	 */
+	public static void setBackgroundImage(byte[] imageBytes, CLabel cLabel, Display device) {
+		if (cLabel.getData("lastImage") != null){
+			Image lastImage = (Image)cLabel.getData("lastImage");
+			lastImage.dispose();
+			cLabel.setData("lastImage",null);
+		}
+
+		if (imageBytes == null || imageBytes.length <= 0) {
+			cLabel.setText("无图片");
+			return;
+		}
+
+		try (ByteArrayInputStream stream = new ByteArrayInputStream(imageBytes)) {
+			Image img = new Image(device, stream);
+			ImageData data = img.getImageData().scaledTo(cLabel.getBounds().width, cLabel.getBounds().height);
+			Image createImg = ImageDescriptor.createFromImageData(data).createImage();
+			img.dispose();
+			cLabel.setText("");
+			cLabel.setBackgroundImage(createImg);
+			cLabel.setData("lastImage",createImg);
+		} catch (Exception e) {
+			LOGGER.error("图片转换错误", e);
+		}
+	}
 	
 	/**
 	 * 获得保存到Label的图片
