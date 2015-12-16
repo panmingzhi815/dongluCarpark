@@ -352,7 +352,7 @@ public class CarInTask implements Runnable {
 						}
 					}
 				}
-				if (flag) {
+				if (flag&&!editPlateNo.equals(plateNO)) {
 					SingleCarparkUser singleCarparkUser = sp.getCarparkUserService().findUserByPlateNo(editPlateNo, device.getCarpark().getId());
 					if (StrUtil.isEmpty(singleCarparkUser)) {
 						LOGGER.debug("判断是否允许临时车进");

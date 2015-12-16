@@ -1148,10 +1148,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		lbl_stop.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
+				setBoundsY(lbl_stop, -2);
 				if (!model.isBtnClick()) {
 					return;
 				}
-				setBoundsY(lbl_stop, -2);
 				stop();
 			}
 
