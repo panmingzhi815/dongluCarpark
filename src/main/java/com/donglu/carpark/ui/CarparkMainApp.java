@@ -398,6 +398,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			autoSendPositionToDevice();
 			autoSendTimeToDevice();
 		}
+		printMemory();
 		refreshCarparkBasicInfo(refreshTimeSpeedSecond);
 
 		model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
@@ -405,9 +406,25 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		try {
 			sendPositionToDeviceTime = Integer.parseInt(System.getProperty("SendPositionToDeviceTime"));
 		} catch (NumberFormatException e) {
+			
 		}finally{
 			LOGGER.info("发送车位数间隔SendPositionToDeviceTime为:{}",sendPositionToDeviceTime);
 		}
+	}
+
+	private void printMemory() {
+		Runtime runtime = Runtime.getRuntime();
+		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("没10秒获取内存信息"));
+		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+
+			@Override
+			public void run() {
+				long totalMemory = runtime.totalMemory();
+				long freeMemory = runtime.freeMemory();
+				LOGGER.info("获取内存信息，总内存{},空闲{},使用{}",totalMemory,freeMemory,totalMemory-freeMemory);
+			}
+		}, 10, 10, TimeUnit.SECONDS);
+		
 	}
 
 	/**

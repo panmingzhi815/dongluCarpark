@@ -70,7 +70,7 @@ public class DevicePresenter  implements Presenter{
 		this.listDevice = listDevice;
 	}
 	public void createRightCamera(String ip, Composite composite) {
-		presenter.createLeftCamera(ip, composite);
+		presenter.createCamera(ip, composite);
 	}
 	public void controlItem(Boolean dispose){
 		if (StrUtil.isEmpty(view)) {

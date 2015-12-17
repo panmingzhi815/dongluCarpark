@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.bridj.cpp.std.list;
@@ -73,6 +74,7 @@ import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
 import com.dongluhitec.card.mapper.BeanUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
 import com.dongluhitec.card.util.ThreadUtil;
+import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Inject;
@@ -253,59 +255,30 @@ public class CarparkMainPresenter {
 		Composite composite = new Composite(tabFolder, SWT.BORDER | SWT.EMBEDDED);
 		tabItem.setControl(composite);
 		composite.setLayout(new FillLayout());
-		if (type.equals("进口")) {
-			createLeftCamera(ip, composite);
-		} else if (type.equals("出口")||type.equals("出口2")) {
-			createRightCamera(ip, composite);
-		}else if(type.equals("进口2")){
-			createLeftCameraBottom(ip, composite);
-		}
+			createCamera(ip, composite);
 		tabFolder.setSelection(tabItem);
 		mapDeviceTabItem.put(tabItem, ip);
 		mapDeviceType.put(ip, type);
 	}
 
-	public void createLeftCameraBottom(String ip, Composite southCamera) {
-		Frame new_Frame1 = SWT_AWT.new_Frame(southCamera);
-		Canvas canvas1 = new Canvas();
-		new_Frame1.add(canvas1);
-		new_Frame1.pack();
-		new_Frame1.setVisible(true);
-		final String url = "rtsp://" + ip + ":554/h264ESVideoTest";
-		final EmbeddedMediaPlayer createPlayLeft = webCameraDevice.createPlay(new_Frame1, url);
-		createPlayLeft.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-			@Override
-			public void finished(final MediaPlayer mediaPlayer) {
-				new Runnable() {
-					public void run() {
-						while (!mediaPlayer.isPlaying()) {
-							LOGGER.info("设备连接{}已断开", url);
-							mediaPlayer.playMedia(url);
-							Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
-						}
-					}
-				}.run();
-			}
-
-			@Override
-			public void error(MediaPlayer mediaPlayer) {
-
-			}
-		});
-		getView().shell.addDisposeListener(new DisposeListener() {
-			public void widgetDisposed(DisposeEvent e) {
-				createPlayLeft.release();
-			}
-		});
-		southCamera.addDisposeListener(new DisposeListener() {
-
-			public void widgetDisposed(DisposeEvent e) {
-				createPlayLeft.release();
-			}
-		});
-		xinlutongJNA.openEx(ip, getView());
+	Map<String, MediaPlayer> mapPlayer=Maps.newHashMap();
+	
+	private void checkPlayerPlaying(){
+//		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每分钟检测摄像机连接状态"));
+//		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+//			
+//			@Override
+//			public void run() {
+//				for (String url : mapPlayer.keySet()) {
+//					MediaPlayer mediaPlayer = mapPlayer.get(url);
+//					if (!mediaPlayer.isPlaying()) {
+//						 LOGGER.info("设备连接{}已断开", url);
+//						 mediaPlayer.playMedia(url);
+//					}
+//				}
+//			}
+//		}, 60, 60, TimeUnit.SECONDS);
 	}
-	Map<String, MediaPlayer> mapPlayer;
 	/**
 	 * 创建出口监控
 	 * 
@@ -313,7 +286,7 @@ public class CarparkMainPresenter {
 	 * @param northCamera
 	 * 
 	 */
-	public void createRightCamera(String ip, Composite northCamera) {
+	public void createCamera(String ip, Composite northCamera) {
 		Frame new_Frame1 = SWT_AWT.new_Frame(northCamera);
 		Canvas canvas1 = new Canvas();
 		new_Frame1.add(canvas1);
@@ -321,6 +294,7 @@ public class CarparkMainPresenter {
 		new_Frame1.setVisible(true);
 		final String url = "rtsp://" + ip + ":554/h264ESVideoTest";
 		final EmbeddedMediaPlayer createPlayRight = webCameraDevice.createPlay(new_Frame1, url);
+		mapPlayer.put(url, createPlayRight);
 		createPlayRight.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
 			@Override
 			public void finished(final MediaPlayer mediaPlayer) {
@@ -349,55 +323,6 @@ public class CarparkMainPresenter {
 		});
 		xinlutongJNA.openEx(ip, getView());
 	}
-
-	/**
-	 * 创建进口监控
-	 * 
-	 * @param ip
-	 * @param southCamera
-	 * 
-	 */
-	public void createLeftCamera(String ip, Composite southCamera) {
-		Frame new_Frame1 = SWT_AWT.new_Frame(southCamera);
-		Canvas canvas1 = new Canvas();
-		new_Frame1.add(canvas1);
-		new_Frame1.pack();
-		new_Frame1.setVisible(true);
-		final String url = "rtsp://" + ip + ":554/h264ESVideoTest";
-		final EmbeddedMediaPlayer createPlayLeft = webCameraDevice.createPlay(new_Frame1, url);
-		createPlayLeft.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-			@Override
-			public void finished(final MediaPlayer mediaPlayer) {
-				new Runnable() {
-					public void run() {
-						while (!mediaPlayer.isPlaying()) {
-							LOGGER.info("设备连接{}已断开", url);
-							mediaPlayer.playMedia(url);
-							Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
-						}
-					}
-				}.run();
-			}
-
-			@Override
-			public void error(MediaPlayer mediaPlayer) {
-
-			}
-		});
-		getView().shell.addDisposeListener(new DisposeListener() {
-			public void widgetDisposed(DisposeEvent e) {
-				createPlayLeft.release();
-			}
-		});
-		southCamera.addDisposeListener(new DisposeListener() {
-
-			public void widgetDisposed(DisposeEvent e) {
-				createPlayLeft.release();
-			}
-		});
-		xinlutongJNA.openEx(ip, getView());
-	}
-
 	/**
 	 * @param type
 	 * @param tabFolder
@@ -861,6 +786,7 @@ public class CarparkMainPresenter {
 	public void init() {
 		saveImageTheadPool=Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("保存图片任务"));
 		openDoorTheadPool=Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
+		checkPlayerPlaying();
 	}
 
 	/**
