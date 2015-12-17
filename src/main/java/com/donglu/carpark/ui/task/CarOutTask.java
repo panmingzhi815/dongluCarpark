@@ -166,24 +166,27 @@ public class CarOutTask implements Runnable{
 				model.setOutPlateNOEditable(true);
 				return;
 			}
+			SingleCarparkUser user = sp.getCarparkUserService().findUserByPlateNo(plateNO,device.getCarpark().getId());
 			// 没有找到入场记录
 			List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO,carpark);
-			if (StrUtil.isEmpty(findByNoOut)) {
-				LOGGER.info("没有找到车牌{}的入场记录", plateNO);
-				presenter.showPlateNOToDevice(device, plateNO);
-				presenter.showContentToDevice(device, "此车未入场", false);
-				model.setSearchPlateNo(plateNO);
-				model.setSearchBigImage(bigImg);
-				model.setSearchSmallImage(smallImg);
-				model.setHandSearch(true);
-				model.setOutPlateNOEditable(true);
-				return;
+			if (StrUtil.isEmpty(user)) {
+				if (StrUtil.isEmpty(findByNoOut)) {
+					LOGGER.info("没有找到车牌{}的入场记录", plateNO);
+					presenter.showPlateNOToDevice(device, plateNO);
+					presenter.showContentToDevice(device, "此车未入场", false);
+					model.setSearchPlateNo(plateNO);
+					model.setSearchBigImage(bigImg);
+					model.setSearchSmallImage(smallImg);
+					model.setHandSearch(true);
+					model.setOutPlateNOEditable(true);
+					return;
+				}
 			}
-			SingleCarparkInOutHistory ch = findByNoOut.get(0);
+			SingleCarparkInOutHistory ch = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
 			LOGGER.info("车辆出场显示进口图片");
 			DEFAULT_DISPLAY.asyncExec(new Runnable() {
 				public void run() {
-					if (StrUtil.isEmpty(lbl_inBigImg)) {
+					if (StrUtil.isEmpty(ch)||StrUtil.isEmpty(lbl_inBigImg)) {
 						return;
 					}
 					CarparkUtils.setBackgroundImage(CarparkUtils.getImageByte(ch.getBigImg()), lbl_inBigImg, DEFAULT_DISPLAY);
@@ -195,8 +198,6 @@ public class CarOutTask implements Runnable{
 			presenter.showPlateNOToDevice(device, plateNO);
 			//
 			long nanoTime3 = System.nanoTime();
-			SingleCarparkUser findByNameOrPlateNo = sp.getCarparkUserService().findUserByPlateNo(plateNO,device.getCarpark().getId());
-			SingleCarparkUser user = StrUtil.isEmpty(findByNameOrPlateNo) ? null : findByNameOrPlateNo;
 			String carType = "临时车";
 			
 			if (!StrUtil.isEmpty(user)) {
@@ -289,7 +290,7 @@ public class CarOutTask implements Runnable{
 		//
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(nowPlateNO, device.getCarpark());
-		SingleCarparkInOutHistory singleCarparkInOutHistory = findByNoCharge.get(0);
+		SingleCarparkInOutHistory singleCarparkInOutHistory =StrUtil.isEmpty(findByNoCharge)?null: findByNoCharge.get(0);
 		Date validTo = user.getValidTo();
 		Integer delayDays = user.getDelayDays() == null ? 0 : user.getDelayDays();
 
@@ -303,7 +304,7 @@ public class CarOutTask implements Runnable{
 			LOGGER.info("车辆:{}已到期", nowPlateNO);
 			if (Boolean.valueOf(getSettingValue(mapSystemSetting,SystemSettingTypeEnum.固定车到期变临时车))) {
 				Date d=null;
-				if (singleCarparkInOutHistory.getInTime().before(validTo)) {
+				if (StrUtil.isEmpty(singleCarparkInOutHistory)||singleCarparkInOutHistory.getInTime().before(validTo)) {
 					d=validTo;
 				}else{
 					d=singleCarparkInOutHistory.getInTime();
@@ -326,28 +327,33 @@ public class CarOutTask implements Runnable{
 		model.setPlateNo(nowPlateNO);
 		model.setCarType(carType);
 		model.setOutTime(date);
-		Date inTime = singleCarparkInOutHistory.getInTime();
-		model.setInTime(inTime);
 		model.setShouldMony(0);
+		model.setInTime(null);
+		model.setTotalTime("未入场");
 		model.setReal(0);
-		model.setTotalTime(StrUtil.MinusTime2(inTime, date));
-		singleCarparkInOutHistory.setOutTime(date);
-		singleCarparkInOutHistory.setOperaName(model.getUserName());
-		singleCarparkInOutHistory.setOutDevice(device.getName());
-		singleCarparkInOutHistory.setOutPhotographType("自动");
-		singleCarparkInOutHistory.setCarType(carType);
-		singleCarparkInOutHistory.setOutBigImg(bigImg);
-		singleCarparkInOutHistory.setOutSmallImg(smallImg);
-		singleCarparkInOutHistory.setUserId(user.getId());
-		singleCarparkInOutHistory.setUserName(user.getName());
-		Date handPhotographDate = mapHandPhotograph.get(ip);
-		if (!StrUtil.isEmpty(handPhotographDate)) {
-			DateTime plusSeconds = new DateTime(handPhotographDate).plusSeconds(3);
-			boolean after = plusSeconds.toDate().after(date);
-			if (after)
-				singleCarparkInOutHistory.setOutPhotographType("手动");
+		//未找到入场记录
+		if (!StrUtil.isEmpty(singleCarparkInOutHistory)) {
+			Date inTime = singleCarparkInOutHistory.getInTime();
+			model.setInTime(inTime);
+			model.setTotalTime(StrUtil.MinusTime2(inTime, date));
+			singleCarparkInOutHistory.setOutTime(date);
+			singleCarparkInOutHistory.setOperaName(model.getUserName());
+			singleCarparkInOutHistory.setOutDevice(device.getName());
+			singleCarparkInOutHistory.setOutPhotographType("自动");
+			singleCarparkInOutHistory.setCarType(carType);
+			singleCarparkInOutHistory.setOutBigImg(bigImg);
+			singleCarparkInOutHistory.setOutSmallImg(smallImg);
+			singleCarparkInOutHistory.setUserId(user.getId());
+			singleCarparkInOutHistory.setUserName(user.getName());
+			Date handPhotographDate = mapHandPhotograph.get(ip);
+			if (!StrUtil.isEmpty(handPhotographDate)) {
+				DateTime plusSeconds = new DateTime(handPhotographDate).plusSeconds(3);
+				boolean after = plusSeconds.toDate().after(date);
+				if (after)
+					singleCarparkInOutHistory.setOutPhotographType("手动");
+			}
+			carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
 		}
-		carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
 		model.setBtnClick(false);
 		return false;
 	}
