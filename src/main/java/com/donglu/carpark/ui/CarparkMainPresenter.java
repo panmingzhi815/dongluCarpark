@@ -218,6 +218,7 @@ public class CarparkMainPresenter {
 				CarparkMainApp.mapIsTwoChanel.put(linkAddress, true);
 			}
 		}
+		LOGGER.info("双摄像头信息：{}",CarparkMainApp.mapIsTwoChanel);
 	}
 
 	/**

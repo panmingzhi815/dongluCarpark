@@ -41,7 +41,6 @@ public class CarInTask implements Runnable {
 	private final CarparkMainPresenter presenter;
 	private byte[] bigImage;
 	private byte[] smallImage;
-	private final Shell shell;
 	// 保存车牌最近的处理时间
 	private final Map<String, Date> mapPlateNoDate = CarparkMainApp.mapPlateNoDate;
 	// 保存设备的信息
@@ -60,7 +59,7 @@ public class CarInTask implements Runnable {
 
 	private final CLabel lbl_inBigImg;
 
-	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, Shell shell,
+	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter,
 			Float rightSize, CLabel lbl_inSmallImg, CLabel lbl_inBigImg) {
 		super();
 		this.ip = ip;
@@ -70,7 +69,6 @@ public class CarInTask implements Runnable {
 		this.model = model;
 		this.sp = sp;
 		this.presenter = presenter;
-		this.shell = shell;
 		this.rightSize = rightSize;
 		this.lbl_inSmallImg = lbl_inSmallImg;
 		this.lbl_inBigImg = lbl_inBigImg;
@@ -81,23 +79,7 @@ public class CarInTask implements Runnable {
 		try {
 			SingleCarparkDevice device = mapIpToDevice.get(ip);
 			// 双摄像头等待
-			String key = device.getLinkAddress()+device.getAddress();
-			Boolean isTwoChanel = CarparkMainApp.mapIsTwoChanel.get(key) == null ? false : CarparkMainApp.mapIsTwoChanel.get(key);
-			if (isTwoChanel) {
-				try {
-					Integer two = Integer.valueOf(
-							mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
-					long l = System.currentTimeMillis() - startTime;
-					while (l < two) {
-						Thread.sleep(50);
-						l = System.currentTimeMillis() - startTime;
-					}
-					LOGGER.info("双摄像头等待时间{},已过{}",two,l);
-					CarparkMainApp.mapInTwoCameraTask.remove(key);
-				} catch (Exception e1) {
-					LOGGER.error("双摄像头出错",e1);
-				}
-			}
+			twoChanelControl(device);
 
 			Date date = new Date();
 			boolean checkPlateNODiscernGap = presenter.checkPlateNODiscernGap(mapPlateNoDate, plateNO, date);
@@ -414,6 +396,33 @@ public class CarInTask implements Runnable {
 			LOGGER.error("车辆进场时发生错误，", e);
 		}
 
+	}
+
+	/**
+	 * 双摄像头控制
+	 * @param device
+	 */
+	private void twoChanelControl(SingleCarparkDevice device) {
+		
+		String key = device.getLinkAddress()+device.getAddress();
+		Boolean isTwoChanel = CarparkMainApp.mapIsTwoChanel.get(key) == null ? false : CarparkMainApp.mapIsTwoChanel.get(key);
+		LOGGER.info("控制器{}双摄像头设置为{},等待间隔为{}",key,isTwoChanel);
+		if (isTwoChanel) {
+			try {
+				Integer two = Integer.valueOf(
+						mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
+				long l = System.currentTimeMillis() - startTime;
+				LOGGER.info("双摄像头等待时间{},已过{}",two,l);
+				while (l < two) {
+					Thread.sleep(100);
+					l = System.currentTimeMillis() - startTime;
+				}
+				LOGGER.info("双摄像头等待时间{},已过{}",two,l);
+				CarparkMainApp.mapInTwoCameraTask.remove(key);
+			} catch (Exception e1) {
+				LOGGER.error("双摄像头出错",e1);
+			}
+		}
 	}
 
 	/**

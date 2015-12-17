@@ -297,7 +297,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				mapTypeDevices.put(inType, list);
 			}
 		}
-
 	}
 
 	/**
@@ -1329,10 +1328,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				.equals(SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue());
 		String linkAddress = mapIpToDevice.get(ip).getLinkAddress()+mapIpToDevice.get(ip).getAddress();
 
-		boolean isNotOpenDoor = mapOpenDoor.get(ip)==null||!mapOpenDoor.get(ip);
+		Boolean isTwoChanel = mapIsTwoChanel.get(linkAddress);
 		if (mapDeviceType.get(ip).equals("出口")||mapDeviceType.get(ip).equals("出口2")) {
 			// 是否是双摄像头
-			if (isNotOpenDoor&&!equals && mapIsTwoChanel.get(linkAddress)) {
+			if (!equals && isTwoChanel) {
 				CarOutTask carOutTask = mapOutTwoCameraTask.get(linkAddress);
 				if (!StrUtil.isEmpty(carOutTask)) {
 					if (carOutTask.getRightSize() < rightSize) {
@@ -1353,9 +1352,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			listOutTask.add(key);
 			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_outBigImg, lbl_outSmallImg,lbl_inBigImg, carTypeSelectCombo, text_real, shell, rightSize);
 			outTheadPool.submit(task);
-			if (isNotOpenDoor) {
-				mapOutTwoCameraTask.put(linkAddress, task);
-			}
+			mapOutTwoCameraTask.put(linkAddress, task);
 			outTheadPool.submit(() -> {
 				while (model.isBtnClick()) {
 					int i = 0;
@@ -1373,7 +1370,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				plateNoTotal.addAndGet(1);
 			});
 		} else if (mapDeviceType.get(ip).equals("进口") || mapDeviceType.get(ip).equals("进口2")) {
-			if (isNotOpenDoor&&!equals && mapIsTwoChanel.get(linkAddress)) {
+			if (!equals && isTwoChanel) {
 				CarInTask carInTask = mapInTwoCameraTask.get(linkAddress);
 				if (!StrUtil.isEmpty(carInTask)) {
 					if (carInTask.getRightSize() < rightSize) {
@@ -1387,14 +1384,17 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					return;
 				}
 			}
-			CarInTask task = new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, shell, rightSize, lbl_inSmallImg, lbl_inBigImg);
+			CarInTask task = new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter,rightSize, lbl_inSmallImg, lbl_inBigImg);
 			inThreadPool.submit(task);
-			if (isNotOpenDoor) {
-				mapInTwoCameraTask.put(linkAddress, task);
-			}
+			mapInTwoCameraTask.put(linkAddress, task);
 		}
 	}
-
+	
+	/**
+	 * 获取车辆类型
+	 * @param carparkCarType
+	 * @return
+	 */
 	private CarTypeEnum getCarparkCarType(String carparkCarType) {
 		if (carparkCarType.equals("大车")) {
 			return CarTypeEnum.BigCar;

@@ -32,11 +32,10 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 public class CarOutTask implements Runnable{
+	private static final Display DEFAULT_DISPLAY = Display.getDefault();
+
 	private static Logger LOGGER = LoggerFactory.getLogger(CarInTask.class);
 	
-	private static Image outSmallImage;
-	private static Image outBigImage;
-	private static Image inBigImage;
 	
 	private String plateNO;
 	private String ip;
@@ -102,25 +101,8 @@ public class CarOutTask implements Runnable{
 		try {
 			SingleCarparkDevice device = mapIpToDevice.get(ip);
 			
-			String linkAddress = device.getLinkAddress()+device.getAddress();
-			Boolean isTwoChanel = CarparkMainApp.mapIsTwoChanel.get(linkAddress) == null ? false : CarparkMainApp.mapIsTwoChanel.get(linkAddress);
-			if (isTwoChanel) {
-				// 双摄像头等待
-				try {
-					Integer two = Integer.valueOf(
-							mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
-					long l = System.currentTimeMillis()-startTime;
-					while (l<two) {
-						System.out.println(l+"===two"+two+"===startTime="+startTime);
-						Thread.sleep(50);
-						l = System.currentTimeMillis()-startTime;
-					}
-					CarparkMainApp.mapOutTwoCameraTask.remove(linkAddress);
-				} catch (Exception e1) {
-					LOGGER.error("双摄像头出错",e1);
-				}
-			}
-			//
+			// 双摄像头等待
+			twoChanelControl(device);
 			
 			
 			model.setDisContinue(false);
@@ -145,30 +127,14 @@ public class CarOutTask implements Runnable{
 			LOGGER.info(dateString + "==" + ip + "====" + plateNO);
 
 			// 界面图片
-			Display.getDefault().asyncExec(new Runnable() {
+			LOGGER.info("车辆出场显示出口图片");
+			DEFAULT_DISPLAY.asyncExec(new Runnable() {
 				public void run() {
-					if (!StrUtil.isEmpty(lbl_outSmallImg)) {
-						if (outSmallImage != null) {
-							LOGGER.info("出口小图片销毁图片");
-							outSmallImage.dispose();
-							lbl_outSmallImg.setBackgroundImage(null);
-						}
-						if (outBigImage != null) {
-							LOGGER.info("出口大图片销毁图片");
-							outBigImage.dispose();
-							lbl_outBigImg.setBackgroundImage(null);
-						}
-						
-						outSmallImage = CarparkUtils.getImage(smallImage, lbl_outSmallImg, shell);
-						if (outSmallImage != null) {
-							lbl_outSmallImg.setBackgroundImage(outSmallImage);
-						}
-						
-						outBigImage = CarparkUtils.getImage(bigImage, lbl_outBigImg, shell);
-						if (outBigImage != null) {
-							lbl_outBigImg.setBackgroundImage(outBigImage);
-						}
+					if (StrUtil.isEmpty(lbl_outSmallImg)) {
+						return;
 					}
+					CarparkUtils.setBackgroundImage(bigImage, lbl_outBigImg, DEFAULT_DISPLAY);
+					CarparkUtils.setBackgroundImage(smallImage, lbl_outSmallImg, DEFAULT_DISPLAY);
 
 					text_real.setFocus();
 					text_real.selectAll();
@@ -214,20 +180,13 @@ public class CarOutTask implements Runnable{
 				return;
 			}
 			SingleCarparkInOutHistory ch = findByNoOut.get(0);
-			LOGGER.info("显示进口图片");
-			Display.getDefault().asyncExec(new Runnable() {
+			LOGGER.info("车辆出场显示进口图片");
+			DEFAULT_DISPLAY.asyncExec(new Runnable() {
 				public void run() {
-					if (!StrUtil.isEmpty(lbl_inBigImg)) {
-						if (inBigImage != null) {
-							LOGGER.info("出口大图片销毁图片");
-							inBigImage.dispose();
-							lbl_inBigImg.setBackgroundImage(null);
-						}
-						inBigImage = CarparkUtils.getImage(CarparkUtils.getImageByte(ch.getBigImg()), lbl_outBigImg, shell);
-						if (outBigImage != null) {
-							lbl_inBigImg.setBackgroundImage(outBigImage);
-						}
+					if (StrUtil.isEmpty(lbl_inBigImg)) {
+						return;
 					}
+					CarparkUtils.setBackgroundImage(CarparkUtils.getImageByte(ch.getBigImg()), lbl_inBigImg, DEFAULT_DISPLAY);
 				}
 			});
 			
@@ -524,6 +483,34 @@ public class CarOutTask implements Runnable{
 			}
 		}
 	}
+	/**
+	 * 双摄像头控制
+	 * @param device
+	 */
+	private void twoChanelControl(SingleCarparkDevice device) {
+		
+		String key = device.getLinkAddress()+device.getAddress();
+		Boolean isTwoChanel = CarparkMainApp.mapIsTwoChanel.get(key) == null ? false : CarparkMainApp.mapIsTwoChanel.get(key);
+		LOGGER.info("控制器{}双摄像头设置为{},等待间隔为{}",key,isTwoChanel);
+		if (isTwoChanel) {
+			try {
+				Integer two = Integer.valueOf(
+						mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
+				long l = System.currentTimeMillis() - startTime;
+				LOGGER.info("双摄像头等待时间{},已过{}",two,l);
+				while (l < two) {
+					Thread.sleep(100);
+					l = System.currentTimeMillis() - startTime;
+				}
+				LOGGER.info("双摄像头等待时间{},已过{}",two,l);
+				CarparkMainApp.mapInTwoCameraTask.remove(key);
+			} catch (Exception e1) {
+				LOGGER.error("双摄像头出错",e1);
+			}
+		}
+	}
+	
+	
 	private CarTypeEnum getCarparkCarType(String carparkCarType) {
 		if (carparkCarType.equals("大车")) {
 			return CarTypeEnum.BigCar;
