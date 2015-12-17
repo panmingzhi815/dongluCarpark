@@ -100,13 +100,7 @@ public class DeviceView extends Composite implements View{
 				if (!rateLimiter.tryAcquire()) {
 					return;
 				}
-				CTabItem selection = tabFolder.getSelection();
-				if (StrUtil.isEmpty(selection)) {
-					return;
-				}
-				String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
-				CarparkMainApp.mapOpenDoor.put(ip, true);
-				getPresenter().handPhotograph(ip);
+				getPresenter().openDoor();
 			}
 		});
 

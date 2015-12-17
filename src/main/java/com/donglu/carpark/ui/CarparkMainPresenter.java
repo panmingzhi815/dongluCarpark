@@ -880,9 +880,9 @@ public class CarparkMainPresenter {
 				LOGGER.info("对设备{}，地址{}-{}开闸", device.getName(), device.getLinkAddress(), device.getAddress());
 				showPlateNOToDevice(device, "");
 				if (inOrOut) {
-					showContentToDevice(device, CarparkMainApp.CAR_IN_MSG, true);
+					showContentToDevice(device, CarparkMainApp.CAR_IN_MSG, false);
 				} else {
-					showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
+					showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, false);
 				}
 			}
 		};
@@ -1098,5 +1098,13 @@ public class CarparkMainPresenter {
 	public void systemExit() {
 		openDoorTheadPool.shutdownNow();
 		saveImageTheadPool.shutdownNow();
+	}
+	/**
+	 * 设备落杆
+	 * @param singleCarparkDevice
+	 */
+	public void closeDoor(SingleCarparkDevice singleCarparkDevice) {
+		
+		
 	}
 }

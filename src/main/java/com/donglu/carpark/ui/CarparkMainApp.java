@@ -1494,28 +1494,22 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			text_real.setFocus();
 			text_real.selectAll();
 		}
-		// //拍照
-		// if (e.keyCode == 16777227) {
-		// SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(mapDeviceTabItem.get(model.getSelectTabSelect()));
-		// if (StrUtil.isEmpty(singleCarparkDevice)) {
-		// return;
-		// }
-		// else{
-		// handPhotograph(singleCarparkDevice.getIp());
-		// }
-		// }
-		// //抬杆
-		// if (e.keyCode == 16777229) {
-		// SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(mapDeviceTabItem.get(model.getSelectTabSelect()));
-		// if (StrUtil.isEmpty(singleCarparkDevice)) {
-		// return;
-		// }
-		// else{
-		// String ip = singleCarparkDevice.getIp();
-		// CarparkMainApp.mapOpenDoor.put(ip, true);
-		// handPhotograph(ip);
-		// }
-		// }
+		//进口落杆
+		if (e.keyCode == 16777226) {
+			inDevicePresenter.closeDoor();
+		}
+		 //进口抬杆
+		if (e.keyCode == 16777227) {
+			inDevicePresenter.openDoor();
+		}
+		//出口落杆
+		if (e.keyCode == 16777228) {
+			inDevicePresenter.closeDoor();
+		}
+		 //出口抬杆
+		if (e.keyCode == 16777229) {
+			outDevicePresenter.openDoor();
+		}
 
 		// 收费放行
 		if (e.keyCode == 16777236) {

@@ -81,4 +81,23 @@ public class DevicePresenter  implements Presenter{
 	public void setModel(CarparkMainModel model) {
 		this.model = model;
 	}
+	public void openDoor() {
+		CTabItem selection = view.getTabFolder().getSelection();
+		if (StrUtil.isEmpty(selection)) {
+			return;
+		}
+		String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
+		presenter.openDoor(CarparkMainApp.mapIpToDevice.get(ip));
+		CarparkMainApp.mapOpenDoor.put(ip, true);
+		handPhotograph(ip);
+	}
+	public void closeDoor() {
+		CTabItem selection = view.getTabFolder().getSelection();
+		if (StrUtil.isEmpty(selection)) {
+			return;
+		}
+		String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
+		presenter.closeDoor(CarparkMainApp.mapIpToDevice.get(ip));
+		
+	}
 }
