@@ -27,6 +27,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
@@ -794,6 +795,46 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return 0;
 		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> findInHistoryThanIdMore(Long id,List<Long> errorIds) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			List<SimpleExpression> l=new ArrayList<>();
+			if (!StrUtil.isEmpty(errorIds)) {
+				for (Long long1 : errorIds) {
+					SimpleExpression eq = Restrictions.eq("id", long1);
+					l.add(eq);
+				}
+			}
+			c.add(Restrictions.or(Restrictions.gt("id", id),Restrictions.or(l.toArray(new SimpleExpression[l.size()]))));
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> findOutHistoryThanIdMore(Long id,List<Long> errorIds) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			List<SimpleExpression> l=new ArrayList<>();
+			if (!StrUtil.isEmpty(errorIds)) {
+				for (Long long1 : errorIds) {
+					SimpleExpression eq = Restrictions.eq("id", long1);
+					l.add(eq);
+				}
+			}
+			c.add(Restrictions.or(Restrictions.gt("id", id),Restrictions.or(l.toArray(new SimpleExpression[l.size()]))));
+			return c.getResultList();
+		} finally{
 			unitOfWork.end();
 		}
 	}

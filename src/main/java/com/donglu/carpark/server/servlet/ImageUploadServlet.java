@@ -86,12 +86,12 @@ public class ImageUploadServlet extends HttpServlet {
 					if(!item.isFormField()) {
 						// 取出上传文件的文件名称
 						String name = item.getName();
-						System.out.println("name"+name);
+						LOGGER.info("name",name);
 						byte[] decode = Base64.getDecoder().decode(name);
 						name = new String(decode,"UTF-8");
-						System.out.println("string"+name);
+						LOGGER.info("string",name);
 						String fileName =name.substring(name.lastIndexOf("img"), name.length());
-						 System.out.println("fileName="+fileName);
+						LOGGER.info("fileName={}",fileName);
 						Object o=FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);
 						String path =o +""+ File.separatorChar+ fileName;
 						// 上传文件

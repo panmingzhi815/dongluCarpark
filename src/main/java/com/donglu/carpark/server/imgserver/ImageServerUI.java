@@ -11,7 +11,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,6 +43,7 @@ import com.donglu.carpark.server.servlet.StoreServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
 import com.donglu.carpark.service.CarparkService;
+import com.donglu.carpark.service.WebService;
 import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.wizard.sn.ImportSNModel;
 import com.donglu.carpark.ui.wizard.sn.ImportSNWizard;
@@ -50,12 +53,15 @@ import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.setting.SNSettingType;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.server.ServerUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
+import com.dongluhitec.card.util.ThreadUtil;
 import com.dongluhitec.core.crypto.appauth.AppAuthorization;
 import com.dongluhitec.core.crypto.appauth.AppVerifier;
 import com.dongluhitec.core.crypto.appauth.AppVerifierImpl;
@@ -111,6 +117,8 @@ public class ImageServerUI {
 	private Provider<StoreServlet> storeServletProvider;
 	@Inject
 	private Provider<ServerServlet> serverServletProvider;
+	@Inject
+	private WebService webService;
 
 	private TrayItem trayItem;
 
@@ -326,7 +334,9 @@ public class ImageServerUI {
 		btnStart.setText("启    动");
 
 	}
-
+	/**
+	 * 启动服务
+	 */
 	protected void startServer() {
 		try {
 			sp.start();
@@ -381,13 +391,101 @@ public class ImageServerUI {
 //	        hand.setSessionHandler(new SessionHandler(sm));
 //
 //		    contexts.setHandlers(new Handler[] { servletHandler, hand });
-			
+//			autoSendInfoTo();
 		    server.setHandler(servletHandler);
 			server.start();
 //			startWeb();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void autoSendInfoTo() {
+		ScheduledExecutorService userExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传用户数据到云平台"));
+		ScheduledExecutorService inExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传进场数据到云平台"));
+		ScheduledExecutorService outExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传出场数据到云平台"));
+		ScheduledExecutorService infoExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传停车场数据到云平台"));
+//		userExecutor.scheduleWithFixedDelay(new Runnable() {
+//			@Override
+//			public void run() {
+//				Long id=(Long) FileUtils.readObject("userLastUploadId");
+//				id=id==null?0L:id;
+//				List<Long> errorIds=(List<Long>) FileUtils.readObject("userErrorUploadId");
+//				if (StrUtil.isEmpty(errorIds)) {
+//					errorIds=new ArrayList<>();
+//				}
+//				List<SingleCarparkUser> list=sp.getCarparkUserService().findUserThanIdMore(id,errorIds);
+//				for (SingleCarparkUser singleCarparkUser : list) {
+//					boolean sendUser = webService.sendUser(singleCarparkUser);
+//					if (!sendUser) {
+//						errorIds.add(singleCarparkUser.getId());
+//					}
+//					if (singleCarparkUser.getId()>id) {
+//						id=singleCarparkUser.getId();
+//					}
+//				}
+//				FileUtils.writeObject("userLastUploadId",id);
+//				FileUtils.writeObject("userErrorUploadId",errorIds);
+//			}
+//		}, 10, 600, TimeUnit.SECONDS);
+		inExecutor.scheduleWithFixedDelay(new Runnable() {
+
+			@Override
+			public void run() {
+				LOGGER.info("");
+				Long id=(Long) FileUtils.readObject("inLastUploadId");
+				id=id==null?0L:id;
+				List<Long> errorIds=(List<Long>) FileUtils.readObject("inErrorUploadId");
+				if (StrUtil.isEmpty(errorIds)) {
+					errorIds=new ArrayList<>();
+				}
+				
+				List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findInHistoryThanIdMore(id,errorIds);
+				for (SingleCarparkInOutHistory in : list) {
+					boolean sendInHistory = webService.sendInHistory(in);
+					if (!sendInHistory) {
+						errorIds.add(in.getId());
+					}
+					if (in.getId()>id) {
+						id=in.getId();
+					}
+				}
+				FileUtils.writeObject("inLastUploadId",id);
+				FileUtils.writeObject("inErrorUploadId",errorIds);
+			}
+		}, 5, 50, TimeUnit.SECONDS);
+//		outExecutor.scheduleWithFixedDelay(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				Long id=(Long) FileUtils.readObject("outLastUploadId");
+//				id=id==null?0L:id;
+//				List<Long> errorIds=(List<Long>) FileUtils.readObject("outErrorUploadId");
+//				if (StrUtil.isEmpty(errorIds)) {
+//					errorIds=new ArrayList<>();
+//				}
+//				List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findOutHistoryThanIdMore(id,errorIds);
+//				for (SingleCarparkInOutHistory in : list) {
+//					boolean sendOutHistory = webService.sendInHistory(in);
+//					if (!sendOutHistory) {
+//						errorIds.add(in.getId());
+//					}
+//					if (in.getId()>id) {
+//						id=in.getId();
+//					}
+//				}
+//				FileUtils.writeObject("outLastUploadId",id);
+//				FileUtils.writeObject("outErrorUploadId",errorIds);
+//			}
+//		}, 5, 5, TimeUnit.HOURS);
+//		
+//		infoExecutor.scheduleWithFixedDelay(new Runnable() {
+//			@Override
+//			public void run() {
+//				webService.sendCarparkInfo();
+//			}
+//		}, 5, 5, TimeUnit.HOURS);
+
 	}
 
 	private void startWeb() {

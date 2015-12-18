@@ -14,4 +14,5 @@ public interface CarparkUserService {
 	
 	List<SingleCarparkUser> findUserByMonthChargeId(Long id);
 	Long saveUserByMany(List<SingleCarparkUser> list);
+	List<SingleCarparkUser> findUserThanIdMore(Long id, List<Long> errorIds);
 }

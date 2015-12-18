@@ -20,7 +20,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 public class WebServiceImpl implements  WebService{
-	private static final Logger LOGGER = LoggerFactory.getLogger(CarparkMainPresenter.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(WebServiceImpl.class);
 	private static final String url="http://112.124.115.117/WebService/RQDataExchange.asmx?WSDL";
 	private static final String company="深圳市元诺智能系统有限公司";
 	private static final String area="测试停车场";
@@ -34,15 +34,17 @@ public class WebServiceImpl implements  WebService{
 		String content="<Root LicenseNumber =\"{}\" KaTypeName=\"{}\" Back=\"{}\" CLAdder=\"{}\" CLName=\"{}\" "
 				+ "CLDH=\"{}\" StartDate =\"{}\" EndDate =\"{}\" DutyNumber =\"\" DutyName =\"\" "
 				+ "ChargesAmount =\"{}\" Company =\"{}\" Area=\"{}\"></Root>";
-		Object send = send(url,content,u.getPlateNo(),"",u.getRemark(),u.getAddress(),u.getName(),"",
+		String plateNo = u.getPlateNo();
+		Object send = send(url,"MonthCardData",content,plateNo,"",u.getRemark(),u.getAddress(),u.getName(),"",
 				StrUtil.formatDate(u.getCreateDate(), CarparkUtils.DATE_PATTERN),StrUtil.formatDate(u.getValidTo(), CarparkUtils.DATE_PATTERN),200,company,area);
 		String s=(String) send;
 		
 		int parseInt = Integer.parseInt(s.substring(13, 14));
 		if (parseInt==1) {
+			LOGGER.info("上传用户{}信息成功",plateNo);
 			return true;
 		}else{
-			LOGGER.error("上传月租信息失败失败");
+			LOGGER.error("上传用户{}信息失败",plateNo);
 			return false;
 		}
 	}
@@ -53,13 +55,15 @@ public class WebServiceImpl implements  WebService{
 				+ "dt:dt=\"bin.base64\" DocumentName=\"{}\" DocumentExt=\"{}\">{}</Document></Root>";
 		
 		String encodeToString = Base64.getEncoder().encodeToString(CarparkUtils.getImageByte(in.getBigImg()));
-		Object send = send(url, content, StrUtil.formatDate(in.getInTime(), CarparkUtils.DATE_MINUTE_PATTEN),in.getPlateNo(),in.getCarType(),company,area,in.getBigImg().substring(in.getBigImg().lastIndexOf("/")),"jpg",encodeToString);
+		String plateNo = in.getPlateNo();
+		Object send = send(url,"EntereData", content, StrUtil.formatDate(in.getInTime(), CarparkUtils.DATE_MINUTE_PATTEN),plateNo,in.getCarType(),company,area,in.getBigImg().substring(in.getBigImg().lastIndexOf("/")),"jpg",encodeToString);
 		String s=(String) send;
 		int parseInt = Integer.parseInt(s.substring(13, 14));
 		if (parseInt==1) {
+			LOGGER.info("上传{}进场信息成功",plateNo);
 			return true;
 		}else{
-			LOGGER.error("上传进场信息失失败");
+			LOGGER.error("上传{}进场信息失败",plateNo);
 			return false;
 		}
 	}
@@ -80,13 +84,14 @@ public class WebServiceImpl implements  WebService{
 		String imgName = out.getBigImg().substring(out.getBigImg().lastIndexOf("/"));
 		String plateNo = out.getPlateNo();
 		String carType = out.getCarType();
-		Object send = send(url, content,outTime,inTime,plateNo,carType,factMoney,ifFree,freeMoney,IfPreferential,freeMoney,imgName,"jpg",encodeToString);
+		Object send = send(url,"EntereData", content,outTime,inTime,plateNo,carType,factMoney,ifFree,freeMoney,IfPreferential,freeMoney,imgName,"jpg",encodeToString);
 		String s=(String) send;
 		int parseInt = Integer.parseInt(s.substring(13, 14));
 		if (parseInt==1) {
+			LOGGER.info("上传{}出场信息成功",plateNo);
 			return true;
 		}else{
-			LOGGER.error("上传进场信息失失败");
+			LOGGER.error("上传{}出场信息失败",plateNo);
 			return false;
 		}
 	}
@@ -98,18 +103,19 @@ public class WebServiceImpl implements  WebService{
 		int tempCar=sp.getCarparkInOutService().findTotalTempCarIn();
 		int fixCar=sp.getCarparkInOutService().findTotalFixCarIn();
 		
-		Object send = send(url, content, totalCar,tempCar,fixCar,company,area);
+		Object send = send(url,"VehicleData", content, totalCar,tempCar,fixCar,company,area);
 		String s=(String) send;
 		int parseInt = Integer.parseInt(s.substring(13, 14));
 		if (parseInt==1) {
+			LOGGER.info("上传停车场信息成功");
 			return true;
 		}else{
-			LOGGER.error("上传进场信息失失败");
+			LOGGER.error("上传停车场信息失败");
 			return false;
 		}
 	}
 	
-	private Object send(String url, String content,Object... o) {
+	private Object send(String url,String method, String content,Object... o) {
 		if (StrUtil.isEmpty(factory)) {
 			factory = JaxWsDynamicClientFactory.newInstance();
 		}
@@ -120,9 +126,8 @@ public class WebServiceImpl implements  WebService{
 	    	
 			String message = MessageFormatter.arrayFormat(content, o).getMessage();
 			LOGGER.info("上传{}信息到{}",message,url);
-			Object[] obj =client.invoke("MonthCardData",message);
-			System.out.println("上传{"+message+"}信息到{"+url+"}");
-			System.out.println("resp:"+obj[0]);
+			Object[] obj =client.invoke(method,message);
+			LOGGER.info("获得返回值{}",obj[0]);
 			return obj[0];
 		} catch (Exception e) {
 			e.printStackTrace();

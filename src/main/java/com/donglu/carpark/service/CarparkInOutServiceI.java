@@ -8,6 +8,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 
 public interface CarparkInOutServiceI {
 	
@@ -151,4 +152,8 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	float findAcrossDayPrice(CarTypeEnum carType, Long carparkId);
+
+	List<SingleCarparkInOutHistory> findInHistoryThanIdMore(Long id, List<Long> errorIds);
+
+	List<SingleCarparkInOutHistory> findOutHistoryThanIdMore(Long id, List<Long> errorIds);
 }

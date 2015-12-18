@@ -135,5 +135,16 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		}
 		return list.size()*1L;
 	}
+	@Override
+	public List<SingleCarparkUser> findUserThanIdMore(Long id,List<Long> errorIds) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+			c.add(Restrictions.gt("id", id));
+			return c.getResultList();
+		}finally{
+			unitOfWork.end();
+		}
+	}
 
 }

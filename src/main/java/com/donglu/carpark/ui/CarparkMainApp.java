@@ -416,7 +416,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		Runtime runtime = Runtime.getRuntime();
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("没10秒获取内存信息"));
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
-
 			@Override
 			public void run() {
 				long totalMemory = runtime.totalMemory();
@@ -473,7 +472,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					presenter.showNowTimeToDevice(mapIpToDevice.get(c));
 				}
 			}
-		}, 5, 60 * 60, TimeUnit.SECONDS);
+		}, 60, 60 * 60, TimeUnit.SECONDS);
 
 	}
 
@@ -1375,7 +1374,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					int i = 0;
 					try {
 						if (i > 120) {
-							model.setBtnClick(false);
+							stop();
+							return;
 						}
 						TimeUnit.MILLISECONDS.sleep(500);
 						i++;
