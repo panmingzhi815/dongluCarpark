@@ -130,21 +130,6 @@ public class ImageServerUI {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-//		try {
-//			Server s=new Server(8888);
-//			WebAppContext context = new WebAppContext(); 
-//			context.setContextPath("/store");  
-//			context.setDescriptor("store/WEB-INF/web.xml");  
-//			context.setResourceBase("store");  
-//			context.setParentLoaderPriority(true);
-//			s.setHandler(context);
-//			s.start();
-//			System.out.println("started");
-//		} catch (Exception e) {
-//			// TODO 自动生成的 catch 块
-//			e.printStackTrace();
-//		}
-		
 		Display display = Display.getDefault();
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
 			public void run() {
@@ -428,56 +413,65 @@ public class ImageServerUI {
 //				FileUtils.writeObject("userErrorUploadId",errorIds);
 //			}
 //		}, 10, 600, TimeUnit.SECONDS);
-		inExecutor.scheduleWithFixedDelay(new Runnable() {
-
+//		inExecutor.scheduleWithFixedDelay(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				LOGGER.info("准备上传进场记录到云平台");
+//				Long id=(Long) FileUtils.readObject("inLastUploadId");
+//				id=id==null?0L:id;
+//				List<Long> errorIds=(List<Long>) FileUtils.readObject("inErrorUploadId");
+//				if (StrUtil.isEmpty(errorIds)) {
+//					errorIds=new ArrayList<>();
+//				}
+//				LOGGER.info("上次上传进场记录到{},上传失败的为：{}",id,errorIds);
+//				List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findInHistoryThanIdMore(id,errorIds);
+//				LOGGER.info("还有{}条进场记录等待上传",list.size());
+//				for (SingleCarparkInOutHistory in : list) {
+//					LOGGER.info("正在上传车牌{}的进场记录",in.getPlateNo());
+//					boolean sendInHistory = webService.sendInHistory(in);
+//					if (!sendInHistory) {
+//						errorIds.add(in.getId());
+//					}else{
+//						errorIds.remove(in.getId());
+//					}
+//					if (in.getId()>id) {
+//						id=in.getId();
+//					}
+//					LOGGER.info("上传车牌{}的进场记录结果为{}",sendInHistory);
+//				}
+//				FileUtils.writeObject("inLastUploadId",id);
+//				FileUtils.writeObject("inErrorUploadId",errorIds);
+//			}
+//		}, 5, 50, TimeUnit.SECONDS);
+		
+		outExecutor.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
-				LOGGER.info("");
-				Long id=(Long) FileUtils.readObject("inLastUploadId");
+				LOGGER.info("准备上传出场记录到云平台");
+				Long id=(Long) FileUtils.readObject("outLastUploadId");
 				id=id==null?0L:id;
-				List<Long> errorIds=(List<Long>) FileUtils.readObject("inErrorUploadId");
+				List<Long> errorIds=(List<Long>) FileUtils.readObject("outErrorUploadId");
 				if (StrUtil.isEmpty(errorIds)) {
 					errorIds=new ArrayList<>();
 				}
-				
-				List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findInHistoryThanIdMore(id,errorIds);
+				LOGGER.info("上次上传出场记录到{},上传失败的为：{}",id,errorIds);
+				List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findOutHistoryThanIdMore(id,errorIds);
+				LOGGER.info("还有{}条出场记录等待上传",list.size());
 				for (SingleCarparkInOutHistory in : list) {
-					boolean sendInHistory = webService.sendInHistory(in);
-					if (!sendInHistory) {
+					LOGGER.info("正在上传车牌{}的出场记录",in.getPlateNo());
+					boolean sendOutHistory = webService.sendInHistory(in);
+					if (!sendOutHistory) {
 						errorIds.add(in.getId());
 					}
 					if (in.getId()>id) {
 						id=in.getId();
 					}
 				}
-				FileUtils.writeObject("inLastUploadId",id);
-				FileUtils.writeObject("inErrorUploadId",errorIds);
+				FileUtils.writeObject("outLastUploadId",id);
+				FileUtils.writeObject("outErrorUploadId",errorIds);
 			}
 		}, 5, 50, TimeUnit.SECONDS);
-//		outExecutor.scheduleWithFixedDelay(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//				Long id=(Long) FileUtils.readObject("outLastUploadId");
-//				id=id==null?0L:id;
-//				List<Long> errorIds=(List<Long>) FileUtils.readObject("outErrorUploadId");
-//				if (StrUtil.isEmpty(errorIds)) {
-//					errorIds=new ArrayList<>();
-//				}
-//				List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findOutHistoryThanIdMore(id,errorIds);
-//				for (SingleCarparkInOutHistory in : list) {
-//					boolean sendOutHistory = webService.sendInHistory(in);
-//					if (!sendOutHistory) {
-//						errorIds.add(in.getId());
-//					}
-//					if (in.getId()>id) {
-//						id=in.getId();
-//					}
-//				}
-//				FileUtils.writeObject("outLastUploadId",id);
-//				FileUtils.writeObject("outErrorUploadId",errorIds);
-//			}
-//		}, 5, 5, TimeUnit.HOURS);
 //		
 //		infoExecutor.scheduleWithFixedDelay(new Runnable() {
 //			@Override

@@ -812,7 +812,11 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 					l.add(eq);
 				}
 			}
-			c.add(Restrictions.or(Restrictions.gt("id", id),Restrictions.or(l.toArray(new SimpleExpression[l.size()]))));
+			if (StrUtil.isEmpty(l)) {
+				c.add(Restrictions.gt("id", id));
+			}else{
+				c.add(Restrictions.or(Restrictions.gt("id", id),Restrictions.or(l.toArray(new SimpleExpression[l.size()]))));
+			}
 			return c.getResultList();
 		} finally{
 			unitOfWork.end();
@@ -832,8 +836,46 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 					l.add(eq);
 				}
 			}
+			if (StrUtil.isEmpty(l)) {
+				c.add(Restrictions.gt("id", id));
+			}
 			c.add(Restrictions.or(Restrictions.gt("id", id),Restrictions.or(l.toArray(new SimpleExpression[l.size()]))));
 			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> searchNotOutHistory(int page,int rows,String plateNO) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			if (!StrUtil.isEmpty(plateNO)) {
+				c.add(Restrictions.like(SingleCarparkInOutHistory.Property.plateNo.name(), plateNO,MatchMode.ANYWHERE));
+			}
+			
+			c.setFirstResult(page*rows);
+			c.setMaxResults(rows);
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public Long countNotOutHistory(String plateNO) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			if (!StrUtil.isEmpty(plateNO)) {
+				c.add(Restrictions.like(SingleCarparkInOutHistory.Property.plateNo.name(), plateNO,MatchMode.ANYWHERE));
+			}
+			c.setProjection(Projections.rowCount());
+			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
+			return singleResultOrNull==null?0:singleResultOrNull;
 		} finally{
 			unitOfWork.end();
 		}

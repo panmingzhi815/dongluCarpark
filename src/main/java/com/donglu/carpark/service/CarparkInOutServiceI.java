@@ -156,4 +156,11 @@ public interface CarparkInOutServiceI {
 	List<SingleCarparkInOutHistory> findInHistoryThanIdMore(Long id, List<Long> errorIds);
 
 	List<SingleCarparkInOutHistory> findOutHistoryThanIdMore(Long id, List<Long> errorIds);
+	/**
+	 * 查找未出场的记录
+	 * @param string
+	 * @return
+	 */
+	List<SingleCarparkInOutHistory> searchNotOutHistory(int page,int rows,String plateNO);
+	Long countNotOutHistory(String plateNO);
 }

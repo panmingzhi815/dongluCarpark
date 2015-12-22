@@ -1,34 +1,28 @@
 package com.donglu.carpark.server.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.handler.RequestHandlerBase;
-import org.apache.solr.handler.RequestHandlerUtils;
-import org.eclipse.jetty.http.HttpParser;
-import org.eclipse.jetty.http.HttpParser.RequestHandler;
-import org.eclipse.jetty.http.MetaData.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.donglu.carpark.model.SessionInfo;
-import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.json.FastjsonFilter;
 import com.donglu.carpark.server.json.Grid;
 import com.donglu.carpark.server.json.Json;
@@ -37,6 +31,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.StoreServiceI;
 import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.util.CarparkUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStore;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreChargeHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
@@ -59,6 +54,11 @@ public class StoreServlet extends HttpServlet{
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			sp.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		String method = req.getParameter("method");
 		System.out.println(method);
 		if (StrUtil.isEmpty(method)) {
@@ -82,8 +82,51 @@ public class StoreServlet extends HttpServlet{
 			searchPay(req,resp);
 		}else if (method.equals("getFreeById")) {
 			getFreeById(req,resp);
+		}else if (method.equals("searchCarIn")) {
+			searchCarIn(req,resp);
 		}
+		else if (method.equals("getInOutById")) {
+			getInOutById(req,resp);
+		}
+		
+		else
 		logger.error("没有找到方法为{}的方法",method);
+	}
+
+
+	private void getInOutById(HttpServletRequest req, HttpServletResponse resp) {
+		try {
+			String id = decode(req.getParameter("id"));
+			if (StrUtil.isEmpty(id)) {
+				return;
+			}
+			SingleCarparkInOutHistory findInOutById = sp.getCarparkInOutService().findInOutById(Long.valueOf(id));
+			if (!StrUtil.isEmpty(findInOutById.getOutTime())) {
+				throw new Exception("该车已经出场");
+			}
+			writeJson(findInOutById, req, resp);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	private void searchCarIn(HttpServletRequest req, HttpServletResponse resp) {
+		try {
+			
+			String plateNO = decode(req.getParameter("searchPlateNO"));
+			Long countNotOutHistory = sp.getCarparkInOutService().countNotOutHistory(plateNO);
+			Grid grid = new Grid();
+			grid.setTotal(countNotOutHistory);
+			int page = Integer.parseInt(decode(req.getParameter("page")))-1;
+			int rows = Integer.parseInt(decode(req.getParameter("rows")));
+			List<SingleCarparkInOutHistory> ius=sp.getCarparkInOutService().searchNotOutHistory(page,rows,plateNO);
+			grid.setRows(ius);
+			writeJson(grid, req, resp);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 
@@ -125,6 +168,14 @@ public class StoreServlet extends HttpServlet{
 		node1.setAttributes(attributes1);
 		tree.add(node1);
 		
+		Tree node2 = new Tree();
+		node2.setText("场内车辆");
+		Map<String, String> attributes2 = new HashMap<String, String>();
+		attributes2.put("url", "/securityJsp/base/SyCar.jsp");
+		attributes2.put("target", "");
+		node2.setAttributes(attributes2);
+		tree.add(node2);
+		
 		writeJsonByFilter(tree, null, null, req, resp);
 		
 	}
@@ -151,12 +202,25 @@ public class StoreServlet extends HttpServlet{
 			String[] startTimes = map.get("searchStartTime");
 			String[] endTimes = map.get("searchEndTime");
 			String operaName=operaNames==null?null:operaNames[0];
-			Date start = StrUtil.parse(startTimes==null?null:startTimes[0], "yyyy-MM-dd HH:mm:ss");
-			Date end = StrUtil.parse(endTimes==null?null:endTimes[0], "yyyy-MM-dd HH:mm:ss");
+			if (!StrUtil.isEmpty(operaName)) {
+				operaName=decode(operaName);
+			}
+			String startTime = startTimes==null?null:startTimes[0];
+			String endTime = endTimes==null?null:endTimes[0];
+			if (!StrUtil.isEmpty(startTime)) {
+				startTime=decode(startTime);
+			}
+			if (!StrUtil.isEmpty(endTime)) {
+				endTime=decode(endTime);
+			}
+			Date start = StrUtil.parse(startTime, "yyyy-MM-dd HH:mm:ss");
+			Date end = StrUtil.parse(endTime, "yyyy-MM-dd HH:mm:ss");
 			
 			Grid grid = new Grid();
 			grid.setTotal(storeService.countStoreChargeHistoryByTime(storeName,operaName,start,end));
-			List<SingleCarparkStoreChargeHistory> findStoreChargeHistoryByTime = storeService.findStoreChargeHistoryByTime(0,50,storeName,operaName,start,end);
+			int page = Integer.parseInt(map.get("page")[0])-1;
+			int rows = Integer.parseInt(map.get("rows")[0]);
+			List<SingleCarparkStoreChargeHistory> findStoreChargeHistoryByTime = storeService.findStoreChargeHistoryByTime(page,rows,storeName,operaName,start,end);
 			grid.setRows(findStoreChargeHistoryByTime);
 			writeJson(grid, req, resp);
 		} catch (Exception e) {
@@ -174,21 +238,50 @@ public class StoreServlet extends HttpServlet{
 			String[] useds = map.get("searchUsed");
 			String[] startTimes = map.get("searchStartTime");
 			String[] endTimes = map.get("searchEndTime");
-			Date start = StrUtil.parse(startTimes==null?null:startTimes[0], "yyyy-MM-dd HH:mm:ss");
-			Date end = StrUtil.parse(endTimes==null?null:endTimes[0], "yyyy-MM-dd HH:mm:ss");
+			String startTime = startTimes==null?null:startTimes[0];
+			String endTime = endTimes==null?null:endTimes[0];
+			if (!StrUtil.isEmpty(startTimes)) {
+				startTime=decode(startTime);
+			}
+			if (!StrUtil.isEmpty(endTime)) {
+				endTime=decode(endTime);
+			}
+			Date start = StrUtil.parse(startTime, "yyyy-MM-dd HH:mm:ss");
+			Date end = StrUtil.parse(endTime, "yyyy-MM-dd HH:mm:ss");
 			String plateNO = plateNOs==null?null:plateNOs[0];
 			String used = useds==null?null:useds[0];
+			if (!StrUtil.isEmpty(used)) {
+				used=decode(used);
+			}
+			
 			String storeName=storeNames==null?null:storeNames[0];
 			storeName=CarparkUtils.decod(storeName);
 			StoreServiceI storeService = sp.getStoreService();
 			Grid grid = new Grid();
-			grid.setTotal(storeService.countByPlateNO(storeName,plateNO, used, start, end));
-			grid.setRows(storeService.findByPlateNO(Integer.parseInt(map.get("page")[0])-1, Integer.parseInt(map.get("rows")[0]),storeName, plateNO, used, start, end));
+			Long countByPlateNO = storeService.countByPlateNO(storeName,plateNO, used, start, end);
+			grid.setTotal(countByPlateNO);
+			int page = Integer.parseInt(map.get("page")[0])-1;
+			int rows = Integer.parseInt(map.get("rows")[0]);
+			List<SingleCarparkStoreFreeHistory> findByPlateNO = storeService.findByPlateNO(page, rows,storeName, plateNO, used, start, end);
+			grid.setRows(findByPlateNO);
 			writeJson(grid, req, resp);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
+	}
+
+
+	/**
+	 * @param startTime
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	private String decode(String startTime) throws UnsupportedEncodingException {
+		if (StrUtil.isEmpty(startTime)) {
+			return null;
+		}
+		return new String(Base64.getDecoder().decode(startTime),"utf-8");
 	}
 
 	private void edit(HttpServletRequest req, HttpServletResponse resp) {
@@ -241,6 +334,7 @@ public class StoreServlet extends HttpServlet{
 			String plateNo = map.get("plateNo")==null?null:map.get("plateNo")[0];
 			String hour = map.get("freehours")==null?null:map.get("freehours")[0];
 			String money=map.get("freeMoney")==null?null:map.get("freeMoney")[0];
+			plateNo=decode(plateNo);
 			System.out.println(plateNo+"===="+hour+"========="+money);
 			SingleCarparkStoreFreeHistory free=new SingleCarparkStoreFreeHistory();
 			if (!StrUtil.isEmpty(id)) {

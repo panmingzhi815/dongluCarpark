@@ -265,14 +265,16 @@ public class CarInTask implements Runnable {
 								e.printStackTrace();
 							}
 						}
-						presenter.showPlateNOToDevice(device, model.getInShowPlateNO());
 						editPlateNo = model.getInShowPlateNO();
+						presenter.showPlateNOToDevice(device, editPlateNo);
+						if (!editPlateNo.equals(plateNO)) {
+							user = sp.getCarparkUserService().findUserByPlateNo(editPlateNo, device.getCarpark().getId());
+						}
 					}
 				}
 
 				if (flag) {
-					SingleCarparkUser singleCarparkUser = sp.getCarparkUserService().findUserByPlateNo(editPlateNo, device.getCarpark().getId());
-					if (StrUtil.isEmpty(singleCarparkUser)) {
+					if (StrUtil.isEmpty(user)) {
 						LOGGER.debug("判断是否允许临时车进");
 						if (device.getCarpark().isTempCarIsIn()) {
 							presenter.showContentToDevice(device, "固定停车场,不允许临时车进", false);

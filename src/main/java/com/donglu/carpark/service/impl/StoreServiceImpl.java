@@ -87,9 +87,10 @@ public class StoreServiceImpl implements StoreServiceI {
 		unitOfWork.begin();
 		try {
 			Criteria c = createFindStoreFreeHistoryCriteria(storeName,plateNO, used, start, end);
-			c.setFirstResult((page) * rows);
+			c.setFirstResult(page * rows);
 			c.setMaxResults(rows);
-			return c.getResultList();
+			List<SingleCarparkStoreFreeHistory> resultList = c.getResultList();
+			return resultList;
 		} finally {
 			unitOfWork.end();
 		}

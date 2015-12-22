@@ -623,6 +623,8 @@ public class CarparkMainPresenter {
 		float totalCharge=0;
 		Float money=0F;//免费金额
 		Float hour=0F;//免费时间
+		float acrossDayPrice=0;
+		try {
 		//查找优惠信息
 		List<SingleCarparkStoreFreeHistory>  findByPlateNO= sp.getStoreService().findByPlateNO(0, Integer.MAX_VALUE, null, model.getPlateNo(), "未使用", startTime, endTime);
 		if (!StrUtil.isEmpty(findByPlateNO)) {
@@ -643,9 +645,8 @@ public class CarparkMainPresenter {
 		Date start=startTime;
 		Date end=endTime;
 		float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType,carparkId);
-		float acrossDayPrice=sp.getCarparkInOutService().findAcrossDayPrice(carType,carparkId);
+		acrossDayPrice=sp.getCarparkInOutService().findAcrossDayPrice(carType,carparkId);
 		acrossDayPrice=acrossDayPrice*(cutDaysByHours.size()-2);
-		try {
 			//
 			for (int i = 1; i < cutDaysByHours.size(); i++) {
 				Date s = cutDaysByHours.get(i-1);

@@ -84,7 +84,7 @@ public class WebServiceImpl implements  WebService{
 		String imgName = out.getBigImg().substring(out.getBigImg().lastIndexOf("/"));
 		String plateNo = out.getPlateNo();
 		String carType = out.getCarType();
-		Object send = send(url,"EntereData", content,outTime,inTime,plateNo,carType,factMoney,ifFree,freeMoney,IfPreferential,freeMoney,imgName,"jpg",encodeToString);
+		Object send = send(url,"ChargesData", content,outTime,inTime,plateNo,carType,factMoney,ifFree,freeMoney,IfPreferential,freeMoney,imgName,"jpg",encodeToString);
 		String s=(String) send;
 		int parseInt = Integer.parseInt(s.substring(13, 14));
 		if (parseInt==1) {
