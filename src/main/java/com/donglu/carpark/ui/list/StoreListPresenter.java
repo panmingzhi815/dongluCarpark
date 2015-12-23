@@ -82,7 +82,6 @@ public class StoreListPresenter extends AbstractListPresenter<SingleCarparkStore
 				return;
 			}
 			String userName = "";
-			CarparkUserService carparkUserService = sp.getCarparkUserService();
 			for (SingleCarparkStore s : list) {
 				sp.getStoreService().deleteStore(s);
 			}
@@ -120,6 +119,7 @@ public class StoreListPresenter extends AbstractListPresenter<SingleCarparkStore
 			model.setStoreName(store.getStoreName());
 			model.setOperaName(System.getProperty("userName"));
 			model.setLoginName(store.getLoginName());
+			model.setPayType("金额");
 			ChargeStoreWizard w = new ChargeStoreWizard(model);
 			ChargeStoreModel m = (ChargeStoreModel) commonui.showWizard(w);
 			if (StrUtil.isEmpty(m)) {

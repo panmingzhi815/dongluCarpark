@@ -722,12 +722,12 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public int findTotalCarIn() {
+	public int findTotalCarIn(SingleCarparkCarpark carpark) {
 		unitOfWork.begin();
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
-//		c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
 			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), carpark.getId()));
 			c.setProjection(Projections.rowCount());
 			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
 			
@@ -738,12 +738,13 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public int findTotalTempCarIn() {
+	public int findTotalTempCarIn(SingleCarparkCarpark carpark) {
 		unitOfWork.begin();
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
 			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), carpark.getId()));
 			c.setProjection(Projections.rowCount());
 			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
 			
@@ -754,12 +755,13 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public int findTotalFixCarIn() {
+	public int findTotalFixCarIn(SingleCarparkCarpark carpark) {
 		unitOfWork.begin();
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "固定车"));
 			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), carpark.getId()));
 			c.setProjection(Projections.rowCount());
 			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
 			
@@ -838,8 +840,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			if (StrUtil.isEmpty(l)) {
 				c.add(Restrictions.gt("id", id));
+			} else {
+				c.add(Restrictions.or(Restrictions.gt("id", id), Restrictions.or(l.toArray(new SimpleExpression[l.size()]))));
 			}
-			c.add(Restrictions.or(Restrictions.gt("id", id),Restrictions.or(l.toArray(new SimpleExpression[l.size()]))));
 			return c.getResultList();
 		} finally{
 			unitOfWork.end();

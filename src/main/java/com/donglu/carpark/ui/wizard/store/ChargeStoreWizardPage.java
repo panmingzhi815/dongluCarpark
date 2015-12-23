@@ -21,6 +21,12 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.ModifyEvent;
 
 public class ChargeStoreWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -31,6 +37,7 @@ public class ChargeStoreWizardPage extends WizardPage {
 	private Text text_4;
 	private Text text_5;
 	private ComboViewer comboViewer;
+	private Label lbl_summay;
 
 	/**
 	 * Create the wizard.
@@ -85,11 +92,20 @@ public class ChargeStoreWizardPage extends WizardPage {
 		
 		comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
 		Combo combo = comboViewer.getCombo();
+		combo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				System.out.println(model.getPayType());
+				payTypeSelectChange();
+			}
+		});
+		
+		
 		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
-		comboViewer.setInput(new String[]{"金额","时间","优惠卷"});
+		comboViewer.setInput(new String[]{"金额","时间","优惠券"});
 		Label lblNewLabel = new Label(composite, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -99,10 +115,10 @@ public class ChargeStoreWizardPage extends WizardPage {
 		text_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
-		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_1.setText("充值数量");
+		lbl_summay = new Label(composite, SWT.NONE);
+		lbl_summay.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		lbl_summay.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lbl_summay.setText("优惠金额");
 		
 		text_4 = new Text(composite, SWT.BORDER);
 		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -146,5 +162,23 @@ public class ChargeStoreWizardPage extends WizardPage {
 		bindingContext.bindValue(observeTextTextObserveWidget, storeNameModelObserveValue, null, null);
 		//
 		return bindingContext;
+	}
+
+	/**
+	 * 
+	 */
+	private void payTypeSelectChange() {
+		if (StrUtil.isEmpty(lbl_summay)) {
+			return;
+		}
+		String payType = model.getPayType();
+		System.out.println("payType=="+payType+"===payType.equals(\"优惠券\")=="+payType.equals("优惠券"));
+		if (payType.equals("金额")) {
+			lbl_summay.setText("优惠金额");
+		} else if (payType.equals("时间")) {
+			lbl_summay.setText("优惠时间");
+		} else if(payType.equals("优惠券")) {
+			lbl_summay.setText("优惠数量");
+		}
 	}
 }

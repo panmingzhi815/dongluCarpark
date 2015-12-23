@@ -66,9 +66,11 @@ public class StoreServiceImpl implements StoreServiceI {
 		return store.getId();
 	}
 
-	@Override
+	@Transactional
 	public Long deleteStore(SingleCarparkStore store) {
-		return null;
+		DatabaseOperation<SingleCarparkStore> dom = DatabaseOperation.forClass(SingleCarparkStore.class, emprovider.get());
+		dom.remove(store);
+		return store.getId();
 	}
 
 	@Transactional

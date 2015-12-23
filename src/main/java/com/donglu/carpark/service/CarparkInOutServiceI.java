@@ -102,9 +102,23 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	Long saveOpenDoorLog(SingleCarparkOpenDoorLog openDoor);
-
+	/**
+	 * 查找抬杆记录
+	 * @param operaName
+	 * @param start
+	 * @param end
+	 * @param deviceName
+	 * @return
+	 */
 	List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName);
-
+	/**
+	 * 查找子停车场的进出场记录
+	 * @param carparkId
+	 * @param plateNO
+	 * @param inTime
+	 * @param outTime
+	 * @return
+	 */
 	List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut(Long carparkId,String plateNO, Date inTime, Date outTime);
 	/**
 	 * 查找自动停车场的指定车牌的为出场纪录
@@ -136,14 +150,20 @@ public interface CarparkInOutServiceI {
 			SingleCarparkCarpark carpark);
 	/**
 	 * 查询场内车
+	 * @param carpark 
 	 * @return
 	 */
-	int findTotalCarIn();
+	int findTotalCarIn(SingleCarparkCarpark carpark);
 
-	int findTotalTempCarIn();
+	int findTotalTempCarIn(SingleCarparkCarpark carpark);
 
-	int findTotalFixCarIn();
+	int findTotalFixCarIn(SingleCarparkCarpark carpark);
 
+	/**
+	 * 根据id查找进场记录
+	 * @param id
+	 * @return
+	 */
 	SingleCarparkInOutHistory findInOutById(Long id);
 	/**
 	 * 查找跨天收费金额
@@ -153,8 +173,14 @@ public interface CarparkInOutServiceI {
 	 */
 	float findAcrossDayPrice(CarTypeEnum carType, Long carparkId);
 
+	
+	/**
+	 * 查找未上传的进出场记录
+	 * @param id
+	 * @param errorIds
+	 * @return
+	 */
 	List<SingleCarparkInOutHistory> findInHistoryThanIdMore(Long id, List<Long> errorIds);
-
 	List<SingleCarparkInOutHistory> findOutHistoryThanIdMore(Long id, List<Long> errorIds);
 	/**
 	 * 查找未出场的记录

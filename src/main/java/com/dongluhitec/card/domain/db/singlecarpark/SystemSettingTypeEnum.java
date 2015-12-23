@@ -21,7 +21,7 @@ public enum SystemSettingTypeEnum {
 	固定车车位满作临时车计费("false"),自动识别出场车辆类型("false"),进场允许修改车牌("false"),
 	进场允许手动入场("false"),
 	
-	DateBase_version("1.0.0.1"),软件版本("1.0.0.1"),    ;
+	DateBase_version("1.0.0.2"),软件版本("1.0.0.2"),    ;
 	;
 	
 	private String defaultValue;

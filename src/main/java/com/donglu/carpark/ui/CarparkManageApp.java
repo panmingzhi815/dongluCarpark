@@ -569,7 +569,7 @@ public class CarparkManageApp extends AbstractApp{
 		tableColumn.setText("备注");
 		
 		TabItem tabItem_5 = new TabItem(tabFolder, SWT.NONE);
-		tabItem_5.setText("商铺消费");
+		tabItem_5.setText("商铺优惠");
 		
 		Composite composite_20 = new Composite(tabFolder, SWT.NONE);
 		tabItem_5.setControl(composite_20);

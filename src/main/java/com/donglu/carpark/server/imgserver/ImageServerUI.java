@@ -53,6 +53,7 @@ import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.setting.SNSettingType;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
@@ -61,6 +62,7 @@ import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.server.ServerUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
+import com.dongluhitec.card.util.DatabaseUtil;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.dongluhitec.core.crypto.appauth.AppAuthorization;
 import com.dongluhitec.core.crypto.appauth.AppVerifier;
@@ -367,83 +369,110 @@ public class ImageServerUI {
 			ServerUtil.startServlet("/server/*", servletHandler, serverServletProvider);
 			ServerUtil.startServlet("/store/*", servletHandler, storeServletProvider);
 
-			// startWeb();
-//			ContextHandlerCollection contexts = new ContextHandlerCollection();
-//			ServletContextHandler hand = new ServletContextHandler(ServletContextHandler.SESSIONS);
-//		    hand.setContextPath("/store");
-//		    hand.addServlet(new ServletHolder(storeServletProvider.get()),"/*");
-//		    SessionManager sm = new HashSessionManager();
-//	        hand.setSessionHandler(new SessionHandler(sm));
-//
-//		    contexts.setHandlers(new Handler[] { servletHandler, hand });
-//			autoSendInfoTo();
 		    server.setHandler(servletHandler);
 			server.start();
-//			startWeb();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		autoDeleteSameInOutHistory();
+		if (System.getProperty("autoSendInfoToCloud")==null||System.getProperty("autoSendInfoToCloud").equals("false")) {
+			autoSendInfoToCloud();
+		}
+		
+		
+	}
+	private void autoDeleteSameInOutHistory() {
+		ScheduledExecutorService deleteExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每隔一小时清除数据库的重复进出场记录"));
+		deleteExecutor.scheduleWithFixedDelay(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					LOGGER.info("准备清理数据库中的重复进出场记录");
+					CarparkServerConfig cf = CarparkServerConfig.getInstance();
+					String sql="DELETE FROM [carpark].[dbo].[SingleCarparkInOutHistory] WHERE outTime is null and id not in(SELECT MAX(id) FROM [carpark].[dbo].[SingleCarparkInOutHistory] where outTime is null group by plateNo)";
+					boolean executeSQL = DatabaseUtil.executeSQL(cf.getDbServerIp(), cf.getDbServerPort(), CarparkServerConfig.CARPARK, 
+							cf.getDbServerUsername(), cf.getDbServerPassword(), sql, DatabaseUtil.SQLSERVER2008);
+					LOGGER.info("清理数据库中的重复进出场记录结果：{}",executeSQL);
+				} catch (Exception e) {
+					LOGGER.info("清理数据库中的重复进出场记录发生错误",e);
+				}
+			}
+		}, 10, 10, TimeUnit.MINUTES);
+		
 	}
 
-	private void autoSendInfoTo() {
+	/**
+	 * 自动上传停车场信息到云平台
+	 */
+	private void autoSendInfoToCloud() {
 		ScheduledExecutorService userExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传用户数据到云平台"));
 		ScheduledExecutorService inExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传进场数据到云平台"));
 		ScheduledExecutorService outExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传出场数据到云平台"));
 		ScheduledExecutorService infoExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传停车场数据到云平台"));
-//		userExecutor.scheduleWithFixedDelay(new Runnable() {
-//			@Override
-//			public void run() {
-//				Long id=(Long) FileUtils.readObject("userLastUploadId");
-//				id=id==null?0L:id;
-//				List<Long> errorIds=(List<Long>) FileUtils.readObject("userErrorUploadId");
-//				if (StrUtil.isEmpty(errorIds)) {
-//					errorIds=new ArrayList<>();
-//				}
-//				List<SingleCarparkUser> list=sp.getCarparkUserService().findUserThanIdMore(id,errorIds);
-//				for (SingleCarparkUser singleCarparkUser : list) {
-//					boolean sendUser = webService.sendUser(singleCarparkUser);
-//					if (!sendUser) {
-//						errorIds.add(singleCarparkUser.getId());
-//					}
-//					if (singleCarparkUser.getId()>id) {
-//						id=singleCarparkUser.getId();
-//					}
-//				}
-//				FileUtils.writeObject("userLastUploadId",id);
-//				FileUtils.writeObject("userErrorUploadId",errorIds);
-//			}
-//		}, 10, 600, TimeUnit.SECONDS);
-//		inExecutor.scheduleWithFixedDelay(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//				LOGGER.info("准备上传进场记录到云平台");
-//				Long id=(Long) FileUtils.readObject("inLastUploadId");
-//				id=id==null?0L:id;
-//				List<Long> errorIds=(List<Long>) FileUtils.readObject("inErrorUploadId");
-//				if (StrUtil.isEmpty(errorIds)) {
-//					errorIds=new ArrayList<>();
-//				}
-//				LOGGER.info("上次上传进场记录到{},上传失败的为：{}",id,errorIds);
-//				List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findInHistoryThanIdMore(id,errorIds);
-//				LOGGER.info("还有{}条进场记录等待上传",list.size());
-//				for (SingleCarparkInOutHistory in : list) {
-//					LOGGER.info("正在上传车牌{}的进场记录",in.getPlateNo());
-//					boolean sendInHistory = webService.sendInHistory(in);
-//					if (!sendInHistory) {
-//						errorIds.add(in.getId());
-//					}else{
-//						errorIds.remove(in.getId());
-//					}
-//					if (in.getId()>id) {
-//						id=in.getId();
-//					}
-//					LOGGER.info("上传车牌{}的进场记录结果为{}",sendInHistory);
-//				}
-//				FileUtils.writeObject("inLastUploadId",id);
-//				FileUtils.writeObject("inErrorUploadId",errorIds);
-//			}
-//		}, 5, 50, TimeUnit.SECONDS);
+		userExecutor.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				LOGGER.info("准备上传固定用户记录到云平台");
+				Long id=(Long) FileUtils.readObject("userLastUploadId");
+				id=id==null?0L:id;
+				List<Long> errorIds=(List<Long>) FileUtils.readObject("userErrorUploadId");
+				if (StrUtil.isEmpty(errorIds)) {
+					errorIds=new ArrayList<>();
+				}
+				LOGGER.info("上次上传固定用户记录到{},上传失败的为：{}",id,errorIds);
+				List<SingleCarparkUser> list=sp.getCarparkUserService().findUserThanIdMore(id,errorIds);
+				LOGGER.info("还有{}条固定用户记录等待上传",list.size());
+				for (SingleCarparkUser singleCarparkUser : list) {
+					LOGGER.info("正在上传用户{}的记录",singleCarparkUser);
+					boolean sendUser = webService.sendUser(singleCarparkUser);
+					if (!sendUser) {
+						if (!errorIds.contains(singleCarparkUser.getId())) {
+							errorIds.add(singleCarparkUser.getId());
+						}
+					}else{
+						errorIds.remove(singleCarparkUser.getId());
+						if (singleCarparkUser.getId()>id) {
+							id=singleCarparkUser.getId();
+						}
+					}
+					LOGGER.info("上传用户{}的记录结果为{}",singleCarparkUser,sendUser);
+				}
+				FileUtils.writeObject("userLastUploadId",id);
+				FileUtils.writeObject("userErrorUploadId",errorIds);
+			}
+		}, 5, 5, TimeUnit.MINUTES);
+		inExecutor.scheduleWithFixedDelay(new Runnable() {
+
+			@Override
+			public void run() {
+				LOGGER.info("准备上传进场记录到云平台");
+				Long id=(Long) FileUtils.readObject("inLastUploadId");
+				id=id==null?0L:id;
+				List<Long> errorIds=(List<Long>) FileUtils.readObject("inErrorUploadId");
+				if (StrUtil.isEmpty(errorIds)) {
+					errorIds=new ArrayList<>();
+				}
+				LOGGER.info("上次上传进场记录到{},上传失败的为：{}",id,errorIds);
+				List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findInHistoryThanIdMore(id,errorIds);
+				LOGGER.info("还有{}条进场记录等待上传",list.size());
+				for (SingleCarparkInOutHistory in : list) {
+					LOGGER.info("正在上传车牌{}的进场记录",in.getPlateNo());
+					boolean sendInHistory = webService.sendInHistory(in);
+					if (!sendInHistory) {
+						errorIds.add(in.getId());
+					}else{
+						errorIds.remove(in.getId());
+					if (in.getId()>id) {
+						id=in.getId();
+					}
+					}
+					LOGGER.info("上传车牌{}的进场记录结果为{}",sendInHistory);
+				}
+				FileUtils.writeObject("inLastUploadId",id);
+				FileUtils.writeObject("inErrorUploadId",errorIds);
+			}
+		}, 5, 5, TimeUnit.MINUTES);
 		
 		outExecutor.scheduleWithFixedDelay(new Runnable() {
 			@Override
@@ -460,54 +489,41 @@ public class ImageServerUI {
 				LOGGER.info("还有{}条出场记录等待上传",list.size());
 				for (SingleCarparkInOutHistory in : list) {
 					LOGGER.info("正在上传车牌{}的出场记录",in.getPlateNo());
-					boolean sendOutHistory = webService.sendInHistory(in);
+					boolean sendOutHistory = webService.sendOutHistory(in);
 					if (!sendOutHistory) {
-						errorIds.add(in.getId());
-					}
-					if (in.getId()>id) {
-						id=in.getId();
+						if (!errorIds.contains(in.getId())) {
+							errorIds.add(in.getId());
+						}
+					}else{
+						errorIds.remove(in.getId());
+						if (in.getId()>id) {
+							id=in.getId();
+						}
 					}
 				}
 				FileUtils.writeObject("outLastUploadId",id);
 				FileUtils.writeObject("outErrorUploadId",errorIds);
 			}
-		}, 5, 50, TimeUnit.SECONDS);
-//		
-//		infoExecutor.scheduleWithFixedDelay(new Runnable() {
-//			@Override
-//			public void run() {
-//				webService.sendCarparkInfo();
-//			}
-//		}, 5, 5, TimeUnit.HOURS);
-
-	}
-
-	private void startWeb() {
-		try {
-			String cmdline ="cmd.exe /c "+ System.getProperty("user.dir")+"\\tomcat\\bin\\startup.bat";
-			LOGGER.info("准备执行文件{}",cmdline);
-			CmdExec(cmdline);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("启动tomcat时发生错误");
-		}
-
-	}
-	
-	public void CmdExec(String cmdline) {
-		try {
-			String line;
-			Process p = Runtime.getRuntime().exec(cmdline);
-			BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			while ((line = input.readLine()) != null) {
-				System.out.println(line);
+		}, 5, 5, TimeUnit.MINUTES);
+		
+		infoExecutor.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					LOGGER.info("准备上传停车场信息");
+					List<SingleCarparkCarpark> findCarparkToLevel = sp.getCarparkService().findCarparkToLevel();
+					for (SingleCarparkCarpark singleCarparkCarpark : findCarparkToLevel) {
+						LOGGER.info("准备上传停车场{}信息",singleCarparkCarpark);
+						boolean sendCarparkInfo = webService.sendCarparkInfo(singleCarparkCarpark);
+						LOGGER.info("上传停车场{}信息结果：{}",singleCarparkCarpark,sendCarparkInfo);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
-			input.close();
-		} catch (Exception err) {
-			err.printStackTrace();
-		}
-	} 
+		}, 5, 5, TimeUnit.MINUTES);
 
+	}
 
 	// 定时检测加密狗
 	private void autoCheckSoftDog() {

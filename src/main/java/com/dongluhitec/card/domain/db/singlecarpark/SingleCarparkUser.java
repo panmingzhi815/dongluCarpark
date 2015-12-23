@@ -148,4 +148,9 @@ public class SingleCarparkUser extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("tempCarTime", null, null);
 	}
+	@Override
+	public String getLabelString() {
+		return plateNo+","+name;
+	}
+	
 }

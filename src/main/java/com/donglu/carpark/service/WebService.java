@@ -1,6 +1,7 @@
 package com.donglu.carpark.service;
 
 import com.donglu.carpark.service.impl.WebServiceImpl;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.google.inject.ImplementedBy;
@@ -29,5 +30,5 @@ public interface WebService {
 	 * 上传停车场信息到云平台
 	 * @return
 	 */
-	public boolean sendCarparkInfo();
+	public boolean sendCarparkInfo(SingleCarparkCarpark carpark);
 }

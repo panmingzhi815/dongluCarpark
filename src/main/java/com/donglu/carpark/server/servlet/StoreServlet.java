@@ -330,6 +330,7 @@ public class StoreServlet extends HttpServlet{
 			if (StrUtil.isEmpty(findStoreByCondition)) {
 				throw new Exception("商铺信息不正确");
 			}
+			SingleCarparkStore store = findStoreByCondition.get(0);
 			String id=map.get("id")==null?null:map.get("id")[0];
 			String plateNo = map.get("plateNo")==null?null:map.get("plateNo")[0];
 			String hour = map.get("freehours")==null?null:map.get("freehours")[0];
@@ -345,6 +346,8 @@ public class StoreServlet extends HttpServlet{
 				if (free.getUsed().equals("已使用")) {
 					throw new Exception("该优惠已使用");
 				}
+				store.setLeftFreeMoney(store.getLeftFreeMoney()+free.getFreeMoney());
+				store.setLeftFreeHour(store.getLeftFreeHour()+free.getFreeHour());
 			}else{
 				free.setCreateTime(new Date());
 				free.setUsed("未使用");
@@ -353,7 +356,18 @@ public class StoreServlet extends HttpServlet{
 			free.setFreePlateNo(plateNo);
 			free.setFreeHour(hour==null?0:Float.valueOf(hour));
 			free.setFreeMoney(money==null?0:Float.valueOf(money));
+			float leftFreeMoney = store.getLeftFreeMoney()-free.getFreeMoney();
+			float leftFreeHour = store.getLeftFreeHour()-free.getFreeHour();
+			store.setLeftFreeMoney(leftFreeMoney);
+			store.setLeftFreeHour(leftFreeHour);
+			if (leftFreeMoney<0) {
+				throw new Exception("优惠金额不足");
+			}
+			if (leftFreeHour<0) {
+				throw new Exception("优惠时间不足");
+			}
 			storeService.saveStoreFree(free);
+			storeService.saveStore(store);
 			json.setSuccess(true);
 			json.setMsg("保存成功！");
 		} catch (Exception e) {

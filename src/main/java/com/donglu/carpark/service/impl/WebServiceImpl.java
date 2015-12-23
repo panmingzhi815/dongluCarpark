@@ -14,6 +14,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.WebService;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -72,7 +73,7 @@ public class WebServiceImpl implements  WebService{
 		String content="<Root  OutDate=\"{}\" EntereDate=\"{}\" KaTypeName=\"\" LicenseNumber=\"{}\" "
 				+ "Category=\"1\"  CarType=\"{}\" DutyNumber=\"\" DutyName=\"\" PortCharges=\"\" ChargesAmount=\"{}\" "
 						+ "IfFree=\"{}\" FreeAmount=\"{}\" FreeReason=\"\" IfPreferential=\"{}\" PreferentialAmount=\"{}\" "
-						+ "PreferentialReason=\"\" Company =\"\" Area=\"\"> <Document xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" "
+						+ "PreferentialReason=\"\" Company =\"{}\" Area=\"{}\"> <Document xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" "
 						+ "dt:dt=\"bin.base64\" DocumentName=\"{}\" DocumentExt=\"{}\">{}</Document></Root>";
 		String encodeToString = Base64.getEncoder().encodeToString(CarparkUtils.getImageByte(out.getOutBigImg()));
 		Float factMoney = out.getFactMoney();
@@ -84,7 +85,7 @@ public class WebServiceImpl implements  WebService{
 		String imgName = out.getBigImg().substring(out.getBigImg().lastIndexOf("/"));
 		String plateNo = out.getPlateNo();
 		String carType = out.getCarType();
-		Object send = send(url,"ChargesData", content,outTime,inTime,plateNo,carType,factMoney,ifFree,freeMoney,IfPreferential,freeMoney,imgName,"jpg",encodeToString);
+		Object send = send(url,"ChargesData", content,outTime,inTime,plateNo,carType,factMoney,ifFree,freeMoney,IfPreferential,freeMoney,company,area,imgName,"jpg",encodeToString);
 		String s=(String) send;
 		int parseInt = Integer.parseInt(s.substring(13, 14));
 		if (parseInt==1) {
@@ -96,13 +97,18 @@ public class WebServiceImpl implements  WebService{
 		}
 	}
 	@Override
-	public boolean sendCarparkInfo(){
+	public boolean sendCarparkInfo(SingleCarparkCarpark carpark){
 		String content="<Root TYCode=\"9083783\" TNum01=\"{}\" TNum02=\"{}\"  TNum03=\"{}\"  TNum04=\"0\" TNum05=\"0\"  Num02=\"0\"  "
 				+ "Num06=\"0\"  Company =\"{}\" Area=\"{}\"></Root>";
-		int totalCar=sp.getCarparkInOutService().findTotalCarIn();
-		int tempCar=sp.getCarparkInOutService().findTotalTempCarIn();
-		int fixCar=sp.getCarparkInOutService().findTotalFixCarIn();
-		
+		try {
+			sp.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		int totalCar=sp.getCarparkInOutService().findTotalCarIn(carpark);
+		int tempCar=sp.getCarparkInOutService().findTotalTempCarIn(carpark);
+		int fixCar=sp.getCarparkInOutService().findTotalFixCarIn(carpark);
+		LOGGER.info("停车场{},场内车辆总数{}，场内临时车总数{}，场内固定车总数{}",totalCar,tempCar,fixCar);
 		Object send = send(url,"VehicleData", content, totalCar,tempCar,fixCar,company,area);
 		String s=(String) send;
 		int parseInt = Integer.parseInt(s.substring(13, 14));
