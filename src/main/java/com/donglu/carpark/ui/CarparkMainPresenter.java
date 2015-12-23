@@ -577,10 +577,6 @@ public class CarparkMainPresenter {
 	public boolean openDoor(SingleCarparkDevice device) {
 		try {
 			Boolean carparkOpenDoor = hardwareService.carparkOpenDoor(getDevice(device));
-			Set<String> keySet = mapIpToDevice.keySet();
-			for (String string : keySet) {
-				showPositionToDevice(mapIpToDevice.get(string), model.getTotalSlot());
-			}
 			openDoorToPhotograph(device.getIp());
 			return carparkOpenDoor;
 		} catch (Exception e) {
@@ -626,7 +622,7 @@ public class CarparkMainPresenter {
 		float acrossDayPrice=0;
 		try {
 		//查找优惠信息
-		List<SingleCarparkStoreFreeHistory>  findByPlateNO= sp.getStoreService().findByPlateNO(0, Integer.MAX_VALUE, null, model.getPlateNo(), "未使用", startTime, endTime);
+		List<SingleCarparkStoreFreeHistory>  findByPlateNO= sp.getStoreService().findByPlateNO(0, Integer.MAX_VALUE, null, model.getPlateNo(),"未使用", startTime, endTime);
 		if (!StrUtil.isEmpty(findByPlateNO)) {
 			for (SingleCarparkStoreFreeHistory free : findByPlateNO) {
 				if (!StrUtil.isEmpty(free.getFreeHour())) {
@@ -1001,6 +997,7 @@ public class CarparkMainPresenter {
 		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.进场允许修改车牌)==null?SystemSettingTypeEnum.进场允许修改车牌.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.进场允许修改车牌));
 		LOGGER.info("系统设置：[进场允许修改车牌]为:[{}]",valueOf);
 		InOutHistoryDetailWizard wizard = new InOutHistoryDetailWizard(h,valueOf);
+		
 		SingleCarparkInOutHistory m = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
 		if (valueOf) {
 			SingleCarparkInOutHistory findInOutById = sp.getCarparkInOutService().findInOutById(m.getId());

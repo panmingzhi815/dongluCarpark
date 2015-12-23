@@ -30,7 +30,7 @@ public class DevicePresenter  implements Presenter{
 	
 	private CarparkMainPresenter presenter;
 
-	private String type;
+	private String type="";
 	
 	private List<SingleCarparkDevice> listDevice;
 	
@@ -99,5 +99,8 @@ public class DevicePresenter  implements Presenter{
 		String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
 		presenter.closeDoor(CarparkMainApp.mapIpToDevice.get(ip));
 		
+	}
+	public String getType() {
+		return type;
 	}
 }

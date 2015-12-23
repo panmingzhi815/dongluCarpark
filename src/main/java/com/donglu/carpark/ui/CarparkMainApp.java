@@ -109,6 +109,7 @@ import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.custom.SashForm;
 
 public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
@@ -244,7 +245,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 	private CLabel lbl_inBigImg;
 
-	private int sendPositionToDeviceTime=5;
+	private int sendPositionToDeviceTime = 5;
 
 	/**
 	 * Launch the application.
@@ -331,9 +332,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOGGER.error("系统发生异常",e);
-//			shell.dispose();
-//			open();
+			LOGGER.error("系统发生异常", e);
+			// shell.dispose();
+			// open();
 		} finally {
 			LOGGER.error("系统退出");
 			systemExit();
@@ -398,7 +399,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			autoSendPositionToDevice();
 			autoSendTimeToDevice();
 		}
-		printMemory();
 		refreshCarparkBasicInfo(refreshTimeSpeedSecond);
 
 		model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
@@ -406,24 +406,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		try {
 			sendPositionToDeviceTime = Integer.parseInt(System.getProperty("SendPositionToDeviceTime"));
 		} catch (NumberFormatException e) {
-			
-		}finally{
-			LOGGER.info("发送车位数间隔SendPositionToDeviceTime为:{}",sendPositionToDeviceTime);
-		}
-	}
 
-	private void printMemory() {
-		Runtime runtime = Runtime.getRuntime();
-		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("没10秒获取内存信息"));
-		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
-			@Override
-			public void run() {
-				long totalMemory = runtime.totalMemory();
-				long freeMemory = runtime.freeMemory();
-				LOGGER.info("获取内存信息，总内存{},空闲{},使用{}",totalMemory,freeMemory,totalMemory-freeMemory);
-			}
-		}, 10, 10, TimeUnit.SECONDS);
-		
+		} finally {
+			LOGGER.info("发送车位数间隔SendPositionToDeviceTime为:{}", sendPositionToDeviceTime);
+		}
 	}
 
 	/**
@@ -486,7 +472,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		shell = new Shell();
 		shell.setMinimumSize(new Point(1024, 768));
 		shell.setSize(1036, 889);
-		shell.setText("停车场监控-"+SystemSettingTypeEnum.软件版本.getDefaultValue()+"(" + CarparkClientConfig.getInstance().getDbServerIp() + ")");
+		shell.setText("停车场监控-" + SystemSettingTypeEnum.软件版本.getDefaultValue() + "(" + CarparkClientConfig.getInstance().getDbServerIp() + ")");
 		shell.addShellListener(new ShellAdapter() {
 			@Override
 			public void shellClosed(ShellEvent e) {
@@ -505,38 +491,36 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		gl_shell.horizontalSpacing = 2;
 		shell.setLayout(gl_shell);
 
-		Composite composite = new Composite(shell, SWT.NONE);
-		composite.setLayout(new FillLayout(SWT.VERTICAL));
-		GridData gd_composite = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd_composite.verticalIndent = 5;
-		composite.setLayoutData(gd_composite);
+		SashForm sashForm = new SashForm(shell, SWT.VERTICAL);
+		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
-		Composite composite_1 = new Composite(composite, SWT.NONE);
-		FillLayout fl_composite_1 = new FillLayout(SWT.HORIZONTAL);
-		fl_composite_1.spacing = 5;
-		composite_1.setLayout(fl_composite_1);
+		SashForm sashForm_1 = new SashForm(sashForm, SWT.NONE);
 
-		Composite composite_9 = new Composite(composite_1, SWT.NONE);
+		Composite composite_9 = new Composite(sashForm_1, SWT.NONE);
 		inDevicePresenter.setPresenter(presenter);
 		inDevicePresenter.setType("进口");
 		inDevicePresenter.setListDevice(mapTypeDevices.get("进口"));
 		inDevicePresenter.go(composite_9);
 		composite_9.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-		Composite composite_10 = new Composite(composite_1, SWT.NONE);
+		Composite composite_10 = new Composite(sashForm_1, SWT.NONE);
 		outDevicePresenter.setPresenter(presenter);
 		outDevicePresenter.setType("出口");
 		outDevicePresenter.setListDevice(mapTypeDevices.get("出口"));
 		outDevicePresenter.go(composite_10);
 		composite_10.setLayout(new FillLayout(SWT.HORIZONTAL));
+		sashForm_1.setWeights(new int[] { 1, 1 });
 
-		Composite composite_2 = new Composite(composite, SWT.NONE);
-		FillLayout fl_composite_2 = new FillLayout(SWT.HORIZONTAL);
-		fl_composite_2.spacing = 5;
-		composite_2.setLayout(fl_composite_2);
+		SashForm sashForm_2 = new SashForm(sashForm, SWT.NONE);
 
-		Composite composite_5 = new Composite(composite_2, SWT.NONE);
+		Composite composite_5 = new Composite(sashForm_2, SWT.NONE);
 		composite_5.setLayout(new FillLayout(SWT.HORIZONTAL));
+
+		Composite composite_21_1 = new Composite(sashForm_2, SWT.NONE);
+		composite_21_1.setLayout(new FillLayout(SWT.HORIZONTAL));
+		sashForm_2.setWeights(new int[] { 1, 1 });
+		sashForm.setWeights(new int[] { 1, 1 });
+
 		Boolean leftBotttomCamera = Boolean
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.左下监控) == null ? SystemSettingTypeEnum.左下监控.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.左下监控));
 		if (leftBotttomCamera) {
@@ -632,18 +616,15 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			lbl_inBigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));
 			lbl_inBigImg.setAlignment(SWT.CENTER);
 		}
-		
-		Composite composite_21 = new Composite(composite_2, SWT.NONE);
-		composite_21.setLayout(new FillLayout(SWT.HORIZONTAL));
 		Boolean rightBotttomCamera = Boolean
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.右下监控) == null ? SystemSettingTypeEnum.右下监控.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.右下监控));
 		if (rightBotttomCamera) {
 			outDevicePresenter2.setPresenter(presenter);
 			outDevicePresenter2.setType("出口2");
 			outDevicePresenter2.setListDevice(mapTypeDevices.get("出口2"));
-			outDevicePresenter2.go(composite_21);
+			outDevicePresenter2.go(composite_21_1);
 		} else {
-			Composite composite_20 = new Composite(composite_21, SWT.NONE);
+			Composite composite_20 = new Composite(composite_21_1, SWT.NONE);
 			composite_20.setLayout(new GridLayout(1, false));
 
 			Composite composite_3 = new Composite(composite_20, SWT.NONE);
@@ -874,10 +855,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		text_free.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		text_free.setEditable(false);
 
-		
 		TabItem tabItem_1 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_1.setText("进场记录");
-		
+
 		Composite composite_18 = new Composite(tabFolder, SWT.NONE);
 		tabItem_1.setControl(composite_18);
 		composite_18.setLayout(new GridLayout(1, false));
@@ -886,11 +866,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		composite_7.setLayout(new GridLayout(2, false));
 		composite_7.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 
+		Boolean isCarHandIn = Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.进场允许手动入场));
 		text = new Text(composite_7, SWT.BORDER);
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		gd_text.widthHint = 128;
 		text.setLayoutData(gd_text);
-
+		text.setEditable(isCarHandIn);
 		Button btnNewButton = new Button(composite_7, SWT.NONE);
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -899,7 +880,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 		});
 		btnNewButton.setText("手动入场");
-		btnNewButton.setEnabled(Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.进场允许手动入场)));
+		btnNewButton.setEnabled(isCarHandIn);
 		tableViewer = new TableViewer(composite_18, SWT.BORDER | SWT.FULL_SELECTION);
 		table = tableViewer.getTable();
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -931,10 +912,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_6.setText("车牌号码");
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		
-//		if (!Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.左下监控))) {
-//			tabItem_1.dispose();
-//		}
+
+		// if (!Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.左下监控))) {
+		// tabItem_1.dispose();
+		// }
 		txt_plateNO = new Text(group, SWT.BORDER | SWT.READ_ONLY);
 		txt_plateNO.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
 		txt_plateNO.setText("京A23456");
@@ -1326,26 +1307,24 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			e.printStackTrace();
 			return;
 		}
-		//开闸
+		// 开闸
 		Boolean boolean1 = mapOpenDoor.get(ip);
 		if (boolean1 != null && boolean1) {
 			mapOpenDoor.put(ip, null);
 			boolean inOrOut = true;
-			if (mapDeviceType.get(ip).equals("出口")||mapDeviceType.get(ip).equals("出口2")) {
+			if (mapDeviceType.get(ip).equals("出口") || mapDeviceType.get(ip).equals("出口2")) {
 				inOrOut = false;
 			}
 			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO, inOrOut);
 			return;
 		}
-		
-		
-		
+
 		boolean equals = (mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔))
 				.equals(SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue());
-		String linkAddress = mapIpToDevice.get(ip).getLinkAddress()+mapIpToDevice.get(ip).getAddress();
+		String linkAddress = mapIpToDevice.get(ip).getLinkAddress() + mapIpToDevice.get(ip).getAddress();
 
 		Boolean isTwoChanel = mapIsTwoChanel.get(linkAddress);
-		if (mapDeviceType.get(ip).equals("出口")||mapDeviceType.get(ip).equals("出口2")) {
+		if (mapDeviceType.get(ip).equals("出口") || mapDeviceType.get(ip).equals("出口2")) {
 			// 是否是双摄像头
 			if (!equals && isTwoChanel) {
 				CarOutTask carOutTask = mapOutTwoCameraTask.get(linkAddress);
@@ -1366,7 +1345,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 			String key = new Date() + "current has device:" + ip + " with plate:" + plateNO + " process";
 			listOutTask.add(key);
-			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_outBigImg, lbl_outSmallImg,lbl_inBigImg, carTypeSelectCombo, text_real, shell, rightSize);
+			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_outBigImg, lbl_outSmallImg, lbl_inBigImg, carTypeSelectCombo, text_real, shell, rightSize);
 			outTheadPool.submit(task);
 			mapOutTwoCameraTask.put(linkAddress, task);
 			outTheadPool.submit(() -> {
@@ -1401,14 +1380,15 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					return;
 				}
 			}
-			CarInTask task = new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter,rightSize, lbl_inSmallImg, lbl_inBigImg);
+			CarInTask task = new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, rightSize, lbl_inSmallImg, lbl_inBigImg);
 			inThreadPool.submit(task);
 			mapInTwoCameraTask.put(linkAddress, task);
 		}
 	}
-	
+
 	/**
 	 * 获取车辆类型
+	 * 
 	 * @param carparkCarType
 	 * @return
 	 */
@@ -1478,7 +1458,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			model.setOutPlateNOColor(plateColor);
 			invok(ip, channel, plateNO, bigImage, smallImage, rightSize);
 		} catch (Exception e) {
-			LOGGER.error("",e);
+			LOGGER.error("", e);
 		}
 	}
 
@@ -1494,19 +1474,19 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			text_real.setFocus();
 			text_real.selectAll();
 		}
-		//进口落杆
+		// 进口落杆
 		if (e.keyCode == 16777226) {
 			inDevicePresenter.closeDoor();
 		}
-		 //进口抬杆
+		// 进口抬杆
 		if (e.keyCode == 16777227) {
 			inDevicePresenter.openDoor();
 		}
-		//出口落杆
+		// 出口落杆
 		if (e.keyCode == 16777228) {
 			inDevicePresenter.closeDoor();
 		}
-		 //出口抬杆
+		// 出口抬杆
 		if (e.keyCode == 16777229) {
 			outDevicePresenter.openDoor();
 		}

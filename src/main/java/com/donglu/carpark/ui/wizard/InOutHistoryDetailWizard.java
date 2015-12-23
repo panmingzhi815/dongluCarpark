@@ -24,7 +24,7 @@ public class InOutHistoryDetailWizard extends Wizard implements AbstractWizard{
 
 	@Override
 	public void addPages() {
-		page = new InOutHistoryDetailWizardPage(model);
+		page = new InOutHistoryDetailWizardPage(model,isEdit);
 		addPage(page);
 		getShell().setSize(840, 630);
 		getShell().setImage(JFaceUtil.getImage("carpark_32"));

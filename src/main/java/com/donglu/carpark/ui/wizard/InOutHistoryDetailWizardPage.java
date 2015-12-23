@@ -35,6 +35,8 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 	private static Image inImage;
 	private Image outImage;
 	private Text text;
+	private Boolean isEdit=false;
+	
 	/**
 	 * Create the wizard.
 	 * @param model 
@@ -45,6 +47,11 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		setTitle("进出场抓拍信息");
 		setDescription("进出场抓拍信息");
 		this.model=model;
+	}
+
+	public InOutHistoryDetailWizardPage(SingleCarparkInOutHistory model2, Boolean isEdit) {
+		this(model2);
+		this.isEdit=isEdit;
 	}
 
 	/**
@@ -89,7 +96,7 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		gd_text.widthHint = 99;
 		text.setLayoutData(gd_text);
-		
+		text.setEditable(isEdit);
 		Button button = new Button(composite_1, SWT.NONE);
 		button.setLayoutData(new GridData(SWT.LEFT, SWT.BOTTOM, false, false, 1, 1));
 		button.addSelectionListener(new SelectionAdapter() {

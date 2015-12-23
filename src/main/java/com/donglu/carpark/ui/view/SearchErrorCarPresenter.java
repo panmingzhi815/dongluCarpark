@@ -46,6 +46,7 @@ public class SearchErrorCarPresenter implements Presenter{
 			}
 		}
 		model.setHavePlateNoList(list);
+		model.setNoPlateNoList(sp.getCarparkInOutService().findAddNoPlateNOHistory(false));
 	}
 	private void refresh() {
 		search(false);

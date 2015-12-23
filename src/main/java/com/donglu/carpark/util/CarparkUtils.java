@@ -191,7 +191,12 @@ public class CarparkUtils {
 
 		try (ByteArrayInputStream stream = new ByteArrayInputStream(imageBytes)) {
 			Image img = new Image(device, stream);
-			ImageData data = img.getImageData().scaledTo(cLabel.getBounds().width, cLabel.getBounds().height);
+			int width = cLabel.getBounds().width;
+			int height = cLabel.getBounds().height;
+			if (width<=0||height<=0) {
+				return;
+			}
+			ImageData data = img.getImageData().scaledTo(width, height);
 			Image createImg = ImageDescriptor.createFromImageData(data).createImage();
 			img.dispose();
 			cLabel.setText("");

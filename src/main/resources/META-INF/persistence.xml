@@ -60,7 +60,7 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value="1"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
-            <property name="hibernate.show_sql" value="true"/>
+            <!-- <property name="hibernate.show_sql" value="true"/> -->
             <!-- <property name="hibernate.format_sql" value="true"/> -->
             <!-- <property name="hibernate.hibernate.use_sql_comments" value="true"/> -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.SQLServer2008Dialect"/>

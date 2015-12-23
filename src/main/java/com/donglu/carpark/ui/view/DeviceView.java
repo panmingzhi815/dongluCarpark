@@ -51,6 +51,7 @@ public class DeviceView extends Composite implements View{
 	private ToolItem editToolItem;
 
 	private ToolItem delToolItem;
+	private ToolItem toolItem_in_openDoor;
 
 	public DeviceView(Composite parent, int style) {
 		super(parent, style);
@@ -90,10 +91,11 @@ public class DeviceView extends Composite implements View{
 				getPresenter().handPhotograph(CarparkMainApp.mapDeviceTabItem.get(selection));
 			}
 		});
-		ToolItem toolItem_in_openDoor3 = new ToolItem(toolBar3, SWT.NONE);
-		toolItem_in_openDoor3.setText("抬杆");
-		toolItem_in_openDoor3.setToolTipText("手动抬杆");
-		toolItem_in_openDoor3.addSelectionListener(new SelectionAdapter() {
+		toolItem_in_openDoor = new ToolItem(toolBar3, SWT.NONE);
+		toolItem_in_openDoor.setText("抬杆");
+		
+		toolItem_in_openDoor.setToolTipText("手动抬杆");
+		toolItem_in_openDoor.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 
@@ -180,6 +182,11 @@ public class DeviceView extends Composite implements View{
 			});
 		}
 		tabFolder.setSelection(0);
+		if (getPresenter().getType().equals("进口")) {
+			toolItem_in_openDoor.setToolTipText("手动抬杆F2");
+		}if (getPresenter().getType().equals("出口")) {
+			toolItem_in_openDoor.setToolTipText("手动抬杆F4");
+		}
 	}
 
 	public void controlItem(Boolean dispose) {
