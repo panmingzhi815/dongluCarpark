@@ -37,11 +37,11 @@ public interface StoreServiceI {
 	 * 查找商铺优惠信息
 	 * @param page
 	 * @param rows
+	 * @param storeName
 	 * @param plateNO
+	 * @param used
 	 * @param start
 	 * @param end
-	 * @param end2 
-	 * @param end2 
 	 * @return
 	 */
 	public List<SingleCarparkStoreFreeHistory> findByPlateNO(int page,int rows,String storeName,String plateNO,String used,Date start,Date end);

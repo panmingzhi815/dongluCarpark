@@ -3,7 +3,9 @@ package com.donglu.carpark.service;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
+import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.google.inject.ImplementedBy;
 
 /**
@@ -13,5 +15,5 @@ import com.google.inject.ImplementedBy;
  *
  */
 public interface CountTempCarChargeI extends Serializable {
-	public float charge(Long carparkId,Long carType, Date inTime, Date outTime,CarparkDatabaseServiceProvider sp);
+	public float charge(Long carparkId,CarTypeEnum carType, Date inTime, Date outTime,CarparkDatabaseServiceProvider sp,CarparkMainModel model);
 }

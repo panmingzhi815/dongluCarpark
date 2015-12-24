@@ -6,10 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CountTempCarChargeI;
+import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkAcrossDayTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationPrice;
@@ -17,11 +22,12 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkHolidayTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.collect.Maps;
 
 public class CountTempCarChargeImpl implements CountTempCarChargeI {
-
+	private Logger LOGGER = LoggerFactory.getLogger(CarparkMainPresenter.class);
 	private static final String YYYY_MM_DD = "yyyyMMdd";
 	/**
 	 * 
@@ -30,7 +36,50 @@ public class CountTempCarChargeImpl implements CountTempCarChargeI {
 	Map<String, Date> mapHoliday=Maps.newHashMap();
 
 	@Override
-	public float charge(Long carparkId,Long carType, Date inTime, Date outTime, CarparkDatabaseServiceProvider sp) {
+	public float charge(Long carparkId, CarTypeEnum carType, Date startTime, Date endTime, CarparkDatabaseServiceProvider sp, CarparkMainModel model) {
+		
+		float totalCharge = 0;
+		Float money = 0F;// 免费金额
+		Float hour = 0F;// 免费时间
+		float acrossDayPrice = 0;
+		try {
+			// 查找优惠信息
+			List<SingleCarparkStoreFreeHistory> findByPlateNO = sp.getStoreService().findByPlateNO(0, Integer.MAX_VALUE, null, model.getPlateNo(), "未使用", startTime, endTime);
+			if (!StrUtil.isEmpty(findByPlateNO)) {
+				for (SingleCarparkStoreFreeHistory free : findByPlateNO) {
+					if (!StrUtil.isEmpty(free.getFreeHour())) {
+						hour += free.getFreeHour();
+					}
+					if (!StrUtil.isEmpty(free.getFreeMoney())) {
+						money += free.getFreeMoney();
+					}
+				}
+			}
+			LOGGER.info("车牌{}在时间{}-{}内优惠金额{}元，优惠时间{}小时", model.getPlateNo(), startTime, endTime, money, hour);
+			model.setStroeFrees(findByPlateNO);
+			// 变更收费时间
+			startTime = new DateTime(startTime).plusHours(hour.intValue()).plusMinutes(Float.valueOf((hour % 1F)).intValue()).toDate();
+			List<Date> cutDaysByHours = CarparkUtils.cutDaysByHours(startTime, endTime);
+			
+			acrossDayPrice = sp.getCarparkInOutService().findAcrossDayPrice(carType, carparkId);
+			acrossDayPrice = acrossDayPrice * (cutDaysByHours.size() - 2);
+			float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carparkId, carType.index(), startTime, endTime);
+			totalCharge+=calculateTempCharge;
+		} catch (Exception e) {
+			LOGGER.error("计算收费是发生错误", e);
+			return 0;
+		}
+		return (totalCharge - money < 0 ? 0 : totalCharge - money) + acrossDayPrice;
+	}
+
+	/**
+	 * @param carType
+	 * @param inTime
+	 * @param outTime
+	 * @param sp
+	 * @return
+	 */
+	private float oldMethod(Long carType, Date inTime, Date outTime, CarparkDatabaseServiceProvider sp) {
 		float money = 0;
 		DateTime start = new DateTime(inTime);
 		DateTime end = new DateTime(outTime);

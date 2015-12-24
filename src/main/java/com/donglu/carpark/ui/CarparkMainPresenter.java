@@ -84,6 +84,7 @@ import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
 public class CarparkMainPresenter {
+	private static final String COUNT_TEMP_CAR_CHARGE = "countTempCarCharge";
 	private Logger LOGGER = LoggerFactory.getLogger(CarparkMainPresenter.class);
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
@@ -609,65 +610,15 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	public float countShouldMoney(Long carparkId, CarTypeEnum carType, Date startTime, Date endTime) {
-//		try {
-//			countTempCarCharge=new CountTempCarChargeImpl();
-//			float charge = countTempCarCharge.charge(carparkId, carType.index(), startTime, endTime, sp);
-//			System.out.println("charge==========="+charge);
-//		} catch (Exception e1) {
-//			e1.printStackTrace();
-//		}
-		float totalCharge=0;
-		Float money=0F;//免费金额
-		Float hour=0F;//免费时间
-		float acrossDayPrice=0;
+		float charge=0;
 		try {
-		//查找优惠信息
-		List<SingleCarparkStoreFreeHistory>  findByPlateNO= sp.getStoreService().findByPlateNO(0, Integer.MAX_VALUE, null, model.getPlateNo(),"未使用", startTime, endTime);
-		if (!StrUtil.isEmpty(findByPlateNO)) {
-			for (SingleCarparkStoreFreeHistory free : findByPlateNO) {
-				if (!StrUtil.isEmpty(free.getFreeHour())) {
-					hour+=free.getFreeHour();
-				}
-				if (!StrUtil.isEmpty(free.getFreeMoney())) {
-					money+=free.getFreeMoney();
-				}
-			}
+			charge = countTempCarCharge.charge(carparkId, carType, startTime, endTime, sp, model);
+			System.out.println("charge==========="+charge);
+		} catch (Exception e1) {
+			e1.printStackTrace();
 		}
-		LOGGER.info("车牌{}在时间{}-{}内优惠金额{}元，优惠时间{}小时",model.getPlateNo(),startTime,endTime,money,hour);
-		model.setStroeFrees(findByPlateNO);
-		//变更收费时间
-		startTime=new DateTime(startTime).plusHours(hour.intValue()).plusMinutes(Float.valueOf((hour%1F)).intValue()).toDate();
-		List<Date> cutDaysByHours = CarparkUtils.cutDaysByHours(startTime, endTime);
-		Date start=startTime;
-		Date end=endTime;
-		float max = sp.getCarparkInOutService().findOneDayMaxCharge(carType,carparkId);
-		acrossDayPrice=sp.getCarparkInOutService().findAcrossDayPrice(carType,carparkId);
-		acrossDayPrice=acrossDayPrice*(cutDaysByHours.size()-2);
-			//
-			for (int i = 1; i < cutDaysByHours.size(); i++) {
-				Date s = cutDaysByHours.get(i-1);
-				Date  e= cutDaysByHours.get(i);
-				float should = sp.getCarparkService().calculateTempCharge(carparkId,carType.index(), s, e);
-				float now = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo(),s,e);
-				if (max > 0) {
-					float f = max - now;
-					if (f <= 0) {
-						totalCharge+=0;
-					}else
-					if (f < should) {
-						totalCharge+=f;
-					}else{
-						totalCharge+=should;
-					}
-				}else{
-					totalCharge+=should;
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.error("计算收费是发生错误",e);
-			return 0;
-		}
-		return (totalCharge-money<0?0:totalCharge-money)+acrossDayPrice;
+		
+		return charge;
 	}
 	
 	/**
@@ -784,6 +735,12 @@ public class CarparkMainPresenter {
 		saveImageTheadPool=Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("保存图片任务"));
 		openDoorTheadPool=Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
 		checkPlayerPlaying();
+		
+		countTempCarCharge=(CountTempCarChargeI) FileUtils.readObject(COUNT_TEMP_CAR_CHARGE);
+		if (StrUtil.isEmpty(countTempCarCharge)) {
+			countTempCarCharge=new CountTempCarChargeImpl();
+			FileUtils.writeObject(COUNT_TEMP_CAR_CHARGE, countTempCarCharge);
+		}
 	}
 
 	/**
