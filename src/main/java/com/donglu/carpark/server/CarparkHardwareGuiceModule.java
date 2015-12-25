@@ -1,7 +1,5 @@
 package com.donglu.carpark.server;
 
-import com.dongluhitec.card.domain.security.LocalSecurityManager;
-import com.dongluhitec.card.domain.security.impl.SecurityManagerImpl;
 import com.dongluhitec.card.hardware.hanwangAllInOne.LicencePlatesAllInOne;
 import com.dongluhitec.card.hardware.hanwangAllInOne.impl.LicencePlatesAllInOneImpl;
 import com.dongluhitec.card.hardware.hanwangAllInOne.impl.MacDummyLicencePlatesAllInOneImpl;
@@ -19,10 +17,7 @@ import com.dongluhitec.card.hardware.message.service.CarparkMessageRegistryImpl;
 import com.dongluhitec.card.hardware.message.service.ConsumptionMessageRegistryImpl;
 import com.dongluhitec.card.hardware.message.service.MessageRegistryImpl;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
-import com.dongluhitec.card.hardware.service.HardwareService;
-import com.dongluhitec.card.hardware.service.background.ServiceFactoryGuiceModule;
 import com.dongluhitec.card.hardware.service.impl.BasicHardwareServiceSyncImpl;
-import com.dongluhitec.card.hardware.service.impl.HardwareServiceSyncImpl;
 import com.dongluhitec.card.hardware.xinluwei.MacDummyXinlutongImpl;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNAImpl;

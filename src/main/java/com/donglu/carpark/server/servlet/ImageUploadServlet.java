@@ -1,9 +1,6 @@
 package com.donglu.carpark.server.servlet;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Iterator;
 
@@ -18,7 +15,6 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.hibernate.search.exception.impl.LogErrorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +30,6 @@ public class ImageUploadServlet extends HttpServlet {
 
     public final static String charset = Charsets.UTF_8.name();
 
-    private String root;
-
-    public void setFolder(String folderName) {
-        root = System.getProperty("user.dir") + File.separator + folderName + File.separator;
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

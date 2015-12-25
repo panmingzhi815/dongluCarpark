@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.info.CarparkChargeInfo;
+import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.ui.CarparkClientConfig;
@@ -208,6 +209,46 @@ public class CarparkUtils {
 	}
 	
 	/**
+	 * 将图片数据直接显示至Label背景
+	 * 每次显示图片后，将图片保存至label的引用中，下次再要显示时，先判断是否有引用，如果有引用，则先要销毁以前的引用，避免swt 的 handler 资源泄漏
+	 * @param imageBytes 数据原始二进制数据
+	 * @param Label 显示控件
+	 * @param device 当前显示的窗体 display
+	 */
+	public static void setBackgroundImage(byte[] imageBytes, Label cLabel, Display device) {
+		if (cLabel.getData("lastImage") != null){
+			Image lastImage = (Image)cLabel.getData("lastImage");
+			lastImage.dispose();
+			cLabel.setBackgroundImage(null);
+			cLabel.setData("lastImage",null);
+			LOGGER.info("销毁图片成功！");
+		}
+
+		if (imageBytes == null || imageBytes.length <= 0) {
+			cLabel.setText("无图片");
+			return;
+		}
+
+		try (ByteArrayInputStream stream = new ByteArrayInputStream(imageBytes)) {
+			Image img = new Image(device, stream);
+			int width = cLabel.getBounds().width;
+			int height = cLabel.getBounds().height;
+			if (width<=0||height<=0) {
+				return;
+			}
+			ImageData data = img.getImageData().scaledTo(width, height);
+			Image createImg = ImageDescriptor.createFromImageData(data).createImage();
+			img.dispose();
+			cLabel.setText("");
+			cLabel.setBackgroundImage(createImg);
+			cLabel.setData("lastImage",createImg);
+		} catch (Exception e) {
+			LOGGER.error("图片转换错误", e);
+		}
+	}
+	
+	
+	/**
 	 * 获得保存到Label的图片
 	 * @param image
 	 * @param lbl
@@ -359,6 +400,13 @@ public class CarparkUtils {
 		}
 		return s;
 	}
+	/**
+	 * 对list内的对象排序
+	 * @param list
+	 * @param string
+	 * @param order
+	 * @return
+	 */
 	public static <T> List<T> sortObjectPropety(List<T> list, String string,boolean order) {
 		
 		try {
@@ -608,5 +656,20 @@ public class CarparkUtils {
 	public static String getSettingValue(Map<SystemSettingTypeEnum, String> map, SystemSettingTypeEnum type) {
 		
 		return map.get(type)==null?type.getDefaultValue():map.get(type);
+	}
+	/**
+	 * 清理重复进场记录
+	 */
+	public static void cleanSameInOutHistory() {
+		try {
+			LOGGER.info("准备清理数据库中的重复进出场记录");
+			CarparkServerConfig cf = CarparkServerConfig.getInstance();
+			String sql="DELETE FROM [carpark].[dbo].[SingleCarparkInOutHistory] WHERE outTime is null and id not in(SELECT MAX(id) FROM [carpark].[dbo].[SingleCarparkInOutHistory] where outTime is null group by plateNo)";
+			boolean executeSQL = DatabaseUtil.executeSQL(cf.getDbServerIp(), cf.getDbServerPort(), CarparkServerConfig.CARPARK, 
+					cf.getDbServerUsername(), cf.getDbServerPassword(), sql, DatabaseUtil.SQLSERVER2008);
+			LOGGER.info("清理数据库中的重复进出场记录结果：{}",executeSQL);
+		} catch (Exception e) {
+			LOGGER.info("清理数据库中的重复进出场记录发生错误",e);
+		}
 	}
 }

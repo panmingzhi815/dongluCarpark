@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.controlsfx.control.action.Action;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
@@ -19,12 +18,9 @@ import org.eclipse.swt.widgets.Text;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
-import com.dongluhitec.card.blservice.DatabaseServiceProvider;
 import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIFacility.Progress;
-import com.dongluhitec.card.service.DbServiceConfigurator;
-import com.dongluhitec.card.service.impl.LocalVMServiceProvider;
 import com.dongluhitec.card.ui.util.ProcessBarMonitor;
 import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.inject.AbstractModule;
@@ -33,7 +29,6 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.name.Names;
 
-import javafx.concurrent.Task;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;

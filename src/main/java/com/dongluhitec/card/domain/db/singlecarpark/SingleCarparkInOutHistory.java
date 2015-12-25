@@ -8,8 +8,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -339,7 +337,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 			if (h.getId()==null) {
 				return false;
 			}
-			if (h.getId()==this.getId()) {
+			if (h.getId().equals(this.getId())) {
 				return true;
 			}else{
 				return false;

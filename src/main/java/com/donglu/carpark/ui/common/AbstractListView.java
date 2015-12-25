@@ -52,7 +52,7 @@ public abstract class AbstractListView<T> extends Composite {
 	String[] nameProperties;
 	int[] columnLenths;
 	int[] aligns;
-	Class tClass;
+	Class<T> tClass;
 	private Label lbl_tableTitle;
 	private Label lbl_nowCount;
 	private Label lbl_allcount;

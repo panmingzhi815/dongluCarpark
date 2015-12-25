@@ -39,7 +39,6 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 public class StoreServlet extends HttpServlet{
-	private static final String STORE_SESSION = "storeSession";
 
 	private Logger logger = LoggerFactory.getLogger(CarparkMainApp.class);
 	
@@ -294,11 +293,7 @@ public class StoreServlet extends HttpServlet{
 				return;
 			}
 			String pwd=pwds[0];
-			HttpSession session = req.getSession();
-			SessionInfo attribute = (SessionInfo) session.getAttribute("sessionInfo");
-			if (StrUtil.isEmpty(attribute)) {
-				return;
-			}
+			
 			json.setSuccess(true);
 			json.setMsg("修改成功");
 		} catch (Exception e) {

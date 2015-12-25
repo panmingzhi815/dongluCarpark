@@ -2,15 +2,11 @@ package com.donglu.carpark.ui.view;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Group;
 
-import java.util.Date;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -23,23 +19,16 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.util.concurrent.RateLimiter;
 
-import org.eclipse.swt.widgets.DateTime;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 
 public class DeviceView extends Composite implements View{
 	private Presenter presenter;
@@ -68,11 +57,17 @@ public class DeviceView extends Composite implements View{
 			
 		});
 		Composite control3 = new Composite(tabFolder, SWT.NONE);
-		GridLayout layout3 = new GridLayout();
+		GridLayout layout3 = new GridLayout(2,false);
 		layout3.marginHeight = 0;
 		layout3.marginWidth = 0;
 		control3.setLayout(layout3);
-		ToolBar toolBar3 = new ToolBar(control3, SWT.NONE);
+		Label label = new Label(control3, SWT.NONE);
+		GridData gd_label = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_label.widthHint = 50;
+		gd_label.heightHint = 25;
+		label.setLayoutData(gd_label);
+		
+		ToolBar toolBar3 = new ToolBar(control3, SWT.FLAT | SWT.NONE);
 		ToolItem toolItem_in_photograph3 = new ToolItem(toolBar3, SWT.NONE);
 		toolItem_in_photograph3.setText("拍照");
 		toolItem_in_photograph3.setToolTipText("手动抓拍");

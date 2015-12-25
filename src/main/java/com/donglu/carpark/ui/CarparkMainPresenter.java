@@ -4,7 +4,6 @@ import java.awt.Canvas;
 import java.awt.Frame;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,10 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.bridj.cpp.std.list;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -956,8 +953,14 @@ public class CarparkMainPresenter {
 		InOutHistoryDetailWizard wizard = new InOutHistoryDetailWizard(h,valueOf);
 		
 		SingleCarparkInOutHistory m = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
+		if (StrUtil.isEmpty(m)) {
+			return;
+		}
 		if (valueOf) {
 			SingleCarparkInOutHistory findInOutById = sp.getCarparkInOutService().findInOutById(m.getId());
+			if (StrUtil.isEmpty(findInOutById)) {
+				return;
+			}
 			if (!StrUtil.isEmpty(findInOutById.getOutTime())) {
 				commonui.info("修改失败", "该车已经出场");
 				return;
@@ -967,6 +970,7 @@ public class CarparkMainPresenter {
 			}
 			sp.getCarparkInOutService().saveInOutHistory(m);
 			model.addInHistorys(h);
+			CarparkUtils.cleanSameInOutHistory();
 		}
 	}
 

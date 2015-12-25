@@ -387,16 +387,7 @@ public class ImageServerUI {
 			
 			@Override
 			public void run() {
-				try {
-					LOGGER.info("准备清理数据库中的重复进出场记录");
-					CarparkServerConfig cf = CarparkServerConfig.getInstance();
-					String sql="DELETE FROM [carpark].[dbo].[SingleCarparkInOutHistory] WHERE outTime is null and id not in(SELECT MAX(id) FROM [carpark].[dbo].[SingleCarparkInOutHistory] where outTime is null group by plateNo)";
-					boolean executeSQL = DatabaseUtil.executeSQL(cf.getDbServerIp(), cf.getDbServerPort(), CarparkServerConfig.CARPARK, 
-							cf.getDbServerUsername(), cf.getDbServerPassword(), sql, DatabaseUtil.SQLSERVER2008);
-					LOGGER.info("清理数据库中的重复进出场记录结果：{}",executeSQL);
-				} catch (Exception e) {
-					LOGGER.info("清理数据库中的重复进出场记录发生错误",e);
-				}
+				CarparkUtils.cleanSameInOutHistory();
 			}
 		}, 10, 10, TimeUnit.MINUTES);
 		

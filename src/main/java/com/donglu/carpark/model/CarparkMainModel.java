@@ -8,8 +8,6 @@ import java.util.Map;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Image;
 
-import com.donglu.carpark.ui.task.CarInTask;
-import com.donglu.carpark.ui.task.CarOutTask;
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
@@ -17,37 +15,35 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
-import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.google.common.collect.Maps;
 
 public class CarparkMainModel extends DomainObject{
 	
 	// 保存设备的进出口信息
-		private final Map<String, String> mapDeviceType = Maps.newHashMap();
-
-		// 保存设备的界面信息
-		private final Map<CTabItem, String> mapDeviceTabItem = Maps.newHashMap();
-		// 保存设备的信息
-		private final Map<String, SingleCarparkDevice> mapIpToDevice = Maps.newHashMap();
-		// 保存设置信息
-		private final Map<SystemSettingTypeEnum, String> mapSystemSetting = Maps.newHashMap();
-		// 保存车牌最近的处理时间
-		private final Map<String, Date> mapPlateNoDate = Maps.newHashMap();
-		//保存手动开门信息
-		private final Map<String, Boolean> mapOpenDoor = Maps.newHashMap();
-
-		// 保存最近的手动拍照时间
-		private final Map<String, Date> mapHandPhotograph = Maps.newHashMap();
-		//保存进口双摄像头信息
-		private final Map<String, CarInTask> mapInTwoCameraTask = Maps.newHashMap();
-		private final Map<String, CarOutTask> mapOutTwoCameraTask = Maps.newHashMap();
-		
-		//保存是否为双摄像头
-		private final Map<String, Boolean> mapIsTwoChanel = Maps.newHashMap();
-		
-		//保存
-		private Map<String, String> mapTempCharge;
+//		private final Map<String, String> mapDeviceType = Maps.newHashMap();
+//
+//		// 保存设备的界面信息
+//		private final Map<CTabItem, String> mapDeviceTabItem = Maps.newHashMap();
+//		// 保存设备的信息
+//		private final Map<String, SingleCarparkDevice> mapIpToDevice = Maps.newHashMap();
+//		// 保存设置信息
+//		private final Map<SystemSettingTypeEnum, String> mapSystemSetting = Maps.newHashMap();
+//		// 保存车牌最近的处理时间
+//		private final Map<String, Date> mapPlateNoDate = Maps.newHashMap();
+//		//保存手动开门信息
+//		private final Map<String, Boolean> mapOpenDoor = Maps.newHashMap();
+//
+//		// 保存最近的手动拍照时间
+//		private final Map<String, Date> mapHandPhotograph = Maps.newHashMap();
+//		//保存进口双摄像头信息
+//		private final Map<String, CarInTask> mapInTwoCameraTask = Maps.newHashMap();
+//		private final Map<String, CarOutTask> mapOutTwoCameraTask = Maps.newHashMap();
+//		
+//		//保存是否为双摄像头
+//		private final Map<String, Boolean> mapIsTwoChanel = Maps.newHashMap();
+//		
+//		//保存
+//		private Map<String, String> mapTempCharge;
 	
 	
 	

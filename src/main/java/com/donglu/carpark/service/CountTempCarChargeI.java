@@ -4,9 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.donglu.carpark.model.CarparkMainModel;
-import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
-import com.google.inject.ImplementedBy;
 
 /**
  * 停车场计费的类，一般将其序列化保存到本地，程序启动时，会检测本地是否是否有该类，有的话直接读取本地的类，没有则从程序中new 一个对象保存到本地
