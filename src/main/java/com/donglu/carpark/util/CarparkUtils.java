@@ -36,16 +36,11 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.donglu.carpark.info.CarparkChargeInfo;
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
-import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.CarparkManageApp;
-import com.donglu.carpark.ui.ClientConfigUI;
-import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
-import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
 import com.dongluhitec.card.util.DatabaseUtil;
@@ -354,7 +349,8 @@ public class CarparkUtils {
     /**
      * 获取属性类型(type)，属性名(name)，属性值(value)的map组成的list
      * */
-    public static List getFiledsInfo(Object o){
+    @SuppressWarnings("all")
+	public static List getFiledsInfo(Object o){
     	Field[] fields=o.getClass().getDeclaredFields();
        	String[] fieldNames=new String[fields.length];
        	List list = new ArrayList();
@@ -466,6 +462,7 @@ public class CarparkUtils {
 		}
 		return list;
 	}
+	@SuppressWarnings("all")
 	public static void enableSort(TableViewer tableViewer) {
 		final List input = (List)tableViewer.getData("list");
 		TableColumn[] columns = tableViewer.getTable().getColumns();

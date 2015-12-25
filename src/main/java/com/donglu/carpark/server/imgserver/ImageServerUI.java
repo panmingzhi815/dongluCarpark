@@ -6,11 +6,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,17 +14,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.SessionManager;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.session.HashSessionManager;
-import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tray;
@@ -58,11 +44,9 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
-import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.server.ServerUtil;
 import com.dongluhitec.card.ui.util.FileUtils;
-import com.dongluhitec.card.util.DatabaseUtil;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.dongluhitec.core.crypto.appauth.AppAuthorization;
 import com.dongluhitec.core.crypto.appauth.AppVerifier;
@@ -82,14 +66,9 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 
@@ -98,7 +77,6 @@ public class ImageServerUI {
 	private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
 	public static final String YYYY_MM_DD = "yyyy-MM-dd";
 
-	private DataBindingContext m_bindingContext;
 
 	public static final String IMAGE_SAVE_DIRECTORY = "directory";
 	protected Shell shell;
@@ -160,7 +138,6 @@ public class ImageServerUI {
 		Display display = Display.getDefault();
 		// init();
 		createContents();
-		m_bindingContext = initDataBindings();
 		shell.open();
 		shell.setImage(JFaceUtil.getImage("carpark_16"));
 
@@ -334,7 +311,7 @@ public class ImageServerUI {
 				findSystemSettingByKey.setSettingValue(SystemSettingTypeEnum.DateBase_version.getDefaultValue());
 				sp.getCarparkService().saveSystemSetting(findSystemSettingByKey);
 			}
-			File f = new File(System.getProperty("user.dir"));
+//			File f = new File(System.getProperty("user.dir"));
 			// System.out.println(f.getPath());
 			// String[] list = f.list();
 			// for (String string : list) {
@@ -396,6 +373,7 @@ public class ImageServerUI {
 	/**
 	 * 自动上传停车场信息到云平台
 	 */
+	@SuppressWarnings("unchecked")
 	private void autoSendInfoToCloud() {
 		ScheduledExecutorService userExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传用户数据到云平台"));
 		ScheduledExecutorService inExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传进场数据到云平台"));
@@ -557,9 +535,4 @@ public class ImageServerUI {
 
 	}
 
-	protected DataBindingContext initDataBindings() {
-		DataBindingContext bindingContext = new DataBindingContext();
-		//
-		return bindingContext;
-	}
 }
