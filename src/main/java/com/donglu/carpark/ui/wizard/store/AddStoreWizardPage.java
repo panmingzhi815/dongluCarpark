@@ -16,6 +16,7 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.swt.widgets.Button;
 
 public class AddStoreWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -26,6 +27,7 @@ public class AddStoreWizardPage extends WizardPage {
 	private Text text_3;
 	private Text text_4;
 	private Text text_repwd;
+	private Button button;
 
 	/**
 	 * Create the wizard.
@@ -110,6 +112,11 @@ public class AddStoreWizardPage extends WizardPage {
 		text_2 = new Text(composite, SWT.BORDER);
 		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(composite, SWT.NONE);
+		
+		button = new Button(composite, SWT.CHECK);
+		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button.setText("允许全免");
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {
@@ -138,6 +145,10 @@ public class AddStoreWizardPage extends WizardPage {
 		IObservableValue observeTextText_repwdObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_repwd);
 		IObservableValue rePawwordModelObserveValue = BeanProperties.value("rePawword").observe(model);
 		bindingContext.bindValue(observeTextText_repwdObserveWidget, rePawwordModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionButtonObserveWidget = WidgetProperties.selection().observe(button);
+		IObservableValue canAllFreeModelObserveValue = BeanProperties.value("canAllFree").observe(model);
+		bindingContext.bindValue(observeSelectionButtonObserveWidget, canAllFreeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

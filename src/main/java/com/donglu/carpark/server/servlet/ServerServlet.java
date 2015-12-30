@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 
 import com.donglu.carpark.server.CarparkServerConfig;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 public class ServerServlet extends HttpServlet {
 
@@ -23,7 +24,7 @@ public class ServerServlet extends HttpServlet {
 			response.setContentType("text/html;charset=UTF-8");
 			PrintWriter out = response.getWriter();
 			CarparkServerConfig instance = CarparkServerConfig.getInstance();
-			String s = instance.getDbServerIp()+"/"+instance.getDbServerPort()+"/"+instance.getDbServerUsername()+"/"+instance.getDbServerPassword();
+			String s = StrUtil.getHostIp()+"/"+instance.getDbServerPort()+"/"+instance.getDbServerUsername()+"/"+instance.getDbServerPassword();
 			System.out.println(s);
 			out.print(s);
 			out.flush();

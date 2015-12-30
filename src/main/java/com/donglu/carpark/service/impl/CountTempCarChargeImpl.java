@@ -47,6 +47,10 @@ public class CountTempCarChargeImpl implements CountTempCarChargeI {
 			List<SingleCarparkStoreFreeHistory> findByPlateNO = sp.getStoreService().findByPlateNO(0, Integer.MAX_VALUE, null, model.getPlateNo(), "未使用", startTime, endTime);
 			if (!StrUtil.isEmpty(findByPlateNO)) {
 				for (SingleCarparkStoreFreeHistory free : findByPlateNO) {
+					if (free.getIsAllFree()!=null&&free.getIsAllFree()) {
+						model.setStroeFrees(findByPlateNO);
+						return 0;
+					}
 					if (!StrUtil.isEmpty(free.getFreeHour())) {
 						hour += free.getFreeHour();
 					}
@@ -60,11 +64,15 @@ public class CountTempCarChargeImpl implements CountTempCarChargeI {
 			// 变更收费时间
 			startTime = new DateTime(startTime).plusHours(hour.intValue()).plusMinutes(Float.valueOf((hour % 1F)).intValue()).toDate();
 			List<Date> cutDaysByHours = CarparkUtils.cutDaysByHours(startTime, endTime);
-			
+//			float findOneDayMaxCharge = sp.getCarparkInOutService().findOneDayMaxCharge(carType, carparkId);
 			acrossDayPrice = sp.getCarparkInOutService().findAcrossDayPrice(carType, carparkId);
 			acrossDayPrice = acrossDayPrice * (cutDaysByHours.size() - 2);
+			//今天收费
+//			float countTodayCharge = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo(), StrUtil.getTodayTopTime(new Date()), StrUtil.getTodayBottomTime(new Date()));
+			//计算收费
 			float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carparkId, carType.index(), startTime, endTime);
 			totalCharge+=calculateTempCharge;
+//			totalCharge= totalCharge-countTodayCharge<0?0:totalCharge-countTodayCharge;
 		} catch (Exception e) {
 			LOGGER.error("计算收费是发生错误", e);
 			return 0;

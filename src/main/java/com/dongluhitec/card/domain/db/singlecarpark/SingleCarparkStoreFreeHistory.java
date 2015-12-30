@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -27,6 +28,9 @@ public class SingleCarparkStoreFreeHistory extends DomainObject{
 	private Float freeMoney;
 	private String coupon;
 	private String used;
+	private Boolean isAllFree;
+	@Transient
+	private String freeType;
 	
 	public String getCreateTimeLabel(){
 		return StrUtil.formatDate(createTime, StrUtil.DATETIME_PATTERN);
@@ -94,5 +98,25 @@ public class SingleCarparkStoreFreeHistory extends DomainObject{
 		this.used = used;
 		if (pcs != null)
 			pcs.firePropertyChange("used", null, null);
+	}
+	public Boolean getIsAllFree() {
+		return isAllFree;
+	}
+	public void setIsAllFree(Boolean isAllFree) {
+		this.isAllFree = isAllFree;
+		if (pcs != null)
+			pcs.firePropertyChange("isAllFree", null, null);
+	}
+	public String getFreeType() {
+		if (isAllFree==null||!isAllFree) {
+			return "优惠";
+		}else{
+			return "全免";
+		}
+	}
+	public void setFreeType(String freeType) {
+		this.freeType = freeType;
+		if (pcs != null)
+			pcs.firePropertyChange("freeType", null, null);
 	}
 }

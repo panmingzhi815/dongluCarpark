@@ -171,14 +171,7 @@ public class CarOutTask implements Runnable{
 			List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO,carpark);
 			if (StrUtil.isEmpty(user)) {
 				if (StrUtil.isEmpty(findByNoOut)) {
-					LOGGER.info("没有找到车牌{}的入场记录", plateNO);
-					presenter.showPlateNOToDevice(device, plateNO);
-					presenter.showContentToDevice(device, "此车未入场", false);
-					model.setSearchPlateNo(plateNO);
-					model.setSearchBigImage(bigImg);
-					model.setSearchSmallImage(smallImg);
-					model.setHandSearch(true);
-					model.setOutPlateNOEditable(true);
+					notFindInHistory(device, bigImg, smallImg);
 					return;
 				}
 			}
@@ -231,6 +224,22 @@ public class CarOutTask implements Runnable{
 		}
 	
 	}
+	/**
+	 * 未找到进场记录操作
+	 * @param device
+	 * @param bigImg
+	 * @param smallImg
+	 */
+	private void notFindInHistory(SingleCarparkDevice device, String bigImg, String smallImg) {
+		LOGGER.info("没有找到车牌{}的入场记录", plateNO);
+		presenter.showPlateNOToDevice(device, plateNO);
+		presenter.showContentToDevice(device, "此车未入场", false);
+		model.setSearchPlateNo(plateNO);
+		model.setSearchBigImage(bigImg);
+		model.setSearchSmallImage(smallImg);
+		model.setHandSearch(true);
+		model.setOutPlateNOEditable(true);
+	}
 	
 	/**
 	 * 
@@ -267,6 +276,7 @@ public class CarOutTask implements Runnable{
 
 		if (valueOf) {
 			model.setOutCheckClick(true);
+			model.setOutPlateNOEditable(true);
 			while (model.isOutCheckClick()) {
 				int i = 0;
 				try {
@@ -487,6 +497,8 @@ public class CarOutTask implements Runnable{
 					presenter.chargeCarPass(device, singleCarparkInOutHistory, false);
 				}
 			}
+		}else{
+			notFindInHistory(device, bigImg, smallImg);
 		}
 	}
 	/**

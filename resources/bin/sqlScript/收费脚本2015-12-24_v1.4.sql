@@ -24,7 +24,7 @@ begin
 		)
 		
 	set @InTimeTmp = CONVERT(varchar(10), @intime, 120 ) + ' ' + CONVERT(varchar(8) , @durationEndTime, 108 )
-	if @InTimeTmp < @intime
+	if @InTimeTmp <= @intime
 	begin
 		set @InTimeTmp = DateAdd(DAY,1,@InTimeTmp);
 	end
@@ -96,9 +96,9 @@ begin
 	
 	if @durationEndTime <= @durationStartTime
 	begin
-		if @intime > @InTimeTmp
+		if @intime >= @InTimeTmp
 		begin
-			if DATEADD(DAY,1,@resultTime) > @outtime
+			if DATEADD(DAY,1,@resultTime) >= @outtime
 			begin
 				set @resultTime = @outtime
 			end
@@ -313,7 +313,8 @@ DECLARE
 	@ChargeTimeType int,
 	@AcrossdayChargeStyle int,
 	@chargeSummay numeric(8,2),
-	@IsAcrossDay int
+	@IsAcrossDay int,
+	@AcrossdayChargeEnable int
 	
 	
 
@@ -332,7 +333,7 @@ end
 --如果只有一种收费标准，则直接获取停车的免费时长
 if @ChargeStandardSize = 1
 begin
-	select @ChargeTimeType=ccs.charge_time_type ,@AcrossdayChargeStyle=ccs.acrossday_charge_style,@OneDayMaxMoney=ccs.oneday_max_charge,@FreeTime = ccs.free_time,@StartStepTime=ccs.First_Time,@StartStepMoney=ccs.First_Time_Fee from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and carpark_id = @CarparkId and using = 'True'
+	select @AcrossdayChargeEnable=ccs.acrossday_charge_enable,@ChargeTimeType=ccs.charge_time_type ,@AcrossdayChargeStyle=ccs.acrossday_charge_style,@OneDayMaxMoney=ccs.oneday_max_charge,@FreeTime = ccs.free_time,@StartStepTime=ccs.First_Time,@StartStepMoney=ccs.First_Time_Fee from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and carpark_id = @CarparkId and using = 'True'
 end
 --如果有工作日与非工作日之分，则取当前时间的收费标准
 if @ChargeStandardSize = 2
@@ -340,11 +341,11 @@ begin
 	--取非工作日的免费时长
 	if @IsCurrentWorkDay <> 0
 	begin
-		select @ChargeTimeType=ccs.charge_time_type ,@AcrossdayChargeStyle=ccs.acrossday_charge_style,@OneDayMaxMoney=ccs.oneday_max_charge,@FreeTime = ccs.free_time,@StartStepTime=ccs.First_Time,@StartStepMoney=ccs.First_Time_Fee from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 0 and carpark_id = @CarparkId and using = 'True'
+		select @AcrossdayChargeEnable=ccs.acrossday_charge_enable,@ChargeTimeType=ccs.charge_time_type ,@AcrossdayChargeStyle=ccs.acrossday_charge_style,@OneDayMaxMoney=ccs.oneday_max_charge,@FreeTime = ccs.free_time,@StartStepTime=ccs.First_Time,@StartStepMoney=ccs.First_Time_Fee from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 0 and carpark_id = @CarparkId and using = 'True'
 	end
 	--取工作日的免费时长
 	else begin
-		select @ChargeTimeType=ccs.charge_time_type ,@AcrossdayChargeStyle=ccs.acrossday_charge_style,@OneDayMaxMoney=ccs.oneday_max_charge,@FreeTime = ccs.free_time,@StartStepTime=ccs.First_Time,@StartStepMoney=ccs.First_Time_Fee from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 1 and carpark_id = @CarparkId and using = 'True'
+		select @AcrossdayChargeEnable=ccs.acrossday_charge_enable,@ChargeTimeType=ccs.charge_time_type ,@AcrossdayChargeStyle=ccs.acrossday_charge_style,@OneDayMaxMoney=ccs.oneday_max_charge,@FreeTime = ccs.free_time,@StartStepTime=ccs.First_Time,@StartStepMoney=ccs.First_Time_Fee from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 1 and carpark_id = @CarparkId and using = 'True'
 	end
 end
 --如果在免费时长之内，则直接返回0
@@ -353,6 +354,11 @@ begin
 	set @SumCharge = 0
 	return
 end
+if @AcrossdayChargeEnable=0
+begin
+	set @InTime=DATEADD(MINUTE,@FreeTime,@InTime);
+end
+
 
 --如果在起步时长之内,则直接返回起步金额，如果不在，则累加起步金额，将时间向后推起步时间
 IF DateDiff(Second, @InTime, @OutTime) <= (@StartStepTime*60)
@@ -373,14 +379,29 @@ begin
 	set @InTime=@InitInTime;
 	if @ChargeTimeType=0
 	begin
-		if DATEADD(DAY,1,@InitInTime)>@InitOutTime
+		if @IsAcrossDay=0 and @StartStepTime>0
 		begin
-			set @InitInTime=@InitOutTime;
+			if DATEADD(MINUTE,((24*60)-@StartStepTime),@InitInTime)>@InitOutTime
+			begin
+				set @InitInTime=@InitOutTime;
+			end
+			else
+			begin
+				set @InitInTime=DATEADD(MINUTE,((24*60)-@StartStepTime),@InitInTime);
+			end
 		end
 		else
 		begin
-			set @InitInTime=DATEADD(DAY,1,@InitInTime);
+			if DATEADD(DAY,1,@InitInTime)>@InitOutTime
+			begin
+				set @InitInTime=@InitOutTime;
+			end
+			else
+			begin
+				set @InitInTime=DATEADD(DAY,1,@InitInTime);
+			end
 		end
+		
 	end
 	else
 	begin
@@ -395,6 +416,21 @@ begin
 	end
 	set @OutTime=@InitInTime;
 	
+	--获取一天最大收费
+	if @ChargeStandardSize>1
+	begin
+		SELECT @IsCurrentWorkDay = COUNT(1) FROM Holiday h WHERE @InTime >= h.start and @InTime < DATEADD(Day,h.length,h.start)
+		--判断起始时间是否为节假日
+		if @IsCurrentWorkDay > 0
+		begin
+			select @OneDayMaxMoney=ccs.oneday_max_charge from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 0 and carpark_id = @CarparkId and using = 'True'
+		end
+		else
+		begin
+			select @OneDayMaxMoney=ccs.oneday_max_charge from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 1 and carpark_id = @CarparkId and using = 'True'
+		end
+	end
+	
 	while @InTime < @OutTime
 	begin
 		set @IsCurrentWorkDay = 0;
@@ -405,7 +441,14 @@ begin
 		if @IsCurrentWorkDay > 0
 		begin
 			SELECT @IsNextWorkDay = COUNT(1) FROM Holiday h WHERE DATEADD(DAY,1,@InTime) >= h.start and DATEADD(DAY,1,@InTime) < DATEADD(Day,h.length,h.start)
-			select @CurrentChargeStandardId = id from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 0 and carpark_id = @CarparkId and using = 'True'
+			if @ChargeStandardSize>1
+			begin
+				select @CurrentChargeStandardId = id from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 0 and carpark_id = @CarparkId and using = 'True'
+			end
+			else
+			begin
+				select @CurrentChargeStandardId = id from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and carpark_id = @CarparkId and using = 'True'
+			end
 			select @CurrentDurationChargeStandardSize = COUNT(1) from carpark_duration_standard cds where cds.standard_id = @CurrentChargeStandardId
 			--如果第二天还是节假日
 			if @IsNextWorkDay > 0
@@ -456,7 +499,14 @@ begin
 		end
 		else begin
 			SELECT @IsNextWorkDay = COUNT(1) FROM Holiday h WHERE DATEADD(DAY,1,@InTime) >= h.start and DATEADD(DAY,1,@InTime) < DATEADD(Day,h.length,h.start)
-			select @CurrentChargeStandardId = id from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 1 and carpark_id = @CarparkId and using = 'True'
+			if @ChargeStandardSize>1
+			begin
+				select @CurrentChargeStandardId = id from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 1 and carpark_id = @CarparkId and using = 'True'
+			end
+			else
+			begin
+				select @CurrentChargeStandardId = id from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and carpark_id = @CarparkId and using = 'True'
+			end
 			select @CurrentDurationChargeStandardSize = COUNT(1) from carpark_duration_standard cds where cds.standard_id = @CurrentChargeStandardId
 			--如果第二天是工作日
 			if @IsNextWorkDay < 1

@@ -601,7 +601,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			composite_24.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 			lbl_inSmallImg = new CLabel(composite_24, SWT.NONE);
-			lbl_inSmallImg.setText("出场车牌");
+			lbl_inSmallImg.setText("进场场车牌");
 			lbl_inSmallImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 			lbl_inSmallImg.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
 			lbl_inSmallImg.setAlignment(SWT.CENTER);
@@ -676,7 +676,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					String outShowPlateNO = model.getOutShowPlateNO();
-					if (!outShowPlateNO.matches(CarparkUtils.PLATENO_REGEX)) {
+					if (outShowPlateNO.length()>8) {
 						commonui.info("车牌错误", "请输入正确的车牌");
 						return;
 					}
@@ -888,7 +888,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
-				presenter.showHistory(model.getInHistorySelect());
+				SingleCarparkInOutHistory inHistorySelect = model.getInHistorySelect();
+				presenter.showHistory(inHistorySelect);
 			}
 		});
 		table.setLinesVisible(true);

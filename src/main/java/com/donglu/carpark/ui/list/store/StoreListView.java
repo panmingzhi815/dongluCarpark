@@ -21,7 +21,7 @@ public class StoreListView extends AbstractListView<SingleCarparkStore> implemen
 				SingleCarparkStore.Property.userName.name(),
 				SingleCarparkStore.Property.leftFreeMoney.name(),
 				SingleCarparkStore.Property.leftFreeHour.name(),
-				SingleCarparkStore.Property.createTime.name()}, new String[]{"商铺名称","地址","商铺主人","可用金额","可用时间","创建时间"},
+				SingleCarparkStore.Property.createTimeLabel.name()}, new String[]{"商铺名称","地址","商铺主人","可用金额","可用时间","创建时间"},
 				new int[]{100,100,100,100,100,200}, null);
 	}
 

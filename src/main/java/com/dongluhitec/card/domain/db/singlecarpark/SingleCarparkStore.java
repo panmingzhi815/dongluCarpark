@@ -9,11 +9,12 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
 public class SingleCarparkStore extends DomainObject {
 	
 	public enum Property{
-		storeName,address,userName,leftFreeHour,leftFreeMoney,createTime
+		storeName,address,userName,leftFreeHour,leftFreeMoney,createTimeLabel,loginName,canAllFreeLabel
 	}
 	/**
 	 * 
@@ -28,10 +29,24 @@ public class SingleCarparkStore extends DomainObject {
 	private String loginPawword;
 	private Float leftFreeHour;
 	private Float leftFreeMoney;
+	
+	private Boolean canAllFree;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createTime;
 	@Transient
 	private String rePawword;
+	
+	public String getCanAllFreeLabel(){
+		if (canAllFree!=null&&canAllFree) {
+			return "全免";
+		}else{
+			return "优惠";
+		}
+	}
+	public String getCreateTimeLabel(){
+		return StrUtil.formatDate(createTime, StrUtil.DATETIME_PATTERN);
+	}
+	
 	public String getStoreName() {
 		return storeName;
 	}
@@ -103,5 +118,13 @@ public class SingleCarparkStore extends DomainObject {
 		this.rePawword = rePawword;
 		if (pcs != null)
 			pcs.firePropertyChange("rePawword", null, null);
+	}
+	public Boolean getCanAllFree() {
+		return canAllFree;
+	}
+	public void setCanAllFree(Boolean canAllFree) {
+		this.canAllFree = canAllFree;
+		if (pcs != null)
+			pcs.firePropertyChange("canAllFree", null, null);
 	}
 }

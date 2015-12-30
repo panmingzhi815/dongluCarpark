@@ -187,12 +187,13 @@ public class StoreListPresenter extends AbstractListPresenter<SingleCarparkStore
 			if (StrUtil.isEmpty(selected)) {
 				return;
 			}
-			AddStoreWizard w = new AddStoreWizard(selected.get(0));
+			SingleCarparkStore model = selected.get(0);
+			model.setRePawword(model.getLoginPawword());
+			AddStoreWizard w = new AddStoreWizard(model);
 			SingleCarparkStore m = (SingleCarparkStore) commonui.showWizard(w);
 			if (StrUtil.isEmpty(m)) {
 				return;
 			}
-			m.setCreateTime(new Date());
 			m.setLoginPawword(m.getLoginName());
 			m.setLeftFreeHour(0F);
 			m.setLeftFreeMoney(0F);

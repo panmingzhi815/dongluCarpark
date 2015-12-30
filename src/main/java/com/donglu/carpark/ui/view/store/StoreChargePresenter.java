@@ -6,7 +6,6 @@ import java.util.Date;
 import org.eclipse.swt.widgets.Composite;
 
 import com.donglu.carpark.ui.common.AbstractListPresenter;
-import com.donglu.carpark.ui.list.StoreListPresenter;
 import com.donglu.carpark.ui.list.store.StoreChargeListPresenter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStore;
 import com.google.inject.Inject;
