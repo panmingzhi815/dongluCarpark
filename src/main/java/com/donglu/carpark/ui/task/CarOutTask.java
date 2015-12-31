@@ -275,6 +275,7 @@ public class CarOutTask implements Runnable{
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认) == null ? SystemSettingTypeEnum.固定车出场确认.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认));
 
 		if (valueOf) {
+			presenter.showContentToDevice(device, "固定车等待确认", false);
 			model.setOutCheckClick(true);
 			model.setOutPlateNOEditable(true);
 			while (model.isOutCheckClick()) {

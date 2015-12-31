@@ -60,6 +60,10 @@ public class AddCarparkWizard extends Wizard implements AbstractWizard{
 			page.setErrorMessage("名称不能太长");
 			return false;
 		}
+		if (model.getFixNumberOfSlot()>model.getTotalNumberOfSlot()) {
+			page.setErrorMessage("固定车位不能大于总车位");
+			return false;
+		}
 		return true;
 	}
 

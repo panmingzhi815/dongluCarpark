@@ -12,9 +12,9 @@ import com.dongluhitec.card.domain.util.StrUtil;
 
 
 public class AddStoreWizard extends Wizard implements AbstractWizard{
-	SingleCarparkStore model;
+	AddStoreModel model;
 	private AddStoreWizardPage page;
-	public AddStoreWizard(SingleCarparkStore model) {
+	public AddStoreWizard(AddStoreModel model) {
 		this.model=model;
 		if (StrUtil.isEmpty(model.getId())) {
 			setWindowTitle("添加黑名单");

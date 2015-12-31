@@ -40,6 +40,7 @@ public class DeviceView extends Composite implements View{
 
 	private ToolItem delToolItem;
 	private ToolItem toolItem_in_openDoor;
+	private ToolItem toolItem_in_closeDoor;
 
 	public DeviceView(Composite parent, int style) {
 		super(parent, style);
@@ -97,6 +98,21 @@ public class DeviceView extends Composite implements View{
 					return;
 				}
 				getPresenter().openDoor();
+			}
+		});
+		
+		toolItem_in_closeDoor = new ToolItem(toolBar3, SWT.NONE);
+		toolItem_in_closeDoor.setText("落杆");
+		
+		toolItem_in_closeDoor.setToolTipText("手动落杆");
+		toolItem_in_closeDoor.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				if (!rateLimiter.tryAcquire()) {
+					return;
+				}
+				getPresenter().closeDoor();
 			}
 		});
 
@@ -178,8 +194,10 @@ public class DeviceView extends Composite implements View{
 		tabFolder.setSelection(0);
 		if (getPresenter().getType().equals("进口")) {
 			toolItem_in_openDoor.setToolTipText("手动抬杆F2");
+			toolItem_in_closeDoor.setToolTipText("手动落杆F1");
 		}if (getPresenter().getType().equals("出口")) {
 			toolItem_in_openDoor.setToolTipText("手动抬杆F4");
+			toolItem_in_closeDoor.setToolTipText("手动落杆F3");
 		}
 	}
 

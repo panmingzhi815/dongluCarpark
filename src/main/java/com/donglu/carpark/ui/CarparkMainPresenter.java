@@ -574,14 +574,26 @@ public class CarparkMainPresenter {
 	 */
 	public boolean openDoor(SingleCarparkDevice device) {
 		try {
-			Boolean carparkOpenDoor = hardwareService.carparkOpenDoor(getDevice(device));
+//			Boolean carparkOpenDoor = hardwareService.carparkOpenDoor(getDevice(device));
+			Boolean carparkOpenDoor = hardwareService.carparkControlDoor(getDevice(device), 0, -1, -1, -1);
 			openDoorToPhotograph(device.getIp());
 			return carparkOpenDoor;
 		} catch (Exception e) {
 			return false;
 		}
 	}
-
+	/**
+	 * 设备落杆
+	 * @param singleCarparkDevice
+	 */
+	public boolean closeDoor(SingleCarparkDevice device) {
+		try {
+			Boolean carparkOpenDoor = hardwareService.carparkControlDoor(getDevice(device), -1, 0, -1, -1);
+			return carparkOpenDoor;
+		} catch (Exception e) {
+			return false;
+		}
+	}
 	public void openDoorToPhotograph(String ip) {
 		xinlutongJNA.openDoor(ip);
 	}
@@ -872,6 +884,7 @@ public class CarparkMainPresenter {
 		}
 		model.setReal(0);
 		if (!chargeCarPass(device, data, carOutChargeCheck)) {
+			model.setReal(model.getShouldMony());
 			return;
 		}
 	}
@@ -1058,12 +1071,5 @@ public class CarparkMainPresenter {
 		openDoorTheadPool.shutdownNow();
 		saveImageTheadPool.shutdownNow();
 	}
-	/**
-	 * 设备落杆
-	 * @param singleCarparkDevice
-	 */
-	public void closeDoor(SingleCarparkDevice singleCarparkDevice) {
-		
-		
-	}
+	
 }

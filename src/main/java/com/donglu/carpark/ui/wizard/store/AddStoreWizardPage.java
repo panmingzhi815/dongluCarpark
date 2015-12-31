@@ -17,23 +17,33 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
+import org.eclipse.core.databinding.observable.map.IObservableMap;
+import org.eclipse.core.databinding.beans.BeansObservables;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
+import org.eclipse.core.databinding.observable.list.IObservableList;
 
 public class AddStoreWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
 	private Text text;
-	SingleCarparkStore model;
+	AddStoreModel model;
 	private Text text_1;
 	private Text text_2;
 	private Text text_3;
 	private Text text_4;
 	private Text text_repwd;
 	private Button button;
+	private ComboViewer comboViewer;
 
 	/**
 	 * Create the wizard.
 	 * @param model 
 	 */
-	public AddStoreWizardPage(SingleCarparkStore model) {
+	public AddStoreWizardPage(AddStoreModel model) {
 		super("wizardPage");
 		this.model=model;
 		if (StrUtil.isEmpty(model.getId())) {
@@ -112,6 +122,16 @@ public class AddStoreWizardPage extends WizardPage {
 		text_2 = new Text(composite, SWT.BORDER);
 		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label lblNewLabel_3 = new Label(composite, SWT.NONE);
+		lblNewLabel_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		lblNewLabel_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_3.setText("停 车 场");
+		
+		comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
+		Combo combo = comboViewer.getCombo();
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(composite, SWT.NONE);
 		
 		button = new Button(composite, SWT.CHECK);
@@ -149,6 +169,18 @@ public class AddStoreWizardPage extends WizardPage {
 		IObservableValue observeSelectionButtonObserveWidget = WidgetProperties.selection().observe(button);
 		IObservableValue canAllFreeModelObserveValue = BeanProperties.value("canAllFree").observe(model);
 		bindingContext.bindValue(observeSelectionButtonObserveWidget, canAllFreeModelObserveValue, null, null);
+		//
+		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
+		IObservableMap observeMap = BeansObservables.observeMap(listContentProvider.getKnownElements(), SingleCarparkCarpark.class, "name");
+		comboViewer.setLabelProvider(new ObservableMapLabelProvider(observeMap));
+		comboViewer.setContentProvider(listContentProvider);
+		//
+		IObservableList listCarparkModelObserveList = BeanProperties.list("listCarpark").observe(model);
+		comboViewer.setInput(listCarparkModelObserveList);
+		//
+		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
+		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer, carparkModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

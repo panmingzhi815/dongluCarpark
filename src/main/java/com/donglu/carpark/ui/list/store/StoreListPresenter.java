@@ -17,6 +17,7 @@ import com.donglu.carpark.ui.wizard.AddUserModel;
 import com.donglu.carpark.ui.wizard.AddUserWizard;
 import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayModel;
 import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayWizard;
+import com.donglu.carpark.ui.wizard.store.AddStoreModel;
 import com.donglu.carpark.ui.wizard.store.AddStoreWizard;
 import com.donglu.carpark.ui.wizard.store.ChargeStoreModel;
 import com.donglu.carpark.ui.wizard.store.ChargeStoreWizard;
@@ -55,16 +56,23 @@ public class StoreListPresenter extends AbstractListPresenter<SingleCarparkStore
 	public void add() {
 		try {
 			StoreServiceI storeService = sp.getStoreService();
-			AddStoreWizard w = new AddStoreWizard(new SingleCarparkStore());
-			SingleCarparkStore m = (SingleCarparkStore) commonui.showWizard(w);
+			List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
+			if (StrUtil.isEmpty(findAllCarpark)) {
+				commonui.info("提示", "请先添加停车场");
+				return;
+			}
+			AddStoreModel model=new AddStoreModel();
+			model.setListCarpark(findAllCarpark);
+			model.setCarpark(findAllCarpark.get(0));
+			AddStoreWizard w = new AddStoreWizard(model);
+			AddStoreModel m = (AddStoreModel) commonui.showWizard(w);
 			if (StrUtil.isEmpty(m)) {
 				return;
 			}
 			m.setCreateTime(new Date());
-			m.setLoginPawword(m.getLoginName());
 			m.setLeftFreeHour(0F);
 			m.setLeftFreeMoney(0F);
-			storeService.saveStore(m);
+			storeService.saveStore(m.getStore());
 			commonui.info("操作成功", "保存成功!");
 			refresh();
 		} catch (Exception e) {
@@ -187,8 +195,11 @@ public class StoreListPresenter extends AbstractListPresenter<SingleCarparkStore
 			if (StrUtil.isEmpty(selected)) {
 				return;
 			}
-			SingleCarparkStore model = selected.get(0);
-			model.setRePawword(model.getLoginPawword());
+			SingleCarparkStore s = selected.get(0);
+			AddStoreModel model=new AddStoreModel();
+			model.setInfo(s);
+			model.setRePawword(s.getLoginPawword());
+			model.setListCarpark(sp.getCarparkService().findAllCarpark());
 			AddStoreWizard w = new AddStoreWizard(model);
 			SingleCarparkStore m = (SingleCarparkStore) commonui.showWizard(w);
 			if (StrUtil.isEmpty(m)) {

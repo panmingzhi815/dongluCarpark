@@ -676,6 +676,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					String outShowPlateNO = model.getOutShowPlateNO();
+					if (StrUtil.isEmpty(outShowPlateNO)) {
+						return;
+					}
 					if (outShowPlateNO.length()>8) {
 						commonui.info("车牌错误", "请输入正确的车牌");
 						return;
@@ -691,7 +694,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			btnHandSearch.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					if (txtoutplateNo.getText().isEmpty()) {
+					if (StrUtil.isEmpty(txtoutplateNo.getText())) {
 						commonui.info("提示", "请先输入车牌");
 						return;
 					}
@@ -1485,7 +1488,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		}
 		// 出口落杆
 		if (e.keyCode == 16777228) {
-			inDevicePresenter.closeDoor();
+			outDevicePresenter.closeDoor();
 		}
 		// 出口抬杆
 		if (e.keyCode == 16777229) {

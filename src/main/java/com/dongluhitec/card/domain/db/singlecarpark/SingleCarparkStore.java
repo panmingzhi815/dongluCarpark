@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
@@ -33,8 +34,8 @@ public class SingleCarparkStore extends DomainObject {
 	private Boolean canAllFree;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createTime;
-	@Transient
-	private String rePawword;
+	@ManyToOne
+	private SingleCarparkCarpark carpark;
 	
 	public String getCanAllFreeLabel(){
 		if (canAllFree!=null&&canAllFree) {
@@ -111,14 +112,6 @@ public class SingleCarparkStore extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("address", null, null);
 	}
-	public String getRePawword() {
-		return rePawword;
-	}
-	public void setRePawword(String rePawword) {
-		this.rePawword = rePawword;
-		if (pcs != null)
-			pcs.firePropertyChange("rePawword", null, null);
-	}
 	public Boolean getCanAllFree() {
 		return canAllFree;
 	}
@@ -126,5 +119,13 @@ public class SingleCarparkStore extends DomainObject {
 		this.canAllFree = canAllFree;
 		if (pcs != null)
 			pcs.firePropertyChange("canAllFree", null, null);
+	}
+	public SingleCarparkCarpark getCarpark() {
+		return carpark;
+	}
+	public void setCarpark(SingleCarparkCarpark carpark) {
+		this.carpark = carpark;
+		if (pcs != null)
+			pcs.firePropertyChange("carpark", null, null);
 	}
 }
