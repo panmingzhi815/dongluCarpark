@@ -392,7 +392,7 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				user.setPlateNo(plateNO);
 				user.setAddress(address);
 				user.setType(type);
-//				user.setValidTo(StrUtil.parse(validTo, USER_VALIDTO));
+				user.setValidTo(StrUtil.parse(validTo, USER_VALIDTO));
 				user.setCarparkNo(carparkNo);
 				user.setRemark(remark);
 				user.setCreateDate(new Date());

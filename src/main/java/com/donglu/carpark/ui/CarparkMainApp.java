@@ -602,7 +602,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			composite_25.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 			lbl_inBigImg = new CLabel(composite_25, SWT.NONE);
-			lbl_inBigImg.setText("出场车牌");
+			lbl_inBigImg.setText("入场车牌");
 			lbl_inBigImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 			lbl_inBigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));
 			lbl_inBigImg.setAlignment(SWT.CENTER);
@@ -987,13 +987,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		carOutChargeCheck = Boolean
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行) == null ? SystemSettingTypeEnum.出场确认放行.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行));
 		text_real = new Text(group, SWT.BORDER | SWT.READ_ONLY);
-		text_real.addKeyListener(new KeyAdapter() {
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				keyReleasedByControl(carOutChargeCheck, e);
-			}
-		});
 		text_real.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
 		text_real.setText("20.0");
 		text_real.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
@@ -1020,12 +1013,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		comboViewer = new ComboViewer(composite_14, SWT.READ_ONLY);
 		carTypeSelectCombo = comboViewer.getCombo();
-		carTypeSelectCombo.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				keyReleasedByControl(carOutChargeCheck, e);
-			}
-		});
 		carTypeSelectCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		carTypeSelectCombo.addSelectionListener(new SelectionAdapter() {
 			@Override

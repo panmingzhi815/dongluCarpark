@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
+import com.donglu.carpark.util.CarparkDataBaseUtil;
 import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIFacility.Progress;
@@ -34,6 +35,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
 
 public class ServerUI {
 
@@ -50,6 +55,7 @@ public class ServerUI {
 	@Inject
 	private CommonUIFacility commonui;
 	private Button btn_checkDataBase;
+	private Combo combo_dbServerType;
 
 	/**
 	 * Launch the application.
@@ -91,6 +97,33 @@ public class ServerUI {
 		Composite composite = new Composite(shell, SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
 		composite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+		
+		Label label_4 = new Label(composite, SWT.NONE);
+		label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_4.setText("数据库");
+		
+		ComboViewer comboViewer = new ComboViewer(composite, SWT.NONE);
+		combo_dbServerType = comboViewer.getCombo();
+		combo_dbServerType.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		combo_dbServerType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		comboViewer.setContentProvider(new ArrayContentProvider());
+		comboViewer.setLabelProvider(new LabelProvider());
+		comboViewer.setInput(new String[]{"SQLSERVER2008","SQLSERVER2005","MYSQL"});
+		switch (CarparkServerConfig.getInstance().getDbServerType()) {
+		case "SQLSERVER2008":
+			combo_dbServerType.select(0);
+			break;
+		case "SQLSERVER2005":
+			combo_dbServerType.select(1);
+			break;
+		case "MYSQL":
+			combo_dbServerType.select(2);
+			break;
+		default:
+			combo_dbServerType.select(0);
+			break;
+		}
 		
 		Label label = new Label(composite, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -163,26 +196,27 @@ public class ServerUI {
 //		if (checkDatabaseExist) {
 //			commonui.info("提示", "数据库创建成功！");
 //		}
+		String dbServer_Type = combo_dbServerType.getText();
 		String dbServer_ip = text_ip.getText().trim();
         String dbServer_port = text_port.getText().trim();
         String dbServer_username = txt_name.getText().trim();
         String dbServer_password = txt_pwd.getText().trim();
         writeToConfig();
-        boolean checkLink = DatabaseUtil.checkPortAvailable(dbServer_ip, dbServer_port);
+        boolean checkLink = CarparkDataBaseUtil.checkPortAvailable(dbServer_ip, dbServer_port);
         if (!checkLink){
             commonui.error("错误", "测试数据库端口失败，请检查端口"+dbServer_port+"是否己打开或防火墙限制等因素");
             return;
         }
 
         //如果原始的数据库都连接不成功，则用户名或密码可能不确
-        boolean databaseAvailable = DatabaseUtil.checkoutDatabaseAvailable(dbServer_ip, dbServer_port, ORIGINAL_DATABASE, dbServer_username, dbServer_password, DEFAULT_DATABASE_TYPE);
+        boolean databaseAvailable = CarparkDataBaseUtil.checkoutDatabaseAvailable(dbServer_ip, dbServer_port, ORIGINAL_DATABASE, dbServer_username, dbServer_password, dbServer_Type);
         if(!databaseAvailable){
             commonui.error("错误", "连接主数据库失败，请检查是用户名或密码是否正确");
             return;
         }
 
         //检查carpark数据库是否可用
-        boolean default_database_available = DatabaseUtil.checkoutDatabaseAvailable(dbServer_ip, dbServer_port, DEFAULT_DATABASE, dbServer_username, dbServer_password, DEFAULT_DATABASE_TYPE);
+        boolean default_database_available = CarparkDataBaseUtil.checkoutDatabaseAvailable(dbServer_ip, dbServer_port, DEFAULT_DATABASE, dbServer_username, dbServer_password, dbServer_Type);
         if(default_database_available){
             commonui.info("提示", "数据库连接信息测试成功！");
             return;
@@ -195,7 +229,7 @@ public class ServerUI {
         writeToConfig();
         String databaseFolder = Paths.get(System.getProperty("user.dir")).getParent().getParent().toString() + File.separator + "database" + File.separator;
 
-        String defaultCreateDatabaseSql = getDefaultCreateDatabaseSql(DEFAULT_DATABASE_TYPE, databaseFolder);
+        String defaultCreateDatabaseSql = getDefaultCreateDatabaseSql(dbServer_Type, databaseFolder);
         Progress showProgressBar = commonui.showProgressBar("初始化数据库", 0, 2);
         ProcessBarMonitor monitor = showProgressBar.getMonitor();
         
@@ -208,8 +242,8 @@ public class ServerUI {
 					    System.out.println("创建数据库目录成功："+defaultCreateDatabaseSql);
 					    monitor.showMessage("创建数据库目录成功");
 					}
-
-					boolean b = DatabaseUtil.executeSQL(dbServer_ip, dbServer_port, ORIGINAL_DATABASE, dbServer_username, dbServer_password, defaultCreateDatabaseSql, DEFAULT_DATABASE_TYPE);
+					monitor.showMessage("准备创建基础的数据库文件");
+					boolean b = CarparkDataBaseUtil.executeSQL(dbServer_ip, dbServer_port, ORIGINAL_DATABASE, dbServer_username, dbServer_password, defaultCreateDatabaseSql, dbServer_Type);
 					if(!b){
 					    throw new DongluServiceException("创建基础的数据库文件失败");
 					}
@@ -228,47 +262,6 @@ public class ServerUI {
 				}
 			}
 		}.run();
-//        Task<Boolean> task = new Task<Boolean>() {
-//            @Override
-//            protected Boolean call() throws Exception {
-//                Path path = Paths.get(databaseFolder);
-//                if(!Files.exists(path)){
-//                    Files.createDirectory(path);
-//                    System.out.println("创建数据库目录成功："+defaultCreateDatabaseSql);
-//                }
-//
-//                boolean b = DatabaseUtil.executeSQL(dbServer_ip, dbServer_port, ORIGINAL_DATABASE, dbServer_username, dbServer_password, defaultCreateDatabaseSql, DEFAULT_DATABASE_TYPE);
-//                if(!b){
-//                    throw new DongluServiceException("创建基础的数据库文件失败");
-//                }
-//                boolean createTableSuccess = createTable();
-//                if(!createTableSuccess){
-//                    throw new DongluServiceException("初始化数据库数据时发生严重错误，请检查软件初始化脚本是否完整");
-//                }
-//                return true;
-//            }
-//
-//            @Override
-//            protected void succeeded() {
-//                commonui.info("提示", "数据创建成功！系统将数据库文件默认保存在该目录下：\n" + databaseFolder);
-//                writeToConfig();
-//            }
-//
-//            @Override
-//            protected void failed() {
-//                commonui.error("错误", "数据库创建失败，请检查在默认路径下是否己经存在未关联的数据库文件："+ databaseFolder);
-//            }
-//
-//            @Override
-//            protected void cancelled() {
-//                commonui.error("错误", "数据库创建时被中断！");
-//            }
-//        };
-
-//        commonui.error("重要提示", "检查到默认的carpark数据库不存在,正在创建数据，请暂时不执行其他操作，这可能会影响数据初始化进程");
-//        commonui.showProgressBar("创建提示", 1, 2);
-//        System.out.println(task);
-//        new Thread(task).start();
 	}
 
 	private void writeToConfig() {
@@ -277,6 +270,7 @@ public class ServerUI {
 		instance.setDbServerPort(text_port.getText());
 		instance.setDbServerUsername(txt_name.getText());
 		instance.setDbServerPassword(txt_pwd.getText());
+		instance.setDbServerType(combo_dbServerType.getText());
 	}
 	public boolean createTable() {
         try {
@@ -302,7 +296,7 @@ public class ServerUI {
     }
 	public String getDefaultCreateDatabaseSql(String type,String databaseFolder){
         switch (type) {
-            case "SQLSERVER 2008":
+            case "SQLSERVER2008":
                 String mdfFilePath = databaseFolder + "carpark.mdf";
                 String ldfFilePath = databaseFolder + "carpark.ldf";
                 return "IF NOT EXISTS(SELECT * FROM sysDatabases WHERE name='carpark') CREATE DATABASE carpark ON PRIMARY (NAME= carpark_data, FILENAME='"+mdfFilePath+"', SIZE=10, FILEGROWTH= 10%) LOG ON (NAME=carpark_log, FILENAME='"+ldfFilePath+"', SIZE=10, FILEGROWTH= 10% )";

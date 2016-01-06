@@ -464,6 +464,7 @@ public class Login {
 			instance.setDbServerPort(s[1]);
 			instance.setDbServerUsername(s[2]);
 			instance.setDbServerPassword(s[3]);
+			instance.setDbServerType(s[4]);
 			FileUtils.writeObject(ClientConfigUI.CARPARK_CLIENT_CONFIG, instance);
 			return true;
 		} catch (Exception e) {

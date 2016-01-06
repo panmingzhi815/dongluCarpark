@@ -80,11 +80,22 @@ public class StoreFreeListPresenter extends AbstractListPresenter<SingleCarparkS
 	}
 
 	public void exportAll() {
-		/*
-		 * String selectToSave = commonui.selectToSave(); if (StrUtil.isEmpty(selectToSave)) { return; } String path = StrUtil.checkPath(selectToSave, new String[] { ".xls", ".xlsx" }, ".xls");
-		 * ExcelImportExport export=new ExcelImportExportImpl(); List<SingleCarparkUser> allList = view.getModel().getList(); try { export.exportUser(path, allList);
-		 * sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "导出了"+allList.size()+"条记录"); commonui.info("导出提示", "导出成功！"); } catch (Exception e) { e.printStackTrace();
-		 * commonui.error("导出提示", "导出时发生错误！"+e.getMessage()); }
-		 * 
-		 */}
+
+		String selectToSave = commonui.selectToSave();
+		if (StrUtil.isEmpty(selectToSave)) {
+			return;
+		}
+		String path = StrUtil.checkPath(selectToSave, new String[] { ".xls", ".xlsx" }, ".xls");
+		ExcelImportExport export = new ExcelImportExportImpl();
+		List<SingleCarparkStoreFreeHistory> list = view.getModel().getList();
+		try {
+			export.export(path, view.getNameProperties(), view.getColumnProperties(), list);
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.商铺, "导出了" + list.size() + "条商铺免费记录");
+			commonui.info("导出提示", "导出成功！");
+		} catch (Exception e) {
+			e.printStackTrace();
+			commonui.error("导出提示", "导出时发生错误！" + e.getMessage());
+		}
+
+	}
 }

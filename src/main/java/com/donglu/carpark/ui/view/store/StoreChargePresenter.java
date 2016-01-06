@@ -26,5 +26,8 @@ public class StoreChargePresenter  extends AbstractListPresenter<SingleCarparkSt
 	public void search(String storeName, String operaName, Date start, Date end) {
 		listPresenter.search(storeName,operaName,start,end);
 	}
+	public void export() {
+		listPresenter.exportAll();
+	}
 	
 }

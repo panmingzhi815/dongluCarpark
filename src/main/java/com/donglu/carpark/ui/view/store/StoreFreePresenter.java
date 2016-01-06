@@ -26,5 +26,9 @@ public class StoreFreePresenter  extends AbstractListPresenter<SingleCarparkStor
 	public void search(String storeName, String operaName, String used, Date start, Date end) {
 		listPresenter.search(storeName,operaName,used,start,end);
 	}
+	public void export() {
+		listPresenter.exportAll();
+		
+	}
 	
 }

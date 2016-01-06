@@ -24,7 +24,7 @@ public class ServerServlet extends HttpServlet {
 			response.setContentType("text/html;charset=UTF-8");
 			PrintWriter out = response.getWriter();
 			CarparkServerConfig instance = CarparkServerConfig.getInstance();
-			String s = StrUtil.getHostIp()+"/"+instance.getDbServerPort()+"/"+instance.getDbServerUsername()+"/"+instance.getDbServerPassword();
+			String s = StrUtil.getHostIp()+"/"+instance.getDbServerPort()+"/"+instance.getDbServerUsername()+"/"+instance.getDbServerPassword()+"/"+instance.getDbServerType();
 			System.out.println(s);
 			out.print(s);
 			out.flush();

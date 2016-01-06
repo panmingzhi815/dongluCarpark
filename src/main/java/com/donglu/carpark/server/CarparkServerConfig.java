@@ -8,8 +8,12 @@ import java.util.Date;
 import java.util.Properties;
 
 public class CarparkServerConfig implements Serializable{
-	
+//	public enum DBType{
+//		SQLSERVER2008,SQLSERVER2005,MYSQL
+//	}
+	private static final String MYSQL = "MYSQL";
 	public static final String SQLSERVER2008 = "SQLSERVER2008";
+	private static final String SQLSERVER2005 = "SQLSERVER2005";
 	public static final String CARPARK = "carpark";
 	public final String configFileName = "CarparkServerConfig.properties";
 	public static CarparkServerConfig instance;
@@ -19,7 +23,7 @@ public class CarparkServerConfig implements Serializable{
 	private boolean autoStartDBServer;
 	private String hwDbService;
 
-	private String dbServerType;
+	private String dbServerType=SQLSERVER2008;
 	private String dbServerIp;
 	private String dbServerPort;
 	private String dbServerUsername;
@@ -165,13 +169,16 @@ public class CarparkServerConfig implements Serializable{
 
 	public void setDbServerType(String dbServerType) {
 		this.dbServerType = dbServerType;
+		saveConfig();
 	}
 
 	public String getDbServerDriver() {
 		switch (this.dbServerType) {
 		case SQLSERVER2008:
 			return "net.sourceforge.jtds.jdbc.Driver";
-		case "MYSQL":
+		case SQLSERVER2005:
+			return "net.sourceforge.jtds.jdbc.Driver";
+		case MYSQL:
 			return "com.mysql.jdbc.Driver";
 		default:
 			return null;
@@ -182,7 +189,9 @@ public class CarparkServerConfig implements Serializable{
 		switch (this.dbServerType) {
 		case SQLSERVER2008:
 			return String.format("jdbc:jtds:sqlserver://%s:%s/carpark", this.dbServerIp,this.dbServerPort);
-		case "MYSQL":
+		case SQLSERVER2005:
+			return String.format("jdbc:jtds:sqlserver://%s:%s/carpark", this.dbServerIp,this.dbServerPort);
+		case MYSQL:
 			return String.format("jdbc:mysql://%s:%s/carpark", this.dbServerIp,this.dbServerPort);
 		default:
 			return null;
@@ -193,7 +202,7 @@ public class CarparkServerConfig implements Serializable{
 		switch (this.dbServerType) {
 		case SQLSERVER2008:
 			return String.format("jdbc:jtds:sqlserver://%s:%s/master", this.dbServerIp,this.dbServerPort);
-		case "MYSQL":
+		case MYSQL:
 			return String.format("jdbc:mysql://%s:%s/mysql", this.dbServerIp,this.dbServerPort);
 		default:
 			return null;
@@ -206,7 +215,7 @@ public class CarparkServerConfig implements Serializable{
 			String mdfFilePath = databaseFolder + "carpark.mdf";
 			String ldfFilePath = databaseFolder + "carpark.ldf";
 			return "IF NOT EXISTS(SELECT * FROM sysDatabases WHERE name='carpark') CREATE DATABASE carpark ON PRIMARY (NAME= onecard_data, FILENAME='"+mdfFilePath+"', SIZE=10, FILEGROWTH= 10%) LOG ON (NAME=onecard_log, FILENAME='"+ldfFilePath+"', SIZE=10, FILEGROWTH= 10% )";
-		case "MYSQL":
+		case MYSQL:
 			return "CREATE DATABASE IF NOT EXISTS onecard CHARACTER SET 'utf8'";
 		default:
 			return null;

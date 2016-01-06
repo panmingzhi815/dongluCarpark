@@ -9,6 +9,9 @@ import java.util.Properties;
 
 public class CarparkClientConfig implements Serializable{
 	
+	private static final String SQLSERVER2008 = "SQLSERVER2008";
+	private static final String SQLSERVER2005 = "SQLSERVER2005";
+	private static final String MYSQL = "MYSQL";
 	public final String configFileName = "CarparkClientConfig.properties";
 	public static CarparkClientConfig instance;
 
@@ -17,7 +20,7 @@ public class CarparkClientConfig implements Serializable{
 	private String dbServerUsername;
 	private String dbServerPassword;
 	
-	private String dbServerType;
+	private String dbServerType=SQLSERVER2008;
 	
 	private CarparkClientConfig(){}
 	
@@ -102,9 +105,11 @@ public class CarparkClientConfig implements Serializable{
 	}
 	public String getDbServerDriver() {
 		switch (this.dbServerType) {
-		case "SQLSERVER2008":
+		case SQLSERVER2008:
 			return "net.sourceforge.jtds.jdbc.Driver";
-		case "MYSQL":
+		case SQLSERVER2005:
+			return "net.sourceforge.jtds.jdbc.Driver";
+		case MYSQL:
 			return "com.mysql.jdbc.Driver";
 		default:
 			return null;
@@ -112,9 +117,11 @@ public class CarparkClientConfig implements Serializable{
 	}
 	public String getDbServerURL() {
 		switch (this.dbServerType) {
-		case "SQLSERVER2008":
+		case SQLSERVER2008:
 			return String.format("jdbc:jtds:sqlserver://%s:%s/carpark", this.dbServerIp,this.dbServerPort);
-		case "MYSQL":
+		case SQLSERVER2005:
+			return String.format("jdbc:jtds:sqlserver://%s:%s/carpark", this.dbServerIp,this.dbServerPort);
+		case MYSQL:
 			return String.format("jdbc:mysql://%s:%s/carpark", this.dbServerIp,this.dbServerPort);
 		default:
 			return null;

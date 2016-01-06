@@ -62,13 +62,13 @@ public class CarparkClientLocalVMServiceProvider extends AbstractCarparkDatabase
 
         @Override
         protected void configure() {
-            final JpaPersistModule jpaPersistModule =
-                    new JpaPersistModule("SQLSERVER2008");
             CarparkClientConfig cf=(CarparkClientConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
             if (cf==null) {
 				return;
 			}
-            cf.setDbServerType("SQLSERVER2008");
+            final JpaPersistModule jpaPersistModule =
+            		new JpaPersistModule(cf.getDbServerType());
+            cf.setDbServerType(cf.getDbServerType());
             cf.setDbServerIp(CarparkClientConfig.getInstance().getDbServerIp());
             final Properties properties = new Properties();
             String dbServerDriver = cf.getDbServerDriver();
