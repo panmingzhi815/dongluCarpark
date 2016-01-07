@@ -837,6 +837,8 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}else{
 				c.add(Restrictions.or(Restrictions.gt("id", id),Restrictions.or(l.toArray(new SimpleExpression[l.size()]))));
 			}
+			c.setFirstResult(0);
+			c.setMaxResults(50);
 			return c.getResultList();
 		} finally{
 			unitOfWork.end();
@@ -849,6 +851,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			if (id==0) {
+				c.add(Restrictions.le(SingleCarparkInOutHistory.Property.outTime.name(), StrUtil.getTodayTopTime(new Date())));
+			}
 			List<SimpleExpression> l=new ArrayList<>();
 			if (!StrUtil.isEmpty(errorIds)) {
 				for (Long long1 : errorIds) {
@@ -861,6 +866,8 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			} else {
 				c.add(Restrictions.or(Restrictions.gt("id", id), Restrictions.or(l.toArray(new SimpleExpression[l.size()]))));
 			}
+			c.setFirstResult(0);
+			c.setMaxResults(50);
 			return c.getResultList();
 		} finally{
 			unitOfWork.end();

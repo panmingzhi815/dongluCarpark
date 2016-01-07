@@ -1,0 +1,5 @@
+yunServerAddress 云服务地址 例如：http://127.0.0.1:8080/store/StoreServlet
+resolveAddress 解析的ip地址 例如：www.baidu.com
+autoSendInfoToCloud 启动云服务 true 则启动
+company 物业名称 ，autoSendInfoToCloud值为true才会使用
+area 停车场名称，autoSendInfoToCloud值为true才会使用

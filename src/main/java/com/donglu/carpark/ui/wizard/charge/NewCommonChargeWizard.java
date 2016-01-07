@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.graphics.Rectangle;
 
 /**
  * Created with IntelliJ IDEA.
@@ -50,7 +51,7 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
         page = new NewCommonChargeBasicPage(model);
         addPage(page);
         getShell().setImage(JFaceUtil.getImage("carpark_32"));
-        getShell().setSize(700, 900);
+        getShell().setSize(730, 530);
     }
 
     @Override
@@ -153,5 +154,11 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
 		}
     	return false;
     }
-    
+    public void setSize(boolean flag){
+    	if (flag) {
+    		getShell().setSize(730, 530);
+		}else{
+			getShell().setSize(730, 900);
+		}
+    }
 }

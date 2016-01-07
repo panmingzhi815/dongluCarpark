@@ -43,6 +43,7 @@ import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkHolidayTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
@@ -402,6 +403,13 @@ public class CarparkManagePresenter {
 		if (carparkCharge != null) {
 			BeanUtil.copyProperties(carparkCharge, model, CarparkChargeStandard.Property.values());
 			model.setFreeTimeEnable(model.getAcrossdayChargeEnable() == 1 ? "是" : "否");
+			
+			if (model.getCarparkHolidayTypeEnum().equals(CarparkHolidayTypeEnum.非工作日)) {
+				
+			}
+			if (model.getFreeTime()>0) {
+				
+			}
 		} else {
 			model.setFreeTime(0);
 			model.setOnedayMaxCharge(0F);
@@ -409,6 +417,7 @@ public class CarparkManagePresenter {
 			model.setStartStepTime(0);
 		}
 		model.setCarparkCarTypeList(carparkService.getCarparkCarTypeList());
+		
 		NewCommonChargeWizard wizard = new NewCommonChargeWizard(model, sp, commonui);
 
 		// NewCommonChargeWizard newCommonChargeWizard = wizardFactory.createNewCommonChargeWizard(model);

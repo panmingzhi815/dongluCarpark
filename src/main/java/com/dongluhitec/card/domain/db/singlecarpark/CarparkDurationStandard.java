@@ -34,6 +34,8 @@ public class CarparkDurationStandard extends DomainObject{
 	@Column(name="unit_duration")
 	private Integer unitDuration;
 	
+	private Float maxPrice;
+	
 	@Column(name="unit_price")
 	private Float unitPrice;
 	
@@ -172,5 +174,15 @@ public class CarparkDurationStandard extends DomainObject{
 		this.startStepPrice = startStepPrice;
 		if (pcs != null)
 			pcs.firePropertyChange("startStepPrice", null, null);
+	}
+
+	public Float getMaxPrice() {
+		return maxPrice;
+	}
+
+	public void setMaxPrice(Float maxPrice) {
+		this.maxPrice = maxPrice;
+		if (pcs != null)
+			pcs.firePropertyChange("maxPrice", null, null);
 	}
 }

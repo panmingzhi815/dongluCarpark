@@ -419,7 +419,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 							continue;
 						}
 						for (WatchEvent<?> event : key.pollEvents()) {
-							System.out.println(event.context().toString().substring(0, MAP_IP_TO_DEVICE.length()) + "发生了" + event.kind() + "事件");
+//							System.out.println(event.context().toString().substring(0, MAP_IP_TO_DEVICE.length()) + "发生了" + event.kind() + "事件");
 							boolean equals = event.context().toString().substring(0, MAP_IP_TO_DEVICE.length()).equals(MAP_IP_TO_DEVICE);
 							if (equals) {
 								readDevices();
@@ -449,7 +449,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					presenter.showNowTimeToDevice(mapIpToDevice.get(c));
 				}
 			}
-		}, 60, 60 * 60, TimeUnit.SECONDS);
+		}, 1, 60 * 60, TimeUnit.SECONDS);
 
 	}
 

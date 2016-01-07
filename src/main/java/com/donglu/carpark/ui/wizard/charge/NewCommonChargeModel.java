@@ -16,7 +16,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 public class NewCommonChargeModel extends CarparkChargeStandard {
 	
 	private static final long serialVersionUID = 1328643144822716698L;
-
+	private boolean checkHolidayType=false;
+	private boolean checkFreeTime=false;
 	public static enum Property{
 		carparkCarTypeList,freeTimeEnable
 	}
@@ -47,7 +48,24 @@ public class NewCommonChargeModel extends CarparkChargeStandard {
 		}
 		
 	}
-	
-	
-	
+
+	public boolean isCheckHolidayType() {
+		return checkHolidayType;
+	}
+
+	public void setCheckHolidayType(boolean checkHolidayType) {
+		this.checkHolidayType = checkHolidayType;
+		if (pcs != null)
+			pcs.firePropertyChange("checkHolidayType", null, null);
+	}
+
+	public boolean isCheckFreeTime() {
+		return checkFreeTime;
+	}
+
+	public void setCheckFreeTime(boolean checkFreeTime) {
+		this.checkFreeTime = checkFreeTime;
+		if (pcs != null)
+			pcs.firePropertyChange("checkFreeTime", null, null);
+	}
 }

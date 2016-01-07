@@ -6,7 +6,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -352,12 +354,43 @@ public class ImageServerUI {
 			e.printStackTrace();
 		}
 		autoDeleteSameInOutHistory();
-		if (System.getProperty("autoSendInfoToCloud")==null||System.getProperty("autoSendInfoToCloud").equals("false")) {
+		if (System.getProperty("autoSendInfoToCloud")!=null&&System.getProperty("autoSendInfoToCloud").equals("true")) {
 			autoSendInfoToCloud();
 		}
-		
+		autoUpdateIpToYunServer();
 		
 	}
+	private void autoUpdateIpToYunServer() {
+		String ip="";
+		String yunServerAddress = System.getProperty("yunServerAddress");
+		String resolveAddress=System.getProperty("resolveAddress");
+		LOGGER.info("云服务器地址{},需要解析的地址为：{}",yunServerAddress,resolveAddress);
+		if (StrUtil.isEmpty(yunServerAddress)||StrUtil.isEmpty(resolveAddress)) {
+			return;
+		}
+		ScheduledExecutorService deleteExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("没隔10秒解析本地ip"));
+		deleteExecutor.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					InetAddress server=InetAddress.getByName(resolveAddress);
+					String hostIp = server.getHostAddress();
+					LOGGER.info("解析后的ip为{}",hostIp);
+					if (!StrUtil.isEmpty(ip)&&ip.equals(hostIp)) {
+						return;
+					}
+					String actionUrl=yunServerAddress+"?method=updateIp&updateIp="+Base64.getEncoder().encodeToString(hostIp.getBytes("utf-8"));
+					LOGGER.info("准备发送ip{}到{}",hostIp,actionUrl);
+					String upload = FileuploadSend.upload(actionUrl, null);
+					LOGGER.info("发送结果为{}",upload);
+				} catch (Exception e) {
+					LOGGER.info("解析域名失败",e);
+				}
+			}
+		}, 10, 10, TimeUnit.SECONDS);
+		
+	}
+
 	private void autoDeleteSameInOutHistory() {
 		ScheduledExecutorService deleteExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每隔一小时清除数据库的重复进出场记录"));
 		deleteExecutor.scheduleWithFixedDelay(new Runnable() {
@@ -375,6 +408,12 @@ public class ImageServerUI {
 	 */
 	@SuppressWarnings("unchecked")
 	private void autoSendInfoToCloud() {
+		int uploadTime = 10;
+		String ot = System.getenv("oploadTime");
+		if (ot!=null) {
+			Integer valueOf = Integer.valueOf(ot);
+			uploadTime=valueOf;
+		}
 		ScheduledExecutorService userExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传用户数据到云平台"));
 		ScheduledExecutorService inExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传进场数据到云平台"));
 		ScheduledExecutorService outExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传出场数据到云平台"));
@@ -410,7 +449,7 @@ public class ImageServerUI {
 				FileUtils.writeObject("userLastUploadId",id);
 				FileUtils.writeObject("userErrorUploadId",errorIds);
 			}
-		}, 5, 5, TimeUnit.MINUTES);
+		}, uploadTime, uploadTime, TimeUnit.SECONDS);
 		inExecutor.scheduleWithFixedDelay(new Runnable() {
 
 			@Override
@@ -441,7 +480,7 @@ public class ImageServerUI {
 				FileUtils.writeObject("inLastUploadId",id);
 				FileUtils.writeObject("inErrorUploadId",errorIds);
 			}
-		}, 5, 5, TimeUnit.MINUTES);
+		}, uploadTime, uploadTime, TimeUnit.SECONDS);
 		
 		outExecutor.scheduleWithFixedDelay(new Runnable() {
 			@Override
@@ -473,7 +512,7 @@ public class ImageServerUI {
 				FileUtils.writeObject("outLastUploadId",id);
 				FileUtils.writeObject("outErrorUploadId",errorIds);
 			}
-		}, 5, 5, TimeUnit.MINUTES);
+		}, uploadTime, uploadTime, TimeUnit.SECONDS);
 		
 		infoExecutor.scheduleWithFixedDelay(new Runnable() {
 			@Override
@@ -490,7 +529,7 @@ public class ImageServerUI {
 					e.printStackTrace();
 				}
 			}
-		}, 5, 5, TimeUnit.MINUTES);
+		}, uploadTime, uploadTime, TimeUnit.SECONDS);
 
 	}
 

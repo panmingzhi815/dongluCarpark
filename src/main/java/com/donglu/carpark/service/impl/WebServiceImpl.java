@@ -12,7 +12,6 @@ import org.slf4j.helpers.MessageFormatter;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.WebService;
-import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -23,15 +22,26 @@ import com.google.inject.Inject;
 public class WebServiceImpl implements  WebService{
 	private static final Logger LOGGER = LoggerFactory.getLogger(WebServiceImpl.class);
 	private static final String url="http://112.124.115.117/WebService/RQDataExchange.asmx?WSDL";
-	private static final String company="深圳市元诺智能系统有限公司";
-	private static final String area="测试停车场";
+	private static String company="深圳市元诺智能系统有限公司";
+	private static String area="测试停车场";
 	private JaxWsDynamicClientFactory factory;
 	private Client client;
-	
+	public WebServiceImpl(){
+		String c = System.getProperty("company");
+		String a = System.getProperty("area");
+		if (!StrUtil.isEmpty(c)) {
+			company=c;
+		}
+		if (!StrUtil.isEmpty(a)) {
+			area=a;
+		}
+		
+	}
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
 	@Override
 	public boolean sendUser(SingleCarparkUser u) {
+		
 		String content="<Root LicenseNumber =\"{}\" KaTypeName=\"{}\" Back=\"{}\" CLAdder=\"{}\" CLName=\"{}\" "
 				+ "CLDH=\"{}\" StartDate =\"{}\" EndDate =\"{}\" DutyNumber =\"\" DutyName =\"\" "
 				+ "ChargesAmount =\"{}\" Company =\"{}\" Area=\"{}\"></Root>";
@@ -108,7 +118,7 @@ public class WebServiceImpl implements  WebService{
 		int totalCar=sp.getCarparkInOutService().findTotalCarIn(carpark);
 		int tempCar=sp.getCarparkInOutService().findTotalTempCarIn(carpark);
 		int fixCar=sp.getCarparkInOutService().findTotalFixCarIn(carpark);
-		LOGGER.info("停车场{},场内车辆总数{}，场内临时车总数{}，场内固定车总数{}",totalCar,tempCar,fixCar);
+		LOGGER.info("停车场{},场内车辆总数{}，场内临时车总数{}，场内固定车总数{}",carpark,totalCar,tempCar,fixCar);
 		Object send = send(url,"VehicleData", content, totalCar,tempCar,fixCar,company,area);
 		String s=(String) send;
 		int parseInt = Integer.parseInt(s.substring(13, 14));
