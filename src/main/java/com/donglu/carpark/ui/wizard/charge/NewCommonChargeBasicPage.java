@@ -442,7 +442,11 @@ public class NewCommonChargeBasicPage extends WizardPage {
 						CarparkDurationPrice carparkDurationPrice = new CarparkDurationPrice();
 	        			int durationLength = i+1;
 						carparkDurationPrice.setDurationLength(durationLength);
-	        			carparkDurationPrice.setDurationLengthPrice(((60*durationLength)/valueOf)*valueOf2);
+	        			float durationLengthPrice = ((60*durationLength)/valueOf)*valueOf2;
+	        			if (carparkDurationStandard.getMaxPrice()!=null&&carparkDurationStandard.getMaxPrice()>0&&durationLengthPrice>carparkDurationStandard.getMaxPrice()) {
+	        				durationLengthPrice=carparkDurationStandard.getMaxPrice();
+						}
+						carparkDurationPrice.setDurationLengthPrice(durationLengthPrice);
 	        			carparkDurationStandard.addCarparkDurationPriceList(carparkDurationPrice);
 					}
 				}
