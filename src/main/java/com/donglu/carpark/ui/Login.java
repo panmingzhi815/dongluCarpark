@@ -19,52 +19,29 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
 import com.beust.jcommander.JCommander;
-import com.donglu.carpark.server.CarparkHardwareGuiceModule;
-import com.donglu.carpark.server.CarparkServerConfig;
-import com.donglu.carpark.server.ServerUI;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
-import com.donglu.carpark.service.CarparkClientLocalVMServiceProvider;
+import com.donglu.carpark.server.module.CarparkClientGuiceModule;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
-import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.CarparkFileUtils;
-import com.dongluhitec.card.blservice.DatabaseServiceProvider;
-import com.dongluhitec.card.blservice.HardwareFacility;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
-import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.setting.SNSettingType;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
-import com.dongluhitec.card.domain.security.LocalSecurityManager;
-import com.dongluhitec.card.domain.security.impl.SecurityManagerImpl;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.hardware.HardwareGuiceModule;
-import com.dongluhitec.card.hardware.service.BasicHardwareService;
-import com.dongluhitec.card.hardware.service.impl.BasicHardwareServiceSyncImpl;
-import com.dongluhitec.card.hardware.util.HardwareFacilityImpl;
-import com.dongluhitec.card.server.ServerConfigurator;
-import com.dongluhitec.card.service.ServiceGuiceModule;
-import com.dongluhitec.card.service.impl.LocalVMServiceProvider;
 import com.dongluhitec.card.ui.main.DongluUIAppConfigurator;
-import com.dongluhitec.card.ui.main.guice.CardUIViewerGuiceModule;
-import com.dongluhitec.card.ui.main.javafx.DongluJavaFXModule;
 import com.dongluhitec.card.ui.util.WidgetUtil;
-import com.google.inject.AbstractModule;
-import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Singleton;
-import com.google.inject.name.Names;
 
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 
@@ -73,8 +50,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -83,15 +58,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.swt.graphics.Point;
 
 public class Login {
 	private static final String USER_NAMES = "userNames";
@@ -144,18 +114,9 @@ public class Login {
 				try {
 					DongluUIAppConfigurator configurator = new DongluUIAppConfigurator();
 					new JCommander(configurator, args);
-					Injector createInjector = Guice.createInjector(new AbstractModule() {
-						@Override
-						protected void configure() {
-							this.bindConstant().annotatedWith(Names.named("HBM2DDL")).to("update");
-							this.bind(HardwareFacility.class).to(HardwareFacilityImpl.class);
-							this.bind(CarparkDatabaseServiceProvider.class).to(CarparkClientLocalVMServiceProvider.class).in(Singleton.class);
-							this.bind(CarparkServerConfig.class).toInstance(CarparkServerConfig.getInstance());
-							// this.bind(LocalSecurityManager.class).to(SecurityManagerImpl.class);
-
-						}
-					}, new CarparkHardwareGuiceModule(), new CommonUIGuiceModule());
-
+					long nanoTime = System.nanoTime();
+					Injector createInjector = Guice.createInjector(new CarparkClientGuiceModule());
+					System.out.println("依赖注入用时==="+(System.nanoTime()-nanoTime));
 					Login window = createInjector.getInstance(Login.class);
 					window.open();
 				} catch (Exception e) {

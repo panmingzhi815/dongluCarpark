@@ -75,7 +75,6 @@ import org.eclipse.swt.events.MouseEvent;
 public class NewCommonChargeBasicPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
 	
-	private final String INPUTLAYOUTDATA = "w 100!";
 
     private final NewCommonChargeModel model;
     private Composite container;
@@ -85,9 +84,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 	
 	private List<Integer> existHour = new ArrayList<Integer>();
 
-	private Text text_crossDayUnitTimeLength;
 
-	private Text text_crossDayUnitPrice;
 	private Composite composite_1;
 	private Text text;
 	private Text text_1;
@@ -360,11 +357,10 @@ public class NewCommonChargeBasicPage extends WizardPage {
 		}
     	int nowMinute=0;
     	float nowPrice=0;
-    	String freeTime = text_freeTime.getText();
-		Integer freeTimeInt = Integer.valueOf(freeTime);
-		if (!StrUtil.isEmpty(freeTime)&&freeTimeInt>0) {
+    	int freeTime = model.getFreeTime();
+		if (freeTime>0) {
 			int flag=nowMinute;
-			Integer fTime = freeTimeInt;
+			Integer fTime = freeTime;
 			nowMinute+=fTime;
 			DurationInfo info=new DurationInfo();
 			info.setTime(nowMinute);
@@ -375,7 +371,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 		}
 		if (startStepTime>0) {
 			int flag=nowMinute;
-			nowMinute+=(startStepTime-freeTimeInt);
+			nowMinute+=(startStepTime-freeTime);
 			nowPrice=startStepPrice;
 			DurationInfo info=new DurationInfo();
 			info.setTime(nowMinute);
@@ -581,20 +577,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 			lblNewLabel_14.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 			Label lblNewLabel_15 = new Label(composite_6, SWT.SHADOW_IN);
-			lblNewLabel_15.addMouseListener(new MouseAdapter() {
-				boolean flag = false;
-
-				@Override
-				public void mouseDoubleClick(MouseEvent e) {
-					getWizard().setSize(flag);
-					flag = !flag;
-					if (flag) {
-						lblNewLabel_15.setText("︾");
-					} else {
-						lblNewLabel_15.setText("︽");
-					}
-				}
-			});
+			
 			lblNewLabel_15.setText("︾");
 			lblNewLabel_15.setBounds(0, 0, 61, 17);
 
@@ -617,15 +600,27 @@ public class NewCommonChargeBasicPage extends WizardPage {
 			tableColumn_1.setWidth(156);
 			tableColumn_1.setText("收费金额");
 			button_4.addSelectionListener(new SelectionAdapter() {
-				boolean v=false;
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					initHourPrice(text_startStepTime, text_startStepPrice, text_mapPrice, unitDurationLength, unitDurationPrice, table, carparkDurationStandard.getCarparkDurationPriceList().size());
-					table.setVisible(v);
-					v=!v;
+					table.setVisible(true);
 				}
 			});
-			// initHourPrice(text_startStepTime, text_startStepPrice, text_mapPrice, unitDurationLength, unitDurationPrice, table);
+			lblNewLabel_15.addMouseListener(new MouseAdapter() {
+				boolean flag = false;
+
+				@Override
+				public void mouseDoubleClick(MouseEvent e) {
+					table.setVisible(flag);
+					flag = !flag;
+					if (flag) {
+						lblNewLabel_15.setText("︾");
+					} else {
+						lblNewLabel_15.setText("︽");
+					}
+				}
+			});
+			 initHourPrice(text_startStepTime, text_startStepPrice, text_mapPrice, unitDurationLength, unitDurationPrice, table,carparkDurationStandard.getCarparkDurationPriceList().size());
 			tabItem_1.setControl(composite_2);
 			tf.setSelection(tabItem_1);
 		}

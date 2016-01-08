@@ -23,13 +23,12 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 
-import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.ServerUI;
+import com.donglu.carpark.server.module.CarparkServerGuiceModule;
 import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.server.servlet.ServerServlet;
 import com.donglu.carpark.server.servlet.StoreServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
-import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.WebService;
 import com.donglu.carpark.ui.Login;
@@ -39,7 +38,6 @@ import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.SystemUpdate;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
-import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.setting.SNSettingType;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
@@ -54,12 +52,10 @@ import com.dongluhitec.core.crypto.appauth.AppAuthorization;
 import com.dongluhitec.core.crypto.appauth.AppVerifier;
 import com.dongluhitec.core.crypto.appauth.AppVerifierImpl;
 import com.dongluhitec.core.crypto.softdog.SoftDogWin;
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import com.google.inject.name.Names;
 
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -116,14 +112,7 @@ public class ImageServerUI {
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
 			public void run() {
 				try {
-					Injector createInjector = Guice.createInjector(new CommonUIGuiceModule(), new AbstractModule() {
-						@Override
-						protected void configure() {
-							this.bindConstant().annotatedWith(Names.named("HBM2DDL")).to("update");
-							bind(CarparkServerConfig.class).toInstance(CarparkServerConfig.getInstance());
-							bind(CarparkDatabaseServiceProvider.class).to(CarparkLocalVMServiceProvider.class);
-						}
-					});
+					Injector createInjector = Guice.createInjector(new CarparkServerGuiceModule());
 					ImageServerUI window = createInjector.getInstance(ImageServerUI.class);
 					window.open();
 				} catch (Exception e) {

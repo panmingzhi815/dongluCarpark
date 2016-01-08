@@ -51,7 +51,7 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
         page = new NewCommonChargeBasicPage(model);
         addPage(page);
         getShell().setImage(JFaceUtil.getImage("carpark_32"));
-        getShell().setSize(730, 530);
+        getShell().setSize(730, 700);
     }
 
     @Override

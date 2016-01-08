@@ -1,4 +1,4 @@
-package com.donglu.carpark.server;
+package com.donglu.carpark.server.module;
 
 import com.dongluhitec.card.hardware.hanwangAllInOne.LicencePlatesAllInOne;
 import com.dongluhitec.card.hardware.hanwangAllInOne.impl.LicencePlatesAllInOneImpl;
