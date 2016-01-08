@@ -13,10 +13,10 @@ import org.eclipse.swt.widgets.Text;
 
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
+import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.ui.util.FileUtils;
 import com.google.inject.Inject;
 
 import org.eclipse.swt.widgets.Button;
@@ -46,7 +46,7 @@ public class ClientConfigUI {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		CarparkServerConfig config = (CarparkServerConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
+		CarparkServerConfig config = (CarparkServerConfig) CarparkFileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
 		System.out.println(config);
 	}
 
@@ -125,7 +125,7 @@ public class ClientConfigUI {
 			instance.setDbServerUsername(s[2]);
 			instance.setDbServerPassword(s[3]);
 			System.out.println(instance);
-			FileUtils.writeObject(CARPARK_CLIENT_CONFIG, instance);
+			CarparkFileUtils.writeObject(CARPARK_CLIENT_CONFIG, instance);
 			writeToConfig();
 			commonui.info("连接成功", "连接成功");
 		} catch (Exception e) {

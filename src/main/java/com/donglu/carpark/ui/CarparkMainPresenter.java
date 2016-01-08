@@ -48,6 +48,7 @@ import com.donglu.carpark.ui.wizard.SearchHistoryByHandWizard;
 import com.donglu.carpark.ui.wizard.model.ChangeUserModel;
 import com.donglu.carpark.ui.wizard.model.ReturnAccountModel;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.LPRInOutType;
 import com.dongluhitec.card.domain.LinkProtocolEnum;
@@ -71,7 +72,6 @@ import com.dongluhitec.card.hardware.device.WebCameraDevice;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
 import com.dongluhitec.card.mapper.BeanUtil;
-import com.dongluhitec.card.ui.util.FileUtils;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
@@ -140,7 +140,7 @@ public class CarparkMainPresenter {
 			if (mapIpToDevice.keySet().size() <= 0) {
 				model.setCarpark(null);
 			}
-			com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
+			CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 			setIsTwoChanel();
 		}
 	}
@@ -198,7 +198,7 @@ public class CarparkMainPresenter {
 		}
 		mapIpToDevice.put(ip, device);
 		setIsTwoChanel();
-		com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
+		CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 		// sendPositionToAllDevice(true);
 	}
 
@@ -355,7 +355,7 @@ public class CarparkMainPresenter {
 			if (ip.equals(oldIp)) {
 				selection.setText(showWizard.getName());
 				mapIpToDevice.put(ip, device2);
-				com.dongluhitec.card.ui.util.FileUtils.writeObject("mapIpToDevice", mapIpToDevice);
+				CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 				commonui.info("修改成功", "修改设备" + ip + "成功");
 				log.info("发送平时显示类容");
 				showUsualContentToDevice(device2);
@@ -756,8 +756,8 @@ public class CarparkMainPresenter {
 				try {
 					byte[] bigImage = bigImage1 == null ? new byte[0] : bigImage1;
 					String fl = "/img/" + f;
-					if (!StrUtil.isEmpty(FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH))) {
-						String string = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
+					if (!StrUtil.isEmpty(CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH))) {
+						String string = (String) CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 						fl = string + fl;
 					}
 					File file = new File(fl);
@@ -799,10 +799,10 @@ public class CarparkMainPresenter {
 		openDoorTheadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
 		checkPlayerPlaying();
 
-		countTempCarCharge = (CountTempCarChargeI) FileUtils.readObject(COUNT_TEMP_CAR_CHARGE);
+		countTempCarCharge = (CountTempCarChargeI) CarparkFileUtils.readObject(COUNT_TEMP_CAR_CHARGE);
 		if (StrUtil.isEmpty(countTempCarCharge)) {
 			countTempCarCharge = new CountTempCarChargeImpl();
-			FileUtils.writeObject(COUNT_TEMP_CAR_CHARGE, countTempCarCharge);
+			CarparkFileUtils.writeObject(COUNT_TEMP_CAR_CHARGE, countTempCarCharge);
 		}
 		autoCheckDeviceLinkInfo();
 	}
@@ -1116,8 +1116,8 @@ public class CarparkMainPresenter {
 					byte[] bigImage = bigImage1 == null ? new byte[0] : bigImage1;
 					byte[] smallImage = smallImage1 == null ? new byte[0] : smallImage1;
 					String fl = "/img/" + f;
-					if (!StrUtil.isEmpty(FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH))) {
-						String string = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
+					if (!StrUtil.isEmpty(CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH))) {
+						String string = (String) CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 						fl = string + fl;
 					}
 					File file = new File(fl);

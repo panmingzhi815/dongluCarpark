@@ -1,6 +1,5 @@
 package com.donglu.carpark.service;
 
-import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.service.impl.CarparkInOutServiceImpl;
 import com.donglu.carpark.service.impl.CarparkServiceImpl;
 import com.donglu.carpark.service.impl.CarparkUserServiceImpl;
@@ -9,9 +8,8 @@ import com.donglu.carpark.service.impl.SystemOperaLogServiceImpl;
 import com.donglu.carpark.service.impl.SystemUserServiceImpl;
 import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.ClientConfigUI;
-import com.dongluhitec.card.domain.util.StrUtil;
+import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.service.MapperConfig;
-import com.dongluhitec.card.ui.util.FileUtils;
 import com.google.inject.*;
 import com.google.inject.name.Named;
 import com.google.inject.persist.PersistService;
@@ -62,7 +60,7 @@ public class CarparkClientLocalVMServiceProvider extends AbstractCarparkDatabase
 
         @Override
         protected void configure() {
-            CarparkClientConfig cf=(CarparkClientConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
+            CarparkClientConfig cf=(CarparkClientConfig) CarparkFileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
             if (cf==null) {
 				return;
 			}

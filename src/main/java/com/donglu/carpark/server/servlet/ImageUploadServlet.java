@@ -19,8 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.server.imgserver.ImageServerUI;
+import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.blservice.DongluServiceException;
-import com.dongluhitec.card.ui.util.FileUtils;
 import com.google.common.base.Strings;
 
 public class ImageUploadServlet extends HttpServlet {
@@ -41,7 +41,7 @@ public class ImageUploadServlet extends HttpServlet {
             return;
         }
         id = new String(Base64.getDecoder().decode(id), Charsets.UTF_8);
-        Object o=FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);
+        Object o=CarparkFileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):CarparkFileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);
         LOGGER.info("服务器图片保存位置{}，接收到请求图片：{}",o,id);
         String filePathFromId = parseFilePathFromId(id,o+"\\img\\");
         LOGGER.info("服务器图片位置：{}",filePathFromId);
@@ -83,7 +83,7 @@ public class ImageUploadServlet extends HttpServlet {
 						LOGGER.info("string",name);
 						String fileName =name.substring(name.lastIndexOf("img"), name.length());
 						LOGGER.info("fileName={}",fileName);
-						Object o=FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):FileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);
+						Object o=CarparkFileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):CarparkFileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);
 						String path =o +""+ File.separatorChar+ fileName;
 						// 上传文件
 						File uploadedFile =new File(path);

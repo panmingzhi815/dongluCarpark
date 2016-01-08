@@ -28,6 +28,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkLocalVMServiceProvider;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.blservice.DatabaseServiceProvider;
 import com.dongluhitec.card.blservice.HardwareFacility;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -50,7 +51,6 @@ import com.dongluhitec.card.service.impl.LocalVMServiceProvider;
 import com.dongluhitec.card.ui.main.DongluUIAppConfigurator;
 import com.dongluhitec.card.ui.main.guice.CardUIViewerGuiceModule;
 import com.dongluhitec.card.ui.main.javafx.DongluJavaFXModule;
-import com.dongluhitec.card.ui.util.FileUtils;
 import com.dongluhitec.card.ui.util.WidgetUtil;
 import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
@@ -188,6 +188,7 @@ public class Login {
 		shell.open();
 		shell.setImage(JFaceUtil.getImage("carpark_16"));
 		shell.layout();
+		shell.setFocus();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
@@ -239,7 +240,7 @@ public class Login {
 		cbo_userName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		comboViewer_1.setContentProvider(new ArrayContentProvider());
 		comboViewer_1.setLabelProvider(new LabelProvider());
-		list = (List<String>) FileUtils.readObject(USER_NAMES);
+		list = (List<String>) CarparkFileUtils.readObject(USER_NAMES);
 		if (list==null) {
 			list=new ArrayList<>();
 		}
@@ -272,7 +273,7 @@ public class Login {
 		comboViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				int i = combo.getSelectionIndex();
-				FileUtils.writeObject(selectType, i);
+				CarparkFileUtils.writeObject(selectType, i);
 			}
 		});
 		combo = comboViewer.getCombo();
@@ -283,7 +284,7 @@ public class Login {
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(new String[] { "监控界面", "管理界面" });
-		Object readObject = FileUtils.readObject(selectType);
+		Object readObject = CarparkFileUtils.readObject(selectType);
 		if (StrUtil.isEmpty(readObject)) {
 			combo.select(0);
 		} else {
@@ -362,7 +363,7 @@ public class Login {
 							userName = findByNameAndPassword.getUserName();
 							if (!list.contains(userName)) {
 								list.add(userName);
-								FileUtils.writeObject(USER_NAMES, list);
+								CarparkFileUtils.writeObject(USER_NAMES, list);
 							}
 							pwd = findByNameAndPassword.getPassword();
 							type = findByNameAndPassword.getType();
@@ -465,7 +466,7 @@ public class Login {
 			instance.setDbServerUsername(s[2]);
 			instance.setDbServerPassword(s[3]);
 			instance.setDbServerType(s[4]);
-			FileUtils.writeObject(ClientConfigUI.CARPARK_CLIENT_CONFIG, instance);
+			CarparkFileUtils.writeObject(ClientConfigUI.CARPARK_CLIENT_CONFIG, instance);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -516,7 +517,7 @@ public class Login {
 				SingleCarparkSystemSetting ss2 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存多少天.name());
 				int saveMonth = Integer.valueOf(ss2 == null ? SystemSettingTypeEnum.图片保存多少天.getDefaultValue() : ss2.getSettingValue());
 				LOGGER.info("图片保存多少天设置为{}", saveMonth);
-				String imgSavePath = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
+				String imgSavePath = (String) CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 				String savePath = (imgSavePath == null ? System.getProperty("user.dir") : imgSavePath) + "/img/";
 				Date d = new Date();
 				DateTime deleteTime = new DateTime(d).minusDays(saveMonth + 1);

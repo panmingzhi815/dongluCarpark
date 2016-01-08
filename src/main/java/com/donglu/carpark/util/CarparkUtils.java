@@ -42,7 +42,6 @@ import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.CarparkManageApp;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.ui.util.FileUtils;
 import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.common.io.Files;
 
@@ -294,7 +293,7 @@ public class CarparkUtils {
 		if (StrUtil.isEmpty(img)) {
 			return null;
 		}
-		String filePath=(String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
+		String filePath=(String) CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 		try {
 			byte[] image;
 			String pathname = (filePath==null?"":filePath)+"/img/"+img;
@@ -668,5 +667,30 @@ public class CarparkUtils {
 		} catch (Exception e) {
 			LOGGER.info("清理数据库中的重复进出场记录发生错误",e);
 		}
+	}
+	/**
+	 * 把分钟转成小时：分钟格式
+	 * @param minute
+	 * @return
+	 */
+	public static String getMinuteToTime(int minute){
+		String s="";
+		int h=minute/60;
+		int m=minute%60;
+		
+		if (h>0) {
+			if (h<10) {
+				s+="0";
+			}
+			s+=h+":";
+		}else{
+			s+="00:";
+		}
+		if (m>0) {
+			s+=m+"";
+		}else{
+			s+="00";
+		}
+		return s;
 	}
 }

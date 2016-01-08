@@ -36,6 +36,7 @@ import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.wizard.sn.ImportSNModel;
 import com.donglu.carpark.ui.wizard.sn.ImportSNWizard;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.SystemUpdate;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIGuiceModule;
@@ -48,7 +49,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.server.ServerUtil;
-import com.dongluhitec.card.ui.util.FileUtils;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.dongluhitec.core.crypto.appauth.AppAuthorization;
 import com.dongluhitec.core.crypto.appauth.AppVerifier;
@@ -197,7 +197,7 @@ public class ImageServerUI {
 			sp.start();
 			SingleCarparkSystemSetting s = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存位置.name());
 			filePath = StrUtil.isEmpty(s) ? System.getProperty("user.dir") : s.getSettingValue();
-			FileUtils.writeObject(IMAGE_SAVE_DIRECTORY, filePath);
+			CarparkFileUtils.writeObject(IMAGE_SAVE_DIRECTORY, filePath);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -262,7 +262,7 @@ public class ImageServerUI {
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		gd_text.widthHint = 214;
 		text.setLayoutData(gd_text);
-		Object readObject = FileUtils.readObject(IMAGE_SAVE_DIRECTORY);
+		Object readObject = CarparkFileUtils.readObject(IMAGE_SAVE_DIRECTORY);
 		text.setText(readObject == null ? System.getProperty("user.dir") : (String) readObject);
 		Button button = new Button(shell, SWT.NONE);
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -274,7 +274,7 @@ public class ImageServerUI {
 				if (StrUtil.isEmpty(open)) {
 					return;
 				}
-				FileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
+				CarparkFileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
 				text.setText(open);
 			}
 		});
@@ -332,7 +332,7 @@ public class ImageServerUI {
 				}
 			}
 			String open = text.getText();
-			FileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
+			CarparkFileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
 			SingleCarparkSystemSetting s = new SingleCarparkSystemSetting();
 			s.setSettingKey(SystemSettingTypeEnum.图片保存位置.name());
 			s.setSettingValue(open);
@@ -422,9 +422,9 @@ public class ImageServerUI {
 			@Override
 			public void run() {
 				LOGGER.info("准备上传固定用户记录到云平台");
-				Long id=(Long) FileUtils.readObject("userLastUploadId");
+				Long id=(Long) CarparkFileUtils.readObject("userLastUploadId");
 				id=id==null?0L:id;
-				List<Long> errorIds=(List<Long>) FileUtils.readObject("userErrorUploadId");
+				List<Long> errorIds=(List<Long>) CarparkFileUtils.readObject("userErrorUploadId");
 				if (StrUtil.isEmpty(errorIds)) {
 					errorIds=new ArrayList<>();
 				}
@@ -446,8 +446,8 @@ public class ImageServerUI {
 					}
 					LOGGER.info("上传用户{}的记录结果为{}",singleCarparkUser,sendUser);
 				}
-				FileUtils.writeObject("userLastUploadId",id);
-				FileUtils.writeObject("userErrorUploadId",errorIds);
+				CarparkFileUtils.writeObject("userLastUploadId",id);
+				CarparkFileUtils.writeObject("userErrorUploadId",errorIds);
 			}
 		}, uploadTime, uploadTime, TimeUnit.SECONDS);
 		inExecutor.scheduleWithFixedDelay(new Runnable() {
@@ -455,9 +455,9 @@ public class ImageServerUI {
 			@Override
 			public void run() {
 				LOGGER.info("准备上传进场记录到云平台");
-				Long id=(Long) FileUtils.readObject("inLastUploadId");
+				Long id=(Long) CarparkFileUtils.readObject("inLastUploadId");
 				id=id==null?0L:id;
-				List<Long> errorIds=(List<Long>) FileUtils.readObject("inErrorUploadId");
+				List<Long> errorIds=(List<Long>) CarparkFileUtils.readObject("inErrorUploadId");
 				if (StrUtil.isEmpty(errorIds)) {
 					errorIds=new ArrayList<>();
 				}
@@ -477,8 +477,8 @@ public class ImageServerUI {
 					}
 					LOGGER.info("上传车牌{}的进场记录结果为{}",sendInHistory);
 				}
-				FileUtils.writeObject("inLastUploadId",id);
-				FileUtils.writeObject("inErrorUploadId",errorIds);
+				CarparkFileUtils.writeObject("inLastUploadId",id);
+				CarparkFileUtils.writeObject("inErrorUploadId",errorIds);
 			}
 		}, uploadTime, uploadTime, TimeUnit.SECONDS);
 		
@@ -486,9 +486,9 @@ public class ImageServerUI {
 			@Override
 			public void run() {
 				LOGGER.info("准备上传出场记录到云平台");
-				Long id=(Long) FileUtils.readObject("outLastUploadId");
+				Long id=(Long) CarparkFileUtils.readObject("outLastUploadId");
 				id=id==null?0L:id;
-				List<Long> errorIds=(List<Long>) FileUtils.readObject("outErrorUploadId");
+				List<Long> errorIds=(List<Long>) CarparkFileUtils.readObject("outErrorUploadId");
 				if (StrUtil.isEmpty(errorIds)) {
 					errorIds=new ArrayList<>();
 				}
@@ -509,8 +509,8 @@ public class ImageServerUI {
 						}
 					}
 				}
-				FileUtils.writeObject("outLastUploadId",id);
-				FileUtils.writeObject("outErrorUploadId",errorIds);
+				CarparkFileUtils.writeObject("outLastUploadId",id);
+				CarparkFileUtils.writeObject("outErrorUploadId",errorIds);
 			}
 		}, uploadTime, uploadTime, TimeUnit.SECONDS);
 		

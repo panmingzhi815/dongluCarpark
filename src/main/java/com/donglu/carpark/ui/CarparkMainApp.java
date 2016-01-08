@@ -47,6 +47,7 @@ import com.donglu.carpark.ui.task.CarInTask;
 import com.donglu.carpark.ui.task.CarOutTask;
 import com.donglu.carpark.ui.view.DevicePresenter;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
@@ -268,7 +269,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	 */
 	@SuppressWarnings("unchecked")
 	public void readDevices() {
-		Object readObject = com.dongluhitec.card.ui.util.FileUtils.readObject(MAP_IP_TO_DEVICE);
+		Object readObject = CarparkFileUtils.readObject(MAP_IP_TO_DEVICE);
 		if (readObject != null) {
 			Map<String, SingleCarparkDevice> map = (Map<String, SingleCarparkDevice>) readObject;
 			for (String key : map.keySet()) {
@@ -373,7 +374,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 			mapSystemSetting.put(valueOf, ss.getSettingValue());
 		}
-		com.dongluhitec.card.ui.util.FileUtils.writeObject(IMAGE_SAVE_SITE, mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置));
+		CarparkFileUtils.writeObject(IMAGE_SAVE_SITE, mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置));
 
 		presenter.init();
 		mapTempCharge = Maps.newHashMap();

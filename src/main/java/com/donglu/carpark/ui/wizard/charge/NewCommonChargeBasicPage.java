@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.carpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkAcrossDayTypeEnum;
@@ -367,7 +368,8 @@ public class NewCommonChargeBasicPage extends WizardPage {
 			nowMinute+=fTime;
 			DurationInfo info=new DurationInfo();
 			info.setTime(nowMinute);
-			info.setName(flag+"-"+nowMinute);
+			
+			info.setName(CarparkUtils.getMinuteToTime(flag)+"-"+CarparkUtils.getMinuteToTime(nowMinute));
 			info.setPrice(nowPrice);
 			list.add(info);
 		}
@@ -377,7 +379,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 			nowPrice=startStepPrice;
 			DurationInfo info=new DurationInfo();
 			info.setTime(nowMinute);
-			info.setName(flag+"-"+nowMinute);
+			info.setName(CarparkUtils.getMinuteToTime(flag)+"-"+CarparkUtils.getMinuteToTime(nowMinute));
 			info.setPrice(nowPrice);
 			list.add(info);
 		}
@@ -393,7 +395,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 			}
 			DurationInfo info=new DurationInfo();
 			info.setTime(nowMinute);
-			info.setName(flag+"-"+nowMinute);
+			info.setName(CarparkUtils.getMinuteToTime(flag)+"-"+CarparkUtils.getMinuteToTime(nowMinute));
 			info.setPrice(nowPrice);
 			list.add(info);
 		}
@@ -615,9 +617,12 @@ public class NewCommonChargeBasicPage extends WizardPage {
 			tableColumn_1.setWidth(156);
 			tableColumn_1.setText("收费金额");
 			button_4.addSelectionListener(new SelectionAdapter() {
+				boolean v=false;
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					initHourPrice(text_startStepTime, text_startStepPrice, text_mapPrice, unitDurationLength, unitDurationPrice, table, carparkDurationStandard.getCarparkDurationPriceList().size());
+					table.setVisible(v);
+					v=!v;
 				}
 			});
 			// initHourPrice(text_startStepTime, text_startStepPrice, text_mapPrice, unitDurationLength, unitDurationPrice, table);

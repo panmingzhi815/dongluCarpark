@@ -40,6 +40,7 @@ import com.donglu.carpark.ui.wizard.holiday.AddYearHolidayModel;
 import com.donglu.carpark.ui.wizard.holiday.AddYearHolidayWizard;
 import com.donglu.carpark.ui.wizard.model.AddMonthChargeModel;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeTypeEnum;
@@ -56,7 +57,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.mapper.BeanUtil;
-import com.dongluhitec.card.ui.util.FileUtils;
 import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.inject.Inject;
 
@@ -214,7 +214,7 @@ public class CarparkManagePresenter {
 				singleCarparkDevice.setCarpark(findCarparkById);
 				CarparkMainApp.mapIpToDevice.put(ip, singleCarparkDevice);
 			}
-			FileUtils.writeObject(CarparkMainApp.MAP_IP_TO_DEVICE, CarparkMainApp.mapIpToDevice);
+			CarparkFileUtils.writeObject(CarparkMainApp.MAP_IP_TO_DEVICE, CarparkMainApp.mapIpToDevice);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -588,7 +588,7 @@ public class CarparkManagePresenter {
 
 	// 数据库备份
 	public void backup(String path) {
-		CarparkClientConfig ccc = (CarparkClientConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
+		CarparkClientConfig ccc = (CarparkClientConfig) CarparkFileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
 		if (StrUtil.isEmpty(ccc)) {
 			return;
 		}
@@ -800,7 +800,7 @@ public class CarparkManagePresenter {
 				commonui.error("错误", "没有找到数据库备份文件");
 				return;
 			}
-			CarparkClientConfig ccc = (CarparkClientConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
+			CarparkClientConfig ccc = (CarparkClientConfig) CarparkFileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
 			if (StrUtil.isEmpty(ccc)) {
 				return;
 			}
