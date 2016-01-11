@@ -691,10 +691,11 @@ public class CarparkServiceImpl implements CarparkService {
 	}
 
 	@Override
-	public List<CarparkChargeStandard> findAllCarparkChargeStandard() {
+	public List<CarparkChargeStandard> findAllCarparkChargeStandard(SingleCarparkCarpark carpark) {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), CarparkChargeStandard.class);
+			c.add(Restrictions.eq(CarparkChargeStandard.Property.carpark.name(), carpark));
 			c.add(Restrictions.eq("using", true));
 			return c.getResultList();
 		}catch(Exception e){

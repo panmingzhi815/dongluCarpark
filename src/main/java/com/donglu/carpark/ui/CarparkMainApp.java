@@ -378,7 +378,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		presenter.init();
 		mapTempCharge = Maps.newHashMap();
-		List<CarparkChargeStandard> listTemp = sp.getCarparkService().findAllCarparkChargeStandard();
+		List<CarparkChargeStandard> listTemp = sp.getCarparkService().findAllCarparkChargeStandard(model.getCarpark());
 		for (CarparkChargeStandard carparkChargeStandard : listTemp) {
 			String name = carparkChargeStandard.getCarparkCarType().getName();
 			mapTempCharge.put(name, carparkChargeStandard.getCode());

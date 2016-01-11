@@ -1,6 +1,5 @@
 package com.donglu.carpark.service.impl;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -12,22 +11,13 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CountTempCarChargeI;
-import com.donglu.carpark.ui.CarparkMainPresenter;
-import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
-import com.dongluhitec.card.domain.db.singlecarpark.CarparkAcrossDayTypeEnum;
-import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
-import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationPrice;
-import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationStandard;
-import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationTypeEnum;
-import com.dongluhitec.card.domain.db.singlecarpark.CarparkHolidayTypeEnum;
-import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.collect.Maps;
 
 public class CountTempCarChargeImpl implements CountTempCarChargeI {
-	private Logger LOGGER = LoggerFactory.getLogger(CarparkMainPresenter.class);
+	private Logger LOGGER = LoggerFactory.getLogger(CountTempCarChargeImpl.class);
 	private static final String YYYY_MM_DD = "yyyyMMdd";
 	/**
 	 * 
@@ -41,7 +31,6 @@ public class CountTempCarChargeImpl implements CountTempCarChargeI {
 		float totalCharge = 0;
 		Float money = 0F;// 免费金额
 		Float hour = 0F;// 免费时间
-		float acrossDayPrice = 0;
 		try {
 			// 查找优惠信息
 			List<SingleCarparkStoreFreeHistory> findByPlateNO = sp.getStoreService().findByPlateNO(0, Integer.MAX_VALUE, null, model.getPlateNo(), "未使用", startTime, endTime);
@@ -59,25 +48,22 @@ public class CountTempCarChargeImpl implements CountTempCarChargeI {
 					}
 				}
 			}
-			LOGGER.info("车牌{}在时间{}-{}内优惠金额{}元，优惠时间{}小时", model.getPlateNo(), startTime, endTime, money, hour);
+//			LOGGER.info("车牌{}在时间{}-{}内优惠金额{}元，优惠时间{}小时", model.getPlateNo(), startTime, endTime, money, hour);
 			model.setStroeFrees(findByPlateNO);
 			// 变更收费时间
 			startTime = new DateTime(startTime).plusHours(hour.intValue()).plusMinutes(Float.valueOf((hour % 1F)).intValue()).toDate();
-			List<Date> cutDaysByHours = CarparkUtils.cutDaysByHours(startTime, endTime);
 			//获取今天的最大收费
 			float findOneDayMaxCharge = sp.getCarparkInOutService().findOneDayMaxCharge(carType, carparkId);
-			acrossDayPrice = sp.getCarparkInOutService().findAcrossDayPrice(carType, carparkId);
-			acrossDayPrice = acrossDayPrice * (cutDaysByHours.size() - 2);
 			//今天收费
 			float countTodayCharge = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo(), StrUtil.getTodayTopTime(new Date()), StrUtil.getTodayBottomTime(new Date()));
 			
 			if (findOneDayMaxCharge>0&&countTodayCharge>findOneDayMaxCharge) {
-				LOGGER.info("今天最大收费{}元，今天缴费了{}元",findOneDayMaxCharge,countTodayCharge);
+//				LOGGER.info("今天最大收费{}元，今天缴费了{}元",findOneDayMaxCharge,countTodayCharge);
 				return 0;
 			}
 			//计算收费
 			float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carparkId, carType.index(), startTime, endTime);
-			LOGGER.info("今天最大收费{}元，今天缴费了{}元，计算收费{}元",findOneDayMaxCharge,countTodayCharge,calculateTempCharge);
+//			LOGGER.info("今天最大收费{}元，今天缴费了{}元，计算收费{}元",findOneDayMaxCharge,countTodayCharge,calculateTempCharge);
 			
 			if(countTodayCharge>0&&findOneDayMaxCharge>0&&(calculateTempCharge+countTodayCharge)>(findOneDayMaxCharge)){
 				totalCharge+=(findOneDayMaxCharge-countTodayCharge);
@@ -88,6 +74,6 @@ public class CountTempCarChargeImpl implements CountTempCarChargeI {
 			LOGGER.error("计算收费是发生错误", e);
 			return 0;
 		}
-		return (totalCharge - money < 0 ? 0 : totalCharge - money) + acrossDayPrice;
+		return (totalCharge - money < 0 ? 0 : totalCharge - money);
 	}
 }
