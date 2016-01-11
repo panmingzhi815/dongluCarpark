@@ -35,7 +35,6 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.main.DongluUIAppConfigurator;
 import com.dongluhitec.card.ui.util.WidgetUtil;
 import com.google.inject.Guice;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -78,24 +77,21 @@ public class Login {
 	private Text txt_password;
 	private Label lbl_msg;
 	private Combo combo;
-	@Inject
 	private CarparkManageApp carparkManageApp;
-	@Inject
 	private CarparkMainApp carparkMainApp;
-	@Inject
 	private CarparkDatabaseServiceProvider sp;
+	private ClientConfigUI clientConfigUI;
+	private CommonUIFacility commonui;
+	
 	private final String selectType = "LoginSelectType";
 	private App app;
-	@Inject
-	private ClientConfigUI clientConfigUI;
-	@Inject
-	private CommonUIFacility commonui;
 
 	private Button btn_login;
 
 	private Combo cbo_userName;
 
 	private List<String> list;
+	private static Injector injector;
 
 	/**
 	 * Launch the application.
@@ -110,14 +106,16 @@ public class Login {
 			System.out.println(trayItem.getText());
 		}
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
+
 			public void run() {
 				try {
 					DongluUIAppConfigurator configurator = new DongluUIAppConfigurator();
 					new JCommander(configurator, args);
 					long nanoTime = System.nanoTime();
-					Injector createInjector = Guice.createInjector(new CarparkClientGuiceModule());
+					injector = Guice.createInjector(new CarparkClientGuiceModule());
 					System.out.println("依赖注入用时==="+(System.nanoTime()-nanoTime));
-					Login window = createInjector.getInstance(Login.class);
+					Login window = injector.getInstance(Login.class);
+					System.out.println("窗口打开==="+(System.nanoTime()-nanoTime));
 					window.open();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -131,6 +129,7 @@ public class Login {
 	 * Open the window.
 	 */
 	public void open() {
+		long nanoTime = System.nanoTime();
 		try {
 			File f = new File(MONITOR_TEMP);
 			if (f.exists()) {
@@ -150,12 +149,22 @@ public class Login {
 		shell.setImage(JFaceUtil.getImage("carpark_16"));
 		shell.layout();
 		shell.setFocus();
+		System.out.println("login open use time is "+(System.nanoTime()-nanoTime));
+		init();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
 			}
 		}
 
+	}
+
+	private void init() {
+		carparkManageApp=injector.getInstance(CarparkManageApp.class);
+		carparkMainApp=injector.getInstance(CarparkMainApp.class);
+		sp=injector.getInstance(CarparkDatabaseServiceProvider.class);
+		clientConfigUI=injector.getInstance(ClientConfigUI.class);
+		commonui=injector.getInstance(CommonUIFacility.class);
 	}
 
 	/**

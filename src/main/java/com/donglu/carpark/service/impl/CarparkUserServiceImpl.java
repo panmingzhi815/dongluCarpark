@@ -10,6 +10,7 @@ import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
+import org.criteria4jpa.criterion.SimpleExpression;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,7 +141,18 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
-			c.add(Restrictions.gt("id", id));
+			if (!StrUtil.isEmpty(errorIds)) {
+				List<SimpleExpression> list=new ArrayList<>();
+				for (Long long1 : errorIds) {
+					SimpleExpression eq = Restrictions.eq("id", long1);
+					list.add(eq);
+				}
+				c.add(Restrictions.or(Restrictions.gt("id", id),Restrictions.or(list.toArray(new SimpleExpression[list.size()]))));
+			}else{
+				c.add(Restrictions.gt("id", id));
+			}
+			c.setFirstResult(0);
+			c.setMaxResults(50);
 			return c.getResultList();
 		}finally{
 			unitOfWork.end();

@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import org.apache.derby.vti.Restriction;
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
@@ -15,6 +14,7 @@ import org.criteria4jpa.criterion.Restrictions;
 import org.criteria4jpa.criterion.SimpleExpression;
 import org.criteria4jpa.order.Order;
 import org.criteria4jpa.projection.Projections;
+import org.joda.time.DateTime;
 
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.util.CarparkUtils;
@@ -24,14 +24,11 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkHolidayTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -46,9 +43,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 
 	@Inject
 	private UnitOfWork unitOfWork;
-
-	@Inject
-	private MapperConfig mapper;
 
 	@Transactional
 	public Long saveInOutHistory(SingleCarparkInOutHistory inout) {
@@ -661,7 +655,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	public List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(Long id, String plateNO) {
 		unitOfWork.begin();
 		try {
-			DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plateNO));
@@ -825,17 +818,18 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
-			List<SimpleExpression> l=new ArrayList<>();
+			c.add(Restrictions.ge(SingleCarparkInOutHistory.Property.inTime.name(), DateTime.now().minusHours(1).toDate()));
 			if (!StrUtil.isEmpty(errorIds)) {
-				for (Long long1 : errorIds) {
-					SimpleExpression eq = Restrictions.eq("id", long1);
-					l.add(eq);
+				List<SimpleExpression> l=new ArrayList<>();
+				if (!StrUtil.isEmpty(errorIds)) {
+					for (Long long1 : errorIds) {
+						SimpleExpression eq = Restrictions.eq("id", long1);
+						l.add(eq);
+					}
 				}
-			}
-			if (StrUtil.isEmpty(l)) {
-				c.add(Restrictions.gt("id", id));
-			}else{
 				c.add(Restrictions.or(Restrictions.gt("id", id),Restrictions.or(l.toArray(new SimpleExpression[l.size()]))));
+			}else{
+				c.add(Restrictions.gt("id", id));
 			}
 			c.setFirstResult(0);
 			c.setMaxResults(50);
@@ -851,6 +845,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.add(Restrictions.ge(SingleCarparkInOutHistory.Property.outTime.name(), DateTime.now().minusHours(1).toDate()));
 			if (id==0) {
 				c.add(Restrictions.le(SingleCarparkInOutHistory.Property.outTime.name(), StrUtil.getTodayTopTime(new Date())));
 			}

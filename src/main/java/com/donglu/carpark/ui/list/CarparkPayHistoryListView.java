@@ -5,8 +5,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolBar;
 
 import com.donglu.carpark.ui.common.AbstractListView;
-import com.donglu.carpark.ui.common.Presenter;
-import com.donglu.carpark.ui.view.CarparkPayHistoryPresenter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 
 public class CarparkPayHistoryListView extends AbstractListView<SingleCarparkMonthlyUserPayHistory> {
@@ -39,7 +37,6 @@ public class CarparkPayHistoryListView extends AbstractListView<SingleCarparkMon
 
 	@Override
 	public CarparkPayHistoryListPresenter getPresenter() {
-		// TODO 自动生成的方法存根
 		return (CarparkPayHistoryListPresenter) super.getPresenter();
 	}
 	

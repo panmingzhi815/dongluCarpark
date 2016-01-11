@@ -1328,7 +1328,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			}
 			String key = new Date() + "current has device:" + ip + " with plate:" + plateNO + " process";
 			listOutTask.add(key);
-			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_outBigImg, lbl_outSmallImg, lbl_inBigImg, carTypeSelectCombo, text_real, shell, rightSize);
+			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_outBigImg, lbl_outSmallImg, lbl_inBigImg, carTypeSelectCombo, text_real,  rightSize);
 			outTheadPool.submit(task);
 			mapOutTwoCameraTask.put(linkAddress, task);
 			outTheadPool.submit(() -> {

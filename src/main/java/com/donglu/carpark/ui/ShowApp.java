@@ -4,10 +4,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.donglu.carpark.ui.common.AbstractApp;
-import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.Presenter;
-import com.donglu.carpark.ui.view.InOutHistoryPresenter;
-import com.google.inject.Inject;
 
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.SWT;

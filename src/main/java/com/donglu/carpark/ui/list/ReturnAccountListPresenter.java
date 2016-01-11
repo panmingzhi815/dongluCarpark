@@ -5,23 +5,19 @@ import java.util.Date;
 import java.util.List;
 
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
-import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
-public class ReturnAccountListPresenter extends AbstractListPresenter {
+public class ReturnAccountListPresenter extends AbstractListPresenter<SingleCarparkReturnAccount> {
 	private ReturnAccountListView v;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;

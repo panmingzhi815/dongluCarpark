@@ -4,7 +4,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Group;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,11 +15,9 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 
-import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
@@ -63,7 +60,6 @@ public class ReturnAccountView extends Composite implements View{
 		GridData gd_combo = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		gd_combo.widthHint = 55;
 		combo.setLayoutData(gd_combo);
-		Font font = SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL);
 		
 		Label label_1 = new Label(group, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

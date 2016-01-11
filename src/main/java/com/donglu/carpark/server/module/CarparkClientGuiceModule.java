@@ -1,6 +1,5 @@
 package com.donglu.carpark.server.module;
 
-import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.service.CarparkClientLocalVMServiceProvider;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.dongluhitec.card.blservice.HardwareFacility;
@@ -18,8 +17,6 @@ public class CarparkClientGuiceModule extends AbstractModule {
     	this.bindConstant().annotatedWith(Names.named("HBM2DDL")).to("update");
 		this.bind(HardwareFacility.class).to(HardwareFacilityImpl.class);
 		this.bind(CarparkDatabaseServiceProvider.class).to(CarparkClientLocalVMServiceProvider.class).in(Singleton.class);
-		this.bind(CarparkServerConfig.class).toInstance(CarparkServerConfig.getInstance());
-		// this.bind(LocalSecurityManager.class).to(SecurityManagerImpl.class);
 		this.bind(CommonUIFacility.class).to(SWTUIFacility.class)
 		.in(Singleton.class);
 		this.install(new CarparkHardwareGuiceModule());

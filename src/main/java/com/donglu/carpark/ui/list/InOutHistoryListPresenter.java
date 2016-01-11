@@ -209,9 +209,10 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		try {
 			excelImportExport.export(path, nameProperties, columnProperties, list);
 			commonui.info("操作成功", "导出成功");
+			LOGGER.info("导出{}条进出场记录成功",list.size());
 		} catch (Exception e) {
-			e.printStackTrace();
 			commonui.info("操作失败", "操作失败"+e.getMessage());
+			LOGGER.info("导出进出场记录失败",e);
 		}
 	}
 }

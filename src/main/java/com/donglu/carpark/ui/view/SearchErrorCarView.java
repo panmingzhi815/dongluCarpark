@@ -2,43 +2,22 @@ package com.donglu.carpark.ui.view;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Group;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.model.SearchErrorCarModel;
-import com.donglu.carpark.server.imgserver.FileuploadSend;
-import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.util.CarparkUtils;
-import com.dongluhitec.card.domain.util.StrUtil;
-import com.google.common.io.Files;
 
-import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.widgets.TableColumn;
@@ -53,7 +32,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.swt.events.MouseAdapter;
@@ -177,7 +155,6 @@ public class SearchErrorCarView extends Composite implements View{
 		lbl_bigImg = new Label(composite, SWT.NONE);
 		lbl_bigImg.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		lbl_bigImg.setText("大图片");
-		Font font = SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL);
 		m_bindingContext = initDataBindings();
 	}
 	@Override

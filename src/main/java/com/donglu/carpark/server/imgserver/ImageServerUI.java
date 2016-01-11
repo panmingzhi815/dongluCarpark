@@ -80,6 +80,7 @@ public class ImageServerUI {
 	protected Shell shell;
 	private Text text;
 
+	private String filePath = "";
 	private Server server;
 	@Inject
 	private ServerUI ui;
@@ -87,20 +88,20 @@ public class ImageServerUI {
 	private CarparkDatabaseServiceProvider sp;
 	@Inject
 	private CommonUIFacility commonui;
-
-	private String filePath = "";
+	@Inject
+	private WebService webService;
 	@Inject
 	private Provider<ImageUploadServlet> imageServletProvider;
 	@Inject
 	private Provider<StoreServlet> storeServletProvider;
 	@Inject
 	private Provider<ServerServlet> serverServletProvider;
-	@Inject
-	private WebService webService;
 
 	private TrayItem trayItem;
 
 	private AppVerifier av;
+	private Button btnStart;
+	private boolean autoStartServer=false;
 
 	/**
 	 * Launch the application.
@@ -112,8 +113,11 @@ public class ImageServerUI {
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
 			public void run() {
 				try {
+					long nanoTime = System.nanoTime();
 					Injector createInjector = Guice.createInjector(new CarparkServerGuiceModule());
+					System.out.println("依赖注入用时："+(System.nanoTime()-nanoTime));
 					ImageServerUI window = createInjector.getInstance(ImageServerUI.class);
+					System.out.println("获取界面用时："+(System.nanoTime()-nanoTime));
 					window.open();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -153,7 +157,27 @@ public class ImageServerUI {
 		});
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button.setText("注册码");
+		
+		Button button_1 = new Button(shell, SWT.CHECK);
+		button_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				boolean selection = button_1.getSelection();
+				CarparkFileUtils.writeObject("autoStartServer", selection);
+			}
+		});
+		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_1.setText("自动启动");
+		Object readObject = CarparkFileUtils.readObject("autoStartServer");
+		if (readObject!=null) {
+			autoStartServer = (boolean) readObject;
+			button_1.setSelection(autoStartServer);
+		}
+		
 		shell.layout();
+		if (autoStartServer) {
+			startServer();
+		}
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
@@ -198,9 +222,9 @@ public class ImageServerUI {
 	 */
 	protected void createContents() {
 		shell = new Shell();
-		shell.setSize(589, 86);
+		shell.setSize(681, 86);
 		shell.setText("服务器");
-		shell.setLayout(new GridLayout(6, false));
+		shell.setLayout(new GridLayout(7, false));
 		shell.addShellListener(new ShellAdapter() {
 
 			@Override
@@ -269,7 +293,7 @@ public class ImageServerUI {
 		});
 		button.setText("...");
 
-		Button btnStart = new Button(shell, SWT.NONE);
+		btnStart = new Button(shell, SWT.NONE);
 		btnStart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btnStart.setData("type", "start");
 		btnStart.addSelectionListener(new SelectionAdapter() {
@@ -278,8 +302,6 @@ public class ImageServerUI {
 				String data = (String) btnStart.getData("type");
 				if (data.equals("start")) {
 					startServer();
-					btnStart.setText("退出");
-					btnStart.setData("type", "stop");
 				}
 				if (data.equals("stop")) {
 					System.exit(0);
@@ -294,6 +316,8 @@ public class ImageServerUI {
 	 */
 	protected void startServer() {
 		try {
+			btnStart.setText("启动中");
+			btnStart.setEnabled(false);
 			sp.start();
 			SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.DateBase_version.name());
 			if (StrUtil.isEmpty(findSystemSettingByKey)) {
@@ -339,8 +363,14 @@ public class ImageServerUI {
 
 		    server.setHandler(servletHandler);
 			server.start();
+			btnStart.setEnabled(true);
+			btnStart.setText("退出");
+			btnStart.setData("type", "stop");
 		} catch (Exception e) {
 			e.printStackTrace();
+			commonui.error("启动失败", ""+e);
+			btnStart.setText("启    动");
+			btnStart.setEnabled(true);
 		}
 		autoDeleteSameInOutHistory();
 		if (System.getProperty("autoSendInfoToCloud")!=null&&System.getProperty("autoSendInfoToCloud").equals("true")) {
@@ -398,7 +428,7 @@ public class ImageServerUI {
 	@SuppressWarnings("unchecked")
 	private void autoSendInfoToCloud() {
 		int uploadTime = 10;
-		String ot = System.getenv("oploadTime");
+		String ot = System.getenv("uploadTime");
 		if (ot!=null) {
 			Integer valueOf = Integer.valueOf(ot);
 			uploadTime=valueOf;

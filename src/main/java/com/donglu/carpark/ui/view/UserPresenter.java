@@ -1,17 +1,13 @@
 package com.donglu.carpark.ui.view;
 
-import java.util.Date;
 
 import org.eclipse.swt.widgets.Composite;
 
-import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.Presenter;
-import com.donglu.carpark.ui.list.InOutHistoryListPresenter;
-import com.donglu.carpark.ui.list.ReturnAccountListPresenter;
 import com.donglu.carpark.ui.list.UserListPresenter;
 import com.google.inject.Inject;
 
-public class UserPresenter  extends AbstractListPresenter{
+public class UserPresenter  implements Presenter{
 	private UserView view;
 	@Inject
 	private UserListPresenter listPresenter;

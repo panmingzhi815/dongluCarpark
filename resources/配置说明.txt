@@ -3,3 +3,6 @@ resolveAddress 解析的ip地址 例如：www.baidu.com
 autoSendInfoToCloud 启动云服务 true 则启动
 company 物业名称 ，autoSendInfoToCloud值为true才会使用
 area 停车场名称，autoSendInfoToCloud值为true才会使用
+
+--系统参数--
+uploadTime  云服务上传时间单位秒,指定云上传服务的时间间隔

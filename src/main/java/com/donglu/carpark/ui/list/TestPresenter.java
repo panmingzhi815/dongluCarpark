@@ -1,6 +1,5 @@
 package com.donglu.carpark.ui.list;
 
-import java.util.List;
 
 import com.dongluhitec.card.common.ui.Viewer;
 import com.dongluhitec.card.common.ui.WidgetContainer;

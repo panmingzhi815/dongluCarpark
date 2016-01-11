@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -50,7 +48,6 @@ public class CarOutTask implements Runnable{
 	
 	private byte[] bigImage;
 	private byte[] smallImage;
-	private final Shell shell;
 	private final Combo carTypeSelectCombo;
 	
 	// 保存车牌最近的处理时间
@@ -71,7 +68,7 @@ public class CarOutTask implements Runnable{
 	public CarOutTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage,CarparkMainModel model,
 			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, CLabel lbl_outBigImg,
 			CLabel lbl_outSmallImg,CLabel lbl_inBigImg, Combo carTypeSelectCombo,
-			Text text_real,Shell shell,Float rightSize) {
+			Text text_real,Float rightSize) {
 		super();
 		this.ip = ip;
 		this.plateNO = plateNO;
@@ -84,7 +81,6 @@ public class CarOutTask implements Runnable{
 		this.lbl_outSmallImg = lbl_outSmallImg;
 		this.carTypeSelectCombo=carTypeSelectCombo;
 		this.text_real=text_real;
-		this.shell = shell;
 		this.rightSize=rightSize;
 		this.lbl_inBigImg=lbl_inBigImg;
 	}

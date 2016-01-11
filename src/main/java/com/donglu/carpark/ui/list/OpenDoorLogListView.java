@@ -6,7 +6,6 @@ import org.eclipse.swt.widgets.ToolBar;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemOperaLog;
 
 public class OpenDoorLogListView extends AbstractListView<SingleCarparkOpenDoorLog> implements View {
 	public OpenDoorLogListView(Composite parent, int style) {

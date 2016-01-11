@@ -8,9 +8,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import com.donglu.carpark.ui.common.AbstractListView;
-import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 
 public class UserListView extends AbstractListView<SingleCarparkUser> implements View {

@@ -2,7 +2,6 @@ package com.donglu.carpark.ui.list;
 
 import org.eclipse.swt.widgets.Composite;
 
-import com.dongluhitec.card.common.ui.Presenter;
 import com.dongluhitec.card.common.ui.WidgetContainer;
 import com.dongluhitec.card.common.ui.control.AbstractViewer;
 import com.dongluhitec.card.common.ui.impl.SWTContainer;

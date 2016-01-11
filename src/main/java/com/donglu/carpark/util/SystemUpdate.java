@@ -1,7 +1,6 @@
 package com.donglu.carpark.util;
 
 import com.donglu.carpark.server.CarparkServerConfig;
-import com.dongluhitec.card.service.DbServiceConfigurator;
 import com.dongluhitec.card.service.database.SQLParser;
 
 import java.io.File;

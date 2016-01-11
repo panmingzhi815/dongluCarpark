@@ -362,11 +362,11 @@ public class CarparkManageApp extends AbstractApp{
 		TableViewerColumn tvc_code = new TableViewerColumn(tableViewer, SWT.RIGHT);
 		TableColumn tc_code = tvc_code.getColumn();
 		tc_code.setResizable(false);
-		tc_code.setWidth(151);
+		tc_code.setWidth(101);
 		tc_code.setText("编码");
 		TableViewerColumn tableViewerColumn_21 = new TableViewerColumn(tableViewer, SWT.NONE);
 		TableColumn tblclmnNewColumn_6 = tableViewerColumn_21.getColumn();
-		tblclmnNewColumn_6.setWidth(100);
+		tblclmnNewColumn_6.setWidth(150);
 		tblclmnNewColumn_6.setText("名称");
 		
 		TableViewerColumn tableViewerColumn_1 = new TableViewerColumn(tableViewer, SWT.NONE);

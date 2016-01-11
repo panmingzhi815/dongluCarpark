@@ -12,7 +12,6 @@ import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
@@ -22,8 +21,6 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 	@Inject
 	private CommonUIFacility commonui;
 	
-	private int max=0;
-	private int size=50;
 	private String userName, operaName;
 	private Date start,  end;
 	
