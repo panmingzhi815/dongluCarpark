@@ -31,4 +31,5 @@ public interface WebService {
 	 * @return
 	 */
 	public boolean sendCarparkInfo(SingleCarparkCarpark carpark);
+	void init();
 }

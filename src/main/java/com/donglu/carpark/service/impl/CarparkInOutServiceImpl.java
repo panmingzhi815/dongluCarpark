@@ -845,21 +845,21 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
-			c.add(Restrictions.ge(SingleCarparkInOutHistory.Property.outTime.name(), DateTime.now().minusHours(1).toDate()));
+//			c.add(Restrictions.ge(SingleCarparkInOutHistory.Property.outTime.name(), DateTime.now().minusHours(1).toDate()));
 			if (id==0) {
-				c.add(Restrictions.le(SingleCarparkInOutHistory.Property.outTime.name(), StrUtil.getTodayTopTime(new Date())));
+				c.add(Restrictions.gt(SingleCarparkInOutHistory.Property.outTime.name(), DateTime.now().minusHours(1).toDate()));
 			}
-			List<SimpleExpression> l=new ArrayList<>();
 			if (!StrUtil.isEmpty(errorIds)) {
-				for (Long long1 : errorIds) {
-					SimpleExpression eq = Restrictions.eq("id", long1);
-					l.add(eq);
+				List<SimpleExpression> l=new ArrayList<>();
+				if (!StrUtil.isEmpty(errorIds)) {
+					for (Long long1 : errorIds) {
+						SimpleExpression eq = Restrictions.eq("id", long1);
+						l.add(eq);
+					}
 				}
-			}
-			if (StrUtil.isEmpty(l)) {
-				c.add(Restrictions.gt("id", id));
-			} else {
 				c.add(Restrictions.or(Restrictions.gt("id", id), Restrictions.or(l.toArray(new SimpleExpression[l.size()]))));
+			} else {
+				c.add(Restrictions.gt("id", id));
 			}
 			c.setFirstResult(0);
 			c.setMaxResults(50);

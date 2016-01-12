@@ -15,6 +15,7 @@
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
 		<dev.build.version>V1.0.0.4</dev.build.version>
+		<jaxb.version>2.2.11</jaxb.version>
 	</properties>
 
 	<dependencies>
@@ -29,7 +30,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
+		
+		<dependency>
+			<artifactId>jaxb-xjc</artifactId>
+			<groupId>com.sun.xml.bind</groupId>
+			<version>${jaxb.version}</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
@@ -89,6 +96,8 @@
 			<artifactId>jsp-2.1-glassfish</artifactId>
 			<version>9.1.02.B04.p0</version>
 		</dependency>
+		
+
 	</dependencies>
 	<build>
 		<plugins>

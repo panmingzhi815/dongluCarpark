@@ -37,6 +37,7 @@ import com.donglu.carpark.ui.wizard.sn.ImportSNWizard;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.SystemUpdate;
+import com.donglu.carpark.yun.CarparkYunConfig;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.setting.SNSettingType;
@@ -60,6 +61,8 @@ import com.google.inject.Provider;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
@@ -69,10 +72,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 
 public class ImageServerUI {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(ImageServerUI.class);
 	public static final String YYYY_MM_DD = "yyyy-MM-dd";
 
 
@@ -84,6 +89,8 @@ public class ImageServerUI {
 	private Server server;
 	@Inject
 	private ServerUI ui;
+	@Inject
+	private YunConfigUI yunUI;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
 	@Inject
@@ -102,6 +109,7 @@ public class ImageServerUI {
 	private AppVerifier av;
 	private Button btnStart;
 	private boolean autoStartServer=false;
+	private String ip;
 
 	/**
 	 * Launch the application.
@@ -135,28 +143,6 @@ public class ImageServerUI {
 		createContents();
 		shell.open();
 		shell.setImage(JFaceUtil.getImage("carpark_16"));
-
-		Button btnTest = new Button(shell, SWT.NONE);
-		btnTest.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		btnTest.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				ui.open();
-				init();
-				text.setText(filePath);
-			}
-		});
-		btnTest.setText("配    置");
-
-		Button button = new Button(shell, SWT.NONE);
-		button.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				importSN();
-			}
-		});
-		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button.setText("注册码");
 		
 		Button button_1 = new Button(shell, SWT.CHECK);
 		button_1.addSelectionListener(new SelectionAdapter() {
@@ -168,6 +154,44 @@ public class ImageServerUI {
 		});
 		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_1.setText("自动启动");
+		
+		Menu menu = new Menu(shell, SWT.BAR);
+		shell.setMenuBar(menu);
+		
+		MenuItem mntmNewSubmenu = new MenuItem(menu, SWT.CASCADE);
+		mntmNewSubmenu.setText("配置");
+		
+		Menu menu_1 = new Menu(mntmNewSubmenu);
+		mntmNewSubmenu.setMenu(menu_1);
+		
+		MenuItem menuItem = new MenuItem(menu_1, SWT.NONE);
+		menuItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ui.open();
+				init();
+				text.setText(filePath);
+			}
+		});
+		menuItem.setText("服务器配置");
+		
+		MenuItem menuItem_1 = new MenuItem(menu_1, SWT.NONE);
+		menuItem_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				importSN();
+			}
+		});
+		menuItem_1.setText("注册码");
+		
+		MenuItem menuItem_2 = new MenuItem(menu_1, SWT.NONE);
+		menuItem_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				yunUI.open();
+			}
+		});
+		menuItem_2.setText("云上传配置");
 		Object readObject = CarparkFileUtils.readObject("autoStartServer");
 		if (readObject!=null) {
 			autoStartServer = (boolean) readObject;
@@ -222,9 +246,9 @@ public class ImageServerUI {
 	 */
 	protected void createContents() {
 		shell = new Shell();
-		shell.setSize(681, 86);
+		shell.setSize(535, 99);
 		shell.setText("服务器");
-		shell.setLayout(new GridLayout(7, false));
+		shell.setLayout(new GridLayout(5, false));
 		shell.addShellListener(new ShellAdapter() {
 
 			@Override
@@ -237,17 +261,24 @@ public class ImageServerUI {
 				int open = box.open();
 				if (open == SWT.YES) {
 					trayItem.dispose();
-					System.exit(0);
 				} else {
 					e.doit = false;
 				}
 			}
-
+			
 			@Override
 			public void shellIconified(ShellEvent e) {
 				shell.setVisible(false);
 			}
 
+		});
+		shell.addDisposeListener(new DisposeListener() {
+			
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				trayItem.dispose();
+				System.exit(0);
+			}
 		});
 		Display default1 = Display.getDefault();
 		Tray systemTray = default1.getSystemTray();
@@ -373,14 +404,12 @@ public class ImageServerUI {
 			btnStart.setEnabled(true);
 		}
 		autoDeleteSameInOutHistory();
-		if (System.getProperty("autoSendInfoToCloud")!=null&&System.getProperty("autoSendInfoToCloud").equals("true")) {
-			autoSendInfoToCloud();
-		}
+		autoSendInfoToCloud();
 		autoUpdateIpToYunServer();
 		
 	}
 	private void autoUpdateIpToYunServer() {
-		String ip="";
+		ip = "";
 		String yunServerAddress = System.getProperty("yunServerAddress");
 		String resolveAddress=System.getProperty("resolveAddress");
 		LOGGER.info("云服务器地址{},需要解析的地址为：{}",yunServerAddress,resolveAddress);
@@ -401,6 +430,9 @@ public class ImageServerUI {
 					String actionUrl=yunServerAddress+"?method=updateIp&updateIp="+Base64.getEncoder().encodeToString(hostIp.getBytes("utf-8"));
 					LOGGER.info("准备发送ip{}到{}",hostIp,actionUrl);
 					String upload = FileuploadSend.upload(actionUrl, null);
+					if (upload!=null&&upload.equals("true")) {
+						ip=hostIp;
+					}
 					LOGGER.info("发送结果为{}",upload);
 				} catch (Exception e) {
 					LOGGER.info("解析域名失败",e);
@@ -427,6 +459,15 @@ public class ImageServerUI {
 	 */
 	@SuppressWarnings("unchecked")
 	private void autoSendInfoToCloud() {
+		CarparkYunConfig cf = (CarparkYunConfig) CarparkFileUtils.readObject(YunConfigUI.CARPARK_YUN_CONFIG);
+		
+		if (cf==null) {
+			return;
+		}
+		if (!cf.getAutoStartServer()) {
+			return;
+		}
+		webService.init();
 		int uploadTime = 10;
 		String ot = System.getenv("uploadTime");
 		if (ot!=null) {
@@ -448,56 +489,65 @@ public class ImageServerUI {
 					errorIds=new ArrayList<>();
 				}
 				LOGGER.info("上次上传固定用户记录到{},上传失败的为：{}",id,errorIds);
-				List<SingleCarparkUser> list=sp.getCarparkUserService().findUserThanIdMore(id,errorIds);
-				LOGGER.info("还有{}条固定用户记录等待上传",list.size());
-				for (SingleCarparkUser singleCarparkUser : list) {
-					LOGGER.info("正在上传用户{}的记录",singleCarparkUser);
-					boolean sendUser = webService.sendUser(singleCarparkUser);
-					if (!sendUser) {
-						if (!errorIds.contains(singleCarparkUser.getId())) {
-							errorIds.add(singleCarparkUser.getId());
+				try {
+					List<SingleCarparkUser> list=sp.getCarparkUserService().findUserThanIdMore(id,errorIds);
+					LOGGER.info("还有{}条固定用户记录等待上传",list.size());
+					for (SingleCarparkUser singleCarparkUser : list) {
+						LOGGER.info("正在上传用户{}的记录",singleCarparkUser);
+						boolean sendUser = webService.sendUser(singleCarparkUser);
+						if (!sendUser) {
+							if (!errorIds.contains(singleCarparkUser.getId())) {
+								errorIds.add(singleCarparkUser.getId());
+							}
+						}else{
+							errorIds.remove(singleCarparkUser.getId());
+							if (singleCarparkUser.getId()>id) {
+								id=singleCarparkUser.getId();
+							}
 						}
-					}else{
-						errorIds.remove(singleCarparkUser.getId());
-						if (singleCarparkUser.getId()>id) {
-							id=singleCarparkUser.getId();
-						}
+						LOGGER.info("上传用户{}的记录结果为{}",singleCarparkUser.getPlateNo(),sendUser);
 					}
-					LOGGER.info("上传用户{}的记录结果为{}",singleCarparkUser,sendUser);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}finally{
+					CarparkFileUtils.writeObject("userLastUploadId",id);
+					CarparkFileUtils.writeObject("userErrorUploadId",errorIds);
 				}
-				CarparkFileUtils.writeObject("userLastUploadId",id);
-				CarparkFileUtils.writeObject("userErrorUploadId",errorIds);
 			}
 		}, uploadTime, uploadTime, TimeUnit.SECONDS);
 		inExecutor.scheduleWithFixedDelay(new Runnable() {
-
 			@Override
 			public void run() {
 				LOGGER.info("准备上传进场记录到云平台");
-				Long id=(Long) CarparkFileUtils.readObject("inLastUploadId");
-				id=id==null?0L:id;
-				List<Long> errorIds=(List<Long>) CarparkFileUtils.readObject("inErrorUploadId");
+				Long id = (Long) CarparkFileUtils.readObject("inLastUploadId");
+				id = id == null ? 0L : id;
+				List<Long> errorIds = (List<Long>) CarparkFileUtils.readObject("inErrorUploadId");
 				if (StrUtil.isEmpty(errorIds)) {
-					errorIds=new ArrayList<>();
+					errorIds = new ArrayList<>();
 				}
-				LOGGER.info("上次上传进场记录到{},上传失败的为：{}",id,errorIds);
-				List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findInHistoryThanIdMore(id,errorIds);
-				LOGGER.info("还有{}条进场记录等待上传",list.size());
-				for (SingleCarparkInOutHistory in : list) {
-					LOGGER.info("正在上传车牌{}的进场记录",in.getPlateNo());
-					boolean sendInHistory = webService.sendInHistory(in);
-					if (!sendInHistory) {
-						errorIds.add(in.getId());
-					}else{
-						errorIds.remove(in.getId());
-					if (in.getId()>id) {
-						id=in.getId();
+				LOGGER.info("上次上传进场记录到{},上传失败的为：{}", id, errorIds);
+				try {
+					List<SingleCarparkInOutHistory> list = sp.getCarparkInOutService().findInHistoryThanIdMore(id, errorIds);
+					LOGGER.info("还有{}条进场记录等待上传", list.size());
+					for (SingleCarparkInOutHistory in : list) {
+						LOGGER.info("正在上传车牌{}的进场记录", in.getPlateNo());
+						boolean sendInHistory = webService.sendInHistory(in);
+						if (!sendInHistory) {
+							errorIds.add(in.getId());
+						} else {
+							errorIds.remove(in.getId());
+							if (in.getId() > id) {
+								id = in.getId();
+							}
+						}
+						LOGGER.info("上传车牌{}的进场记录结果为{}",in.getPlateNo(), sendInHistory);
 					}
-					}
-					LOGGER.info("上传车牌{}的进场记录结果为{}",sendInHistory);
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					CarparkFileUtils.writeObject("inLastUploadId", id);
+					CarparkFileUtils.writeObject("inErrorUploadId", errorIds);
 				}
-				CarparkFileUtils.writeObject("inLastUploadId",id);
-				CarparkFileUtils.writeObject("inErrorUploadId",errorIds);
 			}
 		}, uploadTime, uploadTime, TimeUnit.SECONDS);
 		
@@ -511,25 +561,31 @@ public class ImageServerUI {
 				if (StrUtil.isEmpty(errorIds)) {
 					errorIds=new ArrayList<>();
 				}
-				LOGGER.info("上次上传出场记录到{},上传失败的为：{}",id,errorIds);
-				List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findOutHistoryThanIdMore(id,errorIds);
-				LOGGER.info("还有{}条出场记录等待上传",list.size());
-				for (SingleCarparkInOutHistory in : list) {
-					LOGGER.info("正在上传车牌{}的出场记录",in.getPlateNo());
-					boolean sendOutHistory = webService.sendOutHistory(in);
-					if (!sendOutHistory) {
-						if (!errorIds.contains(in.getId())) {
-							errorIds.add(in.getId());
+				try {
+					LOGGER.info("上次上传出场记录到{},上传失败的为：{}",id,errorIds);
+					List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findOutHistoryThanIdMore(id,errorIds);
+					LOGGER.info("还有{}条出场记录等待上传",list.size());
+					for (SingleCarparkInOutHistory in : list) {
+						LOGGER.info("正在上传车牌{}的出场记录",in.getPlateNo());
+						boolean sendOutHistory = webService.sendOutHistory(in);
+						if (!sendOutHistory) {
+							if (!errorIds.contains(in.getId())) {
+								errorIds.add(in.getId());
+							}
+						}else{
+							errorIds.remove(in.getId());
+							if (in.getId()>id) {
+								id=in.getId();
+							}
 						}
-					}else{
-						errorIds.remove(in.getId());
-						if (in.getId()>id) {
-							id=in.getId();
-						}
+						LOGGER.info("上传车牌{}的出场记录结果为{}",in.getPlateNo(), sendOutHistory);
 					}
+				} catch (Exception e) {
+					LOGGER.info("上传出场记录失败");
+				}finally{
+					CarparkFileUtils.writeObject("outLastUploadId",id);
+					CarparkFileUtils.writeObject("outErrorUploadId",errorIds);
 				}
-				CarparkFileUtils.writeObject("outLastUploadId",id);
-				CarparkFileUtils.writeObject("outErrorUploadId",errorIds);
 			}
 		}, uploadTime, uploadTime, TimeUnit.SECONDS);
 		
@@ -592,5 +648,4 @@ public class ImageServerUI {
 		}, 30, 60 * 30, TimeUnit.SECONDS);
 
 	}
-
 }

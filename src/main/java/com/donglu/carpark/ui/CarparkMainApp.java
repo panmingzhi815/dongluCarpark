@@ -572,6 +572,9 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					String inShowPlateNO = model.getInShowPlateNO();
+					if (StrUtil.isEmpty(inShowPlateNO)) {
+						return;
+					}
 					if (inShowPlateNO.length() < 3 || inShowPlateNO.length() > 7) {
 						return;
 					}

@@ -64,7 +64,10 @@
         <appender-ref ref="DEVICE_MESSAGE_DEBUG"/>
     </logger>
 
-    <logger name="com.dongluhitec.card.service" level="INFO">
+    <logger name="com.donglu.carpark.server" level="INFO">
+        <appender-ref ref="SERVICES_MESSAGE_DEBUG"/>
+    </logger>
+    <logger name="com.donglu.carpark.service" level="INFO">
         <appender-ref ref="SERVICES_MESSAGE_DEBUG"/>
     </logger>
     <logger name="com.donglu.carpark.ui" level="INFO">
