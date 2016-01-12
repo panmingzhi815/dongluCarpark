@@ -21,6 +21,8 @@ import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkHolidayTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -492,15 +494,31 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	public float findOneDayMaxCharge(CarTypeEnum carType, Long carparkId) {
 		unitOfWork.begin();
 		try {
+			Criteria ccs=CriteriaUtils.createCriteria(emprovider.get(), CarparkChargeStandard.class);
+			
 			DatabaseOperation<CarparkCarType> dom = DatabaseOperation.forClass(CarparkCarType.class, emprovider.get());
 			CarparkCarType type = dom.getEntityWithId(carType.index());
-			List<CarparkChargeStandard> carparkChargeStandardList = type.getCarparkChargeStandardList();
-			for (CarparkChargeStandard carparkChargeStandard : carparkChargeStandardList) {
-				if (!StrUtil.isEmpty(carparkChargeStandard.getUsing())&&carparkChargeStandard.getUsing()&&carparkChargeStandard.getCarpark().getId().equals(carparkId)) {
-					return carparkChargeStandard.getOnedayMaxCharge();
+			ccs.add(Restrictions.eq("carparkCarType", type));
+			ccs.add(Restrictions.eq("using", true));
+			List<CarparkChargeStandard> ccsList = ccs.getResultList();
+			if (StrUtil.isEmpty(ccsList)) {
+				return 0;
+			}
+			if (ccsList.size()>1) {
+				Criteria c=CriteriaUtils.createCriteria(emprovider.get(), Holiday.class);
+				c.add(Restrictions.eq("start", new Date()));
+				List resultList = c.getResultList();
+				CarparkHolidayTypeEnum hilidayType=CarparkHolidayTypeEnum.工作日;
+				if (resultList.size()>0) {
+					hilidayType=CarparkHolidayTypeEnum.非工作日;
+				}
+				for (CarparkChargeStandard o : ccsList) {
+					if (o.getCarparkHolidayTypeEnum().equals(hilidayType)) {
+						return o.getOnedayMaxCharge();
+					}
 				}
 			}
-			return 0;
+			return ccsList.get(0).getOnedayMaxCharge();
 		} finally {
 			unitOfWork.end();
 		}

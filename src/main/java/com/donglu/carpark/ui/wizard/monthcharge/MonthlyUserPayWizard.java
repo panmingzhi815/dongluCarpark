@@ -29,7 +29,7 @@ public class MonthlyUserPayWizard extends Wizard implements AbstractWizard{
 
 	@Override
 	public boolean performFinish() {
-		if (!model.isFree()) {
+		if (model.isFree()) {
 			SingleCarparkMonthlyCharge selectMonth = model.getSelectMonth();
 			if (StrUtil.isEmpty(selectMonth)) {
 				page.setErrorMessage("请选择月租");

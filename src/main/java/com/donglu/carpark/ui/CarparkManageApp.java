@@ -1,8 +1,6 @@
 package com.donglu.carpark.ui;
 
 
-import java.text.CollationKey;
-import java.text.Collator;
 import java.util.Map;
 
 import org.eclipse.core.databinding.DataBindingContext;
@@ -20,7 +18,6 @@ import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
@@ -32,7 +29,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -62,16 +58,13 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import com.beust.jcommander.JCommander;
 import com.donglu.carpark.info.CarparkChargeInfo;
 import com.donglu.carpark.model.CarparkModel;
-import com.donglu.carpark.model.InOutHistoryModel;
 import com.donglu.carpark.model.SystemUserModel;
-import com.donglu.carpark.model.UserModel;
 import com.donglu.carpark.ui.common.AbstractApp;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.main.DongluUIAppConfigurator;
@@ -82,22 +75,11 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
-import junit.runner.Sorter;
 
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import com.dongluhitec.card.common.ui.uitl.TableViewerColumnSorter;
 
 public class CarparkManageApp extends AbstractApp{
-	private static final String COLUMN = "column";
-
 	public static final String CLIENT_IMAGE_SAVE_FILE_PATH = "clientImageSaveFilePath";
 
-	private DataBindingContext m_bindingContext;
 
 	protected Shell shell;
 	private Table table;
@@ -117,11 +99,9 @@ public class CarparkManageApp extends AbstractApp{
 	
 	private CarparkModel carparkModel;
 	
-	private UserModel userModel;
 	
 	private SystemUserModel systemUserModel;
 	
-	private InOutHistoryModel inOutHistoryModel;
 	private TableViewer tableViewer_1;
 	private TableViewer tableViewer;
 	
@@ -187,13 +167,9 @@ public class CarparkManageApp extends AbstractApp{
 	private void init() {
 		presenter.setView(this);
 		carparkModel=new CarparkModel();
-		userModel=new UserModel();
 		systemUserModel=new SystemUserModel();
-		inOutHistoryModel=new InOutHistoryModel();
 		presenter.setCarparkModel(carparkModel);
-		presenter.setUserModel(userModel);
 		presenter.setSystemUserModel(systemUserModel);
-		presenter.setInOutHistoryModel(inOutHistoryModel);
 		
 		for (SystemSettingTypeEnum t : SystemSettingTypeEnum.values()) {
 			mapSystemSetting.put(t, null);
@@ -1228,7 +1204,7 @@ public class CarparkManageApp extends AbstractApp{
 		});
 		controlDispay();
 		addTableListener();
-		m_bindingContext = initDataBindings();
+		initDataBindings();
 	}
 
 	private void addTableListener() {}

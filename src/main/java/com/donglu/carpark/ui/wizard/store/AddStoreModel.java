@@ -3,7 +3,6 @@ package com.donglu.carpark.ui.wizard.store;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Transient;
 
 
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;

@@ -28,6 +28,9 @@ public class CarparkDurationStandard extends DomainObject{
 	@JoinColumn(name="standard_id",referencedColumnName="id")
 	private CarparkChargeStandard carparkChargeStandard;
 	
+	
+	private Integer startStepTime;
+	private Float startStepPrice;
 	@Column(name="unit_duration")
 	private Integer unitDuration;
 	
@@ -150,4 +153,24 @@ public class CarparkDurationStandard extends DomainObject{
     public int hashCode() {
         return getId() == null ? 0 : getId().intValue();
     }
+
+	public Integer getStartStepTime() {
+		return startStepTime;
+	}
+
+	public void setStartStepTime(Integer startStepTime) {
+		this.startStepTime = startStepTime;
+		if (pcs != null)
+			pcs.firePropertyChange("startStepTime", null, null);
+	}
+
+	public Float getStartStepPrice() {
+		return startStepPrice;
+	}
+
+	public void setStartStepPrice(Float startStepPrice) {
+		this.startStepPrice = startStepPrice;
+		if (pcs != null)
+			pcs.firePropertyChange("startStepPrice", null, null);
+	}
 }

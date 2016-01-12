@@ -153,4 +153,7 @@ public class SingleCarparkDevice extends DomainObject{
 			pcs.firePropertyChange("screenType", null, null);
 	}
 	
+	public String getLinkInfo(){
+		return this.linkAddress+":"+this.address;
+	}
 }

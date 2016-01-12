@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 
+import com.donglu.carpark.model.ShowInOutHistoryModel;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -28,7 +29,7 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 
 public class InOutHistoryDetailWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
-	private SingleCarparkInOutHistory model;
+	private ShowInOutHistoryModel model;
 	private Label lbl_inBigImg;
 	private Label lbl_outBigImg;
 	private SashForm sashForm;
@@ -41,17 +42,21 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 	 * Create the wizard.
 	 * @param model 
 	 * @param file 
+	 * @wbp.parser.constructor
 	 */
-	public InOutHistoryDetailWizardPage(SingleCarparkInOutHistory model) {
+	public InOutHistoryDetailWizardPage(ShowInOutHistoryModel model) {
 		super("wizardPage");
 		setTitle("进出场抓拍信息");
-		setDescription("进出场抓拍信息");
+		setDescription("进出场抓拍的图片信息");
 		this.model=model;
 	}
 
-	public InOutHistoryDetailWizardPage(SingleCarparkInOutHistory model2, Boolean isEdit) {
+	public InOutHistoryDetailWizardPage(ShowInOutHistoryModel model2, Boolean isEdit) {
 		this(model2);
 		this.isEdit=isEdit;
+		if (isEdit) {
+			setDescription("点击完成修改车牌");
+		}
 	}
 
 	/**
@@ -86,7 +91,7 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		
 		Composite composite_1 = new Composite(composite, SWT.NONE);
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		composite_1.setLayout(new GridLayout(3, false));
+		composite_1.setLayout(new GridLayout(4, false));
 		
 		Label label = new Label(composite_1, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -97,6 +102,8 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		gd_text.widthHint = 99;
 		text.setLayoutData(gd_text);
 		text.setEditable(isEdit);
+		
+		
 		Button button = new Button(composite_1, SWT.NONE);
 		button.setLayoutData(new GridData(SWT.LEFT, SWT.BOTTOM, false, false, 1, 1));
 		button.addSelectionListener(new SelectionAdapter() {
@@ -105,7 +112,8 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 				setImage();
 			}
 		});
-		button.setText("刷新");
+		button.setText("刷新图片");
+		new Label(composite_1, SWT.NONE);
 		
 		sashForm = new SashForm(composite, SWT.NONE);
 		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -168,8 +176,8 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
 		IObservableValue observeTextTextObserveWidget = WidgetProperties.text(SWT.Modify).observe(text);
-		IObservableValue plateNoModelObserveValue = BeanProperties.value("plateNo").observe(model);
-		bindingContext.bindValue(observeTextTextObserveWidget, plateNoModelObserveValue, null, null);
+		IObservableValue nowPlateNoModelObserveValue = BeanProperties.value("nowPlateNo").observe(model);
+		bindingContext.bindValue(observeTextTextObserveWidget, nowPlateNoModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

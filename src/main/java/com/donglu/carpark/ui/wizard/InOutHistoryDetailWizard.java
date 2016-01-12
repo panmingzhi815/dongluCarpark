@@ -2,24 +2,31 @@ package com.donglu.carpark.ui.wizard;
 
 import org.eclipse.jface.wizard.Wizard;
 
+import com.donglu.carpark.model.ShowInOutHistoryModel;
+import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.AbstractWizard;
+import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 public class InOutHistoryDetailWizard extends Wizard implements AbstractWizard{
-	private SingleCarparkInOutHistory model;
+	private ShowInOutHistoryModel model;
 	private InOutHistoryDetailWizardPage page;
 	private Boolean isEdit=false;
-	public InOutHistoryDetailWizard(SingleCarparkInOutHistory model) {
+	private CarparkDatabaseServiceProvider sp;
+	private CommonUIFacility commonui;
+	public InOutHistoryDetailWizard(ShowInOutHistoryModel model) {
 		setWindowTitle("查看进出记录");
 		this.model=model;
 	}
 
-	public InOutHistoryDetailWizard(SingleCarparkInOutHistory h, Boolean isEdit) {
+	public InOutHistoryDetailWizard(ShowInOutHistoryModel h, Boolean isEdit, CarparkDatabaseServiceProvider sp, CommonUIFacility commonui) {
 		this(h);
 		this.isEdit=isEdit;
+		this.sp=sp;
+		this.commonui=commonui;
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.donglu.carpark.model.ShowInOutHistoryModel;
 import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
@@ -167,7 +168,9 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 				return;
 			}
 			SingleCarparkInOutHistory h = v.getModel().getSelected().get(0);
-			InOutHistoryDetailWizard wizard = new InOutHistoryDetailWizard(h);
+			ShowInOutHistoryModel model=new ShowInOutHistoryModel();
+			model.setInfo(h);
+			InOutHistoryDetailWizard wizard = new InOutHistoryDetailWizard(model);
 			inOutHistory = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -183,9 +186,9 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	public void mouseDoubleClick(List<SingleCarparkInOutHistory> list) {
 		try {
 			SingleCarparkInOutHistory h = list.get(0);
-			String file = (String) FileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
-			LOGGER.info("本地文件存放位置{}", file);
-			InOutHistoryDetailWizard wizard = new InOutHistoryDetailWizard(h);
+			ShowInOutHistoryModel model=new ShowInOutHistoryModel();
+			model.setInfo(h);
+			InOutHistoryDetailWizard wizard = new InOutHistoryDetailWizard(model);
 			inOutHistory = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
 		} catch (Exception e) {
 			e.printStackTrace();

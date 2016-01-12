@@ -46,7 +46,7 @@ public class OpenDoorDetailWizardPage extends WizardPage {
 	public void createControl(Composite parent) {
 		parent.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
-				System.out.println("InOutHistoryDetailWizardPage is dispose");
+				System.out.println("OpenDoorDetailWizardPage is dispose");
 				if (image!=null) {
 					image.dispose();
 					image=null;

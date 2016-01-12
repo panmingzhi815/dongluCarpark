@@ -64,13 +64,24 @@ public class CountTempCarChargeImpl implements CountTempCarChargeI {
 			// 变更收费时间
 			startTime = new DateTime(startTime).plusHours(hour.intValue()).plusMinutes(Float.valueOf((hour % 1F)).intValue()).toDate();
 			List<Date> cutDaysByHours = CarparkUtils.cutDaysByHours(startTime, endTime);
-//			float findOneDayMaxCharge = sp.getCarparkInOutService().findOneDayMaxCharge(carType, carparkId);
+			//获取今天的最大收费
+			float findOneDayMaxCharge = sp.getCarparkInOutService().findOneDayMaxCharge(carType, carparkId);
 			acrossDayPrice = sp.getCarparkInOutService().findAcrossDayPrice(carType, carparkId);
 			acrossDayPrice = acrossDayPrice * (cutDaysByHours.size() - 2);
 			//今天收费
-//			float countTodayCharge = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo(), StrUtil.getTodayTopTime(new Date()), StrUtil.getTodayBottomTime(new Date()));
+			float countTodayCharge = sp.getCarparkInOutService().countTodayCharge(model.getPlateNo(), StrUtil.getTodayTopTime(new Date()), StrUtil.getTodayBottomTime(new Date()));
+			
+			if (findOneDayMaxCharge>0&&countTodayCharge>findOneDayMaxCharge) {
+				LOGGER.info("今天最大收费{}元，今天缴费了{}元",findOneDayMaxCharge,countTodayCharge);
+				return 0;
+			}
 			//计算收费
 			float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carparkId, carType.index(), startTime, endTime);
+			LOGGER.info("今天最大收费{}元，今天缴费了{}元，计算收费{}元",findOneDayMaxCharge,countTodayCharge,calculateTempCharge);
+			
+			if(countTodayCharge>0&&findOneDayMaxCharge>0&&(calculateTempCharge+countTodayCharge)>(findOneDayMaxCharge)){
+				totalCharge+=(findOneDayMaxCharge-countTodayCharge);
+			}else
 			totalCharge+=calculateTempCharge;
 //			totalCharge= totalCharge-countTodayCharge<0?0:totalCharge-countTodayCharge;
 		} catch (Exception e) {

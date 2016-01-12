@@ -13,9 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.info.CarparkChargeInfo;
 import com.donglu.carpark.model.CarparkModel;
-import com.donglu.carpark.model.InOutHistoryModel;
 import com.donglu.carpark.model.SystemUserModel;
-import com.donglu.carpark.model.UserModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.SystemUserServiceI;
@@ -68,10 +66,8 @@ public class CarparkManagePresenter {
 
 	private CarparkModel carparkModel;// 停车场列表信息
 
-	private UserModel userModel;// 固定用户信息
 
 	private SystemUserModel systemUserModel;
-	private InOutHistoryModel inOutHistoryModel;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
 
@@ -282,14 +278,6 @@ public class CarparkManagePresenter {
 		}
 		carparkModel.setListCarpark(list);
 		view.expandAllCarpark();
-	}
-
-	public UserModel getUserModel() {
-		return userModel;
-	}
-
-	public void setUserModel(UserModel userModel) {
-		this.userModel = userModel;
 	}
 
 	/**
@@ -589,14 +577,6 @@ public class CarparkManagePresenter {
 		refreshCarparkCharge();
 	}
 
-	public InOutHistoryModel getInOutHistoryModel() {
-		return inOutHistoryModel;
-	}
-
-	public void setInOutHistoryModel(InOutHistoryModel inOutHistoryModel) {
-		this.inOutHistoryModel = inOutHistoryModel;
-	}
-
 	// 数据库备份
 	public void backup(String path) {
 		CarparkClientConfig ccc = (CarparkClientConfig) FileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
@@ -720,11 +700,6 @@ public class CarparkManagePresenter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	public void searchUser(String name, String plateNo, int willOverdue, String overdue) {
-		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(name, plateNo, willOverdue, overdue);
-		userModel.setAllList(findByNameOrPlateNo);
 	}
 
 	public UserPresenter getUserPresenter() {

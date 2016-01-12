@@ -345,5 +345,20 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		}
 		return super.equals(obj);
 	}
+	public void setShouldMoney(Float shouldMoney) {
+		this.shouldMoney = shouldMoney;
+		if (pcs != null)
+			pcs.firePropertyChange("shouldMoney", null, null);
+	}
+	public void setFactMoney(Float factMoney) {
+		this.factMoney = factMoney;
+		if (pcs != null)
+			pcs.firePropertyChange("factMoney", null, null);
+	}
+	public void setFreeMoney(Float freeMoney) {
+		this.freeMoney = freeMoney;
+		if (pcs != null)
+			pcs.firePropertyChange("freeMoney", null, null);
+	}
 	
 }

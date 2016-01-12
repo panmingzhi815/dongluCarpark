@@ -201,14 +201,12 @@ public class StoreListPresenter extends AbstractListPresenter<SingleCarparkStore
 			model.setRePawword(s.getLoginPawword());
 			model.setListCarpark(sp.getCarparkService().findAllCarpark());
 			AddStoreWizard w = new AddStoreWizard(model);
-			SingleCarparkStore m = (SingleCarparkStore) commonui.showWizard(w);
+			AddStoreModel m = (AddStoreModel) commonui.showWizard(w);
 			if (StrUtil.isEmpty(m)) {
 				return;
 			}
 			m.setLoginPawword(m.getLoginName());
-			m.setLeftFreeHour(0F);
-			m.setLeftFreeMoney(0F);
-			sp.getStoreService().saveStore(m);
+			sp.getStoreService().saveStore(m.getStore());
 			commonui.info("操作成功", "保存成功!");
 			refresh();
 		} catch (Exception e) {

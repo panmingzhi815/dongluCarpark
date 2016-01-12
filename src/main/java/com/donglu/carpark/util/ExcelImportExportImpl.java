@@ -434,9 +434,9 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		for (int i = 0; i < names.length; i++) {
 			String string = names[i];
 			HSSFCell createCell = row.createCell(i+1);
-			row.createCell(i+1).setCellValue(string);
+			row.createCell(i).setCellValue(string);
 		}
-//		currentRow++;
+		currentRow++;
 		for (int i = 0; i < list.size(); i++) {
 			row = sheet.createRow(currentRow + i);
 			Object o = list.get(i);

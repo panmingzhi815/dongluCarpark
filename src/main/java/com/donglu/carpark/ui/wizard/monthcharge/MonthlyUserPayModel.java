@@ -55,7 +55,9 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 		s.setOldOverDueTime(getOldOverDueTime());
 		s.setOverdueTime(getOverdueTime());
 		s.setPlateNO(getPlateNO());
-		s.setRentType(selectMonth.getChargeName());
+		if (!StrUtil.isEmpty(selectMonth)) {
+			s.setRentType(selectMonth.getChargeName());
+		}
 		s.setUserIdCard(getUserIdCard());
 		s.setUserName(getUserName());
 		s.setId(id);

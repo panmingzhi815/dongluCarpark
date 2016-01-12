@@ -165,14 +165,16 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			if (StrUtil.isEmpty(m)) {
 				return;
 			}
-			if (StrUtil.isEmpty(m.getSelectMonth())) {
-				return;
-			}
 			singleCarparkUser.setValidTo(m.getOverdueTime());
-			singleCarparkUser.setDelayDays(m.getSelectMonth().getDelayDays());
-			singleCarparkUser.setRemindDays(m.getSelectMonth().getExpiringDays());
-			singleCarparkUser.setMonthChargeId(m.getSelectMonth().getId());
-			singleCarparkUser.setCarpark(m.getSelectMonth().getCarpark());
+			if (!singleCarparkUser.getType().equals("免费")) {
+				if (StrUtil.isEmpty(m.getSelectMonth())) {
+					return;
+				}
+				singleCarparkUser.setDelayDays(m.getSelectMonth().getDelayDays());
+				singleCarparkUser.setRemindDays(m.getSelectMonth().getExpiringDays());
+				singleCarparkUser.setMonthChargeId(m.getSelectMonth().getId());
+				singleCarparkUser.setCarpark(m.getSelectMonth().getCarpark());
+			}
 			m.setOperaName(System.getProperty("userName"));
 			sp.getCarparkUserService().saveUser(singleCarparkUser);
 			sp.getCarparkService().saveMonthlyUserPayHistory(m.getSingleCarparkMonthlyUserPayHistory());

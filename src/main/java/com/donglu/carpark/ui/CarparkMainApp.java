@@ -7,11 +7,7 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -38,12 +34,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.joda.time.DateTime;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 
 import com.donglu.carpark.model.CarparkMainModel;
@@ -108,7 +101,6 @@ import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
-import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.custom.SashForm;
 
 public class CarparkMainApp extends AbstractApp implements XinlutongResult {
@@ -127,7 +119,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 	static final String CAR_IN_MSG = "欢迎光临,请入场停车";
 
-	private static final String NOT_PERMIT_TEMPCAR_IN_MSG = "固定停车场，不容许临时车进入";
 
 	public static final String TEMP_ROAD = "临时车通道";
 
@@ -138,7 +129,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private final AtomicInteger refreshTimes = new AtomicInteger(0);
 	private final Integer refreshTimeSpeedSecond = 3;
 
-	private DataBindingContext m_bindingContext;
 
 	private Logger LOGGER = LoggerFactory.getLogger(CarparkMainApp.class);
 
@@ -276,6 +266,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public void readDevices() {
 		Object readObject = com.dongluhitec.card.ui.util.FileUtils.readObject(MAP_IP_TO_DEVICE);
 		if (readObject != null) {
@@ -1225,7 +1216,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		lbl_search.setImage(CarparkUtils.getSwtImage("search.png"));
 		controlToolItem();
 		addKeyLisenter(shell);
-		m_bindingContext = initDataBindings();
+		initDataBindings();
 	}
 
 	public void controlToolItem() {

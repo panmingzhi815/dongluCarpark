@@ -74,37 +74,21 @@ public class NewCommonChargeBasicPage extends WizardPage {
 	private DateTime endTime;
 	
 	private List<Integer> existHour = new ArrayList<Integer>();
-	private ComboViewer createComboViewer_durationType;
-	private Text text_onedayMaxCharge;
-	private ComboViewer createComboViewer_holidayType;
-	private Text text_freeDuration;
-	private ComboViewer createComboViewer_crossDayChargeType;
-	private ComboViewer createComboViewer_enableCharge;
-	private ComboViewer createComboViewer_carType;
-	private Text text_code;
-	private Text text_name;
 
 	private Text text_crossDayUnitTimeLength;
 
 	private Text text_crossDayUnitPrice;
-
-	private Text text_startStepTimeLength;
-
-	private Text text_startStepPrice;
 	private Composite composite_1;
 	private Text text;
 	private Text text_1;
 	private Text text_2;
 	private Text text_3;
-	private Text text_4;
-	private Text text_5;
 	private ComboViewer comboViewer;
 	private ComboViewer comboViewer_1;
 	private ComboViewer comboViewer_2;
 	private ComboViewer comboViewer_3;
 	private ComboViewer comboViewer_4;
-
-	private Text text_acrossDayPrice;
+	private Button button_6;
 
     public NewCommonChargeBasicPage(NewCommonChargeModel model) {
         super("wizardPage");
@@ -121,9 +105,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
         
         composite_1 = new Composite(container, SWT.NONE);
         composite_1.setLayout(new GridLayout(7, false));
-        GridData gd_composite_1 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-        gd_composite_1.exclude = true;
-        composite_1.setLayoutData(gd_composite_1);
+        composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
         
         Label label_1 = new Label(composite_1, SWT.NONE);
         label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -133,6 +115,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
         GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
         gd_text.widthHint = 87;
         text.setLayoutData(gd_text);
+        new Label(composite_1, SWT.NONE);
         
         Label label_2 = new Label(composite_1, SWT.NONE);
         label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -142,11 +125,10 @@ public class NewCommonChargeBasicPage extends WizardPage {
         GridData gd_text_1 = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
         gd_text_1.widthHint = 88;
         text_1.setLayoutData(gd_text_1);
-        new Label(composite_1, SWT.NONE);
         
         Label label_3 = new Label(composite_1, SWT.NONE);
         label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        label_3.setText("时长类型");
+        label_3.setText("收费时长类型");
         
         comboViewer = new ComboViewer(composite_1, SWT.READ_ONLY);
         Combo combo = comboViewer.getCombo();
@@ -162,52 +144,11 @@ public class NewCommonChargeBasicPage extends WizardPage {
         text_2 = new Text(composite_1, SWT.BORDER);
         text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
         
-        Label label_5 = new Label(composite_1, SWT.NONE);
-        label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        label_5.setText("工作日类型");
-        
-        comboViewer_1 = new ComboViewer(composite_1, SWT.READ_ONLY);
-        Combo combo_1 = comboViewer_1.getCombo();
-        combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        comboViewer_1.setContentProvider(new ArrayContentProvider());
-        comboViewer_1.setLabelProvider(new LabelProvider());
-        comboViewer_1.setInput(CarparkHolidayTypeEnum.values());
-        
-        Button button_1 = new Button(composite_1, SWT.NONE);
-        button_1.setToolTipText("设置节假日");
-        button_1.setText("..");
-        
-        Label label_6 = new Label(composite_1, SWT.NONE);
-        label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        label_6.setText("免费时长");
-        
-        text_3 = new Text(composite_1, SWT.BORDER);
-        GridData gd_text_3 = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-        gd_text_3.widthHint = 88;
-        text_3.setLayoutData(gd_text_3);
-        
-        Label label_7 = new Label(composite_1, SWT.NONE);
-        label_7.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        label_7.setText("跨天计费方式");
-        
-        comboViewer_2 = new ComboViewer(composite_1, SWT.READ_ONLY);
-        Combo combo_2 = comboViewer_2.getCombo();
-        combo_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        comboViewer_2.setContentProvider(new ArrayContentProvider());
-        comboViewer_2.setLabelProvider(new LabelProvider());
-        comboViewer_2.setInput(CarparkAcrossDayTypeEnum.values());
-        
-        Label label_8 = new Label(composite_1, SWT.NONE);
-        label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        label_8.setText("免费时长收费");
-        
-        comboViewer_3 = new ComboViewer(composite_1, SWT.READ_ONLY);
-        Combo combo_3 = comboViewer_3.getCombo();
-        combo_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        comboViewer_3.setContentProvider(new ArrayContentProvider());
-        comboViewer_3.setLabelProvider(new LabelProvider());
-        comboViewer_3.setInput(new String[]{"是","否"});
-        new Label(composite_1, SWT.NONE);
+        Label label_13 = new Label(composite_1, SWT.NONE);
+        GridData gd_label_13 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+        gd_label_13.widthHint = 14;
+        label_13.setLayoutData(gd_label_13);
+        label_13.setText("元");
         
         Label label_11 = new Label(composite_1, SWT.NONE);
         label_11.setText("车辆类型");
@@ -219,136 +160,83 @@ public class NewCommonChargeBasicPage extends WizardPage {
         comboViewer_4.setContentProvider(new ArrayContentProvider());
         comboViewer_4.setLabelProvider(new LabelProvider());
         comboViewer_4.setInput(model.getCarparkCarTypeList());
-        Label label_9 = new Label(composite_1, SWT.NONE);
-        label_9.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        label_9.setText("起步收费时长");
         
-        text_4 = new Text(composite_1, SWT.BORDER);
-        text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        Label label = new Label(composite_1, SWT.NONE);
+        label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        label.setText("工作日类型");
         
-        Label label_10 = new Label(composite_1, SWT.NONE);
-        label_10.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        label_10.setText("起步收费金额");
+        comboViewer_1 = new ComboViewer(composite_1, SWT.READ_ONLY);
+        Combo combo_1 = comboViewer_1.getCombo();
+        combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        comboViewer_1.setContentProvider(new ArrayContentProvider());
+        comboViewer_1.setLabelProvider(new LabelProvider());
+        comboViewer_1.setInput(CarparkHolidayTypeEnum.values());
         
-        text_5 = new Text(composite_1, SWT.BORDER);
-        text_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        Label label_5 = new Label(composite_1, SWT.NONE);
+        label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        label_5.setText("免费时长");
+        
+        text_3 = new Text(composite_1, SWT.BORDER);
+        GridData gd_text_3 = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+        gd_text_3.widthHint = 88;
+        text_3.setLayoutData(gd_text_3);
+        
+        Label label_14 = new Label(composite_1, SWT.NONE);
+        label_14.setText("分");
+        
+        Label label_8 = new Label(composite_1, SWT.NONE);
+        label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        label_8.setText("免费时长收费");
+        
+        comboViewer_3 = new ComboViewer(composite_1, SWT.READ_ONLY);
+        Combo combo_3 = comboViewer_3.getCombo();
+        combo_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        comboViewer_3.setContentProvider(new ArrayContentProvider());
+        comboViewer_3.setLabelProvider(new LabelProvider());
+        comboViewer_3.setInput(new String[]{"是","否"});
+        
+        button_6 = new Button(composite_1, SWT.CHECK);
+        button_6.setText("跨天继续免费");
+        new Label(composite_1, SWT.NONE);
+        
+        Label label_7 = new Label(composite_1, SWT.NONE);
+        label_7.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        label_7.setText("跨天计费方式");
+        
+        comboViewer_2 = new ComboViewer(composite_1, SWT.READ_ONLY);
+        Combo combo_2 = comboViewer_2.getCombo();
+        combo_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        comboViewer_2.setContentProvider(new ArrayContentProvider());
+        comboViewer_2.setLabelProvider(new LabelProvider());
+        comboViewer_2.setInput(CarparkAcrossDayTypeEnum.values());
         new Label(composite_1, SWT.NONE);
         new Label(composite_1, SWT.NONE);
         new Label(composite_1, SWT.NONE);
-
-        Composite composite1 = new Composite(container, SWT.NONE);
-        composite1.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        composite1.setLayout(new MigLayout("","[right][][right][][right][]",""));
-
-        tf = new TabFolder(container,SWT.NONE);
-        tf.setLayout(new FillLayout());
-        tf.setLayoutData(new GridData(GridData.FILL_BOTH));
+        new Label(composite_1, SWT.NONE);
+        new Label(composite_1, SWT.NONE);
         
-        createDurationTab(this.model.getCarparkDurationStandards());
-
-        new Label(composite1,SWT.NONE).setText("收费编码");
-        text_code = new Text(composite1, SWT.BORDER);
-        text_code.setLayoutData(INPUTLAYOUTDATA);
+        Label label_12 = new Label(composite_1, SWT.NONE);
+        label_12.setText("收费时段设置");
         
-        new Label(composite1,SWT.NONE).setText("收费名称");
-        text_name = new Text(composite1, SWT.BORDER);
-        text_name.setLayoutData(INPUTLAYOUTDATA);
-
-        new Label(composite1,SWT.NONE).setText("时长类型");
-        createComboViewer_durationType = new ComboViewer(composite1, SWT.BORDER | SWT.READ_ONLY);
-        createComboViewer_durationType.setContentProvider(new ArrayContentProvider());
-        createComboViewer_durationType.setLabelProvider(new LabelProvider());
-        createComboViewer_durationType.setInput(CarparkDurationTypeEnum.values());
-        createComboViewer_durationType.getCombo().setLayoutData(INPUTLAYOUTDATA+",wrap");
+        Composite composite = new Composite(composite_1, SWT.NONE);
+        composite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 6, 1));
+        composite.setLayout(new GridLayout(4, false));
         
-        new Label(composite1,SWT.NONE).setText("一天最大收费");
-        text_onedayMaxCharge = new Text(composite1, SWT.BORDER);
-        text_onedayMaxCharge.setLayoutData(INPUTLAYOUTDATA);
-
-        new Label(composite1,SWT.NONE).setText("工作日类型");
-        createComboViewer_holidayType = new ComboViewer(composite1, SWT.BORDER | SWT.READ_ONLY);
-        createComboViewer_holidayType.setContentProvider(new ArrayContentProvider());
-        createComboViewer_holidayType.setLabelProvider(new LabelProvider());
-        createComboViewer_holidayType.setInput(CarparkHolidayTypeEnum.values());
-        createComboViewer_holidayType.getCombo().setLayoutData(INPUTLAYOUTDATA);
-
-        new Label(composite1,SWT.NONE).setText("免费时长");
-        text_freeDuration = new Text(composite1, SWT.BORDER);
-        text_freeDuration.setLayoutData(INPUTLAYOUTDATA+",wrap");
-        
-        new Label(composite1,SWT.NONE).setText("跨天计费方式");
-        createComboViewer_crossDayChargeType = new ComboViewer(composite1, SWT.BORDER | SWT.READ_ONLY);
-        createComboViewer_crossDayChargeType.setContentProvider(new ArrayContentProvider());
-        createComboViewer_crossDayChargeType.setLabelProvider(new LabelProvider());
-        createComboViewer_crossDayChargeType.setInput(CarparkAcrossDayTypeEnum.values());
-        createComboViewer_crossDayChargeType.getCombo().setLayoutData(INPUTLAYOUTDATA);
-
-        new Label(composite1,SWT.NONE).setText("免费时长收费");
-        createComboViewer_enableCharge = new ComboViewer(composite1, SWT.BORDER | SWT.READ_ONLY);
-        createComboViewer_enableCharge.setContentProvider(new ArrayContentProvider());
-        createComboViewer_enableCharge.setLabelProvider(new LabelProvider());
-        createComboViewer_enableCharge.setInput(new String[]{"是","否"});
-        createComboViewer_enableCharge.getCombo().setLayoutData(INPUTLAYOUTDATA);
-
-        new Label(composite1,SWT.NONE).setText("车辆类型");
-        createComboViewer_carType = new ComboViewer(composite1, SWT.BORDER | SWT.READ_ONLY);
-        createComboViewer_carType.setContentProvider(new ArrayContentProvider());
-        createComboViewer_carType.setLabelProvider(new LabelProvider());
-        createComboViewer_carType.setInput(model.getCarparkCarTypeList());
-        createComboViewer_carType.getCombo().setLayoutData(INPUTLAYOUTDATA+",wrap");
-        
-        new Label(composite1,SWT.NONE).setText("起步收费时长");
-        text_startStepTimeLength = new Text(composite1, SWT.BORDER);
-        text_startStepTimeLength.setLayoutData(INPUTLAYOUTDATA);
-        
-        new Label(composite1,SWT.NONE).setText("起步收费金额");
-        text_startStepPrice = new Text(composite1, SWT.BORDER);
-        text_startStepPrice.setLayoutData(INPUTLAYOUTDATA+",wrap");
-        
-        new Label(composite1,SWT.NONE).setText("跨天收费金额");
-        text_acrossDayPrice = new Text(composite1, SWT.BORDER);
-        text_acrossDayPrice.setLayoutData(INPUTLAYOUTDATA+",wrap");
-        
-        Label label = new Label(composite1,SWT.NONE);
-        label.setText("收费时段设置");
-        
-
-        startTime = new DateTime(composite1,SWT.BORDER|SWT.TIME);
-        startTime.setHours(0);
-        startTime.setMinutes(0);
+        DateTime startTime = new DateTime(composite, SWT.BORDER | SWT.TIME);
         startTime.setSeconds(0);
-        startTime.setLayoutData("spanx,split 4");
-
-        endTime = new DateTime(composite1,SWT.BORDER|SWT.TIME);
-        endTime.setHours(0);
-        endTime.setMinutes(0);
+        startTime.setMinutes(0);
+        startTime.setHours(0);
+        
+        DateTime endTime = new DateTime(composite, SWT.BORDER | SWT.TIME);
         endTime.setSeconds(0);
+        endTime.setMinutes(0);
+        endTime.setHours(0);
         
-        startTime.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				startTime.setMinutes(0);
-				startTime.setSeconds(0);
-			}
-		});
-        
-        endTime.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				endTime.setMinutes(0);
-				endTime.setSeconds(0);
-			}
-		});
-
-        Button button = new Button(composite1, SWT.NONE);
-        button.setText("添加时段");
-        
-        Button button2 = new Button(composite1, SWT.NONE);
-        button2.setText("删除时段");
-        button.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            	CarparkDurationStandard carparkDurationStandard = new CarparkDurationStandard();
+        Button button_2 = new Button(composite, SWT.NONE);
+        button_2.addSelectionListener(new SelectionAdapter() {
+        	@Override
+        	public void widgetSelected(SelectionEvent e) {
+        		CarparkDurationStandard carparkDurationStandard = new CarparkDurationStandard();
             	carparkDurationStandard.setStartTime(new Date(1900, 1, 1, startTime.getHours(), startTime.getMinutes()));
             	carparkDurationStandard.setEndTime(new Date(1900, 1, 1, endTime.getHours(), endTime.getMinutes()));
             	
@@ -362,17 +250,26 @@ public class NewCommonChargeBasicPage extends WizardPage {
         			carparkDurationStandard.addCarparkDurationPriceList(carparkDurationPrice);
         		}
         		createDurationTab(Arrays.asList(carparkDurationStandard));
-            }
+        	}
         });
+        button_2.setText("添加时段");
         
-        button2.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if(tf.getItemCount() == 0) return;
+        Button button_3 = new Button(composite, SWT.NONE);
+        button_3.addSelectionListener(new SelectionAdapter() {
+        	@Override
+        	public void widgetSelected(SelectionEvent e) {
+        		if(tf.getItemCount() == 0) return;
 				TabItem tabItem = tf.getSelection()[0];
 				tabItem.dispose();
-			}
-		});
+        	}
+        });
+        button_3.setText("删除时段");
+
+        tf = new TabFolder(container,SWT.NONE);
+        tf.setLayout(new FillLayout());
+        tf.setLayoutData(new GridData(GridData.FILL_BOTH));
+        
+        createDurationTab(this.model.getCarparkDurationStandards());
         
         m_bindingContext = initDataBindings();
         WizardPageSupport.create(this, m_bindingContext);
@@ -392,6 +289,12 @@ public class NewCommonChargeBasicPage extends WizardPage {
     		Control[] children = cp.getChildren();
     		for (Control control : children) {
 				Composite cp0 = (Composite)control;
+				if (cp0.getData("key") == "composite_start_step") {
+					Text startStepPrice=(Text) cp0.getData("startStepPrice");
+					Text startStepTime=(Text) cp0.getData("startStepTime");
+					carparkDurationStandard.setStartStepPrice(Float.valueOf(startStepPrice.getText()));
+					carparkDurationStandard.setStartStepTime(Integer.valueOf(startStepTime.getText()));
+				}
 				if(cp0.getData("key") == "composite_durationConfig"){
 					Text unitDurationLength = (Text)cp0.getData("unitDurationLength");
 					Text unitDurationPrice = (Text)cp0.getData("unitDurationPrice");
@@ -404,7 +307,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 					carparkDurationStandard.setUnitPrice(Float.valueOf(unitDurationPrice.getText()));
 					carparkDurationStandard.setCrossDayUnitDuration(Integer.valueOf(crossDayUnitTimeLength.getText()));
 					carparkDurationStandard.setCrossDayPrice(Float.valueOf(crossDayUnitPrice.getText()));
-					carparkDurationStandard.setStandardCode(text_code.getText());
+					carparkDurationStandard.setStandardCode(text.getText());
 				}
 				if(cp0.getData("key") == "composite_durationPrice"){
 					for(int i=1;i<=24;i++){
@@ -413,7 +316,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 							CarparkDurationPrice carparkDurationPrice = new CarparkDurationPrice();
 							carparkDurationPrice.setDurationLength(i);
 							carparkDurationPrice.setDurationLengthPrice(Float.valueOf(((Text)data).getText()));
-							carparkDurationPrice.setStandardCode(text_code.getText());
+							carparkDurationPrice.setStandardCode(text.getText());
 							carparkDurationStandard.addCarparkDurationPriceList(carparkDurationPrice);
 						}
 					}
@@ -435,11 +338,32 @@ public class NewCommonChargeBasicPage extends WizardPage {
     		Composite composite = new Composite(tf, SWT.NONE);
     		composite.setLayout(new GridLayout(1,false));
     		
+    		Composite composite_start_step = new Composite(composite, SWT.NONE);
+    		composite_start_step.setLayout(new GridLayout(4,false));
+    		composite_start_step.setData("key", "composite_start_step");
+    		 GridData gd_label_13 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+    	     gd_label_13.widthHint = 33;
+    		Label label_9 = new Label(composite_start_step, SWT.NONE);
+            label_9.setText("起步收费时长");
+            Text text_startStepTime = new Text(composite_start_step, SWT.BORDER);
+            text_startStepTime.setLayoutData(gd_label_13);
+            text_startStepTime.setText(carparkDurationStandard.getStartStepTime()==null?"0":carparkDurationStandard.getStartStepTime()+"");
+            composite_start_step.setData("startStepTime", text_startStepTime);
+            
+            Label label_10 = new Label(composite_start_step, SWT.NONE);
+            label_10.setText("起步收费金额");
+            Text text_startStepPrice = new Text(composite_start_step, SWT.BORDER);
+            text_startStepPrice.setLayoutData(gd_label_13);
+            text_startStepPrice.setText(carparkDurationStandard.getStartStepPrice()==null?"0.0":carparkDurationStandard.getStartStepPrice()+"");
+            composite_start_step.setData("startStepPrice", text_startStepPrice);
+    		
     		Composite composite_durationConfig = new Composite(composite, SWT.NONE);
     		composite_durationConfig.setData("key","composite_durationConfig");
     		composite_durationConfig.setLayout(new MigLayout("","[]5[]10[]5[]10[]5[]10[]5[]"));
             composite_durationConfig.setData("DurationId",carparkDurationStandard.getId());
-    		
+            
+           
+            
     		Integer unitDuration = carparkDurationStandard.getUnitDuration();
     		new Label(composite_durationConfig,SWT.NONE).setText("单 位 时 长 ");
     		Text text2 = new Text(composite_durationConfig, SWT.BORDER);
@@ -520,86 +444,45 @@ public class NewCommonChargeBasicPage extends WizardPage {
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
-		IObservableValue observe_durationType = ViewerProperties.singleSelection().observe(createComboViewer_durationType);
-		IObservableValue observe_durationType_model = BeansObservables.observeValue(model, "carparkDurationTypeEnum");
-		bindingContext.bindValue(observe_durationType, observe_durationType_model, null, null);
-		//
-		IObservableValue observe_holidayType = ViewerProperties.singleSelection().observe(createComboViewer_holidayType);
-		IObservableValue observe_holidayType_model = BeansObservables.observeValue(model, "carparkHolidayTypeEnum");
-		bindingContext.bindValue(observe_holidayType, observe_holidayType_model, null, null);
-		//
-		IObservableValue observe_carType = ViewerProperties.singleSelection().observe(createComboViewer_carType);
-		IObservableValue observe_carType_model = BeansObservables.observeValue(model, "carparkCarType");
-		bindingContext.bindValue(observe_carType, observe_carType_model, null, null);
-		//
-		IObservableValue observe_enableCharge = ViewerProperties.singleSelection().observe(createComboViewer_enableCharge);
-		IObservableValue observe_enableCharge_model = BeansObservables.observeValue(model, "freeTimeEnable");
-		bindingContext.bindValue(observe_enableCharge, observe_enableCharge_model, null, null);
-		//
-		IObservableValue observe_crossDayChargeType = ViewerProperties.singleSelection().observe(createComboViewer_crossDayChargeType);
-		IObservableValue observe_crossDayChargeType_model = BeansObservables.observeValue(model, "carparkAcrossDayTypeEnum");
-		bindingContext.bindValue(observe_crossDayChargeType, observe_crossDayChargeType_model, null, null);
-		//
-		IObservableValue observeTextText_startStepTimeLengthObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_startStepTimeLength);
-		IObservableValue startStepTimeModelObserveValue = BeanProperties.value("startStepTime").observe(model);
-		bindingContext.bindValue(observeTextText_startStepTimeLengthObserveWidget, startStepTimeModelObserveValue, null, null);
-		//
-		IObservableValue observeTextText_startStepPriceObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_startStepPrice);
-		IObservableValue startStepPriceModelObserveValue = BeanProperties.value("startStepPrice").observe(model);
-		bindingContext.bindValue(observeTextText_startStepPriceObserveWidget, startStepPriceModelObserveValue, null, null);
-		//
-		IObservableValue observeTextTextObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_onedayMaxCharge);
-		IObservableValue onedayMaxChargeModelObserveValue = BeanProperties.value("onedayMaxCharge").observe(model);
-		bindingContext.bindValue(observeTextTextObserveWidget, onedayMaxChargeModelObserveValue, null, null);
-		//
-		IObservableValue observeTextText2ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_code);
-		IObservableValue codeModelObserveValue = BeanProperties.value("code").observe(model);
-		bindingContext.bindValue(observeTextText2ObserveWidget, codeModelObserveValue, null, null);
-		//
-		IObservableValue observeTextText3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_name);
-		IObservableValue nameModelObserveValue = BeanProperties.value("name").observe(model);
-		bindingContext.bindValue(observeTextText3ObserveWidget, nameModelObserveValue, null, null);
-		//
-		IObservableValue observeTextText_freeDurationObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_freeDuration);
-		IObservableValue freeTimeModelObserveValue = BeanProperties.value("freeTime").observe(model);
-		bindingContext.bindValue(observeTextText_freeDurationObserveWidget, freeTimeModelObserveValue, null, null);
-		//
 		IObservableValue observeTextTextObserveWidget_1 = WidgetProperties.text(SWT.Modify).observe(text);
+		IObservableValue codeModelObserveValue = BeanProperties.value("code").observe(model);
 		bindingContext.bindValue(observeTextTextObserveWidget_1, codeModelObserveValue, null, null);
 		//
 		IObservableValue observeTextText_1ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_1);
+		IObservableValue nameModelObserveValue = BeanProperties.value("name").observe(model);
 		bindingContext.bindValue(observeTextText_1ObserveWidget, nameModelObserveValue, null, null);
 		//
 		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
+		IObservableValue observe_durationType_model = BeansObservables.observeValue(model, "carparkDurationTypeEnum");
 		bindingContext.bindValue(observeSingleSelectionComboViewer, observe_durationType_model, null, null);
 		//
 		IObservableValue observeTextText_2ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_2);
+		IObservableValue onedayMaxChargeModelObserveValue = BeanProperties.value("onedayMaxCharge").observe(model);
 		bindingContext.bindValue(observeTextText_2ObserveWidget, onedayMaxChargeModelObserveValue, null, null);
 		//
 		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
+		IObservableValue freeTimeModelObserveValue = BeanProperties.value("freeTime").observe(model);
 		bindingContext.bindValue(observeTextText_3ObserveWidget, freeTimeModelObserveValue, null, null);
 		//
-		IObservableValue observeTextText_4ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_4);
-		bindingContext.bindValue(observeTextText_4ObserveWidget, startStepTimeModelObserveValue, null, null);
-		//
-		IObservableValue observeTextText_5ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_5);
-		bindingContext.bindValue(observeTextText_5ObserveWidget, startStepPriceModelObserveValue, null, null);
-		//
 		IObservableValue observeSingleSelectionComboViewer_1 = ViewerProperties.singleSelection().observe(comboViewer_1);
+		IObservableValue observe_holidayType_model = BeansObservables.observeValue(model, "carparkHolidayTypeEnum");
 		bindingContext.bindValue(observeSingleSelectionComboViewer_1, observe_holidayType_model, null, null);
 		//
 		IObservableValue observeSingleSelectionComboViewer_2 = ViewerProperties.singleSelection().observe(comboViewer_2);
+		IObservableValue observe_crossDayChargeType_model = BeansObservables.observeValue(model, "carparkAcrossDayTypeEnum");
 		bindingContext.bindValue(observeSingleSelectionComboViewer_2, observe_crossDayChargeType_model, null, null);
 		//
 		IObservableValue observeSingleSelectionComboViewer_3 = ViewerProperties.singleSelection().observe(comboViewer_3);
+		IObservableValue observe_enableCharge_model = BeansObservables.observeValue(model, "freeTimeEnable");
 		bindingContext.bindValue(observeSingleSelectionComboViewer_3, observe_enableCharge_model, null, null);
 		//
 		IObservableValue observeSingleSelectionComboViewer_4 = ViewerProperties.singleSelection().observe(comboViewer_4);
+		IObservableValue observe_carType_model = BeansObservables.observeValue(model, "carparkCarType");
 		bindingContext.bindValue(observeSingleSelectionComboViewer_4, observe_carType_model, null, null);
 		//
-		IObservableValue observeTextText_acrossDayPriceObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_acrossDayPrice);
-		IObservableValue acrossDayPriceModelObserveValue = BeanProperties.value("acrossDayPrice").observe(model);
-		bindingContext.bindValue(observeTextText_acrossDayPriceObserveWidget, acrossDayPriceModelObserveValue, null, null);
+		IObservableValue observeSelectionButton_6ObserveWidget = WidgetProperties.selection().observe(button_6);
+		IObservableValue acrossDayIsFreeModelObserveValue = BeanProperties.value("acrossDayIsFree").observe(model);
+		bindingContext.bindValue(observeSelectionButton_6ObserveWidget, acrossDayIsFreeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}
