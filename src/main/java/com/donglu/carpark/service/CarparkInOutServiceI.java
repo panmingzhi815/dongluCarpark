@@ -189,4 +189,10 @@ public interface CarparkInOutServiceI {
 	 */
 	List<SingleCarparkInOutHistory> searchNotOutHistory(int page,int rows,String plateNO);
 	Long countNotOutHistory(String plateNO);
+	
+	/**
+	 * 清理停了超过多少天的场内车
+	 * @param date 天数
+	 */
+	void clearCarHistoryWithInByDate(int date);
 }

@@ -1035,7 +1035,7 @@ public class CarparkManageApp extends AbstractApp{
 		
 		text_setting_imgSaveDays.setText(imgSaveMonth==null?SystemSettingTypeEnum.图片保存多少天.getDefaultValue():imgSaveMonth);
 		Composite composite_7 = new Composite(group_4, SWT.NONE);
-		composite_7.setLayout(new GridLayout(2, false));
+		composite_7.setLayout(new GridLayout(3, false));
 		composite_7.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
 		
 		Button button = new Button(composite_7, SWT.NONE);
@@ -1058,6 +1058,16 @@ public class CarparkManageApp extends AbstractApp{
 		button_1.setToolTipText("清除进出场记录，清除充值、归账记录");
 		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_1.setText("清除记录");
+		
+		Button button_17 = new Button(composite_7, SWT.NONE);
+		button_17.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_17.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.clearCarWithNotOut();
+			}
+		});
+		button_17.setText("清理场内车");
 		Composite composite_8 = new Composite(group_4, SWT.NONE);
 		composite_8.setLayout(new GridLayout(1, false));
 		composite_8.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));

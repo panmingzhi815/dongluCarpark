@@ -835,4 +835,24 @@ public class CarparkManagePresenter {
 		return storeFreePresenter;
 	}
 
+	public void clearCarWithNotOut() {
+		String input = commonui.input("场内车清理", "请输入需要清理停了多少天的场内车","30");
+		Integer date;
+		try {
+			date = Integer.valueOf(input);
+			if (date<=0) {
+				return;
+			}
+		} catch (NumberFormatException e) {
+			return;
+		}
+		
+
+		boolean confirm = commonui.confirm("提示", "确认清理停了"+date+"天的场内车");
+		if (!confirm) {
+			return;
+		}
+		sp.getCarparkInOutService().clearCarHistoryWithInByDate(date);
+	}
+
 }

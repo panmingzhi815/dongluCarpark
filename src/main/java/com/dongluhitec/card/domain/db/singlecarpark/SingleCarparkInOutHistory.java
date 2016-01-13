@@ -16,6 +16,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 @NamedQueries({
 	@NamedQuery(name = "SingleCarparkInOutHistory.findModifyPlateNO", query = "select c from SingleCarparkInOutHistory c"
 			+ "  where (c.inPlateNO!=c.plateNo or c.plateNo!=c.outPlateNO) and c.outTime is not null"),
+	@NamedQuery(name="SingleCarparkInOutHistory.deleteWithNotOutByDate",query="delete from SingleCarparkInOutHistory i where i.inTime<? and i.outTime is null")
 	})
 public class SingleCarparkInOutHistory extends DomainObject{
 	
@@ -27,10 +28,10 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		inTimeLabel,outTimeLabel
 	}
 	public enum Query{
-		deleteAll;
-		public String toString() {
+		deleteWithNotOutByDate;
+		public String query() {
 			
-			return super.toString();
+			return SingleCarparkInOutHistory.class.getSimpleName()+"."+name();
 		}
 		
 	}
