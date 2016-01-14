@@ -14,7 +14,7 @@ public class CarparkClientConfig implements Serializable{
 	private static final String MYSQL = "MYSQL";
 	public final String configFileName = "CarparkClientConfig.properties";
 	public static CarparkClientConfig instance;
-
+	private String serverIp;
 	private String dbServerIp;
 	private String dbServerPort;
 	private String dbServerUsername;
@@ -37,7 +37,7 @@ public class CarparkClientConfig implements Serializable{
 			out.println(String.format("#服务器ip配置  %s", new Date()));
 
 			out.println("#业务底层数据库ip");
-			out.println(String.format("%s=%s", "db.dbServerIp", getDbServerIp()));
+			out.println(String.format("%s=%s", "db.dbServerIp", getServerIp()));
 			out.println();
 			
 
@@ -60,7 +60,7 @@ public class CarparkClientConfig implements Serializable{
         	Properties preferenceStore = new Properties();
             preferenceStore.load(fileInputStream);
             
-            this.dbServerIp = preferenceStore.getProperty("db.dbServerIp", "127.0.0.1");
+            this.serverIp = preferenceStore.getProperty("db.dbServerIp", "127.0.0.1");
         } catch (IOException e) {
             e.printStackTrace();
         } 
@@ -134,5 +134,14 @@ public class CarparkClientConfig implements Serializable{
 
 	public void setDbServerType(String dbServerType) {
 		this.dbServerType = dbServerType;
+	}
+
+	public String getServerIp() {
+		return serverIp;
+	}
+
+	public void setServerIp(String serverIp) {
+		this.serverIp = serverIp;
+		saveConfig();
 	}
 }

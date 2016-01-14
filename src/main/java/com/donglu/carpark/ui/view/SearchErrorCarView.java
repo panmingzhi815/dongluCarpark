@@ -44,7 +44,6 @@ public class SearchErrorCarView extends Composite implements View{
 	private DataBindingContext m_bindingContext;
 	private Presenter presenter;
 	SearchErrorCarModel model;
-	Map<SystemSettingTypeEnum, String> mapSystemSetting;
 	private Table table;
 	private Table table_1;
 	private TableViewer tableViewer;
@@ -165,9 +164,6 @@ public class SearchErrorCarView extends Composite implements View{
 	@Override
 	public SearchErrorCarPresenter getPresenter() {
 		return (SearchErrorCarPresenter) presenter;
-	}
-	public void setSystemSetting(Map<SystemSettingTypeEnum, String> mapSystemSetting) {
-		this.mapSystemSetting=mapSystemSetting;
 	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();

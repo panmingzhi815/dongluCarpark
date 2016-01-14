@@ -1,22 +1,13 @@
 package com.donglu.carpark.server.imgserver;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import
+import java.io.DataOutputStream;
 
-java.io.DataOutputStream;
+import java.io.FileInputStream;
 
-import
+import java.io.IOException;
 
-java.io.FileInputStream;
-
-import
-
-java.io.IOException;
-
-import
-
-java.io.InputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import
 
@@ -26,10 +17,8 @@ import
 
 java.net.URL;
 import java.util.Base64;
-import java.util.Map;
 
 import com.google.common.base.Charsets;
-import org.apache.commons.io.input.CharSequenceInputStream;
 
 public class FileuploadSend {
 

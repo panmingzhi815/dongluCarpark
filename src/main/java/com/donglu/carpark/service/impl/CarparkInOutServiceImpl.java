@@ -712,12 +712,14 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 				list.add(like);
 			}
 			c.add(Restrictions.or(list.toArray(new SimpleExpression[list.size()])));
-			List<SimpleExpression> listD = new ArrayList<>();
-			for (SingleCarparkCarpark d : findSameCarpark(carpark)) {
-				SimpleExpression eq = Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), d.getId());
-				listD.add(eq);
+			if (!StrUtil.isEmpty(carpark)) {
+				List<SimpleExpression> listD = new ArrayList<>();
+				for (SingleCarparkCarpark d : findSameCarpark(carpark)) {
+					SimpleExpression eq = Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), d.getId());
+					listD.add(eq);
+				}
+				c.add(Restrictions.or(listD.toArray(new SimpleExpression[listD.size()])));
 			}
-			c.add(Restrictions.or(listD.toArray(new SimpleExpression[listD.size()])));
 			if (order) {
 				c.addOrder(Order.asc(SingleCarparkInOutHistory.Property.inTime.name()));
 			} else {

@@ -24,7 +24,11 @@ public class ServerServlet extends HttpServlet {
 			response.setContentType("text/html;charset=UTF-8");
 			PrintWriter out = response.getWriter();
 			CarparkServerConfig instance = CarparkServerConfig.getInstance();
-			String s = StrUtil.getHostIp()+"/"+instance.getDbServerPort()+"/"+instance.getDbServerUsername()+"/"+instance.getDbServerPassword()+"/"+instance.getDbServerType();
+			String hostIp = instance.getDbServerIp();
+			if (hostIp.equals("127.0.0.1")||hostIp.equals("localhost")) {
+				hostIp=StrUtil.getHostIp();
+			}
+			String s = hostIp+"/"+instance.getDbServerPort()+"/"+instance.getDbServerUsername()+"/"+instance.getDbServerPassword()+"/"+instance.getDbServerType();
 			System.out.println(s);
 			out.print(s);
 			out.flush();

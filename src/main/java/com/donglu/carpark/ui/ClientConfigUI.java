@@ -99,7 +99,7 @@ public class ClientConfigUI {
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text.widthHint = 176;
 		text_ip.setLayoutData(gd_text);
-		text_ip.setText(CarparkClientConfig.getInstance().getDbServerIp());
+		text_ip.setText(CarparkClientConfig.getInstance().getServerIp());
 		btn_checkDataBase = new Button(composite, SWT.NONE);
 		btn_checkDataBase.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btn_checkDataBase.addSelectionListener(new SelectionAdapter() {
@@ -120,6 +120,7 @@ public class ClientConfigUI {
 			String[] s = upload.split("/");
 
 			CarparkClientConfig instance = CarparkClientConfig.getInstance();
+			instance.setServerIp(dbServer_ip);
 			instance.setDbServerIp(s[0]);
 			instance.setDbServerPort(s[1]);
 			instance.setDbServerUsername(s[2]);

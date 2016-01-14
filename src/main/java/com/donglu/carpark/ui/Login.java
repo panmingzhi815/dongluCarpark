@@ -436,6 +436,7 @@ public class Login {
 			instance.setDbServerUsername(s[2]);
 			instance.setDbServerPassword(s[3]);
 			instance.setDbServerType(s[4]);
+			instance.setDbServerIp(s[0]);
 			CarparkFileUtils.writeObject(ClientConfigUI.CARPARK_CLIENT_CONFIG, instance);
 			return true;
 		} catch (Exception e) {

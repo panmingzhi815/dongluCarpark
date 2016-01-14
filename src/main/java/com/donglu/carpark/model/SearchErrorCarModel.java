@@ -3,7 +3,9 @@ package com.donglu.carpark.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -24,12 +26,19 @@ public class SearchErrorCarModel extends DomainObject {
 	
 	private SingleCarparkCarpark carpark;
 	
-	private List<SingleCarparkDevice> listDevice=new ArrayList<>();
 	public List<SingleCarparkInOutHistory> getHavePlateNoList() {
 		return havePlateNoList;
 	}
 	public void setHavePlateNoList(List<SingleCarparkInOutHistory> havePlateNoList) {
 		this.havePlateNoList = havePlateNoList;
+		if (pcs != null)
+			pcs.firePropertyChange("havePlateNoList", null, null);
+	}
+	public void addHavePlateNoList(Set<SingleCarparkInOutHistory> havePlateNoList) {
+		if (havePlateNoList==null) {
+			this.havePlateNoList=new ArrayList<>();
+		}
+		this.havePlateNoList.addAll(havePlateNoList);
 		if (pcs != null)
 			pcs.firePropertyChange("havePlateNoList", null, null);
 	}
@@ -118,14 +127,5 @@ public class SearchErrorCarModel extends DomainObject {
 		this.carpark = carpark;
 		if (pcs != null)
 			pcs.firePropertyChange("carpark", null, null);
-	}
-	public List<SingleCarparkDevice> getListDevice() {
-		return listDevice;
-	}
-	public void setListDevice(Collection<SingleCarparkDevice> listDevice) {
-		this.listDevice.clear();
-		this.listDevice.addAll(listDevice);
-		if (pcs != null)
-			pcs.firePropertyChange("listDevice", null, null);
 	}
 }

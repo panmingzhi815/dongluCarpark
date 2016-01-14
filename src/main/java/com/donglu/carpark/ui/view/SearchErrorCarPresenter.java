@@ -27,7 +27,6 @@ public class SearchErrorCarPresenter implements Presenter{
 	public void go(Composite c) {
 		view=new SearchErrorCarView(c, c.getStyle(),model);
 		view.setPresenter(this);
-		view.setSystemSetting(mapSystemSetting);
 		refresh();
 	}
 	

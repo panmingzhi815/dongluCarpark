@@ -400,6 +400,7 @@ public class ImageServerUI {
 		} catch (Exception e) {
 			e.printStackTrace();
 			commonui.error("启动失败", ""+e);
+			LOGGER.error("启动失败", e);
 			btnStart.setText("启    动");
 			btnStart.setEnabled(true);
 		}

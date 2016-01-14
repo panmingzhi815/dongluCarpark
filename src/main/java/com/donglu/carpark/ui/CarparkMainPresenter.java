@@ -48,6 +48,7 @@ import com.donglu.carpark.ui.wizard.SearchHistoryByHandWizard;
 import com.donglu.carpark.ui.wizard.model.ChangeUserModel;
 import com.donglu.carpark.ui.wizard.model.ReturnAccountModel;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ImgCompress;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.LPRInOutType;
@@ -849,8 +850,6 @@ public class CarparkMainPresenter {
 			searchErrorCarPresenter.getModel().setSaveBigImg(bigImg);
 			searchErrorCarPresenter.getModel().setSaveSmallImg(smallImg);
 			searchErrorCarPresenter.getModel().setCarpark(model.getCarpark());
-			searchErrorCarPresenter.getModel().setListDevice(mapIpToDevice.values());
-			searchErrorCarPresenter.setSystemSetting(mapSystemSetting);
 			SearchHistoryByHandWizard wizard = new SearchHistoryByHandWizard(searchErrorCarPresenter);
 			Object showWizard = commonui.showWizard(wizard);
 			if (StrUtil.isEmpty(showWizard)) {
@@ -1135,7 +1134,7 @@ public class CarparkMainPresenter {
 					File smallFile = new File(finalSmallFileName);
 					smallFile.createNewFile();
 					Files.write(smallImage, smallFile);
-
+					ImgCompress.compress(smallFile.getPath());
 					String ip = CarparkClientConfig.getInstance().getDbServerIp();
 					if (true) {
 						long nanoTime = System.nanoTime();

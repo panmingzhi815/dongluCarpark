@@ -3,7 +3,11 @@ package com.donglu.carpark.ui;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import com.donglu.carpark.model.ConcentrateModel;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
+
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.SWT;
@@ -19,12 +23,20 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.observable.Realm;
+import org.eclipse.jface.databinding.swt.SWTObservables;
 
 public class ConcentrateApp {
+	private DataBindingContext m_bindingContext;
 
 	protected Shell shell;
 	@Inject
 	private ConcentratePresenter presenter;
+	private ConcentrateModel model=new ConcentrateModel();
 	private Text text;
 	private Text text_1;
 	private Text text_2;
@@ -34,34 +46,47 @@ public class ConcentrateApp {
 	private Text text_6;
 	private Text text_7;
 	private Text text_8;
-	private Text text_10;
 
 	/**
 	 * Launch the application.
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		try {
-			ConcentrateApp window = new ConcentrateApp();
-			window.open();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		Display display = Display.getDefault();
+		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
+			public void run() {
+				try {
+					Injector injector = Guice.createInjector();
+					ConcentrateApp window = injector.getInstance(ConcentrateApp.class);
+					window.open();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	/**
 	 * Open the window.
 	 */
 	public void open() {
+		init();
 		Display display = Display.getDefault();
 		createContents();
 		shell.open();
+		shell.setMaximized(true);
 		shell.layout();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
 			}
 		}
+	}
+
+	private void init() {
+		presenter.setView(this);
+		presenter.setModel(model);
+		
 	}
 
 	/**
@@ -83,7 +108,9 @@ public class ConcentrateApp {
 		
 		Composite composite_1 = new Composite(shell, SWT.NONE);
 		composite_1.setLayout(new GridLayout(2, false));
-		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		GridData gd_composite_1 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
+		gd_composite_1.widthHint = 320;
+		composite_1.setLayoutData(gd_composite_1);
 		
 		Label lblNewLabel_3 = new Label(composite_1, SWT.NONE);
 		lblNewLabel_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
@@ -177,28 +204,6 @@ public class ConcentrateApp {
 		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		Label label_2 = new Label(composite_1, SWT.NONE);
-		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_2.setText("优惠类型");
-		
-		ComboViewer comboViewer = new ComboViewer(composite_1, SWT.NONE);
-		Combo combo = comboViewer.getCombo();
-		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		comboViewer.setContentProvider(new ArrayContentProvider());
-		comboViewer.setLabelProvider(new LabelProvider());
-		comboViewer.setInput(new String[]{"在线优惠","点劵优惠"});
-		
-		Label label_3 = new Label(composite_1, SWT.NONE);
-		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_3.setText("优惠信息");
-		
-		text_10 = new Text(composite_1, SWT.BORDER);
-		text_10.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		text_10.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
 		Composite composite_2 = new Composite(composite_1, SWT.NONE);
 		composite_2.setLayout(new GridLayout(1, false));
 		composite_2.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
@@ -207,6 +212,7 @@ public class ConcentrateApp {
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				presenter.searchAndCount();
 			}
 		});
 		btnNewButton.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
@@ -238,6 +244,48 @@ public class ConcentrateApp {
 		});
 		btnNewButton_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		btnNewButton_4.setText("换      班");
+		m_bindingContext = initDataBindings();
 
+	}
+	protected DataBindingContext initDataBindings() {
+		DataBindingContext bindingContext = new DataBindingContext();
+		//
+		IObservableValue observeTextText_5ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_5);
+		IObservableValue userNameModelObserveValue = BeanProperties.value("userName").observe(model);
+		bindingContext.bindValue(observeTextText_5ObserveWidget, userNameModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_6ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_6);
+		IObservableValue workTimeModelObserveValue = BeanProperties.value("workTime").observe(model);
+		bindingContext.bindValue(observeTextText_6ObserveWidget, workTimeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_7ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_7);
+		IObservableValue totalFactModelObserveValue = BeanProperties.value("totalFact").observe(model);
+		bindingContext.bindValue(observeTextText_7ObserveWidget, totalFactModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_8ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_8);
+		IObservableValue totalFreeModelObserveValue = BeanProperties.value("totalFree").observe(model);
+		bindingContext.bindValue(observeTextText_8ObserveWidget, totalFreeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextTextObserveWidget = WidgetProperties.text(SWT.Modify).observe(text);
+		IObservableValue plateNOModelObserveValue = BeanProperties.value("plateNO").observe(model);
+		bindingContext.bindValue(observeTextTextObserveWidget, plateNOModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_1ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_1);
+		IObservableValue inTimeModelObserveValue = BeanProperties.value("inTime").observe(model);
+		bindingContext.bindValue(observeTextText_1ObserveWidget, inTimeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_2ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_2);
+		IObservableValue stillTimeModelObserveValue = BeanProperties.value("stillTime").observe(model);
+		bindingContext.bindValue(observeTextText_2ObserveWidget, stillTimeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
+		IObservableValue shouldMoneyModelObserveValue = BeanProperties.value("shouldMoney").observe(model);
+		bindingContext.bindValue(observeTextText_3ObserveWidget, shouldMoneyModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_4ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_4);
+		IObservableValue factMoneyModelObserveValue = BeanProperties.value("factMoney").observe(model);
+		bindingContext.bindValue(observeTextText_4ObserveWidget, factMoneyModelObserveValue, null, null);
+		//
+		return bindingContext;
 	}
 }

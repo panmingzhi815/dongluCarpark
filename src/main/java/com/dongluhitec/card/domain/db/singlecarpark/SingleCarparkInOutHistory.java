@@ -80,6 +80,8 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private Long carparkId;
 	private String carparkName;
 	
+	private Date chargeTime;
+	
 	private Date reviseInTime;
 
 	public String getPlateNo() {
@@ -338,7 +340,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 			if (h.getId()==null) {
 				return false;
 			}
-			if (h.getId().equals(this.getId())) {
+			if (h.getId().equals(this.getId())||(h.inTime.equals(this.inTime))) {
 				return true;
 			}else{
 				return false;
@@ -360,6 +362,18 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		this.freeMoney = freeMoney;
 		if (pcs != null)
 			pcs.firePropertyChange("freeMoney", null, null);
+	}
+	public Date getChargeTime() {
+		return chargeTime;
+	}
+	public void setChargeTime(Date chargeTime) {
+		this.chargeTime = chargeTime;
+		if (pcs != null)
+			pcs.firePropertyChange("chargeTime", null, null);
+	}
+	@Override
+	public int hashCode() {
+		return id==null?0:id.intValue();
 	}
 	
 }
