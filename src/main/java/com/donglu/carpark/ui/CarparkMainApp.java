@@ -378,7 +378,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 
 		presenter.init();
 		mapTempCharge = Maps.newHashMap();
-		List<CarparkChargeStandard> listTemp = sp.getCarparkService().findAllCarparkChargeStandard(model.getCarpark());
+		List<CarparkChargeStandard> listTemp = sp.getCarparkService().findAllCarparkChargeStandard(model.getCarpark(),true);
 		for (CarparkChargeStandard carparkChargeStandard : listTemp) {
 			String name = carparkChargeStandard.getCarparkCarType().getName();
 			mapTempCharge.put(name, carparkChargeStandard.getCode());
@@ -442,7 +442,6 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private void autoSendTimeToDevice() {
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
-
 			@Override
 			public void run() {
 				Set<String> keySet = mapIpToDevice.keySet();

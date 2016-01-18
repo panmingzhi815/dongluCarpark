@@ -3,6 +3,7 @@ package com.donglu.carpark.ui.wizard;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 
@@ -14,6 +15,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 	private String voice="1";
 	private String addressLabel;
 	private String tcpLabel;
+	private DeviceRoadTypeEnum deviceRoadType;
 	
 	public AddDeviceModel(){
 		SingleCarparkCarpark s=new SingleCarparkCarpark();
@@ -39,7 +41,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		device.setIp(getIp());
 		device.setLinkAddress(getLinkAddress());
 		device.setName(getName());
-		device.setRoadType(getRoadType());
+		device.setRoadType(getDeviceRoadType().name());
 		device.setType(getType());
 		device.setVolume(getVolume());
 		device.setAdvertise(getAdvertise());
@@ -72,6 +74,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		setLinkAddress(device.getLinkAddress());
 		setName(device.getName());
 		setRoadType(device.getRoadType());
+		setDeviceRoadType(DeviceRoadTypeEnum.valueOf(device.getRoadType()));
 		setType(device.getType());
 		String type2 = device.getType();
 		if (type2.equals("tcp")) {
@@ -106,6 +109,14 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		this.tcpLabel = tcpLabel;
 		if (pcs != null)
 			pcs.firePropertyChange("tcpLabel", null, null);
+	}
+	public DeviceRoadTypeEnum getDeviceRoadType() {
+		return deviceRoadType;
+	}
+	public void setDeviceRoadType(DeviceRoadTypeEnum deviceRoadType) {
+		this.deviceRoadType = deviceRoadType;
+		if (pcs != null)
+			pcs.firePropertyChange("deviceRoadType", null, null);
 	}
 	
 }

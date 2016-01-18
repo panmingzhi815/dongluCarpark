@@ -63,6 +63,8 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 
 public class Login {
+	private static final String CONCENTRATE_TEMP = "concentrate.temp";
+
 	private static final String USER_NAMES = "userNames";
 
 	private static final String SYSTEM_TEMP = "system.temp";
@@ -79,6 +81,8 @@ public class Login {
 	private Combo combo;
 	private CarparkManageApp carparkManageApp;
 	private CarparkMainApp carparkMainApp;
+	private ConcentrateApp concentrateApp;
+	
 	private CarparkDatabaseServiceProvider sp;
 	private ClientConfigUI clientConfigUI;
 	private CommonUIFacility commonui;
@@ -139,6 +143,10 @@ public class Login {
 			if (f.exists()) {
 				f.delete();
 			}
+			f = new File(CONCENTRATE_TEMP);
+			if (f.exists()) {
+				f.delete();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -165,6 +173,7 @@ public class Login {
 		sp=injector.getInstance(CarparkDatabaseServiceProvider.class);
 		clientConfigUI=injector.getInstance(ClientConfigUI.class);
 		commonui=injector.getInstance(CommonUIFacility.class);
+		concentrateApp=injector.getInstance(ConcentrateApp.class);
 	}
 
 	/**
@@ -253,7 +262,7 @@ public class Login {
 		combo.setLayoutData(gd_combo);
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
-		comboViewer.setInput(new String[] { "监控界面", "管理界面" });
+		comboViewer.setInput(new String[] { "监控界面", "管理界面","收费界面" });
 		Object readObject = CarparkFileUtils.readObject(selectType);
 		if (StrUtil.isEmpty(readObject)) {
 			combo.select(0);
@@ -393,6 +402,19 @@ public class Login {
 
 									app = carparkManageApp;
 									app.open();
+								}else if (loginApp.equals("收费界面")) {
+									file = new File(CONCENTRATE_TEMP);
+									if (file.exists()) {
+										commonui.error("错误", "已经打开了收费界面");
+										return;
+									}
+									file.createNewFile();
+									raf = new RandomAccessFile(file, "rw");
+									channel = raf.getChannel();
+									tryLock = channel.tryLock();
+
+									app = concentrateApp;
+									app.open();
 								}
 							}
 							LOGGER.info("界面打开花费时间{}", System.nanoTime() - nanoTime);
@@ -428,7 +450,7 @@ public class Login {
 	protected boolean check() {
 		try {
 
-			String upload = FileuploadSend.upload("http://" + CarparkClientConfig.getInstance().getDbServerIp() + ":8899/server/", null);
+			String upload = FileuploadSend.upload("http://" + CarparkClientConfig.getInstance().getServerIp() + ":8899/server/", null);
 			String[] s = upload.split("/");
 
 			CarparkClientConfig instance = CarparkClientConfig.getInstance();

@@ -11,12 +11,14 @@ import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
 import org.criteria4jpa.criterion.SimpleExpression;
+import org.criteria4jpa.projection.Projections;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.service.CarparkUserService;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.MapperConfig;
@@ -157,6 +159,34 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		}finally{
 			unitOfWork.end();
 		}
+	}
+	
+	@Override
+	public List<SingleCarparkLockCar> findLockCarByPlateNO(String plateNO) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkLockCar.class);
+			c.add(Restrictions.eq(SingleCarparkLockCar.Property.plateNO.name(), plateNO));
+			return c.getResultList();
+		}finally{
+			unitOfWork.end();
+		}
+	}
+	@Override
+	public Long saveLockCar(SingleCarparkLockCar lc) {
+		DatabaseOperation<SingleCarparkLockCar> dom = DatabaseOperation.forClass(SingleCarparkLockCar.class, emprovider.get());
+		if (StrUtil.isEmpty(lc.getId())) {
+			dom.insert(lc);
+		}else{
+			dom.update(lc);
+		}
+		return lc.getId();
+	}
+	@Override
+	public Long deleteLockCar(SingleCarparkLockCar lc) {
+		DatabaseOperation<SingleCarparkLockCar> dom = DatabaseOperation.forClass(SingleCarparkLockCar.class, emprovider.get());
+		dom.remove(lc);
+		return lc.getId();
 	}
 
 }

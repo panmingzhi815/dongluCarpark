@@ -11,7 +11,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
 public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	public enum Property{
-		userName,plateNO,chargesMoney,operaName,overdueTime,createTime
+		userName,userType,plateNO,chargesMoney,operaName,overdueTime,createTime
 	}
 	public enum Label{
 		createTimeLabel,overdueTimeLabel
@@ -21,12 +21,13 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	 */
 	private static final long serialVersionUID = -2691074438161066722L;
 	
-	String userName;
-	String userIdCard;
-	String plateNO;
-	Date createTime;
-	String rentType;
-	String carType;
+	private String userName;
+	private String userIdCard;
+	private String userType;
+	private String plateNO;
+	private Date createTime;
+	private String rentType;
+	private String carType;
 	int monthamount;
 	float monthCharge;
 	//过期时间
@@ -169,6 +170,16 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 		this.operaName = operaName;
 		if (pcs != null)
 			pcs.firePropertyChange("operaName", null, null);
+	}
+
+	public String getUserType() {
+		return userType;
+	}
+
+	public void setUserType(String userType) {
+		this.userType = userType;
+		if (pcs != null)
+			pcs.firePropertyChange("userType", null, null);
 	}
 	
 }

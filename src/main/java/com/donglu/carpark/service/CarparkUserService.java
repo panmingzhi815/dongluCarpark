@@ -2,6 +2,7 @@ package com.donglu.carpark.service;
 
 import java.util.List;
 
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 
 public interface CarparkUserService {
@@ -15,4 +16,8 @@ public interface CarparkUserService {
 	List<SingleCarparkUser> findUserByMonthChargeId(Long id);
 	Long saveUserByMany(List<SingleCarparkUser> list);
 	List<SingleCarparkUser> findUserThanIdMore(Long id, List<Long> errorIds);
+	
+	List<SingleCarparkLockCar> findLockCarByPlateNO(String plateNO);
+	Long saveLockCar(SingleCarparkLockCar lc);
+	Long deleteLockCar(SingleCarparkLockCar lc);
 }

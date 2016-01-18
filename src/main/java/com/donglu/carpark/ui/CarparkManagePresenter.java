@@ -26,6 +26,7 @@ import com.donglu.carpark.ui.view.OpenDoorLogPresenter;
 import com.donglu.carpark.ui.view.ReturnAccountPresenter;
 import com.donglu.carpark.ui.view.SystemLogPresenter;
 import com.donglu.carpark.ui.view.UserPresenter;
+import com.donglu.carpark.ui.view.setting.SettingPresenter;
 import com.donglu.carpark.ui.view.store.StoreChargePresenter;
 import com.donglu.carpark.ui.view.store.StoreFreePresenter;
 import com.donglu.carpark.ui.view.store.StorePresenter;
@@ -97,6 +98,8 @@ public class CarparkManagePresenter {
 	private StoreChargePresenter storeChargePresenter;
 	@Inject
 	private StoreFreePresenter storeFreePresenter;
+	@Inject
+	private SettingPresenter settingPresenter;
 
 	/**
 	 * 删除停车场
@@ -853,6 +856,10 @@ public class CarparkManagePresenter {
 			return;
 		}
 		sp.getCarparkInOutService().clearCarHistoryWithInByDate(date);
+	}
+
+	public SettingPresenter getSettingPresenter() {
+		return settingPresenter;
 	}
 
 }

@@ -15,6 +15,8 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 	private SingleCarparkMonthlyCharge selectMonth;
 	private String createTimeLabel;
 	private boolean free=true;
+	private boolean payMoney=true;
+	private boolean payDate=true;
 	public int getCount() {
 		return count;
 	}
@@ -83,5 +85,25 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 		this.free = free;
 		if (pcs != null)
 			pcs.firePropertyChange("free", null, null);
+	}
+
+	public boolean isPayMoney() {
+		return payMoney;
+	}
+
+	public void setPayMoney(boolean payMoney) {
+		this.payMoney = payMoney;
+		if (pcs != null)
+			pcs.firePropertyChange("payMoney", null, null);
+	}
+
+	public boolean isPayDate() {
+		return payDate;
+	}
+
+	public void setPayDate(boolean payDate) {
+		this.payDate = payDate;
+		if (pcs != null)
+			pcs.firePropertyChange("payDate", null, null);
 	}
 }

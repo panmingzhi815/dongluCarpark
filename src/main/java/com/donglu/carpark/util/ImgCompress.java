@@ -8,7 +8,7 @@ import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import com.sun.image.codec.jpeg.*;
+import com.sun.image.codec.jpeg.*;
 /**
  * 图片压缩处理
  * @author 崔素强
@@ -97,7 +97,7 @@ public class ImgCompress {
 	 * @param w int 新宽度
 	 * @param h int 新高度
 	 */
-	public void resize(int w, int h) throws IOException {/*
+	public void resize(int w, int h) throws IOException {
 		// SCALE_SMOOTH 的缩略算法 生成缩略图片的平滑度的 优先级比速度高 生成的图片质量比较好 但速度慢
 		BufferedImage image = new BufferedImage(w, h,BufferedImage.SCALE_SMOOTH ); 
 		image.getGraphics().drawImage(img, 0, 0, w, h, null); // 绘制缩小后的图
@@ -107,7 +107,7 @@ public class ImgCompress {
 		JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
 		encoder.encode(image); // JPEG编码
 		out.close();
-	*/}
+	}
 	public int getWidth() {
 		return width;
 	}

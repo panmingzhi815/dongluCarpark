@@ -244,8 +244,13 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		IObservableValue observeEnabledComboObserveWidget = WidgetProperties.enabled().observe(combo);
 		bindingContext.bindValue(observeEnabledComboObserveWidget, freeModelObserveValue, null, null);
 		//
-		IObservableValue observeEnabledText_chargesMoneyObserveWidget = WidgetProperties.enabled().observe(text_chargesMoney);
-		bindingContext.bindValue(observeEnabledText_chargesMoneyObserveWidget, freeModelObserveValue, null, null);
+		IObservableValue observeEnabledText_chargesMoneyObserveWidget_1 = WidgetProperties.enabled().observe(text_chargesMoney);
+		IObservableValue payMoneyModelObserveValue = BeanProperties.value("payMoney").observe(model);
+		bindingContext.bindValue(observeEnabledText_chargesMoneyObserveWidget_1, payMoneyModelObserveValue, null, null);
+		//
+		IObservableValue observeEnabledDateChooserComboObserveWidget = WidgetProperties.enabled().observe(dateChooserCombo);
+		IObservableValue payDateModelObserveValue = BeanProperties.value("payDate").observe(model);
+		bindingContext.bindValue(observeEnabledDateChooserComboObserveWidget, payDateModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

@@ -111,27 +111,6 @@ public class CarInTask implements Runnable {
 					if (StrUtil.isEmpty(lbl_inSmallImg)) {
 						return;
 					}
-//					if (inSmallImage != null) {
-//						LOGGER.info("出口小图片销毁图片");
-//						inSmallImage.dispose();
-//						lbl_inSmallImg.setBackgroundImage(null);
-//					}
-//					if (inBigImage != null) {
-//						LOGGER.info("出口大图片销毁图片");
-//						inBigImage.dispose();
-//						lbl_inBigImg.setBackgroundImage(null);
-//					}
-//
-//					inSmallImage = CarparkUtils.getImage(smallImage, lbl_inSmallImg, shell);
-//					if (inSmallImage != null) {
-//						lbl_inSmallImg.setBackgroundImage(inSmallImage);
-//					}
-//
-//					inBigImage = CarparkUtils.getImage(bigImage, lbl_inBigImg, shell);
-//					if (inBigImage != null) {
-//						lbl_inBigImg.setBackgroundImage(inBigImage);
-//					}
-					
 					CarparkUtils.setBackgroundImage(smallImage, lbl_inSmallImg, DEFAULT_DISPLAY);
 					CarparkUtils.setBackgroundImage(bigImage, lbl_inBigImg, DEFAULT_DISPLAY);
 				}
@@ -144,8 +123,8 @@ public class CarInTask implements Runnable {
 			// 空车牌处理
 			if (StrUtil.isEmpty(plateNO)) {
 				LOGGER.info("空的车牌");
-				Boolean valueOf = Boolean.valueOf(
-						mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进) == null ? SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进));
+				
+				Boolean valueOf = Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.是否允许无牌车进));
 				if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认)) || Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认)) || !valueOf) {
 					model.setInCheckClick(true);
 					isEmptyPlateNo = true;
@@ -247,14 +226,15 @@ public class CarInTask implements Runnable {
 			String carType = "临时车";
 
 			if (!StrUtil.isEmpty(user)) {//固定车操作
+				//固定车入场确认
 				boolean flag = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认));
 				if (!isEmptyPlateNo) {
 					if (flag) {
 						model.setInCheckClick(true);
 						presenter.showContentToDevice(device, "固定车等待确认", false);
-						int i=0;
+						int i = 0;
 						while (model.isInCheckClick()) {
-							if (i>120) {
+							if (i > 120) {
 								return;
 							}
 							try {
@@ -271,28 +251,42 @@ public class CarInTask implements Runnable {
 						}
 					}
 				}
-
-				if (flag) {
-					if (StrUtil.isEmpty(user)) {
-						LOGGER.debug("判断是否允许临时车进");
-						if (device.getCarpark().isTempCarIsIn()) {
-							presenter.showContentToDevice(device, "固定停车场,不允许临时车进", false);
-							return;
-						}
-						if (shouTempCarToDevice(device)) {
-							return;
+				//非储值车
+				if (!user.getType().equals("储值")) {
+					if (flag) {
+						if (StrUtil.isEmpty(user)) {
+							LOGGER.debug("判断是否允许临时车进");
+							if (device.getCarpark().isTempCarIsIn()) {
+								presenter.showContentToDevice(device, "固定停车场,不允许临时车进", false);
+								return;
+							}
+							if (shouTempCarToDevice(device)) {
+								return;
+							}
+						} else {
+							if (fixCarShowToDevice(date, device, user, cch.getId())) {
+								return;
+							}
+							carType = "固定车";
 						}
 					} else {
 						if (fixCarShowToDevice(date, device, user, cch.getId())) {
 							return;
 						}
 						carType = "固定车";
-					}
-				} else {
-					if (fixCarShowToDevice(date, device, user, cch.getId())) {
+					} 
+				}else{//储值车
+					Float leftMoney = user.getLeftMoney();
+					Float prepaidCarInOutLimit=Float.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车进出场限制金额));
+					if (leftMoney<prepaidCarInOutLimit) {
+						presenter.showContentToDevice(device, "剩余"+leftMoney+"元，余额不足请联系管理员", false);
 						return;
 					}
-					carType = "固定车";
+					
+					Float prepaidCarInOutRemind=Float.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车提醒金额));;
+					if (leftMoney<prepaidCarInOutRemind) {
+						presenter.showContentToDevice(device, "剩余"+leftMoney+"元,"+CAR_IN_MSG, true);
+					}
 				}
 			} else {
 				LOGGER.debug("判断是否允许临时车进");

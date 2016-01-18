@@ -47,9 +47,9 @@ import com.donglu.carpark.ui.wizard.ReturnAccountWizard;
 import com.donglu.carpark.ui.wizard.SearchHistoryByHandWizard;
 import com.donglu.carpark.ui.wizard.model.ChangeUserModel;
 import com.donglu.carpark.ui.wizard.model.ReturnAccountModel;
+import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ImgCompress;
-import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.LPRInOutType;
 import com.dongluhitec.card.domain.LinkProtocolEnum;
@@ -1135,7 +1135,7 @@ public class CarparkMainPresenter {
 					smallFile.createNewFile();
 					Files.write(smallImage, smallFile);
 					ImgCompress.compress(smallFile.getPath());
-					String ip = CarparkClientConfig.getInstance().getDbServerIp();
+					String ip = CarparkClientConfig.getInstance().getServerIp();
 					if (true) {
 						long nanoTime = System.nanoTime();
 						log.info("准备将图片{}上传到服务器{}", finalBigFileName, ip);

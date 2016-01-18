@@ -249,7 +249,7 @@ public interface CarparkService {
 	 */
 	public SingleCarparkMonthlyCharge findMonthlyChargeByCode(String code, SingleCarparkCarpark carpark);
 	
-	public List<CarparkChargeStandard> findAllCarparkChargeStandard(SingleCarparkCarpark carpark);
+	public List<CarparkChargeStandard> findAllCarparkChargeStandard(SingleCarparkCarpark carpark, Boolean using);
 	
 	public SingleCarparkCarpark findCarparkByCode(String code);
 	public Map<SNSettingType, SingleCarparkSystemSetting> findAllSN();

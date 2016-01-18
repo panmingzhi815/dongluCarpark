@@ -23,8 +23,6 @@ import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -34,19 +32,14 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
@@ -60,14 +53,11 @@ import com.donglu.carpark.info.CarparkChargeInfo;
 import com.donglu.carpark.model.CarparkModel;
 import com.donglu.carpark.model.SystemUserModel;
 import com.donglu.carpark.ui.common.AbstractApp;
-import com.donglu.carpark.util.CarparkUtils;
-import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
-import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.main.DongluUIAppConfigurator;
 import com.dongluhitec.card.ui.main.javafx.DongluJavaFXModule;
 import com.google.common.collect.Maps;
@@ -89,9 +79,6 @@ public class CarparkManageApp extends AbstractApp{
 	@Inject
 	CommonUIFacility commonui;
 	private ToolBar carparkConfigToolBar;
-	private Text text_setting_dataBaseSave;
-	private Text text_setting_imgSave;
-	private Text text_setting_imgSaveDays;
 	@Inject
 	private CarparkManagePresenter presenter;
 	
@@ -108,8 +95,6 @@ public class CarparkManageApp extends AbstractApp{
 	private Map<SystemSettingTypeEnum, String> mapSystemSetting=Maps.newHashMap();
 
 	private Composite composite_returnAccount_search;
-	private Text text_1;
-	private Text text_twoCarema;
 	
 	/**
 	 * Launch the application.
@@ -551,545 +536,14 @@ public class CarparkManageApp extends AbstractApp{
 		tabItem_5.setControl(composite_20);
 		composite_20.setLayout(new FillLayout(SWT.HORIZONTAL));
 		presenter.getStorePresenter().go(composite_20);
-		TabItem tabItem_3 = new TabItem(tabFolder, SWT.NONE);
-		tabItem_3.setText("参数设置");
 		
-		Composite composite_12 = new Composite(tabFolder, SWT.NONE);
-		tabItem_3.setControl(composite_12);
-		composite_12.setLayout(new GridLayout(2, false));
+		TabItem tabItem_8 = new TabItem(tabFolder, SWT.NONE);
+		tabItem_8.setText("参数设置");
 		
-		Group group_4 = new Group(composite_12, SWT.NONE);
-		group_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		group_4.setLayout(new GridLayout(3, false));
-		GridData gd_group_4 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-		gd_group_4.heightHint = 106;
-		gd_group_4.widthHint = 669;
-		group_4.setLayoutData(gd_group_4);
-		group_4.setText("停车场基本设置");
-		
-		Button btnCheckButton = new Button(group_4, SWT.CHECK);
-		btnCheckButton.setToolTipText("选中后，停车场车位满允许临时车进");
-		btnCheckButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.车位满是否允许临时车入场, btnCheckButton.getSelection()+"");
-			}
-		});
-		btnCheckButton.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		btnCheckButton.setText("车位满是否允许临时车入场");
-		String string4 = mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许临时车入场);
-		if (string4==null) {
-			btnCheckButton.setSelection(Boolean.valueOf(SystemSettingTypeEnum.车位满是否允许临时车入场.getDefaultValue()));
-		}else{
-			btnCheckButton.setSelection(Boolean.valueOf(string4));
-		}
-		
-		String string5 = mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场);
-		
-		
-		Button button_4 = new Button(group_4, SWT.CHECK);
-		button_4.setToolTipText("选中后，临时车入场需要确认放行");
-		button_4.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.临时车入场是否确认, button_4.getSelection()+"");
-			}
-		});
-		button_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_4.setText("临时车入场是否需要确认");
-		
-		String string6 = mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许储值车入场);
-		
-		
-		String string7 = mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认);
-		if (string7==null) {
-			button_4.setSelection(Boolean.valueOf(SystemSettingTypeEnum.临时车入场是否确认.getDefaultValue()));
-		}else{
-			button_4.setSelection(Boolean.valueOf(string7));
-		}
-		
-		Button button_6 = new Button(group_4, SWT.CHECK);
-		button_6.setToolTipText("选中后，收费0元自动放行");
-		button_6.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.临时车零收费是否自动出场, button_6.getSelection()+"");
-			}
-		});
-		button_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_6.setText("临时车零收费是否自动出场");
-		Button btnCheckButton_1 = new Button(group_4, SWT.CHECK);
-		btnCheckButton_1.setToolTipText("选中后，停车场车位满允许固定免费车进");
-		btnCheckButton_1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.车位满是否允许免费车入场, btnCheckButton_1.getSelection()+"");
-			}
-		});
-		btnCheckButton_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		btnCheckButton_1.setText("车位满是否允许免费车入场");
-		if (string5==null) {
-			btnCheckButton_1.setSelection(Boolean.valueOf(SystemSettingTypeEnum.车位满是否允许免费车入场.getDefaultValue()));
-		}else{
-			btnCheckButton_1.setSelection(Boolean.valueOf(string5));
-		}
-		String string8 = mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场);
-		if (string8==null) {
-			button_6.setSelection(Boolean.valueOf(SystemSettingTypeEnum.临时车零收费是否自动出场.getDefaultValue()));
-		}else{
-			button_6.setSelection(Boolean.valueOf(string8));
-		}
-		Button button_5 = new Button(group_4, SWT.CHECK);
-		button_5.setToolTipText("选中后，固定车入场需要确认放行");
-		button_5.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.固定车入场是否确认, button_5.getSelection()+"");
-			}
-		});
-		button_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_5.setText("固定车入场是否需要确认");
-		
-		Button button_12 = new Button(group_4, SWT.CHECK);
-		button_12.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.是否允许无牌车进,button_12.getSelection()+"");
-			}
-		});
-		button_12.setToolTipText("选中后，无牌车可以进入停车场");
-		button_12.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_12.setText("是否允许无牌车进入停车场");
-		button_12.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进)==null?SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进)));
-		
-		String string9 = mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认);
-		if (string9==null) {
-			button_5.setSelection(Boolean.valueOf(SystemSettingTypeEnum.固定车入场是否确认.getDefaultValue()));
-		}else{
-			button_5.setSelection(Boolean.valueOf(string9));
-		}
-		
-		Button button_3 = new Button(group_4, SWT.CHECK);
-		button_3.setToolTipText("选中后，停车场车位满允许固定储值车进");
-		button_3.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.车位满是否允许储值车入场, button_3.getSelection()+"");
-			}
-		});
-		button_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_3.setText("车位满是否允许储值车入场");
-		if (string6==null) {
-			button_3.setSelection(Boolean.valueOf(SystemSettingTypeEnum.车位满是否允许储值车入场.getDefaultValue()));
-		}else{
-			button_3.setSelection(Boolean.valueOf(string6));
-		}
-		Button button_7 = new Button(group_4, SWT.CHECK);
-		button_7.setToolTipText("选中后，固定车出场场需要确认放行");
-		button_7.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.固定车出场确认, button_7.getSelection()+"");
-			}
-		});
-		button_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_7.setText("固定车出场是否需要确认");
-		
-		String string0 = mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认);
-		if (string0==null) {
-			button_7.setSelection(Boolean.valueOf(SystemSettingTypeEnum.固定车出场确认.getDefaultValue()));
-		}else{
-			button_7.setSelection(Boolean.valueOf(string0));
-		}
-		
-		Button button_11 = new Button(group_4, SWT.CHECK);
-		button_11.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.出场确认放行, button_11.getSelection()+"");
-			}
-		});
-		button_11.setToolTipText("当选中时，出场收费放行会弹出确认框");
-		button_11.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_11.setText("出场收费时是否需要确认");
-		button_11.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行)==null?SystemSettingTypeEnum.出场确认放行.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行)));
-		
-		Button button_13 = new Button(group_4, SWT.CHECK);
-		button_13.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.固定车车位满作临时车计费,button_13.getSelection()+"");
-			}
-		});
-		button_13.setToolTipText("选择之后，固定用户车位停满后再进车就会当作临时车计费，否则固定车车位满就不允许进入");
-		button_13.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_13.setText("固定车车位满作临时车计费");
-		button_13.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费)==null?SystemSettingTypeEnum.固定车车位满作临时车计费.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费)));
-		
-		Button button_14 = new Button(group_4, SWT.CHECK);
-		button_14.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.自动识别出场车辆类型,button_14.getSelection()+"");
-			}
-		});
-		button_14.setToolTipText("选中时，自动把黄牌车识别为大车，其他为小车");
-		button_14.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_14.setText("自动识别出场车辆类型");
-		new Label(group_4, SWT.NONE);
-		
-		Composite composite_6 = new Composite(group_4, SWT.NONE);
-		composite_6.setLayout(new GridLayout(3, false));
-		composite_6.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
-		
-		Label label_3 = new Label(composite_6, SWT.NONE);
-		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_3.setText("同一车牌识别间隔");
-		
-		text_1 = new Text(composite_6, SWT.BORDER);
-		text_1.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				String text = text_1.getText();
-				try {
-					Integer.valueOf(text);
-					mapSystemSetting.put(SystemSettingTypeEnum.同一车牌识别间隔, text);
-				} catch (NumberFormatException e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
-		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		GridData gd_text_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_text_1.widthHint = 82;
-		text_1.setLayoutData(gd_text_1);
-		text_1.setText(mapSystemSetting.get(SystemSettingTypeEnum.同一车牌识别间隔)==null?SystemSettingTypeEnum.同一车牌识别间隔.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.同一车牌识别间隔));
-		Label label_5 = new Label(composite_6, SWT.NONE);
-		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_5.setText("秒");
-		
-		Composite composite_19 = new Composite(group_4, SWT.NONE);
-		composite_19.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
-		composite_19.setLayout(new GridLayout(3, false));
-		
-		Label label_2 = new Label(composite_19, SWT.NONE);
-		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_2.setText("双摄像头等待间隔");
-		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
-		text_twoCarema = new Text(composite_19, SWT.BORDER);
-		text_twoCarema.setToolTipText("0表示无双摄像头");
-		text_twoCarema.setText("1");
-		text_twoCarema.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		GridData gd_text_2 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_text_2.widthHint = 82;
-		text_twoCarema.setLayoutData(gd_text_2);
-		text_twoCarema.setText(mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔)==null?SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
-		text_twoCarema.addKeyListener(new KeyAdapter() {
-			String flag="0";
-			@Override
-			public void keyReleased(KeyEvent e) {
-				try {
-					String text = text_twoCarema.getText();
-					if (StrUtil.isEmpty(text)) {
-						flag="0";
-					}
-					Integer valueOf = Integer.valueOf(text);
-					if (valueOf<0) {
-						text_twoCarema.setText(flag);
-					}
-					flag=text;
-					mapSystemSetting.put(SystemSettingTypeEnum.双摄像头识别间隔, text);
-				} catch (NumberFormatException e1) {
-					text_twoCarema.setText(flag);
-				}
-			}
-		});
-		Label label_7 = new Label(composite_19, SWT.NONE);
-		label_7.setText("毫秒");
-		label_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
-		Composite composite_24 = new Composite(group_4, SWT.NONE);
-		composite_24.setLayout(new GridLayout(4, false));
-		composite_24.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
-		
-		Button btnCheckButton_2 = new Button(composite_24, SWT.CHECK);
-		btnCheckButton_2.setToolTipText("选中开启监控界面左下视频监控");
-		btnCheckButton_2.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.左下监控, btnCheckButton_2.getSelection()+"");
-			}
-		});
-		btnCheckButton_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		btnCheckButton_2.setText("左下监控");
-		btnCheckButton_2.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.左下监控)==null?SystemSettingTypeEnum.左下监控.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.左下监控)));
-		Button btnCheckButton_3 = new Button(composite_24, SWT.CHECK);
-		btnCheckButton_3.setToolTipText("选中开启监控界面右下视频监控");
-		btnCheckButton_3.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.右下监控, btnCheckButton_3.getSelection()+"");
-			}
-		});
-		btnCheckButton_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		btnCheckButton_3.setText("右下监控");
-		btnCheckButton_3.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.右下监控)==null?SystemSettingTypeEnum.右下监控.getDefaultValue():mapSystemSetting.get(SystemSettingTypeEnum.右下监控)));
-		
-		Button button_15 = new Button(composite_24, SWT.CHECK);
-		button_15.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.进场允许修改车牌, button_15.getSelection()+"");
-			}
-		});
-		button_15.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_15.setText("允许修改进场车牌");
-		button_15.setSelection(Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.进场允许修改车牌)));
-		
-		Button button_16 = new Button(composite_24, SWT.CHECK);
-		button_16.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.进场允许手动入场, button_16.getSelection()+"");
-			}
-		});
-		button_16.setSelection(Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.进场允许手动入场)));
-		button_16.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_16.setText("允许手动入场");
-		Composite composite_14 = new Composite(group_4, SWT.NONE);
-		GridData gd_composite_14 = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
-		if (dbServerIp.equals("localhost")||dbServerIp.equals("127.0.0.1")||dbServerIp.equals(StrUtil.getHostIp())) {
-			
-		}else
-		gd_composite_14.exclude = true;
-		composite_14.setLayoutData(gd_composite_14);
-		composite_14.setLayout(new GridLayout(5, false));
-		
-		Label label_11 = new Label(composite_14, SWT.NONE);
-		label_11.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_11.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_11.setText("数据库备份位置");
-		
-		text_setting_dataBaseSave = new Text(composite_14, SWT.BORDER);
-		text_setting_dataBaseSave.setEditable(false);
-		text_setting_dataBaseSave.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				FileDialog fileDialog = new FileDialog(shell, SWT.SINGLE);
-				fileDialog.setText("请选择路径");
-				String open = fileDialog.open();
-				if (StrUtil.isEmpty(open)) {
-					return;
-				}
-				text_setting_dataBaseSave.setText(open);
-				mapSystemSetting.put(SystemSettingTypeEnum.数据库备份位置, open);
-			}
-		});
-		text_setting_dataBaseSave.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		GridData gd_text_setting_dataBaseSave = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_text_setting_dataBaseSave.widthHint = 239;
-		text_setting_dataBaseSave.setLayoutData(gd_text_setting_dataBaseSave);
-		String string = mapSystemSetting.get(SystemSettingTypeEnum.数据库备份位置);
-		text_setting_dataBaseSave.setText(string==null?SystemSettingTypeEnum.数据库备份位置.getDefaultValue():string);
-		
-		Button button_10 = new Button(composite_14, SWT.NONE);
-		button_10.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				FileDialog fileDialog = new FileDialog(shell, SWT.SINGLE);
-				fileDialog.setText("请选择路径");
-				String open = fileDialog.open();
-				if (StrUtil.isEmpty(open)) {
-					return;
-				}
-				text_setting_dataBaseSave.setText(open);
-				mapSystemSetting.put(SystemSettingTypeEnum.数据库备份位置, open);
-			}
-		});
-		button_10.setText("...");
-		
-		Button button_8 = new Button(composite_14, SWT.NONE);
-		button_8.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				presenter.backup(text_setting_dataBaseSave.getText());
-			}
-		});
-		button_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_8.setText("备份");
-		
-		Button button_2 = new Button(composite_14, SWT.NONE);
-		button_2.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				presenter.restoreDataBase(text_setting_dataBaseSave.getText());
-			}
-		});
-		button_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_2.setText("还原");
-		
-		Composite composite_15 = new Composite(group_4, SWT.NONE);
-		composite_15.setLayout(new GridLayout(3, false));
-		composite_15.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
-		
-		Label label_12 = new Label(composite_15, SWT.NONE);
-		label_12.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		GridData gd_label_12 = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_label_12.widthHint = 135;
-		label_12.setLayoutData(gd_label_12);
-		label_12.setText("抓拍图片存放位置");
-		
-		text_setting_imgSave = new Text(composite_15, SWT.BORDER);
-		text_setting_imgSave.setEditable(false);
-		text_setting_imgSave.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				DirectoryDialog directoryDialog=new DirectoryDialog(shell,SWT.SINGLE);
-				String open = directoryDialog.open();
-				if (StrUtil.isEmpty(open)) {
-					return;
-				}
-				text_setting_imgSave.setText(open);
-				CarparkFileUtils.writeObject(CLIENT_IMAGE_SAVE_FILE_PATH, open);
-//				mapSystemSetting.put(SystemSettingTypeEnum.图片保存位置, open);
-//				presenter.setting();
-			}
-		});
-		text_setting_imgSave.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		GridData gd_text_setting_imgSave = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_text_setting_imgSave.widthHint = 241;
-		text_setting_imgSave.setLayoutData(gd_text_setting_imgSave);
-		String imgSavePath = (String) CarparkFileUtils.readObject(CLIENT_IMAGE_SAVE_FILE_PATH);
-		text_setting_imgSave.setText(imgSavePath==null?System.getProperty("user.dir"):imgSavePath);
-		
-		Button button_9 = new Button(composite_15, SWT.NONE);
-		button_9.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				DirectoryDialog directoryDialog=new DirectoryDialog(shell,SWT.SINGLE);
-				String open = directoryDialog.open();
-				if (StrUtil.isEmpty(open)) {
-					return;
-				}
-				text_setting_imgSave.setText(open);
-				CarparkFileUtils.writeObject(CLIENT_IMAGE_SAVE_FILE_PATH, open);
-			}
-		});
-		button_9.setText("...");
-		String autoDeleteImg = mapSystemSetting.get(SystemSettingTypeEnum.是否自动删除图片);
-		Boolean valueOf = Boolean.valueOf(autoDeleteImg==null?SystemSettingTypeEnum.是否自动删除图片.getDefaultValue():autoDeleteImg);
-		String imgSaveMonth = mapSystemSetting.get(SystemSettingTypeEnum.图片保存多少天);
-		
-		Composite composite_16 = new Composite(group_4, SWT.NONE);
-		composite_16.setLayout(new GridLayout(2, false));
-		composite_16.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
-		
-		Button btn_imgSaveMonth = new Button(composite_16, SWT.CHECK);
-		btn_imgSaveMonth.setToolTipText("选中之后，表示会自动删除照片");
-		btn_imgSaveMonth.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.是否自动删除图片, btn_imgSaveMonth.getSelection()+"");
-				if (!btn_imgSaveMonth.getSelection()) {
-					mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少天, null);
-					return;
-				}
-				String text = text_setting_imgSaveDays.getText();
-				Integer valueOf=0;
-				try {
-					valueOf = Integer.valueOf(text);
-				} catch (NumberFormatException e1) {
-					
-				}
-				mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少天, (valueOf==0?999:valueOf)+"");
-			}
-		});
-		btn_imgSaveMonth.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		btn_imgSaveMonth.setText("保存多少天的照片");
-		btn_imgSaveMonth.setSelection(valueOf.booleanValue());
-		
-		text_setting_imgSaveDays = new Text(composite_16, SWT.BORDER);
-		GridData gd_text_setting_imgSaveDays = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_text_setting_imgSaveDays.widthHint = 67;
-		text_setting_imgSaveDays.setLayoutData(gd_text_setting_imgSaveDays);
-		text_setting_imgSaveDays.addKeyListener(new KeyAdapter() {
-			String oldText="";
-			@Override
-			public void keyReleased(KeyEvent e) {
-				String text = text_setting_imgSaveDays.getText();
-				try {
-					Integer valueOf2 = Integer.valueOf(text);
-					if (valueOf2>0) {
-						mapSystemSetting.put(SystemSettingTypeEnum.图片保存多少天,text);
-					}
-					oldText=text;
-				} catch (NumberFormatException e1) {
-					text_setting_imgSaveDays.setText("");
-					text_setting_imgSaveDays.append(oldText);
-				}
-			}
-		});
-		text_setting_imgSaveDays.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
-		text_setting_imgSaveDays.setText(imgSaveMonth==null?SystemSettingTypeEnum.图片保存多少天.getDefaultValue():imgSaveMonth);
-		Composite composite_7 = new Composite(group_4, SWT.NONE);
-		composite_7.setLayout(new GridLayout(3, false));
-		composite_7.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
-		
-		Button button = new Button(composite_7, SWT.NONE);
-		button.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				presenter.addHoliday();
-			}
-		});
-		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button.setText("节假日设置");
-		
-		Button button_1 = new Button(composite_7, SWT.NONE);
-		button_1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				presenter.deleteAllHistory();
-			}
-		});
-		button_1.setToolTipText("清除进出场记录，清除充值、归账记录");
-		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_1.setText("清除记录");
-		
-		Button button_17 = new Button(composite_7, SWT.NONE);
-		button_17.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_17.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				presenter.clearCarWithNotOut();
-			}
-		});
-		button_17.setText("清理场内车");
-		Composite composite_8 = new Composite(group_4, SWT.NONE);
-		composite_8.setLayout(new GridLayout(1, false));
-		composite_8.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
-		
-		Button btn_saveAllSetting = new Button(composite_8, SWT.NONE);
-		btn_saveAllSetting.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
-		btn_saveAllSetting.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
-		btn_saveAllSetting.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				presenter.saveAllSystemSetting();
-			}
-		});
-		btn_saveAllSetting.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		btn_saveAllSetting.setText("保存设置");
-		
-		Composite composite_blackUser = new Composite(composite_12, SWT.NONE);
-		composite_blackUser.setLayout(new FillLayout(SWT.HORIZONTAL));
-		GridData gd_composite_blackUser = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd_composite_blackUser.heightHint = 360;
-		composite_blackUser.setLayoutData(gd_composite_blackUser);
-		presenter.getBlackUserListPresenter().go(composite_blackUser);
+		Composite composite_25 = new Composite(tabFolder, SWT.NONE);
+		tabItem_8.setControl(composite_25);
+		composite_25.setLayout(new FillLayout(SWT.HORIZONTAL));
+		presenter.getSettingPresenter().go(composite_25);
 		TabItem tabItem_4 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_4.setText("关于");
 		
@@ -1190,7 +644,8 @@ public class CarparkManageApp extends AbstractApp{
 		lblNewLabel2.setText("邮箱");
 		lblNewLabel2.setImage(JFaceUtil.getImage("email_32"));
 		lblNewLabel2.setCursor(new org.eclipse.swt.graphics.Cursor(shell.getDisplay(),handImg.getImageData(),0,0));
-
+		
+		
 		lblNewLabel1.addMouseListener(new MouseAdapter() {
 
 			@Override

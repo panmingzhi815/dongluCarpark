@@ -58,10 +58,12 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 				}
 			}
 		}
-		if (!StrUtil.isEmpty(model.getModel())) {
-			if (StrUtil.isEmpty(model.getModel().getOverdueTime())) {
-				page.setErrorMessage("固定用户必须有个有效期");
-				return false;
+		if(!model.getType().equals("储值")){
+			if (!StrUtil.isEmpty(model.getModel())) {
+				if (StrUtil.isEmpty(model.getModel().getOverdueTime())) {
+					page.setErrorMessage("固定用户必须有个有效期");
+					return false;
+				}
 			}
 		}
 		page.setErrorMessage(null);
@@ -108,6 +110,10 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 		m.setAllmonth(sp.getCarparkService().findMonthlyChargeByCarpark(model.getCarpark()));
 		if (model.getType().equals("免费")) {
 			m.setFree(false);
+			m.setPayMoney(false);
+		}else if(model.getType().equals("储值")){
+			m.setFree(false);
+			m.setPayDate(false);
 		}else{
 			m.setFree(true);
 		}

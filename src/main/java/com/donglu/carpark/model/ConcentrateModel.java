@@ -1,21 +1,34 @@
 package com.donglu.carpark.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 public class ConcentrateModel extends DomainObject {
-	String userName;
-	String workTime;
-	Float totalFact;
-	Float totalFree;
+	private String userName;
+	private String workTime;
+	private Float totalFact;
+	private Float totalFree;
 	
-	String plateNO;
+	private String plateNO;
 	private String inTime;
-	String stillTime;
-	Float shouldMoney;
-	Float factMoney;
+	private String stillTime;
+	private Float shouldMoney;
+	private Float factMoney;
+	private Float paidMoney;
+	
+	private SingleCarparkCarpark carpark;
+	private List<SingleCarparkCarpark> listCarpark=new ArrayList<>();
+	
+	private CarTypeEnum carType;
+	private List<CarTypeEnum> listCarType=new ArrayList<>();
+	private SingleCarparkInOutHistory in;
 	
 	public String getUserName() {
 		return userName;
@@ -88,6 +101,59 @@ public class ConcentrateModel extends DomainObject {
 		this.factMoney = factMoney;
 		if (pcs != null)
 			pcs.firePropertyChange("factMoney", null, null);
+	}
+	public SingleCarparkCarpark getCarpark() {
+		return carpark;
+	}
+	public void setCarpark(SingleCarparkCarpark carpark) {
+		this.carpark = carpark;
+		if (pcs != null)
+			pcs.firePropertyChange("carpark", null, null);
+	}
+	public List<SingleCarparkCarpark> getListCarpark() {
+		return listCarpark;
+	}
+	public void setListCarpark(List<SingleCarparkCarpark> listCarpark) {
+		this.listCarpark = listCarpark;
+		if (pcs != null)
+			pcs.firePropertyChange("listCarpark", null, null);
+	}
+	public CarTypeEnum getCarType() {
+		return carType;
+	}
+	public void setCarType(CarTypeEnum carType) {
+		this.carType = carType;
+		if (pcs != null)
+			pcs.firePropertyChange("carType", null, null);
+	}
+	public void setInTime(String inTime) {
+		this.inTime = inTime;
+		if (pcs != null)
+			pcs.firePropertyChange("inTime", null, null);
+	}
+	public Float getPaidMoney() {
+		return paidMoney;
+	}
+	public void setPaidMoney(Float paidMoney) {
+		this.paidMoney = paidMoney;
+		if (pcs != null)
+			pcs.firePropertyChange("paidMoney", null, null);
+	}
+	public SingleCarparkInOutHistory getIn() {
+		return in;
+	}
+	public void setIn(SingleCarparkInOutHistory in) {
+		this.in = in;
+		if (pcs != null)
+			pcs.firePropertyChange("in", null, null);
+	}
+	public List<CarTypeEnum> getListCarType() {
+		return listCarType;
+	}
+	public void setListCarType(List<CarTypeEnum> listCarType) {
+		this.listCarType = listCarType;
+		if (pcs != null)
+			pcs.firePropertyChange("listCarType", null, null);
 	}
 	
 }

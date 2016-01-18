@@ -20,6 +20,7 @@ public enum SystemSettingTypeEnum {
 	右下监控("false"),
 	固定车车位满作临时车计费("false"),自动识别出场车辆类型("false"),进场允许修改车牌("false"),
 	进场允许手动入场("false"),
+	储值车提醒金额("60"),储值车进出场限制金额("20"),启用集中收费("false"),集中收费延迟出场时间("15"),
 	
 	DateBase_version("1.0.0.4"),软件版本("1.0.0.4"),    ;
 	;

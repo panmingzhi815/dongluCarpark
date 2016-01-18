@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.Arrays;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
@@ -233,7 +234,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
-		comboViewer.setInput(new String[]{"固定车通道","临时车通道","混合车通道"});
+		comboViewer.setInput(DeviceRoadTypeEnum.values());
 		combo.select(0);
 		
 		label_7 = new Label(composite, SWT.NONE);
@@ -292,7 +293,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		bindingContext.bindValue(observeTextText_2ObserveWidget, ipModelObserveValue, null, null);
 		//
 		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
-		IObservableValue roadTypeModelObserveValue = BeanProperties.value("roadType").observe(model);
+		IObservableValue roadTypeModelObserveValue = BeanProperties.value("deviceRoadType").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer, roadTypeModelObserveValue, null, null);
 		//
 		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();

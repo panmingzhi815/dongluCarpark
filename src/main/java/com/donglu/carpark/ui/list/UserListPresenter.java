@@ -71,23 +71,39 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			SingleCarparkUser user = m.getSingleCarparkUser();
 			Date createDate = m.getCreateDate() == null ? new Date() : m.getCreateDate();
 			user.setCreateDate(createDate);
-			user.setValidTo(m.getModel().getOverdueTime());
-			CarparkUserService carparkUserService = sp.getCarparkUserService();
-			carparkUserService.saveUser(user);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "添加了用户:"+user.getName());
 			MonthlyUserPayModel mm = m.getModel();
-			if (!StrUtil.isEmpty(mm.getSelectMonth())) {
-				mm.setOperaName(System.getProperty("userName"));
+			user.setValidTo(mm.getOverdueTime()==null?new Date():mm.getOverdueTime());
+			user.setDelayDays(5);
+			user.setRemindDays(5);
+			mm.setUserType(user.getType());
+			if (user.getType().equals("普通")) {
 				SingleCarparkMonthlyCharge selectMonth = mm.getSelectMonth();
 				if (!StrUtil.isEmpty(selectMonth)) {
+					mm.setOperaName(System.getProperty("userName"));
 					user.setDelayDays(selectMonth.getDelayDays());
 					user.setRemindDays(selectMonth.getExpiringDays());
 					user.setMonthChargeId(selectMonth.getId());
+					carparkService.saveMonthlyUserPayHistory(mm.getSingleCarparkMonthlyUserPayHistory());
+					sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了普通用户:"+user.getName());
 				}
-				carparkService.saveMonthlyUserPayHistory(mm.getSingleCarparkMonthlyUserPayHistory());
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了用户:"+user.getName());
+			}else if(user.getType().equals("免费")){
+				if (mm.getOverdueTime()!=null) {
+					mm.setOperaName(System.getProperty("userName"));
+					carparkService.saveMonthlyUserPayHistory(mm.getSingleCarparkMonthlyUserPayHistory());
+					sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了免费用户:"+user.getName());
+				}
+			}else if(user.getType().equals("储值")){
+				if (mm.getChargesMoney()!=null&&mm.getChargesMoney()>0) {
+					carparkService.saveMonthlyUserPayHistory(mm.getSingleCarparkMonthlyUserPayHistory());
+					sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了储值用户:"+user.getName());
+					user.setLeftMoney(mm.getChargesMoney());
+				}
+				user.setValidTo(null);
 			}
 			
+			CarparkUserService carparkUserService = sp.getCarparkUserService();
+			carparkUserService.saveUser(user);
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "添加了用户:"+user.getName());
 			commonui.info("操作成功", "保存成功!");
 			refresh();
 		} catch (Exception e) {
@@ -145,6 +161,11 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			SingleCarparkUser singleCarparkUser = selectList.get(0);
 			if (singleCarparkUser.getType().equals("免费")) {
 				model.setFree(false);
+				model.setPayMoney(false);
+			}
+			if (singleCarparkUser.getType().equals("储值")) {
+				model.setFree(false);
+				model.setPayDate(false);
 			}
 			model.setUserName(singleCarparkUser.getName());
 			model.setCreateTime(singleCarparkUser.getCreateDate());
@@ -157,7 +178,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 				return;
 			}
 			singleCarparkUser.setValidTo(m.getOverdueTime());
-			if (!singleCarparkUser.getType().equals("免费")) {
+			if (singleCarparkUser.getType().equals("普通")) {
 				if (StrUtil.isEmpty(m.getSelectMonth())) {
 					return;
 				}
@@ -165,6 +186,9 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 				singleCarparkUser.setRemindDays(m.getSelectMonth().getExpiringDays());
 				singleCarparkUser.setMonthChargeId(m.getSelectMonth().getId());
 				singleCarparkUser.setCarpark(m.getSelectMonth().getCarpark());
+			}
+			if (singleCarparkUser.getType().equals("储值")) {
+				singleCarparkUser.setLeftMoney(singleCarparkUser.getLeftMoney()+m.getChargesMoney());
 			}
 			m.setOperaName(System.getProperty("userName"));
 			sp.getCarparkUserService().saveUser(singleCarparkUser);

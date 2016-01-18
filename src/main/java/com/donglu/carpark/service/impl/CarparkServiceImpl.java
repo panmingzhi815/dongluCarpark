@@ -21,6 +21,7 @@ import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
+import org.criteria4jpa.criterion.SimpleExpression;
 import org.criteria4jpa.order.Order;
 import org.criteria4jpa.projection.Projections;
 import org.hibernate.Session;
@@ -44,6 +45,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayH
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
@@ -240,7 +242,12 @@ public class CarparkServiceImpl implements CarparkService {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkSystemSetting.class);
-			
+			List<SimpleExpression> list=new ArrayList<>();
+			for (SystemSettingTypeEnum sst : SystemSettingTypeEnum.values()) {
+				SimpleExpression eq = Restrictions.eq("settingKey", sst.name());
+				list.add(eq);
+			}
+			c.add(Restrictions.or(list.toArray(new SimpleExpression[list.size()])));
 			return c.getResultList();
 		} finally{
 			unitOfWork.end();
@@ -691,11 +698,14 @@ public class CarparkServiceImpl implements CarparkService {
 	}
 
 	@Override
-	public List<CarparkChargeStandard> findAllCarparkChargeStandard(SingleCarparkCarpark carpark) {
+	public List<CarparkChargeStandard> findAllCarparkChargeStandard(SingleCarparkCarpark carpark, Boolean using) {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), CarparkChargeStandard.class);
 			c.add(Restrictions.eq(CarparkChargeStandard.Property.carpark.name(), carpark));
+			if (!StrUtil.isEmpty(using)) {
+				c.add(Restrictions.eq(CarparkChargeStandard.Property.using.name(), using));
+			}
 			c.add(Restrictions.eq("using", true));
 			return c.getResultList();
 		}catch(Exception e){

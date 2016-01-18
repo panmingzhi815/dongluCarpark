@@ -81,13 +81,14 @@ public class WebServiceImpl implements  WebService{
 				return false;
 			}
 			if (s.indexOf("数据重复上传")>0) {
+				LOGGER.info("成功结果：{}",s);
 				return true;
 			}
 			int parseInt = Integer.parseInt(s.substring(13, 14));
 			if (parseInt==1) {
+				LOGGER.info("成功结果：{}",s);
 				return true;
 			}else{
-				
 				LOGGER.error("上传用户{}信息失败"+s,plateNo);
 				return false;
 			}
@@ -117,10 +118,12 @@ public class WebServiceImpl implements  WebService{
 				return false;
 			}
 			if (s.indexOf("数据重复上传")>0) {
+				LOGGER.info("成功结果：{}",s);
 				return true;
 			}
 			int parseInt = Integer.parseInt(s.substring(13, 14));
 			if (parseInt==1) {
+				LOGGER.info("成功结果：{}",s);
 				return true;
 			}else{
 				LOGGER.error("上传{}进场信息失败"+s,plateNo);
@@ -151,15 +154,18 @@ public class WebServiceImpl implements  WebService{
 			String plateNo = out.getPlateNo();
 			String carType = out.getCarType();
 			String message = getMessage(content,outTime,inTime,plateNo,carType,factMoney,ifFree,freeMoney,IfPreferential,freeMoney,company,area,imgName,"jpg",encodeToString);
+//			LOGGER.info("上传数据：{}",message);
 			s = port.chargesData(message);
 			if (StrUtil.isEmpty(s)) {
 				return false;
 			}
 			if (s.indexOf("数据重复上传")>0) {
+				LOGGER.info("成功结果：{}",s);
 				return true;
 			}
 			int parseInt = Integer.parseInt(s.substring(13, 14));
 			if (parseInt==1) {
+				LOGGER.info("成功结果：{}",s);
 				return true;
 			}else{
 				LOGGER.error("上传{}出场信息失败"+s,plateNo);

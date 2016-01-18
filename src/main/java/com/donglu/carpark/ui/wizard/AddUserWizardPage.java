@@ -1,6 +1,5 @@
 package com.donglu.carpark.ui.wizard;
 
-import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -8,10 +7,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -34,8 +29,6 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 
 public class AddUserWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -133,7 +126,7 @@ public class AddUserWizardPage extends WizardPage {
 		combo.setLayoutData(gd_combo);
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
-		comboViewer.setInput(new String[]{"普通","免费"});
+		comboViewer.setInput(new String[]{"普通","免费","储值"});
 		combo.select(0);
 		
 		Label label_3 = new Label(composite, SWT.NONE);

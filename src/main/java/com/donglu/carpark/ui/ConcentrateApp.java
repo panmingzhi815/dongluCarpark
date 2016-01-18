@@ -4,6 +4,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.donglu.carpark.model.ConcentrateModel;
+import com.donglu.carpark.ui.common.AbstractApp;
+import com.donglu.carpark.ui.common.App;
+import com.donglu.carpark.util.CarparkUtils;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -29,8 +32,17 @@ import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
+import org.eclipse.core.databinding.observable.map.IObservableMap;
+import org.eclipse.core.databinding.beans.BeansObservables;
 
-public class ConcentrateApp {
+import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
+import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
+
+public class ConcentrateApp extends AbstractApp {
 	private DataBindingContext m_bindingContext;
 
 	protected Shell shell;
@@ -46,6 +58,11 @@ public class ConcentrateApp {
 	private Text text_6;
 	private Text text_7;
 	private Text text_8;
+	private Text text_9;
+	private ComboViewer comboViewer;
+	private ComboViewer comboViewer_1;
+
+	private Label lbl_inImg;
 
 	/**
 	 * Launch the application.
@@ -86,7 +103,7 @@ public class ConcentrateApp {
 	private void init() {
 		presenter.setView(this);
 		presenter.setModel(model);
-		
+		presenter.init();
 	}
 
 	/**
@@ -94,7 +111,7 @@ public class ConcentrateApp {
 	 */
 	protected void createContents() {
 		shell = new Shell();
-		shell.setSize(487, 601);
+		shell.setSize(525, 601);
 		shell.setText("集中收费");
 		shell.setLayout(new GridLayout(2, false));
 		
@@ -102,14 +119,14 @@ public class ConcentrateApp {
 		composite.setLayout(new FillLayout(SWT.HORIZONTAL));
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
-		Label lblNewLabel_7 = new Label(composite, SWT.NONE);
-		lblNewLabel_7.setText("进场图片");
-		lblNewLabel_7.setAlignment(SWT.CENTER);
+		lbl_inImg = new Label(composite, SWT.NONE);
+		lbl_inImg.setText("进场图片");
+		lbl_inImg.setAlignment(SWT.CENTER);
 		
 		Composite composite_1 = new Composite(shell, SWT.NONE);
 		composite_1.setLayout(new GridLayout(2, false));
 		GridData gd_composite_1 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-		gd_composite_1.widthHint = 320;
+		gd_composite_1.widthHint = 342;
 		composite_1.setLayoutData(gd_composite_1);
 		
 		Label lblNewLabel_3 = new Label(composite_1, SWT.NONE);
@@ -120,8 +137,8 @@ public class ConcentrateApp {
 		text_5 = new Text(composite_1, SWT.BORDER);
 		text_5.setEditable(false);
 		text_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		GridData gd_text_5 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_text_5.widthHint = 150;
+		GridData gd_text_5 = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_text_5.widthHint = 239;
 		text_5.setLayoutData(gd_text_5);
 		
 		Label lblNewLabel_4 = new Label(composite_1, SWT.NONE);
@@ -132,7 +149,7 @@ public class ConcentrateApp {
 		text_6 = new Text(composite_1, SWT.BORDER);
 		text_6.setEditable(false);
 		text_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		text_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label lblNewLabel_6 = new Label(composite_1, SWT.NONE);
 		lblNewLabel_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
@@ -142,7 +159,7 @@ public class ConcentrateApp {
 		text_7 = new Text(composite_1, SWT.BORDER);
 		text_7.setEditable(false);
 		text_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		text_7.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_7.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label lblNewLabel_5 = new Label(composite_1, SWT.NONE);
 		lblNewLabel_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
@@ -152,7 +169,7 @@ public class ConcentrateApp {
 		text_8 = new Text(composite_1, SWT.BORDER);
 		text_8.setEditable(false);
 		text_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		text_8.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_8.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		new Label(composite_1, SWT.NONE);
 		new Label(composite_1, SWT.NONE);
 		
@@ -163,7 +180,7 @@ public class ConcentrateApp {
 		
 		text = new Text(composite_1, SWT.BORDER);
 		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label label_1 = new Label(composite_1, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
@@ -195,6 +212,16 @@ public class ConcentrateApp {
 		text_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
+		Label lblNewLabel_8 = new Label(composite_1, SWT.NONE);
+		lblNewLabel_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_8.setText("已收金额");
+		
+		text_9 = new Text(composite_1, SWT.BORDER);
+		text_9.setEditable(false);
+		text_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_9.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
 		Label lblNewLabel_2 = new Label(composite_1, SWT.NONE);
 		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -204,8 +231,39 @@ public class ConcentrateApp {
 		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
+		Label lblNewLabel_9 = new Label(composite_1, SWT.NONE);
+		lblNewLabel_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_9.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_9.setText("停 车 场");
+		
+		comboViewer = new ComboViewer(composite_1, SWT.READ_ONLY);
+		Combo combo = comboViewer.getCombo();
+		combo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.getListCarTypeAndSelect();
+			}
+		});
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label lblNewLabel_10 = new Label(composite_1, SWT.NONE);
+		lblNewLabel_10.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_10.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_10.setText("车辆类型");
+		
+		comboViewer_1 = new ComboViewer(composite_1, SWT.READ_ONLY);
+		Combo combo_1 = comboViewer_1.getCombo();
+		combo_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		comboViewer_1.setContentProvider(new ArrayContentProvider());
+		comboViewer_1.setLabelProvider(new LabelProvider());
+		comboViewer_1.setInput(model.getListCarType());
+		
 		Composite composite_2 = new Composite(composite_1, SWT.NONE);
-		composite_2.setLayout(new GridLayout(1, false));
+		GridLayout gl_composite_2 = new GridLayout(4, false);
+		gl_composite_2.marginTop = 15;
+		composite_2.setLayout(gl_composite_2);
 		composite_2.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
 		
 		Button btnNewButton = new Button(composite_2, SWT.NONE);
@@ -222,6 +280,7 @@ public class ConcentrateApp {
 		btnNewButton_1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				presenter.charge();
 			}
 		});
 		btnNewButton_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
@@ -286,6 +345,31 @@ public class ConcentrateApp {
 		IObservableValue factMoneyModelObserveValue = BeanProperties.value("factMoney").observe(model);
 		bindingContext.bindValue(observeTextText_4ObserveWidget, factMoneyModelObserveValue, null, null);
 		//
+		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
+		IObservableMap observeMap = BeansObservables.observeMap(listContentProvider.getKnownElements(), SingleCarparkCarpark.class, "labelString");
+		comboViewer.setLabelProvider(new ObservableMapLabelProvider(observeMap));
+		comboViewer.setContentProvider(listContentProvider);
+		//
+		IObservableList listCarparkModelObserveList = BeanProperties.list("listCarpark").observe(model);
+		comboViewer.setInput(listCarparkModelObserveList);
+		//
+		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
+		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer, carparkModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer_1 = ViewerProperties.singleSelection().observe(comboViewer_1);
+		IObservableValue carTypeModelObserveValue = BeanProperties.value("carType").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer_1, carTypeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_9ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_9);
+		IObservableValue paidMoneyModelObserveValue = BeanProperties.value("paidMoney").observe(model);
+		bindingContext.bindValue(observeTextText_9ObserveWidget, paidMoneyModelObserveValue, null, null);
+		//
 		return bindingContext;
+	}
+
+	public void setInImage(String bigImg) {
+		byte[] imageByte = CarparkUtils.getImageByte(bigImg);
+		CarparkUtils.setBackgroundImage(imageByte, lbl_inImg, shell.getDisplay());
 	}
 }

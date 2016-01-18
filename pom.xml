@@ -9,7 +9,6 @@
 
 	<name>carpark</name>
 	<url>http://maven.apache.org</url>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
@@ -17,7 +16,7 @@
 		<dev.build.version>V1.0.0.4</dev.build.version>
 		<jaxb.version>2.2.11</jaxb.version>
 	</properties>
-
+	
 	<dependencies>
 		<dependency>
 			<groupId>com.dongluhitec.card</groupId>
@@ -97,7 +96,6 @@
 			<version>9.1.02.B04.p0</version>
 		</dependency>
 		
-
 	</dependencies>
 	<build>
 		<plugins>
@@ -136,6 +134,10 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+					<compilerArguments>
+                         <verbose />
+                         <bootclasspath>${java.home}/lib/rt.jar</bootclasspath>
+                    </compilerArguments>  
 				</configuration>
 			</plugin>
 			<!-- The configuration of maven-assembly-plugin -->
