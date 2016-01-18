@@ -204,8 +204,10 @@ public class CarOutTask implements Runnable{
 			boolean equals = roadType.equals(DeviceRoadTypeEnum.固定车通道.name());
 
 			if (carType.equals("固定车")) {
-				if (fixCarOutProcess(ip, plateNO, date, device, user, roadType, equals, bigImg, smallImg)) {
-					return;
+				if (!user.getType().equals("储值")) {
+					if (fixCarOutProcess(ip, plateNO, date, device, user, roadType, equals, bigImg, smallImg)) {
+						return;
+					}
 				}
 			} else {// 临时车操作
 				// 固定车通道
@@ -252,8 +254,9 @@ public class CarOutTask implements Runnable{
 	 */
 	private boolean fixCarOutProcess(final String ip, final String plateNO, Date date, SingleCarparkDevice device, SingleCarparkUser user, String roadType, boolean equals, String bigImg,
 			String smallImg) throws Exception {
+
 		if (!StrUtil.isEmpty(user.getTempCarTime())) {
-			tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg,StrUtil.parse(user.getTempCarTime().split(",")[0], StrUtil.DATETIME_PATTERN));
+			tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg, StrUtil.parse(user.getTempCarTime().split(",")[0], StrUtil.DATETIME_PATTERN));
 			model.setUser(user);
 			return true;
 		}
@@ -289,7 +292,7 @@ public class CarOutTask implements Runnable{
 			if (!nowPlateNO.equals(plateNO)) {
 				SingleCarparkUser findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(nowPlateNO, device.getCarpark().getId());
 				if (StrUtil.isEmpty(findUserByPlateNo)) {
-					tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg,null);
+					tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg, null);
 					return true;
 				}
 			}
@@ -297,7 +300,7 @@ public class CarOutTask implements Runnable{
 		//
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(nowPlateNO, device.getCarpark());
-		SingleCarparkInOutHistory singleCarparkInOutHistory =StrUtil.isEmpty(findByNoCharge)?null: findByNoCharge.get(0);
+		SingleCarparkInOutHistory singleCarparkInOutHistory = StrUtil.isEmpty(findByNoCharge) ? null : findByNoCharge.get(0);
 		Date validTo = user.getValidTo();
 		Integer delayDays = user.getDelayDays() == null ? 0 : user.getDelayDays();
 
@@ -309,14 +312,14 @@ public class CarOutTask implements Runnable{
 		if (StrUtil.getTodayBottomTime(time).before(date)) {
 			presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
 			LOGGER.info("车辆:{}已到期", nowPlateNO);
-			if (Boolean.valueOf(getSettingValue(mapSystemSetting,SystemSettingTypeEnum.固定车到期变临时车))) {
-				Date d=null;
-				if (StrUtil.isEmpty(singleCarparkInOutHistory)||singleCarparkInOutHistory.getInTime().before(validTo)) {
-					d=validTo;
-				}else{
-					d=singleCarparkInOutHistory.getInTime();
+			if (Boolean.valueOf(getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车))) {
+				Date d = null;
+				if (StrUtil.isEmpty(singleCarparkInOutHistory) || singleCarparkInOutHistory.getInTime().before(validTo)) {
+					d = validTo;
+				} else {
+					d = singleCarparkInOutHistory.getInTime();
 				}
-				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg,d);
+				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg, d);
 			}
 			return true;
 		} else {
@@ -324,10 +327,10 @@ public class CarOutTask implements Runnable{
 			c.add(Calendar.DATE, user.getRemindDays() == null ? 0 : user.getRemindDays() * -1);
 			time = c.getTime();
 			if (StrUtil.getTodayBottomTime(time).before(date)) {
-				presenter.showContentToDevice(device, "月租车辆,"+CarparkMainApp.CAR_OUT_MSG + ",剩余"+CarparkUtils.countDayByBetweenTime(date, user.getValidTo())+"天", true);
+				presenter.showContentToDevice(device, "月租车辆," + CarparkMainApp.CAR_OUT_MSG + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天", true);
 				LOGGER.info("车辆:{}即将到期", nowPlateNO);
 			} else {
-				presenter.showContentToDevice(device, "月租车辆,"+CarparkMainApp.CAR_OUT_MSG, true);
+				presenter.showContentToDevice(device, "月租车辆," + CarparkMainApp.CAR_OUT_MSG, true);
 			}
 		}
 
@@ -338,7 +341,7 @@ public class CarOutTask implements Runnable{
 		model.setInTime(null);
 		model.setTotalTime("未入场");
 		model.setReal(0);
-		//未找到入场记录
+		// 未找到入场记录
 		if (!StrUtil.isEmpty(singleCarparkInOutHistory)) {
 			Date inTime = singleCarparkInOutHistory.getInTime();
 			model.setInTime(inTime);

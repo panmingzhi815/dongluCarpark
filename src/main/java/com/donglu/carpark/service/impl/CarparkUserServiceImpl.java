@@ -99,7 +99,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
-			c.add(Restrictions.isNotNull("validTo"));
+//			c.add(Restrictions.isNotNull("validTo"));
 			
 			if (!StrUtil.isEmpty(plateNO)) {
 				c.add(Restrictions.like("plateNo", plateNO,MatchMode.ANYWHERE));
@@ -110,7 +110,11 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
 				c.add(Restrictions.eq("carpark", dom.getEntityWithId(carparkId)));
 			}
-			return (SingleCarparkUser) c.getSingleResultOrNull();
+			SingleCarparkUser user = (SingleCarparkUser) c.getSingleResultOrNull();
+			if (!user.getType().equals("储值")&&StrUtil.isEmpty(user.getValidTo())) {
+				return null;
+			}
+			return user;
 		}finally{
 			unitOfWork.end();
 		}

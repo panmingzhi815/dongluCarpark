@@ -279,13 +279,20 @@ public class CarInTask implements Runnable {
 					Float leftMoney = user.getLeftMoney();
 					Float prepaidCarInOutLimit=Float.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车进出场限制金额));
 					if (leftMoney<prepaidCarInOutLimit) {
-						presenter.showContentToDevice(device, "剩余"+leftMoney+"元，余额不足请联系管理员", false);
+						String formatFloatString = CarparkUtils.formatFloatString("剩余"+leftMoney+"元,余额不足请联系管理员");
+						presenter.showContentToDevice(device,formatFloatString, false);
 						return;
 					}
 					
 					Float prepaidCarInOutRemind=Float.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车提醒金额));;
 					if (leftMoney<prepaidCarInOutRemind) {
-						presenter.showContentToDevice(device, "剩余"+leftMoney+"元,"+CAR_IN_MSG, true);
+						String content = "剩余"+leftMoney+"元,"+CAR_IN_MSG;
+						content=CarparkUtils.formatFloatString(content);
+						presenter.showContentToDevice(device, content, true);
+					}
+					if (leftMoney>100) {
+						String content = "储值车辆,"+CAR_IN_MSG;
+						presenter.showContentToDevice(device, content, true);
 					}
 				}
 			} else {
