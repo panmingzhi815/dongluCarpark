@@ -9,13 +9,14 @@ IF  EXISTS(SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[getFul
 DROP function [dbo].[getFullCurrentDurationPrice]
 go
 
-create function [dbo].[getFullCurrentDurationPrice](@intime datetime,@outtime datetime,@standardId int,@AcrossdayChargeStyle int,@IsAcrossDay int)
+create function [dbo].[getFullCurrentDurationPrice](@intime datetime,@outtime datetime,@standardId int,@AcrossdayChargeStyle int,@IsAcrossDay int,@IsAcrossDuration int)
 returns float 
 begin
-	declare @InTimeTmp datetime,@durationId int,@unitDuration int,@unitPrice float,@durationPriceSize int,@hourSize int,@minSize int,@resultMoney float,@durationEndTime datetime,@overrideSize int,@acrossTimeSize int,@acrossPrice int
+	declare @InTimeTmp datetime,@durationId int,@unitDuration int,@unitPrice float,@durationPriceSize int,@hourSize int,@minSize int,@resultMoney float,
+		@durationEndTime datetime,@overrideSize int,@acrossTimeSize int,@acrossPrice int,@startStepPrice float,@startStepTime int
 	set @resultMoney = 0
 	set @InTimeTmp = CONVERT(VARCHAR,@intime,108)
-	SELECT top 1  @acrossTimeSize=[Cross_unit_duration],@acrossPrice=[Cross_unit_price],@durationId = id,@unitDuration = unit_duration,@unitPrice=unit_price,@durationEndTime=end_time FROM carpark..carpark_duration_standard WHERE standard_id = @standardId 
+	SELECT top 1 @startStepTime=startStepTime,@startStepPrice=startStepPrice,@acrossTimeSize=[Cross_unit_duration],@acrossPrice=[Cross_unit_price],@durationId = id,@unitDuration = unit_duration,@unitPrice=unit_price,@durationEndTime=end_time FROM carpark..carpark_duration_standard cds WHERE standard_id = @standardId 
 		AND ((start_time < end_time AND '1970-01-01 ' + @InTimeTmp BETWEEN start_time AND end_time)
 		OR
 		(start_time > end_time AND '1970-01-01 ' + @InTimeTmp BETWEEN dateadd(day,-1,start_time) AND end_time)
@@ -32,42 +33,50 @@ begin
 	begin
 		set @outtime = @InTimeTmp
 	end
-	if @AcrossdayChargeStyle=0
+	if @IsAcrossDuration=0 and @startStepTime>0
 	begin
-		set @hourSize = DATEDIFF(SECOND,@intime,@outtime)/(60*60)
-		select @resultMoney = duration_length_price from carpark_duration_price where duration_length = @hourSize and  duration_id = @durationId
-		set @minSize = DATEDIFF(SECOND,@intime,@outtime)%(60*60)/60
-		if @minSize <> 0
-		begin
-			set @overrideSize = @minSize / @unitDuration;
-			SET @resultMoney = @resultMoney + (@overrideSize + 1)*@unitPrice
-		end
+		set @intime=dateadd(minute,@startStepTime,@intime);
+		set @resultMoney=@resultMoney+@startStepPrice;
 	end
-	else
+	if @outtime>@intime
 	begin
-		if @IsAcrossDay>0
-		begin
-			set @minSize = DATEDIFF(SECOND,@intime,@outtime)/60
-			if @acrossTimeSize<>0
-			begin
-				set @resultMoney=@resultMoney+(@minSize/@acrossTimeSize)*@acrossPrice;
-				if @minSize%@acrossTimeSize>0
-				begin
-					set @resultMoney=@resultMoney+@acrossPrice;
-				end
-			end
-		end
-		else
+		if @AcrossdayChargeStyle=0
 		begin
 			set @hourSize = DATEDIFF(SECOND,@intime,@outtime)/(60*60)
-			select @resultMoney = duration_length_price from carpark_duration_price where duration_length = @hourSize and  duration_id = @durationId
+			select @resultMoney =@resultMoney+duration_length_price from carpark_duration_price where duration_length = @hourSize and  duration_id = @durationId
 			set @minSize = DATEDIFF(SECOND,@intime,@outtime)%(60*60)/60
 			if @minSize <> 0
 			begin
 				set @overrideSize = @minSize / @unitDuration;
 				SET @resultMoney = @resultMoney + (@overrideSize + 1)*@unitPrice
 			end
-		end		
+		end
+		else
+		begin
+			if @IsAcrossDay>0
+			begin
+				set @minSize = DATEDIFF(SECOND,@intime,@outtime)/60
+				if @acrossTimeSize<>0
+				begin
+					set @resultMoney=@resultMoney+(@minSize/@acrossTimeSize)*@acrossPrice;
+					if @minSize%@acrossTimeSize>0
+					begin
+						set @resultMoney=@resultMoney+@acrossPrice;
+					end
+				end
+			end
+			else
+			begin
+				set @hourSize = DATEDIFF(SECOND,@intime,@outtime)/(60*60)
+				select @resultMoney = @resultMoney+duration_length_price from carpark_duration_price where duration_length = @hourSize and  duration_id = @durationId
+				set @minSize = DATEDIFF(SECOND,@intime,@outtime)%(60*60)/60
+				if @minSize <> 0
+				begin
+					set @overrideSize = @minSize / @unitDuration;
+					SET @resultMoney = @resultMoney + (@overrideSize + 1)*@unitPrice
+				end
+			end		
+		end
 	end
 	return @resultMoney;
 end
@@ -313,8 +322,16 @@ DECLARE
 	@ChargeTimeType int,
 	@AcrossdayChargeStyle int,
 	@chargeSummay numeric(8,2),
+	--是否跨了天
 	@IsAcrossDay int,
-	@AcrossdayChargeEnable int
+	@AcrossdayChargeEnable int,
+	--跨天是否免费
+	@acrossDayIsFree int,
+	--是否跨了时段
+	@IsAcrossDuration int,
+	@FinalInitInTime datetime,
+	@AcrossDayMorePrice int,
+	@NowIsAcrossDay int
 	
 	
 
@@ -333,7 +350,7 @@ end
 --如果只有一种收费标准，则直接获取停车的免费时长
 if @ChargeStandardSize = 1
 begin
-	select @AcrossdayChargeEnable=ccs.acrossday_charge_enable,@ChargeTimeType=ccs.charge_time_type ,@AcrossdayChargeStyle=ccs.acrossday_charge_style,@OneDayMaxMoney=ccs.oneday_max_charge,@FreeTime = ccs.free_time,@StartStepTime=ccs.First_Time,@StartStepMoney=ccs.First_Time_Fee from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and carpark_id = @CarparkId and using = 'True'
+	select @AcrossDayMorePrice=ccs.acrossDayPrice,@acrossDayIsFree=ccs.acrossDayIsFree,@AcrossdayChargeEnable=ccs.acrossday_charge_enable,@ChargeTimeType=ccs.charge_time_type ,@AcrossdayChargeStyle=ccs.acrossday_charge_style,@OneDayMaxMoney=ccs.oneday_max_charge,@FreeTime = ccs.free_time,@StartStepTime=ccs.First_Time,@StartStepMoney=ccs.First_Time_Fee from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and carpark_id = @CarparkId and using = 'True'
 end
 --如果有工作日与非工作日之分，则取当前时间的收费标准
 if @ChargeStandardSize = 2
@@ -341,11 +358,11 @@ begin
 	--取非工作日的免费时长
 	if @IsCurrentWorkDay <> 0
 	begin
-		select @AcrossdayChargeEnable=ccs.acrossday_charge_enable,@ChargeTimeType=ccs.charge_time_type ,@AcrossdayChargeStyle=ccs.acrossday_charge_style,@OneDayMaxMoney=ccs.oneday_max_charge,@FreeTime = ccs.free_time,@StartStepTime=ccs.First_Time,@StartStepMoney=ccs.First_Time_Fee from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 0 and carpark_id = @CarparkId and using = 'True'
+		select  @AcrossDayMorePrice=ccs.acrossDayPrice,@AcrossdayChargeEnable=ccs.acrossday_charge_enable,@ChargeTimeType=ccs.charge_time_type ,@AcrossdayChargeStyle=ccs.acrossday_charge_style,@OneDayMaxMoney=ccs.oneday_max_charge,@FreeTime = ccs.free_time,@StartStepTime=ccs.First_Time,@StartStepMoney=ccs.First_Time_Fee from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 0 and carpark_id = @CarparkId and using = 'True'
 	end
 	--取工作日的免费时长
 	else begin
-		select @AcrossdayChargeEnable=ccs.acrossday_charge_enable,@ChargeTimeType=ccs.charge_time_type ,@AcrossdayChargeStyle=ccs.acrossday_charge_style,@OneDayMaxMoney=ccs.oneday_max_charge,@FreeTime = ccs.free_time,@StartStepTime=ccs.First_Time,@StartStepMoney=ccs.First_Time_Fee from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 1 and carpark_id = @CarparkId and using = 'True'
+		select @AcrossDayMorePrice=ccs.acrossDayPrice,@AcrossdayChargeEnable=ccs.acrossday_charge_enable,@ChargeTimeType=ccs.charge_time_type ,@AcrossdayChargeStyle=ccs.acrossday_charge_style,@OneDayMaxMoney=ccs.oneday_max_charge,@FreeTime = ccs.free_time,@StartStepTime=ccs.First_Time,@StartStepMoney=ccs.First_Time_Fee from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 1 and carpark_id = @CarparkId and using = 'True'
 	end
 end
 --如果在免费时长之内，则直接返回0
@@ -360,34 +377,51 @@ begin
 end
 
 
---如果在起步时长之内,则直接返回起步金额，如果不在，则累加起步金额，将时间向后推起步时间
-IF DateDiff(Second, @InTime, @OutTime) <= (@StartStepTime*60)
-begin
-	set @SumCharge = @StartStepMoney
-	return
-end
-else begin
-	set @InTime = DATEADD(MINUTE,@StartStepTime,@InTime);
-	set @SumCharge = @SumCharge + @StartStepMoney;
-end
+
 set @chargeSummay=0;
 set @InitInTime=@InTime;
+set @FinalInitInTime=@InTime;
 set @InitOutTime=@OutTime;
 set @IsAcrossDay=0;
+set @IsAcrossDuration=0;
+set @NowIsAcrossDay=0;
 while @InitInTime<@InitOutTime
 begin
+	--分天计算
+	if @AcrossdayChargeEnable=0 and @IsAcrossDay>0 and @acrossDayIsFree>0
+	begin
+		set @InitInTime=DATEADD(MINUTE,@FreeTime,@InitInTime);
+	end
 	set @InTime=@InitInTime;
 	if @ChargeTimeType=0
 	begin
-		if @IsAcrossDay=0 and @StartStepTime>0
+		if @ChargeStandardSize>1
 		begin
-			if DATEADD(MINUTE,((24*60)-@StartStepTime),@InitInTime)>@InitOutTime
+			SELECT @IsCurrentWorkDay = COUNT(1) FROM Holiday h WHERE @InitInTime >= h.start and @InitInTime < DATEADD(Day,h.length,h.start);
+			SELECT @IsNextWorkDay = COUNT(1) FROM Holiday h WHERE DATEADD(DAY,1,@InitInTime) >= h.start and DATEADD(DAY,1,@InitInTime) < DATEADD(Day,h.length,h.start)
+			if @IsCurrentWorkDay <> @IsNextWorkDay
 			begin
-				set @InitInTime=@InitOutTime;
+				if DATEDIFF(day,@InitInTime,@InitOutTime)>0
+				begin
+					set @InitInTime=CONVERT(VARCHAR(10),DATEADD(day,1,@InitInTime),120)+' 00:00:00';
+					set @NowIsAcrossDay=1;
+				end
+				else
+				begin
+					set @InitInTime=@InitOutTime;
+				end
 			end
 			else
 			begin
-				set @InitInTime=DATEADD(MINUTE,((24*60)-@StartStepTime),@InitInTime);
+				if DATEADD(DAY,1,@InitInTime)>@InitOutTime
+				begin
+					set @InitInTime=@InitOutTime;
+				end
+				else
+				begin
+					set @InitInTime=DATEADD(DAY,1,@InitInTime);
+					set @NowIsAcrossDay=1;
+				end	
 			end
 		end
 		else
@@ -399,15 +433,17 @@ begin
 			else
 			begin
 				set @InitInTime=DATEADD(DAY,1,@InitInTime);
-			end
-		end
-		
+				set @NowIsAcrossDay=1;
+			end	
+		end		
+			
 	end
 	else
 	begin
 		if DATEDIFF(day,@InitInTime,@InitOutTime)>0
 		begin
 			set @InitInTime=CONVERT(VARCHAR(10),DATEADD(day,1,@InitInTime),120)+' 00:00:00';
+			set @NowIsAcrossDay=1;
 		end
 		else
 		begin
@@ -415,6 +451,7 @@ begin
 		end
 	end
 	set @OutTime=@InitInTime;
+	--
 	
 	--获取一天最大收费
 	if @ChargeStandardSize>1
@@ -423,12 +460,17 @@ begin
 		--判断起始时间是否为节假日
 		if @IsCurrentWorkDay > 0
 		begin
-			select @OneDayMaxMoney=ccs.oneday_max_charge from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 0 and carpark_id = @CarparkId and using = 'True'
+			select @AcrossDayMorePrice=ccs.acrossDayPrice,@OneDayMaxMoney=ccs.oneday_max_charge from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 0 and carpark_id = @CarparkId and using = 'True'
 		end
 		else
 		begin
-			select @OneDayMaxMoney=ccs.oneday_max_charge from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 1 and carpark_id = @CarparkId and using = 'True'
+			select @AcrossDayMorePrice=ccs.acrossDayPrice,@OneDayMaxMoney=ccs.oneday_max_charge from carpark_charge_standard ccs where ccs.car_id = @PakCarTypeID and ccs.workday_type = 1 and carpark_id = @CarparkId and using = 'True'
 		end
+	end
+	--跨天是否免费
+	if @IsAcrossDay>0 and @acrossDayIsFree>0 and @AcrossdayChargeEnable=1
+	begin		
+		set @InTime=DATEADD(MINUTE,@FreeTime,@InTime);
 	end
 	
 	while @InTime < @OutTime
@@ -453,7 +495,7 @@ begin
 			--如果第二天还是节假日
 			if @IsNextWorkDay > 0
 			begin
-				set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay);
+				set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay,@IsAcrossDuration);
 				set @exchangeTime = [dbo].[getFullCurrentDurationTime](@InTime,@OutTime,@CurrentChargeStandardId);
 				--set @OutTime = DATEADD(SECOND,[dbo].[getFullCurrentDurationExtendAppendSec](@InTime,@OutTime,@CurrentChargeStandardId)*-1,@OutTime);
 				set @InTime = @exchangeTime;
@@ -462,7 +504,7 @@ begin
 			else begin
 				if @ChargeStandardSize = 1
 				begin
-					set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay);
+					set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay,@IsAcrossDuration);
 					set @exchangeTime = [dbo].[getFullCurrentDurationTime](@InTime,@OutTime,@CurrentChargeStandardId);
 					--set @OutTime = DATEADD(SECOND,[dbo].[getFullCurrentDurationExtendAppendSec](@InTime,@OutTime,@CurrentChargeStandardId)*-1,@OutTime);
 					set @InTime = @exchangeTime;
@@ -481,7 +523,7 @@ begin
 						end
 						--如果没有跨天，收满当前时段，重置起始时间
 						else begin
-							set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay);
+							set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay,@IsAcrossDuration);
 							set @exchangeTime = [dbo].[getFullCurrentDurationTime](@InTime,@OutTime,@CurrentChargeStandardId);
 							--set @OutTime = DATEADD(SECOND,[dbo].[getFullCurrentDurationExtendAppendSec](@InTime,@OutTime,@CurrentChargeStandardId)*-1,@OutTime);
 							set @InTime = @exchangeTime;
@@ -489,7 +531,7 @@ begin
 					end
 					--如果只有一个时段
 					else begin
-						set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay);
+						set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay,@IsAcrossDuration);
 						set @exchangeTime = [dbo].[getFullCurrentDurationTime](@InTime,@OutTime,@CurrentChargeStandardId);
 						--set @OutTime = DATEADD(SECOND,[dbo].[getFullCurrentDurationExtendAppendSec](@InTime,@OutTime,@CurrentChargeStandardId)*-1,@OutTime);
 						set @InTime = @exchangeTime;
@@ -511,7 +553,7 @@ begin
 			--如果第二天是工作日
 			if @IsNextWorkDay < 1
 			begin
-				set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay);
+				set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay,@IsAcrossDuration);
 				set @exchangeTime = [dbo].[getFullCurrentDurationTime](@InTime,@OutTime,@CurrentChargeStandardId);
 				--set @OutTime = DATEADD(SECOND,[dbo].[getFullCurrentDurationExtendAppendSec](@InTime,@OutTime,@CurrentChargeStandardId)*-1,@OutTime);
 				set @InTime = @exchangeTime;
@@ -519,7 +561,7 @@ begin
 			else begin
 				if @ChargeStandardSize = 1
 				begin 
-					set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay);
+					set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay,@IsAcrossDuration);
 					set @exchangeTime = [dbo].[getFullCurrentDurationTime](@InTime,@OutTime,@CurrentChargeStandardId);
 					--set @OutTime = DATEADD(SECOND,[dbo].[getFullCurrentDurationExtendAppendSec](@InTime,@OutTime,@CurrentChargeStandardId)*-1,@OutTime);
 					set @InTime = @exchangeTime;
@@ -527,7 +569,7 @@ begin
 				else begin
 					if @CurrentDurationChargeStandardSize = 1
 					begin
-						set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay);
+						set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay,@IsAcrossDuration);
 						set @exchangeTime = [dbo].[getFullCurrentDurationTime](@InTime,@OutTime,@CurrentChargeStandardId);
 						--set @OutTime = DATEADD(SECOND,[dbo].[getFullCurrentDurationExtendAppendSec](@InTime,@OutTime,@CurrentChargeStandardId)*-1,@OutTime);
 						set @InTime = @exchangeTime;
@@ -543,7 +585,7 @@ begin
 						end
 						--如果没有跨天，收满当前时段，重置起始时间
 						else begin
-							set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay);
+							set @SumCharge = @SumCharge + [dbo].[getFullCurrentDurationPrice](@InTime,@OutTime,@CurrentChargeStandardId,@AcrossdayChargeStyle,@IsAcrossDay,@IsAcrossDuration);
 							set @exchangeTime = [dbo].[getFullCurrentDurationTime](@InTime,@OutTime,@CurrentChargeStandardId);
 							--set @OutTime = DATEADD(SECOND,[dbo].[getFullCurrentDurationExtendAppendSec](@InTime,@OutTime,@CurrentChargeStandardId)*-1,@OutTime);
 							set @InTime = @exchangeTime;
@@ -552,6 +594,12 @@ begin
 				end
 			end 
 		end
+		set @IsAcrossDuration=1
+	end
+	if @NowIsAcrossDay>0
+	begin
+		set @SumCharge=@SumCharge+@AcrossDayMorePrice;
+		set @NowIsAcrossDay=0;
 	end
 	--一天最大收费
 	if @OneDayMaxMoney>0

@@ -7,6 +7,8 @@ import com.donglu.carpark.model.ConcentrateModel;
 import com.donglu.carpark.ui.common.AbstractApp;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.TextUtils;
+import com.google.common.util.concurrent.RateLimiter;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -38,12 +40,16 @@ import org.eclipse.core.databinding.beans.BeansObservables;
 
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.util.StrUtil;
+
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 
 public class ConcentrateApp extends AbstractApp {
 	private DataBindingContext m_bindingContext;
@@ -52,6 +58,8 @@ public class ConcentrateApp extends AbstractApp {
 	@Inject
 	private ConcentratePresenter presenter;
 	private ConcentrateModel model=new ConcentrateModel();
+	private RateLimiter rateLimiter = RateLimiter.create(2);
+	
 	private Text text;
 	private Text text_1;
 	private Text text_2;
@@ -185,9 +193,22 @@ public class ConcentrateApp extends AbstractApp {
 		label.setText("车牌号码");
 		
 		text = new Text(composite_1, SWT.BORDER);
+		text.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.keyCode==StrUtil.BIG_KEY_ENTER) {
+					if (!rateLimiter.tryAcquire()) {
+						return;
+					}
+					if (StrUtil.isEmpty(text.getText())) {
+						return;
+					}
+					presenter.searchAndCount();
+				}
+			}
+		});
 		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		
 		Label label_1 = new Label(composite_1, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -247,6 +268,9 @@ public class ConcentrateApp extends AbstractApp {
 		combo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if (!rateLimiter.tryAcquire()) {
+					return;
+				}
 				presenter.getListCarTypeAndSelect();
 			}
 		});
@@ -276,6 +300,10 @@ public class ConcentrateApp extends AbstractApp {
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if (!rateLimiter.tryAcquire()) {
+					System.out.println(rateLimiter.tryAcquire());
+					return;
+				}
 				presenter.searchAndCount();
 			}
 		});
@@ -286,6 +314,9 @@ public class ConcentrateApp extends AbstractApp {
 		btnNewButton_1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if (!rateLimiter.tryAcquire()) {
+					return;
+				}
 				presenter.charge();
 			}
 		});
@@ -296,6 +327,10 @@ public class ConcentrateApp extends AbstractApp {
 		btnNewButton_3.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if (!rateLimiter.tryAcquire()) {
+					return;
+				}
+				presenter.userRecharge();
 			}
 		});
 		btnNewButton_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
@@ -305,6 +340,10 @@ public class ConcentrateApp extends AbstractApp {
 		btnNewButton_4.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if (!rateLimiter.tryAcquire()) {
+					return;
+				}
+				presenter.changeUser();
 			}
 		});
 		btnNewButton_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
@@ -312,7 +351,7 @@ public class ConcentrateApp extends AbstractApp {
 		sashForm.setWeights(new int[] {2, 1});
 		
 		m_bindingContext = initDataBindings();
-
+		TextUtils.createAutoCompleteField(text);
 	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();

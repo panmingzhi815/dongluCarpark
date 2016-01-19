@@ -15,6 +15,8 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.beans.BeansObservables;
+
+import com.donglu.carpark.util.TextUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -94,7 +96,7 @@ public class AddUserWizardPage extends WizardPage {
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text.widthHint = 150;
 		text.setLayoutData(gd_text);
-		
+		TextUtils.createAutoCompleteField(text);
 		Label label_1 = new Label(composite, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));

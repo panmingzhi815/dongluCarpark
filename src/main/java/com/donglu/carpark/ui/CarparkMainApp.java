@@ -1091,7 +1091,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			listCarType.add("摩托车");
 		}
 		comboViewer.setInput(listCarType);
-		model.setCarparkCarType(listCarType.get(1));
+		model.setCarparkCarType(listCarType.size()>1?listCarType.get(1):"小车");
 
 		Composite composite_19 = new Composite(group, SWT.NONE);
 		composite_19.setLayout(new GridLayout(1, false));

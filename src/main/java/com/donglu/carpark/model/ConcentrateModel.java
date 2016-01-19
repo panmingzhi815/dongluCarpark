@@ -41,8 +41,8 @@ public class ConcentrateModel extends DomainObject {
 	public String getWorkTime() {
 		return workTime;
 	}
-	public void setWorkTime(String workTime) {
-		this.workTime = workTime;
+	public void setWorkTime(Date workTime) {
+		this.workTime = StrUtil.formatDate(workTime, StrUtil.DATETIME_PATTERN);
 		if (pcs != null)
 			pcs.firePropertyChange("workTime", null, null);
 	}
