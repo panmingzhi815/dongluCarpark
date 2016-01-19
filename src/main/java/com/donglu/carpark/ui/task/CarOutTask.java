@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui.task;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -25,6 +26,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -84,15 +86,7 @@ public class CarOutTask implements Runnable{
 		this.rightSize=rightSize;
 		this.lbl_inBigImg=lbl_inBigImg;
 	}
-	public static void main(String[] args) {
-		try {
-			String s="东陆高新";
-			System.out.println(CarparkUtils.encod(s));
-			System.out.println(CarparkUtils.decod(CarparkUtils.encod(s)));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	
 	public void run(){
 		try {
 			SingleCarparkDevice device = mapIpToDevice.get(ip);
@@ -165,7 +159,7 @@ public class CarOutTask implements Runnable{
 			SingleCarparkUser user = sp.getCarparkUserService().findUserByPlateNo(plateNO,device.getCarpark().getId());
 			// 没有找到入场记录
 			List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO,carpark);
-			if (StrUtil.isEmpty(user)) {
+			if (StrUtil.isEmpty(user)||user.getType().equals("储值")) {
 				if (StrUtil.isEmpty(findByNoOut)) {
 					notFindInHistory(device, bigImg, smallImg);
 					return;
@@ -208,9 +202,13 @@ public class CarOutTask implements Runnable{
 					if (fixCarOutProcess(ip, plateNO, date, device, user, roadType, equals, bigImg, smallImg)) {
 						return;
 					}
+				}else{
+					if(prepaidCarOut(device, date, carpark, bigImg, smallImg, user, ch)){
+						return;
+					}
 				}
 			} else {// 临时车操作
-				// 固定车通道
+				//固定车通道
 				if (equals) {
 					presenter.showContentToDevice(device, CarparkMainApp.FIX_ROAD, false);
 					return;
@@ -221,6 +219,76 @@ public class CarOutTask implements Runnable{
 			LOGGER.error("车辆出场时发生错误",e);
 		}
 	
+	}
+
+	/**
+	 * @param device
+	 * @param date
+	 * @param carpark
+	 * @param bigImg
+	 * @param smallImg
+	 * @param user
+	 * @param ch
+	 * @return 
+	 */
+	public boolean prepaidCarOut(SingleCarparkDevice device, Date date, SingleCarparkCarpark carpark, String bigImg, String smallImg, SingleCarparkUser user, SingleCarparkInOutHistory ch) {
+		LOGGER.info("储值车出场");
+		if (CarparkUtils.checkRoadType(device, presenter, DeviceRoadTypeEnum.临时车通道,DeviceRoadTypeEnum.固定车通道)) {
+			return true;
+		}
+		Float leftMoney = user.getLeftMoney();
+		Float valueOf = Float.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车进出场限制金额));
+		if (leftMoney<valueOf) {
+			presenter.showContentToDevice(device, "余额不足，请联系管理员", false);
+			return true;
+		}
+		
+		String carparkCarType = model.getCarparkCarType();
+		CarTypeEnum parse = CarTypeEnum.parse(carparkCarType);
+		Date inTime = ch.getInTime();
+		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(parse.index(), carpark.getId(), inTime, date);
+		model.setPlateNo(ch.getPlateNo());
+		model.setInTime(inTime);
+		model.setOutTime(date);
+		model.setShouldMony(calculateTempCharge);
+		model.setReal(calculateTempCharge);
+		model.setTotalTime(StrUtil.MinusTime2(inTime, date));
+		model.setCarType("储值车");
+		LOGGER.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", plateNO, device.getCarpark(), "储值车", model.getInTime(), model.getOutTime(), model.getTotalTime(), model.getShouldMony());
+		if (calculateTempCharge>leftMoney) {
+			presenter.showContentToDevice(device, CarparkUtils.formatFloatString("请缴费"+calculateTempCharge+"元,余额不足,请联系管理员"), false);
+			return true;
+		}
+		LOGGER.info("准备保存储值车出场数据到数据库");
+		ch.setShouldMoney(calculateTempCharge);
+		ch.setCarparkId(carpark.getId());
+		ch.setCarparkName(carpark.getName());
+		ch.setBigImg(bigImg);
+		ch.setSmallImg(smallImg);
+		ch.setOutTime(date);
+		ch.setFactMoney(calculateTempCharge);
+		ch.setFreeMoney(0);
+		user.setLeftMoney(user.getLeftMoney()-calculateTempCharge);
+		
+		//消费记录保存
+		SingleCarparkPrepaidUserPayHistory pph=new SingleCarparkPrepaidUserPayHistory();
+		pph.setCreateTime(date);
+		pph.setOutTime(date);
+		pph.setInTime(inTime);
+		pph.setOperaName(System.getProperty("userName"));
+		pph.setPayMoney(calculateTempCharge);
+		pph.setPlateNO(user.getPlateNo());
+		pph.setUserName(user.getName());
+		pph.setUserType(user.getType());
+		sp.getCarparkUserService().savePrepaidUserPayHistory(pph);
+		
+		sp.getCarparkUserService().saveUser(user);
+		sp.getCarparkInOutService().saveInOutHistory(ch);
+		LOGGER.info("保存储值车出场数据到数据库成功，对设备{}进行语音开闸",device);
+		String s ="请缴费"+calculateTempCharge+"元";
+		s = CarparkUtils.getCarStillTime(model.getTotalTime())+CarparkUtils.formatFloatString(s);
+		presenter.showContentToDevice(device, s+","+CarparkMainApp.CAR_OUT_MSG, true);
+		return false;
 	}
 	/**
 	 * 未找到进场记录操作
@@ -376,6 +444,11 @@ public class CarOutTask implements Runnable{
 	}
 
 	private void tempCarOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg, Date reviseInTime) throws Exception{
+		if (!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制))) {
+			if (CarparkUtils.checkRoadType(device, presenter, DeviceRoadTypeEnum.储值车通道,DeviceRoadTypeEnum.固定车通道)) {
+				return;
+			}
+		}
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(plateNO, device.getCarpark());
 		if (!StrUtil.isEmpty(findByNoCharge)) {
@@ -393,7 +466,7 @@ public class CarOutTask implements Runnable{
 //				}
 //				model.setChildCarparkInOut(map);
 //			}
-		
+			
 			singleCarparkInOutHistory.setOutTime(date);
 			singleCarparkInOutHistory.setOperaName(model.getUserName());
 			singleCarparkInOutHistory.setOutDevice(device.getName());
@@ -410,6 +483,7 @@ public class CarOutTask implements Runnable{
 			}
 			Date inTime = singleCarparkInOutHistory.getReviseInTime();
 
+			
 			// 临时车操作
 			model.setPlateNo(plateNO);
 			model.setCarType("临时车");
@@ -463,10 +537,38 @@ public class CarOutTask implements Runnable{
 				}
 				// model.setComboCarTypeEnable(false);
 				float shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date);
-				model.setShouldMony(shouldMoney);
-				singleCarparkInOutHistory.setShouldMoney(shouldMoney);
-				model.setReal(shouldMoney);
-				singleCarparkInOutHistory.setFactMoney(shouldMoney);
+				
+				//集中收费
+				Boolean idConcentrate=Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费));
+				if (idConcentrate) {
+					Float chargedMoney = singleCarparkInOutHistory.getFactMoney();
+					if (shouldMoney>0) {
+						Date chargeTime = singleCarparkInOutHistory.getChargeTime();
+						if (StrUtil.isEmpty(chargeTime)) {
+							presenter.showContentToDevice(device, "请到管理处缴费", false);
+							return;
+						}
+						Integer concentrateLateTime = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.集中收费延迟出场时间));
+						DateTime plusMinutes = new DateTime(chargeTime).plusMinutes(concentrateLateTime);
+						if (plusMinutes.isBeforeNow()) {
+							if (shouldMoney>chargedMoney) {
+								presenter.showContentToDevice(device, "请缴费"+shouldMoney+"元,已缴费"+chargedMoney+"元,请到管理处续费", false);
+								return;
+							}
+						}
+					}
+					singleCarparkInOutHistory.setOutTime(date);
+					singleCarparkInOutHistory.setBigImg(bigImg);
+					singleCarparkInOutHistory.setSmallImg(smallImg);
+					model.setShouldMony(shouldMoney);
+					singleCarparkInOutHistory.setShouldMoney(shouldMoney);
+					model.setChargedMoney(chargedMoney);
+					model.setReal(0);
+				}else{
+					model.setShouldMony(shouldMoney);
+					singleCarparkInOutHistory.setShouldMoney(shouldMoney);
+					model.setReal(shouldMoney);
+				}
 				model.setCartypeEnum(carType);
 				LOGGER.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", plateNO, device.getCarpark(), carType, model.getInTime(), model.getOutTime(), model.getTotalTime(), shouldMoney);
 				String s = "请缴费" + shouldMoney + "元";
@@ -479,7 +581,7 @@ public class CarOutTask implements Runnable{
 				model.setBtnClick(true);
 				LOGGER.info("等待收费");
 				if (tempCarNoChargeIsPass) {
-					if (shouldMoney > 0) {
+					if (model.getReal() > 0) {
 						presenter.showContentToDevice(device, s, false);
 						model.setChargeDevice(device);
 						model.setChargeHistory(singleCarparkInOutHistory);

@@ -15,7 +15,7 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 	private SingleCarparkMonthlyCharge selectMonth;
 	private String createTimeLabel;
 	private boolean free=true;
-	private boolean payMoney=true;
+	private boolean payMoney=false;
 	private boolean payDate=true;
 	public int getCount() {
 		return count;

@@ -17,6 +17,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
@@ -123,7 +124,6 @@ public class CarInTask implements Runnable {
 			// 空车牌处理
 			if (StrUtil.isEmpty(plateNO)) {
 				LOGGER.info("空的车牌");
-				
 				Boolean valueOf = Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.是否允许无牌车进));
 				if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认)) || Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认)) || !valueOf) {
 					model.setInCheckClick(true);
@@ -141,9 +141,10 @@ public class CarInTask implements Runnable {
 						}
 					}
 					editPlateNo = model.getInShowPlateNO();
-					if (StrUtil.isEmpty(editPlateNo)) {
+					if (!model.isInCheckIsClick()||StrUtil.isEmpty(editPlateNo)) {
 						return;
 					}
+					model.setInCheckIsClick(false);
 				} else {
 					if (!valueOf) {
 						return;
@@ -179,7 +180,8 @@ public class CarInTask implements Runnable {
 			LOGGER.debug("显示车牌");
 			presenter.showPlateNOToDevice(device, plateNO);
 			SingleCarparkBlackUser blackUser = sp.getCarparkService().findBlackUserByPlateNO(plateNO);
-
+			
+			//黑名单判断
 			if (!StrUtil.isEmpty(blackUser)) {
 				Holiday findHolidayByDate = sp.getCarparkService().findHolidayByDate(new Date());
 				if (!StrUtil.isEmpty(findHolidayByDate) && !StrUtil.isEmpty(blackUser.getHolidayIn()) && blackUser.getHolidayIn()) {
@@ -276,31 +278,12 @@ public class CarInTask implements Runnable {
 						carType = "固定车";
 					} 
 				}else{//储值车
-					Float leftMoney = user.getLeftMoney();
-					Float prepaidCarInOutLimit=Float.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车进出场限制金额));
-					if (leftMoney<prepaidCarInOutLimit) {
-						String formatFloatString = CarparkUtils.formatFloatString("剩余"+leftMoney+"元,余额不足请联系管理员");
-						presenter.showContentToDevice(device,formatFloatString, false);
+					if(prepaidCarIn(device, user)){
 						return;
-					}
-					
-					Float prepaidCarInOutRemind=Float.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车提醒金额));;
-					if (leftMoney<prepaidCarInOutRemind) {
-						String content = "剩余"+leftMoney+"元,"+CAR_IN_MSG;
-						content=CarparkUtils.formatFloatString(content);
-						presenter.showContentToDevice(device, content, true);
-					}
-					if (leftMoney>100) {
-						String content = "储值车辆,"+CAR_IN_MSG;
-						presenter.showContentToDevice(device, content, true);
 					}
 				}
 			} else {
-				LOGGER.debug("判断是否允许临时车进");
-				if (device.getCarpark().isTempCarIsIn()) {
-					presenter.showContentToDevice(device, "固定停车场,不允许临时车进", false);
-					return;
-				}
+				
 				boolean flag = false; //临时车是否确认
 				if (!isEmptyPlateNo) {
 					if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认))) {
@@ -336,22 +319,29 @@ public class CarInTask implements Runnable {
 					}
 				}
 				if (flag&&!editPlateNo.equals(plateNO)) {
-					SingleCarparkUser singleCarparkUser = sp.getCarparkUserService().findUserByPlateNo(editPlateNo, device.getCarpark().getId());
-					if (StrUtil.isEmpty(singleCarparkUser)) {
-						LOGGER.debug("判断是否允许临时车进");
-						if (device.getCarpark().isTempCarIsIn()) {
-							presenter.showContentToDevice(device, "固定停车场,不允许临时车进", false);
-							return;
-						}
+					user = sp.getCarparkUserService().findUserByPlateNo(editPlateNo, device.getCarpark().getId());
+					if (StrUtil.isEmpty(user)) {
+						
 						if (shouTempCarToDevice(device)) {
 							return;
 						}
 					} else {
-						if (fixCarShowToDevice(date, device, user, cch.getId())) {
-							return;
+						if (!user.getType().equals("储值")) {
+							if (fixCarShowToDevice(date, device, user, cch.getId())) {
+								return;
+							}
+						}else{
+							if (prepaidCarIn(device, user)) {
+								return;
+							}
 						}
 					}
 				} else {
+					LOGGER.debug("判断是否允许临时车进");
+					if (device.getCarpark().isTempCarIsIn()) {
+						presenter.showContentToDevice(device, "固定停车场,不允许临时车进", false);
+						return;
+					}
 					if (shouTempCarToDevice(device)) {
 						return;
 					}
@@ -401,6 +391,43 @@ public class CarInTask implements Runnable {
 	}
 
 	/**
+	 * @param device
+	 * @param user
+	 * @return 
+	 */
+	public boolean prepaidCarIn(SingleCarparkDevice device, SingleCarparkUser user) {
+		if (CarparkUtils.checkRoadType(device, presenter, DeviceRoadTypeEnum.临时车通道,DeviceRoadTypeEnum.固定车通道)) {
+			return true;
+		}
+		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许储值车入场));
+		if (!valueOf) {
+			if (model.getTotalSlot() <= 0) {
+				LOGGER.error("车位已满,不允许储值车进入");
+				return true;
+			}
+		}
+		Float leftMoney = user.getLeftMoney();
+		Float prepaidCarInOutLimit=Float.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车进出场限制金额));
+		if (leftMoney<prepaidCarInOutLimit) {
+			String formatFloatString = CarparkUtils.formatFloatString("剩余"+leftMoney+"元,余额不足请联系管理员");
+			presenter.showContentToDevice(device,formatFloatString, false);
+			return true;
+		}
+		
+		Float prepaidCarInOutRemind=Float.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车提醒金额));;
+		if (leftMoney<prepaidCarInOutRemind) {
+			String content = CAR_IN_MSG+",剩余"+leftMoney+"元,请及时充值";
+			content=CarparkUtils.formatFloatString(content);
+			presenter.showContentToDevice(device, content, true);
+		}
+		if (leftMoney>100) {
+			String content = "储值车辆,"+CAR_IN_MSG;
+			presenter.showContentToDevice(device, content, true);
+		}
+		return false;
+	}
+
+	/**
 	 * 双摄像头控制
 	 * @param device
 	 */
@@ -432,6 +459,12 @@ public class CarInTask implements Runnable {
 	 * @return
 	 */
 	public boolean shouTempCarToDevice(SingleCarparkDevice device) throws Exception {
+		Boolean valueOf2 = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制));
+		if (!valueOf2) {
+			if (CarparkUtils.checkRoadType(device, presenter, DeviceRoadTypeEnum.固定车通道,DeviceRoadTypeEnum.储值车通道)) {
+				return true;
+			}
+		}
 		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许临时车入场));
 		if (!valueOf) {
 			if (model.getTotalSlot() <= 0) {
@@ -447,9 +480,12 @@ public class CarInTask implements Runnable {
 	 * @param date
 	 * @param device
 	 * @param user
-	 * @return 是否需要退出
+	 * @return 是否需要退出 true退出
 	 */
 	public boolean fixCarShowToDevice(Date date, SingleCarparkDevice device, SingleCarparkUser user, Long inId) throws Exception {
+		if (CarparkUtils.checkRoadType(device,presenter,DeviceRoadTypeEnum.储值车通道,DeviceRoadTypeEnum.临时车通道)) {
+			return true;
+		}
 		if (StrUtil.isEmpty(inId)) {
 			Boolean valueOf2 = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费) == null ? "false" : mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));
 			List<SingleCarparkInOutHistory> list = new ArrayList<>();
@@ -470,25 +506,13 @@ public class CarInTask implements Runnable {
 				}
 			}
 		}
-		if (user.getType().equals("免费")) {
-			Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场));
+		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场));
 			if (!valueOf) {
 				if (model.getTotalSlot() <= 0) {
 					LOGGER.error("车位已满,不允许免费车进入");
 					return true;
 				}
 			}
-
-		}
-		if (user.getType().equals("普通")) {
-			Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许储值车入场));
-			if (!valueOf) {
-				if (model.getTotalSlot() <= 0) {
-					LOGGER.error("车位已满,不允许储值车进入");
-					return true;
-				}
-			}
-		}
 
 		// int parseInt = Integer.parseInt(StrUtil.isEmpty(user.getCarparkNo())?"0":user.getCarparkNo());
 

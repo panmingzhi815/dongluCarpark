@@ -19,17 +19,18 @@ import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.SystemUserServiceI;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.list.BlackUserListPresenter;
-import com.donglu.carpark.ui.list.CarparkPayHistoryListView;
-import com.donglu.carpark.ui.view.CarparkPayHistoryPresenter;
 import com.donglu.carpark.ui.view.InOutHistoryPresenter;
 import com.donglu.carpark.ui.view.OpenDoorLogPresenter;
 import com.donglu.carpark.ui.view.ReturnAccountPresenter;
 import com.donglu.carpark.ui.view.SystemLogPresenter;
-import com.donglu.carpark.ui.view.UserPresenter;
 import com.donglu.carpark.ui.view.setting.SettingPresenter;
 import com.donglu.carpark.ui.view.store.StoreChargePresenter;
 import com.donglu.carpark.ui.view.store.StoreFreePresenter;
 import com.donglu.carpark.ui.view.store.StorePresenter;
+import com.donglu.carpark.ui.view.user.CarparkPayHistoryListView;
+import com.donglu.carpark.ui.view.user.CarparkPayHistoryPresenter;
+import com.donglu.carpark.ui.view.user.PrepaidUserPayHistoryPresenter;
+import com.donglu.carpark.ui.view.user.UserPresenter;
 import com.donglu.carpark.ui.wizard.AddCarparkChildWizard;
 import com.donglu.carpark.ui.wizard.AddCarparkWizard;
 import com.donglu.carpark.ui.wizard.AddMonthChargeWizard;
@@ -100,6 +101,9 @@ public class CarparkManagePresenter {
 	private StoreFreePresenter storeFreePresenter;
 	@Inject
 	private SettingPresenter settingPresenter;
+	@Inject
+	private PrepaidUserPayHistoryPresenter prepaidUserPayHistoryPresenter;
+	
 
 	/**
 	 * 删除停车场
@@ -860,6 +864,10 @@ public class CarparkManagePresenter {
 
 	public SettingPresenter getSettingPresenter() {
 		return settingPresenter;
+	}
+
+	public PrepaidUserPayHistoryPresenter getPrepaidUserPayHistoryPresenter() {
+		return prepaidUserPayHistoryPresenter;
 	}
 
 }

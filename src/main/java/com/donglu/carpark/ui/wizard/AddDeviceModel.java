@@ -15,7 +15,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 	private String voice="1";
 	private String addressLabel;
 	private String tcpLabel;
-	private DeviceRoadTypeEnum deviceRoadType;
+	private DeviceRoadTypeEnum deviceRoadType=DeviceRoadTypeEnum.混合车通道;
 	
 	public AddDeviceModel(){
 		SingleCarparkCarpark s=new SingleCarparkCarpark();

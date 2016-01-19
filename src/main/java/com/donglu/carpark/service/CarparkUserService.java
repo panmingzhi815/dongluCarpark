@@ -1,8 +1,11 @@
 package com.donglu.carpark.service;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 
 public interface CarparkUserService {
@@ -20,4 +23,12 @@ public interface CarparkUserService {
 	List<SingleCarparkLockCar> findLockCarByPlateNO(String plateNO);
 	Long saveLockCar(SingleCarparkLockCar lc);
 	Long deleteLockCar(SingleCarparkLockCar lc);
+	/**
+	 * 保存储值用户的消费记录
+	 * @param pph
+	 * @return
+	 */
+	Long savePrepaidUserPayHistory(SingleCarparkPrepaidUserPayHistory pph);
+	List<SingleCarparkPrepaidUserPayHistory> findPrepaidUserPayHistoryList(int begin,int max,String userName,String plateNO,Date start,Date end);
+	int countPrepaidUserPayHistoryList(String userName,String plateNO,Date start,Date end);
 }

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.service.CarparkUserService;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.MapperConfig;
@@ -111,7 +112,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 				c.add(Restrictions.eq("carpark", dom.getEntityWithId(carparkId)));
 			}
 			SingleCarparkUser user = (SingleCarparkUser) c.getSingleResultOrNull();
-			if (!user.getType().equals("储值")&&StrUtil.isEmpty(user.getValidTo())) {
+			if (user!=null&&!user.getType().equals("储值")&&StrUtil.isEmpty(user.getValidTo())) {
 				return null;
 			}
 			return user;
@@ -176,7 +177,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			unitOfWork.end();
 		}
 	}
-	@Override
+	@Transactional
 	public Long saveLockCar(SingleCarparkLockCar lc) {
 		DatabaseOperation<SingleCarparkLockCar> dom = DatabaseOperation.forClass(SingleCarparkLockCar.class, emprovider.get());
 		if (StrUtil.isEmpty(lc.getId())) {
@@ -186,11 +187,72 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		}
 		return lc.getId();
 	}
-	@Override
+	@Transactional
 	public Long deleteLockCar(SingleCarparkLockCar lc) {
 		DatabaseOperation<SingleCarparkLockCar> dom = DatabaseOperation.forClass(SingleCarparkLockCar.class, emprovider.get());
 		dom.remove(lc);
 		return lc.getId();
+	}
+	@Transactional
+	public Long savePrepaidUserPayHistory(SingleCarparkPrepaidUserPayHistory pph) {
+		DatabaseOperation<SingleCarparkPrepaidUserPayHistory> dom = DatabaseOperation.forClass(SingleCarparkPrepaidUserPayHistory.class, emprovider.get());
+		if (StrUtil.isEmpty(pph.getId())) {
+			dom.insert(pph);
+		}else{
+			dom.update(pph);
+		}
+		return pph.getId();
+	}
+	
+	@Override
+	public List<SingleCarparkPrepaidUserPayHistory> findPrepaidUserPayHistoryList(int first, int max, String userName, String plateNO, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindPrepaidUserPayHistoryCriteria(userName, plateNO, start, end);
+			c.setFirstResult(first);
+			c.setMaxResults(max);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	/**
+	 * @param userName
+	 * @param plateNO
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public Criteria createFindPrepaidUserPayHistoryCriteria(String userName, String plateNO, Date start, Date end) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkPrepaidUserPayHistory.class);
+		if (!StrUtil.isEmpty(plateNO)) {
+			c.add(Restrictions.like(SingleCarparkPrepaidUserPayHistory.Property.plateNO.name(), plateNO, MatchMode.ANYWHERE));
+		}
+		
+		if (!StrUtil.isEmpty(userName)) {
+			c.add(Restrictions.like(SingleCarparkPrepaidUserPayHistory.Property.userName.name(), userName, MatchMode.ANYWHERE));
+		}
+		
+		if (!StrUtil.isEmpty(start)) {
+			c.add(Restrictions.ge(SingleCarparkPrepaidUserPayHistory.Property.createTime.name(), start));
+		}
+		
+		if (!StrUtil.isEmpty(end)) {
+			c.add(Restrictions.le(SingleCarparkPrepaidUserPayHistory.Property.createTime.name(), end));
+		}
+		return c;
+	}
+	@Override
+	public int countPrepaidUserPayHistoryList(String userName, String plateNO, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindPrepaidUserPayHistoryCriteria(userName, plateNO, start, end);
+			c.setProjection(Projections.rowCount());
+			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
+			return singleResultOrNull==null?0:singleResultOrNull.intValue();
+		} finally {
+			unitOfWork.end();
+		}
 	}
 
 }

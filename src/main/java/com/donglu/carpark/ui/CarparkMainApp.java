@@ -237,6 +237,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 	private CLabel lbl_inBigImg;
 
 	private int sendPositionToDeviceTime = 5;
+	private Text txt_chargedMoney;
 
 	/**
 	 * Launch the application.
@@ -363,8 +364,12 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		model.setMonthSlot(carparkInOutService.findFixSlotIsNow(model.getCarpark()));
 		model.setTotalCharge(carparkInOutService.findFactMoneyByName(userName));
 		model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
+		
+		//获取设置信息设置
 		List<SingleCarparkSystemSetting> findAllSystemSetting = sp.getCarparkService().findAllSystemSetting();
-
+		for (SystemSettingTypeEnum systemSetting : SystemSettingTypeEnum.values()) {
+			mapSystemSetting.put(systemSetting, systemSetting.getDefaultValue());
+		}
 		for (SingleCarparkSystemSetting ss : findAllSystemSetting) {
 			SystemSettingTypeEnum valueOf = null;
 			try {
@@ -389,8 +394,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		refreshService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每秒刷新停车场全局监控信息"));
 		if (StrUtil.isEmpty(System.getProperty("autoSendPositionToDevice"))) {
 			autoSendPositionToDevice();
-			autoSendTimeToDevice();
 		}
+		autoSendTimeToDevice();
 		refreshCarparkBasicInfo(refreshTimeSpeedSecond);
 
 		model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
@@ -982,6 +987,27 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		text_should.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		text_should.setEditable(false);
 		text_should.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Composite composite = new Composite(group, SWT.NONE);
+		GridLayout gl_composite = new GridLayout(2, false);
+		gl_composite.marginWidth = 0;
+		composite.setLayout(gl_composite);
+		GridData gd_composite = new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1);
+		if (!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费))) {
+			gd_composite.exclude = true;
+		}
+		composite.setLayoutData(gd_composite);
+		
+		Label lblNewLabel_3 = new Label(composite, SWT.NONE);
+		lblNewLabel_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_3.setText("已收金额");
+		
+		txt_chargedMoney = new Text(composite, SWT.BORDER);
+		txt_chargedMoney.setEditable(false);
+		txt_chargedMoney.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
+		txt_chargedMoney.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		txt_chargedMoney.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		Label label_13 = new Label(group, SWT.NONE);
 		label_13.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -1065,7 +1091,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			listCarType.add("摩托车");
 		}
 		comboViewer.setInput(listCarType);
-		carTypeSelectCombo.select(0);
+		model.setCarparkCarType(listCarType.get(1));
 
 		Composite composite_19 = new Composite(group, SWT.NONE);
 		composite_19.setLayout(new GridLayout(1, false));
@@ -1626,6 +1652,10 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			IObservableValue observeEditableText_2ObserveWidget = WidgetProperties.editable().observe(text_2);
 			bindingContext.bindValue(observeEditableText_2ObserveWidget, inCheckClickModelObserveValue, null, null);
 		}
+		//
+		IObservableValue observeTextText_chargedMoneybserveWidget = WidgetProperties.text(SWT.Modify).observe(txt_chargedMoney);
+		IObservableValue chargedMoneyModelObserveValue = BeanProperties.value("chargedMoney").observe(model);
+		bindingContext.bindValue(observeTextText_chargedMoneybserveWidget, chargedMoneyModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

@@ -450,6 +450,14 @@ public class CarparkManageApp extends AbstractApp{
 		tbtmS.setControl(composite_23);
 		presenter.getStoreFreePresenter().go(composite_23);
 		composite_23.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
+		TabItem tabItem_3 = new TabItem(tabFolder_searchHistory, SWT.NONE);
+		tabItem_3.setText("储值车消费记录");
+		
+		Composite composite_6 = new Composite(tabFolder_searchHistory, SWT.NONE);
+		tabItem_3.setControl(composite_6);
+		composite_6.setLayout(new FillLayout(SWT.HORIZONTAL));
+		presenter.getPrepaidUserPayHistoryPresenter().go(composite_6);
 		TabItem tbtmNewItem_1 = new TabItem(tabFolder, SWT.NONE);
 		tbtmNewItem_1.setText("系统用户");
 		

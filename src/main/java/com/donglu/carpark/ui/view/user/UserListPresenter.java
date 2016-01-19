@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.list;
+package com.donglu.carpark.ui.view.user;
 
 import java.util.Date;
 import java.util.List;
@@ -166,6 +166,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			if (singleCarparkUser.getType().equals("储值")) {
 				model.setFree(false);
 				model.setPayDate(false);
+				model.setPayMoney(true);
 			}
 			model.setUserName(singleCarparkUser.getName());
 			model.setCreateTime(singleCarparkUser.getCreateDate());
@@ -188,7 +189,13 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 				singleCarparkUser.setCarpark(m.getSelectMonth().getCarpark());
 			}
 			if (singleCarparkUser.getType().equals("储值")) {
-				singleCarparkUser.setLeftMoney(singleCarparkUser.getLeftMoney()+m.getChargesMoney());
+				Float chargesMoney = m.getChargesMoney();
+				if (chargesMoney>0) {
+					singleCarparkUser.setLeftMoney(singleCarparkUser.getLeftMoney()+chargesMoney);
+				}else{
+					commonui.info("提示", "充值金额不能小于0");
+					return;
+				}
 			}
 			m.setOperaName(System.getProperty("userName"));
 			sp.getCarparkUserService().saveUser(singleCarparkUser);

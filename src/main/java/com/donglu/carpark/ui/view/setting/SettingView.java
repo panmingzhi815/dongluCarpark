@@ -208,7 +208,18 @@ public class SettingView extends Composite implements View {
 		button_10.setText("自动识别出场车辆类型");
 		button_10.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_10.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.自动识别出场车辆类型)));
-		new Label(group, SWT.NONE);
+		
+		Button button_19 = new Button(group, SWT.CHECK);
+		button_19.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.临时车通道限制, button_19.getSelection() + "");
+			}
+		});
+		button_19.setToolTipText("选中后临时车可以在固定车通道和储值车通道进出");
+		button_19.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_19.setText("临时车不做通道限制");
+		button_19.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制)));
 
 		Composite composite_2 = new Composite(group, SWT.NONE);
 		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));

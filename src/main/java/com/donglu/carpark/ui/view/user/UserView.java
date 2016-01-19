@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.view;
+package com.donglu.carpark.ui.view.user;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;

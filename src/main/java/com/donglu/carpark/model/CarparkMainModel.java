@@ -130,6 +130,7 @@ public class CarparkMainModel extends DomainObject{
 	private String handPlateNO; //手动入场车牌
 
 	private CTabItem selectTabSelect;
+	private Float chargedMoney=0F;
 	
 	public String getUserName() {
 		return userName;
@@ -587,6 +588,14 @@ public class CarparkMainModel extends DomainObject{
 	}
 	public void setInCheckIsClick(boolean inCheckIsClick) {
 		this.inCheckIsClick = inCheckIsClick;
+	}
+	public Float getChargedMoney() {
+		return chargedMoney;
+	}
+	public void setChargedMoney(Float chargedMoney) {
+		this.chargedMoney = chargedMoney;
+		if (pcs != null)
+			pcs.firePropertyChange("chargedMoney", null, null);
 	}
 
 }

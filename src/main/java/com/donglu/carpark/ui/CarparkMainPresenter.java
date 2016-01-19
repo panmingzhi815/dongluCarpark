@@ -950,7 +950,6 @@ public class CarparkMainPresenter {
 			return;
 		}
 		SingleCarparkDevice device = model.getChargeDevice();
-		data.setFactMoney(model.getReal());
 		if (!chargeCarPass(device, data, carOutChargeCheck)) {
 			return;
 		}
@@ -1009,6 +1008,14 @@ public class CarparkMainPresenter {
 			}
 			log.info("车辆收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", singleCarparkInOutHistory.getPlateNo(), device.getCarpark(), model.getCarTypeEnum(), model.getInTime(), model.getOutTime(),
 					model.getTotalTime(), shouldMoney);
+			boolean isConcentrate = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费));
+			if (isConcentrate) {
+				factMoney=singleCarparkInOutHistory.getFactMoney()+factMoney;
+				if (factMoney > shouldMoney) {
+					commonui.error("收费提示", "总收费不能超过应收" + shouldMoney + "元");
+					return false;
+				}
+			}
 			float freeMoney = shouldMoney - factMoney;
 			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
 			singleCarparkInOutHistory.setFactMoney(factMoney);

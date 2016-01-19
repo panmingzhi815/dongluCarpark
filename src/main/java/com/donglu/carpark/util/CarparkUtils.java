@@ -39,7 +39,10 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.ui.CarparkClientConfig;
+import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.CarparkManageApp;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.util.DatabaseUtil;
@@ -692,5 +695,19 @@ public class CarparkUtils {
 			s+="00";
 		}
 		return s;
+	}
+	/**
+	 * 检测通道类型
+	 * @param device
+	 * @return 
+	 */
+	public static boolean checkRoadType(SingleCarparkDevice device,CarparkMainPresenter presenter,DeviceRoadTypeEnum... types) {
+		for (DeviceRoadTypeEnum deviceRoadTypeEnum : types) {
+			if (device.getRoadType().equals(deviceRoadTypeEnum.name())) {
+				presenter.showContentToDevice(device, deviceRoadTypeEnum.name(), false);
+				return true;
+			}
+		}
+		return false;
 	}
 }

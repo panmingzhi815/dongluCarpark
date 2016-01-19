@@ -41,6 +41,9 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 
 public class ConcentrateApp extends AbstractApp {
 	private DataBindingContext m_bindingContext;
@@ -92,6 +95,7 @@ public class ConcentrateApp extends AbstractApp {
 		createContents();
 		shell.open();
 		shell.setMaximized(true);
+		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
 		shell.layout();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -113,21 +117,23 @@ public class ConcentrateApp extends AbstractApp {
 		shell = new Shell();
 		shell.setSize(525, 601);
 		shell.setText("集中收费");
-		shell.setLayout(new GridLayout(2, false));
+		SashForm sashForm = new SashForm(shell, SWT.NONE);
 		
-		Composite composite = new Composite(shell, SWT.NONE);
+		Composite composite = new Composite(sashForm, SWT.NONE);
 		composite.setLayout(new FillLayout(SWT.HORIZONTAL));
-		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		lbl_inImg = new Label(composite, SWT.NONE);
 		lbl_inImg.setText("进场图片");
 		lbl_inImg.setAlignment(SWT.CENTER);
 		
-		Composite composite_1 = new Composite(shell, SWT.NONE);
+		TabFolder tabFolder = new TabFolder(sashForm, SWT.NONE);
+		
+		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
+		tabItem.setText("收费");
+		
+		Composite composite_1 = new Composite(tabFolder, SWT.NONE);
+		tabItem.setControl(composite_1);
 		composite_1.setLayout(new GridLayout(2, false));
-		GridData gd_composite_1 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-		gd_composite_1.widthHint = 342;
-		composite_1.setLayoutData(gd_composite_1);
 		
 		Label lblNewLabel_3 = new Label(composite_1, SWT.NONE);
 		lblNewLabel_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
@@ -303,6 +309,8 @@ public class ConcentrateApp extends AbstractApp {
 		});
 		btnNewButton_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		btnNewButton_4.setText("换      班");
+		sashForm.setWeights(new int[] {2, 1});
+		
 		m_bindingContext = initDataBindings();
 
 	}
