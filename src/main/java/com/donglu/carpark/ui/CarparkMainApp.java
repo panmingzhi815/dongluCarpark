@@ -865,7 +865,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		composite_18.setLayout(new GridLayout(1, false));
 
 		Composite composite_7 = new Composite(composite_18, SWT.NONE);
-		composite_7.setLayout(new GridLayout(2, false));
+		composite_7.setLayout(new GridLayout(3, false));
 		composite_7.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 
 		Boolean isCarHandIn = Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.进场允许手动入场));
@@ -883,6 +883,15 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 		});
 		btnNewButton.setText("手动入场");
 		btnNewButton.setEnabled(isCarHandIn);
+		
+		Button button_1 = new Button(composite_7, SWT.NONE);
+		button_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.refreshCarWithIn();
+			}
+		});
+		button_1.setText("刷新");
 		tableViewer = new TableViewer(composite_18, SWT.BORDER | SWT.FULL_SELECTION);
 		table = tableViewer.getTable();
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));

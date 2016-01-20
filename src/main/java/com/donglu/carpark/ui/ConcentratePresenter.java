@@ -37,48 +37,55 @@ public class ConcentratePresenter {
 	 * 查询计算
 	 */
 	public void searchAndCount() {
-		Date date = new Date();
-		String plateNO = model.getPlateNO();
-		SingleCarparkInOutHistory in = sp.getCarparkInOutService().findInOutHistoryByPlateNO(plateNO);
-		if (StrUtil.isEmpty(in)) {
-			boolean confirm = commonui.confirm("提示", "没有找到进场记录是否进人工查找？");
-			if (!confirm) {
+		try {
+			String plateNO = model.getPlateNO();
+			if (StrUtil.isEmpty(plateNO)) {
 				return;
 			}
-			searchErrorCarPresenter.getModel().setPlateNo(plateNO);
-			searchErrorCarPresenter.getModel().setHavePlateNoSelect(null);
-			searchErrorCarPresenter.getModel().setNoPlateNoSelect(null);
-			SearchHistoryByHandWizard wizard = new SearchHistoryByHandWizard(searchErrorCarPresenter);
-			Object showWizard = commonui.showWizard(wizard);
-			if (StrUtil.isEmpty(showWizard)) {
-				return;
+			Date date = new Date();
+			SingleCarparkInOutHistory in = sp.getCarparkInOutService().findInOutHistoryByPlateNO(plateNO);
+			if (StrUtil.isEmpty(in)) {
+				boolean confirm = commonui.confirm("提示", "没有找到进场记录是否进人工查找？");
+				if (!confirm) {
+					return;
+				}
+				searchErrorCarPresenter.getModel().setPlateNo(plateNO);
+				searchErrorCarPresenter.getModel().setHavePlateNoSelect(null);
+				searchErrorCarPresenter.getModel().setNoPlateNoSelect(null);
+				SearchHistoryByHandWizard wizard = new SearchHistoryByHandWizard(searchErrorCarPresenter);
+				Object showWizard = commonui.showWizard(wizard);
+				if (StrUtil.isEmpty(showWizard)) {
+					return;
+				}
+				SingleCarparkInOutHistory havePlateNoSelect = searchErrorCarPresenter.getModel().getHavePlateNoSelect();
+				if (StrUtil.isEmpty(havePlateNoSelect)) {
+					in = searchErrorCarPresenter.getModel().getNoPlateNoSelect();
+				} else {
+					in = havePlateNoSelect;
+				}
+				if (!searchErrorCarPresenter.getModel().isInOrOut()) {
+					in.setPlateNo(model.getPlateNO());
+				}else{
+					model.setPlateNO(in.getPlateNo());
+				}
 			}
-			SingleCarparkInOutHistory havePlateNoSelect = searchErrorCarPresenter.getModel().getHavePlateNoSelect();
-			if (StrUtil.isEmpty(havePlateNoSelect)) {
-				in = searchErrorCarPresenter.getModel().getNoPlateNoSelect();
-			} else {
-				in = havePlateNoSelect;
-			}
-			if (!searchErrorCarPresenter.getModel().isInOrOut()) {
-				in.setPlateNo(model.getPlateNO());
-			}else{
-				model.setPlateNO(in.getPlateNo());
-			}
+			model.setInTime(in.getInTime());
+			model.setStillTime(StrUtil.MinusTime2(in.getInTime(), date));
+			float calculateTempCharge = sp.getCarparkService().calculateTempCharge(model.getCarType().index(), model.getCarpark().getId(), in.getInTime(), date);
+			model.setShouldMoney(calculateTempCharge);
+			float paidMoney = in.getFactMoney() == null ? 0 : in.getFactMoney();
+			model.setPaidMoney(paidMoney);
+			float factMoney = calculateTempCharge - paidMoney < 0 ? 0 : calculateTempCharge - paidMoney;
+			model.setFactMoney(factMoney);
+			in.setFactMoney(paidMoney + factMoney);
+			in.setShouldMoney(calculateTempCharge);
+			in.setChargeTime(date);
+			in.setOperaName(System.getProperty("userName"));
+			view.setInImage(in.getBigImg());
+			model.setIn(in);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		model.setInTime(in.getInTime());
-		model.setStillTime(StrUtil.MinusTime2(in.getInTime(), date));
-		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(model.getCarType().index(), model.getCarpark().getId(), in.getInTime(), date);
-		model.setShouldMoney(calculateTempCharge);
-		float paidMoney = in.getFactMoney() == null ? 0 : in.getFactMoney();
-		model.setPaidMoney(paidMoney);
-		float factMoney = calculateTempCharge - paidMoney < 0 ? 0 : calculateTempCharge - paidMoney;
-		model.setFactMoney(factMoney);
-		in.setFactMoney(paidMoney + factMoney);
-		in.setShouldMoney(calculateTempCharge);
-		in.setChargeTime(date);
-		in.setOperaName(System.getProperty("userName"));
-		view.setInImage(in.getBigImg());
-		model.setIn(in);
 
 	}
 	/**
@@ -176,6 +183,8 @@ public class ConcentratePresenter {
 				return;
 			}
 			user.setValidTo(m.getOverdueTime());
+			m.setOperaName(System.getProperty("userName"));
+			m.setUserType(user.getType());
 			if (user.getType().equals("普通")) {
 				if (StrUtil.isEmpty(m.getSelectMonth())) {
 					return;
@@ -194,7 +203,6 @@ public class ConcentratePresenter {
 					return;
 				}
 			}
-			m.setOperaName(System.getProperty("userName"));
 			sp.getCarparkUserService().saveUser(user);
 			sp.getCarparkService().saveMonthlyUserPayHistory(m.getSingleCarparkMonthlyUserPayHistory());
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了用户:"+user.getName());

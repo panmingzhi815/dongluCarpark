@@ -123,7 +123,7 @@ public class ConcentrateApp extends AbstractApp {
 	 */
 	protected void createContents() {
 		shell = new Shell();
-		shell.setSize(525, 601);
+		shell.setSize(756, 601);
 		shell.setText("集中收费");
 		SashForm sashForm = new SashForm(shell, SWT.NONE);
 		
@@ -200,7 +200,7 @@ public class ConcentrateApp extends AbstractApp {
 					if (!rateLimiter.tryAcquire()) {
 						return;
 					}
-					if (StrUtil.isEmpty(text.getText())) {
+					if (StrUtil.isEmpty(text.getText())||model.getPlateNO().length()<2) {
 						return;
 					}
 					presenter.searchAndCount();
@@ -209,6 +209,7 @@ public class ConcentrateApp extends AbstractApp {
 		});
 		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		text.setTextLimit(8);
 		Label label_1 = new Label(composite_1, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));

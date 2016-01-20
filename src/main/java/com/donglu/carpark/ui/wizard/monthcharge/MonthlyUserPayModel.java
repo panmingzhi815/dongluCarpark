@@ -64,6 +64,7 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 		s.setUserName(getUserName());
 		s.setId(id);
 		s.setOperaName(getOperaName());
+		s.setUserType(getUserType());
 		return s;
 	}
 

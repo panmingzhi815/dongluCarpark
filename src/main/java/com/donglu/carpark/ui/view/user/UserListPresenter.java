@@ -41,6 +41,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 		view.setPresenter(this);
 		view.setTableTitle("固定用户列表");
 		view.setShowMoreBtn(false);
+		refresh();
 	}
 
 	
@@ -198,6 +199,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 				}
 			}
 			m.setOperaName(System.getProperty("userName"));
+			m.setUserType(singleCarparkUser.getType());
 			sp.getCarparkUserService().saveUser(singleCarparkUser);
 			sp.getCarparkService().saveMonthlyUserPayHistory(m.getSingleCarparkMonthlyUserPayHistory());
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了用户:"+singleCarparkUser.getName());
