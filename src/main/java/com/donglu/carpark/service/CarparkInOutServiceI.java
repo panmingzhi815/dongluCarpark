@@ -7,9 +7,15 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 
+/**
+ * 对进出场信息操作，对锁车信息操作
+ * @author Michael
+ *
+ */
 public interface CarparkInOutServiceI {
 	
 	Long saveInOutHistory(SingleCarparkInOutHistory inout);
@@ -195,4 +201,17 @@ public interface CarparkInOutServiceI {
 	 * @param date 天数
 	 */
 	void clearCarHistoryWithInByDate(int date);
+
+	/**
+	 * 锁车操作
+	 * @param m
+	 * @return
+	 */
+	Long saveLockCar(SingleCarparkLockCar m);
+
+	List<SingleCarparkLockCar> findLockCar(String plateNO, String status, String operaName, Date start, Date end);
+
+	SingleCarparkLockCar findLockCarByPlateNO(String plateNO, Boolean isLock);
+
+	Long lockCar(String plateNO);
 }

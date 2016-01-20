@@ -493,7 +493,7 @@ public class CarOutTask implements Runnable{
 			model.setHistory(singleCarparkInOutHistory);
 			model.setShouldMony(0);
 			model.setReal(0);
-
+			model.setChargedMoney(0F);
 			Boolean isCharge = device.getCarpark().getIsCharge();
 			if (StrUtil.isEmpty(isCharge) || !isCharge) {
 				sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
@@ -552,7 +552,8 @@ public class CarOutTask implements Runnable{
 						DateTime plusMinutes = new DateTime(chargeTime).plusMinutes(concentrateLateTime);
 						if (plusMinutes.isBeforeNow()) {
 							if (shouldMoney>chargedMoney) {
-								presenter.showContentToDevice(device, "请缴费"+shouldMoney+"元,已缴费"+chargedMoney+"元,请到管理处续费", false);
+								String content = "请缴费"+shouldMoney+"元,已缴费"+chargedMoney+"元,请到管理处续费";
+								presenter.showContentToDevice(device, CarparkUtils.formatFloatString(content), false);
 								return;
 							}
 						}

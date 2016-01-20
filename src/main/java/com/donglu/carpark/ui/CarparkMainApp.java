@@ -555,7 +555,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			text_2.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
 			text_2.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 			text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
+			text_2.setTextLimit(8);
 			Label label_14 = new Label(composite_22, SWT.NONE);
 			label_14.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 			label_14.setText("出场时间");
@@ -650,7 +650,7 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 			txtoutplateNo.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
 			txtoutplateNo.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 			txtoutplateNo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
+			txtoutplateNo.setTextLimit(8);
 			Label label_16 = new Label(composite_12, SWT.NONE);
 			label_16.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 			label_16.setText("出场时间");

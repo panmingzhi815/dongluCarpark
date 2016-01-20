@@ -23,6 +23,7 @@ import com.donglu.carpark.ui.view.InOutHistoryPresenter;
 import com.donglu.carpark.ui.view.OpenDoorLogPresenter;
 import com.donglu.carpark.ui.view.ReturnAccountPresenter;
 import com.donglu.carpark.ui.view.SystemLogPresenter;
+import com.donglu.carpark.ui.view.lockcar.LockCarPresenter;
 import com.donglu.carpark.ui.view.setting.SettingPresenter;
 import com.donglu.carpark.ui.view.store.StoreChargePresenter;
 import com.donglu.carpark.ui.view.store.StoreFreePresenter;
@@ -103,6 +104,8 @@ public class CarparkManagePresenter {
 	private SettingPresenter settingPresenter;
 	@Inject
 	private PrepaidUserPayHistoryPresenter prepaidUserPayHistoryPresenter;
+	@Inject
+	private LockCarPresenter lockCarPresenter;
 	
 
 	/**
@@ -868,6 +871,10 @@ public class CarparkManagePresenter {
 
 	public PrepaidUserPayHistoryPresenter getPrepaidUserPayHistoryPresenter() {
 		return prepaidUserPayHistoryPresenter;
+	}
+
+	public LockCarPresenter getLockCarPresenter() {
+		return lockCarPresenter;
 	}
 
 }

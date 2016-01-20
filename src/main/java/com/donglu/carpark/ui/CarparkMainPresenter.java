@@ -1012,7 +1012,8 @@ public class CarparkMainPresenter {
 					model.getTotalTime(), shouldMoney);
 			boolean isConcentrate = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费));
 			if (isConcentrate) {
-				factMoney=singleCarparkInOutHistory.getFactMoney()+factMoney;
+				Float factMoney2 = singleCarparkInOutHistory.getFactMoney()==null?0:singleCarparkInOutHistory.getFactMoney();
+				factMoney=factMoney2+factMoney;
 				if (factMoney > shouldMoney) {
 					commonui.error("收费提示", "总收费不能超过应收" + shouldMoney + "元");
 					return false;

@@ -2,12 +2,19 @@ package com.donglu.carpark.ui;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.donglu.carpark.model.ConcentrateModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
+import com.donglu.carpark.ui.wizard.ChangeUserWizard;
+import com.donglu.carpark.ui.wizard.ReturnAccountWizard;
 import com.donglu.carpark.ui.wizard.SearchHistoryByHandWizard;
+import com.donglu.carpark.ui.wizard.model.ChangeUserModel;
+import com.donglu.carpark.ui.wizard.model.ReturnAccountModel;
 import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayModel;
 import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -15,9 +22,12 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.mapper.BeanUtil;
 import com.google.inject.Inject;
 
 public class ConcentratePresenter {
@@ -45,48 +55,69 @@ public class ConcentratePresenter {
 			Date date = new Date();
 			SingleCarparkInOutHistory in = sp.getCarparkInOutService().findInOutHistoryByPlateNO(plateNO);
 			if (StrUtil.isEmpty(in)) {
-				boolean confirm = commonui.confirm("提示", "没有找到进场记录是否进人工查找？");
-				if (!confirm) {
-					return;
-				}
-				searchErrorCarPresenter.getModel().setPlateNo(plateNO);
-				searchErrorCarPresenter.getModel().setHavePlateNoSelect(null);
-				searchErrorCarPresenter.getModel().setNoPlateNoSelect(null);
-				SearchHistoryByHandWizard wizard = new SearchHistoryByHandWizard(searchErrorCarPresenter);
-				Object showWizard = commonui.showWizard(wizard);
-				if (StrUtil.isEmpty(showWizard)) {
-					return;
-				}
-				SingleCarparkInOutHistory havePlateNoSelect = searchErrorCarPresenter.getModel().getHavePlateNoSelect();
-				if (StrUtil.isEmpty(havePlateNoSelect)) {
-					in = searchErrorCarPresenter.getModel().getNoPlateNoSelect();
-				} else {
-					in = havePlateNoSelect;
-				}
-				if (!searchErrorCarPresenter.getModel().isInOrOut()) {
-					in.setPlateNo(model.getPlateNO());
-				}else{
-					model.setPlateNO(in.getPlateNo());
-				}
+				commonui.info("提示", "没有找到车辆"+plateNO+"的进场记录");
+				return;
 			}
-			model.setInTime(in.getInTime());
-			model.setStillTime(StrUtil.MinusTime2(in.getInTime(), date));
-			float calculateTempCharge = sp.getCarparkService().calculateTempCharge(model.getCarType().index(), model.getCarpark().getId(), in.getInTime(), date);
-			model.setShouldMoney(calculateTempCharge);
-			float paidMoney = in.getFactMoney() == null ? 0 : in.getFactMoney();
-			model.setPaidMoney(paidMoney);
-			float factMoney = calculateTempCharge - paidMoney < 0 ? 0 : calculateTempCharge - paidMoney;
-			model.setFactMoney(factMoney);
-			in.setFactMoney(paidMoney + factMoney);
-			in.setShouldMoney(calculateTempCharge);
-			in.setChargeTime(date);
-			in.setOperaName(System.getProperty("userName"));
-			view.setInImage(in.getBigImg());
-			model.setIn(in);
+			count(date, in);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+	}
+	/**
+	 * 计算收费
+	 * @param date
+	 * @param in
+	 */
+	public void count(Date date, SingleCarparkInOutHistory in) {
+		model.setInTime(in.getInTime());
+		model.setStillTime(StrUtil.MinusTime2(in.getInTime(), date));
+		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(model.getCarType().index(), model.getCarpark().getId(), in.getInTime(), date);
+		model.setShouldMoney(calculateTempCharge);
+		float paidMoney = in.getFactMoney() == null ? 0 : in.getFactMoney();
+		model.setPaidMoney(paidMoney);
+		float factMoney = calculateTempCharge - paidMoney < 0 ? 0 : calculateTempCharge - paidMoney;
+		model.setFactMoney(factMoney);
+		in.setFactMoney(paidMoney + factMoney);
+		in.setShouldMoney(calculateTempCharge);
+		in.setChargeTime(date);
+		in.setOperaName(System.getProperty("userName"));
+		view.setInImage(in.getBigImg());
+		model.setIn(in);
+	}
+	/**
+	 * 
+	 */
+	public void search() {
+		try {
+			String plateNO = model.getPlateNO();
+			if (StrUtil.isEmpty(plateNO)||plateNO.length()<2) {
+				commonui.info("提示", "车牌的长度最少是2位");
+				return;
+			}
+			searchErrorCarPresenter.getModel().setPlateNo(plateNO);
+			searchErrorCarPresenter.getModel().setHavePlateNoSelect(null);
+			searchErrorCarPresenter.getModel().setNoPlateNoSelect(null);
+			SearchHistoryByHandWizard wizard = new SearchHistoryByHandWizard(searchErrorCarPresenter);
+			Object showWizard = commonui.showWizard(wizard);
+			if (StrUtil.isEmpty(showWizard)) {
+				return;
+			}
+			SingleCarparkInOutHistory havePlateNoSelect = searchErrorCarPresenter.getModel().getHavePlateNoSelect();
+			SingleCarparkInOutHistory in;
+			if (StrUtil.isEmpty(havePlateNoSelect)) {
+				in = searchErrorCarPresenter.getModel().getNoPlateNoSelect();
+			} else {
+				in = havePlateNoSelect;
+			}
+			if (!searchErrorCarPresenter.getModel().isInOrOut()) {
+				in.setPlateNo(plateNO);
+			}else{
+				model.setPlateNO(in.getPlateNo());
+			}
+			count(new Date(), in);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	/**
 	 * 收费
@@ -218,7 +249,90 @@ public class ConcentratePresenter {
 		
 	}
 	public void changeUser() {
-		
+		ChangeUserWizard wizard = new ChangeUserWizard(new ChangeUserModel(), sp);
+		ChangeUserModel showWizard = (ChangeUserModel) commonui.showWizard(wizard);
+		if (StrUtil.isEmpty(showWizard)) {
+			return;
+		}
+		SingleCarparkSystemUser systemUser = showWizard.getSystemUser();
+		String userName = systemUser.getUserName();
+		System.setProperty("userName", userName);
+		System.setProperty("userType", systemUser.getType());
+
+		model.setUserName(userName);
+		model.setWorkTime(new Date());
+		model.setTotalFact(sp.getCarparkInOutService().findShouldMoneyByName(userName));
+		model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
+	}
+	public void returnAccount() {
+		try {
+			ReturnAccountModel model = new ReturnAccountModel();
+			String userName = this.model.getUserName();
+			model.setReturnUser(userName);
+			CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
+			List<SingleCarparkInOutHistory> listFact = carparkInOutService.findHistoryFactMoneyNotReturn(userName);
+			List<SingleCarparkInOutHistory> listFree = carparkInOutService.findHistoryFreeMoneyNotReturn(userName);
+			float factMoney = 0;
+			float freeMoney = 0;
+			for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFact) {
+				Float factMoney2 = singleCarparkInOutHistory.getFactMoney();
+				if (StrUtil.isEmpty(factMoney2)) {
+					factMoney2 = 0F;
+				}
+				factMoney += factMoney2;
+			}
+			for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFree) {
+				Float factMoney2 = singleCarparkInOutHistory.getFreeMoney();
+				if (StrUtil.isEmpty(factMoney2)) {
+					factMoney2 = 0F;
+				}
+				freeMoney += factMoney2;
+			}
+			model.setShouldReturn(factMoney);
+			model.setFactReturn(freeMoney);
+			ReturnAccountWizard wizard = new ReturnAccountWizard(model, sp);
+			ReturnAccountModel m = (ReturnAccountModel) commonui.showWizard(wizard);
+			if (StrUtil.isEmpty(m)) {
+				return;
+			}
+			SingleCarparkReturnAccount a = new SingleCarparkReturnAccount();
+			BeanUtil.copyProperties(m, a, "returnUser", "factReturn", "shouldReturn", "operaName");
+			a.setReturnTime(new Date());
+			if (model.isFree()) {
+				a.setFactReturn(model.getFactReturn());
+			} else {
+				if (a.getShouldReturn() <= 0) {
+					return;
+				}
+				a.setFactReturn(0);
+			}
+
+			Long saveReturnAccount = sp.getCarparkService().saveReturnAccount(a);
+
+			Map<Long, Long> map = new HashMap<Long, Long>();
+			for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFact) {
+				singleCarparkInOutHistory.setReturnAccount(saveReturnAccount);
+				map.put(singleCarparkInOutHistory.getId(), saveReturnAccount);
+			}
+
+			carparkInOutService.saveInOutHistoryOfList(listFact);
+			if (model.isFree()) {
+				for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFree) {
+					if (!StrUtil.isEmpty(map.get(singleCarparkInOutHistory.getId()))) {
+						singleCarparkInOutHistory.setReturnAccount(saveReturnAccount);
+					}
+					singleCarparkInOutHistory.setFreeReturnAccount(saveReturnAccount);
+					// singleCarparkInOutHistory.setOperaName(model.getOperaName());
+				}
+				carparkInOutService.saveInOutHistoryOfList(listFree);
+			}
+			this.model.setTotalFact(carparkInOutService.findFactMoneyByName(userName));
+			this.model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
 		
 	}
+	
 }

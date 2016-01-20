@@ -16,7 +16,6 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 
-import org.apache.derby.vti.Restriction;
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
@@ -775,6 +774,19 @@ public class CarparkServiceImpl implements CarparkService {
 		DatabaseOperation<CarparkChargeStandard> dom = DatabaseOperation.forClass(CarparkChargeStandard.class, emprovider.get());
 		CarparkChargeStandard entityWithId = dom.getEntityWithId(id);
 		entityWithId.setUsing(b);
+	}
+
+	@Override
+	public String getSystemSettingValue(SystemSettingTypeEnum settingType) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkSystemSetting.class);
+			c.add(Restrictions.eq("settingKey", settingType.name()));
+			SingleCarparkSystemSetting set = (SingleCarparkSystemSetting) c.getSingleResultOrNull();
+			return set==null?settingType.getDefaultValue():set.getSettingValue();
+		} finally {
+			unitOfWork.end();
+		}
 	}
 		
 }

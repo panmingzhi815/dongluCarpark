@@ -25,6 +25,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkHolidayTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
@@ -910,6 +911,82 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	public void clearCarHistoryWithInByDate(int date) {
 		DatabaseOperation<SingleCarparkInOutHistory> dom = DatabaseOperation.forClass(SingleCarparkInOutHistory.class, emprovider.get());
 		dom.executeQuery(SingleCarparkInOutHistory.Query.deleteWithNotOutByDate.query(), new DateTime().minusDays(date).toDate());
+	}
+
+	@Transactional
+	public Long saveLockCar(SingleCarparkLockCar m) {
+		Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkLockCar.class);
+		c.add(Restrictions.eq(SingleCarparkLockCar.Property.plateNO.name(), m.getPlateNO()));
+		SingleCarparkLockCar singleResultOrNull = (SingleCarparkLockCar) c.getSingleResultOrNull();
+		if (singleResultOrNull!=null) {
+			m.setId(singleResultOrNull.getId());
+		}
+		
+		DatabaseOperation<SingleCarparkLockCar> dom = DatabaseOperation.forClass(SingleCarparkLockCar.class, emprovider.get());
+		if (StrUtil.isEmpty(m.getId())) {
+			dom.insert(m);
+		}else{
+			dom.save(m);
+		}
+		return null;
+	}
+
+	@Override
+	public List<SingleCarparkLockCar> findLockCar(String plateNO, String status, String operaName, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkLockCar.class);
+			if (!StrUtil.isEmpty(plateNO)) {
+				c.add(Restrictions.like(SingleCarparkLockCar.Property.plateNO.name(), plateNO, MatchMode.ANYWHERE));
+			}
+			if (!StrUtil.isEmpty(status)) {
+				c.add(Restrictions.eq(SingleCarparkLockCar.Property.status.name(), status));
+			}
+			if (!StrUtil.isEmpty(operaName)) {
+				c.add(Restrictions.like(SingleCarparkLockCar.Property.operaName.name(), operaName, MatchMode.ANYWHERE));
+			}
+			if (!StrUtil.isEmpty(start)) {
+				c.add(Restrictions.ge(SingleCarparkLockCar.Property.createTime.name(), StrUtil.getTodayTopTime(start)));
+			}
+			if (!StrUtil.isEmpty(end)) {
+				c.add(Restrictions.le(SingleCarparkLockCar.Property.createTime.name(), StrUtil.getTodayBottomTime(end)));
+			}
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public SingleCarparkLockCar findLockCarByPlateNO(String plateNO,Boolean isLock) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkLockCar.class);
+			c.add(Restrictions.eq(SingleCarparkLockCar.Property.plateNO.name(), plateNO));
+			if (!StrUtil.isEmpty(isLock)) {
+				if (isLock) {
+					c.add(Restrictions.eq(SingleCarparkLockCar.Property.status.name(), SingleCarparkLockCar.Status.已锁定.name()));
+				}else{
+					c.add(Restrictions.eq(SingleCarparkLockCar.Property.status.name(), SingleCarparkLockCar.Status.已解锁.name()));
+				}
+			}
+			c.setFirstResult(0);
+			c.setMaxResults(1);
+			SingleCarparkLockCar singleResultOrNull = (SingleCarparkLockCar) c.getSingleResultOrNull();
+			return singleResultOrNull;
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public Long lockCar(String plateNO) {
+		SingleCarparkLockCar m = new SingleCarparkLockCar();
+		m.setPlateNO(plateNO);
+		m.setStatus("已锁定");
+		m.setOperaName(System.getProperty("userName"));
+		m.setCreateTime(new Date());
+		return saveLockCar(m);
 	}
 
 }

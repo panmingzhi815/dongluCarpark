@@ -15,6 +15,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 
 public interface CarparkService {
 	/**
@@ -265,4 +266,10 @@ public interface CarparkService {
 	 * @param b
 	 */
 	void changeChargeStandardState(Long id, boolean b);
+	/**
+	 * 获得系统设置的值
+	 * @param settingType
+	 * @return
+	 */
+	public String getSystemSettingValue(SystemSettingTypeEnum settingType);
 }

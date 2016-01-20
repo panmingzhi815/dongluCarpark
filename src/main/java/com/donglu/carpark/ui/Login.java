@@ -403,6 +403,10 @@ public class Login {
 									app = carparkManageApp;
 									app.open();
 								}else if (loginApp.equals("收费界面")) {
+									if (!Boolean.valueOf(sp.getCarparkService().getSystemSettingValue(SystemSettingTypeEnum.启用集中收费))) {
+										commonui.info("提示", "未开启集中收费");
+										return;
+									}
 									file = new File(CONCENTRATE_TEMP);
 									if (file.exists()) {
 										commonui.error("错误", "已经打开了收费界面");

@@ -389,14 +389,16 @@ public class CarparkUtils {
 	 * @return
 	 */
 	public static String formatFloatString(String s) {
-		String substring = s.substring(s.indexOf(".") + 1, s.indexOf(".") + 2);
-		Integer intValueOf = Integer.valueOf(substring);
-		if (intValueOf == 0) {
-			String ss = s.replace("." + intValueOf, "");
-			System.out.println(ss);
-			return ss;
-		}
-		return s;
+//		String substring = s.substring(s.indexOf(".") + 1, s.indexOf(".") + 2);
+//		Integer intValueOf = Integer.valueOf(substring);
+//		if (intValueOf == 0) {
+//			String ss = s.replace("." + intValueOf, "");
+//			System.out.println(ss);
+//			return ss;
+//		}
+		String ss=s.replace(".0", "");
+		System.out.println(ss);
+		return ss;
 	}
 	/**
 	 * 对list内的对象排序

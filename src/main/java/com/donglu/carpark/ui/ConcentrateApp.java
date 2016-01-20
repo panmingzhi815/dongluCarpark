@@ -123,7 +123,7 @@ public class ConcentrateApp extends AbstractApp {
 	 */
 	protected void createContents() {
 		shell = new Shell();
-		shell.setSize(756, 601);
+		shell.setSize(897, 601);
 		shell.setText("集中收费");
 		SashForm sashForm = new SashForm(shell, SWT.NONE);
 		
@@ -258,7 +258,7 @@ public class ConcentrateApp extends AbstractApp {
 		text_4 = new Text(composite_1, SWT.BORDER);
 		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+		text_4.setTextLimit(8);
 		Label lblNewLabel_9 = new Label(composite_1, SWT.NONE);
 		lblNewLabel_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		lblNewLabel_9.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
@@ -292,12 +292,15 @@ public class ConcentrateApp extends AbstractApp {
 		comboViewer_1.setInput(model.getListCarType());
 		
 		Composite composite_2 = new Composite(composite_1, SWT.NONE);
-		GridLayout gl_composite_2 = new GridLayout(4, false);
+		GridLayout gl_composite_2 = new GridLayout(3, false);
+		gl_composite_2.verticalSpacing = 15;
+		gl_composite_2.horizontalSpacing = 15;
 		gl_composite_2.marginTop = 15;
 		composite_2.setLayout(gl_composite_2);
 		composite_2.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
 		
 		Button btnNewButton = new Button(composite_2, SWT.NONE);
+		btnNewButton.setToolTipText("输入车牌后查询缴费金额");
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -309,9 +312,10 @@ public class ConcentrateApp extends AbstractApp {
 			}
 		});
 		btnNewButton.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		btnNewButton.setText("查询计算");
+		btnNewButton.setText("计      算");
 		
 		Button btnNewButton_1 = new Button(composite_2, SWT.NONE);
+		btnNewButton_1.setToolTipText("对车辆进行收费收费");
 		btnNewButton_1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -324,7 +328,19 @@ public class ConcentrateApp extends AbstractApp {
 		btnNewButton_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		btnNewButton_1.setText("收      费");
 		
+		Button button_1 = new Button(composite_2, SWT.NONE);
+		button_1.setToolTipText("当计算时没有找到车牌，可以人工查找");
+		button_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.search();
+			}
+		});
+		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		button_1.setText("查      询");
+		
 		Button btnNewButton_3 = new Button(composite_2, SWT.NONE);
+		btnNewButton_3.setToolTipText("对储值、固定用户进行续费、续期");
 		btnNewButton_3.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -338,6 +354,7 @@ public class ConcentrateApp extends AbstractApp {
 		btnNewButton_3.setText("续      费");
 		
 		Button btnNewButton_4 = new Button(composite_2, SWT.NONE);
+		btnNewButton_4.setToolTipText("更换值班人员");
 		btnNewButton_4.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -349,6 +366,17 @@ public class ConcentrateApp extends AbstractApp {
 		});
 		btnNewButton_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		btnNewButton_4.setText("换      班");
+		
+		Button button = new Button(composite_2, SWT.NONE);
+		button.setToolTipText("把钱交给其他人");
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.returnAccount();
+			}
+		});
+		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		button.setText("归      账");
 		sashForm.setWeights(new int[] {2, 1});
 		
 		m_bindingContext = initDataBindings();
