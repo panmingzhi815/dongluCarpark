@@ -29,14 +29,6 @@ public class AddUserModel extends SingleCarparkUser {
 			pcs.firePropertyChange("allList", null, null);
 	}
 
-	public void copyToUser(SingleCarparkUser user) {
-		user.setCarpark(getCarpark());
-		user.setName(getName());
-		user.setAddress(getAddress());
-		user.setCarparkNo(getCarparkNo());
-		user.setPlateNo(getPlateNo());
-		user.setType(getType());
-	}
 
 	public SingleCarparkUser getSingleCarparkUser() {
 		SingleCarparkUser user = new SingleCarparkUser();
@@ -53,6 +45,7 @@ public class AddUserModel extends SingleCarparkUser {
 		user.setDelayDays(getDelayDays());
 		user.setRemindDays(getRemindDays());
 		user.setLeftMoney(getLeftMoney());
+		user.setCarType(getCarType());
 		return user;
 	}
 	public void setSingleCarparkUser(SingleCarparkUser user){
@@ -67,6 +60,7 @@ public class AddUserModel extends SingleCarparkUser {
 		setValidTo(user.getValidTo());
 		setRemark(user.getRemark());
 		setLeftMoney(user.getLeftMoney());
+		setCarType(user.getCarType());
 	}
 
 	public MonthlyUserPayModel getModel() {

@@ -18,7 +18,7 @@ public class SingleCarparkUser extends DomainObject {
 	 */
 	private static final long serialVersionUID = 1116467109412674474L;
 	public enum Property{
-		id,plateNo,name,type,address,carparkNo,leftMoney,createDate,validTo,remark,valitoLabel
+		id,plateNo,name,type,carType,address,carparkNo,leftMoney,createDate,validTo,remark,valitoLabel
 	}
 	
 	private String name;
@@ -34,6 +34,8 @@ public class SingleCarparkUser extends DomainObject {
 	private Integer remindDays;
 	private Integer delayDays;
 	private Long monthChargeId;//月租编号
+	
+	private CarTypeEnum carType=CarTypeEnum.SmallCar;
 	
 	private Float leftMoney=0F;
 	
@@ -160,6 +162,14 @@ public class SingleCarparkUser extends DomainObject {
 		this.leftMoney = leftMoney;
 		if (pcs != null)
 			pcs.firePropertyChange("leftMoney", null, null);
+	}
+	public CarTypeEnum getCarType() {
+		return carType;
+	}
+	public void setCarType(CarTypeEnum carType) {
+		this.carType = carType;
+		if (pcs != null)
+			pcs.firePropertyChange("carType", null, null);
 	}
 	
 }

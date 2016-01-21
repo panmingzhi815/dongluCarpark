@@ -243,10 +243,9 @@ public class CarOutTask implements Runnable{
 			return true;
 		}
 		
-		String carparkCarType = model.getCarparkCarType();
-		CarTypeEnum parse = CarTypeEnum.parse(carparkCarType);
+		CarTypeEnum parse = user.getCarType();
 		Date inTime = ch.getInTime();
-		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(parse.index(), carpark.getId(), inTime, date);
+		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carpark.getId(),parse.index(), inTime, date);
 		model.setPlateNo(ch.getPlateNo());
 		model.setInTime(inTime);
 		model.setOutTime(date);
@@ -268,6 +267,7 @@ public class CarOutTask implements Runnable{
 		ch.setOutTime(date);
 		ch.setFactMoney(calculateTempCharge);
 		ch.setFreeMoney(0);
+		ch.setOutDevice(device.getName());
 		user.setLeftMoney(user.getLeftMoney()-calculateTempCharge);
 		
 		//消费记录保存

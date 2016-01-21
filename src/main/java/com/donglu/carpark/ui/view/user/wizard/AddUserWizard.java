@@ -107,10 +107,10 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 		m.setAllmonth(sp.getCarparkService().findMonthlyChargeByCarpark(model.getCarpark()));
 		if (model.getType().equals("免费")) {
 			m.setFree(false);
-			m.setPayMoney(false);
 		}else if(model.getType().equals("储值")){
 			m.setFree(false);
 			m.setPayDate(false);
+			m.setPayMoney(true);
 		}else{
 			m.setFree(true);
 		}

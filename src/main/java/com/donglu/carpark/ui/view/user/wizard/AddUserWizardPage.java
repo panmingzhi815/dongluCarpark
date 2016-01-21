@@ -17,6 +17,7 @@ import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.beans.BeansObservables;
 
 import com.donglu.carpark.util.TextUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -43,6 +44,7 @@ public class AddUserWizardPage extends WizardPage {
 	private Combo combo;
 	private ComboViewer comboViewer;
 	private Text text_2;
+	private ComboViewer comboViewer_1;
 
 	
 	/**
@@ -195,6 +197,18 @@ public class AddUserWizardPage extends WizardPage {
 		gd_combo_carpark.widthHint = 150;
 		combo_carpark.setLayoutData(gd_combo_carpark);
 		
+		Label lblNewLabel = new Label(composite, SWT.NONE);
+		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel.setText("车辆类型");
+		
+		comboViewer_1 = new ComboViewer(composite, SWT.READ_ONLY);
+		Combo combo_1 = comboViewer_1.getCombo();
+		combo_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		comboViewer_1.setContentProvider(new ArrayContentProvider());
+		comboViewer_1.setLabelProvider(new LabelProvider());
+		comboViewer_1.setInput(CarTypeEnum.values());
 		Label label_6 = new Label(composite, SWT.NONE);
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -251,6 +265,10 @@ public class AddUserWizardPage extends WizardPage {
 		IObservableValue observeTextText_2ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_2);
 		IObservableValue remarkModelObserveValue = BeanProperties.value("remark").observe(model);
 		bindingContext.bindValue(observeTextText_2ObserveWidget, remarkModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer_1 = ViewerProperties.singleSelection().observe(comboViewer_1);
+		IObservableValue carTypeModelObserveValue = BeanProperties.value("carType").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer_1, carTypeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

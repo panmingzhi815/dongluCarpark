@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.view;
+package com.donglu.carpark.ui.view.inouthistory;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -8,7 +8,6 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.Presenter;
-import com.donglu.carpark.ui.list.InOutHistoryListPresenter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;

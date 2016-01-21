@@ -613,8 +613,8 @@ public class CarparkServiceImpl implements CarparkService {
 				}
 			});
 			LOGGER.info(
-					"计算临时收费成功:carTypeId={},startTime={},endTime={},money={}",
-					carTypeId, StrUtil.formatDateTime(startTime),
+					"计算临时收费成功:carTypeId={},carparkId={},startTime={},endTime={},money={}",
+					carTypeId,carparkId,StrUtil.formatDateTime(startTime),
 					StrUtil.formatDateTime(endTime), o);
 			return o;
 		} catch (Exception e) {

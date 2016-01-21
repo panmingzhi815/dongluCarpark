@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.view;
+package com.donglu.carpark.ui.view.inouthistory;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;

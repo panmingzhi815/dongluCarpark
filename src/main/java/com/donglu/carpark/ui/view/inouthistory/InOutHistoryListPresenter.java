@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.list;
+package com.donglu.carpark.ui.view.inouthistory;
 
 import java.util.ArrayList;
 import java.util.Collection;

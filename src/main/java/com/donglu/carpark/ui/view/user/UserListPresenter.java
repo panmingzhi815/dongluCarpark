@@ -77,10 +77,10 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			user.setDelayDays(5);
 			user.setRemindDays(5);
 			mm.setUserType(user.getType());
+			mm.setOperaName(System.getProperty("userName"));
 			if (user.getType().equals("普通")) {
 				SingleCarparkMonthlyCharge selectMonth = mm.getSelectMonth();
 				if (!StrUtil.isEmpty(selectMonth)) {
-					mm.setOperaName(System.getProperty("userName"));
 					user.setDelayDays(selectMonth.getDelayDays());
 					user.setRemindDays(selectMonth.getExpiringDays());
 					user.setMonthChargeId(selectMonth.getId());
@@ -89,7 +89,6 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 				}
 			}else if(user.getType().equals("免费")){
 				if (mm.getOverdueTime()!=null) {
-					mm.setOperaName(System.getProperty("userName"));
 					carparkService.saveMonthlyUserPayHistory(mm.getSingleCarparkMonthlyUserPayHistory());
 					sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了免费用户:"+user.getName());
 				}
