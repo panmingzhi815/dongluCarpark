@@ -125,10 +125,10 @@ public interface CarparkInOutServiceI {
 	 */
 	List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut(Long carparkId,String plateNO, Date inTime, Date outTime);
 	/**
-	 * 查找自动停车场的指定车牌的为出场纪录
-	 * @param id
-	 * @param pn
-	 * @return
+	 * 查找指定停车场的指定车牌的为出场纪录
+	 * @param id 停车场编号
+	 * @param pn 车牌号
+	 * @return 多条进场记录
 	 */
 	List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(Long id, String pn);
 	/**

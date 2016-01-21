@@ -28,6 +28,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 public class CarInTask implements Runnable {
+	private static final String SLOT_IS_FULL = "车位已满";
 	private static final Display DEFAULT_DISPLAY = Display.getDefault();
 	private static Logger LOGGER = LoggerFactory.getLogger(CarInTask.class);
 	private static final String CAR_IN_MSG = "欢迎光临,请入场停车";
@@ -402,6 +403,7 @@ public class CarInTask implements Runnable {
 		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许储值车入场));
 		if (!valueOf) {
 			if (model.getTotalSlot() <= 0) {
+				presenter.showContentToDevice(device, SLOT_IS_FULL, false);
 				LOGGER.error("车位已满,不允许储值车进入");
 				return true;
 			}
@@ -468,6 +470,7 @@ public class CarInTask implements Runnable {
 		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许临时车入场));
 		if (!valueOf) {
 			if (model.getTotalSlot() <= 0) {
+				presenter.showContentToDevice(device, SLOT_IS_FULL, false);
 				LOGGER.error("车位已满,不允许临时车进入");
 				return true;
 			}
@@ -509,6 +512,7 @@ public class CarInTask implements Runnable {
 		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场));
 			if (!valueOf) {
 				if (model.getTotalSlot() <= 0) {
+					presenter.showContentToDevice(device, SLOT_IS_FULL, false);
 					LOGGER.error("车位已满,不允许免费车进入");
 					return true;
 				}

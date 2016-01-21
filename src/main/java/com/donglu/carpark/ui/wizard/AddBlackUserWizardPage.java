@@ -75,7 +75,7 @@ public class AddBlackUserWizardPage extends WizardPage {
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text.widthHint = 131;
 		text.setLayoutData(gd_text);
-		TextUtils.createAutoCompleteField(text);
+		TextUtils.createPlateNOAutoCompleteField(text);
 		Label label_2 = new Label(composite, SWT.NONE);
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_2.setText("起始时间");

@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.list.store;
+package com.donglu.carpark.ui.view.store;
 
 import java.util.Date;
 import java.util.List;

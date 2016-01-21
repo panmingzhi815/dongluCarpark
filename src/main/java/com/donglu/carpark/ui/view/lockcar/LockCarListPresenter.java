@@ -62,10 +62,6 @@ public class LockCarListPresenter extends AbstractListPresenter<SingleCarparkLoc
 		if (StrUtil.isEmpty(w)) {
 			return;
 		}
-		m.setStatus("已锁定");
-		m.setOperaName(System.getProperty("userName"));
-		m.setCreateTime(new Date());
-		sp.getCarparkInOutService().saveLockCar(m);
 		sp.getCarparkInOutService().lockCar(m.getPlateNO());
 	}
 

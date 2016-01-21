@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.ToolItem;
 
+import com.donglu.carpark.ui.view.inouthistory.CarInInfo;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.DomainObject;
 
@@ -227,6 +228,10 @@ public abstract class AbstractListView<T> extends Composite {
 		btn_more.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		btn_more.setText("更多");
 		m_bindingContext = initDataBindings();
+	}
+
+	public AbstractListView(Composite parent, int style, Class<T> class1, String[] strings, String[] strings2, int[] is) {
+		this(parent, style, class1, strings, strings2, is, null);
 	}
 
 	public void setColumnWidth(int[] widths) {

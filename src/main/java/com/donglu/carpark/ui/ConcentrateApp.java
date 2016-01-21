@@ -142,50 +142,51 @@ public class ConcentrateApp extends AbstractApp {
 		composite_1.setLayout(new GridLayout(2, false));
 		
 		Label lblNewLabel_3 = new Label(composite_1, SWT.NONE);
-		lblNewLabel_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_3.setText("登录账户");
 		
 		text_5 = new Text(composite_1, SWT.BORDER);
 		text_5.setEditable(false);
-		text_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		text_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_text_5 = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		gd_text_5.widthHint = 239;
 		text_5.setLayoutData(gd_text_5);
 		
 		Label lblNewLabel_4 = new Label(composite_1, SWT.NONE);
-		lblNewLabel_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_4.setText("登录时间");
 		
 		text_6 = new Text(composite_1, SWT.BORDER);
 		text_6.setEditable(false);
-		text_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		text_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label lblNewLabel_6 = new Label(composite_1, SWT.NONE);
-		lblNewLabel_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_6.setText("收费金额");
 		
 		text_7 = new Text(composite_1, SWT.BORDER);
 		text_7.setEditable(false);
-		text_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		text_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_7.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label lblNewLabel_5 = new Label(composite_1, SWT.NONE);
-		lblNewLabel_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_5.setText("免费金额");
 		
 		text_8 = new Text(composite_1, SWT.BORDER);
 		text_8.setEditable(false);
-		text_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		text_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_8.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		new Label(composite_1, SWT.NONE);
 		new Label(composite_1, SWT.NONE);
 		
 		Label label = new Label(composite_1, SWT.NONE);
+		label.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("车牌号码");
@@ -205,41 +206,41 @@ public class ConcentrateApp extends AbstractApp {
 				}
 			}
 		});
-		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		text.setTextLimit(8);
 		Label label_1 = new Label(composite_1, SWT.NONE);
-		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_1.setText("进场时间");
 		
 		text_1 = new Text(composite_1, SWT.BORDER);
 		text_1.setEditable(false);
-		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblNewLabel_1 = new Label(composite_1, SWT.NONE);
-		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_1.setText("停车时间");
 		
 		text_2 = new Text(composite_1, SWT.BORDER);
 		text_2.setEditable(false);
-		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblNewLabel = new Label(composite_1, SWT.NONE);
-		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel.setText("应收金额");
 		
 		text_3 = new Text(composite_1, SWT.BORDER);
 		text_3.setEditable(false);
-		text_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		text_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblNewLabel_8 = new Label(composite_1, SWT.NONE);
-		lblNewLabel_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_8.setText("已收金额");
 		
@@ -249,16 +250,16 @@ public class ConcentrateApp extends AbstractApp {
 		text_9.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblNewLabel_2 = new Label(composite_1, SWT.NONE);
-		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_2.setText("实收金额");
 		
 		text_4 = new Text(composite_1, SWT.BORDER);
-		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		text_4.setTextLimit(8);
 		Label lblNewLabel_9 = new Label(composite_1, SWT.NONE);
-		lblNewLabel_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_9.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_9.setText("停 车 场");
 		
@@ -273,17 +274,17 @@ public class ConcentrateApp extends AbstractApp {
 				presenter.getListCarTypeAndSelect();
 			}
 		});
-		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblNewLabel_10 = new Label(composite_1, SWT.NONE);
-		lblNewLabel_10.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		lblNewLabel_10.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_10.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_10.setText("车辆类型");
 		
 		comboViewer_1 = new ComboViewer(composite_1, SWT.READ_ONLY);
 		Combo combo_1 = comboViewer_1.getCombo();
-		combo_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		combo_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		comboViewer_1.setContentProvider(new ArrayContentProvider());
 		comboViewer_1.setLabelProvider(new LabelProvider());
@@ -325,7 +326,6 @@ public class ConcentrateApp extends AbstractApp {
 		});
 		btnNewButton_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		btnNewButton_1.setText("收      费");
-		
 		Button button_1 = new Button(composite_2, SWT.NONE);
 		button_1.setToolTipText("当计算时没有找到车牌，可以人工查找");
 		button_1.addSelectionListener(new SelectionAdapter() {
@@ -378,7 +378,15 @@ public class ConcentrateApp extends AbstractApp {
 		sashForm.setWeights(new int[] {2, 1});
 		
 		m_bindingContext = initDataBindings();
-		TextUtils.createAutoCompleteField(text);
+		TextUtils.createPlateNOAutoCompleteField(text);
+		
+		TabItem tabItem_1 = new TabItem(tabFolder, SWT.NONE);
+		tabItem_1.setText("场内车");
+		
+		Composite composite_3 = new Composite(tabFolder, SWT.NONE);
+		tabItem_1.setControl(composite_3);
+		composite_3.setLayout(new FillLayout(SWT.HORIZONTAL));
+		presenter.getCarInPresenter().go(composite_3);
 	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();

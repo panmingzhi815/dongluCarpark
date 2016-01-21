@@ -1,6 +1,5 @@
 package com.donglu.carpark.ui.task;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,6 +25,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
@@ -156,6 +156,13 @@ public class CarOutTask implements Runnable{
 				model.setOutPlateNOEditable(true);
 				return;
 			}
+			//锁车判断
+			SingleCarparkLockCar findLockCarByPlateNO = sp.getCarparkInOutService().findLockCarByPlateNO(plateNO, true);
+			if (!StrUtil.isEmpty(findLockCarByPlateNO)) {
+				presenter.showContentToDevice(device, "车辆已锁", false);
+				return;
+			}
+			
 			SingleCarparkUser user = sp.getCarparkUserService().findUserByPlateNo(plateNO,device.getCarpark().getId());
 			// 没有找到入场记录
 			List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO,carpark);
@@ -268,6 +275,9 @@ public class CarOutTask implements Runnable{
 		ch.setFactMoney(calculateTempCharge);
 		ch.setFreeMoney(0);
 		ch.setOutDevice(device.getName());
+		ch.setOutSmallImg(smallImg);
+		ch.setOutBigImg(bigImg);
+		ch.setOutPlateNO(plateNO);
 		user.setLeftMoney(user.getLeftMoney()-calculateTempCharge);
 		
 		//消费记录保存
@@ -603,20 +613,6 @@ public class CarOutTask implements Runnable{
 			notFindInHistory(device, bigImg, smallImg);
 		}
 	}
-	
-	
-	private void prepaidCarOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg, Date reviseInTime) throws Exception{
-		SingleCarparkInOutHistory singleCarparkInOutHistory = sp.getCarparkInOutService().findInOutHistoryByPlateNO(plateNO);
-		int payOverTime=0;
-		if (StrUtil.isEmpty(singleCarparkInOutHistory.getChargeTime())) {
-			boolean after = DateTime.now().minusMinutes(payOverTime).isAfter(singleCarparkInOutHistory.getChargeTime().getTime());
-			if (after) {
-				presenter.showContentToDevice(device, "出场时间已过期", false);
-				return;
-			}
-		}
-	}
-	
 	
 	/**
 	 * 双摄像头控制

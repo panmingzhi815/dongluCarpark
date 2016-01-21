@@ -15,8 +15,6 @@ public class InOutHistoryDetailWizard extends Wizard implements AbstractWizard{
 	private ShowInOutHistoryModel model;
 	private InOutHistoryDetailWizardPage page;
 	private Boolean isEdit=false;
-	private CarparkDatabaseServiceProvider sp;
-	private CommonUIFacility commonui;
 	public InOutHistoryDetailWizard(ShowInOutHistoryModel model) {
 		setWindowTitle("查看进出记录");
 		this.model=model;
@@ -25,8 +23,6 @@ public class InOutHistoryDetailWizard extends Wizard implements AbstractWizard{
 	public InOutHistoryDetailWizard(ShowInOutHistoryModel h, Boolean isEdit, CarparkDatabaseServiceProvider sp, CommonUIFacility commonui) {
 		this(h);
 		this.isEdit=isEdit;
-		this.sp=sp;
-		this.commonui=commonui;
 	}
 
 	@Override

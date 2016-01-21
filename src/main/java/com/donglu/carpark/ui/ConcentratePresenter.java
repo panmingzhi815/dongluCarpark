@@ -10,6 +10,7 @@ import com.donglu.carpark.model.ConcentrateModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
+import com.donglu.carpark.ui.view.inouthistory.CarInPresenter;
 import com.donglu.carpark.ui.view.user.wizard.MonthlyUserPayModel;
 import com.donglu.carpark.ui.view.user.wizard.MonthlyUserPayWizard;
 import com.donglu.carpark.ui.wizard.ChangeUserWizard;
@@ -39,6 +40,8 @@ public class ConcentratePresenter {
 	private CarparkDatabaseServiceProvider sp;
 	@Inject
 	private SearchErrorCarPresenter searchErrorCarPresenter;
+	@Inject
+	private CarInPresenter carInPresenter;
 
 	public void setView(ConcentrateApp view) {
 		this.view = view;
@@ -334,5 +337,7 @@ public class ConcentratePresenter {
 	
 		
 	}
-	
+	public CarInPresenter getCarInPresenter() {
+		return carInPresenter;
+	}
 }

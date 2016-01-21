@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.list.store;
+package com.donglu.carpark.ui.view.store;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolBar;

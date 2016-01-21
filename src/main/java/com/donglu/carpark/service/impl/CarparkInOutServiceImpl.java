@@ -658,8 +658,12 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
-			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plateNO));
-			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), id));
+			if (!StrUtil.isEmpty(plateNO)) {
+				c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plateNO));
+			}
+			if (!StrUtil.isEmpty(id)) {
+				c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), id));
+			}
 			return c.getResultList();
 		} finally{
 			unitOfWork.end();

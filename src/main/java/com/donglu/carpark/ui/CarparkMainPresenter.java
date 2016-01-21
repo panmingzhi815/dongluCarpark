@@ -10,10 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -818,6 +816,7 @@ public class CarparkMainPresenter {
 		for (SingleCarparkDevice d : mapIpToDevice.values()) {
 			map.put(d.getLinkInfo(), d);
 		}
+		
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("自动检测设备的连接状态"));
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
 			@Override
@@ -825,6 +824,7 @@ public class CarparkMainPresenter {
 				for (String l : mapDeviceFailInfo.keySet()) {
 					if (mapDeviceFailInfo.get(l) > 10) {
 						try {
+							
 							hardwareService.setDate(getDevice(map.get(l)), new Date());
 							mapDeviceFailInfo.put(l, 0);
 						} catch (Exception e) {

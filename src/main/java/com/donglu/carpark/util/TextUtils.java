@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class TextUtils {
 	static Map<String, String> map=new HashMap<>();
-	public static void createAutoCompleteField(Text text){
+	public static void createPlateNOAutoCompleteField(Text text){
 		init();
 		TextContentAdapter ad = new TextContentAdapter(){
 			@Override
