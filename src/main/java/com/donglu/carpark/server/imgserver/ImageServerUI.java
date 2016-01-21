@@ -123,9 +123,9 @@ public class ImageServerUI {
 				try {
 					long nanoTime = System.nanoTime();
 					Injector createInjector = Guice.createInjector(new CarparkServerGuiceModule());
-					System.out.println("依赖注入用时："+(System.nanoTime()-nanoTime));
+					LOGGER.info("依赖注入用时：{}",(System.nanoTime()-nanoTime));
 					ImageServerUI window = createInjector.getInstance(ImageServerUI.class);
-					System.out.println("获取界面用时："+(System.nanoTime()-nanoTime));
+					LOGGER.info("获取界面用时：{}",(System.nanoTime()-nanoTime));
 					window.open();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -138,6 +138,7 @@ public class ImageServerUI {
 	 * Open the window.
 	 */
 	public void open() {
+		long nanoTime = System.nanoTime();
 		Display display = Display.getDefault();
 		// init();
 		createContents();
@@ -197,8 +198,9 @@ public class ImageServerUI {
 			autoStartServer = (boolean) readObject;
 			button_1.setSelection(autoStartServer);
 		}
-		
 		shell.layout();
+		
+		LOGGER.info("界面加载用时：{}",System.nanoTime()-nanoTime);
 		if (autoStartServer) {
 			startServer();
 		}
@@ -340,7 +342,6 @@ public class ImageServerUI {
 			}
 		});
 		btnStart.setText("启    动");
-
 	}
 	/**
 	 * 启动服务
