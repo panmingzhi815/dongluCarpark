@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.wizard.model;
+package com.donglu.carpark.ui.view.carpark.wizard;
 
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 

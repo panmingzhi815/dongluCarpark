@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.wizard.monthcharge;
+package com.donglu.carpark.ui.view.user.wizard;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,9 +10,14 @@ import com.dongluhitec.card.domain.util.StrUtil;
 
 public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 167497205337286603L;
 	private int count;
 	private List<SingleCarparkMonthlyCharge> allmonth=new ArrayList<>();
 	private SingleCarparkMonthlyCharge selectMonth;
+	@SuppressWarnings("unused")
 	private String createTimeLabel;
 	private boolean free=true;
 	private boolean payMoney=false;

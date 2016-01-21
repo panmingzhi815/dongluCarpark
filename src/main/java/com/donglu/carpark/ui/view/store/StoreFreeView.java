@@ -18,13 +18,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.nebula.widgets.cdatetime.CDateTime;
-import org.eclipse.nebula.widgets.cdatetime.CDT;
 import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
 
 public class StoreFreeView extends Composite implements View{
@@ -36,7 +33,6 @@ public class StoreFreeView extends Composite implements View{
 	public StoreFreeView(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout(1, false));
-		Font font = SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL);
 		
 		Group group = new Group(this, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));

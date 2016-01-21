@@ -5,7 +5,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.donglu.carpark.model.ConcentrateModel;
 import com.donglu.carpark.ui.common.AbstractApp;
-import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.TextUtils;
 import com.google.common.util.concurrent.RateLimiter;
@@ -38,7 +37,6 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.beans.BeansObservables;
 
-import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.util.StrUtil;
 

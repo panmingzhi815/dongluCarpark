@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.wizard.charge;
+package com.donglu.carpark.ui.view.carpark.wizard;
 
 import java.util.ArrayList;
 import java.util.List;

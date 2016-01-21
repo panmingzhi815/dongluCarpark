@@ -1,14 +1,18 @@
-package com.donglu.carpark.ui.wizard;
+package com.donglu.carpark.ui.view.user.wizard;
 
 import java.util.List;
 
-import com.donglu.carpark.ui.wizard.monthcharge.MonthlyUserPayModel;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.google.common.collect.Lists;
 
 public class AddUserModel extends SingleCarparkUser {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6263970320603664640L;
+
 	private List<SingleCarparkCarpark> allList=Lists.newArrayList();
 	
 	private MonthlyUserPayModel model;

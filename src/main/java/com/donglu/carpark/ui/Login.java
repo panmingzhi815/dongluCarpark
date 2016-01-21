@@ -95,7 +95,7 @@ public class Login {
 	private Combo cbo_userName;
 
 	private List<String> list;
-	private static Injector injector;
+	public static Injector injector;
 
 	/**
 	 * Launch the application.

@@ -1,26 +1,20 @@
-package com.donglu.carpark.ui.wizard.charge;
+package com.donglu.carpark.ui.view.carpark.wizard;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
-import com.dongluhitec.card.blservice.DatabaseServiceDaemon;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.db.carpark.MonthlyCarparkCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.swt.graphics.Rectangle;
 
 /**
  * Created with IntelliJ IDEA.

@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.wizard;
+package com.donglu.carpark.ui.view.user.wizard;
 
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -33,7 +33,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
 public class AddUserWizardPage extends WizardPage {
-	private DataBindingContext m_bindingContext;
 	private Text text;
 	private Text text_1;
 	private Text text_3;
@@ -206,7 +205,7 @@ public class AddUserWizardPage extends WizardPage {
 		GridData gd_text_2 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_2.heightHint = 60;
 		text_2.setLayoutData(gd_text_2);
-		m_bindingContext = initDataBindings();
+		initDataBindings();
 	}
 
 	@Override

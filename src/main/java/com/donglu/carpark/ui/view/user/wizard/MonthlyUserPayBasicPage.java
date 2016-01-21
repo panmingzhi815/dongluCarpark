@@ -1,18 +1,14 @@
-package com.donglu.carpark.ui.wizard.monthcharge;
+package com.donglu.carpark.ui.view.user.wizard;
 
-import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.db.carpark.CarparkMonthlyUser;
 import net.miginfocom.swt.MigLayout;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeansObservables;
-import org.eclipse.jface.databinding.swt.ISWTObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
-import org.eclipse.nebula.widgets.datechooser.DateChooserComboObservableValue;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -32,12 +28,9 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 public class MonthlyUserPayBasicPage extends WizardPage {
-	private DataBindingContext m_bindingContext;
 
 	private MonthlyUserPayModel model;
 	private Composite container;
@@ -196,7 +189,7 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		if (!StrUtil.isEmpty(model.getOverdueTime())) {
 			dateChooserCombo.setValue(model.getOverdueTime());
 		}
-		m_bindingContext = initDataBindings();
+		initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();

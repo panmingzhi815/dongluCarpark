@@ -23,7 +23,7 @@ public enum SystemSettingTypeEnum {
 	储值车提醒金额("60"),储值车进出场限制金额("20"),启用集中收费("false"),集中收费延迟出场时间("15"),
 	临时车通道限制("false"),
 	
-	DateBase_version("1.0.0.5"),软件版本("1.0.0.5"),     ;
+	DateBase_version("1.0.0.5"),软件版本("1.0.0.5"),发布时间("2015-01-19 17:00:00"),     ;
 	;
 	
 	private String defaultValue;

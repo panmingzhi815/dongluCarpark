@@ -1,9 +1,8 @@
-package com.donglu.carpark.ui.wizard;
+package com.donglu.carpark.ui.view.carpark.wizard;
 
 import org.eclipse.jface.wizard.Wizard;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
-import com.donglu.carpark.ui.wizard.model.AddMonthChargeModel;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;

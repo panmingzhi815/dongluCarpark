@@ -5,7 +5,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolBar;
 
 import com.donglu.carpark.ui.common.AbstractListView;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayHistory;
 
 public class PrepaidUserPayHistoryListView extends AbstractListView<SingleCarparkPrepaidUserPayHistory> {

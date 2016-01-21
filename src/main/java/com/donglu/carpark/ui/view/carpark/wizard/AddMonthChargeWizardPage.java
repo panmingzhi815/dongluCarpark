@@ -1,18 +1,11 @@
-package com.donglu.carpark.ui.wizard;
+package com.donglu.carpark.ui.view.carpark.wizard;
 
-import net.miginfocom.swt.MigLayout;
 
-import java.util.ArrayList;
 
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.PojoObservables;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.swt.ISWTObservableValue;
-import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
-import org.eclipse.jface.databinding.viewers.ViewersObservables;
-import org.eclipse.jface.databinding.wizard.WizardPageSupport;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -22,8 +15,6 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-
-import com.donglu.carpark.ui.wizard.model.AddMonthChargeModel;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
@@ -32,7 +23,6 @@ import org.eclipse.wb.swt.SWTResourceManager;
 public class AddMonthChargeWizardPage extends WizardPage{
 	private DataBindingContext m_bindingContext;
 
-	private final String Txt_column_layout = "wrap,grow y,w 100:110:130";
 	private AddMonthChargeModel model;
 	private Composite container;
 	private Text text;

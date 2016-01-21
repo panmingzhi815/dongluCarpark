@@ -10,10 +10,8 @@ import org.eclipse.swt.widgets.ToolItem;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 
 public class LockCarListView extends AbstractListView<SingleCarparkLockCar> implements View {
-	//SingleCarparkUser.Property.id.name(),"编号",60,
 	public LockCarListView(Composite parent, int style) {
 		super(parent, style,SingleCarparkLockCar.class,new String[]{
 				SingleCarparkLockCar.Property.plateNO.name(),

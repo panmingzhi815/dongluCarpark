@@ -29,13 +29,11 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.nebula.widgets.cdatetime.CDateTime;
 import org.eclipse.nebula.widgets.cdatetime.CDT;
-import org.eclipse.core.databinding.DataBindingContext;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 
 
 public class InOutHistoryView extends Composite implements View{
-	private DataBindingContext m_bindingContext;
 	private Presenter presenter;
 	private Composite listComposite;
 	private Text text_plateNO;
@@ -234,7 +232,6 @@ public class InOutHistoryView extends Composite implements View{
 		listComposite = new Composite(this, SWT.NONE);
 		listComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		listComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
-		m_bindingContext = initDataBindings();
 	}
 
 	public InOutHistoryView(Composite c, int style, InOutHistoryModel model) {
@@ -254,12 +251,6 @@ public class InOutHistoryView extends Composite implements View{
 
 	public Composite getListComposite() {
 		return listComposite;
-	}
-	protected DataBindingContext initDataBindings() {
-		DataBindingContext bindingContext = new DataBindingContext();
-		//
-		//
-		return bindingContext;
 	}
 
 	public void setCarparkList(List<SingleCarparkCarpark> findAllCarpark) {

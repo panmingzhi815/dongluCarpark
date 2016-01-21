@@ -10,7 +10,6 @@ import org.eclipse.swt.widgets.Text;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
@@ -18,7 +17,6 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 public class LocaCarWizardPage extends WizardPage {
-	private DataBindingContext m_bindingContext;
 	private Text text;
 	private SingleCarparkLockCar model;
 	/**
@@ -54,7 +52,7 @@ public class LocaCarWizardPage extends WizardPage {
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text.widthHint = 200;
 		text.setLayoutData(gd_text);
-		m_bindingContext = initDataBindings();
+		initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();

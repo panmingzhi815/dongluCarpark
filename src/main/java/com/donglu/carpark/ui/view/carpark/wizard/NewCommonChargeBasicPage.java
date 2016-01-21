@@ -1,27 +1,19 @@
-package com.donglu.carpark.ui.wizard.charge;
+package com.donglu.carpark.ui.view.carpark.wizard;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
-import net.miginfocom.swt.MigLayout;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.core.databinding.beans.PojoObservables;
-import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.swt.ISWTObservableValue;
-import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.jface.databinding.wizard.WizardPageSupport;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
@@ -39,8 +31,6 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
 import com.donglu.carpark.util.CarparkUtils;
-import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.db.carpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkAcrossDayTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationPrice;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationStandard;
@@ -48,15 +38,9 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkHolidayTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.base.Strings;
-import com.ibm.icu.util.Calendar;
 
 import org.eclipse.core.databinding.beans.BeansObservables;
-import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
-import org.eclipse.core.databinding.observable.map.IObservableMap;
-import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
-import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.widgets.TableColumn;
@@ -82,7 +66,6 @@ public class NewCommonChargeBasicPage extends WizardPage {
 	private DateTime startTime;
 	private DateTime endTime;
 	
-	private List<Integer> existHour = new ArrayList<Integer>();
 
 
 	private Composite composite_1;
@@ -301,8 +284,8 @@ public class NewCommonChargeBasicPage extends WizardPage {
         	@Override
         	public void widgetSelected(SelectionEvent e) {
         		CarparkDurationStandard carparkDurationStandard = new CarparkDurationStandard();
-            	carparkDurationStandard.setStartTime(new Date(1900, 1, 1, startTime.getHours(), startTime.getMinutes()));
-            	carparkDurationStandard.setEndTime(new Date(1900, 1, 1, endTime.getHours(), endTime.getMinutes()));
+            	carparkDurationStandard.setStartTime(new org.joda.time.DateTime(1900, 1, 1, startTime.getHours(), startTime.getMinutes()).toDate());
+            	carparkDurationStandard.setEndTime(new org.joda.time.DateTime(1900, 1, 1, endTime.getHours(), endTime.getMinutes()).toDate());
             	
         		int hours = startTime.getHours();
         		int hours2 = endTime.getHours();
@@ -765,7 +748,6 @@ public class NewCommonChargeBasicPage extends WizardPage {
 
 	@Override
 	public NewCommonChargeWizard getWizard() {
-		// TODO 自动生成的方法存根
 		return (NewCommonChargeWizard) super.getWizard();
 	}
 

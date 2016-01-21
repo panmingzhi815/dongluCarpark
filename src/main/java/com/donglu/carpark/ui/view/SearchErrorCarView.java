@@ -3,7 +3,6 @@ package com.donglu.carpark.ui.view;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 
-import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
@@ -29,7 +28,6 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
-import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
@@ -41,7 +39,6 @@ import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 
 public class SearchErrorCarView extends Composite implements View{
-	private DataBindingContext m_bindingContext;
 	private Presenter presenter;
 	SearchErrorCarModel model;
 	private Table table;
@@ -154,7 +151,7 @@ public class SearchErrorCarView extends Composite implements View{
 		lbl_bigImg = new Label(composite, SWT.NONE);
 		lbl_bigImg.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		lbl_bigImg.setText("大图片");
-		m_bindingContext = initDataBindings();
+		initDataBindings();
 	}
 	@Override
 	public void setPresenter(Presenter presenter) {

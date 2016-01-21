@@ -7,8 +7,6 @@ import java.util.List;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.CarparkMainApp;
@@ -21,7 +19,6 @@ import com.google.inject.Inject;
 
 
 public class DevicePresenter  implements Presenter{
-	private Logger LOGGER = LoggerFactory.getLogger(CarparkMainPresenter.class);
 	
 	private DeviceView view;
 	private CarparkMainModel model;

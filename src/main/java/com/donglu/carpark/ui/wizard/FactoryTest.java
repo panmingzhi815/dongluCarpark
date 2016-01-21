@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui.wizard;
 
+import com.donglu.carpark.ui.view.user.wizard.AddUserWizard;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;

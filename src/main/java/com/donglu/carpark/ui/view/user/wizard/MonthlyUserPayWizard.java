@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.wizard.monthcharge;
+package com.donglu.carpark.ui.view.user.wizard;
 
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;

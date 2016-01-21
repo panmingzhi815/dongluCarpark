@@ -504,7 +504,7 @@ public class CarOutTask implements Runnable{
 					model.setComboCarTypeEnable(true);
 					CarparkUtils.setFocus(carTypeSelectCombo);
 					model.setSelectCarType(true);
-					CarparkUtils.setComboSelect(carTypeSelectCombo, 2);
+					CarparkUtils.setComboSelect(carTypeSelectCombo, 0);
 					Boolean autoSelectCarType = Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.自动识别出场车辆类型));
 					while (!autoSelectCarType&&!model.isBtnClick()) {
 						try {
@@ -541,7 +541,7 @@ public class CarOutTask implements Runnable{
 				//集中收费
 				Boolean idConcentrate=Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费));
 				if (idConcentrate) {
-					Float chargedMoney = singleCarparkInOutHistory.getFactMoney();
+					Float chargedMoney = singleCarparkInOutHistory.getFactMoney()==null?0:singleCarparkInOutHistory.getFactMoney();
 					if (shouldMoney>0) {
 						Date chargeTime = singleCarparkInOutHistory.getChargeTime();
 						if (StrUtil.isEmpty(chargeTime)) {
@@ -563,7 +563,7 @@ public class CarOutTask implements Runnable{
 					singleCarparkInOutHistory.setSmallImg(smallImg);
 					model.setShouldMony(shouldMoney);
 					singleCarparkInOutHistory.setShouldMoney(shouldMoney);
-					model.setChargedMoney(chargedMoney);
+					model.setChargedMoney(chargedMoney==null?0:chargedMoney);
 					model.setReal(0);
 				}else{
 					model.setShouldMony(shouldMoney);

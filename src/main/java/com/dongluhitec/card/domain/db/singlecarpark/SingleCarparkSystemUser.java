@@ -11,7 +11,9 @@ import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
 public class SingleCarparkSystemUser extends DomainObject{
-
+	public enum Property{
+		userName,type,createDateLabel,lastEditDateLabel,lastEditUser,remark
+	}
 	/**
 	 * 
 	 */
