@@ -67,7 +67,7 @@ public class DevicePresenter  implements Presenter{
 		this.listDevice = listDevice;
 	}
 	public void createRightCamera(String ip, Composite composite) {
-		presenter.createCamera(ip, composite);
+		presenter.createCamera(CarparkMainApp.mapIpToDevice.get(ip), composite);
 	}
 	public void controlItem(Boolean dispose){
 		if (StrUtil.isEmpty(view)) {

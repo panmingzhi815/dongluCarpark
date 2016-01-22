@@ -3,6 +3,7 @@ package com.donglu.carpark.ui.wizard;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -46,6 +47,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		device.setVolume(getVolume());
 		device.setAdvertise(getAdvertise());
 		device.setScreenType(getScreenType());
+		device.setCameraType(getCameraType());
 		return device;
 	}
 	public String getSerialAddress() {
@@ -85,6 +87,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		setVolume(device.getVolume());
 		setAdvertise(device.getAdvertise());
 		setScreenType(device.getScreenType());
+		setCameraType(device.getCameraType()==null?CameraTypeEnum.信路威:device.getCameraType());
 	}
 	public String getVoice() {
 		return voice;

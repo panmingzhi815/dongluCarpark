@@ -59,6 +59,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.hardware.PlateNOResult;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongCallback.XinlutongResult;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.base.Preconditions;
@@ -105,7 +106,7 @@ import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 
-public class CarparkMainApp extends AbstractApp implements XinlutongResult {
+public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 
 	public static final String MAP_IP_TO_DEVICE = "mapIpToDevice";
 
@@ -578,7 +579,8 @@ public class CarparkMainApp extends AbstractApp implements XinlutongResult {
 					if (StrUtil.isEmpty(inShowPlateNO)) {
 						return;
 					}
-					if (inShowPlateNO.length() < 3 || inShowPlateNO.length() > 7) {
+					int length = inShowPlateNO.length();
+					if (length < 3 || length > 7) {
 						return;
 					}
 					model.setInCheckClick(false);

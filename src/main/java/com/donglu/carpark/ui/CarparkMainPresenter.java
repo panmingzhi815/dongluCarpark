@@ -58,6 +58,7 @@ import com.dongluhitec.card.domain.db.Device;
 import com.dongluhitec.card.domain.db.Link;
 import com.dongluhitec.card.domain.db.LinkStyleEnum;
 import com.dongluhitec.card.domain.db.SerialDeviceAddress;
+import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -69,7 +70,9 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.hardware.PlateNOJNA;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
+import com.dongluhitec.card.hardware.lpr.LPRJNA;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
 import com.dongluhitec.card.mapper.BeanUtil;
@@ -92,7 +95,11 @@ public class CarparkMainPresenter {
 	private CommonUIFacility commonui;
 	@Inject
 	private XinlutongJNA xinlutongJNA;
-
+	@Inject
+	private LPRJNA LPRJNA;
+	
+	Map<String, PlateNOJNA> mapIpToJNA= new HashMap<>();
+	
 	@Inject
 	private WebCameraDevice webCameraDevice;
 	@Inject
@@ -134,7 +141,7 @@ public class CarparkMainPresenter {
 			String ip = mapDeviceTabItem.get(selection);
 			System.out.println("删除设备" + ip);
 			selection.dispose();
-			xinlutongJNA.closeEx(ip);
+			mapIpToJNA.get(ip).closeEx(ip);
 			mapDeviceTabItem.remove(selection);
 			mapDeviceType.remove(ip);
 			mapIpToDevice.remove(ip);
@@ -183,7 +190,7 @@ public class CarparkMainPresenter {
 			SingleCarparkDevice device = showWizard.getDevice();
 			this.model.setCarpark(device.getCarpark());
 			addDevice(device);
-			addDevice(tabFolder, type, ip, name);
+			addDevice(tabFolder, type, device);
 			showUsualContentToDevice(device);
 		} catch (Exception e) {
 			log.error("添加设备时发生错误", e);
@@ -242,7 +249,10 @@ public class CarparkMainPresenter {
 	 * @param ip
 	 * @param name
 	 */
-	public void addDevice(CTabFolder tabFolder, String type, String ip, String name) {
+	public void addDevice(CTabFolder tabFolder, String type,SingleCarparkDevice device) {
+		 String ip=device.getIp();
+		 String name=device.getIp();
+		 
 		if (mapDeviceType.get(ip) != null) {
 			commonui.error("添加失败", "设备" + ip + "已存在");
 			// return;
@@ -253,7 +263,7 @@ public class CarparkMainPresenter {
 		Composite composite = new Composite(tabFolder, SWT.BORDER | SWT.EMBEDDED);
 		tabItem.setControl(composite);
 		composite.setLayout(new FillLayout());
-		createCamera(ip, composite);
+		createCamera(device, composite);
 		tabFolder.setSelection(tabItem);
 		mapDeviceTabItem.put(tabItem, ip);
 		mapDeviceType.put(ip, type);
@@ -286,13 +296,24 @@ public class CarparkMainPresenter {
 	 * @param northCamera
 	 * 
 	 */
-	public void createCamera(String ip, Composite northCamera) {
+	public void createCamera(SingleCarparkDevice device, Composite northCamera) {
+		String ip = device.getIp();
+		PlateNOJNA jna=null;
+		CameraTypeEnum cameraType=device.getCameraType()==null?CameraTypeEnum.信路威:device.getCameraType();
+		if (cameraType.equals(CameraTypeEnum.臻识)) {
+			jna=LPRJNA;
+			mapIpToJNA.put(ip,LPRJNA);
+		}else{
+			jna=xinlutongJNA;
+			mapIpToJNA.put(ip,xinlutongJNA);
+		}
 		Frame new_Frame1 = SWT_AWT.new_Frame(northCamera);
 		Canvas canvas1 = new Canvas();
 		new_Frame1.add(canvas1);
 		new_Frame1.pack();
 		new_Frame1.setVisible(true);
-		final String url = "rtsp://" + ip + ":554/h264ESVideoTest";
+		final String url = cameraType.getRtspAddress(ip);
+		log.info("准备连接视频{}",url);
 		final EmbeddedMediaPlayer createPlayRight = webCameraDevice.createPlay(new_Frame1, url);
 		mapPlayer.put(url, createPlayRight);
 		createPlayRight.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
@@ -321,7 +342,7 @@ public class CarparkMainPresenter {
 				createPlayRight.release();
 			}
 		});
-		xinlutongJNA.openEx(ip, getView());
+		jna.openEx(ip, getView());
 	}
 
 	/**
@@ -370,7 +391,7 @@ public class CarparkMainPresenter {
 				}
 				deleteDeviceTabItem(selection);
 				addDevice(device2);
-				addDevice(tabFolder, type, ip, showWizard.getName());
+				addDevice(tabFolder, type,showWizard.getDevice());
 				this.model.setCarpark(device2.getCarpark());
 			}
 		} catch (Exception e1) {
@@ -645,7 +666,7 @@ public class CarparkMainPresenter {
 	}
 
 	public void openDoorToPhotograph(String ip) {
-		xinlutongJNA.openDoor(ip);
+		mapIpToJNA.get(ip).openDoor(ip);
 	}
 
 	public boolean showUsualContentToDevice(SingleCarparkDevice device) {
@@ -737,7 +758,7 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-		xinlutongJNA.tigger(ip);
+		mapIpToJNA.get(ip).tigger(ip);
 	}
 
 	/**
