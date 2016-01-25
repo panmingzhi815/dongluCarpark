@@ -516,15 +516,19 @@ public class CarOutTask implements Runnable{
 					model.setSelectCarType(true);
 					CarparkUtils.setComboSelect(carTypeSelectCombo, 0);
 					Boolean autoSelectCarType = Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.自动识别出场车辆类型));
-					while (!autoSelectCarType&&!model.isBtnClick()) {
-						try {
-							if (model.getDisContinue()) {
-								return;
-							}
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+					if (!autoSelectCarType&&!model.isBtnClick()) {
+						model.setChargeDevice(device);
+						model.setChargeHistory(singleCarparkInOutHistory);
+						model.setBtnClick(true);
+						return;
+//						try {
+//							if (model.getDisContinue()) {
+//								return;
+//							}
+//							Thread.sleep(500);
+//						} catch (InterruptedException e) {
+//							e.printStackTrace();
+//						}
 					}
 					//自动识别大车小车
 					if (autoSelectCarType) {

@@ -196,6 +196,16 @@ public class SingleCarparkCarpark extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("isCharge", null, null);
 	}
+	public List<SingleCarparkCarpark> getParents() {
+		List<SingleCarparkCarpark> list=new ArrayList<>();
+		list.add(this);
+		SingleCarparkCarpark parent2 = getParent();
+		while (!StrUtil.isEmpty(parent2)) {
+			list.add(parent2);
+			parent2=parent2.getParent();
+		}
+		return list;
+	}
 	
 	
 	

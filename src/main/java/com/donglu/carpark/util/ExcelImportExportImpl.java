@@ -354,7 +354,7 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		while (row != null) {
 			try {
 				rowIndex = rowIndex + 1;
-				String status = getCellStringValue(row, 8);
+				String status = getCellStringValue(row, 10);
 				if (status.equals("处理成功")) {
 					continue;
 				}

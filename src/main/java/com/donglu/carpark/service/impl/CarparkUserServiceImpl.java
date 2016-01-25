@@ -109,8 +109,12 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			}
 			if (!StrUtil.isEmpty(carparkId)) {
 				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
-				c.add(Restrictions.eq("carpark", dom.getEntityWithId(carparkId)));
+				SingleCarparkCarpark entityWithId = dom.getEntityWithId(carparkId);
+				List<SingleCarparkCarpark> list=entityWithId.getParents();
+				c.add(Restrictions.in("carpark",list));
 			}
+			c.setFirstResult(0);
+			c.setMaxResults(1);
 			SingleCarparkUser user = (SingleCarparkUser) c.getSingleResultOrNull();
 			if (user!=null&&!user.getType().equals("储值")&&StrUtil.isEmpty(user.getValidTo())) {
 				return null;

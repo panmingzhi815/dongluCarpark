@@ -300,13 +300,7 @@ public class CarparkMainPresenter {
 		String ip = device.getIp();
 		PlateNOJNA jna=null;
 		CameraTypeEnum cameraType=device.getCameraType()==null?CameraTypeEnum.信路威:device.getCameraType();
-		if (cameraType.equals(CameraTypeEnum.臻识)) {
-			jna=LPRJNA;
-			mapIpToJNA.put(ip,LPRJNA);
-		}else{
-			jna=xinlutongJNA;
-			mapIpToJNA.put(ip,xinlutongJNA);
-		}
+		jna = setJNA(ip, cameraType);
 		Frame new_Frame1 = SWT_AWT.new_Frame(northCamera);
 		Canvas canvas1 = new Canvas();
 		new_Frame1.add(canvas1);
@@ -346,6 +340,24 @@ public class CarparkMainPresenter {
 	}
 
 	/**
+	 * 设置摄像机操作的jna
+	 * @param ip
+	 * @param cameraType
+	 * @return
+	 */
+	public PlateNOJNA setJNA(String ip, CameraTypeEnum cameraType) {
+		PlateNOJNA jna;
+		if (cameraType.equals(CameraTypeEnum.臻识)) {
+			jna=LPRJNA;
+			mapIpToJNA.put(ip,LPRJNA);
+		}else{
+			jna=xinlutongJNA;
+			mapIpToJNA.put(ip,xinlutongJNA);
+		}
+		return jna;
+	}
+
+	/**
 	 * @param type
 	 * @param tabFolder
 	 * 
@@ -371,7 +383,7 @@ public class CarparkMainPresenter {
 				return;
 			}
 			String ip = showWizard.getIp();
-
+			setJNA(ip, showWizard.getCameraType());
 			SingleCarparkDevice device2 = showWizard.getDevice();
 			device2.setCarpark(sp.getCarparkService().findCarparkById(device2.getCarpark().getId()));
 			if (ip.equals(oldIp)) {
