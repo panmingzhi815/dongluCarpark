@@ -195,9 +195,11 @@ public class DeviceView extends Composite implements View{
 		if (getPresenter().getType().equals("进口")) {
 			toolItem_in_openDoor.setToolTipText("手动抬杆F2");
 			toolItem_in_closeDoor.setToolTipText("手动落杆F1");
+			tabFolder.setToolTipText("进口设备");
 		}if (getPresenter().getType().equals("出口")) {
 			toolItem_in_openDoor.setToolTipText("手动抬杆F4");
 			toolItem_in_closeDoor.setToolTipText("手动落杆F3");
+			tabFolder.setToolTipText("出口设备");
 		}
 	}
 

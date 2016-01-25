@@ -165,4 +165,17 @@ public class SingleCarparkDevice extends DomainObject{
 		if (pcs != null)
 			pcs.firePropertyChange("cameraType", null, null);
 	}
+	@Override
+	public boolean equals(Object obj) {
+		if (obj.getClass()!=this.getClass()) {
+			return false;
+		}
+		if (!StrUtil.isEmpty(obj)) {
+			SingleCarparkDevice device=(SingleCarparkDevice) obj;
+			if (device.getIp().equals(getIp())) {
+				return true;
+			}
+		}
+		return super.equals(obj);
+	}
 }

@@ -47,6 +47,7 @@ import com.donglu.carpark.ui.task.CarInTask;
 import com.donglu.carpark.ui.task.CarOutTask;
 import com.donglu.carpark.ui.view.DevicePresenter;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.MyHashMap;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
@@ -170,7 +171,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	AtomicInteger plateNoTotal = new AtomicInteger(0);
 
 	// 保存设备的进出口信息
-	public static final Map<String, String> mapDeviceType = Maps.newHashMap();
+	public static final Map<String, String> mapDeviceType = new MyHashMap<>();
 
 	// 保存设备的界面信息
 	public static final Map<CTabItem, String> mapDeviceTabItem = Maps.newHashMap();

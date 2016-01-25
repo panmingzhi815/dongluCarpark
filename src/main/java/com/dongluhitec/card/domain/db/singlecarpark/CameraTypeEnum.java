@@ -15,4 +15,15 @@ public enum CameraTypeEnum {
 		String message = MessageFormatter.arrayFormat(rtsp, o).getMessage();
 		return message;
 	}
+
+	@Override
+	public String toString() {
+		switch (this) {
+		case 信路威:
+			return "A型";
+		case 臻识:
+			return "B型";
+		}
+		return super.toString();
+	}
 }

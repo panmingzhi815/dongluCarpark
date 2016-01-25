@@ -132,6 +132,14 @@ public class AddDeviceBasicPage extends WizardPage {
 		text_1.setText("");
 		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
+		lblip = new Label(composite, SWT.NONE);
+		lblip.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblip.setText("摄像机IP");
+		
+		text_2 = new Text(composite, SWT.BORDER);
+		text_2.setText("192.168.1.139");
+		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
 		label_10 = new Label(composite, SWT.NONE);
 		label_10.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_10.setText("摄像机类型");
@@ -142,14 +150,6 @@ public class AddDeviceBasicPage extends WizardPage {
 		comboViewer_4.setContentProvider(new ArrayContentProvider());
 		comboViewer_4.setLabelProvider(new LabelProvider());
 		comboViewer_4.setInput(CameraTypeEnum.values());
-		
-		lblip = new Label(composite, SWT.NONE);
-		lblip.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblip.setText("摄像机IP");
-		
-		text_2 = new Text(composite, SWT.BORDER);
-		text_2.setText("192.168.1.139");
-		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		label = new Label(composite, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
