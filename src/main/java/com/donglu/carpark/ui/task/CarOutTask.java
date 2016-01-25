@@ -295,7 +295,7 @@ public class CarOutTask implements Runnable{
 		sp.getCarparkUserService().saveUser(user);
 		sp.getCarparkInOutService().saveInOutHistory(ch);
 		LOGGER.info("保存储值车出场数据到数据库成功，对设备{}进行语音开闸",device);
-		String s ="请缴费"+calculateTempCharge+"元";
+		String s =",扣费"+calculateTempCharge+"元,剩余"+user.getLeftMoney()+"元";
 		s = CarparkUtils.getCarStillTime(model.getTotalTime())+CarparkUtils.formatFloatString(s);
 		presenter.showContentToDevice(device, s+","+CarparkMainApp.CAR_OUT_MSG, true);
 		return false;

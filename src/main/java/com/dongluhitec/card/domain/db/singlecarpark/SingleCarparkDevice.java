@@ -27,7 +27,7 @@ public class SingleCarparkDevice extends DomainObject{
 	private Integer volume=1;
 	private String advertise="欢迎光临";
 	private ScreenTypeEnum screenType=ScreenTypeEnum.一二接口显示屏;
-	private CameraTypeEnum cameraType=CameraTypeEnum.信路威;
+	private CameraTypeEnum cameraType=CameraTypeEnum.A型;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "carparkId", nullable = true, insertable = false, updatable = false)
@@ -164,5 +164,18 @@ public class SingleCarparkDevice extends DomainObject{
 		this.cameraType = cameraType;
 		if (pcs != null)
 			pcs.firePropertyChange("cameraType", null, null);
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (obj.getClass()!=this.getClass()) {
+			return false;
+		}
+		if (!StrUtil.isEmpty(obj)) {
+			SingleCarparkDevice device=(SingleCarparkDevice) obj;
+			if (device.getIp().equals(getIp())) {
+				return true;
+			}
+		}
+		return super.equals(obj);
 	}
 }

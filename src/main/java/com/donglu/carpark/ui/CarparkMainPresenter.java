@@ -184,8 +184,6 @@ public class CarparkMainPresenter {
 			if (showWizard == null) {
 				return;
 			}
-			String ip = showWizard.getIp();
-			String name = showWizard.getName();
 			showWizard.setInType(type);
 			SingleCarparkDevice device = showWizard.getDevice();
 			this.model.setCarpark(device.getCarpark());
@@ -206,7 +204,6 @@ public class CarparkMainPresenter {
 		}
 		mapIpToDevice.put(ip, device);
 		setIsTwoChanel();
-		CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 		// sendPositionToAllDevice(true);
 	}
 
@@ -251,7 +248,7 @@ public class CarparkMainPresenter {
 	 */
 	public void addDevice(CTabFolder tabFolder, String type,SingleCarparkDevice device) {
 		 String ip=device.getIp();
-		 String name=device.getIp();
+		 String name=device.getName();
 		 
 		if (mapDeviceType.get(ip) != null) {
 			commonui.error("添加失败", "设备" + ip + "已存在");
@@ -267,6 +264,7 @@ public class CarparkMainPresenter {
 		tabFolder.setSelection(tabItem);
 		mapDeviceTabItem.put(tabItem, ip);
 		mapDeviceType.put(ip, type);
+		CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 	}
 
 	Map<String, MediaPlayer> mapPlayer = Maps.newHashMap();
@@ -299,7 +297,7 @@ public class CarparkMainPresenter {
 	public void createCamera(SingleCarparkDevice device, Composite northCamera) {
 		String ip = device.getIp();
 		PlateNOJNA jna=null;
-		CameraTypeEnum cameraType=device.getCameraType()==null?CameraTypeEnum.信路威:device.getCameraType();
+		CameraTypeEnum cameraType=device.getCameraType()==null?CameraTypeEnum.A型:device.getCameraType();
 		jna = setJNA(ip, cameraType);
 		Frame new_Frame1 = SWT_AWT.new_Frame(northCamera);
 		Canvas canvas1 = new Canvas();
@@ -334,6 +332,7 @@ public class CarparkMainPresenter {
 
 			public void widgetDisposed(DisposeEvent e) {
 				createPlayRight.release();
+				mapPlayer.remove(url);
 			}
 		});
 		jna.openEx(ip, getView());
@@ -347,7 +346,7 @@ public class CarparkMainPresenter {
 	 */
 	public PlateNOJNA setJNA(String ip, CameraTypeEnum cameraType) {
 		PlateNOJNA jna;
-		if (cameraType.equals(CameraTypeEnum.臻识)) {
+		if (cameraType.equals(CameraTypeEnum.B型)) {
 			jna=LPRJNA;
 			mapIpToJNA.put(ip,LPRJNA);
 		}else{
