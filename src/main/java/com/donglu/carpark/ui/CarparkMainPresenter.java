@@ -297,7 +297,7 @@ public class CarparkMainPresenter {
 	public void createCamera(SingleCarparkDevice device, Composite northCamera) {
 		String ip = device.getIp();
 		PlateNOJNA jna=null;
-		CameraTypeEnum cameraType=device.getCameraType()==null?CameraTypeEnum.A型:device.getCameraType();
+		CameraTypeEnum cameraType=device.getCameraType()==null?CameraTypeEnum.信路威:device.getCameraType();
 		jna = setJNA(ip, cameraType);
 		Frame new_Frame1 = SWT_AWT.new_Frame(northCamera);
 		Canvas canvas1 = new Canvas();
@@ -346,7 +346,7 @@ public class CarparkMainPresenter {
 	 */
 	public PlateNOJNA setJNA(String ip, CameraTypeEnum cameraType) {
 		PlateNOJNA jna;
-		if (cameraType.equals(CameraTypeEnum.B型)) {
+		if (cameraType.equals(CameraTypeEnum.臻识)) {
 			jna=LPRJNA;
 			mapIpToJNA.put(ip,LPRJNA);
 		}else{

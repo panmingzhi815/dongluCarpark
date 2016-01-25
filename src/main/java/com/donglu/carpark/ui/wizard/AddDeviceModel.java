@@ -87,7 +87,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		setVolume(device.getVolume());
 		setAdvertise(device.getAdvertise());
 		setScreenType(device.getScreenType());
-		setCameraType(device.getCameraType()==null?CameraTypeEnum.A型:device.getCameraType());
+		setCameraType(device.getCameraType()==null?CameraTypeEnum.信路威:device.getCameraType());
 	}
 	public String getVoice() {
 		return voice;
