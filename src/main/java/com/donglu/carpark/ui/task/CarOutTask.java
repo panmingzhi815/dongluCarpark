@@ -420,28 +420,31 @@ public class CarOutTask implements Runnable{
 		model.setTotalTime("未入场");
 		model.setReal(0);
 		// 未找到入场记录
-		if (!StrUtil.isEmpty(singleCarparkInOutHistory)) {
+		if (StrUtil.isEmpty(singleCarparkInOutHistory)) {
+			singleCarparkInOutHistory=new SingleCarparkInOutHistory();
+		}else{
 			Date inTime = singleCarparkInOutHistory.getInTime();
 			model.setInTime(inTime);
 			model.setTotalTime(StrUtil.MinusTime2(inTime, date));
-			singleCarparkInOutHistory.setOutTime(date);
-			singleCarparkInOutHistory.setOperaName(model.getUserName());
-			singleCarparkInOutHistory.setOutDevice(device.getName());
-			singleCarparkInOutHistory.setOutPhotographType("自动");
-			singleCarparkInOutHistory.setCarType(carType);
-			singleCarparkInOutHistory.setOutBigImg(bigImg);
-			singleCarparkInOutHistory.setOutSmallImg(smallImg);
-			singleCarparkInOutHistory.setUserId(user.getId());
-			singleCarparkInOutHistory.setUserName(user.getName());
-			Date handPhotographDate = mapHandPhotograph.get(ip);
-			if (!StrUtil.isEmpty(handPhotographDate)) {
-				DateTime plusSeconds = new DateTime(handPhotographDate).plusSeconds(3);
-				boolean after = plusSeconds.toDate().after(date);
-				if (after)
-					singleCarparkInOutHistory.setOutPhotographType("手动");
-			}
-			carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
 		}
+		singleCarparkInOutHistory.setPlateNo(nowPlateNO);
+		singleCarparkInOutHistory.setOutTime(date);
+		singleCarparkInOutHistory.setOperaName(model.getUserName());
+		singleCarparkInOutHistory.setOutDevice(device.getName());
+		singleCarparkInOutHistory.setOutPhotographType("自动");
+		singleCarparkInOutHistory.setCarType(carType);
+		singleCarparkInOutHistory.setOutBigImg(bigImg);
+		singleCarparkInOutHistory.setOutSmallImg(smallImg);
+		singleCarparkInOutHistory.setUserId(user.getId());
+		singleCarparkInOutHistory.setUserName(user.getName());
+		Date handPhotographDate = mapHandPhotograph.get(ip);
+		if (!StrUtil.isEmpty(handPhotographDate)) {
+			DateTime plusSeconds = new DateTime(handPhotographDate).plusSeconds(3);
+			boolean after = plusSeconds.toDate().after(date);
+			if (after)
+				singleCarparkInOutHistory.setOutPhotographType("手动");
+		}
+		carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
 		model.setBtnClick(false);
 		return false;
 	}

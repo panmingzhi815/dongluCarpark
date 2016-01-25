@@ -1,6 +1,7 @@
 package com.dongluhitec.card.domain.db.singlecarpark;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -196,17 +197,25 @@ public class SingleCarparkCarpark extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("isCharge", null, null);
 	}
-	public List<SingleCarparkCarpark> getParents() {
+	public List<SingleCarparkCarpark> getCarparkAndAllChilds() {
 		List<SingleCarparkCarpark> list=new ArrayList<>();
-		list.add(this);
-		SingleCarparkCarpark parent2 = getParent();
-		while (!StrUtil.isEmpty(parent2)) {
-			list.add(parent2);
-			parent2=parent2.getParent();
-		}
+		getCarpaek(this, list);
 		return list;
 	}
-	
-	
-	
+	private void getCarpaek(SingleCarparkCarpark carpark, List<SingleCarparkCarpark> list) {
+		list.add(carpark);
+		if (!StrUtil.isEmpty(carpark.getChilds())) {
+			for (SingleCarparkCarpark singleCarparkCarpark : carpark.getChilds()) {
+				getCarpaek(singleCarparkCarpark, list);
+			}
+		}
+	}
+	private void getChildCarpaek(SingleCarparkCarpark carpark, List<SingleCarparkCarpark> list) {
+		if (!StrUtil.isEmpty(carpark.getChilds())) {
+			for (SingleCarparkCarpark singleCarparkCarpark : carpark.getChilds()) {
+				list.add(singleCarparkCarpark);
+				getCarpaek(singleCarparkCarpark, list);
+			}
+		}
+	}
 }

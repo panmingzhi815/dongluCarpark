@@ -676,7 +676,10 @@ public class CarparkMainPresenter {
 			return false;
 		}
 	}
-
+	/**
+	 * 摄像机开闸
+	 * @param ip
+	 */
 	public void openDoorToPhotograph(String ip) {
 		mapIpToJNA.get(ip).openDoor(ip);
 	}
