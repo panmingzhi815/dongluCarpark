@@ -632,6 +632,7 @@ public class CarOutTask implements Runnable{
 				model.setTotalTime("未入场");
 				sp.getCarparkInOutService().saveInOutHistory(io);
 				LOGGER.info("保存车辆{}的出场记录成功",plateNO);
+				presenter.showPlateNOToDevice(device, plateNO);
 				presenter.showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
 			}else{
 				notFindInHistory(device, bigImg, smallImg);

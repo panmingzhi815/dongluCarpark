@@ -46,6 +46,8 @@ import com.donglu.carpark.ui.common.AbstractApp;
 import com.donglu.carpark.ui.task.CarInTask;
 import com.donglu.carpark.ui.task.CarOutTask;
 import com.donglu.carpark.ui.view.DevicePresenter;
+import com.donglu.carpark.ui.view.InInfoPresenter;
+import com.donglu.carpark.ui.view.OutInfoPresenter;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.MyHashMap;
 import com.donglu.carpark.util.CarparkFileUtils;
@@ -148,8 +150,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	private Text text_totalTime;
 	private Text text_should;
 	private Text text_real;
-	private Text txtoutplateNo;
-	private Text text_out_time;
 
 	@Inject
 	private CommonUIFacility commonui;
@@ -199,8 +199,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 
 	// 保存出场排队任务信息
 	private List<String> listOutTask = new ArrayList<>();
-	private Button btnOutCheck;
-	private Button btnHandSearch;
 	private RateLimiter rateLimiter = RateLimiter.create(1);
 
 	private ExecutorService outTheadPool;
@@ -228,9 +226,11 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	private DevicePresenter inDevicePresenter2;
 	@Inject
 	private DevicePresenter outDevicePresenter2;
-	private Text text_2;
-	private Text text_3;
-	private Button button;
+	
+	@Inject
+	private InInfoPresenter inInfoPresenter;
+	@Inject
+	private OutInfoPresenter outInfoPresenter;
 
 	private CLabel lbl_inSmallImg;
 
@@ -528,96 +528,10 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			inDevicePresenter2.setListDevice(mapTypeDevices.get("进口2"));
 			inDevicePresenter2.go(composite_5);
 		} else {
-			Composite composite_20 = new Composite(composite_5, SWT.NONE);
-			GridLayout gl_composite_20 = new GridLayout(1, false);
-			gl_composite_20.marginWidth = 0;
-			gl_composite_20.marginHeight = 0;
-			gl_composite_20.horizontalSpacing = 0;
-			composite_20.setLayout(gl_composite_20);
-
-			Composite composite_21 = new Composite(composite_20, SWT.NONE);
-			GridData gd_composite_21 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-			gd_composite_21.widthHint = 419;
-			composite_21.setLayoutData(gd_composite_21);
-			composite_21.setLayout(new GridLayout(3, false));
-
-			Composite composite_22 = new Composite(composite_21, SWT.NONE);
-			GridData gd_composite_22 = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
-			gd_composite_22.widthHint = 140;
-			composite_22.setLayoutData(gd_composite_22);
-			composite_22.setLayout(new GridLayout(2, false));
-
-			Label label_7 = new Label(composite_22, SWT.NONE);
-			label_7.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-			label_7.setText("车牌号码");
-			label_7.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-			label_7.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-			label_7.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-
-			text_2 = new Text(composite_22, SWT.BORDER);
-			text_2.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
-			text_2.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-			text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-			text_2.setTextLimit(8);
-			Label label_14 = new Label(composite_22, SWT.NONE);
-			label_14.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-			label_14.setText("出场时间");
-			label_14.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-
-			text_3 = new Text(composite_22, SWT.BORDER);
-			text_3.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
-			text_3.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-			text_3.setEditable(false);
-			text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-			Composite composite_23 = new Composite(composite_21, SWT.NONE);
-			composite_23.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-			composite_23.setLayout(new GridLayout(1, false));
-
-			button = new Button(composite_23, SWT.NONE);
-			button.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					String inShowPlateNO = model.getInShowPlateNO();
-					if (StrUtil.isEmpty(inShowPlateNO)) {
-						return;
-					}
-					int length = inShowPlateNO.length();
-					if (length < 3 || length > 7) {
-						return;
-					}
-					model.setInCheckClick(false);
-					model.setInCheckIsClick(true);
-				}
-			});
-			GridData gd_button = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-			gd_button.exclude = false;
-			button.setLayoutData(gd_button);
-			button.setText("入场确认");
-			button.setFont(SWTResourceManager.getFont("微软雅黑", 9, SWT.BOLD));
-			button.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
-
-			Composite composite_24 = new Composite(composite_21, SWT.BORDER);
-			GridData gd_composite_24 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-			gd_composite_24.widthHint = 120;
-			composite_24.setLayoutData(gd_composite_24);
-			composite_24.setLayout(new FillLayout(SWT.HORIZONTAL));
-
-			lbl_inSmallImg = new CLabel(composite_24, SWT.NONE);
-			lbl_inSmallImg.setText("进场场车牌");
-			lbl_inSmallImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
-			lbl_inSmallImg.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
-			lbl_inSmallImg.setAlignment(SWT.CENTER);
-
-			Composite composite_25 = new Composite(composite_20, SWT.BORDER);
-			composite_25.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-			composite_25.setLayout(new FillLayout(SWT.HORIZONTAL));
-
-			lbl_inBigImg = new CLabel(composite_25, SWT.NONE);
-			lbl_inBigImg.setText("入场车牌");
-			lbl_inBigImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
-			lbl_inBigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));
-			lbl_inBigImg.setAlignment(SWT.CENTER);
+			inInfoPresenter.setModel(model);
+			inInfoPresenter.go(composite_5);
+			lbl_inBigImg=inInfoPresenter.getInBigImgLabel();
+			lbl_inSmallImg=inInfoPresenter.getInSmallImgLabel();
 		}
 		Boolean rightBotttomCamera = Boolean
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.右下监控) == null ? SystemSettingTypeEnum.右下监控.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.右下监控));
@@ -627,128 +541,12 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			outDevicePresenter2.setListDevice(mapTypeDevices.get("出口2"));
 			outDevicePresenter2.go(composite_21_1);
 		} else {
-			Composite composite_20 = new Composite(composite_21_1, SWT.NONE);
-			composite_20.setLayout(new GridLayout(1, false));
-
-			Composite composite_3 = new Composite(composite_20, SWT.NONE);
-			composite_3.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-			composite_3.setLayout(new FillLayout(SWT.HORIZONTAL));
-
-			Composite composite_6 = new Composite(composite_3, SWT.NONE);
-			composite_6.setLayout(new GridLayout(3, false));
-
-			Composite composite_12 = new Composite(composite_6, SWT.NONE);
-			composite_12.setLayout(new GridLayout(2, false));
-			GridData gd_composite_12 = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
-			gd_composite_12.widthHint = 389;
-			composite_12.setLayoutData(gd_composite_12);
-
-			Label label_15 = new Label(composite_12, SWT.NONE);
-			label_15.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-			label_15.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-			label_15.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-			label_15.setText("车牌号码");
-			label_15.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-
-			txtoutplateNo = new Text(composite_12, SWT.BORDER);
-			txtoutplateNo.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
-			txtoutplateNo.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-			txtoutplateNo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-			txtoutplateNo.setTextLimit(8);
-			Label label_16 = new Label(composite_12, SWT.NONE);
-			label_16.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-			label_16.setText("出场时间");
-			label_16.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-
-			text_out_time = new Text(composite_12, SWT.BORDER);
-			text_out_time.setEditable(false);
-			text_out_time.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
-			text_out_time.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-			text_out_time.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-			Composite composite_15 = new Composite(composite_6, SWT.NONE);
-			composite_15.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false, 1, 1));
-			composite_15.setLayout(new GridLayout(1, false));
-
-			btnOutCheck = new Button(composite_15, SWT.NONE);
-			GridData gd_btnOutCheck = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-			gd_btnOutCheck.exclude = false;
-			btnOutCheck.setLayoutData(gd_btnOutCheck);
-			btnOutCheck.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
-			btnOutCheck.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					String outShowPlateNO = model.getOutShowPlateNO();
-					if (StrUtil.isEmpty(outShowPlateNO)) {
-						return;
-					}
-					if (outShowPlateNO.length() > 8) {
-						commonui.info("车牌错误", "请输入正确的车牌");
-						return;
-					}
-					model.setOutCheckClick(false);
-				}
-			});
-			btnOutCheck.setFont(SWTResourceManager.getFont("微软雅黑", 9, SWT.BOLD));
-			btnOutCheck.setText("出场确认");
-
-			btnHandSearch = new Button(composite_15, SWT.NONE);
-			btnHandSearch.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
-			btnHandSearch.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					if (StrUtil.isEmpty(txtoutplateNo.getText())) {
-						commonui.info("提示", "请先输入车牌");
-						return;
-					}
-					model.setBtnClick(false);
-					model.setDisContinue(true);
-					String data = model.getSearchPlateNo();
-					String bigImg = model.getSearchBigImage();
-					String smallImg = model.getSearchSmallImage();
-					presenter.showManualSearch(data, bigImg, smallImg);
-				}
-			});
-			btnHandSearch.setText("人工查找");
-			btnHandSearch.setFont(SWTResourceManager.getFont("微软雅黑", 9, SWT.BOLD));
-			Composite composite_11 = new Composite(composite_6, SWT.BORDER);
-			composite_11.setLayout(new FillLayout(SWT.HORIZONTAL));
-			GridData gd_composite_11 = new GridData(SWT.RIGHT, SWT.FILL, false, false, 1, 1);
-			gd_composite_11.widthHint = 120;
-			composite_11.setLayoutData(gd_composite_11);
-
-			lbl_outSmallImg = new CLabel(composite_11, SWT.NONE);
-			lbl_outSmallImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
-			lbl_outSmallImg.setAlignment(SWT.CENTER);
-			lbl_outSmallImg.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
-			lbl_outSmallImg.setText("出场车牌");
-
-			Composite composite_4 = new Composite(composite_20, SWT.NONE);
-			composite_4.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-			FillLayout fl_composite_4 = new FillLayout(SWT.HORIZONTAL);
-			fl_composite_4.spacing = 6;
-			composite_4.setLayout(fl_composite_4);
-
-			Composite composite_8 = new Composite(composite_4, SWT.BORDER);
-			composite_8.setLayout(new FillLayout(SWT.HORIZONTAL));
-
-			lbl_outBigImg = new CLabel(composite_8, SWT.NONE);
-			lbl_outBigImg.setText("出场车牌");
-			lbl_outBigImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
-			lbl_outBigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));
-			lbl_outBigImg.setAlignment(SWT.CENTER);
-
-			if (Boolean
-					.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认) == null ? SystemSettingTypeEnum.临时车入场是否确认.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认))
-					|| Boolean.valueOf(
-							mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认) == null ? SystemSettingTypeEnum.固定车入场是否确认.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认))
-					|| !Boolean.valueOf(
-							mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进) == null ? SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进))) {
-			} else {
-			}
-			if (!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认) == null ? SystemSettingTypeEnum.固定车出场确认.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认))) {
-				gd_btnOutCheck.exclude = true;
-			}
+			outInfoPresenter.setModel(model);
+			outInfoPresenter.setPresenter(presenter);
+			outInfoPresenter.setCommonui(commonui);
+			outInfoPresenter.go(composite_21_1);
+			lbl_outBigImg=outInfoPresenter.getOutBigImgLabel();
+			lbl_outSmallImg=outInfoPresenter.getOutSmallImgLabel();
 		}
 
 		Boolean isCarHandIn = Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.进场允许手动入场));
@@ -1608,24 +1406,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		IObservableValue observeTextText_realObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_real);
 		IObservableValue realModelObserveValue = BeanProperties.value("real").observe(model);
 		bindingContext.bindValue(observeTextText_realObserveWidget, realModelObserveValue, null, null);
-		if (!StrUtil.isEmpty(txtoutplateNo)) {
-			//
-			IObservableValue observeTextTxtoutplateNoObserveWidget = WidgetProperties.text(SWT.Modify).observe(txtoutplateNo);
-			IObservableValue outShowPlateNOModelObserveValue = BeanProperties.value("outShowPlateNO").observe(model);
-			bindingContext.bindValue(observeTextTxtoutplateNoObserveWidget, outShowPlateNOModelObserveValue, null, null);
-			//
-			IObservableValue observeEnabledButton_2ObserveWidget = WidgetProperties.enabled().observe(btnHandSearch);
-			IObservableValue handSearchModelObserveValue = BeanProperties.value("handSearch").observe(model);
-			bindingContext.bindValue(observeEnabledButton_2ObserveWidget, handSearchModelObserveValue, null, null);
-			//
-			IObservableValue observeTextText_out_timeObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_out_time);
-			IObservableValue outShowTimeModelObserveValue = BeanProperties.value("outShowTime").observe(model);
-			bindingContext.bindValue(observeTextText_out_timeObserveWidget, outShowTimeModelObserveValue, null, null);
-			//
-			IObservableValue observeEditableTxtoutplateNoObserveWidget = WidgetProperties.editable().observe(txtoutplateNo);
-			IObservableValue outPlateNOEditableModelObserveValue = BeanProperties.value("outPlateNOEditable").observe(model);
-			bindingContext.bindValue(observeEditableTxtoutplateNoObserveWidget, outPlateNOEditableModelObserveValue, null, null);
-		}
 		//
 		IObservableValue observeEnabledComboObserveWidget = WidgetProperties.enabled().observe(carTypeSelectCombo);
 		IObservableValue comboCarTypeEnableModelObserveValue = BeanProperties.value("comboCarTypeEnable").observe(model);
@@ -1658,23 +1438,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		IObservableValue observeTextTextObserveWidget = WidgetProperties.text(SWT.Modify).observe(text);
 		IObservableValue handPlateNOModelObserveValue = BeanProperties.value("handPlateNO").observe(model);
 		bindingContext.bindValue(observeTextTextObserveWidget, handPlateNOModelObserveValue, null, null);
-		if (!StrUtil.isEmpty(text_2)) {
-			//
-			IObservableValue observeTextText_2ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_2);
-			IObservableValue inShowPlateNOModelObserveValue = BeanProperties.value("inShowPlateNO").observe(model);
-			bindingContext.bindValue(observeTextText_2ObserveWidget, inShowPlateNOModelObserveValue, null, null);
-			//
-			IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
-			IObservableValue inShowTimeModelObserveValue = BeanProperties.value("inShowTime").observe(model);
-			bindingContext.bindValue(observeTextText_3ObserveWidget, inShowTimeModelObserveValue, null, null);
-			//
-			IObservableValue observeEnabledButtonObserveWidget = WidgetProperties.enabled().observe(button);
-			IObservableValue inCheckClickModelObserveValue = BeanProperties.value("inCheckClick").observe(model);
-			bindingContext.bindValue(observeEnabledButtonObserveWidget, inCheckClickModelObserveValue, null, null);
-			//
-			IObservableValue observeEditableText_2ObserveWidget = WidgetProperties.editable().observe(text_2);
-			bindingContext.bindValue(observeEditableText_2ObserveWidget, inCheckClickModelObserveValue, null, null);
-		}
 		//
 		IObservableValue observeTextText_chargedMoneybserveWidget = WidgetProperties.text(SWT.Modify).observe(txt_chargedMoney);
 		IObservableValue chargedMoneyModelObserveValue = BeanProperties.value("chargedMoney").observe(model);
