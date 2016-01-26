@@ -167,7 +167,7 @@ public class CarOutTask implements Runnable{
 			// 没有找到入场记录
 			List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO,carpark);
 			if (StrUtil.isEmpty(user)||user.getType().equals("储值")) {
-				if (StrUtil.isEmpty(findByNoOut)) {
+				if (StrUtil.isEmpty(findByNoOut)&&device.getCarpark().getIsCharge()) {
 					notFindInHistory(device, bigImg, smallImg);
 					return;
 				}
@@ -462,24 +462,16 @@ public class CarOutTask implements Runnable{
 				return;
 			}
 		}
+		Boolean isCharge = device.getCarpark().getIsCharge();
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(plateNO, device.getCarpark());
-		if (!StrUtil.isEmpty(findByNoCharge)) {
+		if (!StrUtil.isEmpty(findByNoCharge)) {//找到进场记录
 			SingleCarparkInOutHistory singleCarparkInOutHistory = findByNoCharge.get(0);
 			if (!StrUtil.isEmpty(reviseInTime)) {
 				singleCarparkInOutHistory.setReviseInTime(reviseInTime);
 			}else{
 				singleCarparkInOutHistory.setReviseInTime(singleCarparkInOutHistory.getInTime());
 			}
-//			List<SingleCarparkInOutHistory> listChildCarparkInOutHistory= carparkInOutService.findHistoryByChildCarparkInOut(singleCarparkInOutHistory.getCarparkId(),plateNO,singleCarparkInOutHistory.getInTime(),date);
-//			if (StrUtil.isEmpty(listChildCarparkInOutHistory)) {
-//				Map<Long, SingleCarparkInOutHistory> map=new HashMap<>();
-//				for (SingleCarparkInOutHistory singleCarparkInOutHistory2 : listChildCarparkInOutHistory) {
-//					map.put(singleCarparkInOutHistory2.getId(), singleCarparkInOutHistory2);
-//				}
-//				model.setChildCarparkInOut(map);
-//			}
-			
 			singleCarparkInOutHistory.setOutTime(date);
 			singleCarparkInOutHistory.setOperaName(model.getUserName());
 			singleCarparkInOutHistory.setOutDevice(device.getName());
@@ -507,7 +499,6 @@ public class CarOutTask implements Runnable{
 			model.setShouldMony(0);
 			model.setReal(0);
 			model.setChargedMoney(0F);
-			Boolean isCharge = device.getCarpark().getIsCharge();
 			if (StrUtil.isEmpty(isCharge) || !isCharge) {
 				sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
 				presenter.showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
@@ -617,7 +608,31 @@ public class CarOutTask implements Runnable{
 				}
 			}
 		}else{
-			notFindInHistory(device, bigImg, smallImg);
+			LOGGER.info("车辆{}未入场且停车场是否收费设置为{}",plateNO,isCharge);
+			if (!isCharge) {
+				SingleCarparkInOutHistory io=new SingleCarparkInOutHistory();
+				io.setPlateNo(plateNO);
+				io.setOutBigImg(bigImg);
+				io.setOutSmallImg(smallImg);
+				io.setOutTime(date);
+				io.setFactMoney(0);
+				io.setShouldMoney(0);
+				io.setFreeMoney(0);
+				io.setCarparkId(device.getCarpark().getId());
+				io.setCarparkName(device.getCarpark().getName());
+				io.setCarType("临时车");
+				io.setOutDevice(device.getName());
+				io.setOperaName(System.getProperty("userName"));
+				model.setPlateNo(plateNO);
+				model.setOutTime(date);
+				model.setCarType("临时车");
+				model.setTotalTime("未入场");
+				sp.getCarparkInOutService().saveInOutHistory(io);
+				LOGGER.info("保存车辆{}的出场记录成功",plateNO);
+				presenter.showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
+			}else{
+				notFindInHistory(device, bigImg, smallImg);
+			}
 		}
 	}
 	

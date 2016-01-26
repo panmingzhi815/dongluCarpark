@@ -55,7 +55,7 @@ public class CarparkUtils {
 
 	private static final String defaultKey = "donglucarpark";
 
-	public static final String DATE_MINUTE_PATTEN = "yyyy-MM-dd HH:mm";
+	public static final String DATE_MINUTE_PATTEN = "yyyy-MM-dd HH:mm:ss";
 
 	public static final String DATE_PATTERN = "yyyy-MM-dd";
 	public static List<String> splitPlateNO(String plateNo){
