@@ -16,8 +16,9 @@ import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
-
+@Singleton
 public class DevicePresenter  implements Presenter{
 	
 	private DeviceView view;

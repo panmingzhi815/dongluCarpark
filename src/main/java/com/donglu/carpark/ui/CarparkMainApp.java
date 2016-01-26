@@ -68,6 +68,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -223,14 +224,14 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	@Inject
 	private DevicePresenter outDevicePresenter;
 	@Inject
-	private DevicePresenter inDevicePresenter2;
+	private Provider<DevicePresenter> inDevicePresenter2Provider;
 	@Inject
-	private DevicePresenter outDevicePresenter2;
+	private Provider<DevicePresenter> outDevicePresenter2Provider;
 	
 	@Inject
-	private InInfoPresenter inInfoPresenter;
+	private Provider<InInfoPresenter> inInfoPresenterProvider;
 	@Inject
-	private OutInfoPresenter outInfoPresenter;
+	private Provider<OutInfoPresenter> outInfoPresenterProvider;
 
 	private CLabel lbl_inSmallImg;
 
@@ -523,11 +524,13 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		Boolean leftBotttomCamera = Boolean
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.左下监控) == null ? SystemSettingTypeEnum.左下监控.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.左下监控));
 		if (leftBotttomCamera) {
+			DevicePresenter inDevicePresenter2 = inDevicePresenter2Provider.get();
 			inDevicePresenter2.setPresenter(presenter);
 			inDevicePresenter2.setType("进口2");
 			inDevicePresenter2.setListDevice(mapTypeDevices.get("进口2"));
 			inDevicePresenter2.go(composite_5);
 		} else {
+			InInfoPresenter inInfoPresenter = inInfoPresenterProvider.get();
 			inInfoPresenter.setModel(model);
 			inInfoPresenter.go(composite_5);
 			lbl_inBigImg=inInfoPresenter.getInBigImgLabel();
@@ -536,11 +539,13 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		Boolean rightBotttomCamera = Boolean
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.右下监控) == null ? SystemSettingTypeEnum.右下监控.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.右下监控));
 		if (rightBotttomCamera) {
+			DevicePresenter outDevicePresenter2 = outDevicePresenter2Provider.get();
 			outDevicePresenter2.setPresenter(presenter);
 			outDevicePresenter2.setType("出口2");
 			outDevicePresenter2.setListDevice(mapTypeDevices.get("出口2"));
 			outDevicePresenter2.go(composite_21_1);
 		} else {
+			OutInfoPresenter outInfoPresenter = outInfoPresenterProvider.get();
 			outInfoPresenter.setModel(model);
 			outInfoPresenter.setPresenter(presenter);
 			outInfoPresenter.setCommonui(commonui);
@@ -1059,8 +1064,8 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		if (System.getProperty("userType").equals(SystemUserTypeEnum.操作员.name())) {
 			inDevicePresenter.controlItem(true);
 			outDevicePresenter.controlItem(true);
-			inDevicePresenter2.controlItem(true);
-			outDevicePresenter2.controlItem(true);
+			inDevicePresenter2Provider.get().controlItem(true);
+			outDevicePresenter2Provider.get().controlItem(true);
 		}
 
 	}
