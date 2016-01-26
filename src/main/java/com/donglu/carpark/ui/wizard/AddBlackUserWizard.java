@@ -88,6 +88,7 @@ public class AddBlackUserWizard extends Wizard implements AbstractWizard{
 		return true;
 	}
 
+	@Override
 	public Object getModel() {
 		
 		return model;

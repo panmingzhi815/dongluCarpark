@@ -23,7 +23,6 @@ import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIFacility.Progress;
 import com.dongluhitec.card.ui.util.ProcessBarMonitor;
-import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -234,6 +233,7 @@ public class ServerUI {
         ProcessBarMonitor monitor = showProgressBar.getMonitor();
         
         new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Path path = Paths.get(databaseFolder);

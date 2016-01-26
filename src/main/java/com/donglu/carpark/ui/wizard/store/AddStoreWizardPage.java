@@ -7,7 +7,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStore;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.layout.GridData;
@@ -57,6 +56,7 @@ public class AddStoreWizardPage extends WizardPage {
 	 * Create contents of the wizard.
 	 * @param parent
 	 */
+	@Override
 	public void createControl(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
 

@@ -9,7 +9,6 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.ToolItem;
 
-import com.donglu.carpark.ui.view.inouthistory.CarInInfo;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.DomainObject;
 

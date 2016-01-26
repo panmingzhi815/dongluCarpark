@@ -87,6 +87,7 @@ public class CarOutTask implements Runnable{
 		this.lbl_inBigImg=lbl_inBigImg;
 	}
 	
+	@Override
 	public void run(){
 		try {
 			SingleCarparkDevice device = mapIpToDevice.get(ip);
@@ -119,6 +120,7 @@ public class CarOutTask implements Runnable{
 			// 界面图片
 			LOGGER.info("车辆出场显示出口图片");
 			DEFAULT_DISPLAY.asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					if (StrUtil.isEmpty(lbl_outSmallImg)) {
 						return;
@@ -175,6 +177,7 @@ public class CarOutTask implements Runnable{
 			SingleCarparkInOutHistory ch = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
 			LOGGER.info("车辆出场显示进口图片");
 			DEFAULT_DISPLAY.asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					if (StrUtil.isEmpty(ch)||StrUtil.isEmpty(lbl_inBigImg)) {
 						return;

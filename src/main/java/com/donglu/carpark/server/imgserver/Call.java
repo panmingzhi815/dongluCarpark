@@ -1,8 +1,5 @@
 package com.donglu.carpark.server.imgserver;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class Call {
 
     public static void main(String[] args) throws Exception {

@@ -55,6 +55,7 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		v.setPresenter(this);
 	}
 
+	@Override
 	public void refresh() {
 		v.getModel().setList(new ArrayList<>());
 		defaultSearch();

@@ -10,19 +10,10 @@ import org.eclipse.swt.widgets.Text;
 import com.donglu.carpark.model.SystemUserModel;
 
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 public class EditSystemUserWizardPage extends WizardPage {
@@ -48,6 +39,7 @@ public class EditSystemUserWizardPage extends WizardPage {
 	 * Create contents of the wizard.
 	 * @param parent
 	 */
+	@Override
 	public void createControl(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
 

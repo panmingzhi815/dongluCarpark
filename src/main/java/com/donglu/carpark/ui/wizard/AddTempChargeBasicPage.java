@@ -1,33 +1,20 @@
 package com.donglu.carpark.ui.wizard;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import net.miginfocom.swt.MigLayout;
 
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.core.databinding.beans.PojoObservables;
-import org.eclipse.core.databinding.observable.list.IObservableList;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.swt.ISWTObservableValue;
-import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.jface.databinding.viewers.ViewerProperties;
-import org.eclipse.jface.databinding.wizard.WizardPageSupport;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -37,19 +24,12 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
-import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.db.carpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.carpark.CarparkAcrossDayTypeEnum;
-import com.dongluhitec.card.domain.db.carpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.carpark.CarparkDurationPrice;
 import com.dongluhitec.card.domain.db.carpark.CarparkDurationStandard;
 import com.dongluhitec.card.domain.db.carpark.CarparkDurationTypeEnum;
 import com.dongluhitec.card.domain.db.carpark.CarparkHolidayTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.google.common.base.Strings;
-import com.ibm.icu.util.Calendar;
-
-import org.eclipse.core.databinding.beans.BeansObservables;
 
 /**
  * Created with IntelliJ IDEA.
@@ -94,7 +74,8 @@ public class AddTempChargeBasicPage extends WizardPage {
         setDescription("请输入收费标准详细参数");
     }
     
-    public void createControl(Composite parent) {
+    @Override
+	public void createControl(Composite parent) {
         container = new Composite(parent, SWT.BORDER);
         setControl(container);
         container.setLayout(new GridLayout(1,false));
@@ -332,6 +313,7 @@ public class AddTempChargeBasicPage extends WizardPage {
     		//先按时长排序
     		List<CarparkDurationPrice> carparkDurationPriceList = carparkDurationStandard.getCarparkDurationPriceList();
     		Collections.sort(carparkDurationPriceList, new Comparator<CarparkDurationPrice>() {
+				@Override
 				public int compare(CarparkDurationPrice o1, CarparkDurationPrice o2) {
 					return o1.getDurationLength() - o2.getDurationLength();
 				}

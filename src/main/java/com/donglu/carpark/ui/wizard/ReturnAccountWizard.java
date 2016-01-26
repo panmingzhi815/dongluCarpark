@@ -7,7 +7,6 @@ import com.donglu.carpark.ui.wizard.model.ReturnAccountModel;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
-import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.WidgetUtil;
 
@@ -55,6 +54,7 @@ public class ReturnAccountWizard extends Wizard implements AbstractWizard{
 		return findByNameAndPassword;
 	}
 
+	@Override
 	public Object getModel() {
 		
 		return model;

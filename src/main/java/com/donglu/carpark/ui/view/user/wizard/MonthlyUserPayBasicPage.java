@@ -147,6 +147,7 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
 		combo.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Integer chargesCount = Integer.parseInt(combo.getText());
 				model.setOldOverDueTime(model.getOverdueTime());

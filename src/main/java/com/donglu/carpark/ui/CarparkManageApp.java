@@ -58,6 +58,7 @@ public class CarparkManageApp extends AbstractApp{
 	public static void main(String[] args) {
 		Display display = Display.getDefault();
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
+			@Override
 			public void run() {
 				try {
 					 DongluUIAppConfigurator configurator = new DongluUIAppConfigurator();
@@ -75,6 +76,7 @@ public class CarparkManageApp extends AbstractApp{
 	/**
 	 * Open the window.
 	 */
+	@Override
 	public void open() {
 		try {
 			Display display = Display.getDefault();

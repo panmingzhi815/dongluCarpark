@@ -1,7 +1,5 @@
 package com.donglu.carpark;
 
-import com.donglu.carpark.TaskTest.TaskA;
-
 public class TaskTest {
 	
 	public static void main(String[] args) {

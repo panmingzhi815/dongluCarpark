@@ -32,6 +32,7 @@ public class ShowApp extends AbstractApp{
 	/**
 	 * Open the window.
 	 */
+	@Override
 	public void open() {
 		Display display = Display.getDefault();
 		createContents();

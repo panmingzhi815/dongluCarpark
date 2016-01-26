@@ -37,6 +37,7 @@ public class Test {
 	public static void main(String[] args) {
 		Display display = Display.getDefault();
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Test window = new Test();

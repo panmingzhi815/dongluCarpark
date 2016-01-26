@@ -45,6 +45,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	@Inject
 	private UnitOfWork unitOfWork;
 
+	@Override
 	@Transactional
 	public Long saveInOutHistory(SingleCarparkInOutHistory inout) {
 		DatabaseOperation<SingleCarparkInOutHistory> dom = DatabaseOperation.forClass(SingleCarparkInOutHistory.class, emprovider.get());
@@ -56,6 +57,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		return inout.getId();
 	}
 
+	@Override
 	public List<SingleCarparkInOutHistory> findByNoOut(String plateNo, SingleCarparkCarpark carpark) {
 		unitOfWork.begin();
 		try {
@@ -253,6 +255,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}
 	}
 
+	@Override
 	@Transactional
 	public Long saveInOutHistoryOfList(List<SingleCarparkInOutHistory> list) {
 		DatabaseOperation<SingleCarparkInOutHistory> dom = DatabaseOperation.forClass(SingleCarparkInOutHistory.class, emprovider.get());
@@ -420,6 +423,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}
 	}
 
+	@Override
 	@Transactional
 	public Long deleteAllHistory() {
 		//
@@ -586,6 +590,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 		}
 		Collection<SingleCarparkCarpark> filter = Collections2.filter(resultList, new Predicate<SingleCarparkCarpark>() {
+			@Override
 			public boolean apply(SingleCarparkCarpark arg0) {
 				return arg0.getParent() == null;
 			}
@@ -595,6 +600,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		return list;
 	}
 
+	@Override
 	@Transactional
 	public Long saveOpenDoorLog(SingleCarparkOpenDoorLog openDoor) {
 		DatabaseOperation<SingleCarparkOpenDoorLog> dom = DatabaseOperation.forClass(SingleCarparkOpenDoorLog.class, emprovider.get());
@@ -911,12 +917,14 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}
 	}
 
+	@Override
 	@Transactional
 	public void clearCarHistoryWithInByDate(int date) {
 		DatabaseOperation<SingleCarparkInOutHistory> dom = DatabaseOperation.forClass(SingleCarparkInOutHistory.class, emprovider.get());
 		dom.executeQuery(SingleCarparkInOutHistory.Query.deleteWithNotOutByDate.query(), new DateTime().minusDays(date).toDate());
 	}
 
+	@Override
 	@Transactional
 	public Long saveLockCar(SingleCarparkLockCar m) {
 		Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkLockCar.class);

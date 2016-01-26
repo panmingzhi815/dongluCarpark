@@ -186,6 +186,7 @@ public class DeviceView extends Composite implements View{
 			CarparkMainApp.mapDeviceTabItem.put(tabItem, d.getIp());
 			tabItem.addDisposeListener(new DisposeListener() {
 				
+				@Override
 				public void widgetDisposed(DisposeEvent e) {
 					composite.dispose();
 				}

@@ -43,6 +43,7 @@ public class WebServiceImpl implements  WebService{
 	/**
 	 * 
 	 */
+	@Override
 	public void init() {
 		CarparkYunConfig cf = (CarparkYunConfig) CarparkFileUtils.readObject(YunConfigUI.CARPARK_YUN_CONFIG);
 		String company = cf.getCompany();

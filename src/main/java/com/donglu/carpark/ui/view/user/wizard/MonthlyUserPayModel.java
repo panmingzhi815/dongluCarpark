@@ -73,6 +73,7 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 		return s;
 	}
 
+	@Override
 	public String getCreateTimeLabel() {
 		return StrUtil.formatDate(getCreateTime(), "yyyy-MM-dd HH:mm:ss");
 	}

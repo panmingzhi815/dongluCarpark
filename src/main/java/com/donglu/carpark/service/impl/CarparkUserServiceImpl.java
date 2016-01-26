@@ -42,6 +42,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 	@Inject
 	private MapperConfig mapper;
 	
+	@Override
 	@Transactional
 	public Long saveUser(SingleCarparkUser user) {
 		DatabaseOperation<SingleCarparkUser> dom = DatabaseOperation.forClass(SingleCarparkUser.class, emprovider.get());
@@ -52,6 +53,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		}
 		return user.getId();
 	}
+	@Override
 	@Transactional
 	public Long deleteUser(SingleCarparkUser user) {
 		DatabaseOperation<SingleCarparkUser> dom = DatabaseOperation.forClass(SingleCarparkUser.class, emprovider.get());
@@ -59,6 +61,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		return user.getId();
 	}
 	
+	@Override
 	public List<SingleCarparkUser> findAll() {
 		unitOfWork.begin();
 		try {
@@ -135,6 +138,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			unitOfWork.end();
 		}
 	}
+	@Override
 	@Transactional
 	public Long saveUserByMany(List<SingleCarparkUser> list) {
 		for (SingleCarparkUser user : list) {
@@ -181,6 +185,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			unitOfWork.end();
 		}
 	}
+	@Override
 	@Transactional
 	public Long saveLockCar(SingleCarparkLockCar lc) {
 		DatabaseOperation<SingleCarparkLockCar> dom = DatabaseOperation.forClass(SingleCarparkLockCar.class, emprovider.get());
@@ -191,12 +196,14 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		}
 		return lc.getId();
 	}
+	@Override
 	@Transactional
 	public Long deleteLockCar(SingleCarparkLockCar lc) {
 		DatabaseOperation<SingleCarparkLockCar> dom = DatabaseOperation.forClass(SingleCarparkLockCar.class, emprovider.get());
 		dom.remove(lc);
 		return lc.getId();
 	}
+	@Override
 	@Transactional
 	public Long savePrepaidUserPayHistory(SingleCarparkPrepaidUserPayHistory pph) {
 		DatabaseOperation<SingleCarparkPrepaidUserPayHistory> dom = DatabaseOperation.forClass(SingleCarparkPrepaidUserPayHistory.class, emprovider.get());

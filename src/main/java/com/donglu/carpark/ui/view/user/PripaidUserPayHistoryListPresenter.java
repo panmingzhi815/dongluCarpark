@@ -33,6 +33,7 @@ public class PripaidUserPayHistoryListPresenter  extends AbstractListPresenter<S
 		return view;
 	}
 	
+	@Override
 	public void refresh(){
 		AbstractListView<SingleCarparkPrepaidUserPayHistory>.Model model = view.getModel();
 		List<SingleCarparkPrepaidUserPayHistory> list =sp.getCarparkUserService().findPrepaidUserPayHistoryList(0,50,userName,operaName,start,end);
@@ -60,6 +61,7 @@ public class PripaidUserPayHistoryListPresenter  extends AbstractListPresenter<S
 		refresh();
 	}
 
+	@Override
 	public void go(Composite listComposite) {
 		view=new PrepaidUserPayHistoryListView(listComposite, listComposite.getStyle());
 		view.setPresenter(this);

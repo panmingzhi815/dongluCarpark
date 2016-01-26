@@ -25,6 +25,7 @@ public class CarparkPayHistoryPresenter  implements Presenter{
 	@Inject
 	private CarparkPayHistoryListPresenter carparkPayHistoryListPresenter;
 	
+	@Override
 	public void go(Composite parent){
 		view=new CarparkPayHistoryView(parent, parent.getStyle());
 		view.setCarparkPayHistoryPresenter(this);

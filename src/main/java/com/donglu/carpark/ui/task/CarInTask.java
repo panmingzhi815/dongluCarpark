@@ -75,6 +75,7 @@ public class CarInTask implements Runnable {
 		this.lbl_inBigImg = lbl_inBigImg;
 	}
 
+	@Override
 	public void run() {
 		model.setInCheckClick(false);
 		try {
@@ -109,6 +110,7 @@ public class CarInTask implements Runnable {
 			LOGGER.debug("开始在界面显示车牌：{}的抓拍图片", plateNO);
 			// 界面图片
 			DEFAULT_DISPLAY.asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					if (StrUtil.isEmpty(lbl_inSmallImg)) {
 						return;

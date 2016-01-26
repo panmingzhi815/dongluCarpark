@@ -119,6 +119,7 @@ public class ImageServerUI {
 	public static void main(String[] args) {
 		Display display = Display.getDefault();
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long nanoTime = System.nanoTime();
@@ -480,43 +481,43 @@ public class ImageServerUI {
 		ScheduledExecutorService inExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传进场数据到云平台"));
 		ScheduledExecutorService outExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传出场数据到云平台"));
 		ScheduledExecutorService infoExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传停车场数据到云平台"));
-//		userExecutor.scheduleWithFixedDelay(new Runnable() {
-//			@Override
-//			public void run() {
-//				LOGGER.info("准备上传固定用户记录到云平台");
-//				Long id=(Long) CarparkFileUtils.readObject("userLastUploadId");
-//				id=id==null?0L:id;
-//				List<Long> errorIds=(List<Long>) CarparkFileUtils.readObject("userErrorUploadId");
-//				if (StrUtil.isEmpty(errorIds)) {
-//					errorIds=new ArrayList<>();
-//				}
-//				LOGGER.info("上次上传固定用户记录到{},上传失败的为：{}",id,errorIds);
-//				try {
-//					List<SingleCarparkUser> list=sp.getCarparkUserService().findUserThanIdMore(id,errorIds);
-//					LOGGER.info("还有{}条固定用户记录等待上传",list.size());
-//					for (SingleCarparkUser singleCarparkUser : list) {
-//						LOGGER.info("正在上传用户{}的记录",singleCarparkUser);
-//						boolean sendUser = webService.sendUser(singleCarparkUser);
-//						if (!sendUser) {
-//							if (!errorIds.contains(singleCarparkUser.getId())) {
-//								errorIds.add(singleCarparkUser.getId());
-//							}
-//						}else{
-//							errorIds.remove(singleCarparkUser.getId());
-//							if (singleCarparkUser.getId()>id) {
-//								id=singleCarparkUser.getId();
-//							}
-//						}
-//						LOGGER.info("上传用户{}的记录结果为{}",singleCarparkUser.getPlateNo(),sendUser);
-//					}
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}finally{
-//					CarparkFileUtils.writeObject("userLastUploadId",id);
-//					CarparkFileUtils.writeObject("userErrorUploadId",errorIds);
-//				}
-//			}
-//		}, uploadTime, uploadTime, TimeUnit.SECONDS);
+		userExecutor.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				LOGGER.info("准备上传固定用户记录到云平台");
+				Long id=(Long) CarparkFileUtils.readObject("userLastUploadId");
+				id=id==null?0L:id;
+				List<Long> errorIds=(List<Long>) CarparkFileUtils.readObject("userErrorUploadId");
+				if (StrUtil.isEmpty(errorIds)) {
+					errorIds=new ArrayList<>();
+				}
+				LOGGER.info("上次上传固定用户记录到{},上传失败的为：{}",id,errorIds);
+				try {
+					List<SingleCarparkUser> list=sp.getCarparkUserService().findUserThanIdMore(id,errorIds);
+					LOGGER.info("还有{}条固定用户记录等待上传",list.size());
+					for (SingleCarparkUser singleCarparkUser : list) {
+						LOGGER.info("正在上传用户{}的记录",singleCarparkUser);
+						boolean sendUser = webService.sendUser(singleCarparkUser);
+						if (!sendUser) {
+							if (!errorIds.contains(singleCarparkUser.getId())) {
+								errorIds.add(singleCarparkUser.getId());
+							}
+						}else{
+							errorIds.remove(singleCarparkUser.getId());
+							if (singleCarparkUser.getId()>id) {
+								id=singleCarparkUser.getId();
+							}
+						}
+						LOGGER.info("上传用户{}的记录结果为{}",singleCarparkUser.getPlateNo(),sendUser);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}finally{
+					CarparkFileUtils.writeObject("userLastUploadId",id);
+					CarparkFileUtils.writeObject("userErrorUploadId",errorIds);
+				}
+			}
+		}, uploadTime, uploadTime, TimeUnit.SECONDS);
 		inExecutor.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
@@ -591,22 +592,22 @@ public class ImageServerUI {
 			}
 		}, uploadTime, uploadTime, TimeUnit.SECONDS);
 		
-//		infoExecutor.scheduleWithFixedDelay(new Runnable() {
-//			@Override
-//			public void run() {
-//				try {
-//					LOGGER.info("准备上传停车场信息");
-//					List<SingleCarparkCarpark> findCarparkToLevel = sp.getCarparkService().findCarparkToLevel();
-//					for (SingleCarparkCarpark singleCarparkCarpark : findCarparkToLevel) {
-//						LOGGER.info("准备上传停车场{}信息",singleCarparkCarpark);
-//						boolean sendCarparkInfo = webService.sendCarparkInfo(singleCarparkCarpark);
-//						LOGGER.info("上传停车场{}信息结果：{}",singleCarparkCarpark,sendCarparkInfo);
-//					}
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		}, uploadTime, uploadTime, TimeUnit.SECONDS);
+		infoExecutor.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					LOGGER.info("准备上传停车场信息");
+					List<SingleCarparkCarpark> findCarparkToLevel = sp.getCarparkService().findCarparkToLevel();
+					for (SingleCarparkCarpark singleCarparkCarpark : findCarparkToLevel) {
+						LOGGER.info("准备上传停车场{}信息",singleCarparkCarpark);
+						boolean sendCarparkInfo = webService.sendCarparkInfo(singleCarparkCarpark);
+						LOGGER.info("上传停车场{}信息结果：{}",singleCarparkCarpark,sendCarparkInfo);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}, uploadTime, uploadTime, TimeUnit.SECONDS);
 
 	}
 

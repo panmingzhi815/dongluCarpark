@@ -15,7 +15,8 @@ public class Holiday extends DomainObject{
 	public static enum Query implements QueryEnum {
 		findAll;
 
-        public String query() {
+        @Override
+		public String query() {
             return Holiday.class.getSimpleName() + "." + this.name();
         }
     }

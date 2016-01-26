@@ -1,6 +1,5 @@
 package com.donglu.carpark.ui.common;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.widgets.Composite;

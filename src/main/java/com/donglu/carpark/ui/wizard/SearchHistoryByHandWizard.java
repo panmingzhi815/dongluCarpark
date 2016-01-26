@@ -5,7 +5,6 @@ import org.eclipse.jface.wizard.Wizard;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 
 
 public class SearchHistoryByHandWizard extends Wizard implements AbstractWizard{
@@ -27,6 +26,7 @@ public class SearchHistoryByHandWizard extends Wizard implements AbstractWizard{
 		return true;
 	}
 
+	@Override
 	public Object getModel() {
 		
 		return "1";

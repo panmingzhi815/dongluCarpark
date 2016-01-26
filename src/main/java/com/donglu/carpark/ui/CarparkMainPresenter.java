@@ -312,6 +312,7 @@ public class CarparkMainPresenter {
 			@Override
 			public void finished(final MediaPlayer mediaPlayer) {
 				new Runnable() {
+					@Override
 					public void run() {
 						while (!mediaPlayer.isPlaying()) {
 							log.info("设备连接{}已断开", url);
@@ -324,12 +325,14 @@ public class CarparkMainPresenter {
 		});
 
 		getView().shell.addDisposeListener(new DisposeListener() {
+			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				createPlayRight.release();
 			}
 		});
 		northCamera.addDisposeListener(new DisposeListener() {
 
+			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				createPlayRight.release();
 				mapPlayer.remove(url);
@@ -788,6 +791,7 @@ public class CarparkMainPresenter {
 	public void saveImage(final String f, final String fileName, final byte[] bigImage1) {
 
 		Runnable runnable = new Runnable() {
+			@Override
 			public void run() {
 				try {
 					byte[] bigImage = bigImage1 == null ? new byte[0] : bigImage1;
@@ -947,6 +951,7 @@ public class CarparkMainPresenter {
 	 */
 	public void saveOpenDoor(final SingleCarparkDevice device, final byte[] image, final String plateNO, final boolean inOrOut) {
 		Runnable runnable = new Runnable() {
+			@Override
 			public void run() {
 				Date date = new Date();
 				String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
@@ -1155,6 +1160,7 @@ public class CarparkMainPresenter {
 
 	public void saveImage(String f, String smallImgFileName, String bigImgFileName, byte[] smallImage1, byte[] bigImage1) {
 		Runnable runnable = new Runnable() {
+			@Override
 			public void run() {
 				try {
 					byte[] bigImage = bigImage1 == null ? new byte[0] : bigImage1;

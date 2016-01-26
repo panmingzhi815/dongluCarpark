@@ -33,6 +33,7 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 		return view;
 	}
 	
+	@Override
 	public void refresh(){
 		AbstractListView<SingleCarparkMonthlyUserPayHistory>.Model model = view.getModel();
 		List<SingleCarparkMonthlyUserPayHistory> list =sp.getCarparkService().findMonthlyUserPayHistoryByCondition(0,50,userName,operaName,start,end);
@@ -60,6 +61,7 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 		refresh();
 	}
 
+	@Override
 	public void go(Composite listComposite) {
 		view=new CarparkPayHistoryListView(listComposite, listComposite.getStyle());
 		view.setPresenter(this);

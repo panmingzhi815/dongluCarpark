@@ -8,11 +8,8 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import com.donglu.carpark.ui.common.AbstractListView;
-import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStore;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 
 public class StoreListView extends AbstractListView<SingleCarparkStore> implements View {
 	public StoreListView(Composite parent, int style) {

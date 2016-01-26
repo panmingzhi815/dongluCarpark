@@ -1,13 +1,8 @@
 package com.donglu.carpark.ui.wizard.store;
 
 import org.eclipse.jface.wizard.Wizard;
-import org.joda.time.DateTime;
-
-import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStore;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 
@@ -52,6 +47,7 @@ public class AddStoreWizard extends Wizard implements AbstractWizard{
 		return true;
 	}
 
+	@Override
 	public Object getModel() {
 		
 		return model;

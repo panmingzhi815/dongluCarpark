@@ -61,7 +61,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.PlateNOResult;
-import com.dongluhitec.card.hardware.xinluwei.XinlutongCallback.XinlutongResult;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -248,6 +247,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	public static void main(String[] args) {
 		Display display = Display.getDefault();
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
+			@Override
 			public void run() {
 				DateTime dt = new DateTime(2015, 11, 1, 0, 00, 00);
 				DateTime d = new DateTime(2015, 2, 1, 23, 59, 59);
@@ -297,6 +297,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	/**
 	 * Open the window.
 	 */
+	@Override
 	public void open() {
 		try {
 			userType = System.getProperty("userType");
@@ -415,6 +416,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	 */
 	private void antoCheckDevices() {
 		new Thread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					WatchService watchService = FileSystems.getDefault().newWatchService();
@@ -1153,6 +1155,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 
 		lbl_free = new Label(composite_16, SWT.NONE);
 		lbl_free.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseUp(MouseEvent e) {
 				presenter.free(carOutChargeCheck);
 				setBoundsY(lbl_free, -2);
@@ -1329,6 +1332,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	/**
 	 * 车牌识别监控
 	 */
+	@Override
 	public void invok(final String ip, int channel, final String plateNO, final byte[] bigImage, final byte[] smallImage, float rightSize) {
 		LOGGER.info("车辆{}在设备{}通道{}处进场,可信度：{}", plateNO, ip, channel, rightSize);
 		try {

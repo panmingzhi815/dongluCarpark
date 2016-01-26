@@ -55,6 +55,7 @@ public class StoreServiceImpl implements StoreServiceI {
 		}
 	}
 
+	@Override
 	@Transactional
 	public Long saveStore(SingleCarparkStore store) {
 		DatabaseOperation<SingleCarparkStore> dom = DatabaseOperation.forClass(SingleCarparkStore.class, emprovider.get());
@@ -66,6 +67,7 @@ public class StoreServiceImpl implements StoreServiceI {
 		return store.getId();
 	}
 
+	@Override
 	@Transactional
 	public Long deleteStore(SingleCarparkStore store) {
 		DatabaseOperation<SingleCarparkStore> dom = DatabaseOperation.forClass(SingleCarparkStore.class, emprovider.get());
@@ -73,6 +75,7 @@ public class StoreServiceImpl implements StoreServiceI {
 		return store.getId();
 	}
 
+	@Override
 	@Transactional
 	public Long saveStoreFree(SingleCarparkStoreFreeHistory storeFree) {
 		DatabaseOperation<SingleCarparkStoreFreeHistory> dom = DatabaseOperation.forClass(SingleCarparkStoreFreeHistory.class, emprovider.get());
@@ -137,6 +140,7 @@ public class StoreServiceImpl implements StoreServiceI {
 		return c;
 	}
 
+	@Override
 	@Transactional
 	public Long saveStorePay(SingleCarparkStoreChargeHistory storePay) {
 		DatabaseOperation<SingleCarparkStoreChargeHistory> dom = DatabaseOperation.forClass(SingleCarparkStoreChargeHistory.class, emprovider.get());

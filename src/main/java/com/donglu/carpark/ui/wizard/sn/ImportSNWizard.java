@@ -10,18 +10,11 @@ import org.eclipse.swt.widgets.Composite;
 import com.donglu.carpark.server.imgserver.ImageServerUI;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
-import com.dongluhitec.card.blservice.DatabaseServiceDaemon;
-import com.dongluhitec.card.blservice.SystemSettingService;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.domain.db.setting.SNSettingType;
-import com.dongluhitec.card.domain.db.setting.SystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.ui.main.DongluUIAppConfigurator;
 import com.dongluhitec.core.crypto.appauth.AppVerifier;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 
 public class ImportSNWizard extends Wizard implements AbstractWizard {
 	private ImportSNModel model;

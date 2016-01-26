@@ -53,6 +53,7 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 		this.carparkUserService = carparkUserService;
 	}
 
+	@Override
 	public SystemUserServiceI getSystemUserService() {
 		checkState();
 		return SystemUserService;
@@ -62,6 +63,7 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 		SystemUserService = systemUserService;
 	}
 
+	@Override
 	public CarparkInOutServiceI getCarparkInOutService() {
 		checkState();
 		return carparkInOutService;
@@ -71,6 +73,7 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 		this.carparkInOutService = carparkInOutService;
 	}
 
+	@Override
 	public SystemOperaLogServiceI getSystemOperaLogService() {
 		checkState() ;
 		return systemOperaLogService;
@@ -80,6 +83,7 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 		this.systemOperaLogService = systemOperaLogService;
 	}
 
+	@Override
 	public StoreServiceI getStoreService() {
 		checkState();
 		return storeService;

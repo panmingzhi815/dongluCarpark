@@ -1,71 +1,31 @@
 package com.donglu.carpark.ui.wizard.holiday;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
-
-import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.db.attendance.AttendanceAskLeaveType;
-import com.dongluhitec.card.domain.db.attendance.AttendanceHoliday;
-
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
-import org.eclipse.core.databinding.observable.map.IObservableMap;
-import org.eclipse.core.databinding.beans.BeansObservables;
-
-import com.dongluhitec.card.domain.db.Holiday;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.collect.Lists;
 
-import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
-import org.eclipse.core.databinding.observable.list.IObservableList;
-import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.viewers.ViewerProperties;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.core.databinding.beans.PojoObservables;
-
 import java.util.Date;
 
-import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.nebula.widgets.datechooser.DateChooser;
-import org.eclipse.nebula.widgets.datechooser.DateChooserTheme;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.joda.time.DateTime;
 
 public class AddYearHolidayPage extends WizardPage {

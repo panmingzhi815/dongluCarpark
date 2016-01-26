@@ -5,7 +5,6 @@ import org.eclipse.swt.widgets.ToolBar;
 
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.View;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreChargeHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
 
 public class StoreFreeListView extends AbstractListView<SingleCarparkStoreFreeHistory> implements View {

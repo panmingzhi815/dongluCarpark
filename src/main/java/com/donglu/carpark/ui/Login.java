@@ -111,6 +111,7 @@ public class Login {
 		}
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
 
+			@Override
 			public void run() {
 				try {
 					DongluUIAppConfigurator configurator = new DongluUIAppConfigurator();
@@ -250,6 +251,7 @@ public class Login {
 
 		ComboViewer comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
 		comboViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				int i = combo.getSelectionIndex();
 				CarparkFileUtils.writeObject(selectType, i);
@@ -315,6 +317,7 @@ public class Login {
 	 */
 	public void login() {
 		new Thread(new Runnable() {
+			@Override
 			public void run() {
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
@@ -505,6 +508,7 @@ public class Login {
 	private void autoDeletePhoto() {
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+			@Override
 			public void run() {
 				SingleCarparkSystemSetting ss1 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.是否自动删除图片.name());
 				if (StrUtil.isEmpty(ss1) || ss1.getSettingValue().equals(SystemSettingTypeEnum.是否自动删除图片.getDefaultValue())) {

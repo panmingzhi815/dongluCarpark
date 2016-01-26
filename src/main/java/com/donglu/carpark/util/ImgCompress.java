@@ -81,7 +81,7 @@ public class ImgCompress {
 	 * @param w int 新宽度
 	 */
 	public void resizeByWidth(int w) throws IOException {
-		int h = (int) (height * w / width);
+		int h = height * w / width;
 		resize(w, h);
 	}
 	/**
@@ -89,7 +89,7 @@ public class ImgCompress {
 	 * @param h int 新高度
 	 */
 	public void resizeByHeight(int h) throws IOException {
-		int w = (int) (width * h / height);
+		int w = width * h / height;
 		resize(w, h);
 	}
 	/**

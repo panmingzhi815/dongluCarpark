@@ -36,7 +36,8 @@ public class CarparkClientLocalVMServiceProvider extends AbstractCarparkDatabase
         this.HBM2DDL = HBM2DDL;
     }
 
-    protected void initService() {
+    @Override
+	protected void initService() {
         try{
         	Injector injector = Guice.createInjector(new Model());
             this.persistService = injector.getInstance(PersistService.class);
@@ -52,7 +53,8 @@ public class CarparkClientLocalVMServiceProvider extends AbstractCarparkDatabase
         }
     }
 
-    protected void stopServices() {
+    @Override
+	protected void stopServices() {
         persistService.stop();
     }
 

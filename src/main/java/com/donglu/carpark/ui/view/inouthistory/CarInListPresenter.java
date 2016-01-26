@@ -40,6 +40,7 @@ public class CarInListPresenter extends AbstractListPresenter<CarInInfo> {
 		v.setPresenter(this);
 	}
 
+	@Override
 	public void refresh() {
 		v.getModel().setList(new ArrayList<>());
 		defaultSearch();

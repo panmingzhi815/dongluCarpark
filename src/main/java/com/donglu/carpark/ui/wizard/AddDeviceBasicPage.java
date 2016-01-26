@@ -1,27 +1,16 @@
 package com.donglu.carpark.ui.wizard;
 
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.LinkProtocolEnum;
-import com.dongluhitec.card.domain.LinkTypeEnum;
-import com.dongluhitec.card.domain.db.Link;
-import com.dongluhitec.card.domain.db.LinkStyleEnum;
-import com.dongluhitec.card.ui.hardware.linkwizard.LinkWizardModel;
-import com.google.common.base.Strings;
 import net.miginfocom.swt.MigLayout;
 
-import org.apache.mina.transport.serial.SerialAddress;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.swt.ISWTObservableValue;
-import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
-import org.eclipse.jface.databinding.wizard.WizardPageSupport;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -33,7 +22,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
-import java.util.Arrays;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
@@ -103,6 +91,7 @@ public class AddDeviceBasicPage extends WizardPage {
 	 *
 	 * @param parent
 	 */
+	@Override
 	public void createControl(Composite parent) {
 		container = new Composite(parent, SWT.NULL);
 		setControl(container);

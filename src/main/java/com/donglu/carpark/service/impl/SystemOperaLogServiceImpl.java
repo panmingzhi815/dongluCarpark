@@ -14,7 +14,6 @@ import org.criteria4jpa.criterion.Restrictions;
 
 import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemOperaLog;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.MapperConfig;

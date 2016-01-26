@@ -61,7 +61,8 @@ public class ImageUploadServlet extends HttpServlet {
 
         }
     }
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    @Override
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     	request.setCharacterEncoding("UTF-8");
     	response.setCharacterEncoding("UTF-8");
 		boolean isMultipart = ServletFileUpload.isMultipartContent(request);

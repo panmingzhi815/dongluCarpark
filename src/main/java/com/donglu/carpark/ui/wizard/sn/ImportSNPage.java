@@ -4,7 +4,6 @@ package com.donglu.carpark.ui.wizard.sn;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.core.crypto.appauth.AppAuthorization;
 import com.dongluhitec.core.crypto.appauth.AppVerifier;
-import com.dongluhitec.core.crypto.appauth.ModuleEnum;
 import com.google.common.base.Charsets;
 
 import org.eclipse.jface.wizard.WizardPage;
@@ -16,8 +15,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.joda.time.DateTime;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -65,6 +62,7 @@ public class ImportSNPage extends WizardPage {
 	 *
 	 * @param parent
 	 */
+	@Override
 	public void createControl(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
 

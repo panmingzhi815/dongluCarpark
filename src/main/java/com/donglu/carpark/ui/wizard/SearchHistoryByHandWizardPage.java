@@ -3,24 +3,10 @@ package com.donglu.carpark.ui.wizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
-
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
 import com.donglu.carpark.util.CarparkUtils;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
-
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.core.databinding.beans.BeanProperties;
 
 public class SearchHistoryByHandWizardPage extends WizardPage {
 	private DataBindingContext m_bindingContext;
@@ -41,6 +27,7 @@ public class SearchHistoryByHandWizardPage extends WizardPage {
 	 * Create contents of the wizard.
 	 * @param parent
 	 */
+	@Override
 	public void createControl(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
 
