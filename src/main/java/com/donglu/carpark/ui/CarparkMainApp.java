@@ -172,6 +172,9 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 
 	// 保存设备的进出口信息
 	public static final Map<String, String> mapDeviceType = new MyHashMap<>();
+	
+	// 保存设备的进出口信息
+	public static final Map<String, String> mapCameraLastImage = new MyHashMap<>();
 
 	// 保存设备的界面信息
 	public static final Map<CTabItem, String> mapDeviceTabItem = Maps.newHashMap();

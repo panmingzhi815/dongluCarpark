@@ -387,6 +387,7 @@ public class CarInTask implements Runnable {
 			model.addInHistorys(cch);
 			model.setInHistorySelect(cch);
 			LOGGER.info("保存车牌：{}的进场记录到数据库成功", plateNO);
+			CarparkMainApp.mapCameraLastImage.put(ip, cch.getBigImg());
 			model.setHistory(null);
 		} catch (Exception e) {
 			LOGGER.error("车辆进场时发生错误，", e);

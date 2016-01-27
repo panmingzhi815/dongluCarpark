@@ -24,6 +24,7 @@ import com.donglu.carpark.server.module.CarparkClientGuiceModule;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.TestMap;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
@@ -41,6 +42,8 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 
@@ -61,6 +64,10 @@ import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 
 public class Login {
 	private static final String CONCENTRATE_TEMP = "concentrate.temp";
@@ -96,6 +103,14 @@ public class Login {
 
 	private List<String> list;
 	public static Injector injector;
+	private TestMap<String, String, Boolean> testMap=new TestMap<>();
+
+	private Button btn_savePassword;
+
+	private Label lbl_errorMsg;
+
+	private Composite composite_msg;
+	private Label lblNewLabel_2;
 
 	/**
 	 * Launch the application.
@@ -110,7 +125,6 @@ public class Login {
 			System.out.println(trayItem.getText());
 		}
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
-
 			@Override
 			public void run() {
 				try {
@@ -156,6 +170,31 @@ public class Login {
 		WidgetUtil.center(shell);
 		shell.open();
 		shell.setImage(JFaceUtil.getImage("carpark_16"));
+		composite_msg = new Composite(shell, SWT.NONE);
+		composite_msg.setBackground(SWTResourceManager.getColor(SWT.COLOR_RED));
+		composite_msg.setLayout(new GridLayout(2, false));
+		GridData gd_composite_msg = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_composite_msg.exclude = true;
+		composite_msg.setLayoutData(gd_composite_msg);
+		
+		lbl_errorMsg = new Label(composite_msg, SWT.NONE);
+		lbl_errorMsg.setFont(SWTResourceManager.getFont("微软雅黑", 9, SWT.BOLD));
+		lbl_errorMsg.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		lbl_errorMsg.setBackground(SWTResourceManager.getColor(SWT.COLOR_RED));
+		lbl_errorMsg.setText("用户名或密码错误");
+		
+		lblNewLabel_2 = new Label(composite_msg, SWT.NONE);
+		lblNewLabel_2.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseUp(MouseEvent e) {
+				GridData gd_composite = (GridData) composite_msg.getLayoutData();
+				gd_composite.exclude=true;
+				shell.setSize(300,272);
+				shell.layout();
+			}
+		});
+		lblNewLabel_2.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
+		lblNewLabel_2.setText("∧");
 		shell.layout();
 		shell.setFocus();
 		System.out.println("login open use time is "+(System.nanoTime()-nanoTime));
@@ -165,7 +204,7 @@ public class Login {
 				display.sleep();
 			}
 		}
-
+		System.out.println("system is exit");
 	}
 
 	private void init() {
@@ -182,11 +221,11 @@ public class Login {
 	 */
 	@SuppressWarnings("unchecked")
 	protected void createContents() {
-		shell = new Shell();
-		shell.setSize(300, 291);
+		shell = new Shell(SWT.MIN|SWT.CLOSE);
+		shell.setSize(300, 272);
 		shell.setText("用户登录");
 		GridLayout gridLayout = new GridLayout(1, false);
-		gridLayout.verticalSpacing = 15;
+		gridLayout.verticalSpacing = 10;
 		shell.setLayout(gridLayout);
 
 		Composite composite_2 = new Composite(shell, SWT.NONE);
@@ -214,7 +253,10 @@ public class Login {
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel.setText("用户名");
-		
+		testMap = (TestMap<String, String, Boolean>) CarparkFileUtils.readObject("testMap");
+		if (testMap==null) {
+			testMap=new TestMap<>();
+		}
 		ComboViewer comboViewer_1 = new ComboViewer(composite, SWT.NONE);
 		cbo_userName = comboViewer_1.getCombo();
 		cbo_userName.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -264,6 +306,10 @@ public class Login {
 		GridData gd_combo = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_combo.widthHint = 150;
 		combo.setLayoutData(gd_combo);
+		new Label(composite, SWT.NONE);
+		
+		btn_savePassword = new Button(composite, SWT.CHECK);
+		btn_savePassword.setText("保存密码");
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(new String[] { "监控界面", "管理界面","收费界面" });
@@ -287,6 +333,7 @@ public class Login {
 			public void widgetSelected(SelectionEvent e) {
 				btn_login.setEnabled(false);
 				login();
+				System.out.println("login over");
 			}
 		});
 		btn_login.setText("登录");
@@ -311,7 +358,15 @@ public class Login {
 			}
 		});
 		button_2.setText("配置");
-
+		cbo_userName.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				Boolean get1 = testMap.get1(cbo_userName.getText());
+				btn_savePassword.setSelection(get1==null?false:get1);
+				if (get1!=null&&get1) {
+					txt_password.setText(testMap.get(cbo_userName.getText()));
+				}
+			}
+		});
 	}
 
 	/**
@@ -340,23 +395,25 @@ public class Login {
 
 							SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(cbo_userName.getText(), txt_password.getText());
 							if (StrUtil.isEmpty(findByNameAndPassword)) {
-								commonui.error("提示", "用户名或密码错误！");
+								setErrorMessage("用户名或密码错误！");
 								btn_login.setEnabled(true);
 								return;
 							}
 							userName = findByNameAndPassword.getUserName();
+							pwd = findByNameAndPassword.getPassword();
+							type = findByNameAndPassword.getType();
 							if (!list.contains(userName)) {
 								list.add(userName);
 								CarparkFileUtils.writeObject(USER_NAMES, list);
 							}
-							pwd = findByNameAndPassword.getPassword();
-							type = findByNameAndPassword.getType();
+							testMap.put(userName, pwd, btn_savePassword.getSelection());
+							CarparkFileUtils.writeObject("testMap", testMap);
 							System.setProperty("userName", userName);
 							System.setProperty("password", pwd);
 							System.setProperty("userType", type);
 						} catch (Exception e1) {
 							e1.printStackTrace();
-							lbl_msg.setText(e1.getMessage());
+							lbl_errorMsg.setText(e1.getMessage());
 							return;
 						}
 						LOGGER.info("用户验证花费时间{}", System.nanoTime() - nanoTime);
@@ -436,11 +493,11 @@ public class Login {
 
 						} finally {
 							try {
-								tryLock.release();
-								raf.close();
-								boolean delete = false;
-								while (!delete) {
-									delete = file.delete();
+								if (tryLock!=null) {
+									tryLock.release();
+								}
+								if (raf!=null) {
+									raf.close();
 								}
 							} catch (IOException e) {
 								e.printStackTrace();
@@ -448,6 +505,8 @@ public class Login {
 							System.exit(0);
 						}
 					}
+
+					
 				});
 			}
 		}).start();
@@ -455,7 +514,14 @@ public class Login {
 			checkSoftDog();
 		}
 	}
-
+	private void setErrorMessage(String string) {
+		GridData gd_composite = (GridData) composite_msg.getLayoutData();
+		gd_composite.exclude=false;
+		shell.setSize(300,301);
+		shell.layout();
+		lbl_errorMsg.setText(string);
+		
+	}
 	protected boolean check() {
 		try {
 
@@ -472,7 +538,7 @@ public class Login {
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
-			commonui.error("连接失败", "连接失败,请检查服务器状态");
+			setErrorMessage("连接失败,请检查服务器状态");
 			return false;
 		}
 

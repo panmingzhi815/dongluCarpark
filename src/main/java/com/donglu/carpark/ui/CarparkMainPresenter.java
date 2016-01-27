@@ -21,8 +21,11 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -37,6 +40,7 @@ import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.service.CountTempCarChargeI;
 import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
+import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
 import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
 import com.donglu.carpark.ui.wizard.AddDeviceModel;
@@ -180,7 +184,9 @@ public class CarparkMainPresenter {
 			model.setCarpark(findAllCarpark.get(0));
 			model.setType("tcp");
 			AddDeviceWizard v = new AddDeviceWizard(model);
-
+			if (type.indexOf("出口")>-1) {
+				model.setAdvertise("欢迎再次光临");
+			}
 			AddDeviceModel showWizard = (AddDeviceModel) commonui.showWizard(v);
 			if (showWizard == null) {
 				return;
@@ -305,6 +311,7 @@ public class CarparkMainPresenter {
 		new_Frame1.add(canvas1);
 		new_Frame1.pack();
 		new_Frame1.setVisible(true);
+		
 		final String url = cameraType.getRtspAddress(ip);
 		log.info("准备连接视频{}",url);
 		final EmbeddedMediaPlayer createPlayRight = webCameraDevice.createPlay(new_Frame1, url);
@@ -338,6 +345,27 @@ public class CarparkMainPresenter {
 				createPlayRight.release();
 				mapPlayer.remove(url);
 			}
+		});
+		canvas1.addMouseListener(new java.awt.event.MouseAdapter() {
+
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent e) {
+				if(e.getClickCount()==2){
+					String img = CarparkMainApp.mapCameraLastImage.get(ip);
+					if (StrUtil.isEmpty(img)) {
+						return;
+					}
+					Display.getDefault().asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							ImageDialog imageDialog = new ImageDialog(img);
+							imageDialog.open();
+						}
+					});
+				}
+			}
+			
 		});
 		jna.openEx(ip, getView());
 	}

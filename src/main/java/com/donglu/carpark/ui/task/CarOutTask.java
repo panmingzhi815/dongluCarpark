@@ -226,6 +226,7 @@ public class CarOutTask implements Runnable{
 				}
 				tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg,null);
 			}
+			CarparkMainApp.mapCameraLastImage.put(ip, bigImg);
 		} catch (Exception e) {
 			LOGGER.error("车辆出场时发生错误",e);
 		}
