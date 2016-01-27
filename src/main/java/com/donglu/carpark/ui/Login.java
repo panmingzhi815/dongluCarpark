@@ -364,6 +364,7 @@ public class Login {
 				btn_savePassword.setSelection(get1==null?false:get1);
 				if (get1!=null&&get1) {
 					txt_password.setText(testMap.get(cbo_userName.getText()));
+					txt_password.setFocus();
 				}
 			}
 		});
