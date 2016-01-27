@@ -50,6 +50,7 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 
 public class ConcentrateApp extends AbstractApp {
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 
 	protected Shell shell;

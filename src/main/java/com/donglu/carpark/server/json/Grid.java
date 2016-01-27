@@ -9,8 +9,13 @@ import java.util.List;
  * @author 孙宇
  * 
  */
+@SuppressWarnings("rawtypes")
 public class Grid implements java.io.Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5091573712082586067L;
 	private Long total = 0L;
 	private List rows = new ArrayList();
 

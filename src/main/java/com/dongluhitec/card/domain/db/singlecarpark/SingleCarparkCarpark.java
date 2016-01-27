@@ -209,7 +209,7 @@ public class SingleCarparkCarpark extends DomainObject {
 			}
 		}
 	}
-	private void getChildCarpaek(SingleCarparkCarpark carpark, List<SingleCarparkCarpark> list) {
+	public void getChildCarpark(SingleCarparkCarpark carpark, List<SingleCarparkCarpark> list) {
 		if (!StrUtil.isEmpty(carpark.getChilds())) {
 			for (SingleCarparkCarpark singleCarparkCarpark : carpark.getChilds()) {
 				list.add(singleCarparkCarpark);

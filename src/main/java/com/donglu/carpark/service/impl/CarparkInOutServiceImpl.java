@@ -38,6 +38,7 @@ import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
 import com.google.inject.persist.UnitOfWork;
 
+@SuppressWarnings("unchecked")
 public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	@Inject
 	private Provider<EntityManager> emprovider;
@@ -213,7 +214,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.operaName.name(), userName));
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
 			c.setProjection(Projections.sum(SingleCarparkInOutHistory.Property.shouldMoney.name()));
-			Object singleResult2 = c.getSingleResult();
 			Double singleResult = (Double) c.getSingleResult();
 			return singleResult == null ? 0 : singleResult.floatValue();
 		} finally {
@@ -401,6 +401,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}
 	}
 
+	
 	@Override
 	public List<SingleCarparkInOutHistory> findAddNoPlateNOHistory(boolean order) {
 		unitOfWork.begin();
@@ -506,7 +507,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			if (ccsList.size()>1) {
 				Criteria c=CriteriaUtils.createCriteria(emprovider.get(), Holiday.class);
 				c.add(Restrictions.eq("start", new Date()));
-				List resultList = c.getResultList();
+				List<Holiday> resultList = c.getResultList();
 				CarparkHolidayTypeEnum hilidayType=CarparkHolidayTypeEnum.工作日;
 				if (resultList.size()>0) {
 					hilidayType=CarparkHolidayTypeEnum.非工作日;

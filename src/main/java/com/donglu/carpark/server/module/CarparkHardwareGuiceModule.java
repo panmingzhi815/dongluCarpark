@@ -22,6 +22,7 @@ import com.dongluhitec.card.hardware.xinluwei.MacDummyXinlutongImpl;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
 import com.dongluhitec.card.hardware.xinluwei.XinlutongJNAImpl;
 import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
@@ -46,7 +47,7 @@ public class CarparkHardwareGuiceModule extends AbstractModule {
         if (osname.toLowerCase().contains("win")) {
             this.bind(IDCodeReader.class).to(IDCodeReaderJNAImpl.class);
             this.bind(LicencePlates.class).to(LicencePlatesJNAImpl.class);
-            this.bind(XinlutongJNA.class).to(XinlutongJNAImpl.class);
+            this.bind(XinlutongJNA.class).to(XinlutongJNAImpl.class).in(Scopes.SINGLETON);
             this.bind(LicencePlatesAllInOne.class).to(LicencePlatesAllInOneImpl.class);
         } else {
             this.bind(IDCodeReader.class).to(MacDummyIDCodeReaderImpl.class);

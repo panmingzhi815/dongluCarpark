@@ -10,24 +10,19 @@ import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
 import org.criteria4jpa.projection.Projections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.service.StoreServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStore;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreChargeHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
-import com.dongluhitec.card.service.impl.SettingServiceImpl;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
 import com.google.inject.persist.UnitOfWork;
-
+@SuppressWarnings("unchecked")
 public class StoreServiceImpl implements StoreServiceI {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SettingServiceImpl.class);
 
 	@Inject
 	private Provider<EntityManager> emprovider;
@@ -35,8 +30,6 @@ public class StoreServiceImpl implements StoreServiceI {
 	@Inject
 	private UnitOfWork unitOfWork;
 
-	@Inject
-	private MapperConfig mapper;
 
 	@Override
 	public SingleCarparkStore findByLogin(String loginName, String loginPassword) {

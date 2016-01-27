@@ -1,9 +1,13 @@
-package com.donglu.carpark.ui.wizard.store;
+package com.donglu.carpark.ui.view.store.wizard;
 
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreChargeHistory;
 
 public class ChargeStoreModel extends SingleCarparkStoreChargeHistory {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5467677951308287688L;
 	private Float num;
 
 	public Float getNum() {

@@ -11,6 +11,11 @@ package com.donglu.carpark.server.json;
  */
 public class Json implements java.io.Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3355481366304972161L;
+
 	private boolean success = false;
 
 	private String msg = "";

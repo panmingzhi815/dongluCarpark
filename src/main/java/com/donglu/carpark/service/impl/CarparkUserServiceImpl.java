@@ -13,8 +13,6 @@ import org.criteria4jpa.criterion.Restrictions;
 import org.criteria4jpa.criterion.SimpleExpression;
 import org.criteria4jpa.projection.Projections;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.service.CarparkUserService;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
@@ -22,16 +20,13 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
-import com.dongluhitec.card.service.impl.SettingServiceImpl;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
 import com.google.inject.persist.UnitOfWork;
-
+@SuppressWarnings("unchecked")
 public class CarparkUserServiceImpl implements CarparkUserService {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SettingServiceImpl.class);
 
 	@Inject
 	private Provider<EntityManager> emprovider;
@@ -39,8 +34,6 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 	@Inject
 	private UnitOfWork unitOfWork;
 
-	@Inject
-	private MapperConfig mapper;
 	
 	@Override
 	@Transactional

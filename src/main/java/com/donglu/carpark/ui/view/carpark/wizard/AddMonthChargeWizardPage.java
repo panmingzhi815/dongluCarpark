@@ -21,6 +21,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 public class AddMonthChargeWizardPage extends WizardPage{
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 
 	private AddMonthChargeModel model;

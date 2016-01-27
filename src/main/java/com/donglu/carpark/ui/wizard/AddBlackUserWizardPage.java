@@ -20,6 +20,7 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.swt.widgets.Button;
 
 public class AddBlackUserWizardPage extends WizardPage {
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 	private Text text;
 	private Text text_1;

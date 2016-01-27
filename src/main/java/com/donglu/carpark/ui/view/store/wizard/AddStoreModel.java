@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.wizard.store;
+package com.donglu.carpark.ui.view.store.wizard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +9,10 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStore;
 
 public class AddStoreModel extends SingleCarparkStore {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2297903546044351259L;
 	private String rePawword;
 	private List<SingleCarparkCarpark> listCarpark=new ArrayList<>();
 

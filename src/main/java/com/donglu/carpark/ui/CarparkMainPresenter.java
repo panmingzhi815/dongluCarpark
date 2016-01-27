@@ -81,6 +81,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
@@ -96,7 +97,7 @@ public class CarparkMainPresenter {
 	@Inject
 	private XinlutongJNA xinlutongJNA;
 	@Inject
-	private LPRJNA LPRJNA;
+	private Provider<LPRJNA> LPRJNA;
 	
 	Map<String, PlateNOJNA> mapIpToJNA= new HashMap<>();
 	
@@ -350,11 +351,11 @@ public class CarparkMainPresenter {
 	public PlateNOJNA setJNA(String ip, CameraTypeEnum cameraType) {
 		PlateNOJNA jna;
 		if (cameraType.equals(CameraTypeEnum.臻识)) {
-			jna=LPRJNA;
-			mapIpToJNA.put(ip,LPRJNA);
+			jna=LPRJNA.get();
+			mapIpToJNA.put(ip,jna);
 		}else{
 			jna=xinlutongJNA;
-			mapIpToJNA.put(ip,xinlutongJNA);
+			mapIpToJNA.put(ip,jna);
 		}
 		return jna;
 	}

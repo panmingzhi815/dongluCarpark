@@ -220,13 +220,11 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 
 	private Boolean carOutChargeCheck;
 	@Inject
+	private Provider<DevicePresenter> devicePresenterProvider;
 	private DevicePresenter inDevicePresenter;
-	@Inject
 	private DevicePresenter outDevicePresenter;
-	@Inject
-	private Provider<DevicePresenter> inDevicePresenter2Provider;
-	@Inject
-	private Provider<DevicePresenter> outDevicePresenter2Provider;
+	private DevicePresenter inDevicePresenter2;
+	private DevicePresenter outDevicePresenter2;
 	
 	@Inject
 	private Provider<InInfoPresenter> inInfoPresenterProvider;
@@ -497,6 +495,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		SashForm sashForm_1 = new SashForm(sashForm, SWT.NONE);
 
 		Composite composite_9 = new Composite(sashForm_1, SWT.NONE);
+		inDevicePresenter=devicePresenterProvider.get();
 		inDevicePresenter.setPresenter(presenter);
 		inDevicePresenter.setType("进口");
 		inDevicePresenter.setListDevice(mapTypeDevices.get("进口"));
@@ -504,6 +503,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		composite_9.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		Composite composite_10 = new Composite(sashForm_1, SWT.NONE);
+		outDevicePresenter=devicePresenterProvider.get();
 		outDevicePresenter.setPresenter(presenter);
 		outDevicePresenter.setType("出口");
 		outDevicePresenter.setListDevice(mapTypeDevices.get("出口"));
@@ -524,7 +524,8 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		Boolean leftBotttomCamera = Boolean
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.左下监控) == null ? SystemSettingTypeEnum.左下监控.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.左下监控));
 		if (leftBotttomCamera) {
-			DevicePresenter inDevicePresenter2 = inDevicePresenter2Provider.get();
+			inDevicePresenter2 = devicePresenterProvider.get();
+			System.out.println("inDevicePresenter2=="+inDevicePresenter2);
 			inDevicePresenter2.setPresenter(presenter);
 			inDevicePresenter2.setType("进口2");
 			inDevicePresenter2.setListDevice(mapTypeDevices.get("进口2"));
@@ -539,7 +540,8 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		Boolean rightBotttomCamera = Boolean
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.右下监控) == null ? SystemSettingTypeEnum.右下监控.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.右下监控));
 		if (rightBotttomCamera) {
-			DevicePresenter outDevicePresenter2 = outDevicePresenter2Provider.get();
+			outDevicePresenter2 = devicePresenterProvider.get();
+			System.out.println("outDevicePresenter2=="+outDevicePresenter2);
 			outDevicePresenter2.setPresenter(presenter);
 			outDevicePresenter2.setType("出口2");
 			outDevicePresenter2.setListDevice(mapTypeDevices.get("出口2"));
@@ -1064,8 +1066,8 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		if (System.getProperty("userType").equals(SystemUserTypeEnum.操作员.name())) {
 			inDevicePresenter.controlItem(true);
 			outDevicePresenter.controlItem(true);
-			inDevicePresenter2Provider.get().controlItem(true);
-			outDevicePresenter2Provider.get().controlItem(true);
+			inDevicePresenter2.controlItem(true);
+			outDevicePresenter2.controlItem(true);
 		}
 
 	}

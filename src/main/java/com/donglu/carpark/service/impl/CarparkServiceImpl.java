@@ -46,7 +46,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.dongluhitec.card.service.impl.SettingServiceImpl;
 import com.google.common.base.Predicate;
@@ -56,7 +55,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
 import com.google.inject.persist.UnitOfWork;
-
+@SuppressWarnings("unchecked")
 public class CarparkServiceImpl implements CarparkService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SettingServiceImpl.class);
 
@@ -66,8 +65,6 @@ public class CarparkServiceImpl implements CarparkService {
 	@Inject
 	private UnitOfWork unitOfWork;
 
-	@Inject
-	private MapperConfig mapper;
 
 	@Override
 	@Transactional
@@ -613,7 +610,6 @@ public class CarparkServiceImpl implements CarparkService {
 			Float o = unwrap.doReturningWork(new ReturningWork<Float>() {
 				@Override
 				public Float execute(Connection conn) throws SQLException {
-					String spName = "{call upGetNewPakCarCharge(?,?,?,?)}";
 
 					CallableStatement proc = conn
 							.prepareCall("{call upGetNewPakCarCharge(?,?,?,?,?)}");

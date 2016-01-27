@@ -8,6 +8,10 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 
 public class UserModel extends DomainObject {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1363726723176262492L;
 	List<SingleCarparkUser> allList=new ArrayList<>();
 	List<SingleCarparkUser> selectList=new ArrayList<>();
 	

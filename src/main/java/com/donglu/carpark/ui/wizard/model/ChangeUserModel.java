@@ -5,6 +5,10 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 
 public class ChangeUserModel extends DomainObject{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 19521827288643369L;
 	private String userName;
 	private String pwd;
 	private SingleCarparkSystemUser systemUser;

@@ -47,6 +47,10 @@ public class CarparkMainModel extends DomainObject{
 	
 	
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5774120750950259375L;
 	//进口显示信息
 	private String inShowPlateNO;
 	private String inShowTime;

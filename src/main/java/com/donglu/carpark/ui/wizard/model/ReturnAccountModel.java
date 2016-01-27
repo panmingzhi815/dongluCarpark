@@ -3,6 +3,10 @@ package com.donglu.carpark.ui.wizard.model;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 
 public class ReturnAccountModel extends SingleCarparkReturnAccount {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3230318779790754123L;
 	private String pwd;
 	private boolean free=false;
 	public String getPwd() {

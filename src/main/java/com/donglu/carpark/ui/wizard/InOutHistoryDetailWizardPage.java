@@ -27,6 +27,7 @@ import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
 
 public class InOutHistoryDetailWizardPage extends WizardPage {
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 	private ShowInOutHistoryModel model;
 	private Label lbl_inBigImg;

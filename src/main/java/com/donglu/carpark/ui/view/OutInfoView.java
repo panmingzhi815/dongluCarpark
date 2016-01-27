@@ -29,6 +29,7 @@ import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
 
 public class OutInfoView extends Composite implements View{
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 	private Presenter presenter;
 	private CarparkMainModel model;

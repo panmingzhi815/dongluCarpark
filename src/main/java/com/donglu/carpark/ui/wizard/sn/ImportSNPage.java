@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -35,6 +34,7 @@ import org.eclipse.core.databinding.beans.BeanProperties;
  * @author wudong
  */
 public class ImportSNPage extends WizardPage {
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 	private Text text;
 	private AppVerifier verifier;
@@ -201,12 +201,11 @@ public class ImportSNPage extends WizardPage {
 					com.google.common.io.Files.write(sn, new File(AppVerifier.App_Module_Config), Charsets.UTF_8);
 				}
 				this.setPageComplete(true);
-				final DateFormat dateInstance = DateFormat.getDateInstance();
+//				final DateFormat dateInstance = DateFormat.getDateInstance();
 				text_companyName.setText(decrypt.getCompanyName());
 //				text_validFrom.setText(dateInstance.format(decrypt.getDateOfIssue()));
 //				text_validTo.setText(dateInstance.format(decrypt.getDateOfExpire()));
 				text_modules.setText(Arrays.toString(decrypt.getAuthorizations()));
-				//TODO
 				text_projectName.setText(decrypt.getProjectId());
 				
 				Date dateOfExpire = decrypt.getDateOfExpire();

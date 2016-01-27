@@ -37,7 +37,6 @@ public class ReturnAccountWizard extends Wizard implements AbstractWizard{
 			page.setErrorMessage("用户名或密码错误");
 			return false;
 		}
-		String property = System.getProperty("userType");
 		if (System.getProperty("userName").equals(systemUser.getUserName())) {
 			page.setErrorMessage("不能归账给自己");
 			return false;

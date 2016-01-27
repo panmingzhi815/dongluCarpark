@@ -20,6 +20,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.DisposeEvent;
 
 public class OpenDoorDetailWizardPage extends WizardPage {
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 	private SingleCarparkOpenDoorLog model;
 	private static Image image;

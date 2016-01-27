@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.wizard.store;
+package com.donglu.carpark.ui.view.store.wizard;
 
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -24,6 +24,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
 public class ChargeStoreWizardPage extends WizardPage {
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 	private Text text;
 	ChargeStoreModel model;

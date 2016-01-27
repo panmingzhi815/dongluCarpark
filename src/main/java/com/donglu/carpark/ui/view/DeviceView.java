@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
@@ -31,7 +30,6 @@ import org.eclipse.swt.widgets.Label;
 
 public class DeviceView extends Composite implements View{
 	private Presenter presenter;
-	private CarparkMainModel model;
 	private CTabFolder tabFolder;
 	private RateLimiter rateLimiter = RateLimiter.create(1);
 	private ToolItem addToolItem;
@@ -151,11 +149,6 @@ public class DeviceView extends Composite implements View{
 		
 		tabFolder.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
 		tabFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
-	}
-
-	public DeviceView(Composite c, int style, CarparkMainModel model) {
-		this(c, style);
-		this.model=model;
 	}
 
 	@Override

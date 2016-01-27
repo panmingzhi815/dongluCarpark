@@ -8,6 +8,10 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 
 public class InOutHistoryModel extends DomainObject {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3121586116615389209L;
 	private List<SingleCarparkCarpark> listCarpark=new ArrayList<>();
 	private SingleCarparkCarpark selectCarpark;
 	public List<SingleCarparkCarpark> getListCarpark() {

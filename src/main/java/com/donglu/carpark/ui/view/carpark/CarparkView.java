@@ -9,7 +9,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import com.donglu.carpark.model.CarparkModel;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 
@@ -33,6 +32,7 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
 public class CarparkView extends Composite implements View{
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 	private Presenter presenter;
 	private TreeViewer treeViewer;

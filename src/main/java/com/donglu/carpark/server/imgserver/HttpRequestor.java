@@ -86,7 +86,8 @@ public class HttpRequestor {
      * @return
      * @throws Exception 
      */
-    public String doPost(String url, Map parameterMap) throws Exception {
+    @SuppressWarnings("rawtypes")
+	public String doPost(String url, Map parameterMap) throws Exception {
         
         /* Translate parameter map to parameter date string */
         StringBuffer parameterBuffer = new StringBuffer();
@@ -191,7 +192,8 @@ public class HttpRequestor {
      * Render request according setting
      * @param request
      */
-    private void renderRequest(URLConnection connection) {
+    @SuppressWarnings("unused")
+	private void renderRequest(URLConnection connection) {
         
         if (connectTimeout != null) {
             connection.setConnectTimeout(connectTimeout);

@@ -9,7 +9,6 @@ import org.eclipse.nebula.widgets.datechooser.DateChooser;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
-import com.dongluhitec.card.blservice.DatabaseServiceDaemon;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
@@ -21,7 +20,6 @@ public class AddYearHolidayWizard extends Wizard implements AbstractWizard{
 
 	private AddYearHolidayModel model;
 	private CommonUIFacility commonui;
-	private DatabaseServiceDaemon sd;
 	private AddYearHolidayPage addYearHolidayPage;
 	private CarparkDatabaseServiceProvider sp;
 	
@@ -40,6 +38,7 @@ public class AddYearHolidayWizard extends Wizard implements AbstractWizard{
 		getShell().setSize(600, 760);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean performFinish() {
 		List<Date> list=Lists.newArrayList();
@@ -62,7 +61,6 @@ public class AddYearHolidayWizard extends Wizard implements AbstractWizard{
 	}
 
 	public void loadHoliday(int year) {
-		// TODO 自动生成的方法存根2015年5月29日，Michael
 //		SettingService ss=sd.getServiceProvider().getSettingService();
 //		model.setAllh(ss.findHolidayByYearAndMonth(year,0));
 		CarparkService carparkService = sp.getCarparkService();

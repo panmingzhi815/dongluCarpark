@@ -62,7 +62,7 @@ public class Fileupload extends HttpServlet {
 						// System.out.println(name);
 						String fileName =name.substring(name.lastIndexOf('\\') + 1, name.length());
 						// System.out.println(fileName);
-						String path =request.getRealPath("upload") + File.separatorChar+ fileName;
+						String path =request.getServletContext().getRealPath("upload") + File.separatorChar+ fileName;
 						// 上传文件
 						File uploadedFile =new File(path);
 						item.write(uploadedFile);

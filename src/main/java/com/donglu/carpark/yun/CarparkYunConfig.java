@@ -3,6 +3,10 @@ package com.donglu.carpark.yun;
 import java.io.Serializable;
 
 public class CarparkYunConfig implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2645865659512835663L;
 	public final String configFileName = "CarparkYunConfig.properties";
 	public static CarparkYunConfig instance;
 	

@@ -8,7 +8,11 @@ import java.util.Date;
 import java.util.Properties;
 
 public class CarparkServerConfig implements Serializable{
-//	public enum DBType{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8710168087805946672L;
+	//	public enum DBType{
 //		SQLSERVER2008,SQLSERVER2005,MYSQL
 //	}
 	private static final String MYSQL = "MYSQL";

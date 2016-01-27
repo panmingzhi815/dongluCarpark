@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.wizard.store;
+package com.donglu.carpark.ui.view.store.wizard;
 
 import org.eclipse.jface.wizard.Wizard;
 import com.dongluhitec.card.common.ui.AbstractWizard;

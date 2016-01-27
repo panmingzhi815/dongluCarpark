@@ -36,7 +36,6 @@ public class AddDeviceWizard extends Wizard implements AbstractWizard{
 
 	@Override
 	public boolean performFinish() {
-		String linkAddress = model.getLinkAddress();
 		SingleCarparkCarpark carpark = model.getCarpark();
 		String identifire = model.getIdentifire();
 		String roadType = model.getRoadType();

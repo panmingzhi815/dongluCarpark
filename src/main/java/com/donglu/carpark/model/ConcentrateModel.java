@@ -11,6 +11,10 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 public class ConcentrateModel extends DomainObject {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7542487590708353860L;
 	private String userName;
 	private String workTime;
 	private Float totalFact;

@@ -122,6 +122,7 @@ public class CarInListPresenter extends AbstractListPresenter<CarInInfo> {
 			}
 			carInInfo=selected.get(0);
 		}
+		LOGGER.info("修改车牌{}",carInInfo.getPlateNO());
 		SingleCarparkInOutHistory findInOutById = sp.getCarparkInOutService().findInOutById(carInInfo.getId());
 		if (StrUtil.isEmpty(findInOutById)||!StrUtil.isEmpty(findInOutById.getOutTime())) {
 			commonui.info("", "记录不存在或已经出场");

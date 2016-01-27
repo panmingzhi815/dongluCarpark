@@ -180,6 +180,7 @@ public class Login {
 	/**
 	 * Create contents of the window.
 	 */
+	@SuppressWarnings("unchecked")
 	protected void createContents() {
 		shell = new Shell();
 		shell.setSize(300, 291);
@@ -220,6 +221,7 @@ public class Login {
 		cbo_userName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		comboViewer_1.setContentProvider(new ArrayContentProvider());
 		comboViewer_1.setLabelProvider(new LabelProvider());
+		
 		list = (List<String>) CarparkFileUtils.readObject(USER_NAMES);
 		if (list==null) {
 			list=new ArrayList<>();

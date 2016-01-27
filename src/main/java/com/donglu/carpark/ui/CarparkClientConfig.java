@@ -9,6 +9,10 @@ import java.util.Properties;
 
 public class CarparkClientConfig implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -388609463386399162L;
 	private static final String SQLSERVER2008 = "SQLSERVER2008";
 	private static final String SQLSERVER2005 = "SQLSERVER2005";
 	private static final String MYSQL = "MYSQL";

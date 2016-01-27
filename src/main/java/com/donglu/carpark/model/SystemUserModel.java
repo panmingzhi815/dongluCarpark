@@ -6,6 +6,10 @@ import java.util.List;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 
 public class SystemUserModel extends SingleCarparkSystemUser {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 910508348133776532L;
 	private String pwd;
 	private String rePwd;
 	

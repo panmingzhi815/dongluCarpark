@@ -40,7 +40,6 @@ import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
 public abstract class AbstractListView<T> extends Composite {
 	protected ListPresenter<T> presenter;
-	private DataBindingContext m_bindingContext;
 	private Table table;
 	private Model model = new Model();
 	private TableViewer tableViewer;
@@ -57,6 +56,10 @@ public abstract class AbstractListView<T> extends Composite {
 	private TableViewerColumn[] tableViewerColumns;
 
 	public class Model extends DomainObject {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -6950475725572819624L;
 		private List<T> list = new ArrayList<>();
 		private List<T> selected = new ArrayList<>();
 		Integer countSearch = 0;
@@ -226,7 +229,7 @@ public abstract class AbstractListView<T> extends Composite {
 		});
 		btn_more.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		btn_more.setText("更多");
-		m_bindingContext = initDataBindings();
+		initDataBindings();
 	}
 
 	public AbstractListView(Composite parent, int style, Class<T> class1, String[] strings, String[] strings2, int[] is) {
@@ -337,6 +340,7 @@ public abstract class AbstractListView<T> extends Composite {
 		return presenter;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void setPresenter(Presenter presenter) {
 		this.presenter = (ListPresenter<T>) presenter;
 	}

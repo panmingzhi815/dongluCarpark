@@ -4,6 +4,10 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 
 public class AddMonthChargeModel extends SingleCarparkMonthlyCharge {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2296439499851316601L;
 	public AddMonthChargeModel(SingleCarparkMonthlyCharge m) {
 		setCarpark(m.getCarpark());
 		setCarType(m.getCarType());

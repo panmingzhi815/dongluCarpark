@@ -12,13 +12,13 @@ import org.criteria4jpa.criterion.Restrictions;
 import com.donglu.carpark.service.SystemUserServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
-import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
 import com.google.inject.persist.UnitOfWork;
 
+@SuppressWarnings("unchecked")
 public class SystemUserServiceImpl implements SystemUserServiceI {
 	@Inject
 	private Provider<EntityManager> emprovider;
@@ -26,8 +26,6 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 	@Inject
 	private UnitOfWork unitOfWork;
 
-	@Inject
-	private MapperConfig mapper;
 	
 	@Override
 	public List<SingleCarparkSystemUser> findAll() {

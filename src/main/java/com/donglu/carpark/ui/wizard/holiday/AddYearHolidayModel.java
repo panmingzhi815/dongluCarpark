@@ -1,7 +1,6 @@
 package com.donglu.carpark.ui.wizard.holiday;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -31,18 +30,18 @@ public class AddYearHolidayModel extends BasicJavaBeanModel {
     	
     }
 
-	private void addHoliday(Holiday h) {
-		// TODO 自动生成的方法存根2015年5月29日，Michael
-		Date date=h.getStart();
-		int length=h.getLength();
-		for (int i = 0; i < length; i++) {
-			Calendar c=Calendar.getInstance();
-			c.setTime(date);
-			c.add(Calendar.DATE, i);
-			select.add(c.getTime());
-		}
-		
-	}
+//	private void addHoliday(Holiday h) {
+//		// TODO 自动生成的方法存根2015年5月29日，Michael
+//		Date date=h.getStart();
+//		int length=h.getLength();
+//		for (int i = 0; i < length; i++) {
+//			Calendar c=Calendar.getInstance();
+//			c.setTime(date);
+//			c.add(Calendar.DATE, i);
+//			select.add(c.getTime());
+//		}
+//		
+//	}
 
 	public void setSelect(List<Date> select) {
 		this.select.clear();

@@ -286,8 +286,6 @@ public class StoreServlet extends HttpServlet {
 			if (StrUtil.isEmpty(pwds)) {
 				return;
 			}
-			String pwd = pwds[0];
-
 			json.setSuccess(true);
 			json.setMsg("修改成功");
 		} catch (Exception e) {

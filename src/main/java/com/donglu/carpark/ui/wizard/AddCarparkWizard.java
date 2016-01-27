@@ -39,7 +39,7 @@ public class AddCarparkWizard extends Wizard implements AbstractWizard{
 		}
 		String code = model.getCode();
 		try {
-			int parseInt = Integer.parseInt(code);
+			Integer.parseInt(code);
 //			if (parseInt<0||parseInt>99) {
 //				page.setErrorMessage("编码只能是0-99的数字");
 //				return false;

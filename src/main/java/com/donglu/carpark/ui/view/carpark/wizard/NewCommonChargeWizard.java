@@ -15,6 +15,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.jface.wizard.Wizard;
+import org.joda.time.DateTime;
 
 /**
  * Created with IntelliJ IDEA.
@@ -116,8 +117,8 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
     public boolean checkTimeHasOverride(List<CarparkDurationStandard> carparkDurationStandards){
     	Set<String> addedList = new HashSet<String>();
     	for(CarparkDurationStandard carparkDurationStandard : carparkDurationStandards){
-    		int sh = carparkDurationStandard.getStartTime().getHours();
-    		int eh = carparkDurationStandard.getEndTime().getHours();
+    		int sh = new DateTime(carparkDurationStandard.getStartTime()).getHourOfDay();
+    		int eh = new DateTime(carparkDurationStandard.getEndTime()).getHourOfDay();
     		if(sh > eh) eh += 24;
     		for(int i=sh;i<eh;i++){
     			if(addedList.contains(i+"")) return true;

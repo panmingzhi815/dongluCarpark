@@ -9,6 +9,10 @@ import com.google.common.collect.Lists;
 
 public class ShowInOutHistoryModel extends SingleCarparkInOutHistory{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6562763559546654540L;
 	private List<SingleCarparkInOutHistory> listSearch=Lists.newArrayList();
 	private int countSearchAll;
 	private int countSearch;

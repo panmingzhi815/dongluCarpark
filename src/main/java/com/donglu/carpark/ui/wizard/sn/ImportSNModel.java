@@ -3,6 +3,10 @@ package com.donglu.carpark.ui.wizard.sn;
 import com.dongluhitec.card.domain.db.DomainObject;
 
 public class ImportSNModel extends DomainObject{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4643813063458318594L;
 	private String sn;
 	private String companyName;
 	private String projectName;

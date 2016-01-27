@@ -9,6 +9,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.core.databinding.DataBindingContext;
 
 public class SearchHistoryByHandWizardPage extends WizardPage {
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 	SearchErrorCarPresenter presenter;
 

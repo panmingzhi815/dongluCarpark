@@ -6,13 +6,12 @@ import java.util.List;
 import org.eclipse.swt.widgets.Composite;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
-import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.service.StoreServiceI;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
-import com.donglu.carpark.ui.wizard.store.AddStoreModel;
-import com.donglu.carpark.ui.wizard.store.AddStoreWizard;
-import com.donglu.carpark.ui.wizard.store.ChargeStoreModel;
-import com.donglu.carpark.ui.wizard.store.ChargeStoreWizard;
+import com.donglu.carpark.ui.view.store.wizard.AddStoreModel;
+import com.donglu.carpark.ui.view.store.wizard.AddStoreWizard;
+import com.donglu.carpark.ui.view.store.wizard.ChargeStoreModel;
+import com.donglu.carpark.ui.view.store.wizard.ChargeStoreWizard;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -79,9 +78,9 @@ public class StoreListPresenter extends AbstractListPresenter<SingleCarparkStore
 				return;
 			}
 			String userName = "";
-			CarparkUserService carparkUserService = sp.getCarparkUserService();
+			StoreServiceI storeService = sp.getStoreService();
 			for (SingleCarparkStore s : list) {
-				sp.getStoreService().deleteStore(s);
+				storeService.deleteStore(s);
 			}
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.商铺, "删除了商铺:" + userName);
 			commonui.info("成功", "删除商铺成功");

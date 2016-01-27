@@ -15,6 +15,7 @@ import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 public class ChangeUserWizardPage extends WizardPage {
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 	private Text text;
 	private Text text_1;

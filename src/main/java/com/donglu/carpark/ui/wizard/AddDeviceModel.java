@@ -10,11 +10,16 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 
 
 public class AddDeviceModel extends SingleCarparkDevice{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -223446731781066927L;
 	private List<SingleCarparkCarpark> list=new ArrayList<SingleCarparkCarpark>();
 	private String serialAddress="COM1";
 	private String tcpAddress="192.168.1.1";
 	private String voice="1";
 	private String addressLabel;
+	@SuppressWarnings("unused")
 	private String tcpLabel;
 	private DeviceRoadTypeEnum deviceRoadType=DeviceRoadTypeEnum.混合车通道;
 	

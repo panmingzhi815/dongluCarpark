@@ -10,6 +10,10 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 
 public class SearchErrorCarModel extends DomainObject {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7264776956712866252L;
 	private List<SingleCarparkInOutHistory> havePlateNoList=new ArrayList<>();
 	private List<SingleCarparkInOutHistory> noPlateNoList=new ArrayList<>();
 	private String plateNo;

@@ -16,13 +16,13 @@ import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemOperaLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.service.MapperConfig;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
 import com.google.inject.persist.UnitOfWork;
 
+@SuppressWarnings("unchecked")
 public class SystemOperaLogServiceImpl implements SystemOperaLogServiceI {
 	
 	@Inject
@@ -31,8 +31,6 @@ public class SystemOperaLogServiceImpl implements SystemOperaLogServiceI {
 	@Inject
 	private UnitOfWork unitOfWork;
 
-	@Inject
-	private MapperConfig mapper;
 
 	private ScheduledExecutorService saveLogService;
 	

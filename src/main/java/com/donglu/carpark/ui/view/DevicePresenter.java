@@ -8,7 +8,6 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
 
-import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.common.Presenter;
@@ -16,13 +15,10 @@ import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
 public class DevicePresenter  implements Presenter{
 	
 	private DeviceView view;
-	private CarparkMainModel model;
 	@Inject
 	private CommonUIFacility commonui;
 	
@@ -34,7 +30,7 @@ public class DevicePresenter  implements Presenter{
 	
 	@Override
 	public void go(Composite c) {
-		view=new DeviceView(c, c.getStyle(),model);
+		view=new DeviceView(c, c.getStyle());
 		view.setPresenter(this);
 		view.initDevices(listDevice);
 	}
@@ -75,9 +71,6 @@ public class DevicePresenter  implements Presenter{
 			return;
 		}
 		view.controlItem(dispose);
-	}
-	public void setModel(CarparkMainModel model) {
-		this.model = model;
 	}
 	public void openDoor() {
 		CTabItem selection = view.getTabFolder().getSelection();

@@ -43,6 +43,7 @@ public class AddDeviceBasicPage extends WizardPage {
 
 	private Composite address_stack_container;
 	private Composite container;
+	@SuppressWarnings("unused")
 	private DataBindingContext bindingContext;
 	private Composite serialComposite;
 	private Label label_1;

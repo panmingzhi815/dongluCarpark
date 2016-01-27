@@ -15,10 +15,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.collect.Maps;
-
 public class CountTempCarChargeImpl implements CountTempCarChargeI {
 	private Logger LOGGER = LoggerFactory.getLogger(CountTempCarChargeImpl.class);
-	private static final String YYYY_MM_DD = "yyyyMMdd";
 	/**
 	 * 
 	 */

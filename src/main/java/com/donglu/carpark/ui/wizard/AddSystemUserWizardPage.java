@@ -22,6 +22,7 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 public class AddSystemUserWizardPage extends WizardPage {
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 	private Text text;
 	private Text text_1;

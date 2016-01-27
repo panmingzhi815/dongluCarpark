@@ -3,6 +3,10 @@ package com.donglu.carpark.ui.view.carpark;
 import com.dongluhitec.card.domain.db.DomainObject;
 
 public class CarparkChargeInfo extends DomainObject{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -366901442262079621L;
 	public enum Property{
 		code,name,type,carType,useType,holidayType
 	}

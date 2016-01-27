@@ -1,14 +1,17 @@
-package com.donglu.carpark.model;
+package com.donglu.carpark.ui.view.carpark;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.donglu.carpark.info.CarparkChargeInfo;
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 
 public class CarparkModel extends DomainObject{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2604179203808268210L;
 	private List<SingleCarparkCarpark> listCarpark=new ArrayList<>();
 	private SingleCarparkCarpark carpark;
 	private List<CarparkChargeInfo> listCarparkCharge=new ArrayList<>();

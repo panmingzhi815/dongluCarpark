@@ -3,6 +3,10 @@ package com.donglu.carpark.ui.view.inouthistory;
 import com.dongluhitec.card.domain.db.DomainObject;
 
 public class CarInInfo extends DomainObject{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3386274932368869395L;
 	public enum Property{
 		plateNO,inTime,userName,userType,status
 	}

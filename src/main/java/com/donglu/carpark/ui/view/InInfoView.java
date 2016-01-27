@@ -15,7 +15,6 @@ import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.google.common.util.concurrent.RateLimiter;
 
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -29,10 +28,10 @@ import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
 
 public class InInfoView extends Composite implements View{
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 	private Presenter presenter;
 	private CarparkMainModel model;
-	private RateLimiter rateLimiter = RateLimiter.create(1);
 	private Text text_plateno;
 	private Text text_time;
 	private Button btn_check;

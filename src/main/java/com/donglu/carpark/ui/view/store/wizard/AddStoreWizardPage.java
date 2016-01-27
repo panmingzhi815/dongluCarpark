@@ -1,4 +1,4 @@
-package com.donglu.carpark.ui.wizard.store;
+package com.donglu.carpark.ui.view.store.wizard;
 
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -27,6 +27,7 @@ import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 
 public class AddStoreWizardPage extends WizardPage {
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 	private Text text;
 	AddStoreModel model;

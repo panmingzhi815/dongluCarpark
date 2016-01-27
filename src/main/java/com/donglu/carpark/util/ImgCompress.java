@@ -97,6 +97,7 @@ public class ImgCompress {
 	 * @param w int 新宽度
 	 * @param h int 新高度
 	 */
+	@SuppressWarnings("restriction")
 	public void resize(int w, int h) throws IOException {
 		// SCALE_SMOOTH 的缩略算法 生成缩略图片的平滑度的 优先级比速度高 生成的图片质量比较好 但速度慢
 		BufferedImage image = new BufferedImage(w, h,BufferedImage.SCALE_SMOOTH ); 

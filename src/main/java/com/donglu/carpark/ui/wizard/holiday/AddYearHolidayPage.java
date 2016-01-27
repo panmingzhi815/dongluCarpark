@@ -29,6 +29,7 @@ import org.eclipse.nebula.widgets.datechooser.DateChooser;
 import org.joda.time.DateTime;
 
 public class AddYearHolidayPage extends WizardPage {
+	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 
 	private AddYearHolidayModel model;

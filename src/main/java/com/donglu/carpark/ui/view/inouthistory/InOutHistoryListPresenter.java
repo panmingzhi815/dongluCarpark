@@ -47,6 +47,7 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 
 	private SingleCarparkInOutHistory inOutHistory;
 	private SingleCarparkCarpark carpark = new SingleCarparkCarpark();
+	@SuppressWarnings("unused")
 	private String modifyPlateNO;
 
 	@Override

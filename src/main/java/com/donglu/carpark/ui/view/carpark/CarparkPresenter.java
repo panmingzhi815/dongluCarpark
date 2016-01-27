@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.eclipse.swt.widgets.Composite;
 
-import com.donglu.carpark.model.CarparkModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.ui.CarparkMainApp;
