@@ -107,6 +107,10 @@ public class CarInTask implements Runnable {
 				LOGGER.error("没有找到id:" + device.getCarpark().getId() + "的停车场");
 				return;
 			}
+			String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
+			String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
+			String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
+			String smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
 			LOGGER.debug("开始在界面显示车牌：{}的抓拍图片", plateNO);
 			// 界面图片
 			DEFAULT_DISPLAY.asyncExec(new Runnable() {
@@ -117,6 +121,7 @@ public class CarInTask implements Runnable {
 					}
 					CarparkUtils.setBackgroundImage(smallImage, lbl_inSmallImg, DEFAULT_DISPLAY);
 					CarparkUtils.setBackgroundImage(bigImage, lbl_inBigImg, DEFAULT_DISPLAY);
+					CarparkUtils.setBackgroundImageName(lbl_inBigImg, folder + "/" + bigImgFileName);
 				}
 			});
 			model.setInShowPlateNO(plateNO);
@@ -165,10 +170,6 @@ public class CarInTask implements Runnable {
 			long nanoTime = System.nanoTime();
 
 			mapPlateNoDate.put(plateNO, date);
-			String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
-			String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
-			String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
-			String smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
 			presenter.saveImage(folder, smallImgFileName,bigImgFileName,smallImage, bigImage);
 
 			// model.setInShowBigImg(inBigImage);

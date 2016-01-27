@@ -21,7 +21,6 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -173,7 +172,7 @@ public class OutInfoView extends Composite implements View{
 		lbl_bigImg.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
-				Image lastImage = (Image)lbl_bigImg.getData("lastImage");
+				String lastImage = (String)lbl_bigImg.getData("imgName");
 				ImageDialog imageDialog = new ImageDialog(lastImage);
 				imageDialog.open();
 			}

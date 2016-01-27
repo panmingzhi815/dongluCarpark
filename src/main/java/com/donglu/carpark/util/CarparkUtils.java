@@ -735,4 +735,12 @@ public class CarparkUtils {
 		}
 		return false;
 	}
+	/**
+	 * 设置图片名称
+	 * @param lbl_outSmallImg
+	 * @param string
+	 */
+	public static void setBackgroundImageName(CLabel lbl_outSmallImg, String string) {
+		lbl_outSmallImg.setData("imgName", string);
+	}
 }

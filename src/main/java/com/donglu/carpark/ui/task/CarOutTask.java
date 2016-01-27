@@ -127,7 +127,7 @@ public class CarOutTask implements Runnable{
 					}
 					CarparkUtils.setBackgroundImage(bigImage, lbl_outBigImg, DEFAULT_DISPLAY);
 					CarparkUtils.setBackgroundImage(smallImage, lbl_outSmallImg, DEFAULT_DISPLAY);
-
+					CarparkUtils.setBackgroundImageName(lbl_outBigImg, folder + "/" + bigImgFileName);
 					text_real.setFocus();
 					text_real.selectAll();
 				}
@@ -183,6 +183,7 @@ public class CarOutTask implements Runnable{
 						return;
 					}
 					CarparkUtils.setBackgroundImage(CarparkUtils.getImageByte(ch.getBigImg()), lbl_inBigImg, DEFAULT_DISPLAY);
+					CarparkUtils.setBackgroundImageName(lbl_inBigImg, ch.getBigImg());
 				}
 			});
 			
