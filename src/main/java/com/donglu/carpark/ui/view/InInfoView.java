@@ -11,6 +11,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.CarparkMainApp;
+import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
@@ -19,6 +20,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -26,6 +28,8 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 
 public class InInfoView extends Composite implements View{
 	@SuppressWarnings("unused")
@@ -147,6 +151,14 @@ public class InInfoView extends Composite implements View{
 		composite_25.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		lbl_bigImg = new CLabel(composite_25, SWT.NONE);
+		lbl_bigImg.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				Image lastImage = (Image)lbl_bigImg.getData("lastImage");
+				ImageDialog imageDialog = new ImageDialog(lastImage);
+				imageDialog.open();
+			}
+		});
 		lbl_bigImg.setText("入场车牌");
 		lbl_bigImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 		lbl_bigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));

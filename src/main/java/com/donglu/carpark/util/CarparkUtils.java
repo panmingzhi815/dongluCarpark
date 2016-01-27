@@ -1,6 +1,7 @@
 package com.donglu.carpark.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -22,6 +23,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -314,10 +316,30 @@ public class CarparkUtils {
 			}
 			return image;
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.info("根据图片名称获得图片失败");
+			return null;
 		}
 
-		return null;
+	}
+	public static byte[] getImageBytes(Image image){
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			
+			ImageLoader imageLoader = new ImageLoader();
+			imageLoader.data = new ImageData[] { image.getImageData() };
+			imageLoader.save(baos, image.type);
+			
+			byte[] imageByteArray = baos.toByteArray();
+			try {
+				baos.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return imageByteArray;
+		} catch (Exception e) {
+			LOGGER.info("更据图片获取图片字节失败");
+			return null;
+		}
 	}
 	/**
 	 * 根据属性名获取属性值
