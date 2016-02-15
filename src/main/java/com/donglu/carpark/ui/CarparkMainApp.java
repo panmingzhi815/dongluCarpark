@@ -9,9 +9,12 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -168,11 +171,9 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	public static Image outSmallImage;
 	public static Image outBigImage;
 
-	AtomicInteger plateNoTotal = new AtomicInteger(0);
-
 	// 保存设备的进出口信息
 	public static final Map<String, String> mapDeviceType = new MyHashMap<>();
-	
+
 	// 保存设备的进出口信息
 	public static final Map<String, String> mapCameraLastImage = new MyHashMap<>();
 
@@ -197,6 +198,9 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	Map<String, List<SingleCarparkDevice>> mapTypeDevices = Maps.newHashMap();
 
 	public static Map<String, String> mapTempCharge;
+
+	// 保存双摄像头处理任务
+	final Map<String, Timer> mapTwoChanelTimer = new HashMap<>();
 
 	private String userType;
 	private Label lblNewLabel;
@@ -228,7 +232,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	private DevicePresenter outDevicePresenter;
 	private DevicePresenter inDevicePresenter2;
 	private DevicePresenter outDevicePresenter2;
-	
+
 	@Inject
 	private Provider<InInfoPresenter> inInfoPresenterProvider;
 	@Inject
@@ -498,7 +502,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		SashForm sashForm_1 = new SashForm(sashForm, SWT.NONE);
 
 		Composite composite_9 = new Composite(sashForm_1, SWT.NONE);
-		inDevicePresenter=devicePresenterProvider.get();
+		inDevicePresenter = devicePresenterProvider.get();
 		inDevicePresenter.setPresenter(presenter);
 		inDevicePresenter.setType("进口");
 		inDevicePresenter.setListDevice(mapTypeDevices.get("进口"));
@@ -506,7 +510,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		composite_9.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		Composite composite_10 = new Composite(sashForm_1, SWT.NONE);
-		outDevicePresenter=devicePresenterProvider.get();
+		outDevicePresenter = devicePresenterProvider.get();
 		outDevicePresenter.setPresenter(presenter);
 		outDevicePresenter.setType("出口");
 		outDevicePresenter.setListDevice(mapTypeDevices.get("出口"));
@@ -528,7 +532,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.左下监控) == null ? SystemSettingTypeEnum.左下监控.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.左下监控));
 		if (leftBotttomCamera) {
 			inDevicePresenter2 = devicePresenterProvider.get();
-			System.out.println("inDevicePresenter2=="+inDevicePresenter2);
+			System.out.println("inDevicePresenter2==" + inDevicePresenter2);
 			inDevicePresenter2.setPresenter(presenter);
 			inDevicePresenter2.setType("进口2");
 			inDevicePresenter2.setListDevice(mapTypeDevices.get("进口2"));
@@ -537,14 +541,14 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			InInfoPresenter inInfoPresenter = inInfoPresenterProvider.get();
 			inInfoPresenter.setModel(model);
 			inInfoPresenter.go(composite_5);
-			lbl_inBigImg=inInfoPresenter.getInBigImgLabel();
-			lbl_inSmallImg=inInfoPresenter.getInSmallImgLabel();
+			lbl_inBigImg = inInfoPresenter.getInBigImgLabel();
+			lbl_inSmallImg = inInfoPresenter.getInSmallImgLabel();
 		}
 		Boolean rightBotttomCamera = Boolean
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.右下监控) == null ? SystemSettingTypeEnum.右下监控.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.右下监控));
 		if (rightBotttomCamera) {
 			outDevicePresenter2 = devicePresenterProvider.get();
-			System.out.println("outDevicePresenter2=="+outDevicePresenter2);
+			System.out.println("outDevicePresenter2==" + outDevicePresenter2);
 			outDevicePresenter2.setPresenter(presenter);
 			outDevicePresenter2.setType("出口2");
 			outDevicePresenter2.setListDevice(mapTypeDevices.get("出口2"));
@@ -555,8 +559,8 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			outInfoPresenter.setPresenter(presenter);
 			outInfoPresenter.setCommonui(commonui);
 			outInfoPresenter.go(composite_21_1);
-			lbl_outBigImg=outInfoPresenter.getOutBigImgLabel();
-			lbl_outSmallImg=outInfoPresenter.getOutSmallImgLabel();
+			lbl_outBigImg = outInfoPresenter.getOutBigImgLabel();
+			lbl_outSmallImg = outInfoPresenter.getOutSmallImgLabel();
 		}
 
 		Boolean isCarHandIn = Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.进场允许手动入场));
@@ -1163,7 +1167,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 
 		boolean equals = (mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔))
 				.equals(SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue());
-		String linkAddress = mapIpToDevice.get(ip).getLinkAddress() + mapIpToDevice.get(ip).getAddress();
+		String linkAddress = mapIpToDevice.get(ip).getLinkInfo();
 
 		Boolean isTwoChanel = mapIsTwoChanel.get(linkAddress);
 		if (mapDeviceType.get(ip).equals("出口") || mapDeviceType.get(ip).equals("出口2")) {
@@ -1175,38 +1179,47 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 						carOutTask.setBigImage(bigImage);
 						carOutTask.setPlateNO(plateNO);
 						carOutTask.setSmallImage(smallImage);
+						carOutTask.setIp(ip);
 						carOutTask.setRightSize(rightSize);
 					}
-					carOutTask.alreadyFinshWait();
+					Timer timer = mapTwoChanelTimer.get(linkAddress);
+					if (timer != null) {
+						timer.cancel();
+						outTaskSubmit(ip, plateNO, linkAddress, carOutTask);
+						mapOutTwoCameraTask.remove(linkAddress);
+						mapTwoChanelTimer.remove(linkAddress);
+					}
 					return;
+				} else {
+					Integer two = Integer.valueOf(
+							mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
+					Timer t = new Timer();
+					t.schedule(new TimerTask() {
+						public void run() {
+							LOGGER.info("双摄像头等待超时任务处理：{}",two);
+							CarOutTask carOutTask = mapOutTwoCameraTask.get(linkAddress);
+							outTaskSubmit(ip, plateNO, linkAddress, carOutTask);
+							mapOutTwoCameraTask.remove(linkAddress);
+							Timer timer = mapTwoChanelTimer.get(linkAddress);
+							if (timer != null) {
+								timer.cancel();
+								mapTwoChanelTimer.remove(linkAddress);
+							}
+						}
+					}, two);
+					mapTwoChanelTimer.put(linkAddress, t);
 				}
 			}
 			if (listOutTask.size() > 5) {
 				LOGGER.info("已经有5个任务正在等待处理暂不添加任务{}", listOutTask);
 				return;
 			}
-			String key = new Date() + "current has device:" + ip + " with plate:" + plateNO + " process";
-			listOutTask.add(key);
 			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_outBigImg, lbl_outSmallImg, lbl_inBigImg, carTypeSelectCombo, text_real, rightSize);
-			outTheadPool.submit(task);
 			mapOutTwoCameraTask.put(linkAddress, task);
-			outTheadPool.submit(() -> {
-				while (model.isBtnClick()) {
-					int i = 0;
-					try {
-						if (i > 120) {
-							stop();
-							return;
-						}
-						TimeUnit.MILLISECONDS.sleep(500);
-						i++;
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-				listOutTask.remove(key);
-				plateNoTotal.addAndGet(1);
-			});
+			if (!(!equals && isTwoChanel)) {
+				outTaskSubmit(ip, plateNO, linkAddress, task);
+			}
+
 		} else if (mapDeviceType.get(ip).equals("进口") || mapDeviceType.get(ip).equals("进口2")) {
 			if (!equals && isTwoChanel) {
 				CarInTask carInTask = mapInTwoCameraTask.get(linkAddress);
@@ -1218,12 +1231,38 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 						carInTask.setIp(ip);
 						carInTask.setRightSize(rightSize);
 					}
-					carInTask.alreadyFinshWait();
+					Timer timer = mapTwoChanelTimer.get(linkAddress);
+					if (timer != null) {
+						mapInTwoCameraTask.remove(linkAddress);
+						timer.cancel();
+						inThreadPool.submit(carInTask);
+						mapTwoChanelTimer.remove(linkAddress);
+					}
 					return;
+				} else {
+					Integer two = Integer.valueOf(
+							mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
+					Timer t = new Timer();
+					t.schedule(new TimerTask() {
+						public void run() {
+							LOGGER.info("双摄像头等待超时任务处理：{}",two);
+							CarInTask carInTask = mapInTwoCameraTask.get(linkAddress);
+							inThreadPool.submit(carInTask);
+							mapInTwoCameraTask.remove(linkAddress);
+							Timer timer = mapTwoChanelTimer.get(linkAddress);
+							if (timer != null) {
+								timer.cancel();
+								mapTwoChanelTimer.remove(linkAddress);
+							}
+						}
+					}, two);
+					mapTwoChanelTimer.put(linkAddress, t);
 				}
 			}
 			CarInTask task = new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, rightSize, lbl_inSmallImg, lbl_inBigImg);
-			inThreadPool.submit(task);
+			if (!(!equals && isTwoChanel)) {
+				inThreadPool.submit(task);
+			}
 			mapInTwoCameraTask.put(linkAddress, task);
 		}
 	}
@@ -1454,5 +1493,33 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		bindingContext.bindValue(observeTextText_chargedMoneybserveWidget, chargedMoneyModelObserveValue, null, null);
 		//
 		return bindingContext;
+	}
+
+	/**
+	 * @param ip
+	 * @param plateNO
+	 * @param linkAddress
+	 * @param carOutTask
+	 */
+	public void outTaskSubmit(final String ip, final String plateNO, String linkAddress, CarOutTask carOutTask) {
+		String key = new Date() + "current has device:" + ip + " with plate:" + plateNO + " process";
+		outTheadPool.submit(carOutTask);
+		listOutTask.add(key);
+		outTheadPool.submit(() -> {
+			while (model.isBtnClick()) {
+				int i = 0;
+				try {
+					if (i > 120) {
+						stop();
+						return;
+					}
+					TimeUnit.MILLISECONDS.sleep(500);
+					i++;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			listOutTask.remove(key);
+		});
 	}
 }
