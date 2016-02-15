@@ -561,7 +561,7 @@ public class CarOutTask implements Runnable{
 						DateTime plusMinutes = new DateTime(chargeTime).plusMinutes(concentrateLateTime);
 						if (plusMinutes.isBeforeNow()) {
 							if (shouldMoney>chargedMoney) {
-								String content = "请缴费"+shouldMoney+"元,已缴费"+chargedMoney+"元,请到管理处续费";
+								String content = "应缴费"+shouldMoney+"元,已缴费"+chargedMoney+"元,请到管理处续费";
 								presenter.showContentToDevice(device, CarparkUtils.formatFloatString(content), false);
 								return;
 							}
@@ -572,8 +572,8 @@ public class CarOutTask implements Runnable{
 					singleCarparkInOutHistory.setSmallImg(smallImg);
 					model.setShouldMony(shouldMoney);
 					singleCarparkInOutHistory.setShouldMoney(shouldMoney);
-					model.setChargedMoney(chargedMoney==null?0:chargedMoney);
-					model.setReal(0);
+					model.setChargedMoney(chargedMoney);
+					model.setReal(shouldMoney-chargedMoney);
 				}else{
 					model.setShouldMony(shouldMoney);
 					singleCarparkInOutHistory.setShouldMoney(shouldMoney);

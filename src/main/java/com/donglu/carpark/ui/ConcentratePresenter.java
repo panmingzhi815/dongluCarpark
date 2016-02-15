@@ -137,7 +137,8 @@ public class ConcentratePresenter {
 				return;
 			}
 			Float paidMoney = model.getPaidMoney();
-			if ((paidMoney+factMoney)>model.getShouldMoney()) {
+			float totalMoney = paidMoney+factMoney;
+			if (totalMoney>model.getShouldMoney()) {
 				commonui.info("提示", "收费总金额不能大于应收金额");
 				return;
 			}
@@ -145,6 +146,7 @@ public class ConcentratePresenter {
 			if (!confirm) {
 				return;
 			}
+			in.setFactMoney(totalMoney);
 			sp.getCarparkInOutService().saveInOutHistory(in);
 			commonui.info("提示", "收费成功");
 		} catch (Exception e) {

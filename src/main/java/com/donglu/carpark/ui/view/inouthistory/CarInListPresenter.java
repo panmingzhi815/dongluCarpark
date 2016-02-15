@@ -15,6 +15,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
@@ -122,6 +123,9 @@ public class CarInListPresenter extends AbstractListPresenter<CarInInfo> {
 			}
 			carInInfo=selected.get(0);
 		}
+		if (carInInfo.getStatus()==null||carInInfo.getStatus().equals("已锁定")) {
+			return;
+		}
 		LOGGER.info("修改车牌{}",carInInfo.getPlateNO());
 		SingleCarparkInOutHistory findInOutById = sp.getCarparkInOutService().findInOutById(carInInfo.getId());
 		if (StrUtil.isEmpty(findInOutById)||!StrUtil.isEmpty(findInOutById.getOutTime())) {
@@ -140,6 +144,7 @@ public class CarInListPresenter extends AbstractListPresenter<CarInInfo> {
 		if (!m.getNowPlateNo().equals(plateNo2)) {
 			findInOutById.setPlateNo(m.getNowPlateNo());
 			sp.getCarparkInOutService().saveInOutHistory(findInOutById);
+			CarparkUtils.cleanSameInOutHistory();
 			refresh();
 		}
 	}
