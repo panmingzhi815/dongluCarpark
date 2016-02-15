@@ -223,7 +223,7 @@ public interface CarparkService {
 	 * @param endTime
 	 * @return
 	 */
-	float calculateTempCharge(Long carTypeId, Long l, Date startTime, Date endTime);
+	float calculateTempCharge(Long carparkId,final Long carTypeId, Date startTime, Date endTime);
 	/**
 	 * 查找车牌是否为黑名单
 	 * @param plateNO

@@ -212,6 +212,7 @@ public class Login {
 		clientConfigUI=injector.getInstance(ClientConfigUI.class);
 		commonui=injector.getInstance(CommonUIFacility.class);
 		concentrateApp=injector.getInstance(ConcentrateApp.class);
+		cbo_userName.setFocus();
 	}
 
 	/**
@@ -261,7 +262,6 @@ public class Login {
 		cbo_userName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		comboViewer_1.setContentProvider(new ArrayContentProvider());
 		comboViewer_1.setLabelProvider(new LabelProvider());
-		
 		list = (List<String>) CarparkFileUtils.readObject(USER_NAMES);
 		if (list==null) {
 			list=new ArrayList<>();

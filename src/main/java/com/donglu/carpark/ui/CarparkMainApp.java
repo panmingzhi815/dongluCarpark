@@ -1194,9 +1194,10 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 					Integer two = Integer.valueOf(
 							mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
 					Timer t = new Timer();
+					long nanoTime = System.nanoTime();
 					t.schedule(new TimerTask() {
 						public void run() {
-							LOGGER.info("双摄像头等待超时任务处理：{}",two);
+							LOGGER.info("双摄像头等待超时任务处理：{},{}",two,System.nanoTime()-nanoTime);
 							CarOutTask carOutTask = mapOutTwoCameraTask.get(linkAddress);
 							outTaskSubmit(ip, plateNO, linkAddress, carOutTask);
 							mapOutTwoCameraTask.remove(linkAddress);

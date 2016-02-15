@@ -173,6 +173,7 @@ public class ImageServerUI {
 				ui.open();
 				init();
 				text.setText(filePath);
+				text.setFocus();
 			}
 		});
 		menuItem.setText("服务器配置");

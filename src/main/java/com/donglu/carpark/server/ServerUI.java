@@ -179,6 +179,7 @@ public class ServerUI {
 			public void widgetSelected(SelectionEvent e) {
 				try {
 					check();
+					text_ip.setFocus();
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}

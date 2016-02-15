@@ -74,7 +74,7 @@ public class ConcentratePresenter {
 	public void count(Date date, SingleCarparkInOutHistory in) {
 		model.setInTime(in.getInTime());
 		model.setStillTime(StrUtil.MinusTime2(in.getInTime(), date));
-		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(model.getCarType().index(), model.getCarpark().getId(), in.getInTime(), date);
+		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(model.getCarpark().getId(),model.getCarType().index(), in.getInTime(), date);
 		model.setShouldMoney(calculateTempCharge);
 		float paidMoney = in.getFactMoney() == null ? 0 : in.getFactMoney();
 		model.setPaidMoney(paidMoney);
