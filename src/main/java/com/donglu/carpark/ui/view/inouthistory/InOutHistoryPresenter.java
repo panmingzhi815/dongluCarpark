@@ -43,7 +43,7 @@ public class InOutHistoryPresenter  implements Presenter{
 			e.setUserName("全部");
 		}
 		findAll.add(e);
-		findAll.addAll(sp.getSystemUserService().findAll());
+		findAll.addAll(sp.getSystemUserService().findAllSystemUser());
 		view.setComboValue(findAll);
 	}
 	public void search(String plateNo, String returnUser, Date start, Date end, String operaName, String carType, String inout, String inDevice, String outDevice, String returnAccount, SingleCarparkCarpark carpark, String modifyPlateNO) {

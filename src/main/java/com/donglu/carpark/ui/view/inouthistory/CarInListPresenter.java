@@ -123,7 +123,7 @@ public class CarInListPresenter extends AbstractListPresenter<CarInInfo> {
 			}
 			carInInfo=selected.get(0);
 		}
-		if (carInInfo.getStatus()==null||carInInfo.getStatus().equals("已锁定")) {
+		if (carInInfo.getStatus()!=null&&carInInfo.getStatus().equals("已锁定")) {
 			return;
 		}
 		LOGGER.info("修改车牌{}",carInInfo.getPlateNO());

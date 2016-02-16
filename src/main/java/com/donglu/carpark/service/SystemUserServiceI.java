@@ -6,7 +6,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 
 public interface SystemUserServiceI {
 	
-	public List<SingleCarparkSystemUser> findAll();
+	public List<SingleCarparkSystemUser> findAllSystemUser();
 	
 	public SingleCarparkSystemUser findByNameAndPassword(String userName,String password);
 	
@@ -14,5 +14,5 @@ public interface SystemUserServiceI {
 	
 	public Long saveSystemUser(SingleCarparkSystemUser systemUser);
 
-	public void init();
+	public void initSystemInfo();
 }

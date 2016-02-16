@@ -285,7 +285,7 @@ public class ServerUI {
             });
             CarparkDatabaseServiceProvider serviceProvider = injector.getInstance(CarparkDatabaseServiceProvider.class);
             serviceProvider.start();
-            serviceProvider.getSystemUserService().init();
+            serviceProvider.getSystemUserService().initSystemInfo();
             serviceProvider.stop();
             return true;
         } catch (Exception e) {

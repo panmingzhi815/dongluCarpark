@@ -28,7 +28,7 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 
 	
 	@Override
-	public List<SingleCarparkSystemUser> findAll() {
+	public List<SingleCarparkSystemUser> findAllSystemUser() {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkSystemUser.class);
@@ -80,7 +80,7 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 
 	@Override
 	@Transactional
-	public void init() {
+	public void initSystemInfo() {
 		DatabaseOperation<SingleCarparkSystemUser> dom = DatabaseOperation.forClass(SingleCarparkSystemUser.class, emprovider.get());
 		SingleCarparkSystemUser systemUser=new SingleCarparkSystemUser();
 		systemUser.setUserName("admin");

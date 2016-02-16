@@ -28,7 +28,7 @@ public class ReturnAccountPresenter implements Presenter{
 		SingleCarparkSystemUser e = new SingleCarparkSystemUser();
 		e.setUserName("全部");
 		findAll.add(e);
-		findAll.addAll(sp.getSystemUserService().findAll());
+		findAll.addAll(sp.getSystemUserService().findAllSystemUser());
 		view.setCombo(findAll);
 	}
 	public void search(String operaName, String returnUser, Date start, Date end) {

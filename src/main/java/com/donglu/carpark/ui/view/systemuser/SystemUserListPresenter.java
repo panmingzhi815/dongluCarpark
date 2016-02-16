@@ -114,7 +114,7 @@ public class SystemUserListPresenter extends AbstractListPresenter<SingleCarpark
 	@Override
 	public void refresh() {
 		SystemUserServiceI systemUserService = sp.getSystemUserService();
-		List<SingleCarparkSystemUser> findAll = systemUserService.findAll();
+		List<SingleCarparkSystemUser> findAll = systemUserService.findAllSystemUser();
 		view.getModel().setList(findAll);
 	}
 

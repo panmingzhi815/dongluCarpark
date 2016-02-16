@@ -149,6 +149,7 @@ public class ConcentratePresenter {
 			in.setFactMoney(totalMoney);
 			sp.getCarparkInOutService().saveInOutHistory(in);
 			commonui.info("提示", "收费成功");
+			model.setIn(null);
 		} catch (Exception e) {
 			commonui.error("提示", "收费时发生错误，"+e);
 		}

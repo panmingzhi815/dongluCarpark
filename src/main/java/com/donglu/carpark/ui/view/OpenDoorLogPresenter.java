@@ -29,7 +29,7 @@ public class OpenDoorLogPresenter  implements Presenter{
 		SingleCarparkSystemUser e = new SingleCarparkSystemUser();
 		e.setUserName("全部");
 		findAll.add(e);
-		findAll.addAll(sp.getSystemUserService().findAll());
+		findAll.addAll(sp.getSystemUserService().findAllSystemUser());
 		view.setComboValue(findAll);
 	}
 	public OpenDoorListPresenter getListPresenter() {
