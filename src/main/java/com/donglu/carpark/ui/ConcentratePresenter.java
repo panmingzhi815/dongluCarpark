@@ -5,6 +5,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.donglu.carpark.model.ConcentrateModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
@@ -29,6 +33,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.mapper.BeanUtil;
+import com.dongluhitec.card.util.ThreadUtil;
 import com.google.inject.Inject;
 
 public class ConcentratePresenter {
@@ -84,6 +89,7 @@ public class ConcentratePresenter {
 		in.setShouldMoney(calculateTempCharge);
 		in.setChargeTime(date);
 		in.setOperaName(System.getProperty("userName"));
+		in.setChargeOperaName(System.getProperty("userName"));
 		view.setInImage(in.getBigImg());
 		model.setIn(in);
 	}
@@ -150,6 +156,8 @@ public class ConcentratePresenter {
 			sp.getCarparkInOutService().saveInOutHistory(in);
 			commonui.info("提示", "收费成功");
 			model.setIn(null);
+			model.setPaidMoney(model.getPaidMoney()+model.getFactMoney());
+			model.setFactMoney(0F);
 		} catch (Exception e) {
 			commonui.error("提示", "收费时发生错误，"+e);
 		}
@@ -168,9 +176,22 @@ public class ConcentratePresenter {
 		String userName = System.getProperty("userName");
 		model.setUserName(userName);
 		model.setWorkTime(new Date());
-		model.setTotalFact(sp.getCarparkInOutService().findFactMoneyByName(userName));
-		model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
+		refreshMoney(userName);
 		getListCarTypeAndSelect();
+	}
+	/**
+	 * @param userName
+	 */
+	public void refreshMoney(String userName) {
+		
+		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("集中收费界面金钱刷新"));
+		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				model.setTotalFact(sp.getCarparkInOutService().findFactMoneyByName(userName));
+				model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
+			}
+		}, 1, 5, TimeUnit.SECONDS);
 	}
 	/**
 	 * 获得所有车辆类型并默认选择
@@ -267,8 +288,6 @@ public class ConcentratePresenter {
 
 		model.setUserName(userName);
 		model.setWorkTime(new Date());
-		model.setTotalFact(sp.getCarparkInOutService().findShouldMoneyByName(userName));
-		model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
 	}
 	public void returnAccount() {
 		try {
@@ -332,8 +351,6 @@ public class ConcentratePresenter {
 				}
 				carparkInOutService.saveInOutHistoryOfList(listFree);
 			}
-			this.model.setTotalFact(carparkInOutService.findFactMoneyByName(userName));
-			this.model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

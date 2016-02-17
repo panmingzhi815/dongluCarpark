@@ -136,6 +136,9 @@ public class ConcentrateModel extends DomainObject {
 			pcs.firePropertyChange("inTime", null, null);
 	}
 	public Float getPaidMoney() {
+		if (paidMoney==null) {
+			paidMoney=0F;
+		}
 		return paidMoney;
 	}
 	public void setPaidMoney(Float paidMoney) {

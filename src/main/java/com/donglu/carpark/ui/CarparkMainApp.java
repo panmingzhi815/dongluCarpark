@@ -454,7 +454,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	}
 
 	private void autoSendTimeToDevice() {
-		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("发送时间任务"));
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {

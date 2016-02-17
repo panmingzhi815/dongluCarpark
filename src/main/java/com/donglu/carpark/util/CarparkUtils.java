@@ -1,12 +1,17 @@
 package com.donglu.carpark.util;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -742,5 +747,43 @@ public class CarparkUtils {
 	 */
 	public static void setBackgroundImageName(CLabel lbl_outSmallImg, String string) {
 		lbl_outSmallImg.setData("imgName", string);
+	}
+	
+	/**
+	 * 获取外网IP
+	 * @return
+	 */
+	public static String getTCPIP(String tcpGetUrl) {
+		InputStream ins = null;
+		try {
+			String spec = "http://1212.ip138.com/ic.asp";
+			if (tcpGetUrl!=null) {
+				spec=tcpGetUrl;
+			}
+			URL url = new URL(spec);
+			URLConnection con = url.openConnection();
+			ins = con.getInputStream();
+			InputStreamReader isReader = new InputStreamReader(ins, "GB2312");
+			BufferedReader bReader = new BufferedReader(isReader);
+			StringBuffer webContent = new StringBuffer();
+			String str = null;
+			while ((str = bReader.readLine()) != null) {
+				webContent.append(str);
+			}
+			int start = webContent.indexOf("[") + 1;
+			int end = webContent.indexOf("]");
+			return webContent.substring(start, end);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (ins != null) {
+				try {
+					ins.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return "";
 	}
 }

@@ -37,6 +37,7 @@ public class SearchHistoryByHandWizardPage extends WizardPage {
 		presenter.go(container);
 		presenter.getModel().setBigImg(CarparkUtils.getImageByte(presenter.getModel().getSaveBigImg()));
 		presenter.getModel().setSmallImg(CarparkUtils.getImageByte(presenter.getModel().getSaveSmallImg()));
+		
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {
