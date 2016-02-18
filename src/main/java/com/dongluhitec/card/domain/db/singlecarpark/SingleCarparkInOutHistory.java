@@ -342,7 +342,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 			if (h.getId()==null) {
 				return false;
 			}
-			if (h.getId().equals(this.getId())||(h.inTime.equals(this.inTime))) {
+			if (h.getId().equals(this.getId())) {
 				return true;
 			}else{
 				return false;
