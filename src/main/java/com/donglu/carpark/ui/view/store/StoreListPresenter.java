@@ -36,7 +36,7 @@ public class StoreListPresenter extends AbstractListPresenter<SingleCarparkStore
 	public void go(Composite c) {
 		view = new StoreListView(c, c.getStyle());
 		view.setPresenter(this);
-		view.setTableTitle("固定用户列表");
+		view.setTableTitle("商铺列表");
 		view.setShowMoreBtn(false);
 	}
 
@@ -82,7 +82,7 @@ public class StoreListPresenter extends AbstractListPresenter<SingleCarparkStore
 			for (SingleCarparkStore s : list) {
 				storeService.deleteStore(s);
 			}
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.商铺, "删除了商铺:" + userName);
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.商铺, "删除了商铺:" + userName,System.getProperty("userName"));
 			commonui.info("成功", "删除商铺成功");
 			refresh();
 		} catch (Exception e) {

@@ -5,6 +5,7 @@ import com.donglu.carpark.service.impl.CarparkInOutServiceImpl;
 import com.donglu.carpark.service.impl.CarparkServiceImpl;
 import com.donglu.carpark.service.impl.CarparkUserServiceImpl;
 import com.donglu.carpark.service.impl.StoreServiceImpl;
+import com.donglu.carpark.service.impl.SystemOperaLogServiceImpl;
 import com.donglu.carpark.service.impl.SystemUserServiceImpl;
 import com.dongluhitec.card.service.MapperConfig;
 import com.google.inject.*;
@@ -15,11 +16,8 @@ import com.google.inject.persist.jpa.JpaPersistModule;
 import java.util.Properties;
 
 /**
- * Created with IntelliJ IDEA.
- * User: wudong
- * Date: 05/08/13
- * Time: 22:35
- * To change this template use File | Settings | File Templates.
+ * 服务器端的服务
+ *huangjianx
  */
 public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServiceProvider{
 
@@ -42,6 +40,7 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
             setCarparkUserService(injector.getInstance(CarparkUserService.class));
             setSystemUserService(injector.getInstance(SystemUserServiceI.class));
             setCarparkInOutService(injector.getInstance(CarparkInOutServiceI.class));
+            setSystemOperaLogService(injector.getInstance(SystemOperaLogServiceI.class));
             setStoreService(injector.getInstance(StoreServiceI.class));
     }
 
@@ -89,6 +88,7 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
             this.bind(CarparkUserService.class).to(CarparkUserServiceImpl.class).in(Singleton.class);
             this.bind(SystemUserServiceI.class).to(SystemUserServiceImpl.class).in(Singleton.class);
             this.bind(CarparkInOutServiceI.class).to(CarparkInOutServiceImpl.class).in(Singleton.class);
+            this.bind(SystemOperaLogServiceI.class).to(SystemOperaLogServiceImpl.class).in(Singleton.class);
             this.bind(StoreServiceI.class).to(StoreServiceImpl.class).in(Singleton.class);
         }
     }

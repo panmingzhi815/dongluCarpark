@@ -4,7 +4,7 @@ import org.slf4j.helpers.MessageFormatter;
 
 
 public enum CameraTypeEnum {
-	信路威("rtsp://{}:554/h264ESVideoTest"),臻识("rtsp://VisionZenith:147258369@{}:8557/h264");
+	信路威("rtsp://{}:554/h264ESVideoTest"),臻识("rtsp://VisionZenith:147258369@{}:8557/h264"),其他(null);
 	
 	String rtsp;
 	CameraTypeEnum(String rtsp){
@@ -20,10 +20,11 @@ public enum CameraTypeEnum {
 	public String toString() {
 		switch (this) {
 		case 信路威:
-			return "A型";
+			return "X型";
 		case 臻识:
-			return "B型";
+			return "Z型";
+		default:
+			return super.toString();
 		}
-		return super.toString();
 	}
 }

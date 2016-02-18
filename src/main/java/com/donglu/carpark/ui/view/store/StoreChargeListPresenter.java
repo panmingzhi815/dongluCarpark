@@ -65,7 +65,7 @@ public class StoreChargeListPresenter extends AbstractListPresenter<SingleCarpar
 		List<SingleCarparkStoreChargeHistory> allList = view.getModel().getList();
 		try {
 			export.export(path, view.getNameProperties(), view.getColumnProperties(), allList);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.商铺, "导出了" + allList.size() + "条商铺充值记录");
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.商铺, "导出了" + allList.size() + "条商铺充值记录",System.getProperty("userName"));
 			commonui.info("导出提示", "导出成功！");
 		} catch (Exception e) {
 			e.printStackTrace();

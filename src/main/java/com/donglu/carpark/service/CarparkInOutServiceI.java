@@ -64,7 +64,7 @@ public interface CarparkInOutServiceI {
 	 * @param singleCarparkCarpark 
 	 * @return
 	 */
-	int findTotalSlotIsNow(SingleCarparkCarpark singleCarparkCarpark);
+	Integer findTotalSlotIsNow(SingleCarparkCarpark singleCarparkCarpark);
 
 	List<SingleCarparkInOutHistory> searchHistoryByLikePlateNO(String plateNO, boolean order,SingleCarparkCarpark carpark);
 

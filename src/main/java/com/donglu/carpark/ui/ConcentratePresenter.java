@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +36,7 @@ import com.dongluhitec.card.util.ThreadUtil;
 import com.google.inject.Inject;
 
 public class ConcentratePresenter {
+	private static String OPERANAME = System.getProperty("userName");
 	ConcentrateApp view;
 	ConcentrateModel model;
 	@Inject
@@ -88,8 +88,8 @@ public class ConcentratePresenter {
 		in.setFactMoney(paidMoney + factMoney);
 		in.setShouldMoney(calculateTempCharge);
 		in.setChargeTime(date);
-		in.setOperaName(System.getProperty("userName"));
-		in.setChargeOperaName(System.getProperty("userName"));
+		in.setOperaName(OPERANAME);
+		in.setChargeOperaName(OPERANAME);
 		view.setInImage(in.getBigImg());
 		model.setIn(in);
 	}
@@ -167,13 +167,14 @@ public class ConcentratePresenter {
 		this.model = model;
 	}
 	public void init() {
+		OPERANAME = System.getProperty("userName");
 		List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
 		if (StrUtil.isEmpty(findAllCarpark)) {
 			return;
 		}
 		model.setCarpark(findAllCarpark.get(0));
 		model.setListCarpark(findAllCarpark);
-		String userName = System.getProperty("userName");
+		String userName = OPERANAME;
 		model.setUserName(userName);
 		model.setWorkTime(new Date());
 		refreshMoney(userName);
@@ -241,7 +242,7 @@ public class ConcentratePresenter {
 				return;
 			}
 			user.setValidTo(m.getOverdueTime());
-			m.setOperaName(System.getProperty("userName"));
+			m.setOperaName(OPERANAME);
 			m.setUserType(user.getType());
 			if (user.getType().equals("普通")) {
 				if (StrUtil.isEmpty(m.getSelectMonth())) {
@@ -263,7 +264,7 @@ public class ConcentratePresenter {
 			}
 			sp.getCarparkUserService().saveUser(user);
 			sp.getCarparkService().saveMonthlyUserPayHistory(m.getSingleCarparkMonthlyUserPayHistory());
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了用户:"+user.getName());
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了用户:"+user.getName(),OPERANAME);
 			commonui.info("操作成功", "充值成功");
 			refresh();
 		} catch (Exception e) {

@@ -48,7 +48,7 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 				sp.getCarparkService().deleteBlackUser(b);
 				names+="["+b.getPlateNO()+"]";
 			}
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.黑名单, "删除黑名单:"+names);
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.黑名单, "删除黑名单:"+names,System.getProperty("userName"));
 			refresh();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -85,10 +85,11 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 				return;
 			}
 			sp.getCarparkService().saveBlackUser(b);
+			String property = System.getProperty("userName");
 			if (StrUtil.isEmpty(singleCarparkBlackUser.getPlateNO())) {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.黑名单, "添加黑名单:"+b.getPlateNO());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.黑名单, "添加黑名单:"+b.getPlateNO(),property);
 			}else{
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.黑名单, "修改黑名单:"+b.getPlateNO());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.黑名单, "修改黑名单:"+b.getPlateNO(),property);
 			}
 			refresh();
 		} catch (Exception e) {

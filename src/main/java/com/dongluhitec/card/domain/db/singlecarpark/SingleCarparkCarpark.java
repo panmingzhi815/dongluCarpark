@@ -18,14 +18,14 @@ import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity
 public class SingleCarparkCarpark extends DomainObject {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6792717851910164799L;
 	public enum Property{
 		totalNumberOfSlot,fixNumberOfSlot,tempNumberOfSlot
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7489256851092412913L;
 	
 	private String code;
 	private String name;

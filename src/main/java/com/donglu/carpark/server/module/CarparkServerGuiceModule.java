@@ -17,6 +17,6 @@ public class CarparkServerGuiceModule extends AbstractModule {
 
 		this.bindConstant().annotatedWith(Names.named("HBM2DDL")).to("update");
 		bind(CarparkServerConfig.class).toInstance(CarparkServerConfig.getInstance());
-		bind(CarparkDatabaseServiceProvider.class).to(CarparkLocalVMServiceProvider.class);
+		bind(CarparkDatabaseServiceProvider.class).to(CarparkLocalVMServiceProvider.class).in(Singleton.class);
 	}
 }

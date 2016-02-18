@@ -310,7 +310,7 @@ public class CarparkMainPresenter {
 		new_Frame1.pack();
 		new_Frame1.setVisible(true);
 		
-		final String url = cameraType.getRtspAddress(ip);
+		final String url = cameraType.getRtspAddress(ip)==null?device.getIp():cameraType.getRtspAddress(ip);
 		log.info("准备连接视频{}",url);
 		final EmbeddedMediaPlayer createPlayRight = webCameraDevice.createPlay(new_Frame1, url);
 		mapPlayer.put(url, createPlayRight);

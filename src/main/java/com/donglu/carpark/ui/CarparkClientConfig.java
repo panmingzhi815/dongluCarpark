@@ -69,7 +69,10 @@ public class CarparkClientConfig implements Serializable{
             e.printStackTrace();
         } 
 	}
-
+	/**
+	 * 服务器地址
+	 * @return
+	 */
 	public String getDbServerIp() {
 		return dbServerIp;
 	}

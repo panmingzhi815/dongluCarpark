@@ -331,7 +331,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public int findTotalSlotIsNow(SingleCarparkCarpark singleCarparkCarpark) {
+	public Integer findTotalSlotIsNow(SingleCarparkCarpark singleCarparkCarpark) {
 		if (StrUtil.isEmpty(singleCarparkCarpark)) {
 			return 0;
 		}

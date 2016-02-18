@@ -28,6 +28,7 @@ import com.dongluhitec.card.mapper.BeanUtil;
 import com.google.inject.Inject;
 
 public class ChargeListPresenter extends AbstractListPresenter<CarparkChargeInfo>{
+	private static final String OPERANAME = System.getProperty("userName");
 	private final static Logger LOGGER = LoggerFactory.getLogger(CarparkManagePresenter.class);
 	ChargeListView view;
 	
@@ -95,9 +96,9 @@ public class ChargeListPresenter extends AbstractListPresenter<CarparkChargeInfo
 			carparkChargeStandard.setCarpark(carpark);
 			carparkService.saveCarparkChargeStandard(carparkChargeStandard);
 			if (StrUtil.isEmpty(carparkCharge)) {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.临时收费设置, "添加临时收费:" + carparkChargeStandard.getCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.临时收费设置, "添加临时收费:" + carparkChargeStandard.getCode(),OPERANAME);
 			} else {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.临时收费设置, "修改临时收费:" + carparkChargeStandard.getCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.临时收费设置, "修改临时收费:" + carparkChargeStandard.getCode(),OPERANAME);
 			}
 			refresh();
 		} catch (Exception e) {
@@ -141,9 +142,9 @@ public class ChargeListPresenter extends AbstractListPresenter<CarparkChargeInfo
 			}
 			sp.getCarparkService().saveMonthlyCharge(monthlyCharge);
 			if (StrUtil.isEmpty(init.getChargeCode())) {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定收费设置, "添加固定收费:" + monthlyCharge.getChargeCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定收费设置, "添加固定收费:" + monthlyCharge.getChargeCode(),OPERANAME);
 			} else {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定收费设置, "修改固定收费:" + monthlyCharge.getChargeCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定收费设置, "修改固定收费:" + monthlyCharge.getChargeCode(),OPERANAME);
 			}
 			refresh();
 		} catch (Exception e) {
@@ -236,11 +237,11 @@ public class ChargeListPresenter extends AbstractListPresenter<CarparkChargeInfo
 			}
 			if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.固定月租收费.name())) {
 				sp.getCarparkService().deleteMonthlyCharge(carparkChargeInfo.getId());
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定收费设置, "删除固定收费:" + carparkChargeInfo.getCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定收费设置, "删除固定收费:" + carparkChargeInfo.getCode(),OPERANAME);
 			}
 			if (carparkChargeInfo.getType().equals(CarparkChargeTypeEnum.临时收费.name())) {
 				sp.getCarparkService().deleteTempCharge(carparkChargeInfo.getId());
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.临时收费设置, "删除临时收费:" + carparkChargeInfo.getCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.临时收费设置, "删除临时收费:" + carparkChargeInfo.getCode(),OPERANAME);
 			}
 		}
 

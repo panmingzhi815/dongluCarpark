@@ -18,6 +18,8 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 public class SystemUserListPresenter extends AbstractListPresenter<SingleCarparkSystemUser>{
+	private static final String OPERANAME = System.getProperty("userName");
+
 	SystemUserListView view;
 	
 	@Inject
@@ -54,7 +56,7 @@ public class SystemUserListPresenter extends AbstractListPresenter<SingleCarpark
 			systemUser.setUserName(m.getUserName());
 			SystemUserServiceI systemUserService = sp.getSystemUserService();
 			systemUserService.saveSystemUser(systemUser);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "添加了系统用户:" + systemUser.getUserName());
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "添加了系统用户:" + systemUser.getUserName(),OPERANAME);
 			commonui.info("操作成功", "添加用户成功！");
 			refresh();
 		} catch (Exception e) {
@@ -82,7 +84,7 @@ public class SystemUserListPresenter extends AbstractListPresenter<SingleCarpark
 			}
 			try {
 				systemUserService.removeSystemUser(singleCarparkSystemUser);
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "删除了系统用户:" + singleCarparkSystemUser.getUserName());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "删除了系统用户:" + singleCarparkSystemUser.getUserName(),OPERANAME);
 				commonui.info("操作成功", "删除系统用户成功");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -140,11 +142,11 @@ public class SystemUserListPresenter extends AbstractListPresenter<SingleCarpark
 		}
 		singleCarparkSystemUser.setPassword(m.getPwd());
 		singleCarparkSystemUser.setLastEditDate(new Date());
-		singleCarparkSystemUser.setLastEditUser(System.getProperty("userName"));
+		singleCarparkSystemUser.setLastEditUser(OPERANAME);
 		singleCarparkSystemUser.setRemark(m.getRemark());
 		try {
 			sp.getSystemUserService().saveSystemUser(singleCarparkSystemUser);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "修改了系统用户:" + singleCarparkSystemUser.getUserName());
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "修改了系统用户:" + singleCarparkSystemUser.getUserName(),OPERANAME);
 			commonui.info("提示", "修改成功！");
 		} catch (Exception e) {
 			e.printStackTrace();

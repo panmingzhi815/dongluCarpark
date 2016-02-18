@@ -30,6 +30,7 @@ import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.inject.Inject;
 
 public class SettingPresenter implements Presenter {
+	private static final String OPERANAME = System.getProperty("userName");
 	private SettingView view;
 	@Inject
 	private BlackUserListPresenter listPresenter;
@@ -73,7 +74,7 @@ public class SettingPresenter implements Presenter {
 			h.setSettingValue(mapSystemSetting.get(t) == null ? t.getDefaultValue() : mapSystemSetting.get(t));
 			carparkService.saveSystemSetting(h);
 		}
-		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "保存了设置信息");
+		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "保存了设置信息",OPERANAME);
 		commonui.info("成功", "保存设置成功，请重启监控界面！");
 
 	}
@@ -107,7 +108,7 @@ public class SettingPresenter implements Presenter {
 				list.add(holiday);
 			}
 			carparkService.saveHoliday(list);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "修改节假日");
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "修改节假日",OPERANAME);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -121,7 +122,7 @@ public class SettingPresenter implements Presenter {
 				return;
 			}
 			sp.getCarparkInOutService().deleteAllHistory();
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "清除记录");
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "清除记录",OPERANAME);
 			commonui.info("提示", "清除成功");
 		} catch (Exception e) {
 			e.printStackTrace();

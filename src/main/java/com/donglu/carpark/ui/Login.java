@@ -22,6 +22,7 @@ import com.beust.jcommander.JCommander;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.server.module.CarparkClientGuiceModule;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.service.SystemUserServiceI;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.TestMap;
@@ -392,7 +393,8 @@ public class Login {
 							LOGGER.info("服务启动花费时间{}", System.nanoTime() - nanoTime);
 							autoDeletePhoto();
 
-							SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(cbo_userName.getText(), txt_password.getText());
+							SystemUserServiceI systemUserService = sp.getSystemUserService();
+							SingleCarparkSystemUser findByNameAndPassword = systemUserService.findByNameAndPassword(cbo_userName.getText(), txt_password.getText());
 							if (StrUtil.isEmpty(findByNameAndPassword)) {
 								setErrorMessage("用户名或密码错误！");
 								btn_login.setEnabled(true);

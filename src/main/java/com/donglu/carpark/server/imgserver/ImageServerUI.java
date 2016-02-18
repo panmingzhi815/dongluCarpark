@@ -23,11 +23,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 
+import com.donglu.carpark.server.CarparkDBServer;
 import com.donglu.carpark.server.ServerUI;
 import com.donglu.carpark.server.module.CarparkServerGuiceModule;
-import com.donglu.carpark.server.servlet.ImageUploadServlet;
-import com.donglu.carpark.server.servlet.ServerServlet;
-import com.donglu.carpark.server.servlet.StoreServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.WebService;
@@ -47,7 +45,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.server.ServerUtil;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.dongluhitec.core.crypto.appauth.AppAuthorization;
 import com.dongluhitec.core.crypto.appauth.AppVerifier;
@@ -98,11 +95,7 @@ public class ImageServerUI {
 	@Inject
 	private WebService webService;
 	@Inject
-	private Provider<ImageUploadServlet> imageServletProvider;
-	@Inject
-	private Provider<StoreServlet> storeServletProvider;
-	@Inject
-	private Provider<ServerServlet> serverServletProvider;
+	private Provider<CarparkDBServer> carparkDBServerProvider;
 
 	private TrayItem trayItem;
 
@@ -134,7 +127,7 @@ public class ImageServerUI {
 			}
 		});
 	}
-
+	
 	/**
 	 * Open the window.
 	 */
@@ -294,7 +287,6 @@ public class ImageServerUI {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				shell.setVisible(true);
-				shell.setFocus();
 				text.setFocus();
 			}
 		});
@@ -388,13 +380,16 @@ public class ImageServerUI {
 				autoCheckSoftDog();
 			}
 			// sp.stop();
-			this.server = new Server(8899);
+			
+			int port = 8899;
+			String property = System.getProperty("ServerPort");
+			if (property!=null) {
+				port=Integer.valueOf(property);
+			}
+			
+			this.server = new Server(port);
 			ServletHandler servletHandler = new ServletHandler();
-			ServerUtil.startServlet("/carparkImage/*", servletHandler, imageServletProvider);
-
-			ServerUtil.startServlet("/server/*", servletHandler, serverServletProvider);
-			ServerUtil.startServlet("/store/*", servletHandler, storeServletProvider);
-
+			carparkDBServerProvider.get().startDbServlet(servletHandler);
 		    server.setHandler(servletHandler);
 			server.start();
 			btnStart.setEnabled(true);

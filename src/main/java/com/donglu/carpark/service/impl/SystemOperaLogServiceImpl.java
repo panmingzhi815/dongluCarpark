@@ -35,12 +35,12 @@ public class SystemOperaLogServiceImpl implements SystemOperaLogServiceI {
 	private ScheduledExecutorService saveLogService;
 	
 	@Override
-	public void saveOperaLog(SystemOperaLogTypeEnum type, String content) {
+	public void saveOperaLog(SystemOperaLogTypeEnum type, String content, String operaName) {
 		if (StrUtil.isEmpty(saveLogService)) {
 			saveLogService = Executors.newSingleThreadScheduledExecutor();
 		}
 		SingleCarparkSystemOperaLog log=new SingleCarparkSystemOperaLog();
-		log.setOperaName(System.getProperty("userName"));
+		log.setOperaName(operaName);
 		log.setOperaDate(new Date());
 		log.setType(type);
 		log.setContent(content);

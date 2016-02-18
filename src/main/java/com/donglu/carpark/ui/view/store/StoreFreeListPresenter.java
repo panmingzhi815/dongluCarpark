@@ -70,7 +70,7 @@ public class StoreFreeListPresenter extends AbstractListPresenter<SingleCarparkS
 		List<SingleCarparkStoreFreeHistory> list = view.getModel().getList();
 		try {
 			export.export(path, view.getNameProperties(), view.getColumnProperties(), list);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.商铺, "导出了" + list.size() + "条商铺免费记录");
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.商铺, "导出了" + list.size() + "条商铺免费记录",System.getProperty("userName"));
 			commonui.info("导出提示", "导出成功！");
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -21,6 +21,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 public class CarparkPresenter  implements Presenter{
+	private static final String OPERANAME = System.getProperty("userName");
 	private CarparkView view;
 	private CarparkModel model=new CarparkModel();
 	@Inject
@@ -52,7 +53,7 @@ public class CarparkPresenter  implements Presenter{
 				return;
 			}
 			carparkService.deleteCarpark(carpark);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "删除了停车场:" + carpark.getCode());
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "删除了停车场:" + carpark.getCode(),OPERANAME);
 			commonui.info("提示", "删除成功！");
 			refreshCarpark();
 		} catch (Exception e) {
@@ -84,10 +85,10 @@ public class CarparkPresenter  implements Presenter{
 			showWizard.setLeftNumberOfSlot(showWizard.getTotalNumberOfSlot());
 			carparkService.saveCarpark(showWizard);
 			if (StrUtil.isEmpty(model.getCode())) {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "添加了停车场:" + showWizard.getCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "添加了停车场:" + showWizard.getCode(),OPERANAME);
 				commonui.info("提示", "添加停车场成功");
 			} else {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "修改了停车场:" + showWizard.getCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "修改了停车场:" + showWizard.getCode(),OPERANAME);
 				commonui.info("提示", "修改停车场成功");
 			}
 			refreshCarpark();
@@ -127,10 +128,10 @@ public class CarparkPresenter  implements Presenter{
 			showWizard.setTotalNumberOfSlot(0);
 			carparkService.saveCarpark(showWizard);
 			if (StrUtil.isEmpty(model.getCode())) {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "添加了子停车场:" + showWizard.getCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "添加了子停车场:" + showWizard.getCode(),OPERANAME);
 				commonui.info("提示", "添加子停车场成功");
 			} else {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "修改了子停车场:" + showWizard.getCode());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "修改了子停车场:" + showWizard.getCode(),OPERANAME);
 				commonui.info("提示", "修改子停车场成功");
 			}
 			refreshCarpark();
