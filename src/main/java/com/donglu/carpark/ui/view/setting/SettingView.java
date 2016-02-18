@@ -16,6 +16,7 @@ import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.util.CarparkFileUtils;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -220,6 +221,20 @@ public class SettingView extends Composite implements View {
 		button_19.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_19.setText("临时车不做通道限制");
 		button_19.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制)));
+		
+		Button button_24 = new Button(group, SWT.CHECK);
+		button_24.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.固定车到期变临时车, button_24.getSelection()+"");
+			}
+		});
+		button_24.setToolTipText("选择后固定车到期后作临时车计费，否则到期后不允许进入。默认选中");
+		button_24.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_24.setText("固定车到期后作临时车计费");
+		button_24.setSelection(Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车)));
+		new Label(group, SWT.NONE);
+		new Label(group, SWT.NONE);
 
 		Composite composite_2 = new Composite(group, SWT.NONE);
 		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));

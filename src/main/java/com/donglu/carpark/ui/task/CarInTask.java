@@ -463,6 +463,15 @@ public class CarInTask implements Runnable {
 		if (CarparkUtils.checkRoadType(device,presenter,DeviceRoadTypeEnum.储值车通道,DeviceRoadTypeEnum.临时车通道)) {
 			return true;
 		}
+		if (date.after(new DateTime(user.getValidTo()).minusDays(user.getDelayDays() == null ? 0 : user.getRemindDays()).toDate())) {
+			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车).equals("true")) {
+				shouTempCarToDevice(device);
+				return false;
+			}else{
+				presenter.showContentToDevice(device, "车辆已过期,请联系管理员", false);
+				return true;
+			}
+		}
 		if (StrUtil.isEmpty(inId)) {
 			Boolean valueOf2 = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费) == null ? "false" : mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));
 			List<SingleCarparkInOutHistory> list = new ArrayList<>();
