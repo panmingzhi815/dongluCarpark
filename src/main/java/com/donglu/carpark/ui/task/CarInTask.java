@@ -372,6 +372,9 @@ public class CarInTask implements Runnable {
 			}
 			cch.setInDevice(device.getName());
 			cch.setInPhotographType("自动");
+			cch.setChargeTime(null);
+			cch.setChargeOperaName(null);
+			cch.setFactMoney(0);
 			Date handPhotographDate = mapHandPhotograph.get(ip);
 			if (!StrUtil.isEmpty(handPhotographDate)) {
 				DateTime plusSeconds = new DateTime(handPhotographDate).plusSeconds(3);

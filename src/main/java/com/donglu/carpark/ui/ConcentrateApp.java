@@ -255,7 +255,7 @@ public class ConcentrateApp extends AbstractApp {
 		Label lblNewLabel_2 = new Label(composite_1, SWT.NONE);
 		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_2.setText("实收金额");
+		lblNewLabel_2.setText("缴费金额");
 		
 		text_4 = new Text(composite_1, SWT.BORDER);
 		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
