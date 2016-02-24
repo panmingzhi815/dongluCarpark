@@ -20,6 +20,7 @@ import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
@@ -146,6 +147,7 @@ public class CarInListPresenter extends AbstractListPresenter<CarInInfo> {
 			sp.getCarparkInOutService().saveInOutHistory(findInOutById);
 			CarparkUtils.cleanSameInOutHistory();
 			refresh();
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.改车牌, "修改了车牌:"+plateNo2+">"+m.getNowPlateNo(),System.getProperty("userName"));
 		}
 	}
 
@@ -162,6 +164,7 @@ public class CarInListPresenter extends AbstractListPresenter<CarInInfo> {
 			}
 			if (StrUtil.isEmpty(carInInfo.getStatus())) {
 				sp.getCarparkInOutService().lockCar(carInInfo.getPlateNO());
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.锁车, "锁车了:"+carInInfo.getPlateNO(),System.getProperty("userName"));
 			}else{
 				SingleCarparkLockCar findLockCarByPlateNO = sp.getCarparkInOutService().findLockCarByPlateNO(carInInfo.getPlateNO(),true);
 				if (StrUtil.isEmpty(findLockCarByPlateNO)) {
@@ -169,6 +172,7 @@ public class CarInListPresenter extends AbstractListPresenter<CarInInfo> {
 				}
 				findLockCarByPlateNO.setStatus(SingleCarparkLockCar.Status.已解锁.name());
 				sp.getCarparkInOutService().saveLockCar(findLockCarByPlateNO);
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.锁车, "解锁了车:"+carInInfo.getPlateNO(),System.getProperty("userName"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
