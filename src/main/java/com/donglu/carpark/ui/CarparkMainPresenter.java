@@ -74,7 +74,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
 import com.dongluhitec.card.hardware.plateDevice.PlateNOJNA;
-import com.dongluhitec.card.hardware.plateDevice.xinluwei.XinlutongJNA;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.mapper.BeanUtil;
 import com.dongluhitec.card.util.ThreadUtil;
@@ -82,7 +81,6 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
@@ -95,10 +93,6 @@ public class CarparkMainPresenter {
 	private CarparkDatabaseServiceProvider sp;
 	@Inject
 	private CommonUIFacility commonui;
-	@Inject
-	private XinlutongJNA xinlutongJNA;
-	@Inject
-	private Provider<com.dongluhitec.card.hardware.plateDevice.lpr.LPRJNA> LPRJNA;
 	
 	Map<String, PlateNOJNA> mapIpToJNA= new HashMap<>();
 	
@@ -374,14 +368,8 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	public PlateNOJNA setJNA(String ip, CameraTypeEnum cameraType) {
-		PlateNOJNA jna;
-		if (cameraType.equals(CameraTypeEnum.臻识)) {
-			jna=LPRJNA.get();
-			mapIpToJNA.put(ip,jna);
-		}else{
-			jna=xinlutongJNA;
-			mapIpToJNA.put(ip,jna);
-		}
+		PlateNOJNA jna=cameraType.getJNA(Login.injector);
+		mapIpToJNA.put(ip,jna);
 		return jna;
 	}
 

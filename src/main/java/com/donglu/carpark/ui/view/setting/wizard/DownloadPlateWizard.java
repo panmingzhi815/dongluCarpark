@@ -7,6 +7,7 @@ import java.util.Map;
 import org.eclipse.jface.wizard.Wizard;
 
 import com.donglu.carpark.ui.CarparkMainApp;
+import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -25,12 +26,10 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard{
 	
 	private DownloadPlateModel model;
 	private DownloadPlateWizardPage page;
-	private Map<CameraTypeEnum, PlateNOJNA> map;
 	private CommonUIFacility commonui;
 	
-	public DownloadPlateWizard(DownloadPlateModel model, Map<CameraTypeEnum, PlateNOJNA> map, CommonUIFacility commonui) {
+	public DownloadPlateWizard(DownloadPlateModel model,CommonUIFacility commonui) {
 		this.model=model;
-		this.map=map;
 		this.commonui=commonui;
 		setWindowTitle("对设备下载白名单信息");
 	}
@@ -78,7 +77,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard{
 					}
 					String ip = downloadDeviceInfo.getIp();
 					monitor.showMessage("正在下载车牌信息到:"+ip);
-					PlateNOJNA plateNOJNA = map.get(downloadDeviceInfo.getType());
+					PlateNOJNA plateNOJNA = type.getJNA(Login.injector);
 					try {
 						plateNOJNA.openEx(ip, new PlateNOResult() {
 							@Override

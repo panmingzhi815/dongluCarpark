@@ -14,7 +14,6 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.ClientConfigUI;
-import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.list.BlackUserListPresenter;
 import com.donglu.carpark.ui.view.setting.wizard.DownloadPlateModel;
@@ -24,17 +23,13 @@ import com.donglu.carpark.ui.wizard.holiday.AddYearHolidayWizard;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
-import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.hardware.plateDevice.PlateNOJNA;
 import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
-import com.dongluhitec.card.hardware.plateDevice.lpr.LPRJNA;
-import com.dongluhitec.card.hardware.plateDevice.xinluwei.XinlutongJNA;
 import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.inject.Inject;
 
@@ -209,16 +204,7 @@ public class SettingPresenter implements Presenter {
 
 	}
 
-	Map<CameraTypeEnum, PlateNOJNA> map=new HashMap<>();
 	public void downloadPlate() {
-		if (map.get(CameraTypeEnum.信路威)==null) {
-			XinlutongJNA xlt = Login.injector.getInstance(XinlutongJNA.class);
-			map.put(CameraTypeEnum.信路威, xlt);
-		}
-		if (map.get(CameraTypeEnum.臻识)==null) {
-			LPRJNA lpr = Login.injector.getInstance(LPRJNA.class);
-			map.put(CameraTypeEnum.臻识, lpr);
-		}
 		
 		DownloadPlateModel model = new DownloadPlateModel();
 		List<SingleCarparkUser> findAll = sp.getCarparkUserService().findAll();
@@ -234,7 +220,7 @@ public class SettingPresenter implements Presenter {
 			list.add(pd);
 		}
 		model.setListPlate(list);
-		DownloadPlateWizard w=new DownloadPlateWizard(model,map,commonui);
+		DownloadPlateWizard w=new DownloadPlateWizard(model,commonui);
 		commonui.showWizard(w);
 		
 	}
