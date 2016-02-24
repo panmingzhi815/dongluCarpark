@@ -65,7 +65,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.hardware.PlateNOResult;
+import com.dongluhitec.card.hardware.plateDevice.PlateNOResult;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;

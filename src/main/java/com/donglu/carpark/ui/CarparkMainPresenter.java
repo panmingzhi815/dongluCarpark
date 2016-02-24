@@ -72,11 +72,10 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.hardware.PlateNOJNA;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
-import com.dongluhitec.card.hardware.lpr.LPRJNA;
+import com.dongluhitec.card.hardware.plateDevice.PlateNOJNA;
+import com.dongluhitec.card.hardware.plateDevice.xinluwei.XinlutongJNA;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
-import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
 import com.dongluhitec.card.mapper.BeanUtil;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.collect.Maps;
@@ -99,7 +98,7 @@ public class CarparkMainPresenter {
 	@Inject
 	private XinlutongJNA xinlutongJNA;
 	@Inject
-	private Provider<LPRJNA> LPRJNA;
+	private Provider<com.dongluhitec.card.hardware.plateDevice.lpr.LPRJNA> LPRJNA;
 	
 	Map<String, PlateNOJNA> mapIpToJNA= new HashMap<>();
 	

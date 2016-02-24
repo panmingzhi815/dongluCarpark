@@ -1,14 +1,8 @@
 package com.donglu.carpark.server.module;
 
-import com.dongluhitec.card.hardware.hanwangAllInOne.LicencePlatesAllInOne;
-import com.dongluhitec.card.hardware.hanwangAllInOne.impl.LicencePlatesAllInOneImpl;
-import com.dongluhitec.card.hardware.hanwangAllInOne.impl.MacDummyLicencePlatesAllInOneImpl;
 import com.dongluhitec.card.hardware.idcardreader.IDCodeReader;
 import com.dongluhitec.card.hardware.idcardreader.impl.IDCodeReaderJNAImpl;
 import com.dongluhitec.card.hardware.idcardreader.impl.MacDummyIDCodeReaderImpl;
-import com.dongluhitec.card.hardware.licenceplates.LicencePlates;
-import com.dongluhitec.card.hardware.licenceplates.impl.LicencePlatesJNAImpl;
-import com.dongluhitec.card.hardware.licenceplates.impl.MacDummyLicencePlatesImpl;
 import com.dongluhitec.card.hardware.message.MessageRegistry;
 import com.dongluhitec.card.hardware.message.cardwriter.CardWriterRegisterImpl;
 import com.dongluhitec.card.hardware.message.newcarpark.NewCarparkMessageRegistryImpl;
@@ -16,11 +10,17 @@ import com.dongluhitec.card.hardware.message.service.CardReaderMessageRegistryIm
 import com.dongluhitec.card.hardware.message.service.CarparkMessageRegistryImpl;
 import com.dongluhitec.card.hardware.message.service.ConsumptionMessageRegistryImpl;
 import com.dongluhitec.card.hardware.message.service.MessageRegistryImpl;
+import com.dongluhitec.card.hardware.plateDevice.hanwangAllInOne.LicencePlatesAllInOne;
+import com.dongluhitec.card.hardware.plateDevice.hanwangAllInOne.impl.LicencePlatesAllInOneImpl;
+import com.dongluhitec.card.hardware.plateDevice.hanwangAllInOne.impl.MacDummyLicencePlatesAllInOneImpl;
+import com.dongluhitec.card.hardware.plateDevice.licenceplates.LicencePlates;
+import com.dongluhitec.card.hardware.plateDevice.licenceplates.impl.LicencePlatesJNAImpl;
+import com.dongluhitec.card.hardware.plateDevice.licenceplates.impl.MacDummyLicencePlatesImpl;
+import com.dongluhitec.card.hardware.plateDevice.xinluwei.MacDummyXinlutongImpl;
+import com.dongluhitec.card.hardware.plateDevice.xinluwei.XinlutongJNA;
+import com.dongluhitec.card.hardware.plateDevice.xinluwei.XinlutongJNAImpl;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.hardware.service.impl.BasicHardwareServiceSyncImpl;
-import com.dongluhitec.card.hardware.xinluwei.MacDummyXinlutongImpl;
-import com.dongluhitec.card.hardware.xinluwei.XinlutongJNA;
-import com.dongluhitec.card.hardware.xinluwei.XinlutongJNAImpl;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;

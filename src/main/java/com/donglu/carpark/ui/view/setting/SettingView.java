@@ -622,7 +622,7 @@ public class SettingView extends Composite implements View {
 		label_5.setText("分");
 
 		Composite composite_8 = new Composite(composite, SWT.NONE);
-		composite_8.setLayout(new GridLayout(3, false));
+		composite_8.setLayout(new GridLayout(4, false));
 
 		Button button_20 = new Button(composite_8, SWT.NONE);
 		button_20.addSelectionListener(new SelectionAdapter() {
@@ -654,6 +654,17 @@ public class SettingView extends Composite implements View {
 		});
 		button_22.setText("清理场内车");
 		button_22.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		
+		Button button_25 = new Button(composite_8, SWT.NONE);
+		button_25.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().downloadPlate();
+			}
+		});
+		button_25.setToolTipText("将固定车的车牌下载到设备");
+		button_25.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_25.setText("车牌下载");
 
 		Button button_23 = new Button(composite, SWT.NONE);
 		button_23.addSelectionListener(new SelectionAdapter() {
