@@ -84,6 +84,6 @@ public class CarparkFileUtils {
 				}
 			}
 		}
-		return name;
+		return null;
 	}
 }
