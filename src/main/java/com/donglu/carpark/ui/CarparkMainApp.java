@@ -310,8 +310,8 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			if (StrUtil.isEmpty(userType)) {
 				systemExit();
 			}
-			init();
 			Display display = Display.getDefault();
+			init();
 			createContents();
 			shell.setMaximized(true);
 			shell.setImage(JFaceUtil.getImage("carpark_16"));

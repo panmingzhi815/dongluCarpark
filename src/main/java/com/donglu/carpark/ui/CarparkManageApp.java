@@ -79,21 +79,23 @@ public class CarparkManageApp extends AbstractApp{
 	@Override
 	public void open() {
 		try {
+			long nanoTime = System.nanoTime();
 			Display display = Display.getDefault();
-			init();
-			createContents();
-			shell.setImage(JFaceUtil.getImage("carpark_16"));
-			shell.addDisposeListener(new DisposeListener() {
-				
+			shell = new Shell();
+			shell.setSize(896, 621);
+			display.asyncExec(new Runnable() {
 				@Override
-				public void widgetDisposed(DisposeEvent e) {
-					System.exit(0);
-					
+				public void run() {
+					init();
+					createContents();
+					shell.layout();
 				}
 			});
+			
 			shell.open();
 			shell.setMaximized(true);
 			shell.layout();
+			System.out.println("界面创建==="+(System.nanoTime()-nanoTime));
 			while (!shell.isDisposed()) {
 				if (!display.readAndDispatch()) {
 					display.sleep();
@@ -119,11 +121,19 @@ public class CarparkManageApp extends AbstractApp{
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
-		shell = new Shell();
-		shell.setSize(896, 621);
 		String dbServerIp = CarparkClientConfig.getInstance().getDbServerIp();
 		shell.setText("停车场管理界面("+dbServerIp+")");
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
+		shell.setImage(JFaceUtil.getImage("carpark_16"));
+		shell.addDisposeListener(new DisposeListener() {
+			
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				System.exit(0);
+				
+			}
+		});
 		
 		TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
 		tabFolder.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
