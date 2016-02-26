@@ -83,12 +83,14 @@ public class CarparkManageApp extends AbstractApp{
 			Display display = Display.getDefault();
 			shell = new Shell();
 			shell.setSize(896, 621);
+			shell.setEnabled(false);
 			display.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					init();
 					createContents();
 					shell.layout();
+					shell.setEnabled(true);
 				}
 			});
 			

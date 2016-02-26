@@ -313,7 +313,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			Display display = Display.getDefault();
 			init();
 			createContents();
-			shell.setMaximized(true);
 			shell.setImage(JFaceUtil.getImage("carpark_16"));
 			shell.addDisposeListener(new DisposeListener() {
 
@@ -323,6 +322,46 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 				}
 			});
 
+			shell.open();
+			shell.layout();
+			antoCheckDevices();
+			while (!shell.isDisposed()) {
+				if (!display.readAndDispatch()) {
+					display.sleep();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("系统发生异常", e);
+			// shell.dispose();
+			// open();
+		} finally {
+			LOGGER.error("系统退出");
+			systemExit();
+		}
+	}
+	
+	public void openAsyncExec(){
+		try {
+			userType = System.getProperty("userType");
+			if (StrUtil.isEmpty(userType)) {
+				systemExit();
+			}
+			Display display = Display.getDefault();
+			shell = new Shell();
+			shell.setMinimumSize(new Point(1024, 768));
+			shell.setSize(1036, 889);
+			shell.setEnabled(false);
+			display.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					init();
+					createContents();
+					shell.layout();
+					shell.setEnabled(true);
+				}
+			});
+			shell.setMaximized(true);
 			shell.open();
 			shell.layout();
 			antoCheckDevices();
@@ -478,9 +517,21 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	 * @wbp.parser.entryPoint
 	 */
 	protected void createContents() {
-		shell = new Shell();
-		shell.setMinimumSize(new Point(1024, 768));
-		shell.setSize(1036, 889);
+		//if判断后无法进行拖拽编辑
+		if (shell==null) {
+			shell = new Shell();
+			shell.setMinimumSize(new Point(1024, 768));
+			shell.setSize(1036, 889);
+			shell.setMaximized(true);
+		}
+		shell.setImage(JFaceUtil.getImage("carpark_16"));
+		shell.addDisposeListener(new DisposeListener() {
+
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				systemExit();
+			}
+		});
 		shell.setText("停车场监控-" + SystemSettingTypeEnum.软件版本.getDefaultValue() + "(" + CarparkClientConfig.getInstance().getDbServerIp() + ")");
 		shell.addShellListener(new ShellAdapter() {
 			@Override

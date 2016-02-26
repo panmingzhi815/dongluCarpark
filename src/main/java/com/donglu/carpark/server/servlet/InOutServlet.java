@@ -26,6 +26,8 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	private Logger LOGGER = LoggerFactory.getLogger(UserServlet.class);
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
+//	@Inject
+//	private com.donglu.carpark.service.WebService WebService;
 	private CarparkInOutServiceI carparkInOutService;
 
 
@@ -328,6 +330,11 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 
 	@Override
 	public Long lockCar(String plateNO) {
-		return carparkInOutService.lockCar(plateNO);
+		Long lockCar2 = carparkInOutService.lockCar(plateNO);
+//		boolean lockCar = WebService.lockCar(plateNO, 1);
+//		if (!lockCar) {
+//			return null;
+//		}
+		return lockCar2;
 	}
 }

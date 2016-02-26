@@ -42,6 +42,7 @@ import org.ini4j.Ini;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
@@ -785,5 +786,15 @@ public class CarparkUtils {
 			}
 		}
 		return "";
+	}
+	/**
+	 * 格式化字符串，类似于log4j的格式化
+	 * @param content
+	 * @param o
+	 * @return
+	 */
+	public static String formatString(String content, Object... o) {
+		String message = MessageFormatter.arrayFormat(content, o).getMessage();
+		return message;
 	}
 }

@@ -62,6 +62,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard{
 		Progress showProgressBar = commonui.showProgressBar("下载车牌数据到设备", 0, listSelected.size()+1);
 		new Thread(new Runnable() {
 			public void run() {
+				long nanoTime = System.nanoTime();
 				ProcessBarMonitor monitor = showProgressBar.getMonitor();
 				int i=0;
 				for (DownloadDeviceInfo downloadDeviceInfo : listSelected) {
@@ -96,6 +97,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard{
 					}
 				}
 				showProgressBar.finish();
+				System.out.println("下载花费时间："+(System.nanoTime()-nanoTime));
 			}
 		}).start();
 	}

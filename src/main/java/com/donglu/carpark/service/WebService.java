@@ -31,5 +31,18 @@ public interface WebService {
 	 * @return
 	 */
 	public boolean sendCarparkInfo(SingleCarparkCarpark carpark);
+	/**
+	 *  锁车
+	 * @param plateNO 车牌
+	 * @param status 1锁车，2解锁
+	 * @return
+	 */
+	public boolean lockCar(String plateNO,int status);
+	/**
+	 * 获取锁车信息
+	 * @return
+	 */
+	public boolean getLockCarInfo();
+	
 	void init();
 }

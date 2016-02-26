@@ -153,6 +153,7 @@ public class SettingPresenter implements Presenter {
 			return;
 		}
 		sp.getCarparkInOutService().clearCarHistoryWithInByDate(date);
+		commonui.info("提示", "清除成功");
 	}
 
 	public void backup(String path) {
@@ -205,16 +206,15 @@ public class SettingPresenter implements Presenter {
 	}
 
 	public void downloadPlate() {
-		
 		DownloadPlateModel model = new DownloadPlateModel();
 		List<SingleCarparkUser> findAll = sp.getCarparkUserService().findAll();
 		ArrayList<PlateDownload> list = new ArrayList<>();
 		for (SingleCarparkUser user : findAll) {
-			Date validTo = user.getValidTo();
-			if (validTo==null) {
-				continue;
-			}
 			PlateDownload pd=new PlateDownload();
+			Date validTo = user.getValidTo();
+			if (validTo==null||validTo.before(new Date())) {
+				pd.setUse(false);
+			}
 			pd.setDate(validTo);
 			pd.setPlate(user.getPlateNo());
 			list.add(pd);

@@ -438,7 +438,6 @@ public class Login {
 								tryLock = channel.tryLock();
 								//
 								app = carparkMainApp;
-								app.open();
 							} else {
 								if (loginApp.equals("监控界面")) {
 									file = new File(MONITOR_TEMP);
@@ -451,7 +450,6 @@ public class Login {
 									channel = raf.getChannel();
 									tryLock = channel.tryLock();
 									app = carparkMainApp;
-									app.open();
 								} else if (loginApp.equals("管理界面")) {
 									file = new File(SYSTEM_TEMP);
 									if (file.exists()) {
@@ -464,7 +462,6 @@ public class Login {
 									tryLock = channel.tryLock();
 
 									app = carparkManageApp;
-									app.open();
 								}else if (loginApp.equals("收费界面")) {
 									if (!Boolean.valueOf(sp.getCarparkService().getSystemSettingValue(SystemSettingTypeEnum.启用集中收费))) {
 										commonui.info("提示", "未开启集中收费");
@@ -481,9 +478,9 @@ public class Login {
 									tryLock = channel.tryLock();
 
 									app = concentrateApp;
-									app.open();
 								}
 							}
+							app.openAsyncExec();
 							LOGGER.info("界面打开花费时间{}", System.nanoTime() - nanoTime);
 						} catch (Exception e) {
 							LOGGER.error("main is error" + "界面出错=======", e);

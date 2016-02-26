@@ -1,12 +1,20 @@
 package com.donglu.carpark.service.impl;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +30,7 @@ import com.donglu.carpark.yun.RQDataExchange;
 import com.donglu.carpark.yun.RQDataExchangeSoap;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
@@ -82,7 +91,7 @@ public class WebServiceImpl implements  WebService{
 				return false;
 			}
 			if (s.indexOf("数据重复上传")>0) {
-				LOGGER.info("成功结果：{}",s);
+				LOGGER.info("成功结果：数据重复上传{}",s);
 				return true;
 			}
 			int parseInt = Integer.parseInt(s.substring(13, 14));
@@ -119,7 +128,7 @@ public class WebServiceImpl implements  WebService{
 				return false;
 			}
 			if (s.indexOf("数据重复上传")>0) {
-				LOGGER.info("成功结果：{}",s);
+				LOGGER.info("成功结果：数据重复上传{}",s);
 				return true;
 			}
 			int parseInt = Integer.parseInt(s.substring(13, 14));
@@ -147,7 +156,7 @@ public class WebServiceImpl implements  WebService{
 			String encodeToString = Base64.getEncoder().encodeToString(CarparkUtils.getImageByte(out.getOutBigImg()));
 			Float factMoney = out.getFactMoney();
 			int ifFree=factMoney<=0?1:0;
-			Float freeMoney = out.getFreeMoney();
+			Float freeMoney = out.getFreeMoney()==null?0:out.getFreeMoney();
 			int IfPreferential=factMoney>0&&freeMoney>0?1:0;
 			String outTime = StrUtil.formatDate(out.getOutTime(), CarparkUtils.DATE_MINUTE_PATTEN);
 			String inTime = StrUtil.formatDate(out.getInTime(), CarparkUtils.DATE_MINUTE_PATTEN);
@@ -161,7 +170,7 @@ public class WebServiceImpl implements  WebService{
 				return false;
 			}
 			if (s.indexOf("数据重复上传")>0) {
-				LOGGER.info("成功结果：{}",s);
+				LOGGER.info("成功结果：数据重复上传{}",s);
 				return true;
 			}
 			int parseInt = Integer.parseInt(s.substring(13, 14));
@@ -181,11 +190,6 @@ public class WebServiceImpl implements  WebService{
 	public boolean sendCarparkInfo(SingleCarparkCarpark carpark){
 		String content="<Root TYCode=\"9083783\" TNum01=\"{}\" TNum02=\"{}\"  TNum03=\"{}\"  TNum04=\"0\" TNum05=\"0\"  Num02=\"0\"  "
 				+ "Num06=\"0\"  Company =\"{}\" Area=\"{}\"></Root>";
-		try {
-			sp.start();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		String s = null;
 		try {
 			int totalCar=sp.getCarparkInOutService().findTotalCarIn(carpark);
@@ -211,8 +215,60 @@ public class WebServiceImpl implements  WebService{
 		}
 	}
 	
+	@Override
+	public boolean lockCar(String plateNO,int status) {
+		String content="<Root Company=\"{}\" Area=\"{}\" LicenseNumber=\"{}\" ZTID=\"{}\"/>";
+		String message = getMessage(content, company,area,plateNO,status);
+		String writeHTDate = port.writeHTDate(message);
+		if (writeHTDate.indexOf("成功")!=-1) {
+			return true;
+		}
+		return false;
+	}
+	@Override
+	public boolean getLockCarInfo() {
+		try {
+			String content = "<Root DZ=\"读取所有待处理数据\" Company =\"{}\" Area=\"{}\"></Root>";
+			String returnContent="<Root ID=\"{}\" JGID=\"{}\" JGBack=\"{}\"/>";
+			String message = getMessage(content, company, area);
+			String readDBDate = port.readDBDate(message);
+			System.out.println("获取云平台上的所有锁车数据==================" + readDBDate);
+			Document document = DocumentHelper.parseText(readDBDate);
+			Element rootElement = document.getRootElement();
+			Iterator<Element> iters = rootElement.elementIterator("V_KHXS0240");
+			while (iters.hasNext()) {
+				Element itemEle = (Element)iters.next();
+				String  id= itemEle.attributeValue("ID");
+				String plateNO = itemEle.attributeValue("LicenseNumber");
+				String ztid = itemEle.attributeValue("ZTID");
+				String info="";
+				String result="1";
+				try {
+					if (ztid.equals("1")) {
+						sp.getCarparkInOutService().lockCar(plateNO);
+					}else if(ztid.equals("2")){
+						SingleCarparkLockCar findLockCarByPlateNO = sp.getCarparkInOutService().findLockCarByPlateNO(plateNO,true);
+						if (StrUtil.isEmpty(findLockCarByPlateNO)) {
+							continue;
+						}
+						findLockCarByPlateNO.setStatus(SingleCarparkLockCar.Status.已解锁.name());
+						sp.getCarparkInOutService().saveLockCar(findLockCarByPlateNO);
+					}
+				} catch (Exception e) {
+					result="2";
+				}finally{
+					LOGGER.info("获得数据：[车牌：{}，操作：{}]。操作结果：{}",plateNO,ztid,result);
+					port.writeDBDate(getMessage(returnContent, id,result,info));
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 	private String getMessage(String content, Object... o) {
-		String message = MessageFormatter.arrayFormat(content, o).getMessage();
+		String message = CarparkUtils.formatString(content,o);
 		return message;
 	}
 	public static void main(String[] args) {

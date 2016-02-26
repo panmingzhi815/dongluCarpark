@@ -477,6 +477,7 @@ public class ImageServerUI {
 		ScheduledExecutorService inExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传进场数据到云平台"));
 		ScheduledExecutorService outExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传出场数据到云平台"));
 		ScheduledExecutorService infoExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("上传停车场数据到云平台"));
+		ScheduledExecutorService lockCarExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("获取云平台上的锁车数据"));
 		userExecutor.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
@@ -604,6 +605,17 @@ public class ImageServerUI {
 				}
 			}
 		}, uploadTime, uploadTime, TimeUnit.SECONDS);
+		lockCarExecutor.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					webService.getLockCarInfo();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+			}
+		}, 5, 5, TimeUnit.SECONDS);
 
 	}
 
