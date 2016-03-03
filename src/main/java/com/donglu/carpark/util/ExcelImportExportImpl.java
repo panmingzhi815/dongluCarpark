@@ -300,18 +300,28 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		CarparkUserService carparkUserService = sp.getCarparkUserService();
 		HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(path));
 		HSSFSheet sheet = wb.getSheetAt(0);
-		int currentRow = 2;
+		int currentRow = 0;
 		HSSFRow row = sheet.getRow(currentRow);
-		int rowIndex = 1;
 		Map<String, SingleCarparkCarpark> map=new HashMap<>();
 		CellStyle cellStyle = wb.createCellStyle();
 		cellStyle.setBorderBottom((short) 1);
 		cellStyle.setBorderLeft((short) 1);
 		cellStyle.setBorderRight((short) 1);
 		cellStyle.setBorderTop((short) 1);
+		boolean isContent=false;
 		while (row != null) {
 			try {
-				rowIndex = rowIndex + 1;
+				if (!isContent) {
+					String cellStringValue = getCellStringValue(row, 0);
+					if (cellStringValue!=null&&cellStringValue.equals("编号")) {
+						isContent=true;
+					}else{
+						if (currentRow>=1) {
+							isContent=true;
+						}
+					}
+					continue;
+				}
 				String status = getCellStringValue(row, 10);
 				if (status.equals("处理成功")) {
 					continue;

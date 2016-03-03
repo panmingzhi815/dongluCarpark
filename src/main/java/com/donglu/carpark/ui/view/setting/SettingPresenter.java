@@ -204,7 +204,9 @@ public class SettingPresenter implements Presenter {
 	
 
 	}
-
+	/**
+	 * 下载车牌信息到设备
+	 */
 	public void downloadPlate() {
 		DownloadPlateModel model = new DownloadPlateModel();
 		List<SingleCarparkUser> findAll = sp.getCarparkUserService().findAll();
