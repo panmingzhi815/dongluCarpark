@@ -157,6 +157,7 @@ public class CarOutTask implements Runnable{
 			//锁车判断
 			SingleCarparkLockCar findLockCarByPlateNO = sp.getCarparkInOutService().findLockCarByPlateNO(plateNO, true);
 			if (!StrUtil.isEmpty(findLockCarByPlateNO)) {
+				presenter.showPlateNOToDevice(device, plateNO);
 				presenter.showContentToDevice(device, "车辆已锁", false);
 				return;
 			}

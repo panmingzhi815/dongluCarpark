@@ -257,8 +257,8 @@ public class WebServiceImpl implements  WebService{
 				} catch (Exception e) {
 					result="2";
 				}finally{
-					LOGGER.info("获得数据：[车牌：{}，操作：{}]。操作结果：{}",plateNO,ztid,result);
-					port.writeDBDate(getMessage(returnContent, id,result,info));
+					String writeDBDate = port.writeDBDate(getMessage(returnContent, id,result,info));
+					LOGGER.info("获得数据：[车牌：{}，操作：{}]。操作结果：{},{}",plateNO,ztid,result,writeDBDate);
 				}
 			}
 			
