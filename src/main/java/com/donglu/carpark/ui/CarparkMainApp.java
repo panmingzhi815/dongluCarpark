@@ -266,7 +266,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	 * 构造函数
 	 */
 	public CarparkMainApp() {
-		readDevices();
 		for (SystemSettingTypeEnum t : SystemSettingTypeEnum.values()) {
 			mapSystemSetting.put(t, t.getDefaultValue());
 		}
@@ -399,6 +398,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	 * 初始化
 	 */
 	private void init() {
+		readDevices();
 		presenter.setView(this);
 		presenter.setModel(model);
 		presenter.setIsTwoChanel();
