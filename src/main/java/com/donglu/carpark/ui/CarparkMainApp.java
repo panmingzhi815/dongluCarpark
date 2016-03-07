@@ -268,7 +268,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	public CarparkMainApp() {
 		readDevices();
 		for (SystemSettingTypeEnum t : SystemSettingTypeEnum.values()) {
-			mapSystemSetting.put(t, null);
+			mapSystemSetting.put(t, t.getDefaultValue());
 		}
 	}
 
@@ -287,6 +287,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 					continue;
 				}
 				SingleCarparkCarpark carpark = singleCarparkDevice.getCarpark();
+				System.out.println(carpark.isTempCarIsIn());
 				model.setCarpark(carpark);
 				mapDeviceType.put(key, inType);
 				mapIpToDevice.put(key, singleCarparkDevice);
@@ -474,14 +475,11 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 						}
 						for (WatchEvent<?> event : key.pollEvents()) {
 							String string = event.context().toString();
-							if (string.length()<MAP_IP_TO_DEVICE.length()) {
+							if (string.indexOf(MAP_IP_TO_DEVICE)<0) {
 								continue;
 							}
-							System.out.println(string + "发生了" + event.kind() + "事件");
-							boolean equals = event.context().toString().substring(0, MAP_IP_TO_DEVICE.length()).equals(MAP_IP_TO_DEVICE);
-							if (equals) {
-								readDevices();
-							}
+//							System.out.println(string + "发生了" + event.kind() + "事件"+"===="+string.indexOf(MAP_IP_TO_DEVICE));
+							readDevices();
 						}
 						if (!key.reset()) {
 							System.out.println("temp/mapIpToDevice.temp key.reset()" + key.reset());
