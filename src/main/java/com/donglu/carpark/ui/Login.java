@@ -55,6 +55,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -544,6 +546,18 @@ public class Login {
 
 	// 检测加密狗
 	private void checkSoftDog() {
+		String defaultValue = SystemSettingTypeEnum.软件版本.getDefaultValue();
+		if (defaultValue.indexOf("beta")>-1) {
+			LOGGER.info("测试版本，3小时后关闭");
+			Timer timer = new Timer();
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					System.exit(0);
+				}
+			}, 1000*60*60*3);
+			return;
+		}
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
 			@Override

@@ -13,7 +13,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
-		<dev.build.version>V1.0.0.6</dev.build.version>
+		<dev.build.version>V1.0.0.7_beta</dev.build.version>
 		<jaxb.version>2.2.11</jaxb.version>
 	</properties>
 	
