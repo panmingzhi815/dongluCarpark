@@ -9,6 +9,7 @@ import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.impl.SWTUIFacility;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 
 public class CarparkServerGuiceModule extends AbstractModule {
@@ -21,5 +22,6 @@ public class CarparkServerGuiceModule extends AbstractModule {
 		bind(CarparkServerConfig.class).toInstance(CarparkServerConfig.getInstance());
 		bind(CarparkDatabaseServiceProvider.class).to(CarparkLocalVMServiceProvider.class).in(Singleton.class);
 		bind(WebService.class).to(WebServiceImpl.class).in(Singleton.class);
+//		bindInterceptor(Matchers.any(),Matchers.any(),new TestMethodInterceptor());
 	}
 }

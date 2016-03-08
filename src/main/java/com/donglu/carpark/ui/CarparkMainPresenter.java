@@ -546,6 +546,9 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	private boolean checkDeviceLinkStatus(SingleCarparkDevice device) {
+		if (StrUtil.isEmpty(device.getLinkAddress())) {
+			return false;
+		}
 		return mapDeviceFailInfo.get(device.getLinkInfo()) != null && mapDeviceFailInfo.get(device.getLinkInfo()) > 10;
 	}
 
@@ -578,15 +581,21 @@ public class CarparkMainPresenter {
 			return false;
 		}
 		try {
+			Device d = getDevice(device);
 			if (opDoor) {
-				Device d = getDevice(device);
-				Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoor(d, content, device.getVolume() == null ? 1 : device.getVolume());
-				openDoorToPhotograph(device.getIp());
-				return carparkContentVoiceAndOpenDoor;
+				if (d!=null) {
+					Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoor(d, content, device.getVolume() == null ? 1 : device.getVolume());
+					openDoorToPhotograph(device.getIp());
+					return carparkContentVoiceAndOpenDoor;
+				}else{
+					openDoor(device);
+				}
 			} else {
-				Device d = getDevice(device);
-				return hardwareService.carparkContentVoice(d, content, device.getVolume() == null ? 1 : device.getVolume());
+				if (d!=null) {
+					return hardwareService.carparkContentVoice(d, content, device.getVolume() == null ? 1 : device.getVolume());
+				}
 			}
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -607,16 +616,19 @@ public class CarparkMainPresenter {
 		}
 		try {
 			Device d = getDevice(device);
+			if (d != null) {
+				String inType = device.getInType();
+				if (inType.equals("进口2")) {
+					inType = "进口";
+				}
+				if (inType.equals("出口2")) {
+					inType = "出口";
+				}
 
-			String inType = device.getInType();
-			if (inType.equals("进口2")) {
-				inType = "进口";
+				return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType), (byte) (device.getScreenType().getType()));
+			} else {
+				return true;
 			}
-			if (inType.equals("出口2")) {
-				inType = "出口";
-			}
-
-			return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType), (byte) (device.getScreenType().getType()));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -636,7 +648,9 @@ public class CarparkMainPresenter {
 		}
 		try {
 			Device d = getDevice(device);
-			hardwareService.carparkPosition(d, position);
+			if (d!=null) {
+				hardwareService.carparkPosition(d, position);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -644,6 +658,9 @@ public class CarparkMainPresenter {
 
 	private Device getDevice(SingleCarparkDevice device) {
 		Device d = new Device();
+		if (StrUtil.isEmpty(device.getLinkAddress())) {
+			return null;
+		}
 		Link link = new Link();
 		link.setId((long) device.getLinkAddress().hashCode());
 		link.setLinkStyleEnum(LinkStyleEnum.直连设备);
@@ -667,8 +684,12 @@ public class CarparkMainPresenter {
 			return false;
 		}
 		try {
-			Boolean carparkOpenDoor = hardwareService.carparkOpenDoor(getDevice(device));
-			// Boolean carparkOpenDoor = hardwareService.carparkControlDoor(getDevice(device), 0, -1, -1, -1);
+			Device d = getDevice(device);
+			boolean carparkOpenDoor=true;
+			if (d!=null) {
+				carparkOpenDoor = hardwareService.carparkOpenDoor(d);
+				// carparkOpenDoor = hardwareService.carparkControlDoor(getDevice(device), 0, -1, -1, -1);
+			}
 			openDoorToPhotograph(device.getIp());
 			return carparkOpenDoor;
 		} catch (Exception e) {
@@ -686,7 +707,11 @@ public class CarparkMainPresenter {
 			return false;
 		}
 		try {
-			Boolean carparkOpenDoor = hardwareService.carparkControlDoor(getDevice(device), -1, 0, -1, -1);
+			Device d = getDevice(device);
+			Boolean carparkOpenDoor=true;
+			if (d!=null) {
+				carparkOpenDoor = hardwareService.carparkControlDoor(d, -1, 0, -1, -1);
+			}
 			return carparkOpenDoor;
 		} catch (Exception e) {
 			return false;
@@ -705,9 +730,12 @@ public class CarparkMainPresenter {
 			return false;
 		}
 		try {
-			System.out.println("====" + device.getAdvertise().length());
-			Boolean carparkUsualContent = hardwareService.carparkUsualContent(getDevice(device), device.getAdvertise());
-			// showNowTimeToDevice(device);
+			Device d = getDevice(device);
+			Boolean carparkUsualContent=true;
+			
+			if (d!=null) {
+				carparkUsualContent = hardwareService.carparkUsualContent(d, device.getAdvertise());
+			}
 			return carparkUsualContent;
 		} catch (Exception e) {
 			e.printStackTrace();

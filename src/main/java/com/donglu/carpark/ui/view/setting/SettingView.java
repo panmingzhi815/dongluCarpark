@@ -209,7 +209,7 @@ public class SettingView extends Composite implements View {
 		button_10.setText("自动识别出场车辆类型");
 		button_10.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_10.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.自动识别出场车辆类型)));
-		
+
 		Button button_19 = new Button(group, SWT.CHECK);
 		button_19.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -221,13 +221,13 @@ public class SettingView extends Composite implements View {
 		button_19.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_19.setText("临时车不做通道限制");
 		button_19.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制)));
-		
+
 		Button button_24 = new Button(group, SWT.CHECK);
 		button_24.setToolTipText("选择后固定车到期后作临时车计费，否则到期后不允许进入。默认选中");
 		button_24.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_24.setText("固定车到期后作临时车计费");
 		button_24.setSelection(Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车)));
-		
+
 		Button button_26 = new Button(group, SWT.CHECK);
 		button_24.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -236,9 +236,9 @@ public class SettingView extends Composite implements View {
 				boolean selection = button_24.getSelection();
 				if (selection) {
 					button_26.setSelection(false);
-					mapSystemSetting.put(SystemSettingTypeEnum.固定车到期后只能进, button_26.getSelection()+"");
+					mapSystemSetting.put(SystemSettingTypeEnum.固定车到期后只能进, button_26.getSelection() + "");
 				}
-				mapSystemSetting.put(SystemSettingTypeEnum.固定车到期变临时车, selection+"");
+				mapSystemSetting.put(SystemSettingTypeEnum.固定车到期变临时车, selection + "");
 			}
 		});
 		button_26.addSelectionListener(new SelectionAdapter() {
@@ -247,9 +247,9 @@ public class SettingView extends Composite implements View {
 				boolean selection = button_26.getSelection();
 				if (selection) {
 					button_24.setSelection(false);
-					mapSystemSetting.put(SystemSettingTypeEnum.固定车到期变临时车, button_24.getSelection()+"");
+					mapSystemSetting.put(SystemSettingTypeEnum.固定车到期变临时车, button_24.getSelection() + "");
 				}
-				mapSystemSetting.put(SystemSettingTypeEnum.固定车到期后只能进, selection+"");
+				mapSystemSetting.put(SystemSettingTypeEnum.固定车到期后只能进, selection + "");
 			}
 		});
 		button_26.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -388,11 +388,11 @@ public class SettingView extends Composite implements View {
 
 		Composite composite_5 = new Composite(group, SWT.NONE);
 		GridData gd_composite_5 = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
-		String dbServerIp=CarparkClientConfig.getInstance().getDbServerIp();
-		if (dbServerIp.equals("localhost")||dbServerIp.equals("127.0.0.1")||dbServerIp.equals(StrUtil.getHostIp())) {
-			
-		}else
-		gd_composite_5.exclude = true;
+		String dbServerIp = CarparkClientConfig.getInstance().getDbServerIp();
+		if (dbServerIp.equals("localhost") || dbServerIp.equals("127.0.0.1") || dbServerIp.equals(StrUtil.getHostIp())) {
+
+		} else
+			gd_composite_5.exclude = true;
 		composite_5.setLayoutData(gd_composite_5);
 		composite_5.setLayout(new GridLayout(5, false));
 
@@ -675,7 +675,7 @@ public class SettingView extends Composite implements View {
 		});
 		button_22.setText("清理场内车");
 		button_22.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
+
 		Button button_25 = new Button(composite_8, SWT.NONE);
 		button_25.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -687,14 +687,17 @@ public class SettingView extends Composite implements View {
 		button_25.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_25.setText("车牌下载");
 
-		Button button_23 = new Button(composite, SWT.NONE);
+		Composite composite_1 = new Composite(composite, SWT.NONE);
+		composite_1.setLayout(new GridLayout(1, false));
+		composite_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+
+		Button button_23 = new Button(composite_1, SWT.NONE);
 		button_23.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				getPresenter().saveAll(mapSystemSetting);
 			}
 		});
-		button_23.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		button_23.setText("保存设置");
 		button_23.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		button_23.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
@@ -708,7 +711,7 @@ public class SettingView extends Composite implements View {
 
 	public SettingView(Composite c, int style, Map<SystemSettingTypeEnum, String> mapSystemSetting) {
 		super(c, style);
-		this.mapSystemSetting=mapSystemSetting;
+		this.mapSystemSetting = mapSystemSetting;
 		createView();
 	}
 

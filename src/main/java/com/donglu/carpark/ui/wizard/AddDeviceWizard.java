@@ -28,7 +28,6 @@ public class AddDeviceWizard extends Wizard implements AbstractWizard{
 
 	@Override
 	public void addPages() {
-		
 		page = new AddDeviceBasicPage(model);
 		addPage(page);
 		getShell().setImage(JFaceUtil.getImage("carpark_32"));
@@ -41,23 +40,22 @@ public class AddDeviceWizard extends Wizard implements AbstractWizard{
 		String roadType = model.getRoadType();
 		
 		
-		if (StrUtil.isEmpty(model.getAddress())||StrUtil.isEmpty(model.getName())||StrUtil.isEmpty(model.getIp())||
+		if (StrUtil.isEmpty(model.getName())||StrUtil.isEmpty(model.getIp())||
 				StrUtil.isEmpty(roadType)||StrUtil.isEmpty(identifire)||StrUtil.isEmpty(carpark)) {
 			page.setErrorMessage("请填写完整信息");
 			return false;
 		}
 		if (model.getType().equals("tcp")) {
-			if (model.getTcpAddress()!=null) {
+			if (!StrUtil.isEmpty(model.getTcpAddress())) {
 				model.setLinkAddress(model.getTcpAddress()+":10001");
 			}else{
-				page.setErrorMessage("请填写控制器连接");
-				return false;
+				model.setLinkAddress(null);
 			}
 		}else if(model.getType().equals("485")){
 			if (model.getSerialAddress()!=null) {
 				model.setLinkAddress(model.getSerialAddress());
-			}else{page.setErrorMessage("请填写控制器连接");
-				return false;
+			}else{
+				model.setLinkAddress(null);
 			}
 		}else if(StrUtil.isEmpty(model.getVoice())){
 			page.setErrorMessage("请选择语言音量");
