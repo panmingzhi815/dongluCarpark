@@ -223,17 +223,38 @@ public class SettingView extends Composite implements View {
 		button_19.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制)));
 		
 		Button button_24 = new Button(group, SWT.CHECK);
-		button_24.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.固定车到期变临时车, button_24.getSelection()+"");
-			}
-		});
 		button_24.setToolTipText("选择后固定车到期后作临时车计费，否则到期后不允许进入。默认选中");
 		button_24.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_24.setText("固定车到期后作临时车计费");
 		button_24.setSelection(Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车)));
-		new Label(group, SWT.NONE);
+		
+		Button button_26 = new Button(group, SWT.CHECK);
+		button_24.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				System.out.println("sssss");
+				boolean selection = button_24.getSelection();
+				if (selection) {
+					button_26.setSelection(false);
+					mapSystemSetting.put(SystemSettingTypeEnum.固定车到期后只能进, button_26.getSelection()+"");
+				}
+				mapSystemSetting.put(SystemSettingTypeEnum.固定车到期变临时车, selection+"");
+			}
+		});
+		button_26.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				boolean selection = button_26.getSelection();
+				if (selection) {
+					button_24.setSelection(false);
+					mapSystemSetting.put(SystemSettingTypeEnum.固定车到期变临时车, button_24.getSelection()+"");
+				}
+				mapSystemSetting.put(SystemSettingTypeEnum.固定车到期后只能进, selection+"");
+			}
+		});
+		button_26.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_26.setText("固定车到期后只能进");
+		button_26.setToolTipText("固定车到期后还是按照固定车算，但是只能进不能出，跟固定车到期后作临时车计费不能同时选择");
 		new Label(group, SWT.NONE);
 
 		Composite composite_2 = new Composite(group, SWT.NONE);

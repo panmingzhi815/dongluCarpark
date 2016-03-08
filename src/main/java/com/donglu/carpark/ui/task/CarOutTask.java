@@ -192,10 +192,10 @@ public class CarOutTask implements Runnable{
 			String carType = "临时车";
 			
 			if (!StrUtil.isEmpty(user)) {
-				Date userOutTime = new DateTime(user.getValidTo()).plusDays(user.getDelayDays()==null?0:user.getDelayDays()).toDate();
-				if (userOutTime.after(date)) {
+//				Date userOutTime = new DateTime(user.getValidTo()).plusDays(user.getDelayDays()==null?0:user.getDelayDays()).toDate();
+//				if (userOutTime.after(date)) {
 					carType="固定车";
-				}
+//				}
 			}
 			String roadType = device.getRoadType();
 			LOGGER.info("车辆类型为：{}==通道类型为：{}", carType, roadType);
@@ -390,7 +390,6 @@ public class CarOutTask implements Runnable{
 		Date time = c.getTime();
 
 		if (StrUtil.getTodayBottomTime(time).before(date)) {
-			presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
 			LOGGER.info("车辆:{}已到期", nowPlateNO);
 			if (Boolean.valueOf(getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车))) {
 				Date d = null;
@@ -400,8 +399,9 @@ public class CarOutTask implements Runnable{
 					d = singleCarparkInOutHistory.getInTime();
 				}
 				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg, d);
+				return true;
 			}
-			return true;
+			presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
 		} else {
 			c.setTime(validTo);
 			c.add(Calendar.DATE, user.getRemindDays() == null ? 0 : user.getRemindDays() * -1);

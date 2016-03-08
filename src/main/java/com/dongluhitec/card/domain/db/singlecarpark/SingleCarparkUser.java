@@ -41,6 +41,12 @@ public class SingleCarparkUser extends DomainObject {
 	
 	private String remark;
 	private String tempCarTime;
+	@Column(length=20)
+	private String telephone;
+	@Column(length=200)
+	private String parkingSpace;
+	
+	
 	@ManyToOne
 	private SingleCarparkCarpark carpark;
 	

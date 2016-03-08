@@ -14,7 +14,7 @@ public enum SystemSettingTypeEnum {
 	是否自动删除图片("false"),
 	是否允许无牌车进("false"),
 	同一车牌识别间隔("1"), 出场确认放行("false"),
-	固定车到期变临时车("true"),
+	固定车到期变临时车("true"),固定车到期后只能进("false"),
 	双摄像头识别间隔("0"),
 	左下监控("false"),
 	右下监控("false"),
@@ -23,7 +23,7 @@ public enum SystemSettingTypeEnum {
 	储值车提醒金额("60"),储值车进出场限制金额("20"),启用集中收费("false"),集中收费延迟出场时间("15"),
 	临时车通道限制("false"),
 	
-	DateBase_version("1.0.0.7_beta"),软件版本("1.0.0.7_beta"),发布时间("2015-03-08 17:00:00"),     ;
+	DateBase_version("1.0.0.7_beta"),软件版本("1.0.0.7_beta"),发布时间("2015-03-08 17:00:00"),      ;
 	;
 	
 	private String defaultValue;

@@ -53,6 +53,7 @@ import com.donglu.carpark.ui.view.InInfoPresenter;
 import com.donglu.carpark.ui.view.OutInfoPresenter;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.MyHashMap;
+import com.donglu.carpark.util.MyMapCache;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
@@ -184,7 +185,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	// 保存设置信息
 	public static final Map<SystemSettingTypeEnum, String> mapSystemSetting = Maps.newHashMap();
 	// 保存车牌最近的处理时间
-	public static final Map<String, Date> mapPlateNoDate = Maps.newHashMap();
+	public static final Map<String, Date> mapPlateNoDate = new MyMapCache<>(600*1000, 100, "保存车牌近期处理时间");
 
 	public static final Map<String, Boolean> mapOpenDoor = Maps.newHashMap();
 

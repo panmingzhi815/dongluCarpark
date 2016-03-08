@@ -471,8 +471,13 @@ public class CarInTask implements Runnable {
 				shouTempCarToDevice(device);
 				return false;
 			}else{
-				presenter.showContentToDevice(device, "车辆已过期,请联系管理员", false);
-				return true;
+				if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期后只能进).equals("true")) {
+					presenter.showContentToDevice(device, "月租车辆," + CAR_IN_MSG + ",车辆已过期,请及时续费", true);
+    				return false;
+				}else{
+    				presenter.showContentToDevice(device, "车辆已过期,请联系管理员", false);
+    				return true;
+				}
 			}
 		}
 		if (StrUtil.isEmpty(inId)) {
