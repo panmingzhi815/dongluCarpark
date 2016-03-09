@@ -12,6 +12,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
@@ -336,5 +337,12 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 //			return null;
 //		}
 		return lockCar2;
+	}
+
+
+
+	@Override
+	public Long updateCarparkStillTime(SingleCarparkCarpark carpark, SingleCarparkDevice device, String plateNO, String bigImg) {
+		return carparkInOutService.updateCarparkStillTime(carpark, device, plateNO, bigImg);
 	}
 }

@@ -264,15 +264,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	}
 
 	/**
-	 * 构造函数
-	 */
-	public CarparkMainApp() {
-		for (SystemSettingTypeEnum t : SystemSettingTypeEnum.values()) {
-			mapSystemSetting.put(t, t.getDefaultValue());
-		}
-	}
-
-	/**
 	 * 
 	 */
 	@SuppressWarnings("unchecked")

@@ -224,6 +224,7 @@ public class CarOutTask implements Runnable{
 				tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg,null);
 			}
 			CarparkMainApp.mapCameraLastImage.put(ip, bigImg);
+			sp.getCarparkInOutService().updateCarparkStillTime(carpark, device, roadType, bigImg);
 		} catch (Exception e) {
 			LOGGER.error("车辆出场时发生错误",e);
 		}
@@ -400,8 +401,17 @@ public class CarOutTask implements Runnable{
 				}
 				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg, d);
 				return true;
+			}else if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期所属停车场限制).equals("true")) {
+				if (device.getCarpark().equals(user.getCarpark())) {
+					presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), true);
+				}else{
+					presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
+					return true;
+				}
+			}else{
+				presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
+				return true;
 			}
-			presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
 		} else {
 			c.setTime(validTo);
 			c.add(Calendar.DATE, user.getRemindDays() == null ? 0 : user.getRemindDays() * -1);

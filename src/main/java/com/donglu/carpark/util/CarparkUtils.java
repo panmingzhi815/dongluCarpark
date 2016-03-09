@@ -797,4 +797,8 @@ public class CarparkUtils {
 		String message = MessageFormatter.arrayFormat(content, o).getMessage();
 		return message;
 	}
+	public static int countSecondByDate(Date inTime, Date outTime) {
+		Long s=(outTime.getTime()-inTime.getTime())/1000;
+		return s.intValue();
+	}
 }

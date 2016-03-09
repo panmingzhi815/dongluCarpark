@@ -161,7 +161,8 @@ public class CarInTask implements Runnable {
 					}
 				}
 			}
-			cch = sp.getCarparkInOutService().findInOutHistoryByPlateNO(plateNO);
+			List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO, carpark);
+			cch = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
 			if (StrUtil.isEmpty(cch)) {
 				cch = new SingleCarparkInOutHistory();
 			}
@@ -194,11 +195,11 @@ public class CarInTask implements Runnable {
 
 
 			if (!StrUtil.isEmpty(user)) {//固定车操作
-				if(fixCarShowToDevice(date, device, user,true)){
+				if(fixCarShowToDevice(date, device, user,!isEmptyPlateNo)){
 					return;
 				}
 			} else {
-				if (tempCarShowToDevice(device, user, date, true)) {
+				if (tempCarShowToDevice(device, user, date, !isEmptyPlateNo)) {
 					return;
 				}
 			}
@@ -208,6 +209,7 @@ public class CarInTask implements Runnable {
 			LOGGER.info(dateString + "==" + ip + "====" + plateNO + "车辆类型：" + carType + "==" + "保存图片：" + (nanoTime1 - nanoTime) + "==查找固定用户：" + (nanoTime2 - nanoTime3) + "==界面操作："
 					+ (nanoTime3 - nanoTime1));
 			LOGGER.info("把车牌:{}的进场记录保存到数据库", plateNO);
+			
 			cch.setPlateNo(plateNO);
 			cch.setInPlateNO(plateNO);
 			if (!StrUtil.isEmpty(editPlateNo)) {
@@ -236,6 +238,7 @@ public class CarInTask implements Runnable {
 				if (after)
 					cch.setInPhotographType("手动");
 			}
+			sp.getCarparkInOutService().updateCarparkStillTime(carpark,device, plateNO,cch.getBigImg());
 			Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(cch);
 			cch.setId(saveInOutHistory);
 			model.addInHistorys(cch);
@@ -490,17 +493,18 @@ public class CarInTask implements Runnable {
 		}
 		if (date.after(new DateTime(user.getValidTo()).minusDays(user.getDelayDays() == null ? 0 : user.getRemindDays()).toDate())) {
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车).equals("true")) {
-				tempCarShowToDevice(device, user,  date, false);
+				tempCarShowToDevice(device, user, date, false);
 				return false;
-			}else{
-				if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期后只能进).equals("true")) {
+			}
+			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期所属停车场限制).equals("true")) {
+				LOGGER.info("固定车到期，固定车到期所属停车场限制:{}。判断是否进入所属停车场",true);
+				if (device.getCarpark().equals(user.getCarpark())) {
 					presenter.showContentToDevice(device, "月租车辆," + CAR_IN_MSG + ",车辆已过期,请及时续费", true);
-    				return false;
-				}else{
-    				presenter.showContentToDevice(device, "车辆已过期,请联系管理员", false);
-    				return true;
+					return false;
 				}
 			}
+			presenter.showContentToDevice(device, "车辆已过期,请联系管理员", false);
+			return true;
 		}
 		if (StrUtil.isEmpty(cch.getId())) {
 			Boolean valueOf2 = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费) == null ? "false" : mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));

@@ -881,11 +881,7 @@ public class CarparkMainPresenter {
 		openDoorTheadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
 		checkPlayerPlaying();
 
-		countTempCarCharge = (CountTempCarChargeI) CarparkFileUtils.readObject(COUNT_TEMP_CAR_CHARGE);
-		if (StrUtil.isEmpty(countTempCarCharge)) {
-			countTempCarCharge = new CountTempCarChargeImpl();
-			CarparkFileUtils.writeObject(COUNT_TEMP_CAR_CHARGE, countTempCarCharge);
-		}
+		countTempCarCharge = new CountTempCarChargeImpl();
 		autoCheckDeviceLinkInfo();
 	}
 

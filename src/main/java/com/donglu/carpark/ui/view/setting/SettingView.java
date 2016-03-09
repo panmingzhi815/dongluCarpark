@@ -232,12 +232,7 @@ public class SettingView extends Composite implements View {
 		button_24.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				System.out.println("sssss");
 				boolean selection = button_24.getSelection();
-				if (selection) {
-					button_26.setSelection(false);
-					mapSystemSetting.put(SystemSettingTypeEnum.固定车到期后只能进, button_26.getSelection() + "");
-				}
 				mapSystemSetting.put(SystemSettingTypeEnum.固定车到期变临时车, selection + "");
 			}
 		});
@@ -245,16 +240,12 @@ public class SettingView extends Composite implements View {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				boolean selection = button_26.getSelection();
-				if (selection) {
-					button_24.setSelection(false);
-					mapSystemSetting.put(SystemSettingTypeEnum.固定车到期变临时车, button_24.getSelection() + "");
-				}
-				mapSystemSetting.put(SystemSettingTypeEnum.固定车到期后只能进, selection + "");
+				mapSystemSetting.put(SystemSettingTypeEnum.固定车到期所属停车场限制, selection + "");
 			}
 		});
 		button_26.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_26.setText("固定车到期后只能进");
-		button_26.setToolTipText("固定车到期后还是按照固定车算，但是只能进不能出，跟固定车到期后作临时车计费不能同时选择");
+		button_26.setText("固定车到期停车场限制");
+		button_26.setToolTipText("固定车到期后是否允许进入所属停车场，勾选后允许随意进出所属停车场");
 		new Label(group, SWT.NONE);
 
 		Composite composite_2 = new Composite(group, SWT.NONE);

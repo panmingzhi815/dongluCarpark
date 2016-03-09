@@ -22,8 +22,10 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkHolidayTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
@@ -65,10 +67,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.eq("plateNo", plateNo));
 			c.add(Restrictions.isNull("outTime"));
-//			List<SingleCarparkCarpark> findSameCarpark = findSameCarpark(carpark);
-//			for (SingleCarparkCarpark singleCarparkCarpark : findSameCarpark) {
 			c.add(Restrictions.eq("carparkId", carpark.getId()));
-//			}
 			c.setFirstResult(0);
 			c.setMaxResults(2);
 			return c.getResultList();
@@ -1000,6 +999,32 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		m.setOperaName(System.getProperty("userName"));
 		m.setCreateTime(new Date());
 		return saveLockCar(m);
+	}
+	@Transactional
+	@Override
+	public Long updateCarparkStillTime(SingleCarparkCarpark carpark,SingleCarparkDevice device, String plateNO, String bigImg) {
+		Criteria c=CriteriaUtils.createCriteria(emprovider.get(), CarparkStillTime.class);
+		c.add(Restrictions.isNull(CarparkStillTime.Property.outTime.name()));
+		c.add(Restrictions.eq(CarparkStillTime.Property.plateNO.name(), plateNO));
+		CarparkStillTime cst = (CarparkStillTime) c.getSingleResultOrNull();
+		DatabaseOperation<CarparkStillTime> dom = DatabaseOperation.forClass(CarparkStillTime.class, emprovider.get());
+		Date outTime = new Date();
+		if (cst==null) {
+			cst=new CarparkStillTime();
+			cst.setCarparkId(carpark.getId());
+			cst.setCarparkName(carpark.getName());
+			cst.setPlateNO(plateNO);
+			cst.setInTime(outTime);
+			cst.setInBigImg(bigImg);
+			cst.setInDevice(device.getName());
+			dom.insert(cst);
+		}else{
+			cst.setOutBigImg(bigImg);
+			cst.setOutTime(outTime);
+			cst.setOutDevice(device.getName());
+			cst.setStillSecond(CarparkUtils.countSecondByDate(cst.getInTime(),outTime));
+		}
+		return cst.getId();
 	}
 
 }
