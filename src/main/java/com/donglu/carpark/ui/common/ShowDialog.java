@@ -18,9 +18,14 @@ public class ShowDialog extends Dialog {
 	 * @param parent
 	 * @param style
 	 */
-	public ShowDialog(Shell parent, int style) {
+	public ShowDialog(Shell parent, int style,String name) {
 		super(parent, style);
-		setText("SWT Dialog");
+		setText(name);
+	}
+
+	public ShowDialog(String name) {
+		super(Display.getCurrent().getActiveShell(), SWT.NONE);
+		setText(name);
 	}
 
 	/**
@@ -38,18 +43,17 @@ public class ShowDialog extends Dialog {
 				display.sleep();
 			}
 		}
-		return result;
+		return presenter.getModel();
 	}
 
 	/**
 	 * Create contents of the dialog.
 	 */
 	private void createContents() {
-		shell = new Shell(getParent(), getStyle());
+		shell = new Shell(getParent(),SWT.CLOSE );
 		shell.setSize(450, 300);
 		shell.setText(getText());
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
-		
 		Composite composite = new Composite(shell, SWT.NONE);
 		composite.setLayout(new FillLayout(SWT.HORIZONTAL));
 		presenter.go(composite);

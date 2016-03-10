@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.TableViewer;
@@ -694,7 +695,7 @@ public class CarparkUtils {
 		try {
 			LOGGER.info("准备清理数据库中的重复进出场记录");
 			CarparkServerConfig cf = CarparkServerConfig.getInstance();
-			String sql="DELETE FROM [carpark].[dbo].[SingleCarparkInOutHistory] WHERE outTime is null and id not in(SELECT MAX(id) FROM [carpark].[dbo].[SingleCarparkInOutHistory] where outTime is null group by plateNo)";
+			String sql="DELETE FROM [carpark].[dbo].[SingleCarparkInOutHistory] WHERE outTime is null and id not in(SELECT MAX(id) FROM [carpark].[dbo].[SingleCarparkInOutHistory] where outTime is null group by plateNo,carparkId)";
 			boolean executeSQL = DatabaseUtil.executeSQL(cf.getDbServerIp(), cf.getDbServerPort(), CarparkServerConfig.CARPARK, 
 					cf.getDbServerUsername(), cf.getDbServerPassword(), sql, DatabaseUtil.SQLSERVER2008);
 			LOGGER.info("清理数据库中的重复进出场记录结果：{}",executeSQL);
@@ -800,5 +801,39 @@ public class CarparkUtils {
 	public static int countSecondByDate(Date inTime, Date outTime) {
 		Long s=(outTime.getTime()-inTime.getTime())/1000;
 		return s.intValue();
+	}
+	/**
+	 * 计算两个时间的时间差
+	 * @param startTime
+	 * @param endTime
+	 * @param timeUnit
+	 * @return
+	 */
+	public static int countTime(Date startTime, Date endTime, TimeUnit... timeUnit) {
+		Long millis=endTime.getTime()-startTime.getTime();
+		Long second;
+		Long minute;
+		Long hour;
+		Long day;
+		if (timeUnit==null||timeUnit[0].equals(TimeUnit.MILLISECONDS)) {
+			return millis.intValue();
+		}
+		if (timeUnit[0].equals(TimeUnit.SECONDS)) {
+			second=millis/1000;
+			return second.intValue();
+		}
+		if (timeUnit[0].equals(TimeUnit.MINUTES)) {
+			minute=millis/1000/60;
+			return minute.intValue();
+		}
+		if (timeUnit[0].equals(TimeUnit.HOURS)) {
+			hour=millis/1000/60/60;
+			return hour.intValue();
+		}
+		if (timeUnit[0].equals(TimeUnit.DAYS)) {
+			day=millis/1000/60/60/24;
+			return day.intValue();
+		}
+		return 0;
 	}
 }

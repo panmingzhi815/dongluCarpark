@@ -22,7 +22,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	
 	public enum Property{
 		plateNo,userName,carType,inTime,outTime,inDevice,outDevice,operaName,returnAccount,shouldMoney,factMoney,freeMoney
-		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime
+		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,freeReason
 	}
 	public enum Label{
 		inTimeLabel,outTimeLabel
@@ -85,6 +85,8 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private String chargeOperaName;
 	
 	private Date reviseInTime;
+	
+	private String freeReason;
 
 	public String getPlateNo() {
 		return plateNo;
@@ -384,6 +386,14 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		this.chargeOperaName = chargeOperaName;
 		if (pcs != null)
 			pcs.firePropertyChange("chargeOperaName", null, null);
+	}
+	public String getFreeReason() {
+		return freeReason;
+	}
+	public void setFreeReason(String freeReason) {
+		this.freeReason = freeReason;
+		if (pcs != null)
+			pcs.firePropertyChange("freeReason", null, null);
 	}
 	
 }

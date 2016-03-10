@@ -47,6 +47,7 @@ public class SettingView extends Composite implements View {
 	private Text text_7;
 
 	Map<SystemSettingTypeEnum, String> mapSystemSetting = new HashMap<>();
+	private Text text_2;
 
 	public SettingView(Composite parent, int style) {
 		super(parent, style);
@@ -632,7 +633,44 @@ public class SettingView extends Composite implements View {
 		Label label_5 = new Label(group_2, SWT.NONE);
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_5.setText("分");
-
+		
+		Group group_3 = new Group(composite, SWT.NONE);
+		group_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		group_3.setLayout(new GridLayout(2, false));
+		group_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		group_3.setText("子停车场设置");
+		
+		Button button_27 = new Button(group_3, SWT.CHECK);
+		button_27.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.固定车非所属停车场停留收费, button_27.getSelection()+"");
+			}
+		});
+		button_27.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_27.setToolTipText("选中后固定车在其他停车场停留超时后会收费");
+		button_27.setText("固定车非所属停车场停留时间");
+		button_27.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车非所属停车场停留收费)));
+		
+		text_2 = new Text(group_3, SWT.BORDER);
+		text_2.addKeyListener(new KeyAdapter() {
+			String s="";
+			@Override
+			public void keyReleased(KeyEvent e) {
+				try {
+					String text2 = text_2.getText();
+					Integer.valueOf(text2);
+					s=text2;
+					mapSystemSetting.put(SystemSettingTypeEnum.固定车非所属停车场停留时间, s);
+				} catch (NumberFormatException e1) {
+					text_2.setText(s);
+				}
+			}
+		});
+		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		text_2.setText(mapSystemSetting.get(SystemSettingTypeEnum.固定车非所属停车场停留时间));
+		
 		Composite composite_8 = new Composite(composite, SWT.NONE);
 		composite_8.setLayout(new GridLayout(4, false));
 
@@ -680,7 +718,7 @@ public class SettingView extends Composite implements View {
 
 		Composite composite_1 = new Composite(composite, SWT.NONE);
 		composite_1.setLayout(new GridLayout(1, false));
-		composite_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		composite_1.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 1, 1));
 
 		Button button_23 = new Button(composite_1, SWT.NONE);
 		button_23.addSelectionListener(new SelectionAdapter() {

@@ -11,6 +11,7 @@ import com.caucho.hessian.server.HessianServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -344,5 +345,12 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	@Override
 	public Long updateCarparkStillTime(SingleCarparkCarpark carpark, SingleCarparkDevice device, String plateNO, String bigImg) {
 		return carparkInOutService.updateCarparkStillTime(carpark, device, plateNO, bigImg);
+	}
+
+
+
+	@Override
+	public List<CarparkStillTime> findCarparkStillTime(String plateNO, Date inTime) {
+		return carparkInOutService.findCarparkStillTime(plateNO, inTime);
 	}
 }

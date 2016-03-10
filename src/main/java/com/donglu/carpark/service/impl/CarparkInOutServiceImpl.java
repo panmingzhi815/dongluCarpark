@@ -1009,6 +1009,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		CarparkStillTime cst = (CarparkStillTime) c.getSingleResultOrNull();
 		DatabaseOperation<CarparkStillTime> dom = DatabaseOperation.forClass(CarparkStillTime.class, emprovider.get());
 		Date outTime = new Date();
+		String inType = device.getInType();
 		if (cst==null) {
 			cst=new CarparkStillTime();
 			cst.setCarparkId(carpark.getId());
@@ -1019,12 +1020,51 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			cst.setInDevice(device.getName());
 			dom.insert(cst);
 		}else{
+			if (inType.indexOf("进口")>-1) {
+				CarparkStillTime carparkStillTime = new CarparkStillTime();
+				carparkStillTime=new CarparkStillTime();
+				carparkStillTime.setCarparkId(device.getCarpark().getId());
+				carparkStillTime.setCarparkName(device.getCarpark().getName());
+				carparkStillTime.setPlateNO(plateNO);
+				carparkStillTime.setInTime(outTime);
+				carparkStillTime.setInBigImg(bigImg);
+				carparkStillTime.setInDevice(device.getName());
+				dom.insert(carparkStillTime);
+				
+			}
+			if (inType.indexOf("出口")>-1) {
+				SingleCarparkCarpark parent = carpark.getParent();
+				if (parent!=null) {
+					CarparkStillTime carparkStillTime = new CarparkStillTime();
+					carparkStillTime=new CarparkStillTime();
+					carparkStillTime.setCarparkId(parent.getId());
+					carparkStillTime.setCarparkName(parent.getName());
+					carparkStillTime.setPlateNO(plateNO);
+					carparkStillTime.setInTime(outTime);
+					carparkStillTime.setInBigImg(bigImg);
+					carparkStillTime.setInDevice(device.getName());
+					dom.insert(carparkStillTime);
+				}
+			}
 			cst.setOutBigImg(bigImg);
 			cst.setOutTime(outTime);
 			cst.setOutDevice(device.getName());
-			cst.setStillSecond(CarparkUtils.countSecondByDate(cst.getInTime(),outTime));
+			cst.setStillSecond(CarparkUtils.MinusMinute(cst.getInTime(),outTime));
 		}
 		return cst.getId();
+	}
+
+	@Override
+	public List<CarparkStillTime> findCarparkStillTime(String plateNO, Date inTime) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), CarparkStillTime.class);
+			c.add(Restrictions.eq(CarparkStillTime.Property.plateNO.name(), plateNO));
+			c.add(Restrictions.ge(CarparkStillTime.Property.inTime.name(), inTime));
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
 	}
 
 }

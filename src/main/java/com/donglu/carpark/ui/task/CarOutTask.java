@@ -224,7 +224,6 @@ public class CarOutTask implements Runnable{
 				tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg,null);
 			}
 			CarparkMainApp.mapCameraLastImage.put(ip, bigImg);
-			sp.getCarparkInOutService().updateCarparkStillTime(carpark, device, roadType, bigImg);
 		} catch (Exception e) {
 			LOGGER.error("车辆出场时发生错误",e);
 		}
@@ -412,28 +411,23 @@ public class CarOutTask implements Runnable{
 				presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
 				return true;
 			}
-		} else {
-			c.setTime(validTo);
-			c.add(Calendar.DATE, user.getRemindDays() == null ? 0 : user.getRemindDays() * -1);
-			time = c.getTime();
-			if (StrUtil.getTodayBottomTime(time).before(date)) {
-				presenter.showContentToDevice(device, "月租车辆," + CarparkMainApp.CAR_OUT_MSG + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天", true);
-				LOGGER.info("车辆:{}即将到期", nowPlateNO);
-			} else {
-				presenter.showContentToDevice(device, "月租车辆," + CarparkMainApp.CAR_OUT_MSG, true);
-			}
-		}
-
+		} 
+		
+		boolean fixCarStillCharge = CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车非所属停车场停留收费).equals("true")&&!device.getCarpark().equals(user.getCarpark());
 		model.setPlateNo(nowPlateNO);
 		model.setCarType(carType);
 		model.setOutTime(date);
 		model.setShouldMony(0);
-		model.setInTime(null);
-		model.setTotalTime("未入场");
 		model.setReal(0);
 		// 未找到入场记录
 		if (StrUtil.isEmpty(singleCarparkInOutHistory)) {
 			singleCarparkInOutHistory=new SingleCarparkInOutHistory();
+			model.setInTime(null);
+			model.setTotalTime("未入场");
+			if (fixCarStillCharge) {
+				notFindInHistory(device, bigImg, smallImg);
+				return true;
+			}
 		}else{
 			Date inTime = singleCarparkInOutHistory.getInTime();
 			model.setInTime(inTime);
@@ -456,7 +450,30 @@ public class CarOutTask implements Runnable{
 			if (after)
 				singleCarparkInOutHistory.setOutPhotographType("手动");
 		}
+		if (fixCarStillCharge) {
+			float shouldMoney=presenter.countFixCarShouldMoney(user,device,singleCarparkInOutHistory.getInTime(),date,plateNO);
+			if (shouldMoney>0) {
+				model.setShouldMony(shouldMoney);
+				model.setReal(shouldMoney);
+				presenter.showContentToDevice(device, "请缴费"+shouldMoney+"元", false);
+				model.setChargeDevice(device);
+				model.setChargeHistory(singleCarparkInOutHistory);
+				model.setBtnClick(true);
+				return true;
+			}
+		}
+		
+		c.setTime(validTo);
+		c.add(Calendar.DATE, user.getRemindDays() == null ? 0 : user.getRemindDays() * -1);
+		time = c.getTime();
+		if (StrUtil.getTodayBottomTime(time).before(date)) {
+			presenter.showContentToDevice(device, "月租车辆," + CarparkMainApp.CAR_OUT_MSG + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天", true);
+			LOGGER.info("车辆:{}即将到期", nowPlateNO);
+		} else {
+			presenter.showContentToDevice(device, "月租车辆," + CarparkMainApp.CAR_OUT_MSG, true);
+		}
 		carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
+		sp.getCarparkInOutService().updateCarparkStillTime(device.getCarpark(), device, plateNO, bigImg);
 		model.setBtnClick(false);
 		return false;
 	}

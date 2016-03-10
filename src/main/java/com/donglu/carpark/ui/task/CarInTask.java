@@ -379,10 +379,7 @@ public class CarInTask implements Runnable {
 					model.setInCheckIsClick(false);
 					presenter.showPlateNOToDevice(device, editPlateNo);
 					if (!editPlateNo.equals(plateNO)) {
-						cch = sp.getCarparkInOutService().findInOutHistoryByPlateNO(editPlateNo);
-						if (StrUtil.isEmpty(cch)) {
-							cch = new SingleCarparkInOutHistory();
-						}
+						initInOutHistory(device);
 					}
 				}
 			}
@@ -397,13 +394,12 @@ public class CarInTask implements Runnable {
 							return prepaidCarIn(device, user);
 					}
 				}
-			} else {
-				LOGGER.debug("判断是否允许临时车进");
-				if (device.getCarpark().isTempCarIsIn()) {
-					presenter.showContentToDevice(device, "固定停车场,不允许临时车进", false);
-					return true;
-				}
 			}
+		}
+		LOGGER.debug("判断是否允许临时车进");
+		if (device.getCarpark().isTempCarIsIn()) {
+			presenter.showContentToDevice(device, "固定停车场,不允许临时车进", false);
+			return true;
 		}
 	
 		Boolean valueOf2 = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制));
@@ -457,6 +453,7 @@ public class CarInTask implements Runnable {
 					presenter.showPlateNOToDevice(device, editPlateNo);
 					if (!editPlateNo.equals(plateNO)) {
 						user = sp.getCarparkUserService().findUserByPlateNo(editPlateNo, device.getCarpark().getId());
+						initInOutHistory(device);
 					}
 				}
 			}
@@ -493,8 +490,7 @@ public class CarInTask implements Runnable {
 		}
 		if (date.after(new DateTime(user.getValidTo()).minusDays(user.getDelayDays() == null ? 0 : user.getRemindDays()).toDate())) {
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车).equals("true")) {
-				tempCarShowToDevice(device, user, date, false);
-				return false;
+				return tempCarShowToDevice(device, user, date, false);
 			}
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期所属停车场限制).equals("true")) {
 				LOGGER.info("固定车到期，固定车到期所属停车场限制:{}。判断是否进入所属停车场",true);
@@ -518,6 +514,7 @@ public class CarInTask implements Runnable {
 				if (Integer.valueOf(user.getCarparkNo()) <= list.size()) {
 					setFixCarToTemIn(date, user);
 					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，作临时车进入", valueOf2, user.getCarparkNo(), list.size());
+					return tempCarShowToDevice(device, user, date, false);
 				}
 			} else {
 				if (Integer.valueOf(user.getCarparkNo()) <= list.size()) {
@@ -548,6 +545,18 @@ public class CarInTask implements Runnable {
 			LOGGER.info("固定车：{}，{}", plateNO, content);
 		}
 		return false;
+	}
+
+	/**
+	 *初始化进场记录
+	 * @param device
+	 */
+	public void initInOutHistory(SingleCarparkDevice device) {
+		List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(editPlateNo, device.getCarpark());
+		cch = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
+		if (StrUtil.isEmpty(cch)) {
+			cch = new SingleCarparkInOutHistory();
+		}
 	}
 
 	/**

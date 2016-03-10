@@ -114,5 +114,9 @@ public class CarparkStillTime extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("outBigImg", null, null);
 	}
+	@Override
+	public String toString() {
+		return "车牌："+plateNO+"===进时间："+inTime+"===停留时间："+stillSecond;
+	}
 
 }
