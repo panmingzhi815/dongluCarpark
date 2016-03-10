@@ -560,13 +560,13 @@ public class CarparkMainPresenter {
 	 * @param opDoor是否需要开门
 	 * @return
 	 */
-	public boolean showContentToDevice(SingleCarparkDevice device, String content, boolean opDoor) {
+	public boolean showContentToDevice(SingleCarparkDevice device, String content, boolean isOpenDoor) {
 		if (checkDeviceLinkStatus(device)) {
 			return false;
 		}
 		try {
 			Device d = getDevice(device);
-			if (opDoor) {
+			if (isOpenDoor) {
 				if (d!=null) {
 					Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoor(d, content, device.getVolume() == null ? 1 : device.getVolume());
 					openDoorToPhotograph(device.getIp());
@@ -910,7 +910,7 @@ public class CarparkMainPresenter {
 			searchErrorCarPresenter.getModel().setNoPlateNoSelect(null);
 			searchErrorCarPresenter.getModel().setSaveBigImg(bigImg);
 			searchErrorCarPresenter.getModel().setSaveSmallImg(smallImg);
-			searchErrorCarPresenter.getModel().setCarpark(model.getCarpark());
+			searchErrorCarPresenter.getModel().setCarpark(model.getSearchCarpark());
 			SearchHistoryByHandWizard wizard = new SearchHistoryByHandWizard(searchErrorCarPresenter);
 			Object showWizard = commonui.showWizard(wizard);
 			if (StrUtil.isEmpty(showWizard)) {
@@ -1063,16 +1063,23 @@ public class CarparkMainPresenter {
 				return false;
 			}
 			if (check) {
-//				boolean confirm = commonui.confirm("收费确认", "车牌：" + singleCarparkInOutHistory.getPlateNo() + "应收：" + shouldMoney + "实收：" + factMoney);
-//				if (!confirm) {
-//					return false;
-//				}
-				FreeReasonPresenter p=new FreeReasonPresenter();
-				p.setModel(singleCarparkInOutHistory);
-				ShowDialog s=new ShowDialog("免费原因");
-				s.setPresenter(p);
-				SingleCarparkInOutHistory open = (SingleCarparkInOutHistory) s.open();
-				System.out.println(open.getFreeReason());
+				boolean confirm = commonui.confirm("收费确认", "车牌：" + singleCarparkInOutHistory.getPlateNo() + "应收：" + shouldMoney + "实收：" + factMoney);
+				if (!confirm) {
+					return false;
+				}
+				if (shouldMoney>factMoney) {
+					FreeReasonPresenter p=new FreeReasonPresenter();
+					p.setModel(singleCarparkInOutHistory);
+					String reasons = mapSystemSetting.get(SystemSettingTypeEnum.免费原因);
+					p.setReasons(reasons);
+					ShowDialog s=new ShowDialog("免费原因");
+					s.setPresenter(p);
+					SingleCarparkInOutHistory open = (SingleCarparkInOutHistory) s.open();
+					if (open==null) {
+						return false;
+					}
+					singleCarparkInOutHistory.setFreeReason(open.getFreeReason());
+				}
 			}
 			log.info("车辆收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", singleCarparkInOutHistory.getPlateNo(), device.getCarpark(), model.getCarTypeEnum(), model.getInTime(), model.getOutTime(),
 					model.getTotalTime(), shouldMoney);
@@ -1272,7 +1279,7 @@ public class CarparkMainPresenter {
 			Date outTime2 = cs.getOutTime();
 			int minusMinute=cs.getStillSecond();
 			if (outTime2==null) {
-				minusMinute = CarparkUtils.countSecondByDate(inTime, date);
+				minusMinute = CarparkUtils.countTime(inTime, date, TimeUnit.MINUTES);
 			}
 			if (minusMinute>canStillMinute) {
 				minute+=(minusMinute-canStillMinute);

@@ -317,6 +317,7 @@ public class CarOutTask implements Runnable{
 		model.setSearchSmallImage(smallImg);
 		model.setHandSearch(true);
 		model.setOutPlateNOEditable(true);
+		model.setSearchCarpark(device.getCarpark());
 	}
 	
 	/**
@@ -334,7 +335,7 @@ public class CarOutTask implements Runnable{
 	 */
 	private boolean fixCarOutProcess(final String ip, final String plateNO, Date date, SingleCarparkDevice device, SingleCarparkUser user, String roadType, boolean equals, String bigImg,
 			String smallImg) throws Exception {
-
+		
 		if (!StrUtil.isEmpty(user.getTempCarTime())) {
 			tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg, StrUtil.parse(user.getTempCarTime().split(",")[0], StrUtil.DATETIME_PATTERN));
 			model.setUser(user);

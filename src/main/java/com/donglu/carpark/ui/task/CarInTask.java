@@ -64,7 +64,26 @@ public class CarInTask implements Runnable {
 	private String editPlateNo = null;
 	//车辆性质
 	private String carType = "临时车";
+	//车辆记录
 	private SingleCarparkInOutHistory cch;
+	//进场设备
+	private SingleCarparkDevice device;
+	//进场停车场
+	private SingleCarparkCarpark carpark;
+	//进场时间
+	private Date date = new Date();
+	//查找到的用户，判断是否为固定用户
+	private SingleCarparkUser user;
+	//大图片保存位置
+	private String bigImgSavePath;
+	//小图片保存位置
+	private String smallImgSavePath;
+	//发送到设备的消息
+	private String content=CAR_IN_MSG;
+	//是否开门
+	private boolean isOpenDoor=false;
+	
+	private boolean isInCheck=false;
 
 	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter,
 			Float rightSize, CLabel lbl_inSmallImg, CLabel lbl_inBigImg) {
@@ -85,9 +104,8 @@ public class CarInTask implements Runnable {
 	public void run() {
 		model.setInCheckClick(false);
 		try {
-			SingleCarparkDevice device = mapIpToDevice.get(ip);
+			device = mapIpToDevice.get(ip);
 
-			Date date = new Date();
 			boolean checkPlateNODiscernGap = presenter.checkPlateNODiscernGap(mapPlateNoDate, plateNO, date);
 			if (!checkPlateNODiscernGap) {
 				return;
@@ -98,15 +116,13 @@ public class CarInTask implements Runnable {
 			model.setInShowPlateNO(plateNO);
 			model.setInShowTime(dateString);
 
-			long nanoTime1 = System.nanoTime();
-
 			LOGGER.info(dateString + "==" + ip + "====" + plateNO);
 
 			if (StrUtil.isEmpty(device)) {
 				LOGGER.error("没有找到ip:" + ip + "的设备");
 				return;
 			}
-			SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkById(device.getCarpark().getId());
+			carpark = sp.getCarparkService().findCarparkById(device.getCarpark().getId());
 			if (StrUtil.isEmpty(carpark)) {
 				LOGGER.error("没有找到id:" + device.getCarpark().getId() + "的停车场");
 				return;
@@ -116,7 +132,8 @@ public class CarInTask implements Runnable {
 			String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
 			String smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
 			LOGGER.debug("开始在界面显示车牌：{}的抓拍图片", plateNO);
-			// 界面图片
+			bigImgSavePath = folder + "/" + bigImgFileName;
+			smallImgSavePath = folder + "/" + smallImgFileName;
 			DEFAULT_DISPLAY.asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -125,7 +142,7 @@ public class CarInTask implements Runnable {
 					}
 					CarparkUtils.setBackgroundImage(smallImage, lbl_inSmallImg, DEFAULT_DISPLAY);
 					CarparkUtils.setBackgroundImage(bigImage, lbl_inBigImg, DEFAULT_DISPLAY);
-					CarparkUtils.setBackgroundImageName(lbl_inBigImg, folder + "/" + bigImgFileName);
+					CarparkUtils.setBackgroundImageName(lbl_inBigImg, bigImgSavePath);
 				}
 			});
 			model.setInShowPlateNO(plateNO);
@@ -170,20 +187,11 @@ public class CarInTask implements Runnable {
 			
 			
 			LOGGER.debug("开始保存车牌：{}的图片", plateNO);
-			long nanoTime = System.nanoTime();
 
 			mapPlateNoDate.put(plateNO, date);
 			presenter.saveImage(folder, smallImgFileName,bigImgFileName,smallImage, bigImage);
 
-			// model.setInShowBigImg(inBigImage);
-			// model.setInShowSmallImg(inSmallImage);
-			// model.setInShowPlateNO(plateNO);
-			// model.setInShowTime(dateString);
-			// plateNoTotal.addAndGet(1);
-
-			long nanoTime3 = System.nanoTime();
-			LOGGER.debug("显示车牌");
-			presenter.showPlateNOToDevice(device, plateNO);
+			showPlateToDevice();
 			
 			if(checkBlackUser(device, date)){
 				return;
@@ -191,65 +199,90 @@ public class CarInTask implements Runnable {
 
 			model.setHistory(cch);
 			LOGGER.debug("查找是否为固定车");
-			SingleCarparkUser user = sp.getCarparkUserService().findUserByPlateNo(plateNO, device.getCarpark().getId());
+			user = sp.getCarparkUserService().findUserByPlateNo(plateNO, device.getCarpark().getId());
 
 
-			if (!StrUtil.isEmpty(user)) {//固定车操作
-				if(fixCarShowToDevice(date, device, user,!isEmptyPlateNo)){
-					return;
-				}
-			} else {
-				if (tempCarShowToDevice(device, user, date, !isEmptyPlateNo)) {
-					return;
-				}
-			}
-			LOGGER.info("车辆类型为：{}==t通道类型为：{}", carType, device.getRoadType());
-			// showInDevice(device, plateNO, user);
-			long nanoTime2 = System.nanoTime();
-			LOGGER.info(dateString + "==" + ip + "====" + plateNO + "车辆类型：" + carType + "==" + "保存图片：" + (nanoTime1 - nanoTime) + "==查找固定用户：" + (nanoTime2 - nanoTime3) + "==界面操作："
-					+ (nanoTime3 - nanoTime1));
-			LOGGER.info("把车牌:{}的进场记录保存到数据库", plateNO);
-			
-			cch.setPlateNo(plateNO);
-			cch.setInPlateNO(plateNO);
-			if (!StrUtil.isEmpty(editPlateNo)) {
-				cch.setPlateNo(editPlateNo);
-			}
-			cch.setInTime(date);
-			cch.setOperaName(System.getProperty("userName"));
-			cch.setBigImg(folder + "/" + bigImgFileName);
-			cch.setSmallImg(folder + "/" + smallImgFileName);
-			cch.setCarType(carType);
-			cch.setCarparkId(carpark.getId());
-			cch.setCarparkName(carpark.getName());
-			if (!StrUtil.isEmpty(user)) {
-				cch.setUserName(user.getName());
-				cch.setUserId(user.getId());
-			}
-			cch.setInDevice(device.getName());
-			cch.setInPhotographType("自动");
-			cch.setChargeTime(null);
-			cch.setChargeOperaName(null);
-			cch.setFactMoney(0);
-			Date handPhotographDate = mapHandPhotograph.get(ip);
-			if (!StrUtil.isEmpty(handPhotographDate)) {
-				DateTime plusSeconds = new DateTime(handPhotographDate).plusSeconds(3);
-				boolean after = plusSeconds.toDate().after(date);
-				if (after)
-					cch.setInPhotographType("手动");
-			}
-			sp.getCarparkInOutService().updateCarparkStillTime(carpark,device, plateNO,cch.getBigImg());
-			Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(cch);
-			cch.setId(saveInOutHistory);
-			model.addInHistorys(cch);
-			model.setInHistorySelect(cch);
-			LOGGER.info("保存车牌：{}的进场记录到数据库成功", plateNO);
-			CarparkMainApp.mapCameraLastImage.put(ip, cch.getBigImg());
-			model.setHistory(null);
+			checkUser(!isEmptyPlateNo);
 		} catch (Exception e) {
 			LOGGER.error("车辆进场时发生错误，", e);
 		}
 
+	}
+
+	/**
+	 * 
+	 */
+	public void showPlateToDevice() {
+		LOGGER.debug("显示车牌:{}",plateNO);
+		presenter.showPlateNOToDevice(device, plateNO);
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public void checkUser(boolean isInCheck) throws Exception {
+		this.isInCheck=isInCheck;
+		if (!StrUtil.isEmpty(user)) {//固定车操作
+			if(fixCarShowToDevice(isInCheck)){
+				return;
+			}
+		} else {
+			if (tempCarShowToDevice(isInCheck)) {
+				return;
+			}
+		}
+		saveInHistory();
+	}
+
+	/**
+	 * @param dateString
+	 * @param nanoTime1
+	 * @param nanoTime
+	 * @param nanoTime3
+	 */
+	public void saveInHistory() {
+		LOGGER.info("车辆类型为：{}==t通道类型为：{}", carType, device.getRoadType());
+		LOGGER.info(date + "==" + ip + "====" + plateNO + "车辆类型：" + carType + "==" + "保存图片：==查找固定用户：==界面操作：");
+		LOGGER.info("把车牌:{}的进场记录保存到数据库", plateNO);
+		
+		cch.setPlateNo(plateNO);
+		cch.setInPlateNO(plateNO);
+		if (!StrUtil.isEmpty(editPlateNo)) {
+			cch.setPlateNo(editPlateNo);
+		}
+		cch.setInTime(date);
+		cch.setOperaName(System.getProperty("userName"));
+		cch.setBigImg(bigImgSavePath);
+		cch.setSmallImg(smallImgSavePath);
+		cch.setCarType(carType);
+		cch.setCarparkId(carpark.getId());
+		cch.setCarparkName(carpark.getName());
+		if (!StrUtil.isEmpty(user)) {
+			cch.setUserName(user.getName());
+			cch.setUserId(user.getId());
+		}
+		cch.setInDevice(device.getName());
+		cch.setInPhotographType("自动");
+		cch.setChargeTime(null);
+		cch.setChargeOperaName(null);
+		cch.setFactMoney(0);
+		Date handPhotographDate = mapHandPhotograph.get(ip);
+		if (!StrUtil.isEmpty(handPhotographDate)) {
+			DateTime plusSeconds = new DateTime(handPhotographDate).plusSeconds(3);
+			boolean after = plusSeconds.toDate().after(date);
+			if (after)
+				cch.setInPhotographType("手动");
+		}
+		sp.getCarparkInOutService().updateCarparkStillTime(carpark,device, StrUtil.isEmpty(editPlateNo)?plateNO:editPlateNo,cch.getBigImg());
+		Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(cch);
+		cch.setId(saveInOutHistory);
+		model.addInHistorys(cch);
+		model.setInHistorySelect(cch);
+		LOGGER.info("保存车牌：{}的进场记录到数据库成功", plateNO);
+		CarparkMainApp.mapCameraLastImage.put(ip, cch.getBigImg());
+		model.setHistory(null);
+		presenter.showContentToDevice(device, content, isOpenDoor);
+		LOGGER.info("对设备{}，发送消息{}，开门信号：{}",device,content,isOpenDoor);
 	}
 
 	/**
@@ -309,7 +342,7 @@ public class CarInTask implements Runnable {
 	 * @param user
 	 * @return 
 	 */
-	public boolean prepaidCarIn(SingleCarparkDevice device, SingleCarparkUser user) {
+	public boolean prepaidCarIn() {
 		if (CarparkUtils.checkRoadType(device, presenter, DeviceRoadTypeEnum.临时车通道,DeviceRoadTypeEnum.固定车通道)) {
 			return true;
 		}
@@ -331,13 +364,15 @@ public class CarInTask implements Runnable {
 		
 		Float prepaidCarInOutRemind=Float.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车提醒金额));;
 		if (leftMoney<prepaidCarInOutRemind) {
-			String content = CAR_IN_MSG+",剩余"+leftMoney+"元,请及时充值";
+			content = CAR_IN_MSG+",剩余"+leftMoney+"元,请及时充值";
 			content=CarparkUtils.formatFloatString(content);
-			presenter.showContentToDevice(device, content, true);
+			isOpenDoor=true;
+//			presenter.showContentToDevice(device, content, true);
 		}
 		if (leftMoney>100) {
-			String content = "储值车辆,"+CAR_IN_MSG;
-			presenter.showContentToDevice(device, content, true);
+			content = "储值车辆,"+CAR_IN_MSG;
+			isOpenDoor=true;
+//			presenter.showContentToDevice(device, content, true);
 		}
 		return false;
 	}
@@ -350,7 +385,7 @@ public class CarInTask implements Runnable {
 	 * @param incheck 
 	 * @return
 	 */
-	public boolean tempCarShowToDevice(SingleCarparkDevice device, SingleCarparkUser user, Date date, boolean incheck) throws Exception {
+	public boolean tempCarShowToDevice( boolean incheck) throws Exception {
 		if (incheck) {
 			// 临时车是否确认
 			boolean flag = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认));
@@ -359,6 +394,8 @@ public class CarInTask implements Runnable {
 					model.setInCheckClick(true);
 					presenter.showContentToDevice(device, "临时车等待确认", false);
 					int i = 0;
+//					model.getMapInCheck().put(plateNO, this);
+//					return true;
 					while (model.isInCheckClick()) {
 						try {
 							if (i > 220) {
@@ -389,9 +426,9 @@ public class CarInTask implements Runnable {
 
 				} else {
 					if (!user.getType().equals("储值")) {
-							return fixCarShowToDevice(date, device, user, false);
+							return fixCarShowToDevice( false);
 					} else {
-							return prepaidCarIn(device, user);
+							return prepaidCarIn();
 					}
 				}
 			}
@@ -416,7 +453,7 @@ public class CarInTask implements Runnable {
 				return true;
 			}
 		}
-		presenter.showContentToDevice(device, CAR_IN_MSG, true);
+		isOpenDoor=true;
 		return false;
 	}
 
@@ -428,7 +465,7 @@ public class CarInTask implements Runnable {
 	 * @param cch 
 	 * @return 是否需要退出 true退出
 	 */
-	public boolean fixCarShowToDevice(Date date, SingleCarparkDevice device, SingleCarparkUser user,boolean incheck) throws Exception {
+	public boolean fixCarShowToDevice(boolean incheck) throws Exception {
 		
 		if (incheck) {
 			//固定车入场确认
@@ -458,7 +495,7 @@ public class CarInTask implements Runnable {
 				}
 			}
 			if (user==null) {
-				return tempCarShowToDevice(device, user,  date,false);
+				return tempCarShowToDevice(false);
 			}
 			//非储值车
 			if (!user.getType().equals("储值")) {
@@ -469,7 +506,7 @@ public class CarInTask implements Runnable {
 							presenter.showContentToDevice(device, "固定停车场,不允许临时车进", false);
 							return true;
 						}
-						if (tempCarShowToDevice(device, user,  date,false)) {
+						if (tempCarShowToDevice(false)) {
 							return true;
 						}
 					} else {
@@ -479,7 +516,7 @@ public class CarInTask implements Runnable {
 					carType = "固定车";
 				} 
 			}else{//储值车
-				return prepaidCarIn(device, user);
+				return prepaidCarIn();
 			}
 		}
 		
@@ -490,12 +527,13 @@ public class CarInTask implements Runnable {
 		}
 		if (date.after(new DateTime(user.getValidTo()).minusDays(user.getDelayDays() == null ? 0 : user.getRemindDays()).toDate())) {
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车).equals("true")) {
-				return tempCarShowToDevice(device, user, date, false);
+				return tempCarShowToDevice(false);
 			}
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期所属停车场限制).equals("true")) {
 				LOGGER.info("固定车到期，固定车到期所属停车场限制:{}。判断是否进入所属停车场",true);
 				if (device.getCarpark().equals(user.getCarpark())) {
-					presenter.showContentToDevice(device, "月租车辆," + CAR_IN_MSG + ",车辆已过期,请及时续费", true);
+					content = "月租车辆," + CAR_IN_MSG + ",车辆已过期,请及时续费";
+					isOpenDoor=true;
 					return false;
 				}
 			}
@@ -514,7 +552,7 @@ public class CarInTask implements Runnable {
 				if (Integer.valueOf(user.getCarparkNo()) <= list.size()) {
 					setFixCarToTemIn(date, user);
 					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，作临时车进入", valueOf2, user.getCarparkNo(), list.size());
-					return tempCarShowToDevice(device, user, date, false);
+					return tempCarShowToDevice(false);
 				}
 			} else {
 				if (Integer.valueOf(user.getCarparkNo()) <= list.size()) {
@@ -536,12 +574,12 @@ public class CarInTask implements Runnable {
 
 		Date date2 = new DateTime(user.getValidTo()).minusDays(user.getRemindDays() == null ? 0 : user.getRemindDays()).toDate();
 		if (StrUtil.getTodayBottomTime(date2).before(date)) {
-			String content = "月租车辆," + CAR_IN_MSG + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天";
-			presenter.showContentToDevice(device, content, true);
+			content = "月租车辆," + CAR_IN_MSG + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天";
+			isOpenDoor=true;
 			LOGGER.info("固定车：{}，{}", plateNO, content);
 		} else {
-			String content = "月租车辆," + CAR_IN_MSG;
-			presenter.showContentToDevice(device, content, true);
+			content = "月租车辆," + CAR_IN_MSG;
+			isOpenDoor=true;
 			LOGGER.info("固定车：{}，{}", plateNO, content);
 		}
 		return false;
@@ -606,5 +644,29 @@ public class CarInTask implements Runnable {
 
 	public void setRightSize(Float rightSize) {
 		this.rightSize = rightSize;
+	}
+
+	public SingleCarparkUser getUser() {
+		return user;
+	}
+
+	public void setUser(SingleCarparkUser user) {
+		this.user = user;
+	}
+
+	public SingleCarparkInOutHistory getCch() {
+		return cch;
+	}
+
+	public void setCch(SingleCarparkInOutHistory cch) {
+		this.cch = cch;
+	}
+
+	public SingleCarparkDevice getDevice() {
+		return device;
+	}
+
+	public CarparkDatabaseServiceProvider getSp() {
+		return sp;
 	}
 }

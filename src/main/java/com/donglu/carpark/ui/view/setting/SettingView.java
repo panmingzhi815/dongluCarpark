@@ -32,6 +32,10 @@ import java.util.Map;
 
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
 
 public class SettingView extends Composite implements View {
 	private String cLIENT_IMAGE_SAVE_FILE_PATH = "clientImageSaveFilePath";
@@ -397,9 +401,9 @@ public class SettingView extends Composite implements View {
 		text_setting_dataBaseSave.setText(mapSystemSetting.get(SystemSettingTypeEnum.数据库备份位置));
 		text_setting_dataBaseSave.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_setting_dataBaseSave.setEditable(false);
-		GridData gd_text_2 = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_text_2.widthHint = 239;
-		text_setting_dataBaseSave.setLayoutData(gd_text_2);
+		GridData gd_text_setting_dataBaseSave = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_text_setting_dataBaseSave.widthHint = 239;
+		text_setting_dataBaseSave.setLayoutData(gd_text_setting_dataBaseSave);
 
 		Button button_15 = new Button(composite_5, SWT.NONE);
 		button_15.addSelectionListener(new SelectionAdapter() {
@@ -514,6 +518,66 @@ public class SettingView extends Composite implements View {
 		GridData gd_text_4 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_text_4.widthHint = 67;
 		text_setting_imgSaveDays.setLayoutData(gd_text_4);
+		
+		Composite composite_9 = new Composite(group, SWT.NONE);
+		composite_9.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
+		composite_9.setLayout(new GridLayout(4, false));
+		
+		Label lblNewLabel_2 = new Label(composite_9, SWT.NONE);
+		lblNewLabel_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		lblNewLabel_2.setText("免费原因");
+		
+		ComboViewer comboViewer = new ComboViewer(composite_9, SWT.READ_ONLY);
+		Combo combo = comboViewer.getCombo();
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		comboViewer.setContentProvider(new ArrayContentProvider());
+		comboViewer.setLabelProvider(new LabelProvider());
+		comboViewer.setInput(mapSystemSetting.get(SystemSettingTypeEnum.免费原因).split(","));
+		GridData gd_combo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_combo.widthHint = 200;
+		combo.setLayoutData(gd_combo);
+		combo.select(0);
+		
+		Button btnNewButton = new Button(composite_9, SWT.NONE);
+		btnNewButton.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		btnNewButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String reason=getPresenter().setFreeReson();
+				if (StrUtil.isEmpty(reason)) {
+					return;
+				}
+				String string2 = mapSystemSetting.get(SystemSettingTypeEnum.免费原因);
+				if (string2.indexOf(reason)>-1) {
+					return;
+				}
+				combo.add(reason);
+				
+				if (!StrUtil.isEmpty(string2)) {
+					string2+=","+reason;
+				}
+				mapSystemSetting.put(SystemSettingTypeEnum.免费原因, string2);
+			}
+		});
+		btnNewButton.setText("添加");
+		
+		Button btnNewButton_1 = new Button(composite_9, SWT.NONE);
+		btnNewButton_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		btnNewButton_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String reason = combo.getText();
+				if (reason.equals("其他原因")){
+					return;
+				}
+				combo.remove(combo.getSelectionIndex());
+				combo.select(0);
+				String string2 = mapSystemSetting.get(SystemSettingTypeEnum.免费原因);
+				String replaceAll = string2.replaceAll(","+reason, "");
+				mapSystemSetting.put(SystemSettingTypeEnum.免费原因, replaceAll);
+			}
+		});
+		btnNewButton_1.setText("删除");
 
 		Group group_1 = new Group(composite, SWT.NONE);
 		group_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
@@ -635,8 +699,8 @@ public class SettingView extends Composite implements View {
 		label_5.setText("分");
 		
 		Group group_3 = new Group(composite, SWT.NONE);
-		group_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		group_3.setLayout(new GridLayout(2, false));
+		group_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		group_3.setLayout(new GridLayout(3, false));
 		group_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		group_3.setText("子停车场设置");
 		
@@ -668,8 +732,13 @@ public class SettingView extends Composite implements View {
 			}
 		});
 		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		GridData gd_text_2 = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_text_2.widthHint = 50;
+		text_2.setLayoutData(gd_text_2);
 		text_2.setText(mapSystemSetting.get(SystemSettingTypeEnum.固定车非所属停车场停留时间));
+		
+		Label label_8 = new Label(group_3, SWT.NONE);
+		label_8.setText("分钟");
 		
 		Composite composite_8 = new Composite(composite, SWT.NONE);
 		composite_8.setLayout(new GridLayout(4, false));

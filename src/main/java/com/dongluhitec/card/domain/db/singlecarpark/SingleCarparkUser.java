@@ -19,6 +19,7 @@ public class SingleCarparkUser extends DomainObject {
 	private static final long serialVersionUID = 1116467109412674474L;
 	public enum Property{
 		id,plateNo,name,type,carType,address,carparkNo,leftMoney,createDate,validTo,remark,valitoLabel
+		,telephone,parkingSpace
 	}
 	
 	private String name;
@@ -176,6 +177,20 @@ public class SingleCarparkUser extends DomainObject {
 		this.carType = carType;
 		if (pcs != null)
 			pcs.firePropertyChange("carType", null, null);
+	}
+	public String getTelephone() {
+		return telephone;
+	}
+	public void setTelephone(String telephone) {
+		this.telephone = telephone;
+		firePropertyChange("telephone", null, null);
+	}
+	public String getParkingSpace() {
+		return parkingSpace;
+	}
+	public void setParkingSpace(String parkingSpace) {
+		this.parkingSpace = parkingSpace;
+		firePropertyChange("parkingSpace", null, null);
 	}
 	
 }

@@ -114,6 +114,7 @@ public class InInfoView extends Composite implements View{
 				}
 				model.setInCheckClick(false);
 				model.setInCheckIsClick(true);
+//				getPresenter().check();
 			}
 		});
 		GridData gd_btn_check = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);

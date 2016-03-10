@@ -18,13 +18,15 @@ public class UserListView extends AbstractListView<SingleCarparkUser> implements
 				SingleCarparkUser.Property.plateNo.name(),
 				SingleCarparkUser.Property.name.name(),
 				SingleCarparkUser.Property.address.name(),
+				SingleCarparkUser.Property.telephone.name(),
 				SingleCarparkUser.Property.type.name(),
 				SingleCarparkUser.Property.carType.name(),
 				SingleCarparkUser.Property.leftMoney.name(),
 				SingleCarparkUser.Property.valitoLabel.name(),
 				SingleCarparkUser.Property.carparkNo.name(),
-				SingleCarparkUser.Property.remark.name()}, new String[]{"车牌号","姓名","住址","用户类型","车辆类型","账号余额","有效期","车位","备注"},
-				new int[]{100,100,100,100,100,100,200,100,100}, null);
+				SingleCarparkUser.Property.parkingSpace.name(),
+				SingleCarparkUser.Property.remark.name()}, new String[]{"车牌号","姓名","住址","电话","用户类型","车辆类型","账号余额","有效期","车位数量","车位号","备注"},
+				new int[]{100,100,100,100,100,100,100,200,100,100,100}, null);
 	}
 
 	@Override
