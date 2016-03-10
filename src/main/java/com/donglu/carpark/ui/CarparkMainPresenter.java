@@ -864,7 +864,6 @@ public class CarparkMainPresenter {
 		saveImageTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("保存图片任务"));
 		openDoorTheadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
 		checkPlayerPlaying();
-
 		countTempCarCharge = new CountTempCarChargeImpl();
 		autoCheckDeviceLinkInfo();
 	}

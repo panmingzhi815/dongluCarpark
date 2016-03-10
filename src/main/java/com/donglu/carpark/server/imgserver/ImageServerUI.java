@@ -250,7 +250,6 @@ public class ImageServerUI {
 
 			@Override
 			public void shellClosed(ShellEvent e) {
-				shell.forceActive();
 				MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION | SWT.APPLICATION_MODAL);
 
 				box.setText("退出提示");
@@ -286,8 +285,9 @@ public class ImageServerUI {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				shell.setMaximized(true);
+				shell.setMaximized(false);
 				shell.setVisible(true);
-				text.setFocus();
 			}
 		});
 
