@@ -222,7 +222,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			}
 			ExcelImportExport export=new ExcelImportExportImpl();
 			int excelRowNum = export.getExcelRowNum(path);
-			if (excelRowNum<3) {
+			if (excelRowNum<2) {
 				return;
 			}
 			int importUser = export.importUser(path, sp);
