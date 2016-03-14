@@ -1126,8 +1126,12 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		if (System.getProperty("userType").equals(SystemUserTypeEnum.操作员.name())) {
 			inDevicePresenter.controlItem(true);
 			outDevicePresenter.controlItem(true);
-			inDevicePresenter2.controlItem(true);
-			outDevicePresenter2.controlItem(true);
+			if (inDevicePresenter2!=null) {
+				inDevicePresenter2.controlItem(true);
+			}
+			if (inDevicePresenter2!=null) {
+				outDevicePresenter2.controlItem(true);
+			}
 		}
 
 	}

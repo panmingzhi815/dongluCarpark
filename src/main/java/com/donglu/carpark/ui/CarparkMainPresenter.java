@@ -269,20 +269,19 @@ public class CarparkMainPresenter {
 	private Map<String, Integer> mapDeviceFailInfo = new HashMap<>();
 
 	private void checkPlayerPlaying() {
-		// ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每分钟检测摄像机连接状态"));
-		// newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// for (String url : mapPlayer.keySet()) {
-		// MediaPlayer mediaPlayer = mapPlayer.get(url);
-		// if (!mediaPlayer.isPlaying()) {
-		// LOGGER.info("设备连接{}已断开", url);
-		// mediaPlayer.playMedia(url);
-		// }
-		// }
-		// }
-		// }, 60, 60, TimeUnit.SECONDS);
+		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每分钟检测摄像机连接状态"));
+		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				for (String url : mapPlayer.keySet()) {
+					MediaPlayer mediaPlayer = mapPlayer.get(url);
+					if (!mediaPlayer.isPlaying()) {
+						log.info("设备连接{}已断开", url);
+						mediaPlayer.playMedia(url);
+					}
+				}
+			}
+		}, 10, 10, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -307,21 +306,21 @@ public class CarparkMainPresenter {
 		log.info("准备连接视频{}",url);
 		final EmbeddedMediaPlayer createPlayRight = webCameraDevice.createPlay(new_Frame1, url);
 		mapPlayer.put(url, createPlayRight);
-		createPlayRight.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-			@Override
-			public void finished(final MediaPlayer mediaPlayer) {
-				new Runnable() {
-					@Override
-					public void run() {
-						while (!mediaPlayer.isPlaying()) {
-							log.info("设备连接{}已断开", url);
-							mediaPlayer.playMedia(url);
-							Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
-						}
-					}
-				}.run();
-			}
-		});
+//		createPlayRight.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
+//			@Override
+//			public void finished(final MediaPlayer mediaPlayer) {
+//				new Runnable() {
+//					@Override
+//					public void run() {
+//						while (!mediaPlayer.isPlaying()) {
+//							log.info("设备连接{}已断开", url);
+//							mediaPlayer.playMedia(url);
+//							Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
+//						}
+//					}
+//				}.run();
+//			}
+//		});
 
 		getView().shell.addDisposeListener(new DisposeListener() {
 			@Override
