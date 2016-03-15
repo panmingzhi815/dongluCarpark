@@ -13,13 +13,22 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
+import org.eclipse.core.databinding.observable.map.IObservableMap;
+import org.eclipse.core.databinding.beans.BeansObservables;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
+import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
 public class ChangeUserWizardPage extends WizardPage {
 	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
-	private Text text;
 	private Text text_1;
 	ChangeUserModel model;
+	private ComboViewer comboViewer;
 
 	
 	/**
@@ -49,16 +58,15 @@ public class ChangeUserWizardPage extends WizardPage {
 		gridLayout.verticalSpacing = 10;
 		composite.setLayout(gridLayout);
 		
-		Label label_1 = new Label(composite, SWT.NONE);
-		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_1.setText("用户名称");
+		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_2.setText("用户名称");
 		
-		text = new Text(composite, SWT.BORDER);
-		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_text.widthHint = 150;
-		text.setLayoutData(gd_text);
+		comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
+		Combo combo = comboViewer.getCombo();
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label label = new Label(composite, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -79,9 +87,17 @@ public class ChangeUserWizardPage extends WizardPage {
 		IObservableValue pwdModelObserveValue = BeanProperties.value("pwd").observe(model);
 		bindingContext.bindValue(observeTextText_1ObserveWidget, pwdModelObserveValue, null, null);
 		//
-		IObservableValue observeTextTextObserveWidget = WidgetProperties.text(SWT.Modify).observe(text);
-		IObservableValue userNameModelObserveValue = BeanProperties.value("userName").observe(model);
-		bindingContext.bindValue(observeTextTextObserveWidget, userNameModelObserveValue, null, null);
+		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
+		IObservableMap observeMap = BeansObservables.observeMap(listContentProvider.getKnownElements(), SingleCarparkSystemUser.class, "userName");
+		comboViewer.setLabelProvider(new ObservableMapLabelProvider(observeMap));
+		comboViewer.setContentProvider(listContentProvider);
+		//
+		IObservableList allSystemUserListModelObserveList = BeanProperties.list("allSystemUserList").observe(model);
+		comboViewer.setInput(allSystemUserListModelObserveList);
+		//
+		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
+		IObservableValue systemUserModelObserveValue = BeanProperties.value("systemUser").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer, systemUserModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

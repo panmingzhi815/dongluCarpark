@@ -472,6 +472,9 @@ public class CarparkMainPresenter {
 			}
 			model.setShouldReturn(factMoney);
 			model.setFactReturn(freeMoney);
+			List<SingleCarparkSystemUser> findAllSystemUser = sp.getSystemUserService().findAllSystemUser();
+			model.setListSystemUser(findAllSystemUser);
+			model.setOperaUser(findAllSystemUser.get(0));
 			ReturnAccountWizard wizard = new ReturnAccountWizard(model, sp);
 			ReturnAccountModel m = (ReturnAccountModel) commonui.showWizard(wizard);
 			if (StrUtil.isEmpty(m)) {
@@ -743,7 +746,11 @@ public class CarparkMainPresenter {
 			commonui.info("提示", "正在收费，请收完在换班");
 			return;
 		}
-		ChangeUserWizard wizard = new ChangeUserWizard(new ChangeUserModel(), sp);
+		ChangeUserModel changeUserModel = new ChangeUserModel();
+		List<SingleCarparkSystemUser> findAllSystemUser = sp.getSystemUserService().findAllSystemUser();
+		changeUserModel.setAllSystemUserList(findAllSystemUser);
+		changeUserModel.setSystemUser(findAllSystemUser.get(0));
+		ChangeUserWizard wizard = new ChangeUserWizard(changeUserModel, sp);
 		ChangeUserModel showWizard = (ChangeUserModel) commonui.showWizard(wizard);
 		if (StrUtil.isEmpty(showWizard)) {
 			return;

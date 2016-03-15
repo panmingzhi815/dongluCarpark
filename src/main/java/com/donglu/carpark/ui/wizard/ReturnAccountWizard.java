@@ -45,11 +45,12 @@ public class ReturnAccountWizard extends Wizard implements AbstractWizard{
 //			page.setErrorMessage("用户名权限不足");
 //			return false; 
 //		}
+		model.setOperaName(systemUser.getUserName());
 		return true;
 	}
 
 	private SingleCarparkSystemUser checkLogin() {
-		SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(model.getOperaName(), model.getPwd());
+		SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(model.getOperaUser().getUserName(), model.getPwd());
 		return findByNameAndPassword;
 	}
 

@@ -33,7 +33,7 @@ public class ChangeUserWizard extends Wizard implements AbstractWizard{
 
 	@Override
 	public boolean performFinish() {
-		if (model.getUserName().equals(System.getProperty("userName"))) {
+		if (model.getSystemUser().getUserName().equals(System.getProperty("userName"))) {
 			page.setErrorMessage("自己不能跟自己换班");
 			return false;
 		}
@@ -47,7 +47,7 @@ public class ChangeUserWizard extends Wizard implements AbstractWizard{
 	}
 
 	private SingleCarparkSystemUser checkLogin() {
-		SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(model.getUserName(), model.getPwd());
+		SingleCarparkSystemUser findByNameAndPassword = sp.getSystemUserService().findByNameAndPassword(model.getSystemUser().getUserName(), model.getPwd());
 		return findByNameAndPassword;
 	}
 

@@ -1,5 +1,8 @@
 package com.donglu.carpark.ui.wizard.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 
@@ -12,6 +15,7 @@ public class ChangeUserModel extends DomainObject{
 	private String userName;
 	private String pwd;
 	private SingleCarparkSystemUser systemUser;
+	private List<SingleCarparkSystemUser> allSystemUserList=new ArrayList<>();
 	public String getPwd() {
 		return pwd;
 	}
@@ -40,5 +44,14 @@ public class ChangeUserModel extends DomainObject{
 		this.systemUser = systemUser;
 		if (pcs != null)
 			pcs.firePropertyChange("systemUser", null, null);
+	}
+
+	public List<SingleCarparkSystemUser> getAllSystemUserList() {
+		return allSystemUserList;
+	}
+
+	public void setAllSystemUserList(List<SingleCarparkSystemUser> allSystemUserList) {
+		this.allSystemUserList = allSystemUserList;
+		firePropertyChange("allSystemUserList", null, null);
 	}
 }
