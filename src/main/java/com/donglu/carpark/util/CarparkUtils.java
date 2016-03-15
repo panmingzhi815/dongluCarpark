@@ -25,6 +25,10 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -50,6 +54,7 @@ import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.CarparkManageApp;
+import com.donglu.carpark.ui.common.ImageDialog;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
@@ -190,7 +195,18 @@ public class CarparkUtils {
 			cLabel.setData("lastImage",null);
 			LOGGER.info("销毁图片成功！");
 		}
-
+		cLabel.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				if (cLabel.getData("lastImage") != null){
+					Image lastImage = (Image)cLabel.getData("lastImage");
+					lastImage.dispose();
+					cLabel.setBackgroundImage(null);
+					cLabel.setData("lastImage",null);
+					LOGGER.info("销毁图片成功！");
+				}
+			}
+		});
 		if (imageBytes == null || imageBytes.length <= 0) {
 			cLabel.setText("无图片");
 			return;
@@ -835,5 +851,22 @@ public class CarparkUtils {
 			return day.intValue();
 		}
 		return 0;
+	}
+	public static void setBackgroundImage(byte[] bigImage, CLabel label, String imageName) {
+		label.getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				label.setData("imgName", imageName);
+				label.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseDoubleClick(MouseEvent e) {
+						String lastImage = (String)label.getData("imgName");
+						ImageDialog imageDialog = new ImageDialog(lastImage);
+						imageDialog.open();
+					}
+				});
+				setBackgroundImage(bigImage, label, label.getDisplay());
+			}
+		});
 	}
 }

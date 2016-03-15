@@ -109,12 +109,10 @@ public class InInfoView extends Composite implements View{
 					return;
 				}
 				int length = inShowPlateNO.length();
-				if (length < 3 || length > 7) {
+				if (length < 3 || length > 8) {
 					return;
 				}
-				model.setInCheckClick(false);
-				model.setInCheckIsClick(true);
-//				getPresenter().check();
+				getPresenter().check();
 			}
 		});
 		GridData gd_btn_check = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -151,14 +149,6 @@ public class InInfoView extends Composite implements View{
 		composite_25.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		lbl_bigImg = new CLabel(composite_25, SWT.NONE);
-		lbl_bigImg.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				String lastImage = (String)lbl_bigImg.getData("imgName");
-				ImageDialog imageDialog = new ImageDialog(lastImage);
-				imageDialog.open();
-			}
-		});
 		lbl_bigImg.setText("入场车牌");
 		lbl_bigImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 		lbl_bigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));

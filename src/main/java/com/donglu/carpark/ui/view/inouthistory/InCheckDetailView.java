@@ -12,8 +12,7 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.task.CarInTask;
-import com.dongluhitec.card.service.util.ImageUtil;
-import com.dongluhitec.card.ui.util.ImgUtil;
+import com.donglu.carpark.util.CarparkUtils;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Text;
@@ -78,7 +77,6 @@ public class InCheckDetailView extends Composite implements View{
 					TabItem x = selection[0];
 					boolean result=getPresenter().carIn(carInTask,!equals,text.getText());
 					if (result) {
-						model.getMapInCheck().remove(s);
 						x.dispose();
 					}
 				}
@@ -93,6 +91,9 @@ public class InCheckDetailView extends Composite implements View{
 					TabItem[] selection = tabFolder.getSelection();
 					TabItem x = selection[0];
 					model.getMapInCheck().remove(s);
+					if (model.getMapInCheck().keySet().size()<1) {
+						getShell().dispose();
+					}
 					x.dispose();
 				}
 			});
@@ -102,8 +103,8 @@ public class InCheckDetailView extends Composite implements View{
 			composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 			CLabel label = new CLabel(composite_2, SWT.NONE);
 			label.setAlignment(SWT.CENTER);
-			label.setText("大图");
-			ImgUtil.setBackgroundImage(label,carInTask.getBigImage());
+//			ImgUtil.setBackgroundImage(label,carInTask.getBigImage());
+			CarparkUtils.setBackgroundImage(carInTask.getBigImage(), label,carInTask.getBigImgSavePath());
 		}
 	}
 

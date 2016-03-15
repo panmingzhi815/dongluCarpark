@@ -6,12 +6,11 @@ import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.widgets.Composite;
 
 import com.donglu.carpark.model.CarparkMainModel;
-import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.ShowDialog;
+import com.donglu.carpark.ui.task.CarInTask;
 import com.donglu.carpark.ui.view.inouthistory.InCheckDetailPresenter;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.google.inject.Inject;
 
 
 public class InInfoPresenter  implements Presenter{
@@ -42,7 +41,19 @@ public class InInfoPresenter  implements Presenter{
 			return;
 		}
 		if (model.getMapInCheck().keySet().size()==1) {
-			
+			for (String plateNO : model.getMapInCheck().keySet()) {
+				
+				CarInTask in=model.getMapInCheck().get(plateNO);
+				in.setPlateNO(model.getInShowPlateNO());
+				in.refreshUserAndHistory();
+				try {
+					in.checkUser(false);
+					model.getMapInCheck().remove(plateNO);
+					model.setInCheckClick(false);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}else{
     		InCheckDetailPresenter p=new InCheckDetailPresenter();
     		p.setModel(model);
@@ -51,6 +62,9 @@ public class InInfoPresenter  implements Presenter{
     		s.setHaveButon(false);
     		s.setSize(500, 500);
     		s.open();
+    		if (model.getMapInCheck().keySet().size()<1) {
+				model.setInCheckClick(false);
+			}
 		}
 	}
 }

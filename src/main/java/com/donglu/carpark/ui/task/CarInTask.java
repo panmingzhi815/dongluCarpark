@@ -83,8 +83,6 @@ public class CarInTask implements Runnable {
 	//是否开门
 	private boolean isOpenDoor=false;
 	
-	private boolean isInCheck=false;
-
 	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter,
 			Float rightSize, CLabel lbl_inSmallImg, CLabel lbl_inBigImg) {
 		super();
@@ -141,8 +139,7 @@ public class CarInTask implements Runnable {
 						return;
 					}
 					CarparkUtils.setBackgroundImage(smallImage, lbl_inSmallImg, DEFAULT_DISPLAY);
-					CarparkUtils.setBackgroundImage(bigImage, lbl_inBigImg, DEFAULT_DISPLAY);
-					CarparkUtils.setBackgroundImageName(lbl_inBigImg, bigImgSavePath);
+					CarparkUtils.setBackgroundImage(bigImage, lbl_inBigImg, bigImgSavePath);
 				}
 			});
 			model.setInShowPlateNO(plateNO);
@@ -221,7 +218,6 @@ public class CarInTask implements Runnable {
 	 * @throws Exception
 	 */
 	public void checkUser(boolean isInCheck) throws Exception {
-		this.isInCheck=isInCheck;
 		if (!StrUtil.isEmpty(user)) {//固定车操作
 			if(fixCarShowToDevice(isInCheck)){
 				return;
@@ -393,31 +389,31 @@ public class CarInTask implements Runnable {
 				if (flag) {
 					model.setInCheckClick(true);
 					presenter.showContentToDevice(device, "临时车等待确认", false);
-					int i = 0;
-//					model.getMapInCheck().put(plateNO, this);
-//					return true;
-					while (model.isInCheckClick()) {
-						try {
-							if (i > 220) {
-								model.setInCheckClick(false);
-								return true;
-							}
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							LOGGER.error("临时车入场是否确认发生错误", e);
-						} finally {
-							i++;
-						}
-					}
-					editPlateNo = model.getInShowPlateNO();
-					if (StrUtil.isEmpty(editPlateNo) || !model.isInCheckIsClick()) {
-						return true;
-					}
-					model.setInCheckIsClick(false);
-					presenter.showPlateNOToDevice(device, editPlateNo);
-					if (!editPlateNo.equals(plateNO)) {
-						initInOutHistory(device);
-					}
+//					int i = 0;
+					model.getMapInCheck().put(plateNO, this);
+					return true;
+//					while (model.isInCheckClick()) {
+//						try {
+//							if (i > 220) {
+//								model.setInCheckClick(false);
+//								return true;
+//							}
+//							Thread.sleep(500);
+//						} catch (InterruptedException e) {
+//							LOGGER.error("临时车入场是否确认发生错误", e);
+//						} finally {
+//							i++;
+//						}
+//					}
+//					editPlateNo = model.getInShowPlateNO();
+//					if (StrUtil.isEmpty(editPlateNo) || !model.isInCheckIsClick()) {
+//						return true;
+//					}
+//					model.setInCheckIsClick(false);
+//					presenter.showPlateNOToDevice(device, editPlateNo);
+//					if (!editPlateNo.equals(plateNO)) {
+//						initInOutHistory(device);
+//					}
 				}
 			}
 			if (flag && !editPlateNo.equals(plateNO)) {
@@ -474,24 +470,21 @@ public class CarInTask implements Runnable {
 				if (flag) {
 					model.setInCheckClick(true);
 					presenter.showContentToDevice(device, "固定车等待确认", false);
-					int i = 0;
-					while (model.isInCheckClick()) {
-						if (i > 240) {
-							return true;
-						}
-						try {
-							Thread.sleep(500);
-							i++;
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					editPlateNo = model.getInShowPlateNO();
-					presenter.showPlateNOToDevice(device, editPlateNo);
-					if (!editPlateNo.equals(plateNO)) {
-						user = sp.getCarparkUserService().findUserByPlateNo(editPlateNo, device.getCarpark().getId());
-						initInOutHistory(device);
-					}
+					model.getMapInCheck().put(plateNO, this);
+					return true;
+//					int i = 0;
+//					while (model.isInCheckClick()) {
+//						if (i > 240) {
+//							return true;
+//						}
+//						try {
+//							Thread.sleep(500);
+//							i++;
+//						} catch (InterruptedException e) {
+//							e.printStackTrace();
+//						}
+//					}
+//					refreshUserAndHistory();
 				}
 			}
 			if (user==null) {
@@ -586,6 +579,18 @@ public class CarInTask implements Runnable {
 	}
 
 	/**
+	 * 
+	 */
+	public void refreshUserAndHistory() {
+		editPlateNo = model.getInShowPlateNO();
+		presenter.showPlateNOToDevice(device, editPlateNo);
+		if (!editPlateNo.equals(plateNO)) {
+			user = sp.getCarparkUserService().findUserByPlateNo(editPlateNo, device.getCarpark().getId());
+			initInOutHistory(device);
+		}
+	}
+
+	/**
 	 *初始化进场记录
 	 * @param device
 	 */
@@ -668,5 +673,9 @@ public class CarInTask implements Runnable {
 
 	public CarparkDatabaseServiceProvider getSp() {
 		return sp;
+	}
+
+	public String getBigImgSavePath() {
+		return bigImgSavePath;
 	}
 }
