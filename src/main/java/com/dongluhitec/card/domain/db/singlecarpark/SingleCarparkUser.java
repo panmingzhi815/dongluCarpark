@@ -18,7 +18,10 @@ public class SingleCarparkUser extends DomainObject {
 	 */
 	private static final long serialVersionUID = 1116467109412674474L;
 	public enum Property{
-		id,plateNo,name,type,carType,address,carparkNo,leftMoney,createDate,validTo,remark,valitoLabel
+		id,plateNo,name,type,carType,address,carparkNo,leftMoney,createDate,validTo,remark,carpark
+	}
+	public enum Label{
+		valitoLabel
 	}
 	
 	private String name;
