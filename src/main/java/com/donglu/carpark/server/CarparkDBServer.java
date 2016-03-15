@@ -5,6 +5,7 @@ import org.eclipse.jetty.servlet.ServletHandler;
 import com.donglu.carpark.server.servlet.CarparkServlet;
 import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.server.servlet.InOutServlet;
+import com.donglu.carpark.server.servlet.PlateSubmitServlet;
 import com.donglu.carpark.server.servlet.ServerServlet;
 import com.donglu.carpark.server.servlet.StoreServiceServlet;
 import com.donglu.carpark.server.servlet.StoreServlet;
@@ -26,9 +27,10 @@ public class CarparkDBServer {
 	private Provider<StoreServlet> storeServletProvider;
 	@Inject
 	private Provider<ServerServlet> serverServletProvider;
-	
 	@Inject
 	private Provider<StoreServiceServlet> storeServiceServletProvider;
+	@Inject
+	private Provider<PlateSubmitServlet> plateSubmitServletProvider;
 	
 	public void startDbServlet(ServletHandler handler){
 		ServerUtil.startServlet("/user/*", handler, userServlerProvider);
@@ -38,5 +40,6 @@ public class CarparkDBServer {
 		ServerUtil.startServlet("/carparkImage/*", handler, imageServletProvider);
 		ServerUtil.startServlet("/store/*", handler, storeServletProvider);
 		ServerUtil.startServlet("/server/*", handler, serverServletProvider);
+		ServerUtil.startServlet("/plateSubmit/*", handler, plateSubmitServletProvider);
 	}
 }

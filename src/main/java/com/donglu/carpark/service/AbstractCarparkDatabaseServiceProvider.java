@@ -8,6 +8,8 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 	private SystemOperaLogServiceI systemOperaLogService;
 	private StoreServiceI storeService;
 	
+	private PlateSubmitServiceI plateSubmitService;
+	
 	private boolean started=false;
 
 	@Override
@@ -91,6 +93,15 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 
 	public void setStoreService(StoreServiceI storeService) {
 		this.storeService = storeService;
+	}
+
+	public PlateSubmitServiceI getPlateSubmitService() {
+		checkState();
+		return plateSubmitService;
+	}
+
+	public void setPlateSubmitService(PlateSubmitServiceI plateSubmitService) {
+		this.plateSubmitService = plateSubmitService;
 	}
 
 }

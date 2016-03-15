@@ -36,6 +36,7 @@ import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.service.CountTempCarChargeI;
+import com.donglu.carpark.service.PlateSubmitServiceI;
 import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
@@ -79,11 +80,9 @@ import com.dongluhitec.card.mapper.BeanUtil;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
-import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Inject;
 
 import uk.co.caprica.vlcj.player.MediaPlayer;
-import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
 public class CarparkMainPresenter {
@@ -1100,6 +1099,7 @@ public class CarparkMainPresenter {
 			model.setComboCarTypeEnable(false);
 			model.setChargeDevice(null);
 			model.setChargeHistory(null);
+			plateSubmit(singleCarparkInOutHistory, singleCarparkInOutHistory.getOutTime(), device, CarparkUtils.getImageByte(singleCarparkInOutHistory.getOutBigImg()));
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1233,6 +1233,22 @@ public class CarparkMainPresenter {
 
 	public void refreshCarWithIn() {
 		model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
+	}
+
+	/**
+	 * 车牌报送
+	 * @param cch
+	 * @param date
+	 * @param carpark
+	 * @param device
+	 * @param bigImage 
+	 */
+	public void plateSubmit(SingleCarparkInOutHistory cch, Date date,SingleCarparkDevice device, byte[] bigImage) {
+		if ("false".equals(mapSystemSetting.get(SystemSettingTypeEnum.启用车牌报送))) {
+			return;
+		}
+		PlateSubmitServiceI plateSubmitService = sp.getPlateSubmitService();
+		plateSubmitService.submitPlate(cch.getPlateNo(), date, bigImage,device);
 	}
 
 }

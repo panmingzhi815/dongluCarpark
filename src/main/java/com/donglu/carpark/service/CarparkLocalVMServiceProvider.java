@@ -4,6 +4,7 @@ import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.service.impl.CarparkInOutServiceImpl;
 import com.donglu.carpark.service.impl.CarparkServiceImpl;
 import com.donglu.carpark.service.impl.CarparkUserServiceImpl;
+import com.donglu.carpark.service.impl.PlateSubmitServiceImpl;
 import com.donglu.carpark.service.impl.StoreServiceImpl;
 import com.donglu.carpark.service.impl.SystemOperaLogServiceImpl;
 import com.donglu.carpark.service.impl.SystemUserServiceImpl;
@@ -42,6 +43,7 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
             setCarparkInOutService(injector.getInstance(CarparkInOutServiceI.class));
             setSystemOperaLogService(injector.getInstance(SystemOperaLogServiceI.class));
             setStoreService(injector.getInstance(StoreServiceI.class));
+            setPlateSubmitService(injector.getInstance(PlateSubmitServiceI.class));
     }
 
     @Override
@@ -90,6 +92,8 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
             this.bind(CarparkInOutServiceI.class).to(CarparkInOutServiceImpl.class).in(Singleton.class);
             this.bind(SystemOperaLogServiceI.class).to(SystemOperaLogServiceImpl.class).in(Singleton.class);
             this.bind(StoreServiceI.class).to(StoreServiceImpl.class).in(Singleton.class);
+            this.bind(PlateSubmitServiceI.class).to(PlateSubmitServiceImpl.class).in(Singleton.class);
+            
         }
     }
 

@@ -9,6 +9,8 @@ import java.sql.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.donglu.carpark.server.CarparkServerConfig;
+
 
 public class CarparkDataBaseUtil {
 
@@ -178,6 +180,11 @@ public class CarparkDataBaseUtil {
                 throw new RuntimeException("未定义此类型的数据库：" + type);
         }
     }
+
+	public static boolean executeSQL(String sql, String databaseName, CarparkServerConfig cf) {
+		
+		return executeSQL(cf.getDbServerIp(), cf.getDbServerPort(), databaseName, cf.getDbServerUsername(), cf.getDbServerPassword(), sql, cf.getDbServerType());
+	}
 
 
 }

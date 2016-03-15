@@ -501,6 +501,23 @@ public class SettingView extends Composite implements View {
 		GridData gd_text_4 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_text_4.widthHint = 67;
 		text_setting_imgSaveDays.setLayoutData(gd_text_4);
+		
+		Composite composite_1 = new Composite(group, SWT.NONE);
+		composite_1.setLayout(new GridLayout(1, false));
+		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		
+		Button btnCheckButton_1 = new Button(composite_1, SWT.CHECK);
+		btnCheckButton_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.启用车牌报送, btnCheckButton_1.getSelection()+"");
+			}
+		});
+		btnCheckButton_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		btnCheckButton_1.setText("启用车牌报送");
+		btnCheckButton_1.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用车牌报送)));
+		new Label(group, SWT.NONE);
+		new Label(group, SWT.NONE);
 
 		Group group_1 = new Group(composite, SWT.NONE);
 		group_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));

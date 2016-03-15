@@ -215,6 +215,7 @@ public class CarOutTask implements Runnable{
 						return;
 					}
 				}
+				presenter.plateSubmit(ch, date, device, bigImage);
 			} else {// 临时车操作
 				//固定车通道
 				if (equals) {
@@ -229,7 +230,7 @@ public class CarOutTask implements Runnable{
 		}
 	
 	}
-
+	
 	/**
 	 * @param device
 	 * @param date

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.service.PlateSubmitServiceI;
 import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
@@ -386,6 +387,7 @@ public class CarInTask implements Runnable {
 			cch.setId(saveInOutHistory);
 			model.addInHistorys(cch);
 			model.setInHistorySelect(cch);
+			presenter.plateSubmit(cch,date,device, bigImage);
 			LOGGER.info("保存车牌：{}的进场记录到数据库成功", plateNO);
 			CarparkMainApp.mapCameraLastImage.put(ip, cch.getBigImg());
 			model.setHistory(null);
@@ -394,6 +396,7 @@ public class CarInTask implements Runnable {
 		}
 
 	}
+	
 
 	/**
 	 * @param device

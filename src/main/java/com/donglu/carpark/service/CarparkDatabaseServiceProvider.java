@@ -20,8 +20,11 @@ public interface CarparkDatabaseServiceProvider {
 	SystemUserServiceI getSystemUserService();
 	
 	CarparkInOutServiceI getCarparkInOutService();
+	
 	SystemOperaLogServiceI getSystemOperaLogService();
 	
 	StoreServiceI getStoreService();
+	
+	PlateSubmitServiceI getPlateSubmitService();
 }
 
