@@ -30,6 +30,8 @@ public class InCheckDetailPresenter implements Presenter{
 	public boolean carIn(CarInTask carInTask, boolean check,String plateNO) {
 		if (check) {
 			model.setInCheckIsClick(false);
+			carInTask.setEditPlateNo(plateNO);
+			model.setInShowPlateNO(plateNO);
 			carInTask.refreshUserAndHistory();
 		}
 		try {

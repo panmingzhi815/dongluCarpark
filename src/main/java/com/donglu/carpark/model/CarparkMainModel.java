@@ -46,7 +46,7 @@ public class CarparkMainModel extends DomainObject{
 //		
 //		//保存
 //		private Map<String, String> mapTempCharge;
-	private final Map<String, CarInTask> mapInCheck=new MyMapCache<>(6000000, 2000, "保存待确认的进场记录");
+	private final Map<String, CarInTask> mapInCheck=new MyMapCache<>(600000, 200, "保存待确认的进场记录");
 	
 	
 	/**

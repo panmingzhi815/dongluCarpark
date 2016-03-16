@@ -3,6 +3,8 @@ package com.donglu.carpark.ui.view.inouthistory;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
@@ -13,6 +15,8 @@ import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.task.CarInTask;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.TextUtils;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Text;
@@ -20,6 +24,8 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.custom.CLabel;
@@ -27,6 +33,8 @@ import org.eclipse.swt.custom.CLabel;
 public class InCheckDetailView extends Composite implements View{
 	private Presenter presenter;
 	private CarparkMainModel model;
+	private static Map<TabItem, CarInTask> mapItemWithTask=new HashMap<>();
+	private static Map<TabItem, CLabel> mapItemWithLabel=new HashMap<>();
 
 	public InCheckDetailView(Composite parent, int style) {
 		super(parent, style);
@@ -52,6 +60,7 @@ public class InCheckDetailView extends Composite implements View{
 			CarInTask carInTask = model.getMapInCheck().get(s);
 			TabItem tbtmbdw = new TabItem(tabFolder, SWT.NONE);
 			tbtmbdw.setText(s);
+			mapItemWithTask.put(tbtmbdw, carInTask);
 			Composite composite = new Composite(tabFolder, SWT.NONE);
 			tbtmbdw.setControl(composite);
 			composite.setLayout(new GridLayout(1, false));
@@ -64,6 +73,19 @@ public class InCheckDetailView extends Composite implements View{
 			lblNewLabel.setText("车牌");
 			Text text = new Text(composite_1, SWT.BORDER);
 			text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+			text.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyReleased(KeyEvent e) {
+					if (e.keyCode==StrUtil.BIG_KEY_ENTER) {
+						if (text.getText().length()<3) {
+							return;
+						}
+						onSuccess(tabFolder, s, carInTask, text);
+					}
+				}
+				
+			});
+			TextUtils.createPlateNOAutoCompleteField(text);
 			GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 			gd_text.widthHint = 90;
 			text.setLayoutData(gd_text);
@@ -72,13 +94,7 @@ public class InCheckDetailView extends Composite implements View{
 			btnNewButton.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					boolean equals = text.getText().equals(s);
-					TabItem[] selection = tabFolder.getSelection();
-					TabItem x = selection[0];
-					boolean result=getPresenter().carIn(carInTask,!equals,text.getText());
-					if (result) {
-						x.dispose();
-					}
+					onSuccess(tabFolder, s, carInTask, text);
 				}
 			});
 			btnNewButton.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -105,7 +121,21 @@ public class InCheckDetailView extends Composite implements View{
 			label.setAlignment(SWT.CENTER);
 //			ImgUtil.setBackgroundImage(label,carInTask.getBigImage());
 			CarparkUtils.setBackgroundImage(carInTask.getBigImage(), label,carInTask.getBigImgSavePath());
+			mapItemWithLabel.put(tbtmbdw, label);
 		}
+		tabFolder.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				TabItem[] selection = tabFolder.getSelection();
+				if (StrUtil.isEmpty(selection)) {
+					return;
+				}
+				TabItem tabItem = selection[0];
+				CarInTask carInTask=mapItemWithTask.get(tabItem);
+				CarparkUtils.setBackgroundImage(carInTask.getBigImage(), mapItemWithLabel.get(tabItem),carInTask.getBigImgSavePath());
+			}
+		});
 	}
 
 
@@ -117,6 +147,29 @@ public class InCheckDetailView extends Composite implements View{
 	@Override
 	public InCheckDetailPresenter getPresenter() {
 		return (InCheckDetailPresenter) presenter;
+	}
+
+	/**
+	 * @param tabFolder
+	 * @param s
+	 * @param carInTask
+	 * @param text
+	 */
+	public void onSuccess(TabFolder tabFolder, String s, CarInTask carInTask, Text text) {
+		String text2 = text.getText();
+		boolean equals = text2.equals(s);
+		TabItem[] selection = tabFolder.getSelection();
+		TabItem x = selection[0];
+		boolean result=getPresenter().carIn(carInTask,!equals,text2);
+		if (result) {
+			model.getMapInCheck().remove(s);
+			mapItemWithTask.remove(x);
+			mapItemWithLabel.remove(x);
+			x.dispose();
+		}
+		if (model.getMapInCheck().keySet().size()<1) {
+			getShell().dispose();
+		}
 	}
 
 }

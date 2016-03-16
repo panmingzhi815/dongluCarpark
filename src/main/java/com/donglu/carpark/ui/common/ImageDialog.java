@@ -9,6 +9,8 @@ import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 
@@ -53,6 +55,13 @@ public class ImageDialog extends Dialog {
 		shell.open();
 		shell.layout();
 		shell.setMaximized(true);
+		shell.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				System.out.println("imagedialog is disponse");
+				
+			}
+		});
 		
 		if (!StrUtil.isEmpty(img)) {
 			setImage(img);

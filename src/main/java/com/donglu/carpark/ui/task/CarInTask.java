@@ -74,14 +74,18 @@ public class CarInTask implements Runnable {
 	private Date date = new Date();
 	//查找到的用户，判断是否为固定用户
 	private SingleCarparkUser user;
-	//大图片保存位置
-	private String bigImgSavePath;
 	//小图片保存位置
 	private String smallImgSavePath;
 	//发送到设备的消息
 	private String content=CAR_IN_MSG;
 	//是否开门
 	private boolean isOpenDoor=false;
+	//图片保存文件夹
+	private String imageSavefolder;
+	//小图片名称
+	private String smallImgFileName;
+	//大图片名称
+	private String bigImgFileName;
 	
 	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter,
 			Float rightSize, CLabel lbl_inSmallImg, CLabel lbl_inBigImg) {
@@ -125,13 +129,12 @@ public class CarInTask implements Runnable {
 				LOGGER.error("没有找到id:" + device.getCarpark().getId() + "的停车场");
 				return;
 			}
-			String folder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
+			imageSavefolder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
 			String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
-			String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
-			String smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
+			bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
+			smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
 			LOGGER.debug("开始在界面显示车牌：{}的抓拍图片", plateNO);
-			bigImgSavePath = folder + "/" + bigImgFileName;
-			smallImgSavePath = folder + "/" + smallImgFileName;
+			smallImgSavePath = imageSavefolder + "/" + smallImgFileName;
 			DEFAULT_DISPLAY.asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -139,7 +142,7 @@ public class CarInTask implements Runnable {
 						return;
 					}
 					CarparkUtils.setBackgroundImage(smallImage, lbl_inSmallImg, DEFAULT_DISPLAY);
-					CarparkUtils.setBackgroundImage(bigImage, lbl_inBigImg, bigImgSavePath);
+					CarparkUtils.setBackgroundImage(bigImage, lbl_inBigImg, getBigImgSavePath());
 				}
 			});
 			model.setInShowPlateNO(plateNO);
@@ -152,23 +155,25 @@ public class CarInTask implements Runnable {
 				if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认)) || Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认)) || !valueOf) {
 					model.setInCheckClick(true);
 					isEmptyPlateNo = true;
-					int i=0;
-					while (model.isInCheckClick()) {
-						try {
-							i++;
-							if (i>120) {
-								return;
-							}
-							Thread.sleep(250);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					editPlateNo = model.getInShowPlateNO();
-					if (!model.isInCheckIsClick()||StrUtil.isEmpty(editPlateNo)) {
-						return;
-					}
-					model.setInCheckIsClick(false);
+					model.getMapInCheck().put(plateNO, this);
+					return;
+//					int i=0;
+//					while (model.isInCheckClick()) {
+//						try {
+//							i++;
+//							if (i>120) {
+//								return;
+//							}
+//							Thread.sleep(250);
+//						} catch (InterruptedException e) {
+//							e.printStackTrace();
+//						}
+//					}
+//					editPlateNo = model.getInShowPlateNO();
+//					if (!model.isInCheckIsClick()||StrUtil.isEmpty(editPlateNo)) {
+//						return;
+//					}
+//					model.setInCheckIsClick(false);
 				} else {
 					if (!valueOf) {
 						return;
@@ -181,12 +186,7 @@ public class CarInTask implements Runnable {
 				cch = new SingleCarparkInOutHistory();
 			}
 			
-			
-			
-			LOGGER.debug("开始保存车牌：{}的图片", plateNO);
-
-			mapPlateNoDate.put(plateNO, date);
-			presenter.saveImage(folder, smallImgFileName,bigImgFileName,smallImage, bigImage);
+			saveImage();
 
 			showPlateToDevice();
 			
@@ -207,6 +207,16 @@ public class CarInTask implements Runnable {
 	}
 
 	/**
+	 * 保存图片
+	 */
+	public void saveImage() {
+		LOGGER.debug("开始保存车牌：{}的图片", plateNO);
+
+		mapPlateNoDate.put(plateNO, date);
+		presenter.saveImage(imageSavefolder, smallImgFileName,bigImgFileName,smallImage, bigImage);
+	}
+
+	/**
 	 * 
 	 */
 	public void showPlateToDevice() {
@@ -218,6 +228,9 @@ public class CarInTask implements Runnable {
 	 * @throws Exception
 	 */
 	public void checkUser(boolean isInCheck) throws Exception {
+		if (isEmptyPlateNo) {
+			saveImage();
+		}
 		if (!StrUtil.isEmpty(user)) {//固定车操作
 			if(fixCarShowToDevice(isInCheck)){
 				return;
@@ -248,7 +261,7 @@ public class CarInTask implements Runnable {
 		}
 		cch.setInTime(date);
 		cch.setOperaName(System.getProperty("userName"));
-		cch.setBigImg(bigImgSavePath);
+		cch.setBigImg(getBigImgSavePath());
 		cch.setSmallImg(smallImgSavePath);
 		cch.setCarType(carType);
 		cch.setCarparkId(carpark.getId());
@@ -582,10 +595,14 @@ public class CarInTask implements Runnable {
 	 * 
 	 */
 	public void refreshUserAndHistory() {
-		editPlateNo = model.getInShowPlateNO();
+//		editPlateNo = model.getInShowPlateNO();
 		presenter.showPlateNOToDevice(device, editPlateNo);
 		if (!editPlateNo.equals(plateNO)) {
 			user = sp.getCarparkUserService().findUserByPlateNo(editPlateNo, device.getCarpark().getId());
+			String plateNO=editPlateNo==null?this.plateNO:editPlateNo;
+			if (plateNO.length()<6) {
+				user=null;
+			}
 			initInOutHistory(device);
 		}
 	}
@@ -676,6 +693,14 @@ public class CarInTask implements Runnable {
 	}
 
 	public String getBigImgSavePath() {
-		return bigImgSavePath;
+		return imageSavefolder + "/" + bigImgFileName;
+	}
+
+	public String getEditPlateNo() {
+		return editPlateNo;
+	}
+
+	public void setEditPlateNo(String editPlateNo) {
+		this.editPlateNo = editPlateNo;
 	}
 }

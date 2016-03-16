@@ -36,19 +36,19 @@ public class InInfoPresenter  implements Presenter{
 		return view.getLbl_smallImg();
 	}
 
-	public void check() {
+	public void check(String editPlateNO) {
 		if (StrUtil.isEmpty(model.getMapInCheck().keySet())) {
 			return;
 		}
-		if (model.getMapInCheck().keySet().size()==1) {
+		if (!StrUtil.isEmpty(editPlateNO)&&model.getMapInCheck().keySet().size()==1) {
 			for (String plateNO : model.getMapInCheck().keySet()) {
 				
 				CarInTask in=model.getMapInCheck().get(plateNO);
-				in.setPlateNO(model.getInShowPlateNO());
+				in.setEditPlateNo(editPlateNO);
 				in.refreshUserAndHistory();
 				try {
 					in.checkUser(false);
-					model.getMapInCheck().remove(plateNO);
+					model.getMapInCheck().clear();
 					model.setInCheckClick(false);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -62,9 +62,8 @@ public class InInfoPresenter  implements Presenter{
     		s.setHaveButon(false);
     		s.setSize(500, 500);
     		s.open();
-    		if (model.getMapInCheck().keySet().size()<1) {
-				model.setInCheckClick(false);
-			}
+    		model.getMapInCheck().clear();
+			model.setInCheckClick(false);
 		}
 	}
 }
