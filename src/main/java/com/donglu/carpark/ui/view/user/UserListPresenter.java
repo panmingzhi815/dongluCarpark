@@ -1,9 +1,17 @@
 package com.donglu.carpark.ui.view.user;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
@@ -18,12 +26,16 @@ import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.util.ThreadUtil;
 import com.google.inject.Inject;
 
 public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
+	private static final Logger log = LoggerFactory.getLogger(UserListPresenter.class);
 	UserListView view;
 	
 	String userName; 
@@ -42,9 +54,62 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 		view.setTableTitle("固定用户列表");
 		view.setShowMoreBtn(false);
 		refresh();
+		expirationReminder();
 	}
 
 	
+	private void expirationReminder() {
+		ExecutorService userRemindThreadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("固定车到期提醒线程池"));
+		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("定时检测固定用户是否到期"));
+		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				final Date date = new Date();
+				log.info("{}进行固定车到期提醒操作",date);
+				final SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.固定车提醒时间.name());
+				if (findSystemSettingByKey != null && findSystemSettingByKey.getSettingValue().equals(StrUtil.formatDate(date))) {
+					log.info("今天已经提醒过了，不在提醒");
+					return;
+				}
+				List<SingleCarparkUser> list = view.getModel().getList();
+				for (final SingleCarparkUser user : list) {
+					if ((user.getRemindDays() == null || user.getRemindDays() == 0) && user.getValidTo().after(date)) {
+						continue;
+					}
+					Runnable runnable = new Runnable() {
+						public void run() {
+							Display.getDefault().asyncExec(new Runnable() {
+								@Override
+								public void run() {
+									// if (user.getValidTo().before(date)) {
+									// continue;
+									// }
+									log.info("{}即将过期,过期时间：{}", user, user.getValidTo());
+									UserRemindMessageBox window = new UserRemindMessageBox(user);
+									int open = window.open();
+									if (open == 1) {
+										view.getModel().setSelected(Arrays.asList(user));
+									} else if (open == 3) {
+										SingleCarparkSystemSetting ss = findSystemSettingByKey;
+										if (findSystemSettingByKey == null) {
+											ss = new SingleCarparkSystemSetting();
+											ss.setSettingKey(SystemSettingTypeEnum.固定车提醒时间.name());
+										}
+										ss.setSettingValue(StrUtil.formatDate(date));
+										sp.getCarparkService().saveSystemSetting(ss);
+									}
+								}
+							});
+						}
+					};
+					userRemindThreadPool.submit(runnable);
+				}
+			}
+		}, 10, 60*60, TimeUnit.SECONDS);
+		
+	}
+
+
 	@Override
 	public void add() {
 		try {

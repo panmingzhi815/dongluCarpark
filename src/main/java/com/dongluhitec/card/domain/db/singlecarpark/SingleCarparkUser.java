@@ -192,5 +192,9 @@ public class SingleCarparkUser extends DomainObject {
 		this.parkingSpace = parkingSpace;
 		firePropertyChange("parkingSpace", null, null);
 	}
+	@Override
+	public String toString() {
+		return name+"-"+plateNo;
+	}
 	
 }
