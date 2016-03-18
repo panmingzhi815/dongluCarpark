@@ -244,6 +244,8 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 
 	private int sendPositionToDeviceTime = 5;
 	private Text txt_chargedMoney;
+	
+	private static Date plateInTime;
 
 	/**
 	 * Launch the application.
@@ -1193,7 +1195,14 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 
 			@Override
 			public void run() {
-				presenter.sendPositionToAllDevice(true);
+				try {
+					if(new DateTime(plateInTime).plusSeconds(10).isAfterNow()){
+						return;
+					}
+					presenter.sendPositionToAllDevice(true);
+				} catch (Exception e) {
+					LOGGER.info("发送车位时发生错误",e);
+				}
 			}
 		}, sendPositionToDeviceTime, sendPositionToDeviceTime, TimeUnit.SECONDS);
 	}
@@ -1203,6 +1212,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	 */
 	@Override
 	public void invok(final String ip, int channel, final String plateNO, final byte[] bigImage, final byte[] smallImage, float rightSize) {
+		plateInTime=new Date();
 		LOGGER.info("车辆{}在设备{}通道{}处进场,可信度：{}", plateNO, ip, channel, rightSize);
 		try {
 			Preconditions.checkNotNull(mapDeviceType.get(ip), "not monitor device:" + ip);
