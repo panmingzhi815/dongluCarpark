@@ -1184,7 +1184,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		if (boolean1 != null && boolean1) {
 			mapOpenDoor.put(ip, null);
 			boolean inOrOut = true;
-			if (mapDeviceType.get(ip).equals("出口") || mapDeviceType.get(ip).equals("出口2")) {
+			if (mapDeviceType.get(ip).indexOf("出口")>-1) {
 				inOrOut = false;
 			}
 			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO, inOrOut);
@@ -1196,7 +1196,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		String linkAddress = mapIpToDevice.get(ip).getLinkInfo();
 
 		Boolean isTwoChanel = mapIsTwoChanel.get(linkAddress);
-		if (mapDeviceType.get(ip).equals("出口") || mapDeviceType.get(ip).equals("出口2")) {
+		if (mapDeviceType.get(ip).indexOf("出口")>-1) {
 			// 是否是双摄像头
 			if (!equals && isTwoChanel) {
 				CarOutTask carOutTask = mapOutTwoCameraTask.get(linkAddress);
@@ -1247,7 +1247,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 				outTaskSubmit(ip, plateNO, linkAddress, task);
 			}
 
-		} else if (mapDeviceType.get(ip).equals("进口") || mapDeviceType.get(ip).equals("进口2")) {
+		} else if (mapDeviceType.get(ip).indexOf("进口")>-1) {
 			if (!equals && isTwoChanel) {
 				CarInTask carInTask = mapInTwoCameraTask.get(linkAddress);
 				if (!StrUtil.isEmpty(carInTask)) {

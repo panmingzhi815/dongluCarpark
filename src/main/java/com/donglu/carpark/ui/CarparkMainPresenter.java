@@ -271,7 +271,13 @@ public class CarparkMainPresenter {
 		Composite composite = new Composite(tabFolder, SWT.BORDER | SWT.EMBEDDED);
 		tabItem.setControl(composite);
 		composite.setLayout(new FillLayout());
-		createCamera(device, composite);
+		tabFolder.getDisplay().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				createCamera(device, composite);
+			}
+		});
 		tabFolder.setSelection(tabItem);
 		mapDeviceTabItem.put(tabItem, ip);
 		mapDeviceType.put(ip, type);
@@ -617,6 +623,9 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	public boolean showPositionToDevice(SingleCarparkDevice device, int position) {
+		if (device.getInType().indexOf("进口")<0) {
+			return true;
+		}
 		if (checkDeviceLinkStatus(device)) {
 			return false;
 		}
@@ -646,6 +655,9 @@ public class CarparkMainPresenter {
 	 * @param voice
 	 */
 	public void showPositionToDeviceNoReturn(SingleCarparkDevice device, int position) {
+		if (device.getInType().indexOf("进口")<0) {
+			return;
+		}
 		if (checkDeviceLinkStatus(device)) {
 			return;
 		}

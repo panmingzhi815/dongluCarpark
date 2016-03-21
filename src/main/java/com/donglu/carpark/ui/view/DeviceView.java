@@ -175,7 +175,13 @@ public class DeviceView extends Composite implements View{
 			final Composite composite = new Composite(tabFolder, SWT.BORDER | SWT.EMBEDDED);
 			tabItem.setControl(composite);
 			composite.setLayout(new FillLayout());
-			getPresenter().createRightCamera(d.getIp(), composite);
+			getDisplay().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					getPresenter().createRightCamera(d.getIp(), composite);
+				}
+			});
 			CarparkMainApp.mapDeviceTabItem.put(tabItem, d.getIp());
 			tabItem.addDisposeListener(new DisposeListener() {
 				
