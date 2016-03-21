@@ -222,15 +222,29 @@ public class CarparkMainPresenter {
 	}
 
 	/**
-	 * 
+	 * 给所有设备发送车位数
 	 */
 	public void sendPositionToAllDevice(boolean isreturn) {
 		Set<String> keySet = mapIpToDevice.keySet();
+		Map<String, SingleCarparkDevice> mapLinkAndDevice=new HashMap<>();
 		for (String c : keySet) {
+			SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(c);
+			if (singleCarparkDevice.getInType().indexOf("进口")<0) {
+				continue;
+			}
+			mapLinkAndDevice.put(singleCarparkDevice.getLinkInfo(), singleCarparkDevice);
+		}
+		for (SingleCarparkDevice d : mapLinkAndDevice.values()) {
+			Date when = new Date();
+			Date plateInTime = model.getPlateInTime();
+			if (plateInTime.after(when)) {
+				log.info("车辆进出场，在时间：{}后在对设备{}发车位数,现在时间：{}",plateInTime,d,when);
+				return;
+			}
 			if (isreturn) {
-				showPositionToDevice(mapIpToDevice.get(c), model.getTotalSlot());
+				showPositionToDevice(d, model.getTotalSlot());
 			} else {
-				showPositionToDeviceNoReturn(mapIpToDevice.get(c), model.getTotalSlot());
+				showPositionToDeviceNoReturn(d, model.getTotalSlot());
 			}
 		}
 	}
@@ -1106,6 +1120,7 @@ public class CarparkMainPresenter {
 			model.setComboCarTypeEnable(false);
 			model.setChargeDevice(null);
 			model.setChargeHistory(null);
+			model.setPlateInTime(new Date(), 5);
 			plateSubmit(singleCarparkInOutHistory, singleCarparkInOutHistory.getOutTime(), device, CarparkUtils.getImageByte(singleCarparkInOutHistory.getOutBigImg()));
 			return true;
 		} catch (Exception e) {
@@ -1256,6 +1271,23 @@ public class CarparkMainPresenter {
 		}
 		PlateSubmitServiceI plateSubmitService = sp.getPlateSubmitService();
 		plateSubmitService.submitPlate(cch.getPlateNo(), date, bigImage,device);
+	}
+	/**
+	 * 获取剩余车位数
+	 * @return
+	 */
+	public int getSlotOfLeft() {
+		Integer findTotalSlotIsNow = 0;
+		String slotShowType = mapSystemSetting.get(SystemSettingTypeEnum.车位数显示方式);
+		switch (slotShowType) {
+		case "0":
+			findTotalSlotIsNow = sp.getCarparkInOutService().findTotalSlotIsNow(model.getCarpark());
+			break;
+		default:
+			break;
+		}
+		
+		return findTotalSlotIsNow;
 	}
 
 }

@@ -460,6 +460,7 @@ public class CarOutTask implements Runnable{
 	}
 
 	private void tempCarOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg, Date reviseInTime) throws Exception{
+		model.setPlateInTime(date, 30);
 		if (!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制))) {
 			if (CarparkUtils.checkRoadType(device, presenter, DeviceRoadTypeEnum.储值车通道,DeviceRoadTypeEnum.固定车通道)) {
 				return;

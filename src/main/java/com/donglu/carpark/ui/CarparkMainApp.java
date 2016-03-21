@@ -1,12 +1,6 @@
 package com.donglu.carpark.ui;
 
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -245,8 +239,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	private int sendPositionToDeviceTime = 5;
 	private Text txt_chargedMoney;
 	
-	private static Date plateInTime;
-
 	/**
 	 * Launch the application.
 	 * 
@@ -281,14 +273,18 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		Object readObject = CarparkFileUtils.readObject(MAP_IP_TO_DEVICE);
 		if (readObject != null) {
 			Map<String, SingleCarparkDevice> map = (Map<String, SingleCarparkDevice>) readObject;
+			Map<Long, SingleCarparkCarpark> mapCarparkWithId=new HashMap<>();
 			for (String key : map.keySet()) {
 				SingleCarparkDevice singleCarparkDevice = map.get(key);
 				String inType = singleCarparkDevice.getInType();
 				if (StrUtil.isEmpty(inType)) {
 					continue;
 				}
-				SingleCarparkCarpark carpark = singleCarparkDevice.getCarpark();
-				System.out.println(carpark.isTempCarIsIn());
+				SingleCarparkCarpark carpark=mapCarparkWithId.get(singleCarparkDevice.getCarpark().getId());
+				if (carpark==null) {
+					carpark = sp.getCarparkService().findCarparkById(singleCarparkDevice.getCarpark().getId());
+				}
+				singleCarparkDevice.setCarpark(carpark);
 				model.setCarpark(carpark);
 				mapDeviceType.put(key, inType);
 				mapIpToDevice.put(key, singleCarparkDevice);
@@ -326,7 +322,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 
 			shell.open();
 			shell.layout();
-			antoCheckDevices();
 			while (!shell.isDisposed()) {
 				if (!display.readAndDispatch()) {
 					display.sleep();
@@ -366,7 +361,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			shell.setMaximized(true);
 			shell.open();
 			shell.layout();
-			antoCheckDevices();
 			while (!shell.isDisposed()) {
 				if (!display.readAndDispatch()) {
 					display.sleep();
@@ -459,42 +453,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		}
 	}
 
-	/**
-	 * 自动更新设备信息
-	 */
-	private void antoCheckDevices() {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					WatchService watchService = FileSystems.getDefault().newWatchService();
-					Paths.get("temp").register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-					while (true) {
-						WatchKey key = watchService.poll();
-						if (StrUtil.isEmpty(key)) {
-							Thread.sleep(5000);
-							continue;
-						}
-						for (WatchEvent<?> event : key.pollEvents()) {
-							String string = event.context().toString();
-							if (string.indexOf(MAP_IP_TO_DEVICE)<0) {
-								continue;
-							}
-//							System.out.println(string + "发生了" + event.kind() + "事件"+"===="+string.indexOf(MAP_IP_TO_DEVICE));
-							readDevices();
-						}
-						if (!key.reset()) {
-							System.out.println("temp/mapIpToDevice.temp key.reset()" + key.reset());
-							break;
-						}
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
-
-	}
 
 	private void autoSendTimeToDevice() {
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("发送时间任务"));
@@ -1196,7 +1154,8 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			@Override
 			public void run() {
 				try {
-					if(new DateTime(plateInTime).plusSeconds(10).isAfterNow()){
+					if(model.getPlateInTime().after(new Date())){
+						LOGGER.info("车辆进出场时间为{}，暂时不发送车位",model.getPlateInTime());
 						return;
 					}
 					presenter.sendPositionToAllDevice(true);
@@ -1212,7 +1171,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	 */
 	@Override
 	public void invok(final String ip, int channel, final String plateNO, final byte[] bigImage, final byte[] smallImage, float rightSize) {
-		plateInTime=new Date();
+		model.setPlateInTime(new Date(),10);
 		LOGGER.info("车辆{}在设备{}通道{}处进场,可信度：{}", plateNO, ip, channel, rightSize);
 		try {
 			Preconditions.checkNotNull(mapDeviceType.get(ip), "not monitor device:" + ip);
@@ -1358,7 +1317,10 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	public boolean isOpen() {
 		return false;
 	}
-
+	/**
+	 * 刷新停车场全局信息
+	 * @param refreshTimeSpeedSecond
+	 */
 	public void refreshCarparkBasicInfo(Integer refreshTimeSpeedSecond) {
 		refreshService.scheduleAtFixedRate(() -> {
 			try {
@@ -1369,7 +1331,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 				String userName = System.getProperty("userName");
 				model.setTotalCharge(sp.getCarparkInOutService().findFactMoneyByName(userName));
 				model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
-				model.setTotalSlot(sp.getCarparkInOutService().findTotalSlotIsNow(model.getCarpark()));
+				model.setTotalSlot(presenter.getSlotOfLeft());
 				model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow(model.getCarpark()));
 				model.setMonthSlot(sp.getCarparkInOutService().findFixSlotIsNow(model.getCarpark()));
 			} catch (Exception e) {

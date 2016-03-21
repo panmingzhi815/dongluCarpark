@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Image;
+import org.joda.time.DateTime;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
@@ -135,6 +136,8 @@ public class CarparkMainModel extends DomainObject{
 
 	private CTabItem selectTabSelect;
 	private Float chargedMoney=0F;
+	//停车场进场时间
+	private Date plateInTime=new Date();
 	
 	public String getUserName() {
 		return userName;
@@ -600,6 +603,12 @@ public class CarparkMainModel extends DomainObject{
 		this.chargedMoney = chargedMoney;
 		if (pcs != null)
 			pcs.firePropertyChange("chargedMoney", null, null);
+	}
+	public Date getPlateInTime() {
+		return plateInTime;
+	}
+	public synchronized void setPlateInTime(Date plateInTime, int second) {
+		this.plateInTime = new DateTime(plateInTime).plusSeconds(second).toDate();
 	}
 
 }
