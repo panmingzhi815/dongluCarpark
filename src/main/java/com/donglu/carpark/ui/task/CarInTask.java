@@ -59,6 +59,7 @@ public class CarInTask implements Runnable {
 	private final CLabel lbl_inSmallImg;
 
 	private final CLabel lbl_inBigImg;
+	private SingleCarparkInOutHistory cch;
 
 	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter,
 			Float rightSize, CLabel lbl_inSmallImg, CLabel lbl_inBigImg) {
@@ -157,7 +158,7 @@ public class CarInTask implements Runnable {
 					}
 				}
 			}
-			SingleCarparkInOutHistory cch = sp.getCarparkInOutService().findInOutHistoryByPlateNO(plateNO);
+			cch = sp.getCarparkInOutService().findInOutHistoryByPlateNO(plateNO);
 			if (StrUtil.isEmpty(cch)) {
 				cch = new SingleCarparkInOutHistory();
 			}
@@ -469,6 +470,14 @@ public class CarInTask implements Runnable {
 		if (CarparkUtils.checkRoadType(device,presenter,DeviceRoadTypeEnum.储值车通道,DeviceRoadTypeEnum.临时车通道)) {
 			return true;
 		}
+		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场));
+		if (!valueOf) {
+			if (model.getTotalSlot() <= 0) {
+				presenter.showContentToDevice(device, SLOT_IS_FULL, false);
+				LOGGER.error("车位已满,不允许免费车进入");
+				return true;
+			}
+		}
 		if (date.after(new DateTime(user.getValidTo()).minusDays(user.getDelayDays() == null ? 0 : user.getRemindDays()).toDate())) {
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车).equals("true")) {
 				shouTempCarToDevice(device);
@@ -498,14 +507,6 @@ public class CarInTask implements Runnable {
 				}
 			}
 		}
-		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场));
-			if (!valueOf) {
-				if (model.getTotalSlot() <= 0) {
-					presenter.showContentToDevice(device, SLOT_IS_FULL, false);
-					LOGGER.error("车位已满,不允许免费车进入");
-					return true;
-				}
-			}
 
 		// int parseInt = Integer.parseInt(StrUtil.isEmpty(user.getCarparkNo())?"0":user.getCarparkNo());
 
@@ -518,6 +519,13 @@ public class CarInTask implements Runnable {
 			String content = "月租车辆," + CAR_IN_MSG;
 			presenter.showContentToDevice(device, content, true);
 			LOGGER.info("固定车：{}，{}", plateNO, content);
+		}
+		Integer carparkSlot = user.getCarparkSlot();
+		if (carparkSlot!=null&&carparkSlot>0) {
+			LOGGER.info("车辆{}用户固定车位{},不计算车位",cch.getPlateNo(),carparkSlot);
+			cch.setIsCountSlot(false);
+		}else{
+			cch.setIsCountSlot(true);
 		}
 		return false;
 	}

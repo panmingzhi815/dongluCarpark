@@ -18,7 +18,7 @@ public class SingleCarparkUser extends DomainObject {
 	 */
 	private static final long serialVersionUID = 1116467109412674474L;
 	public enum Property{
-		id,plateNo,name,type,carType,address,carparkNo,leftMoney,createDate,validTo,remark,carpark
+		id,plateNo,name,type,carType,address,carparkNo,leftMoney,createDate,validTo,remark,carpark,carparkSlot
 	}
 	public enum Label{
 		valitoLabel
@@ -30,6 +30,7 @@ public class SingleCarparkUser extends DomainObject {
 	private String type;
 	private String address;
 	private String carparkNo;
+	private Integer carparkSlot;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createDate;
 	@Temporal(TemporalType.TIMESTAMP)
@@ -83,10 +84,17 @@ public class SingleCarparkUser extends DomainObject {
 			pcs.firePropertyChange("address", null, null);
 	}
 	public String getCarparkNo() {
-		return carparkNo;
+		if (getCarparkSlot()==null) {
+			return "0";
+		}
+		return getCarparkSlot()+"";
 	}
 	public void setCarparkNo(String carparkNo) {
 		this.carparkNo = carparkNo;
+		try {
+			setCarparkSlot(Integer.valueOf(carparkNo));
+		} catch (NumberFormatException e) {
+		}
 		if (pcs != null)
 			pcs.firePropertyChange("carparkNo", null, null);
 	}
@@ -173,6 +181,13 @@ public class SingleCarparkUser extends DomainObject {
 		this.carType = carType;
 		if (pcs != null)
 			pcs.firePropertyChange("carType", null, null);
+	}
+	public Integer getCarparkSlot() {
+		return carparkSlot;
+	}
+	public void setCarparkSlot(Integer carparkSlot) {
+		this.carparkSlot = carparkSlot;
+		firePropertyChange("carparkSlot", null, null);
 	}
 	
 }

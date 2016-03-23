@@ -152,14 +152,6 @@ public class CarparkPresenter  implements Presenter{
 			} else {
 				addAndEditChildCarpark(carpark);
 			}
-			for (String ip : CarparkMainApp.mapIpToDevice.keySet()) {
-				SingleCarparkDevice singleCarparkDevice = CarparkMainApp.mapIpToDevice.get(ip);
-				SingleCarparkCarpark findCarparkById = sp.getCarparkService().findCarparkById(singleCarparkDevice.getCarpark().getId());
-				singleCarparkDevice.setCarpark(findCarparkById);
-				CarparkMainApp.mapIpToDevice.put(ip, singleCarparkDevice);
-			}
-			CarparkFileUtils.writeObject(CarparkMainApp.MAP_IP_TO_DEVICE, CarparkMainApp.mapIpToDevice);
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

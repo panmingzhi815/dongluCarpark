@@ -47,14 +47,14 @@ public class SettingPresenter implements Presenter {
 
 	@Override
 	public void go(Composite c) {
-		List<SingleCarparkSystemSetting> findAllSystemSetting = sp.getCarparkService().findAllSystemSetting();
-		init(findAllSystemSetting);
+		init();
 		view = new SettingView(c, c.getStyle(),mapSystemSetting);
 		view.setPresenter(this);
 		listPresenter.go(view.getListComposite());
 	}
 	
-	public void init(List<SingleCarparkSystemSetting> findAllSystemSetting) {
+	public void init() {
+		List<SingleCarparkSystemSetting> findAllSystemSetting = sp.getCarparkService().findAllSystemSetting();
 		for (SystemSettingTypeEnum type : SystemSettingTypeEnum.values()) {
 			mapSystemSetting.put(type, type.getDefaultValue());
 		}

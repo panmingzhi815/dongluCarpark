@@ -32,6 +32,10 @@ import java.util.Map;
 
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
 
 public class SettingView extends Composite implements View {
 	private String cLIENT_IMAGE_SAVE_FILE_PATH = "clientImageSaveFilePath";
@@ -119,7 +123,7 @@ public class SettingView extends Composite implements View {
 			}
 		});
 		button_3.setToolTipText("选中后，停车场车位满允许固定免费车进");
-		button_3.setText("车位满是否允许免费车入场");
+		button_3.setText("车位满是否允许固定车入场");
 		button_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_3.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场)));
 
@@ -503,8 +507,8 @@ public class SettingView extends Composite implements View {
 		text_setting_imgSaveDays.setLayoutData(gd_text_4);
 		
 		Composite composite_1 = new Composite(group, SWT.NONE);
-		composite_1.setLayout(new GridLayout(1, false));
-		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		composite_1.setLayout(new GridLayout(4, false));
+		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
 		
 		Button btnCheckButton_1 = new Button(composite_1, SWT.CHECK);
 		btnCheckButton_1.addSelectionListener(new SelectionAdapter() {
@@ -516,8 +520,34 @@ public class SettingView extends Composite implements View {
 		btnCheckButton_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btnCheckButton_1.setText("启用车牌报送");
 		btnCheckButton_1.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用车牌报送)));
-		new Label(group, SWT.NONE);
-		new Label(group, SWT.NONE);
+		
+		Label lblNewLabel_2 = new Label(composite_1, SWT.NONE);
+		GridData gd_lblNewLabel_2 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lblNewLabel_2.widthHint = 90;
+		lblNewLabel_2.setLayoutData(gd_lblNewLabel_2);
+		
+		Label lblNewLabel_3 = new Label(composite_1, SWT.NONE);
+		lblNewLabel_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		lblNewLabel_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_3.setText("车位数显示方式");
+		
+		ComboViewer comboViewer = new ComboViewer(composite_1, SWT.READ_ONLY);
+		Combo combo = comboViewer.getCombo();
+		combo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				System.out.println("============="+combo.getSelectionIndex());
+				mapSystemSetting.put(SystemSettingTypeEnum.车位数显示方式, ""+combo.getSelectionIndex());
+			}
+		});
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_combo = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_combo.widthHint = 200;
+		combo.setLayoutData(gd_combo);
+		comboViewer.setContentProvider(new ArrayContentProvider());
+		comboViewer.setLabelProvider(new LabelProvider());
+		comboViewer.setInput(new String[]{"显示临时车剩余车位","显示固定车剩余车位","显示总剩余车位"});
+		combo.select(Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位数显示方式)));
 
 		Group group_1 = new Group(composite, SWT.NONE);
 		group_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));

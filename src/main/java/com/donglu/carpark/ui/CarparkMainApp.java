@@ -403,7 +403,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		model.setWorkTime(new Date());
 
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		model.setTotalSlot(carparkInOutService.findTotalSlotIsNow(model.getCarpark()));
 		model.setHoursSlot(carparkInOutService.findTempSlotIsNow(model.getCarpark()));
 		model.setMonthSlot(carparkInOutService.findFixSlotIsNow(model.getCarpark()));
 		model.setTotalCharge(carparkInOutService.findFactMoneyByName(userName));
@@ -423,6 +422,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			}
 			mapSystemSetting.put(valueOf, ss.getSettingValue());
 		}
+		model.setTotalSlot(presenter.getSlotOfLeft());
 		CarparkFileUtils.writeObject(IMAGE_SAVE_SITE, mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置));
 
 		presenter.init();
@@ -1154,10 +1154,10 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			@Override
 			public void run() {
 				try {
-					if(model.getPlateInTime().after(new Date())){
-						LOGGER.info("车辆进出场时间为{}，暂时不发送车位",model.getPlateInTime());
-						return;
-					}
+//					if(model.getPlateInTime().after(new Date())){
+//						LOGGER.info("车辆进出场时间为{}，暂时不发送车位",model.getPlateInTime());
+//						return;
+//					}
 					presenter.sendPositionToAllDevice(true);
 				} catch (Exception e) {
 					LOGGER.info("发送车位时发生错误",e);

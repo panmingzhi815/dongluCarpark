@@ -22,7 +22,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	
 	public enum Property{
 		plateNo,userName,carType,inTime,outTime,inDevice,outDevice,operaName,returnAccount,shouldMoney,factMoney,freeMoney
-		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime
+		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,isCountSlot
 	}
 	public enum Label{
 		inTimeLabel,outTimeLabel
@@ -44,7 +44,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private String plateNo;
 	@Column(length=20)
 	private String userName;
-	
+	private Boolean isCountSlot=true;
 	private Long userId;
 	@Column(length=20)
 	private String carType;
@@ -85,6 +85,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private String chargeOperaName;
 	
 	private Date reviseInTime;
+	
 
 	public String getPlateNo() {
 		return plateNo;
@@ -384,6 +385,13 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		this.chargeOperaName = chargeOperaName;
 		if (pcs != null)
 			pcs.firePropertyChange("chargeOperaName", null, null);
+	}
+	public Boolean getIsCountSlot() {
+		return isCountSlot==null?true:isCountSlot;
+	}
+	public void setIsCountSlot(Boolean isCountSlot) {
+		this.isCountSlot = isCountSlot;
+		firePropertyChange("isCountSlot", null, null);
 	}
 	
 }

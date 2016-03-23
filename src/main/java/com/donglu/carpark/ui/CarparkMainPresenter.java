@@ -622,7 +622,7 @@ public class CarparkMainPresenter {
 	 * @param voice
 	 * @return
 	 */
-	public boolean showPositionToDevice(SingleCarparkDevice device, int position) {
+	public synchronized boolean showPositionToDevice(SingleCarparkDevice device, int position) {
 		if (device.getInType().indexOf("进口")<0) {
 			return true;
 		}
@@ -639,11 +639,16 @@ public class CarparkMainPresenter {
 			if (inType.equals("出口2")) {
 				inType = "出口";
 			}
-
+			log.info("发送车位数{}到设备{}",position,d);
 			return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType), (byte) (device.getScreenType().getType()));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
+		}finally{
+			try {
+				Thread.sleep(300);
+			} catch (InterruptedException e) {
+			}
 		}
 	}
 
@@ -668,7 +673,6 @@ public class CarparkMainPresenter {
 			e.printStackTrace();
 		}
 	}
-
 	private Device getDevice(SingleCarparkDevice device) {
 		Device d = new Device();
 		Link link = new Link();
@@ -677,6 +681,7 @@ public class CarparkMainPresenter {
 		link.setType(device.getType().equals("485") ? LinkTypeEnum.COM : LinkTypeEnum.TCP);
 		link.setAddress(device.getLinkAddress());
 		link.setProtocol(LinkProtocolEnum.Carpark);
+		link.setTimeOut(400L);
 		SerialDeviceAddress address = new SerialDeviceAddress();
 		address.setAddress(device.getAddress());
 		d.setAddress(address);
@@ -1295,11 +1300,36 @@ public class CarparkMainPresenter {
 		case "0":
 			findTotalSlotIsNow = sp.getCarparkInOutService().findTotalSlotIsNow(model.getCarpark());
 			break;
-		default:
+		case "1":
+			findTotalSlotIsNow=getFixSlotWithChange();
+			break;
+		case "2":
+			findTotalSlotIsNow=getTotalSlotWithChange();
 			break;
 		}
 		
 		return findTotalSlotIsNow;
+	}
+	/**
+	 * 获取剩余的总车位数
+	 * @return
+	 */
+	private Integer getTotalSlotWithChange() {
+		int findTotalCarIn = sp.getCarparkInOutService().findTotalCarIn(model.getCarpark());
+		
+		int i = model.getHoursSlot()+model.getMonthSlot()-findTotalCarIn;
+		return i<0?0:i;
+	}
+
+	/**
+	 * 获取固定车剩余位数
+	 * @return
+	 */
+	private Integer getFixSlotWithChange() {
+		int findTotalFixCarIn = sp.getCarparkInOutService().findTotalFixCarIn(model.getCarpark());
+		int monthSlot = model.getMonthSlot();
+		int i = monthSlot-findTotalFixCarIn;
+		return i<0?0:i;
 	}
 
 }

@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.apache.derby.vti.Restriction;
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
@@ -29,6 +30,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.google.common.base.Predicate;
@@ -289,13 +291,16 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 				Integer fixNumberOfSlot = singleCarparkCarpark2.getFixNumberOfSlot();
 				intValue += fixNumberOfSlot == null ? 0 : fixNumberOfSlot;
 			}
-			// Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
-			// c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
-			// c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "固定车"));
-			// c.setProjection(Projections.rowCount());
-			// Long singleResult = (Long) c.getSingleResult();
-			// int now=singleResult==null?0:singleResult.intValue();
-			return intValue;
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+			c.add(Restrictions.ge(SingleCarparkUser.Property.carparkSlot.name(), 1));
+			c.setProjection(Projections.sum(SingleCarparkUser.Property.carparkSlot.name()));
+			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
+			if (singleResultOrNull==null) {
+				return intValue;
+			}
+			intValue=intValue-singleResultOrNull.intValue();
+			
+			return intValue<0?0:intValue;
 		} finally {
 			unitOfWork.end();
 		}
@@ -787,6 +792,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "固定车"));
 			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), carpark.getId()));
+			c.add(Restrictions.or(Restrictions.eq(SingleCarparkInOutHistory.Property.isCountSlot.name(),true),Restrictions.isNull(SingleCarparkInOutHistory.Property.isCountSlot.name())));
 			c.setProjection(Projections.rowCount());
 			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
 			
