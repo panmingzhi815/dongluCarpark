@@ -40,7 +40,9 @@ import com.donglu.carpark.service.PlateSubmitServiceI;
 import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
+import com.donglu.carpark.ui.common.ShowDialog;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
+import com.donglu.carpark.ui.view.inouthistory.FreeReasonPresenter;
 import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
 import com.donglu.carpark.ui.wizard.AddDeviceModel;
 import com.donglu.carpark.ui.wizard.AddDeviceWizard;
@@ -63,6 +65,7 @@ import com.dongluhitec.card.domain.db.LinkStyleEnum;
 import com.dongluhitec.card.domain.db.SerialDeviceAddress;
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -86,7 +89,6 @@ import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
 public class CarparkMainPresenter {
-	private static final String COUNT_TEMP_CAR_CHARGE = "countTempCarCharge";
 	private Logger log = LoggerFactory.getLogger(CarparkMainPresenter.class);
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
@@ -325,21 +327,6 @@ public class CarparkMainPresenter {
 		log.info("准备连接视频{}",url);
 		final EmbeddedMediaPlayer createPlayRight = webCameraDevice.createPlay(new_Frame1, url);
 		mapPlayer.put(url, createPlayRight);
-//		createPlayRight.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-//			@Override
-//			public void finished(final MediaPlayer mediaPlayer) {
-//				new Runnable() {
-//					@Override
-//					public void run() {
-//						while (!mediaPlayer.isPlaying()) {
-//							log.info("设备连接{}已断开", url);
-//							mediaPlayer.playMedia(url);
-//							Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
-//						}
-//					}
-//				}.run();
-//			}
-//		});
 
 		getView().shell.addDisposeListener(new DisposeListener() {
 			@Override
@@ -567,6 +554,9 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	private boolean checkDeviceLinkStatus(SingleCarparkDevice device) {
+		if (StrUtil.isEmpty(device.getLinkAddress())) {
+			return false;
+		}
 		return mapDeviceFailInfo.get(device.getLinkInfo()) != null && mapDeviceFailInfo.get(device.getLinkInfo()) > 10;
 	}
 
@@ -594,20 +584,26 @@ public class CarparkMainPresenter {
 	 * @param opDoor是否需要开门
 	 * @return
 	 */
-	public boolean showContentToDevice(SingleCarparkDevice device, String content, boolean opDoor) {
+	public boolean showContentToDevice(SingleCarparkDevice device, String content, boolean isOpenDoor) {
 		if (checkDeviceLinkStatus(device)) {
 			return false;
 		}
 		try {
-			if (opDoor) {
-				Device d = getDevice(device);
-				Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoor(d, content, device.getVolume() == null ? 1 : device.getVolume());
-				openDoorToPhotograph(device.getIp());
-				return carparkContentVoiceAndOpenDoor;
+			Device d = getDevice(device);
+			if (isOpenDoor) {
+				if (d!=null) {
+					Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoor(d, content, device.getVolume() == null ? 1 : device.getVolume());
+					openDoorToPhotograph(device.getIp());
+					return carparkContentVoiceAndOpenDoor;
+				}else{
+					openDoor(device);
+				}
 			} else {
-				Device d = getDevice(device);
-				return hardwareService.carparkContentVoice(d, content, device.getVolume() == null ? 1 : device.getVolume());
+				if (d!=null) {
+					return hardwareService.carparkContentVoice(d, content, device.getVolume() == null ? 1 : device.getVolume());
+				}
 			}
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -631,16 +627,19 @@ public class CarparkMainPresenter {
 		}
 		try {
 			Device d = getDevice(device);
+			if (d != null) {
+				String inType = device.getInType();
+				if (inType.equals("进口2")) {
+					inType = "进口";
+				}
+				if (inType.equals("出口2")) {
+					inType = "出口";
+				}
 
-			String inType = device.getInType();
-			if (inType.equals("进口2")) {
-				inType = "进口";
+				return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType), (byte) (device.getScreenType().getType()));
+			} else {
+				return true;
 			}
-			if (inType.equals("出口2")) {
-				inType = "出口";
-			}
-			log.info("发送车位数{}到设备{}",position,d);
-			return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType), (byte) (device.getScreenType().getType()));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -668,13 +667,18 @@ public class CarparkMainPresenter {
 		}
 		try {
 			Device d = getDevice(device);
-			hardwareService.carparkPosition(d, position);
+			if (d!=null) {
+				hardwareService.carparkPosition(d, position);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	private Device getDevice(SingleCarparkDevice device) {
 		Device d = new Device();
+		if (StrUtil.isEmpty(device.getLinkAddress())) {
+			return null;
+		}
 		Link link = new Link();
 		link.setId((long) device.getLinkAddress().hashCode());
 		link.setLinkStyleEnum(LinkStyleEnum.直连设备);
@@ -699,8 +703,12 @@ public class CarparkMainPresenter {
 			return false;
 		}
 		try {
-			Boolean carparkOpenDoor = hardwareService.carparkOpenDoor(getDevice(device));
-			// Boolean carparkOpenDoor = hardwareService.carparkControlDoor(getDevice(device), 0, -1, -1, -1);
+			Device d = getDevice(device);
+			boolean carparkOpenDoor=true;
+			if (d!=null) {
+				carparkOpenDoor = hardwareService.carparkOpenDoor(d);
+				// carparkOpenDoor = hardwareService.carparkControlDoor(getDevice(device), 0, -1, -1, -1);
+			}
 			openDoorToPhotograph(device.getIp());
 			return carparkOpenDoor;
 		} catch (Exception e) {
@@ -718,7 +726,11 @@ public class CarparkMainPresenter {
 			return false;
 		}
 		try {
-			Boolean carparkOpenDoor = hardwareService.carparkControlDoor(getDevice(device), -1, 0, -1, -1);
+			Device d = getDevice(device);
+			Boolean carparkOpenDoor=true;
+			if (d!=null) {
+				carparkOpenDoor = hardwareService.carparkControlDoor(d, -1, 0, -1, -1);
+			}
 			return carparkOpenDoor;
 		} catch (Exception e) {
 			return false;
@@ -737,9 +749,12 @@ public class CarparkMainPresenter {
 			return false;
 		}
 		try {
-			System.out.println("====" + device.getAdvertise().length());
-			Boolean carparkUsualContent = hardwareService.carparkUsualContent(getDevice(device), device.getAdvertise());
-			// showNowTimeToDevice(device);
+			Device d = getDevice(device);
+			Boolean carparkUsualContent=true;
+			
+			if (d!=null) {
+				carparkUsualContent = hardwareService.carparkUsualContent(d, device.getAdvertise());
+			}
 			return carparkUsualContent;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -888,12 +903,7 @@ public class CarparkMainPresenter {
 		saveImageTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("保存图片任务"));
 		openDoorTheadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
 		checkPlayerPlaying();
-
-		countTempCarCharge = (CountTempCarChargeI) CarparkFileUtils.readObject(COUNT_TEMP_CAR_CHARGE);
-		if (StrUtil.isEmpty(countTempCarCharge)) {
-			countTempCarCharge = new CountTempCarChargeImpl();
-			CarparkFileUtils.writeObject(COUNT_TEMP_CAR_CHARGE, countTempCarCharge);
-		}
+		countTempCarCharge = new CountTempCarChargeImpl();
 		autoCheckDeviceLinkInfo();
 	}
 
@@ -913,7 +923,6 @@ public class CarparkMainPresenter {
 				for (String l : mapDeviceFailInfo.keySet()) {
 					if (mapDeviceFailInfo.get(l) > 10) {
 						try {
-							
 							hardwareService.setDate(getDevice(map.get(l)), new Date());
 							mapDeviceFailInfo.put(l, 0);
 						} catch (Exception e) {
@@ -940,7 +949,7 @@ public class CarparkMainPresenter {
 			searchErrorCarPresenter.getModel().setNoPlateNoSelect(null);
 			searchErrorCarPresenter.getModel().setSaveBigImg(bigImg);
 			searchErrorCarPresenter.getModel().setSaveSmallImg(smallImg);
-			searchErrorCarPresenter.getModel().setCarpark(model.getCarpark());
+			searchErrorCarPresenter.getModel().setCarpark(model.getSearchCarpark());
 			SearchHistoryByHandWizard wizard = new SearchHistoryByHandWizard(searchErrorCarPresenter);
 			Object showWizard = commonui.showWizard(wizard);
 			if (StrUtil.isEmpty(showWizard)) {
@@ -1097,6 +1106,19 @@ public class CarparkMainPresenter {
 				if (!confirm) {
 					return false;
 				}
+				if (shouldMoney>factMoney) {
+					FreeReasonPresenter p=new FreeReasonPresenter();
+					p.setModel(singleCarparkInOutHistory);
+					String reasons = mapSystemSetting.get(SystemSettingTypeEnum.免费原因);
+					p.setReasons(reasons);
+					ShowDialog s=new ShowDialog("免费原因");
+					s.setPresenter(p);
+					SingleCarparkInOutHistory open = (SingleCarparkInOutHistory) s.open();
+					if (open==null) {
+						return false;
+					}
+					singleCarparkInOutHistory.setFreeReason(open.getFreeReason());
+				}
 			}
 			log.info("车辆收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", singleCarparkInOutHistory.getPlateNo(), device.getCarpark(), model.getCarTypeEnum(), model.getInTime(), model.getOutTime(),
 					model.getTotalTime(), shouldMoney);
@@ -1130,6 +1152,9 @@ public class CarparkMainPresenter {
 					free.setUsed("已使用");
 					sp.getStoreService().saveStoreFree(free);
 				}
+			}
+			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车非所属停车场停留收费).equals("true")) {
+				sp.getCarparkInOutService().updateCarparkStillTime(device.getCarpark(), device, singleCarparkInOutHistory.getPlateNo(), singleCarparkInOutHistory.getOutBigImg());
 			}
 			model.setStroeFrees(null);
 			model.setBtnClick(false);
@@ -1272,6 +1297,40 @@ public class CarparkMainPresenter {
 
 	public void refreshCarWithIn() {
 		model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
+	}
+	/**
+	 * 固定车在非所属停车场停留超时收费
+	 * @param user
+	 * @param device 
+	 * @param inTime
+	 * @param date
+	 * @param plateNO 
+	 * @return
+	 */
+	public float countFixCarShouldMoney(SingleCarparkUser user, SingleCarparkDevice device, Date inTime, Date outTime, String plateNO) {
+		List<CarparkStillTime> list=sp.getCarparkInOutService().findCarparkStillTime(plateNO,inTime);
+		int minute=0;
+		Date date = new Date();
+		int canStillMinute =Integer.valueOf( CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车非所属停车场停留时间));
+		
+		for (CarparkStillTime cs : list) {
+			if (cs.getCarparkId().equals(user.getCarpark().getId())) {
+				continue;
+			}
+			Date outTime2 = cs.getOutTime();
+			int minusMinute=cs.getStillSecond();
+			if (outTime2==null) {
+				minusMinute = CarparkUtils.countTime(inTime, date, TimeUnit.MINUTES);
+			}
+			if (minusMinute>canStillMinute) {
+				minute+=(minusMinute-canStillMinute);
+			}
+			System.out.println(cs+"======"+minusMinute);
+		}
+		log.info("车牌：{}，在所属停车场外停留时间：{}",plateNO,minute);
+		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(device.getCarpark().getId(), user.getCarType().index(), inTime, new DateTime(inTime).plusMinutes(minute).toDate());
+		log.info("固定车{}，缴费：{}",plateNO,calculateTempCharge);
+		return calculateTempCharge;
 	}
 
 	/**

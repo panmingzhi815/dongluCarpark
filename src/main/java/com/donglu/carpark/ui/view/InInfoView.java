@@ -11,11 +11,10 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.CarparkMainApp;
-import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
+import com.donglu.carpark.util.TextUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
-import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -27,8 +26,6 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 
 public class InInfoView extends Composite implements View{
 	@SuppressWarnings("unused")
@@ -85,6 +82,7 @@ public class InInfoView extends Composite implements View{
 		text_plateno.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		text_plateno.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		text_plateno.setTextLimit(8);
+		TextUtils.createPlateNOAutoCompleteField(text_plateno);
 		Label label_14 = new Label(composite_22, SWT.NONE);
 		label_14.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_14.setText("进场时间");
@@ -105,15 +103,7 @@ public class InInfoView extends Composite implements View{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				String inShowPlateNO = model.getInShowPlateNO();
-				if (StrUtil.isEmpty(inShowPlateNO)) {
-					return;
-				}
-				int length = inShowPlateNO.length();
-				if (length < 3 || length > 7) {
-					return;
-				}
-				model.setInCheckClick(false);
-				model.setInCheckIsClick(true);
+				getPresenter().check(inShowPlateNO);
 			}
 		});
 		GridData gd_btn_check = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -150,14 +140,6 @@ public class InInfoView extends Composite implements View{
 		composite_25.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		lbl_bigImg = new CLabel(composite_25, SWT.NONE);
-		lbl_bigImg.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				String lastImage = (String)lbl_bigImg.getData("imgName");
-				ImageDialog imageDialog = new ImageDialog(lastImage);
-				imageDialog.open();
-			}
-		});
 		lbl_bigImg.setText("入场车牌");
 		lbl_bigImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 		lbl_bigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));

@@ -65,9 +65,10 @@ public class CountTempCarChargeImpl implements CountTempCarChargeI {
 			
 			if(countTodayCharge>0&&findOneDayMaxCharge>0&&(calculateTempCharge+countTodayCharge)>(findOneDayMaxCharge)){
 				totalCharge+=(findOneDayMaxCharge-countTodayCharge);
-			}else
-			totalCharge+=calculateTempCharge;
-//			totalCharge= totalCharge-countTodayCharge<0?0:totalCharge-countTodayCharge;
+			}
+			else {
+				totalCharge+=calculateTempCharge;
+			}
 		} catch (Exception e) {
 			LOGGER.error("计算收费是发生错误", e);
 			return 0;

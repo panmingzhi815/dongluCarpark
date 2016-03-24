@@ -20,10 +20,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -49,6 +54,7 @@ import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.CarparkManageApp;
+import com.donglu.carpark.ui.common.ImageDialog;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
@@ -189,7 +195,18 @@ public class CarparkUtils {
 			cLabel.setData("lastImage",null);
 			LOGGER.info("销毁图片成功！");
 		}
-
+		cLabel.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				if (cLabel.getData("lastImage") != null){
+					Image lastImage = (Image)cLabel.getData("lastImage");
+					lastImage.dispose();
+					cLabel.setBackgroundImage(null);
+					cLabel.setData("lastImage",null);
+					LOGGER.info("销毁图片成功！");
+				}
+			}
+		});
 		if (imageBytes == null || imageBytes.length <= 0) {
 			cLabel.setText("无图片");
 			return;
@@ -694,7 +711,7 @@ public class CarparkUtils {
 		try {
 			LOGGER.info("准备清理数据库中的重复进出场记录");
 			CarparkServerConfig cf = CarparkServerConfig.getInstance();
-			String sql="DELETE FROM [carpark].[dbo].[SingleCarparkInOutHistory] WHERE outTime is null and id not in(SELECT MAX(id) FROM [carpark].[dbo].[SingleCarparkInOutHistory] where outTime is null group by plateNo)";
+			String sql="DELETE FROM [carpark].[dbo].[SingleCarparkInOutHistory] WHERE outTime is null and id not in(SELECT MAX(id) FROM [carpark].[dbo].[SingleCarparkInOutHistory] where outTime is null group by plateNo,carparkId)";
 			boolean executeSQL = DatabaseUtil.executeSQL(cf.getDbServerIp(), cf.getDbServerPort(), CarparkServerConfig.CARPARK, 
 					cf.getDbServerUsername(), cf.getDbServerPassword(), sql, DatabaseUtil.SQLSERVER2008);
 			LOGGER.info("清理数据库中的重复进出场记录结果：{}",executeSQL);
@@ -796,5 +813,60 @@ public class CarparkUtils {
 	public static String formatString(String content, Object... o) {
 		String message = MessageFormatter.arrayFormat(content, o).getMessage();
 		return message;
+	}
+	public static int countSecondByDate(Date inTime, Date outTime) {
+		Long s=(outTime.getTime()-inTime.getTime())/1000;
+		return s.intValue();
+	}
+	/**
+	 * 计算两个时间的时间差
+	 * @param startTime
+	 * @param endTime
+	 * @param timeUnit
+	 * @return
+	 */
+	public static int countTime(Date startTime, Date endTime, TimeUnit... timeUnit) {
+		Long millis=endTime.getTime()-startTime.getTime();
+		Long second;
+		Long minute;
+		Long hour;
+		Long day;
+		if (timeUnit==null||timeUnit[0].equals(TimeUnit.MILLISECONDS)) {
+			return millis.intValue();
+		}
+		if (timeUnit[0].equals(TimeUnit.SECONDS)) {
+			second=millis/1000;
+			return second.intValue();
+		}
+		if (timeUnit[0].equals(TimeUnit.MINUTES)) {
+			minute=millis/1000/60;
+			return minute.intValue();
+		}
+		if (timeUnit[0].equals(TimeUnit.HOURS)) {
+			hour=millis/1000/60/60;
+			return hour.intValue();
+		}
+		if (timeUnit[0].equals(TimeUnit.DAYS)) {
+			day=millis/1000/60/60/24;
+			return day.intValue();
+		}
+		return 0;
+	}
+	public static void setBackgroundImage(byte[] bigImage, CLabel label, String imageName) {
+		label.getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				label.setData("imgName", imageName);
+				label.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseDoubleClick(MouseEvent e) {
+						String lastImage = (String)label.getData("imgName");
+						ImageDialog imageDialog = new ImageDialog(lastImage);
+						imageDialog.open();
+					}
+				});
+				setBackgroundImage(bigImage, label, label.getDisplay());
+			}
+		});
 	}
 }

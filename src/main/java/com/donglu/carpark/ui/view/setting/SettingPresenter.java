@@ -227,4 +227,12 @@ public class SettingPresenter implements Presenter {
 		
 	}
 
+	public String setFreeReson() {
+		String input = commonui.input("免费原因", "请输入免费原因");
+		if (StrUtil.isEmpty(input)) {
+			return null;
+		}
+		return input;
+	}
+
 }

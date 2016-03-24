@@ -280,13 +280,15 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 			SingleCarparkUser user = list.get(i);
 			row.createCell(1).setCellValue(user.getName());
 			row.createCell(2).setCellValue(user.getPlateNo());
-			row.createCell(3).setCellValue(user.getAddress());
-			row.createCell(4).setCellValue(user.getType());
-			row.createCell(5).setCellValue(StrUtil.formatDate(user.getValidTo(), USER_VALIDTO));
-			row.createCell(6).setCellValue(user.getCarparkNo());
-			row.createCell(7).setCellValue(user.getCarpark().getCode());
-			row.createCell(8).setCellValue(user.getCarpark().getName());
-			row.createCell(9).setCellValue(user.getRemark());
+			row.createCell(3).setCellValue(user.getTelephone());
+			row.createCell(4).setCellValue(user.getAddress());
+			row.createCell(5).setCellValue(user.getType());
+			row.createCell(6).setCellValue(StrUtil.formatDate(user.getValidTo(), USER_VALIDTO));
+			row.createCell(7).setCellValue(user.getCarparkNo());
+			row.createCell(8).setCellValue(user.getParkingSpace());
+			row.createCell(9).setCellValue(user.getCarpark().getCode());
+			row.createCell(10).setCellValue(user.getCarpark().getName());
+			row.createCell(11).setCellValue(user.getRemark());
 		}
 		FileOutputStream fileOut = new FileOutputStream(path);
 		wb.write(fileOut);
@@ -328,13 +330,13 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				}
 				// 导入用户
 				CardUser cardUser = null;
-				String name,plateNO,address,type,validTo,carparkNo,remark;
+				String name,plateNO,address,type,validTo,carparkNo,remark,telephone,parkingSpace;
 				plateNO=getCellStringValue(row, 2);
 				if (StrUtil.isEmpty(plateNO)) {
 					throw new Exception("空的车牌");
 				}
-				String caparkCode=getCellStringValue(row, 7);
-				String caparkName=getCellStringValue(row, 8);
+				String caparkCode=getCellStringValue(row, 9);
+				String caparkName=getCellStringValue(row, 10);
 				
 				if (map.get(caparkCode) == null) {
 					SingleCarparkCarpark findCarparkByCode = sp.getCarparkService().findCarparkByCode(caparkCode);
@@ -349,12 +351,14 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 					throw new Exception("车牌已存在");
 				}
 				name = getCellStringValue(row, 1);
-				address=getCellStringValue(row, 3);
-				type=getCellStringValue(row, 4);
-				validTo=getCellStringValue(row, 5);
-				carparkNo=getCellStringValue(row, 6);
+				address=getCellStringValue(row, 4);
+				type=getCellStringValue(row, 5);
+				validTo=getCellStringValue(row, 6);
+				carparkNo=getCellStringValue(row, 7);
+				telephone=getCellStringValue(row, 3);
+				parkingSpace=getCellStringValue(row, 8);
 				
-				remark=getCellStringValue(row, 9);
+				remark=getCellStringValue(row, 11);
 				SingleCarparkUser user=new SingleCarparkUser();
 				user.setName(name);
 				user.setPlateNo(plateNO);
@@ -366,11 +370,11 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				user.setCreateDate(new Date());
 				user.setCarpark(map.get(caparkCode));
 				carparkUserService.saveUser(user);
-				setCellStringvalue(row, 10, "处理成功", cellStyle);
+				setCellStringvalue(row, 12, "处理成功", cellStyle);
 			} catch (Exception e) {
 				failNum++;
 				e.printStackTrace();
-				setCellStringvalue(row, 10, "保存失败" + e.getMessage(), cellStyle);
+				setCellStringvalue(row, 12, "保存失败" + e.getMessage(), cellStyle);
 			} finally {
 				currentRow++;
 				row = sheet.getRow(currentRow);

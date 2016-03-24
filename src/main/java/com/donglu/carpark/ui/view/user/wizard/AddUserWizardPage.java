@@ -45,6 +45,8 @@ public class AddUserWizardPage extends WizardPage {
 	private ComboViewer comboViewer;
 	private Text text_2;
 	private ComboViewer comboViewer_1;
+	private Text text_4;
+	private Text text_5;
 
 	
 	/**
@@ -144,6 +146,15 @@ public class AddUserWizardPage extends WizardPage {
 		gd_text_3.widthHint = 150;
 		text_3.setLayoutData(gd_text_3);
 		
+		Label label_7 = new Label(composite, SWT.NONE);
+		label_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_7.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_7.setText("用户电话");
+		
+		text_4 = new Text(composite, SWT.BORDER);
+		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
 		Label label_4 = new Label(composite, SWT.NONE);
 		label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -179,6 +190,15 @@ public class AddUserWizardPage extends WizardPage {
 		GridData gd_text_4 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_4.widthHint = 150;
 		txt_carNO.setLayoutData(gd_text_4);
+		
+		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
+		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_1.setText("车位编号");
+		
+		text_5 = new Text(composite, SWT.BORDER);
+		text_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label label_5 = new Label(composite, SWT.NONE);
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

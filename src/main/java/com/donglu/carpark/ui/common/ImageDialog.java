@@ -8,11 +8,11 @@ import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Label;
 
 public class ImageDialog extends Dialog {
 
@@ -20,7 +20,7 @@ public class ImageDialog extends Dialog {
 	protected Shell shell;
 	String img;
 	static Image image;
-	private Label lbl_image;
+	private CLabel lbl_image;
 	private byte[] lastImage;
 
 	/**
@@ -55,6 +55,13 @@ public class ImageDialog extends Dialog {
 		shell.open();
 		shell.layout();
 		shell.setMaximized(true);
+		shell.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				System.out.println("imagedialog is disponse");
+				
+			}
+		});
 		
 		if (!StrUtil.isEmpty(img)) {
 			setImage(img);
@@ -90,22 +97,11 @@ public class ImageDialog extends Dialog {
 		shell.setSize(1280, 720);
 		shell.setText(getText());
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
-		shell.addDisposeListener(new DisposeListener() {
-			
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-					if (image!=null) {
-						image.dispose();
-						image=null;
-					}
-			}
-		});
-		lbl_image = new Label(shell, SWT.NONE);
+		lbl_image = new CLabel(shell, SWT.NONE);
 
 	}
 	private void setImage(String img) {
-		image=CarparkUtils.getImage(CarparkUtils.getImageByte(img), lbl_image, shell);
-		lbl_image.setImage(image);
+		CarparkUtils.setBackgroundImage(CarparkUtils.getImageByte(img), lbl_image, img);
 	}
 	public static void main(String[] args) {
 		ImageDialog d=new ImageDialog("");

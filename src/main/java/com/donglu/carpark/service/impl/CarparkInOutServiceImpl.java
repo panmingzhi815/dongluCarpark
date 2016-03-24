@@ -23,8 +23,10 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkHolidayTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
@@ -67,10 +69,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.eq("plateNo", plateNo));
 			c.add(Restrictions.isNull("outTime"));
-//			List<SingleCarparkCarpark> findSameCarpark = findSameCarpark(carpark);
-//			for (SingleCarparkCarpark singleCarparkCarpark : findSameCarpark) {
 			c.add(Restrictions.eq("carparkId", carpark.getId()));
-//			}
 			c.setFirstResult(0);
 			c.setMaxResults(2);
 			return c.getResultList();
@@ -730,12 +729,13 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			c.add(Restrictions.or(list.toArray(new SimpleExpression[list.size()])));
 			if (!StrUtil.isEmpty(carpark)) {
-				List<SimpleExpression> listD = new ArrayList<>();
-				for (SingleCarparkCarpark d : findSameCarpark(carpark)) {
-					SimpleExpression eq = Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), d.getId());
-					listD.add(eq);
-				}
-				c.add(Restrictions.or(listD.toArray(new SimpleExpression[listD.size()])));
+//				List<SimpleExpression> listD = new ArrayList<>();
+//				for (SingleCarparkCarpark d : findSameCarpark(carpark)) {
+//					SimpleExpression eq = Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), d.getId());
+//					listD.add(eq);
+//				}
+//				c.add(Restrictions.or(listD.toArray(new SimpleExpression[listD.size()])));
+				c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), carpark.getId()));
 			}
 			if (order) {
 				c.addOrder(Order.asc(SingleCarparkInOutHistory.Property.inTime.name()));
@@ -1006,6 +1006,72 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		m.setOperaName(System.getProperty("userName"));
 		m.setCreateTime(new Date());
 		return saveLockCar(m);
+	}
+	@Transactional
+	@Override
+	public Long updateCarparkStillTime(SingleCarparkCarpark carpark,SingleCarparkDevice device, String plateNO, String bigImg) {
+		Criteria c=CriteriaUtils.createCriteria(emprovider.get(), CarparkStillTime.class);
+		c.add(Restrictions.isNull(CarparkStillTime.Property.outTime.name()));
+		c.add(Restrictions.eq(CarparkStillTime.Property.plateNO.name(), plateNO));
+		CarparkStillTime cst = (CarparkStillTime) c.getSingleResultOrNull();
+		DatabaseOperation<CarparkStillTime> dom = DatabaseOperation.forClass(CarparkStillTime.class, emprovider.get());
+		Date outTime = new Date();
+		String inType = device.getInType();
+		if (cst==null) {
+			cst=new CarparkStillTime();
+			cst.setCarparkId(carpark.getId());
+			cst.setCarparkName(carpark.getName());
+			cst.setPlateNO(plateNO);
+			cst.setInTime(outTime);
+			cst.setInBigImg(bigImg);
+			cst.setInDevice(device.getName());
+			dom.insert(cst);
+		}else{
+			if (inType.indexOf("进口")>-1) {
+				CarparkStillTime carparkStillTime = new CarparkStillTime();
+				carparkStillTime=new CarparkStillTime();
+				carparkStillTime.setCarparkId(device.getCarpark().getId());
+				carparkStillTime.setCarparkName(device.getCarpark().getName());
+				carparkStillTime.setPlateNO(plateNO);
+				carparkStillTime.setInTime(outTime);
+				carparkStillTime.setInBigImg(bigImg);
+				carparkStillTime.setInDevice(device.getName());
+				dom.insert(carparkStillTime);
+				
+			}
+			if (inType.indexOf("出口")>-1) {
+				SingleCarparkCarpark parent = carpark.getParent();
+				if (parent!=null) {
+					CarparkStillTime carparkStillTime = new CarparkStillTime();
+					carparkStillTime=new CarparkStillTime();
+					carparkStillTime.setCarparkId(parent.getId());
+					carparkStillTime.setCarparkName(parent.getName());
+					carparkStillTime.setPlateNO(plateNO);
+					carparkStillTime.setInTime(outTime);
+					carparkStillTime.setInBigImg(bigImg);
+					carparkStillTime.setInDevice(device.getName());
+					dom.insert(carparkStillTime);
+				}
+			}
+			cst.setOutBigImg(bigImg);
+			cst.setOutTime(outTime);
+			cst.setOutDevice(device.getName());
+			cst.setStillSecond(CarparkUtils.MinusMinute(cst.getInTime(),outTime));
+		}
+		return cst.getId();
+	}
+
+	@Override
+	public List<CarparkStillTime> findCarparkStillTime(String plateNO, Date inTime) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), CarparkStillTime.class);
+			c.add(Restrictions.eq(CarparkStillTime.Property.plateNO.name(), plateNO));
+			c.add(Restrictions.ge(CarparkStillTime.Property.inTime.name(), inTime));
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
 	}
 
 }

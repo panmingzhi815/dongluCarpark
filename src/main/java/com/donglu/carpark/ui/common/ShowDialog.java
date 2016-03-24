@@ -3,24 +3,39 @@ package com.donglu.carpark.ui.common;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+
+import com.dongluhitec.card.ui.util.WidgetUtil;
+
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 
 public class ShowDialog extends Dialog {
 
 	protected Object result;
 	protected Shell shell;
 	protected Presenter presenter;
+	protected boolean haveButon=true;
 
-	/**
-	 * Create the dialog.
-	 * @param parent
-	 * @param style
-	 */
+	
 	public ShowDialog(Shell parent, int style) {
 		super(parent, style);
-		setText("SWT Dialog");
+		shell = new Shell(getParent(),SWT.CLOSE );
+		setText("");
+	}
+
+	
+	public ShowDialog(String name) {
+		super(Display.getCurrent().getActiveShell(), SWT.NONE);
+		shell = new Shell(getParent(),SWT.CLOSE );
+		shell.setSize(300, 300);
+		setText(name);
 	}
 
 	/**
@@ -29,7 +44,6 @@ public class ShowDialog extends Dialog {
 	 */
 	public Object open() {
 		createContents();
-//		shell.setMaximized(true);
 		shell.open();
 		shell.layout();
 		Display display = getParent().getDisplay();
@@ -45,19 +59,52 @@ public class ShowDialog extends Dialog {
 	 * Create contents of the dialog.
 	 */
 	private void createContents() {
-		shell = new Shell(getParent(), getStyle());
-		shell.setSize(450, 300);
-		shell.setText(getText());
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
-		
+		WidgetUtil.center(shell);
 		Composite composite = new Composite(shell, SWT.NONE);
-		composite.setLayout(new FillLayout(SWT.HORIZONTAL));
-		presenter.go(composite);
+		composite.setLayout(new GridLayout(1, false));
+		
+		Composite composite_2 = new Composite(composite, SWT.NONE);
+		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
+		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		presenter.go(composite_2);
+		
+		Composite composite_1 = new Composite(composite, SWT.NONE);
+		GridData gridData = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
+		gridData.exclude = !haveButon;
+		composite_1.setLayoutData(gridData);
+		composite_1.setLayout(new GridLayout(2, false));
+		
+		Button btnNewButton = new Button(composite_1, SWT.NONE);
+		btnNewButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				result=presenter.getModel();
+				shell.dispose();
+			}
+		});
+		btnNewButton.setText("确定");
+		
+		Button btnNewButton_1 = new Button(composite_1, SWT.NONE);
+		btnNewButton_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				result=null;
+				shell.dispose();
+			}
+		});
+		btnNewButton_1.setText("取消");
 
 	}
 
 	public void setPresenter(Presenter presenter) {
 		this.presenter = presenter;
 	}
+	public void setSize(int width,int height ){
+		shell.setSize(width, height);
+	}
 
+	public void setHaveButon(boolean haveButon) {
+		this.haveButon = haveButon;
+	}
 }

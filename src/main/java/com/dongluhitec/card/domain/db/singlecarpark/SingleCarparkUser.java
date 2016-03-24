@@ -18,10 +18,12 @@ public class SingleCarparkUser extends DomainObject {
 	 */
 	private static final long serialVersionUID = 1116467109412674474L;
 	public enum Property{
-		id,plateNo,name,type,carType,address,carparkNo,leftMoney,createDate,validTo,remark,carpark,carparkSlot
+		id,plateNo,name,type,carType,address,carparkNo,leftMoney,createDate,validTo,remark
+		,telephone,parkingSpace,carpark,
+		carparkSlot
 	}
 	public enum Label{
-		valitoLabel
+	valitoLabel
 	}
 	
 	private String name;
@@ -45,6 +47,12 @@ public class SingleCarparkUser extends DomainObject {
 	
 	private String remark;
 	private String tempCarTime;
+	@Column(length=20)
+	private String telephone;
+	@Column(length=200)
+	private String parkingSpace;
+	
+	
 	@ManyToOne
 	private SingleCarparkCarpark carpark;
 	
@@ -188,6 +196,24 @@ public class SingleCarparkUser extends DomainObject {
 	public void setCarparkSlot(Integer carparkSlot) {
 		this.carparkSlot = carparkSlot;
 		firePropertyChange("carparkSlot", null, null);
+	}
+	public String getTelephone() {
+		return telephone;
+	}
+	public void setTelephone(String telephone) {
+		this.telephone = telephone;
+		firePropertyChange("telephone", null, null);
+	}
+	public String getParkingSpace() {
+		return parkingSpace;
+	}
+	public void setParkingSpace(String parkingSpace) {
+		this.parkingSpace = parkingSpace;
+		firePropertyChange("parkingSpace", null, null);
+	}
+	@Override
+	public String toString() {
+		return name+"-"+plateNo;
 	}
 	
 }

@@ -9,6 +9,8 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Image;
 import org.joda.time.DateTime;
 
+import com.donglu.carpark.ui.task.CarInTask;
+import com.donglu.carpark.util.MyMapCache;
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
@@ -45,7 +47,7 @@ public class CarparkMainModel extends DomainObject{
 //		
 //		//保存
 //		private Map<String, String> mapTempCharge;
-	
+	private final Map<String, CarInTask> mapInCheck=new MyMapCache<>(600000, 200, "保存待确认的进场记录");
 	
 	
 	/**
@@ -138,6 +140,8 @@ public class CarparkMainModel extends DomainObject{
 	private Float chargedMoney=0F;
 	//停车场进场时间
 	private Date plateInTime=new Date();
+	
+	private SingleCarparkCarpark searchCarpark;
 	
 	public String getUserName() {
 		return userName;
@@ -611,4 +615,14 @@ public class CarparkMainModel extends DomainObject{
 		this.plateInTime = new DateTime(plateInTime).plusSeconds(second).toDate();
 	}
 
+	public void setSearchCarpark(SingleCarparkCarpark searchCarpark) {
+		this.searchCarpark=searchCarpark;
+		firePropertyChange("searchCarpark", null, null);
+	}
+	public SingleCarparkCarpark getSearchCarpark() {
+		return searchCarpark;
+	}
+	public Map<String, CarInTask> getMapInCheck() {
+		return mapInCheck;
+	}
 }
