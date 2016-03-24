@@ -286,6 +286,7 @@ public class CarInTask implements Runnable {
 		}
 		sp.getCarparkInOutService().updateCarparkStillTime(carpark,device, StrUtil.isEmpty(editPlateNo)?plateNO:editPlateNo,cch.getBigImg());
 		Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(cch);
+		presenter.plateSubmit(cch, date, device, bigImage);
 		cch.setId(saveInOutHistory);
 		model.addInHistorys(cch);
 		model.setInHistorySelect(cch);
