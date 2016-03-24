@@ -20,10 +20,14 @@ public class SingleCarparkUser extends DomainObject {
 	public enum Property{
 		id,plateNo,name,type,carType,address,carparkNo,leftMoney,createDate,validTo,remark
 		,telephone,parkingSpace,carpark,
-		carparkSlot
+		carparkSlot,carparkSlotType
 	}
 	public enum Label{
 	valitoLabel
+	}
+	
+	public enum CarparkSlotTypeEnum{
+		固定车位,非固定车位
 	}
 	
 	private String name;
@@ -33,6 +37,7 @@ public class SingleCarparkUser extends DomainObject {
 	private String address;
 	private String carparkNo;
 	private Integer carparkSlot;
+	private CarparkSlotTypeEnum carparkSlotType=CarparkSlotTypeEnum.非固定车位;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createDate;
 	@Temporal(TemporalType.TIMESTAMP)
@@ -93,7 +98,7 @@ public class SingleCarparkUser extends DomainObject {
 	}
 	public String getCarparkNo() {
 		if (getCarparkSlot()==null) {
-			return "0";
+			return "1";
 		}
 		return getCarparkSlot()+"";
 	}
@@ -214,6 +219,16 @@ public class SingleCarparkUser extends DomainObject {
 	@Override
 	public String toString() {
 		return name+"-"+plateNo;
+	}
+	public CarparkSlotTypeEnum getCarparkSlotType() {
+		if (carparkSlotType==null) {
+			return CarparkSlotTypeEnum.非固定车位;
+		}
+		return carparkSlotType;
+	}
+	public void setCarparkSlotType(CarparkSlotTypeEnum carparkSlotType) {
+		this.carparkSlotType = carparkSlotType;
+		firePropertyChange("carparkSlotType", null, null);
 	}
 	
 }

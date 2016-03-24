@@ -19,6 +19,7 @@ import org.eclipse.core.databinding.beans.BeansObservables;
 import com.donglu.carpark.util.TextUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser.CarparkSlotTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
@@ -169,7 +170,7 @@ public class AddUserWizardPage extends WizardPage {
 				try {
 					Integer valueOf = Integer.valueOf(text2);
 					
-					if (valueOf<model.getTotalSlot()) {
+					if (valueOf<=model.getTotalSlot()) {
 						txt=text2;
 					}else{
 						setTxt();
@@ -199,6 +200,19 @@ public class AddUserWizardPage extends WizardPage {
 		text_5 = new Text(composite, SWT.BORDER);
 		text_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_8 = new Label(composite, SWT.NONE);
+		label_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_8.setText("车位类型");
+		
+		ComboViewer comboViewer_2 = new ComboViewer(composite, SWT.READ_ONLY);
+		Combo combo_2 = comboViewer_2.getCombo();
+		combo_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		combo_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		comboViewer_2.setContentProvider(new ArrayContentProvider());
+		comboViewer_2.setLabelProvider(new LabelProvider());
+		comboViewer_2.setInput(CarparkSlotTypeEnum.values());
 		
 		Label label_5 = new Label(composite, SWT.NONE);
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

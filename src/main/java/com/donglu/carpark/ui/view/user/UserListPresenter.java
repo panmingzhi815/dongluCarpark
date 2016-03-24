@@ -125,7 +125,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			addUserModel.setAllList(list);
 			addUserModel.setCarpark(list.get(0));
 			addUserModel.setType("普通");
-			addUserModel.setCarparkNo("0");
+			addUserModel.setCarparkNo("1");
 			addUserModel.setModel(model);
 			addUserModel.setTotalSlot(sp.getCarparkInOutService().findFixSlotIsNow(list.get(0)));
 			System.out.println(addUserModel.getTotalSlot());

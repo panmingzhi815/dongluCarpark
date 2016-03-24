@@ -25,6 +25,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser.CarparkSlotTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -518,17 +519,13 @@ public class CarInTask implements Runnable {
 						if (tempCarShowToDevice(false)) {
 							return true;
 						}
-					} else {
-						carType = "固定车";
-					}
-				} else {
-					carType = "固定车";
+					} 
 				} 
 			}else{//储值车
 				return prepaidCarIn();
 			}
 		}
-		
+		carType = "固定车";
 		
 		
 		if (CarparkUtils.checkRoadType(device,presenter,DeviceRoadTypeEnum.储值车通道,DeviceRoadTypeEnum.临时车通道)) {
@@ -592,7 +589,7 @@ public class CarInTask implements Runnable {
 			LOGGER.info("固定车：{}，{}", plateNO, content);
 		}
 		Integer carparkSlot = user.getCarparkSlot();
-		if (carparkSlot!=null&&carparkSlot>0) {
+		if (user.getCarparkSlotType().equals(CarparkSlotTypeEnum.固定车位)) {
 			LOGGER.info("车辆{}用户固定车位{},不计算车位",cch.getPlateNo(),carparkSlot);
 			cch.setIsCountSlot(false);
 		}else{

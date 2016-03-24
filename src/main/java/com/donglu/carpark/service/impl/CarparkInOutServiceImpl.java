@@ -33,6 +33,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayH
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser.CarparkSlotTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.google.common.base.Predicate;
@@ -291,7 +292,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 				intValue += fixNumberOfSlot == null ? 0 : fixNumberOfSlot;
 			}
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
-			c.add(Restrictions.ge(SingleCarparkUser.Property.carparkSlot.name(), 1));
+			c.add(Restrictions.eq(SingleCarparkUser.Property.carparkSlotType.name(), CarparkSlotTypeEnum.固定车位));
 			c.setProjection(Projections.sum(SingleCarparkUser.Property.carparkSlot.name()));
 			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
 			if (singleResultOrNull==null) {

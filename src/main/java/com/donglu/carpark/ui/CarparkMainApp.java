@@ -109,6 +109,8 @@ import org.eclipse.swt.custom.ScrolledComposite;
 
 public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 
+	private static final String AUTO_SEND_POSITION_TO_DEVICE = "autoSendPositionToDevice";
+
 	public static final String MAP_IP_TO_DEVICE = "mapIpToDevice";
 
 	public static final String VILIDTO_DATE = ",有效期至yyyy年MM月dd日";
@@ -179,7 +181,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	// 保存设置信息
 	public static final Map<SystemSettingTypeEnum, String> mapSystemSetting = Maps.newHashMap();
 	// 保存车牌最近的处理时间
-	public static final Map<String, Date> mapPlateNoDate = new MyMapCache<>(600*1000, 100, "保存车牌近期处理时间");
+	public static final Map<String, Date> mapPlateNoDate = new MyMapCache<>(600*1000, 5);
 
 	public static final Map<String, Boolean> mapOpenDoor = Maps.newHashMap();
 
@@ -428,7 +430,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		outTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("出场任务"));
 		inThreadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("进场任务"));
 		refreshService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每秒刷新停车场全局监控信息"));
-		if (StrUtil.isEmpty(System.getProperty("autoSendPositionToDevice"))) {
+		if (StrUtil.isEmpty(System.getProperty(AUTO_SEND_POSITION_TO_DEVICE))) {
 			autoSendPositionToDevice();
 		}
 		autoSendTimeToDevice();
