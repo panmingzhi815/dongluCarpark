@@ -53,8 +53,10 @@ import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
@@ -389,6 +391,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	 */
 	private void init() {
 		readDevices();
+		initVioce();
 		presenter.setView(this);
 		presenter.setModel(model);
 		presenter.setIsTwoChanel();
@@ -447,7 +450,25 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		}
 	}
 
-
+	/**
+	 * 初始化语音信息
+	 */
+	private void initVioce() {
+		for (DeviceVoiceTypeEnum vt : DeviceVoiceTypeEnum.values()) {
+			SingleCarparkDeviceVoice value = new SingleCarparkDeviceVoice();
+			value.setContent(vt.getContent());
+			value.setVolume(vt.getVolume());
+			model.getMapVoice().put(vt, value);
+		}
+		
+		List<SingleCarparkDeviceVoice> findAllVoiceInfo = sp.getCarparkService().findAllVoiceInfo();
+		for (SingleCarparkDeviceVoice dv : findAllVoiceInfo) {
+			model.getMapVoice().put(dv.getType(), dv);
+		}
+	}
+	/**
+	 * 自动下发时间
+	 */
 	private void autoSendTimeToDevice() {
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("发送时间任务"));
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {

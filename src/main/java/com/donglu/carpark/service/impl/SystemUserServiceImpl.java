@@ -11,6 +11,8 @@ import org.criteria4jpa.criterion.Restrictions;
 
 import com.donglu.carpark.service.SystemUserServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.google.inject.Inject;
@@ -98,6 +100,15 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 		t=new CarparkCarType();
 		t.setName("摩托车");
 		dom1.insert(t);
+		
+		DatabaseOperation<SingleCarparkDeviceVoice> voiceDom = DatabaseOperation.forClass(SingleCarparkDeviceVoice.class, emprovider.get());
+		for (DeviceVoiceTypeEnum vt : DeviceVoiceTypeEnum.values()) {
+			SingleCarparkDeviceVoice dv=new SingleCarparkDeviceVoice();
+			dv.setContent(vt.getContent());
+			dv.setVolume(vt.getVolume());
+			dv.setType(vt);
+			voiceDom.insert(dv);
+		}
 	}
 
 }

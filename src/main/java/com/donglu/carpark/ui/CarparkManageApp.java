@@ -35,6 +35,8 @@ import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 
 
 
@@ -83,6 +85,32 @@ public class CarparkManageApp extends AbstractApp{
 			Display display = Display.getDefault();
 			shell = new Shell();
 			shell.setSize(896, 621);
+			init();
+			createContents();
+			shell.open();
+			shell.setMaximized(true);
+			shell.layout();
+			System.out.println("界面创建==="+(System.nanoTime()-nanoTime));
+			while (!shell.isDisposed()) {
+				if (!display.readAndDispatch()) {
+					display.sleep();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			System.exit(0);
+		}
+	}
+	
+	@Override
+	public void openAsyncExec() {
+
+		try {
+			long nanoTime = System.nanoTime();
+			Display display = Display.getDefault();
+			shell = new Shell();
+			shell.setSize(896, 621);
 			shell.setEnabled(false);
 			display.asyncExec(new Runnable() {
 				@Override
@@ -108,7 +136,9 @@ public class CarparkManageApp extends AbstractApp{
 		}finally{
 			System.exit(0);
 		}
+	
 	}
+	
 
 	private void init() {
 		presenter.setView(this);
@@ -143,18 +173,19 @@ public class CarparkManageApp extends AbstractApp{
 		TabItem tabItem_9 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_9.setText("停车场管理");
 		
-		Composite composite_7 = new Composite(tabFolder, SWT.NONE);
-		tabItem_9.setControl(composite_7);
-		composite_7.setLayout(new FillLayout(SWT.HORIZONTAL));
-		presenter.getCarparkPresenter().go(composite_7);
+		Composite composite_carpark = new Composite(tabFolder, SWT.NONE);
+		tabItem_9.setControl(composite_carpark);
+		presenter.getCarparkPresenter().go(composite_carpark);
+		composite_carpark.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
 		
 		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
 		tabItem.setText("固定车设置");
 		
-		Composite composite_13 = new Composite(tabFolder, SWT.NONE);
-		tabItem.setControl(composite_13);
-		composite_13.setLayout(new FillLayout(SWT.HORIZONTAL));
-		presenter.getUserPresenter().go(composite_13);
+		Composite composite_user = new Composite(tabFolder, SWT.NONE);
+		tabItem.setControl(composite_user);
+		composite_user.setLayout(new FillLayout(SWT.HORIZONTAL));
+		presenter.getUserPresenter().go(composite_user);
 		TabItem tbtmNewItem_2 = new TabItem(tabFolder, SWT.NONE);
 		tbtmNewItem_2.setText("记录查询");
 		
@@ -253,6 +284,21 @@ public class CarparkManageApp extends AbstractApp{
 		tabItem_8.setControl(composite_25);
 		composite_25.setLayout(new FillLayout(SWT.HORIZONTAL));
 		presenter.getSettingPresenter().go(composite_25);
+		tabFolder.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				TabItem[] selection = tabFolder.getSelection();
+				if (selection.length<=0) {
+					return;
+				}
+				if (selection[0].getText().equals("停车场管理")) {
+					
+				}
+			}
+		});
+
+		
+		
 		TabItem tabItem_4 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_4.setText("关于");
 		
@@ -398,4 +444,6 @@ public class CarparkManageApp extends AbstractApp{
 		//
 		return bindingContext;
 	}
+
+	
 }

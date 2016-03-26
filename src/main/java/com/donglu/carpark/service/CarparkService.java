@@ -10,6 +10,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
@@ -272,4 +273,10 @@ public interface CarparkService {
 	 * @return
 	 */
 	public String getSystemSettingValue(SystemSettingTypeEnum settingType);
+	
+	/**
+	 * 获取所有的语音信息
+	 * @return
+	 */
+	public List<SingleCarparkDeviceVoice> findAllVoiceInfo();
 }

@@ -66,6 +66,7 @@ import com.dongluhitec.card.domain.db.SerialDeviceAddress;
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -326,43 +327,50 @@ public class CarparkMainPresenter {
 		final String url = cameraType.getRtspAddress(ip)==null?device.getIp():cameraType.getRtspAddress(ip);
 		log.info("准备连接视频{}",url);
 		final EmbeddedMediaPlayer createPlayRight = webCameraDevice.createPlay(new_Frame1, url);
-		mapPlayer.put(url, createPlayRight);
-
-		getView().shell.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				createPlayRight.release();
+		if (createPlayRight==null) {
+			boolean confirm = commonui.confirm("播放错误", "没有检测到视频播放器,是否继续连接摄像机");
+			if(!confirm){
+				return;
 			}
-		});
-		northCamera.addDisposeListener(new DisposeListener() {
+		} else {
+			mapPlayer.put(url, createPlayRight);
 
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				createPlayRight.release();
-				mapPlayer.remove(url);
-			}
-		});
-		canvas1.addMouseListener(new java.awt.event.MouseAdapter() {
-
-			@Override
-			public void mouseClicked(java.awt.event.MouseEvent e) {
-				if(e.getClickCount()==2){
-					String img = CarparkMainApp.mapCameraLastImage.get(ip);
-					if (StrUtil.isEmpty(img)) {
-						return;
-					}
-					Display.getDefault().asyncExec(new Runnable() {
-						
-						@Override
-						public void run() {
-							ImageDialog imageDialog = new ImageDialog(img);
-							imageDialog.open();
-						}
-					});
+			getView().shell.addDisposeListener(new DisposeListener() {
+				@Override
+				public void widgetDisposed(DisposeEvent e) {
+					createPlayRight.release();
 				}
-			}
-			
-		});
+			});
+			northCamera.addDisposeListener(new DisposeListener() {
+
+				@Override
+				public void widgetDisposed(DisposeEvent e) {
+					createPlayRight.release();
+					mapPlayer.remove(url);
+				}
+			});
+			canvas1.addMouseListener(new java.awt.event.MouseAdapter() {
+
+				@Override
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+					if (e.getClickCount() == 2) {
+						String img = CarparkMainApp.mapCameraLastImage.get(ip);
+						if (StrUtil.isEmpty(img)) {
+							return;
+						}
+						Display.getDefault().asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								ImageDialog imageDialog = new ImageDialog(img);
+								imageDialog.open();
+							}
+						});
+					}
+				}
+
+			});
+		}
 		jna.openEx(ip, getView());
 	}
 
@@ -1138,14 +1146,15 @@ public class CarparkMainPresenter {
 			singleCarparkInOutHistory.setCarType("临时车");
 			sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
 			Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
+			String carOutMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent();
 			if (tempCarNoChargeIsPass) {
 				if (shouldMoney > 0) {
-					showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
+					showContentToDevice(device, carOutMsg, true);
 				} else {
-					showContentToDevice(device, CarparkUtils.formatFloatString("请缴费" + shouldMoney + "元") + "," + CarparkMainApp.CAR_OUT_MSG, true);
+					showContentToDevice(device, CarparkUtils.formatFloatString("请缴费" + shouldMoney + "元") + "," + carOutMsg, true);
 				}
 			} else {
-				showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
+				showContentToDevice(device, carOutMsg, true);
 			}
 			if (!StrUtil.isEmpty(model.getStroeFrees())) {
 				for (SingleCarparkStoreFreeHistory free : model.getStroeFrees()) {

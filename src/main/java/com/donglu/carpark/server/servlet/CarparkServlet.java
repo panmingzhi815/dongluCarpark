@@ -18,6 +18,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
@@ -384,5 +385,12 @@ public class CarparkServlet extends HessianServlet implements CarparkService {
 	@Override
 	public String getSystemSettingValue(SystemSettingTypeEnum settingType) {
 		return carparkService.getSystemSettingValue(settingType);
+	}
+
+
+
+	@Override
+	public List<SingleCarparkDeviceVoice> findAllVoiceInfo() {
+		return carparkService.findAllVoiceInfo();
 	}
 }

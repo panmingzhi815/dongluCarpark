@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
-import com.donglu.carpark.service.PlateSubmitServiceI;
 import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
@@ -103,6 +103,7 @@ public class CarInTask implements Runnable {
 		this.rightSize = rightSize;
 		this.lbl_inSmallImg = lbl_inSmallImg;
 		this.lbl_inBigImg = lbl_inBigImg;
+		content=model.getMapVoice().get(DeviceVoiceTypeEnum.临时车进场语音).getContent();
 	}
 
 	@Override
@@ -356,7 +357,7 @@ public class CarInTask implements Runnable {
 	 * @return 
 	 */
 	public boolean prepaidCarIn() {
-		if (CarparkUtils.checkRoadType(device, presenter, DeviceRoadTypeEnum.临时车通道,DeviceRoadTypeEnum.固定车通道)) {
+		if (CarparkUtils.checkRoadType(device,model, presenter, DeviceRoadTypeEnum.临时车通道,DeviceRoadTypeEnum.固定车通道)) {
 			return true;
 		}
 		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许储值车入场));
@@ -374,16 +375,16 @@ public class CarInTask implements Runnable {
 			presenter.showContentToDevice(device,formatFloatString, false);
 			return true;
 		}
-		
+		String prepaidCarInMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.储值车进场语音).getContent();
 		Float prepaidCarInOutRemind=Float.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车提醒金额));;
 		if (leftMoney<prepaidCarInOutRemind) {
-			content = CAR_IN_MSG+",剩余"+leftMoney+"元,请及时充值";
+			content = prepaidCarInMsg+",剩余"+leftMoney+"元,请及时充值";
 			content=CarparkUtils.formatFloatString(content);
 			isOpenDoor=true;
 //			presenter.showContentToDevice(device, content, true);
 		}
 		if (leftMoney>100) {
-			content = "储值车辆,"+CAR_IN_MSG;
+			content = prepaidCarInMsg;
 			isOpenDoor=true;
 //			presenter.showContentToDevice(device, content, true);
 		}
@@ -406,55 +407,20 @@ public class CarInTask implements Runnable {
 				if (flag) {
 					model.setInCheckClick(true);
 					presenter.showContentToDevice(device, "临时车等待确认", false);
-//					int i = 0;
 					model.getMapInCheck().put(plateNO, this);
 					return true;
-//					while (model.isInCheckClick()) {
-//						try {
-//							if (i > 220) {
-//								model.setInCheckClick(false);
-//								return true;
-//							}
-//							Thread.sleep(500);
-//						} catch (InterruptedException e) {
-//							LOGGER.error("临时车入场是否确认发生错误", e);
-//						} finally {
-//							i++;
-//						}
-//					}
-//					editPlateNo = model.getInShowPlateNO();
-//					if (StrUtil.isEmpty(editPlateNo) || !model.isInCheckIsClick()) {
-//						return true;
-//					}
-//					model.setInCheckIsClick(false);
-//					presenter.showPlateNOToDevice(device, editPlateNo);
-//					if (!editPlateNo.equals(plateNO)) {
-//						initInOutHistory(device);
-//					}
-				}
-			}
-			if (flag && !editPlateNo.equals(plateNO)) {
-				user = sp.getCarparkUserService().findUserByPlateNo(editPlateNo, device.getCarpark().getId());
-				if (StrUtil.isEmpty(user)) {
-
-				} else {
-					if (!user.getType().equals("储值")) {
-							return fixCarShowToDevice( false);
-					} else {
-							return prepaidCarIn();
-					}
 				}
 			}
 		}
 		LOGGER.debug("判断是否允许临时车进");
 		if (device.getCarpark().isTempCarIsIn()) {
-			presenter.showContentToDevice(device, "固定停车场,不允许临时车进", false);
+			presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定停车场临时车进入语音).getContent(), false);
 			return true;
 		}
 	
 		Boolean valueOf2 = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制));
 		if (!valueOf2) {
-			if (CarparkUtils.checkRoadType(device, presenter, DeviceRoadTypeEnum.固定车通道,DeviceRoadTypeEnum.储值车通道)) {
+			if (CarparkUtils.checkRoadType(device,model, presenter, DeviceRoadTypeEnum.固定车通道,DeviceRoadTypeEnum.储值车通道)) {
 				return true;
 			}
 		}
@@ -528,7 +494,7 @@ public class CarInTask implements Runnable {
 		carType = "固定车";
 		
 		
-		if (CarparkUtils.checkRoadType(device,presenter,DeviceRoadTypeEnum.储值车通道,DeviceRoadTypeEnum.临时车通道)) {
+		if (CarparkUtils.checkRoadType(device,model,presenter,DeviceRoadTypeEnum.储值车通道,DeviceRoadTypeEnum.临时车通道)) {
 			return true;
 		}
 		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场));
@@ -577,14 +543,14 @@ public class CarInTask implements Runnable {
 		}
 
 		// int parseInt = Integer.parseInt(StrUtil.isEmpty(user.getCarparkNo())?"0":user.getCarparkNo());
-
+		String fixCarInMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.固定车进场语音).getContent();
 		Date date2 = new DateTime(user.getValidTo()).minusDays(user.getRemindDays() == null ? 0 : user.getRemindDays()).toDate();
 		if (StrUtil.getTodayBottomTime(date2).before(date)) {
-			content = "月租车辆," + CAR_IN_MSG + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天";
+			content = fixCarInMsg + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天";
 			isOpenDoor=true;
 			LOGGER.info("固定车：{}，{}", plateNO, content);
 		} else {
-			content = "月租车辆," + CAR_IN_MSG;
+			content = fixCarInMsg;
 			isOpenDoor=true;
 			LOGGER.info("固定车：{}，{}", plateNO, content);
 		}

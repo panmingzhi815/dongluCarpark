@@ -12,7 +12,7 @@
                不使用项目的artifact，第三方jar不要解压，打包进zip文件的lib目录
            -->
             <useProjectArtifact>false</useProjectArtifact>
-            <outputDirectory>bin/lib</outputDirectory>
+            <outputDirectory>bin/jre/carparklib</outputDirectory>
             <unpack>false</unpack>
         </dependencySet>
     </dependencySets>

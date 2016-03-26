@@ -2,6 +2,7 @@ package com.donglu.carpark.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,8 +14,10 @@ import com.donglu.carpark.ui.task.CarInTask;
 import com.donglu.carpark.util.MyMapCache;
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
@@ -48,6 +51,7 @@ public class CarparkMainModel extends DomainObject{
 //		//保存
 //		private Map<String, String> mapTempCharge;
 	private final Map<String, CarInTask> mapInCheck=new MyMapCache<>(600000, 5);
+	private final Map<DeviceVoiceTypeEnum, SingleCarparkDeviceVoice> mapVoice=new HashMap<>();
 	
 	
 	/**
@@ -142,6 +146,9 @@ public class CarparkMainModel extends DomainObject{
 	private Date plateInTime=new Date();
 	
 	private SingleCarparkCarpark searchCarpark;
+
+
+	
 	
 	public String getUserName() {
 		return userName;
@@ -624,5 +631,8 @@ public class CarparkMainModel extends DomainObject{
 	}
 	public Map<String, CarInTask> getMapInCheck() {
 		return mapInCheck;
+	}
+	public Map<DeviceVoiceTypeEnum, SingleCarparkDeviceVoice> getMapVoice() {
+		return mapVoice;
 	}
 }

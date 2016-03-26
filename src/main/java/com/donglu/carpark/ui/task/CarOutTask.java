@@ -22,6 +22,7 @@ import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -243,13 +244,14 @@ public class CarOutTask implements Runnable{
 	 */
 	public boolean prepaidCarOut(SingleCarparkDevice device, Date date, SingleCarparkCarpark carpark, String bigImg, String smallImg, SingleCarparkUser user, SingleCarparkInOutHistory ch) {
 		LOGGER.info("储值车出场");
-		if (CarparkUtils.checkRoadType(device, presenter, DeviceRoadTypeEnum.临时车通道,DeviceRoadTypeEnum.固定车通道)) {
+		if (CarparkUtils.checkRoadType(device,model, presenter, DeviceRoadTypeEnum.临时车通道,DeviceRoadTypeEnum.固定车通道)) {
 			return true;
 		}
 		Float leftMoney = user.getLeftMoney();
 		Float valueOf = Float.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车进出场限制金额));
+		String haveNoMoney = model.getMapVoice().get(DeviceVoiceTypeEnum.储值车余额不足语音).getContent();
 		if (leftMoney<valueOf) {
-			presenter.showContentToDevice(device, "余额不足，请联系管理员", false);
+			presenter.showContentToDevice(device, haveNoMoney, false);
 			return true;
 		}
 		
@@ -265,7 +267,7 @@ public class CarOutTask implements Runnable{
 		model.setCarType("储值车");
 		LOGGER.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", plateNO, device.getCarpark(), "储值车", model.getInTime(), model.getOutTime(), model.getTotalTime(), model.getShouldMony());
 		if (calculateTempCharge>leftMoney) {
-			presenter.showContentToDevice(device, CarparkUtils.formatFloatString("请缴费"+calculateTempCharge+"元,余额不足,请联系管理员"), false);
+			presenter.showContentToDevice(device, CarparkUtils.formatFloatString("请缴费"+calculateTempCharge+"元,"+haveNoMoney), false);
 			return true;
 		}
 		LOGGER.info("准备保存储值车出场数据到数据库");
@@ -300,7 +302,8 @@ public class CarOutTask implements Runnable{
 		LOGGER.info("保存储值车出场数据到数据库成功，对设备{}进行语音开闸",device);
 		String s =",扣费"+calculateTempCharge+"元,剩余"+user.getLeftMoney()+"元";
 		s = CarparkUtils.getCarStillTime(model.getTotalTime())+CarparkUtils.formatFloatString(s);
-		presenter.showContentToDevice(device, s+","+CarparkMainApp.CAR_OUT_MSG, true);
+		String content = model.getMapVoice().get(DeviceVoiceTypeEnum.储值车出场语音).getContent();
+		presenter.showContentToDevice(device, s+","+content, true);
 		return false;
 	}
 	/**
@@ -344,11 +347,8 @@ public class CarOutTask implements Runnable{
 		}
 		String carType;
 		carType = "固定车";
-		if (!equals) {
-			if (roadType.equals(DeviceRoadTypeEnum.临时车通道.name())) {
-				presenter.showContentToDevice(device, CarparkMainApp.TEMP_ROAD, false);
-				return true;
-			}
+		if (CarparkUtils.checkRoadType(device, model, presenter, DeviceRoadTypeEnum.临时车通道,DeviceRoadTypeEnum.储值车通道)) {
+			return true;
 		}
 		String nowPlateNO = plateNO;
 		// 固定车出场确认
@@ -468,11 +468,13 @@ public class CarOutTask implements Runnable{
 		c.setTime(validTo);
 		c.add(Calendar.DATE, user.getRemindDays() == null ? 0 : user.getRemindDays() * -1);
 		time = c.getTime();
+		String content = model.getMapVoice().get(DeviceVoiceTypeEnum.固定车出场语音).getContent();
+		
 		if (StrUtil.getTodayBottomTime(time).before(date)) {
-			presenter.showContentToDevice(device, "月租车辆," + CarparkMainApp.CAR_OUT_MSG + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天", true);
+			presenter.showContentToDevice(device, content + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天", true);
 			LOGGER.info("车辆:{}即将到期", nowPlateNO);
 		} else {
-			presenter.showContentToDevice(device, "月租车辆," + CarparkMainApp.CAR_OUT_MSG, true);
+			presenter.showContentToDevice(device, content, true);
 		}
 		carparkInOutService.saveInOutHistory(singleCarparkInOutHistory);
 		sp.getCarparkInOutService().updateCarparkStillTime(device.getCarpark(), device, plateNO, bigImg);
@@ -490,7 +492,7 @@ public class CarOutTask implements Runnable{
 	private void tempCarOutProcess(final String ip, final String plateNO, SingleCarparkDevice device, Date date, String bigImg, String smallImg, Date reviseInTime) throws Exception{
 		model.setPlateInTime(date, 30);
 		if (!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制))) {
-			if (CarparkUtils.checkRoadType(device, presenter, DeviceRoadTypeEnum.储值车通道,DeviceRoadTypeEnum.固定车通道)) {
+			if (CarparkUtils.checkRoadType(device,model, presenter, DeviceRoadTypeEnum.储值车通道,DeviceRoadTypeEnum.固定车通道)) {
 				return;
 			}
 		}
@@ -662,7 +664,7 @@ public class CarOutTask implements Runnable{
 				sp.getCarparkInOutService().saveInOutHistory(io);
 				LOGGER.info("保存车辆{}的出场记录成功",plateNO);
 				presenter.showPlateNOToDevice(device, plateNO);
-				presenter.showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
+				presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			}else{
 				notFindInHistory(device, bigImg, smallImg);
 			}

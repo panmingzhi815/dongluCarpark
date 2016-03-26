@@ -9,7 +9,9 @@ import org.eclipse.swt.widgets.Composite;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.ui.CarparkMainApp;
+import com.donglu.carpark.ui.common.AbstractPresenter;
 import com.donglu.carpark.ui.common.Presenter;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.wizard.AddCarparkChildWizard;
 import com.donglu.carpark.ui.wizard.AddCarparkWizard;
 import com.donglu.carpark.util.CarparkFileUtils;
@@ -20,7 +22,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
-public class CarparkPresenter  implements Presenter{
+public class CarparkPresenter  extends AbstractPresenter{
 	private static final String OPERANAME = System.getProperty("userName");
 	private CarparkView view;
 	private CarparkModel model=new CarparkModel();
@@ -30,14 +32,6 @@ public class CarparkPresenter  implements Presenter{
 	private CommonUIFacility commonui;
 	@Inject
 	private ChargeListPresenter listPresenter;
-	@Override
-	public void go(Composite c) {
-		view=new CarparkView(c, c.getStyle(), model);
-		view.setPresenter(this);
-		listPresenter.go(view.getListComsite());
-		refreshCarpark();
-		refreshCharges();
-	}
 	/**
 	 * 删除停车场
 	 */
@@ -171,5 +165,20 @@ public class CarparkPresenter  implements Presenter{
 	}
 	public void refreshCharges() {
 		listPresenter.setCarpark(model.getCarpark());
+	}
+	
+	@Override
+	protected void continue_go() {
+		listPresenter.go(view.getListComsite());
+		refreshCarpark();
+		refreshCharges();		
+	}
+	@Override
+	protected CarparkView getView(Composite c) {
+		if (view!=null) {
+			return view;
+		}
+		view=new CarparkView(c, c.getStyle(), model);
+		return view;
 	}
 }

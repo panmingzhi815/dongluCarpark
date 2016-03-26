@@ -49,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
+import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.ui.CarparkClientConfig;
@@ -56,6 +57,7 @@ import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.CarparkManageApp;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -749,10 +751,10 @@ public class CarparkUtils {
 	 * @param device
 	 * @return 
 	 */
-	public static boolean checkRoadType(SingleCarparkDevice device,CarparkMainPresenter presenter,DeviceRoadTypeEnum... types) {
+	public static boolean checkRoadType(SingleCarparkDevice device,CarparkMainModel model,CarparkMainPresenter presenter,DeviceRoadTypeEnum... types) {
 		for (DeviceRoadTypeEnum deviceRoadTypeEnum : types) {
 			if (device.getRoadType().equals(deviceRoadTypeEnum.name())) {
-				presenter.showContentToDevice(device, deviceRoadTypeEnum.name(), false);
+				presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.valueOf(deviceRoadTypeEnum.name()+"语音")).getContent(), false);
 				return true;
 			}
 		}
