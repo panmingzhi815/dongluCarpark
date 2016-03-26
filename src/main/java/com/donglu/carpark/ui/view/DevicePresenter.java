@@ -94,4 +94,12 @@ public class DevicePresenter  implements Presenter{
 	public String getType() {
 		return type;
 	}
+	public void fleet(boolean isopen) {
+		CTabItem selection = view.getTabFolder().getSelection();
+		if (StrUtil.isEmpty(selection)) {
+			return;
+		}
+		String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
+		presenter.fleetDoor(CarparkMainApp.mapIpToDevice.get(ip),isopen);
+	}
 }

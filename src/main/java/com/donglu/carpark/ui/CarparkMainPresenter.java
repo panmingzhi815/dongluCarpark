@@ -745,6 +745,32 @@ public class CarparkMainPresenter {
 		}
 	}
 	/**
+	 * 设备车队操作
+	 * @param device
+	 * @param isopen 
+	 * @return
+	 */
+	public boolean fleetDoor(SingleCarparkDevice device, boolean isopen) {
+		if (checkDeviceLinkStatus(device)) {
+			return false;
+		}
+		try {
+			Device d = getDevice(device);
+			Boolean carparkOpenDoor=true;
+			if (d!=null) {
+				int carTeamTime = 0;
+				if (!isopen) {
+					carTeamTime=1;
+				}
+				carparkOpenDoor = hardwareService.carparkControlDoor(d, -1, -1, -1, carTeamTime);
+			}
+			return carparkOpenDoor;
+		} catch (Exception e) {
+			return false;
+		}
+		
+	}
+	/**
 	 * 摄像机开闸
 	 * @param ip
 	 */
@@ -1399,5 +1425,6 @@ public class CarparkMainPresenter {
 		int i = monthSlot-findTotalFixCarIn;
 		return i<0?0:i;
 	}
+	
 
 }

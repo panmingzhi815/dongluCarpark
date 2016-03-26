@@ -18,6 +18,7 @@ public class SingleCarparkDeviceVoice extends DomainObject {
 	@Column(length=39)
 	private String content;
 	private int volume=1;
+	private Integer volumeType=3;//内容显示类型 1，只发语音；2，只显示内容；3，语音加显示
 	
 	public DeviceVoiceTypeEnum getType() {
 		return type;
@@ -39,6 +40,13 @@ public class SingleCarparkDeviceVoice extends DomainObject {
 	public void setVolume(int volume) {
 		this.volume = volume;
 		firePropertyChange("volume", null, null);
+	}
+	public Integer getVolumeType() {
+		return volumeType;
+	}
+	public void setVolumeType(Integer volumeType) {
+		this.volumeType = volumeType;
+		firePropertyChange("volumeType", null, null);
 	}
 
 }

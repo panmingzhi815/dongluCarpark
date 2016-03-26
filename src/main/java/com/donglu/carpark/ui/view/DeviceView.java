@@ -39,6 +39,7 @@ public class DeviceView extends Composite implements View{
 	private ToolItem delToolItem;
 	private ToolItem toolItem_in_openDoor;
 	private ToolItem toolItem_in_closeDoor;
+	private ToolItem toolItem_in_fleet;
 
 	public DeviceView(Composite parent, int style) {
 		super(parent, style);
@@ -113,6 +114,29 @@ public class DeviceView extends Composite implements View{
 				getPresenter().closeDoor();
 			}
 		});
+		toolItem_in_fleet = new ToolItem(toolBar3, SWT.NONE);
+		toolItem_in_fleet.setText("车队");
+		
+		toolItem_in_fleet.setToolTipText("车队控制");
+		toolItem_in_fleet.addSelectionListener(new SelectionAdapter() {
+			boolean isopen=true;
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				if (!rateLimiter.tryAcquire()) {
+					return;
+				}
+				getPresenter().fleet(isopen);
+				if (isopen) {
+					toolItem_in_fleet.setText("关闭");
+				}else{
+					toolItem_in_fleet.setText("车队");
+				}
+				isopen=!isopen;
+			}
+		});
+		
+		
 
 		addToolItem = new ToolItem(toolBar3, SWT.NONE);
 		addToolItem.setText("添加");
