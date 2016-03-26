@@ -48,6 +48,7 @@ public class AddUserWizardPage extends WizardPage {
 	private ComboViewer comboViewer_1;
 	private Text text_4;
 	private Text text_5;
+	private ComboViewer comboViewer_2;
 
 	
 	/**
@@ -206,7 +207,7 @@ public class AddUserWizardPage extends WizardPage {
 		label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_8.setText("车位类型");
 		
-		ComboViewer comboViewer_2 = new ComboViewer(composite, SWT.READ_ONLY);
+		comboViewer_2 = new ComboViewer(composite, SWT.READ_ONLY);
 		Combo combo_2 = comboViewer_2.getCombo();
 		combo_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		combo_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -304,6 +305,10 @@ public class AddUserWizardPage extends WizardPage {
 		IObservableValue observeSingleSelectionComboViewer_1 = ViewerProperties.singleSelection().observe(comboViewer_1);
 		IObservableValue carTypeModelObserveValue = BeanProperties.value("carType").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer_1, carTypeModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer_2 = ViewerProperties.singleSelection().observe(comboViewer_2);
+		IObservableValue carparkSlotTypeModelObserveValue = BeanProperties.value("carparkSlotType").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer_2, carparkSlotTypeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}
