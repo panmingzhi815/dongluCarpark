@@ -13,10 +13,39 @@
            -->
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>bin/jre/carparklib</outputDirectory>
+            <excludes>
+            	<exclude>com.dongluhitec.card:ui</exclude>
+            	<exclude>com.dongluhitec.card:domain</exclude>
+            	<exclude>com.dongluhitec.card:commonui</exclude>
+            	<exclude>com.dongluhitec.card:hardware</exclude>
+            	<exclude>com.dongluhitec.card:service</exclude>
+            	<exclude>com.dongluhitec.card:server</exclude>
+            	<exclude>com.dongluhitec.card:update</exclude>
+            	<exclude>com.dongluhitec.card:utility</exclude>
+            	<exclude>com.dongluhitec.card:encryption</exclude>
+            </excludes>
+            <unpack>false</unpack>
+        </dependencySet>
+        <dependencySet>
+            <!--
+               不使用项目的artifact，第三方jar不要解压，打包进zip文件的lib目录
+           -->
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>bin/jar</outputDirectory>
+            <includes>
+            	<include>com.dongluhitec.card:ui</include>
+            	<include>com.dongluhitec.card:domain</include>
+            	<include>com.dongluhitec.card:commonui</include>
+            	<include>com.dongluhitec.card:hardware</include>
+            	<include>com.dongluhitec.card:service</include>
+            	<include>com.dongluhitec.card:server</include>
+            	<include>com.dongluhitec.card:update</include>
+            	<include>com.dongluhitec.card:utility</include>
+            	<include>com.dongluhitec.card:encryption</include>
+            </includes>
             <unpack>false</unpack>
         </dependencySet>
     </dependencySets>
-
     <fileSets>
         <!-- 把项目相关的说明文件，打包进zip文件的根目录
         <fileSet>
