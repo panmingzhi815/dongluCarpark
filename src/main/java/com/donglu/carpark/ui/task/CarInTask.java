@@ -161,23 +161,6 @@ public class CarInTask implements Runnable {
 					isEmptyPlateNo = true;
 					model.getMapInCheck().put(plateNO, this);
 					return;
-//					int i=0;
-//					while (model.isInCheckClick()) {
-//						try {
-//							i++;
-//							if (i>120) {
-//								return;
-//							}
-//							Thread.sleep(250);
-//						} catch (InterruptedException e) {
-//							e.printStackTrace();
-//						}
-//					}
-//					editPlateNo = model.getInShowPlateNO();
-//					if (!model.isInCheckIsClick()||StrUtil.isEmpty(editPlateNo)) {
-//						return;
-//					}
-//					model.setInCheckIsClick(false);
 				} else {
 					if (!valueOf) {
 						return;

@@ -13,6 +13,7 @@ import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
 
 import com.donglu.carpark.service.SystemOperaLogServiceI;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemOperaLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -87,5 +88,25 @@ public class SystemOperaLogServiceImpl implements SystemOperaLogServiceI {
 			c.add(Restrictions.eq(SingleCarparkSystemOperaLog.Property.type.name(), type));
 		}
 		return c;
+	}
+	@Override
+	public void saveOperaLog(SystemOperaLogTypeEnum systemOperaLogType, String content, byte[] bigImage, String operaName,Object... objects) {
+		if (StrUtil.isEmpty(saveLogService)) {
+			saveLogService = Executors.newSingleThreadScheduledExecutor();
+		}
+		Date operaDate = new Date();
+//		imageSavefolder = StrUtil.formatDate(operaDate, "yyyy/MM/dd/HH");
+//		String fileName = StrUtil.formatDate(operaDate, "yyyyMMddHHmmssSSS");
+//		bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
+		SingleCarparkSystemOperaLog log=new SingleCarparkSystemOperaLog();
+		log.setOperaName(operaName);
+		log.setOperaDate(operaDate);
+		log.setType(systemOperaLogType);
+		log.setContent(CarparkUtils.formatString(content, objects));
+		log.setRemark(null);
+		saveLogService.submit(()->{
+			save(log);
+		});
+		
 	}
 }

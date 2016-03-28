@@ -75,6 +75,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
@@ -759,9 +760,13 @@ public class CarparkMainPresenter {
 			Boolean carparkOpenDoor=true;
 			if (d!=null) {
 				int carTeamTime = 0;
+				String content="开启了车队";
+				model.setIsOpenFleet(isopen);
 				if (!isopen) {
 					carTeamTime=1;
+					content="停止了车队";
 				}
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.车队操作, content, System.getProperty("userName"));
 				carparkOpenDoor = hardwareService.carparkControlDoor(d, -1, -1, -1, carTeamTime);
 			}
 			return carparkOpenDoor;
@@ -1424,6 +1429,10 @@ public class CarparkMainPresenter {
 		int monthSlot = model.getMonthSlot();
 		int i = monthSlot-findTotalFixCarIn;
 		return i<0?0:i;
+	}
+
+	public void saveFleetInOutHistory(SingleCarparkDevice device, String plateNO, byte[] bigImage) {
+		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.车队操作, "车辆：{}在车队期间从设备[{}]{}场",bigImage, System.getProperty("userName"),plateNO,device.getName(),device.getInType().substring(0, 1));
 	}
 	
 

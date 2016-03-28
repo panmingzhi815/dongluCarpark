@@ -1194,6 +1194,11 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			e.printStackTrace();
 			return;
 		}
+		if (model.getIsOpenFleet()) {
+			LOGGER.info("车队模式，保存车牌{}的进场记录到操作员日志",plateNO);
+			presenter.saveFleetInOutHistory(mapIpToDevice.get(ip),plateNO,bigImage);
+			return;
+		}
 		// 开闸
 		Boolean boolean1 = mapOpenDoor.get(ip);
 		if (boolean1 != null && boolean1) {

@@ -117,7 +117,7 @@ public class DeviceView extends Composite implements View{
 		toolItem_in_fleet = new ToolItem(toolBar3, SWT.NONE);
 		toolItem_in_fleet.setText("车队");
 		
-		toolItem_in_fleet.setToolTipText("车队控制");
+		toolItem_in_fleet.setToolTipText("启动车队");
 		toolItem_in_fleet.addSelectionListener(new SelectionAdapter() {
 			boolean isopen=true;
 			@Override
@@ -128,9 +128,11 @@ public class DeviceView extends Composite implements View{
 				}
 				getPresenter().fleet(isopen);
 				if (isopen) {
-					toolItem_in_fleet.setText("关闭");
+					toolItem_in_fleet.setText("停止");
+					toolItem_in_fleet.setToolTipText("停止车队");
 				}else{
 					toolItem_in_fleet.setText("车队");
+					toolItem_in_fleet.setToolTipText("启动车队");
 				}
 				isopen=!isopen;
 			}

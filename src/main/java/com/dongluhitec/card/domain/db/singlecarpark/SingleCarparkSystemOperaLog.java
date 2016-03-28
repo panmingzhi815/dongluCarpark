@@ -1,10 +1,12 @@
 package com.dongluhitec.card.domain.db.singlecarpark;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Lob;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -23,6 +25,8 @@ public class SingleCarparkSystemOperaLog extends DomainObject{
 	@Enumerated(EnumType.STRING)
 	private SystemOperaLogTypeEnum type;
 	private String content;
+	@Lob
+	private byte[] remark;
 	
 	public String getOperaName() {
 		return operaName;
@@ -59,6 +63,30 @@ public class SingleCarparkSystemOperaLog extends DomainObject{
 		this.content = content;
 		if (pcs != null)
 			pcs.firePropertyChange("content", null, null);
+	}
+	public byte[] getRemark() {
+		return remark;
+	}
+	public void setRemark(byte[] remark) {
+		this.remark = remark;
+		firePropertyChange("remark", null, null);
+	}
+	public String getRemarkString() {
+		String remark2 = null;
+		try {
+			remark2 = new String(remark,"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return remark2;
+	}
+	public void setRemarkString(String remark) {
+		try {
+			this.remark = remark.getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		firePropertyChange("remark", null, null);
 	}
 	
 }

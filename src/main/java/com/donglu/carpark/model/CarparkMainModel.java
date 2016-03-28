@@ -146,6 +146,9 @@ public class CarparkMainModel extends DomainObject{
 	private Date plateInTime=new Date();
 	
 	private SingleCarparkCarpark searchCarpark;
+	
+	//判断车队是否开启
+	private Boolean isOpenFleet=false;
 
 
 	
@@ -634,5 +637,12 @@ public class CarparkMainModel extends DomainObject{
 	}
 	public Map<DeviceVoiceTypeEnum, SingleCarparkDeviceVoice> getMapVoice() {
 		return mapVoice;
+	}
+	
+	public void setIsOpenFleet(Boolean isOpenFleet) {
+		this.isOpenFleet=isOpenFleet;
+	}
+	public Boolean getIsOpenFleet() {
+		return isOpenFleet;
 	}
 }
