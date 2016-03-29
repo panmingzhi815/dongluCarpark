@@ -513,7 +513,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 				if (!confirm) {
 					e.doit = false;
 				} else {
-					systemExit();
+					shell.dispose();
 				}
 			}
 		});

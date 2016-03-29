@@ -5,12 +5,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.donglu.carpark.util.CarparkUtils;
-import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 
@@ -21,7 +20,6 @@ public class ImageDialog extends Dialog {
 	String img;
 	static Image image;
 	private CLabel lbl_image;
-	private byte[] lastImage;
 
 	/**
 	 * 
@@ -36,15 +34,10 @@ public class ImageDialog extends Dialog {
 	 * 
 	 * @param image swt图片
 	 */
-	public ImageDialog(Image image) {
+	private ImageDialog(Image image) {
 		super(Display.getDefault().getActiveShell());
 		setText("图片显示");
 		ImageDialog.image=image;
-	}
-	public ImageDialog(byte[] lastImage) {
-		super(Display.getDefault().getActiveShell());
-		setText("图片显示");
-		this.lastImage=lastImage;
 	}
 	/**
 	 * Open the dialog.
@@ -55,21 +48,18 @@ public class ImageDialog extends Dialog {
 		shell.open();
 		shell.layout();
 		shell.setMaximized(true);
-		shell.addDisposeListener(new DisposeListener() {
+		shell.addShellListener(new ShellAdapter() {
+
 			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				System.out.println("imagedialog is disponse");
-				
+			public void shellClosed(ShellEvent e) {
+				System.out.println("shell can be close");
+				if (!shell.isDisposed()) {
+					shell.dispose();
+				}
 			}
+			
 		});
-		
-		if (!StrUtil.isEmpty(img)) {
-			setImage(img);
-		}else if (!StrUtil.isEmpty(image)){
-			setImage();
-		}else if (!StrUtil.isEmpty(lastImage)){
-			setImage(lastImage);
-		}
+		setImage(img);
 		Display display = getParent().getDisplay();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -79,22 +69,11 @@ public class ImageDialog extends Dialog {
 		return result;
 	}
 
-
-	private void setImage(byte[] lastImage2) {
-		image=CarparkUtils.getImage(lastImage2, lbl_image, shell);
-		lbl_image.setImage(image);
-	}
-	private void setImage() {
-		
-		image=CarparkUtils.getImage(CarparkUtils.getImageBytes(image), lbl_image, shell);
-		lbl_image.setImage(image);
-	}
 	/**
 	 * Create contents of the dialog.
 	 */
 	private void createContents() {
 		shell = new Shell(getParent(), SWT.DIALOG_TRIM);
-		shell.setSize(1280, 720);
 		shell.setText(getText());
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
 		lbl_image = new CLabel(shell, SWT.NONE);

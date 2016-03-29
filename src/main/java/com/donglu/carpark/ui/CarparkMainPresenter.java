@@ -2,6 +2,10 @@ package com.donglu.carpark.ui;
 
 import java.awt.Canvas;
 import java.awt.Frame;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -289,20 +293,26 @@ public class CarparkMainPresenter {
 	}
 
 	Map<String, MediaPlayer> mapPlayer = Maps.newHashMap();
+	Map<String, SingleCarparkDevice> mapCameraToDeviceIp=Maps.newHashMap();
+	int checkPlayerPlayingSize=0;
 	private Map<String, Integer> mapDeviceFailInfo = new HashMap<>();
+	private ScheduledExecutorService checkCameraPlayStatus;
 
 	private void checkPlayerPlaying() {
-		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每分钟检测摄像机连接状态"));
-		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+		checkCameraPlayStatus = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每10秒检测摄像机连接状态"));
+		checkCameraPlayStatus.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
+				log.info("开始第{}次检查摄像机的连接状态",checkPlayerPlayingSize);
 				for (String url : mapPlayer.keySet()) {
 					MediaPlayer mediaPlayer = mapPlayer.get(url);
-					if (!mediaPlayer.isPlaying()) {
+					boolean playing = mediaPlayer.isPlaying();
+					if (!playing) {
 						log.info("设备连接{}已断开", url);
 						mediaPlayer.playMedia(url);
 					}
 				}
+				checkPlayerPlayingSize++;
 			}
 		}, 10, 10, TimeUnit.SECONDS);
 	}
@@ -316,62 +326,69 @@ public class CarparkMainPresenter {
 	 */
 	public void createCamera(SingleCarparkDevice device, Composite northCamera) {
 		String ip = device.getIp();
-		PlateNOJNA jna=null;
-		CameraTypeEnum cameraType=device.getCameraType()==null?CameraTypeEnum.信路威:device.getCameraType();
+		PlateNOJNA jna = null;
+		CameraTypeEnum cameraType = device.getCameraType() == null ? CameraTypeEnum.信路威 : device.getCameraType();
 		jna = setJNA(ip, cameraType);
 		Frame new_Frame1 = SWT_AWT.new_Frame(northCamera);
 		Canvas canvas1 = new Canvas();
 		new_Frame1.add(canvas1);
 		new_Frame1.pack();
 		new_Frame1.setVisible(true);
-		
-		final String url = cameraType.getRtspAddress(ip)==null?device.getIp():cameraType.getRtspAddress(ip);
-		log.info("准备连接视频{}",url);
+
+		final String url = cameraType.getRtspAddress(ip) == null ? device.getIp() : cameraType.getRtspAddress(ip);
+		log.info("准备连接视频{}", url);
 		final EmbeddedMediaPlayer createPlayRight = webCameraDevice.createPlay(new_Frame1, url);
-		if (createPlayRight==null) {
-			boolean confirm = commonui.confirm("播放错误", "没有检测到视频播放器,是否继续连接摄像机");
-			if(!confirm){
-				return;
+		mapPlayer.put(url, createPlayRight);
+		mapCameraToDeviceIp.put(url, device);
+		
+		getView().shell.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				createPlayRight.release();
 			}
-		} else {
-			mapPlayer.put(url, createPlayRight);
+		});
+		northCamera.addDisposeListener(new DisposeListener() {
 
-			getView().shell.addDisposeListener(new DisposeListener() {
-				@Override
-				public void widgetDisposed(DisposeEvent e) {
-					createPlayRight.release();
-				}
-			});
-			northCamera.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				createPlayRight.release();
+				mapPlayer.remove(url);
+			}
+		});
+		PopupMenu pop = new PopupMenu();
+		MenuItem refreshItem = new MenuItem("重新播放");
+		pop.add(refreshItem);
+		refreshItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				createPlayRight.playMedia(url);
+			}
+		});
+		canvas1.add(pop);
+		canvas1.addMouseListener(new java.awt.event.MouseAdapter() {
 
-				@Override
-				public void widgetDisposed(DisposeEvent e) {
-					createPlayRight.release();
-					mapPlayer.remove(url);
-				}
-			});
-			canvas1.addMouseListener(new java.awt.event.MouseAdapter() {
-
-				@Override
-				public void mouseClicked(java.awt.event.MouseEvent e) {
-					if (e.getClickCount() == 2) {
-						String img = CarparkMainApp.mapCameraLastImage.get(ip);
-						if (StrUtil.isEmpty(img)) {
-							return;
-						}
-						Display.getDefault().asyncExec(new Runnable() {
-
-							@Override
-							public void run() {
-								ImageDialog imageDialog = new ImageDialog(img);
-								imageDialog.open();
-							}
-						});
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					String img = CarparkMainApp.mapCameraLastImage.get(ip);
+					if (StrUtil.isEmpty(img)) {
+						return;
 					}
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							ImageDialog imageDialog = new ImageDialog(img);
+							imageDialog.open();
+						}
+					});
 				}
+				if (e.getButton()==3&&e.getClickCount() == 1) {
+					System.out.println("打开刷新菜单");
+					pop.show(canvas1, e.getX(), e.getY());
+				}
+			}
 
-			});
-		}
+		});
 		jna.openEx(ip, getView());
 	}
 
@@ -1333,6 +1350,7 @@ public class CarparkMainPresenter {
 	public void systemExit() {
 		openDoorTheadPool.shutdownNow();
 		saveImageTheadPool.shutdownNow();
+		checkCameraPlayStatus.shutdownNow();
 	}
 
 	public void refreshCarWithIn() {

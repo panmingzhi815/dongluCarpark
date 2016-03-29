@@ -279,7 +279,7 @@ public class CarInTask implements Runnable {
 		CarparkMainApp.mapCameraLastImage.put(ip, cch.getBigImg());
 		model.setHistory(null);
 		presenter.showContentToDevice(device, content, isOpenDoor);
-		LOGGER.info("对设备{}，发送消息{}，开门信号：{}",device,content,isOpenDoor);
+		LOGGER.info("对设备{}，发送消息{}，开门信号：{}",device.getName(),content,isOpenDoor);
 	}
 
 	/**
@@ -488,7 +488,7 @@ public class CarInTask implements Runnable {
 				return true;
 			}
 		}
-		if (date.after(new DateTime(user.getValidTo()).minusDays(user.getDelayDays() == null ? 0 : user.getRemindDays()).toDate())) {
+		if (date.after(new DateTime(user.getValidTo()).plusDays(user.getDelayDays() == null ? 0 : user.getDelayDays()).toDate())) {
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车).equals("true")) {
 				return tempCarShowToDevice(false);
 			}

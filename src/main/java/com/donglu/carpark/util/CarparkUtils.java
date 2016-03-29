@@ -37,6 +37,7 @@ import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -854,19 +855,29 @@ public class CarparkUtils {
 		}
 		return 0;
 	}
+	static final Map<Control, MouseAdapter> mapControlToMouseAdapter=new HashMap<>();
 	public static void setBackgroundImage(byte[] bigImage, CLabel label, String imageName) {
+		
 		label.getDisplay().asyncExec(new Runnable() {
+
 			@Override
 			public void run() {
-				label.setData("imgName", imageName);
-				label.addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseDoubleClick(MouseEvent e) {
-						String lastImage = (String)label.getData("imgName");
-						ImageDialog imageDialog = new ImageDialog(lastImage);
-						imageDialog.open();
-					}
-				});
+				if (mapControlToMouseAdapter.get(label)==null) {
+					label.setData("imgName", imageName);
+					MouseAdapter listener = new MouseAdapter() {
+						@Override
+						public void mouseDoubleClick(MouseEvent e) {
+							String lastImage = (String)label.getData("imgName");
+							if (StrUtil.isEmpty(lastImage)) {
+								return;
+							}
+							ImageDialog imageDialog = new ImageDialog(lastImage);
+							imageDialog.open();
+						}
+					};
+					mapControlToMouseAdapter.put(label, listener);
+					label.addMouseListener(listener);
+				}
 				setBackgroundImage(bigImage, label, label.getDisplay());
 			}
 		});
