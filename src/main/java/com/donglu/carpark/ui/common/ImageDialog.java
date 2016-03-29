@@ -80,7 +80,7 @@ public class ImageDialog extends Dialog {
 
 	}
 	private void setImage(String img) {
-		CarparkUtils.setBackgroundImage(CarparkUtils.getImageByte(img), lbl_image, img);
+		CarparkUtils.setBackgroundImage(CarparkUtils.getImageByte(img), lbl_image, img,true);
 	}
 	public static void main(String[] args) {
 		ImageDialog d=new ImageDialog("");

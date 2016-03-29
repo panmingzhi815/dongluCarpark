@@ -857,13 +857,12 @@ public class CarparkUtils {
 	}
 	static final Map<Control, MouseAdapter> mapControlToMouseAdapter=new HashMap<>();
 	public static void setBackgroundImage(byte[] bigImage, CLabel label, String imageName) {
-		
 		label.getDisplay().asyncExec(new Runnable() {
 
 			@Override
 			public void run() {
+				label.setData("imgName", imageName);
 				if (mapControlToMouseAdapter.get(label)==null) {
-					label.setData("imgName", imageName);
 					MouseAdapter listener = new MouseAdapter() {
 						@Override
 						public void mouseDoubleClick(MouseEvent e) {
@@ -875,6 +874,48 @@ public class CarparkUtils {
 							imageDialog.open();
 						}
 					};
+					mapControlToMouseAdapter.put(label, listener);
+					label.addMouseListener(listener);
+				}
+				setBackgroundImage(bigImage, label, label.getDisplay());
+			}
+		});
+	}
+	public static void setBackgroundImage(byte[] bigImage, CLabel label, String imageName, boolean isClose) {
+		label.getDisplay().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				MouseAdapter listener=null;
+				if (isClose) {
+					listener = new MouseAdapter() {
+						@Override
+						public void mouseDoubleClick(MouseEvent e) {
+							label.getShell().dispose();
+						}
+					};
+					label.addDisposeListener(new DisposeListener() {
+						
+						@Override
+						public void widgetDisposed(DisposeEvent e) {
+							mapControlToMouseAdapter.remove(label);
+						}
+					});
+				} else {
+					listener = new MouseAdapter() {
+						@Override
+						public void mouseDoubleClick(MouseEvent e) {
+							String lastImage = (String) label.getData("imgName");
+							if (StrUtil.isEmpty(lastImage)) {
+								return;
+							}
+							ImageDialog imageDialog = new ImageDialog(lastImage);
+							imageDialog.open();
+						}
+					};
+				}
+				if (mapControlToMouseAdapter.get(label)==null) {
+					label.setData("imgName", imageName);
 					mapControlToMouseAdapter.put(label, listener);
 					label.addMouseListener(listener);
 				}
