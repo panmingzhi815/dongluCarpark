@@ -52,6 +52,8 @@ public class SettingView extends Composite implements View {
 
 	Map<SystemSettingTypeEnum, String> mapSystemSetting = new HashMap<>();
 	private Text text_2;
+	private Group group_childCarparkSetting;
+	private ScrolledComposite scrolledComposite;
 
 	public SettingView(Composite parent, int style) {
 		super(parent, style);
@@ -65,14 +67,12 @@ public class SettingView extends Composite implements View {
 		setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		SashForm sashForm = new SashForm(this, SWT.NONE);
+		String readObject = (String) CarparkFileUtils.readObject(cLIENT_IMAGE_SAVE_FILE_PATH);
+		String string = readObject == null ? System.getProperty("user.dir") + "/img" : readObject;
+		String dbServerIp = CarparkClientConfig.getInstance().getDbServerIp();
+		
 
-		Composite composite_10 = new Composite(sashForm, SWT.NONE);
-		GridLayout gl_composite_10 = new GridLayout(1, false);
-		gl_composite_10.marginWidth = 0;
-		gl_composite_10.marginHeight = 0;
-		composite_10.setLayout(gl_composite_10);
-
-		ScrolledComposite scrolledComposite = new ScrolledComposite(composite_10, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite = new ScrolledComposite(sashForm, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
@@ -401,6 +401,11 @@ public class SettingView extends Composite implements View {
 
 		Composite composite_5 = new Composite(group, SWT.NONE);
 		GridData gd_composite_5 = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
+		gd_composite_5.exclude = false;
+		if (dbServerIp.equals("localhost") || dbServerIp.equals("127.0.0.1") || dbServerIp.equals(StrUtil.getHostIp())) {
+
+		} else
+			gd_composite_5.exclude = true;
 		composite_5.setLayoutData(gd_composite_5);
 		composite_5.setLayout(new GridLayout(5, false));
 
@@ -465,8 +470,6 @@ public class SettingView extends Composite implements View {
 		label_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 
 		text_setting_imgSave = new Text(composite_6, SWT.BORDER);
-		String readObject = (String) CarparkFileUtils.readObject(cLIENT_IMAGE_SAVE_FILE_PATH);
-		String string = readObject == null ? System.getProperty("user.dir") + "/img" : readObject;
 		text_setting_imgSave.setText(string);
 		text_setting_imgSave.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_setting_imgSave.setEditable(false);
@@ -753,13 +756,13 @@ public class SettingView extends Composite implements View {
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_5.setText("分");
 
-		Group group_3 = new Group(composite, SWT.NONE);
-		group_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		group_3.setLayout(new GridLayout(3, false));
-		group_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		group_3.setText("子停车场设置");
+		group_childCarparkSetting = new Group(composite, SWT.NONE);
+		group_childCarparkSetting.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		group_childCarparkSetting.setLayout(new GridLayout(3, false));
+		group_childCarparkSetting.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		group_childCarparkSetting.setText("子停车场设置");
 
-		Button button_27 = new Button(group_3, SWT.CHECK);
+		Button button_27 = new Button(group_childCarparkSetting, SWT.CHECK);
 		button_27.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -771,7 +774,7 @@ public class SettingView extends Composite implements View {
 		button_27.setText("固定车非所属停车场停留时间");
 		button_27.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车非所属停车场停留收费)));
 
-		text_2 = new Text(group_3, SWT.BORDER);
+		text_2 = new Text(group_childCarparkSetting, SWT.BORDER);
 		text_2.addKeyListener(new KeyAdapter() {
 			String s = "";
 
@@ -793,7 +796,7 @@ public class SettingView extends Composite implements View {
 		text_2.setLayoutData(gd_text_2);
 		text_2.setText(mapSystemSetting.get(SystemSettingTypeEnum.固定车非所属停车场停留时间));
 
-		Label label_8 = new Label(group_3, SWT.NONE);
+		Label label_8 = new Label(group_childCarparkSetting, SWT.NONE);
 		label_8.setText("分钟");
 
 		Composite composite_8 = new Composite(composite, SWT.NONE);
@@ -857,16 +860,10 @@ public class SettingView extends Composite implements View {
 		button_23.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
 		scrolledComposite.setContent(composite);
 		scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		String dbServerIp = CarparkClientConfig.getInstance().getDbServerIp();
-		if (dbServerIp.equals("localhost") || dbServerIp.equals("127.0.0.1") || dbServerIp.equals(StrUtil.getHostIp())) {
-
-		} else
-			gd_composite_5.exclude = true;
-		
 
 		listComposite = new Composite(sashForm, SWT.NONE);
 		listComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
-		sashForm.setWeights(new int[] { 208, 140 });
+		sashForm.setWeights(new int[] {731, 164});
 	}
 
 	public SettingView(Composite c, int style, Map<SystemSettingTypeEnum, String> mapSystemSetting) {
