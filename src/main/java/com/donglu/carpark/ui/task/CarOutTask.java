@@ -384,7 +384,7 @@ public class CarOutTask implements Runnable{
 		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(nowPlateNO, device.getCarpark());
 		SingleCarparkInOutHistory singleCarparkInOutHistory = StrUtil.isEmpty(findByNoCharge) ? null : findByNoCharge.get(0);
 		Date validTo = user.getValidTo();
-		Integer delayDays = user.getDelayDays() == null ? 0 : user.getDelayDays();
+		Integer delayDays = user.getDelayDays();
 
 		Calendar c = Calendar.getInstance();
 		c.setTime(validTo);

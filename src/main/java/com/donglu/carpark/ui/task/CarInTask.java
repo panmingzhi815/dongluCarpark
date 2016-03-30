@@ -430,52 +430,19 @@ public class CarInTask implements Runnable {
 	public boolean fixCarShowToDevice(boolean incheck) throws Exception {
 		
 		if (incheck) {
-			//固定车入场确认
+			// 固定车入场确认
 			boolean flag = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认));
-			if (!isEmptyPlateNo) {
-				if (flag) {
-					model.setInCheckClick(true);
-					presenter.showContentToDevice(device, "固定车等待确认", false);
-					model.getMapInCheck().put(plateNO, this);
-					return true;
-//					int i = 0;
-//					while (model.isInCheckClick()) {
-//						if (i > 240) {
-//							return true;
-//						}
-//						try {
-//							Thread.sleep(500);
-//							i++;
-//						} catch (InterruptedException e) {
-//							e.printStackTrace();
-//						}
-//					}
-//					refreshUserAndHistory();
-				}
-			}
-			if (user==null) {
-				return tempCarShowToDevice(false);
-			}
-			//非储值车
-			if (!user.getType().equals("储值")) {
-				if (flag) {
-					if (StrUtil.isEmpty(user)) {
-						LOGGER.debug("判断是否允许临时车进");
-						if (device.getCarpark().isTempCarIsIn()) {
-							presenter.showContentToDevice(device, "固定停车场,不允许临时车进", false);
-							return true;
-						}
-						if (tempCarShowToDevice(false)) {
-							return true;
-						}
-					} 
-				} 
-			}else{//储值车
-				return prepaidCarIn();
+			if (flag) {
+				model.setInCheckClick(true);
+				presenter.showContentToDevice(device, "固定车等待确认", false);
+				model.getMapInCheck().put(plateNO, this);
+				return true;
 			}
 		}
 		carType = "固定车";
-		
+		if (user.getType().equals("储值")) {
+			return prepaidCarIn();
+		}
 		
 		if (CarparkUtils.checkRoadType(device,model,presenter,DeviceRoadTypeEnum.储值车通道,DeviceRoadTypeEnum.临时车通道)) {
 			return true;
@@ -490,6 +457,7 @@ public class CarInTask implements Runnable {
 		}
 		if (date.after(new DateTime(user.getValidTo()).plusDays(user.getDelayDays() == null ? 0 : user.getDelayDays()).toDate())) {
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车).equals("true")) {
+				content="车辆已过期"+content;
 				return tempCarShowToDevice(false);
 			}
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期所属停车场限制).equals("true")) {

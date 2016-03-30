@@ -71,16 +71,16 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 
 	@Override
 	public List<SingleCarparkInOutHistory> findByCondition(int maxResult, int size, String plateNo, String userName, String carType, String inout, Date in, Date out, String operaName, String inDevice,
-			String outDevice, Long returnAccount, Long carparkId) {
-		return carparkInOutService.findByCondition(maxResult, size, plateNo, userName, carType, inout, in, out, operaName, inDevice, outDevice, returnAccount, carparkId);
+			String outDevice, Long returnAccount, Long carparkId, float shouldMoney) {
+		return carparkInOutService.findByCondition(maxResult, size, plateNo, userName, carType, inout, in, out, operaName, inDevice, outDevice, returnAccount, carparkId, shouldMoney);
 	}
 
 
 
 	@Override
 	public Long countByCondition(String plateNo, String userName, String carType, String inout, Date start, Date end, String operaName, String inDevice, String outDevice, Long returnAccount,
-			Long carparkId) {
-		return carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName, inDevice, outDevice, returnAccount, carparkId);
+			Long carparkId, float shouldMoney) {
+		return carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName, inDevice, outDevice, returnAccount, carparkId, shouldMoney);
 	}
 
 

@@ -42,8 +42,8 @@ public class SingleCarparkUser extends DomainObject {
 	private Date createDate;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date validTo;
-	private Integer remindDays;
-	private Integer delayDays;
+	private Integer remindDays=0;
+	private Integer delayDays=0;
 	private Long monthChargeId;//月租编号
 	
 	private CarTypeEnum carType=CarTypeEnum.SmallCar;
@@ -144,7 +144,7 @@ public class SingleCarparkUser extends DomainObject {
 			pcs.firePropertyChange("remark", null, null);
 	}
 	public Integer getRemindDays() {
-		return remindDays;
+		return remindDays==null?0:remindDays;
 	}
 	public void setRemindDays(Integer remindDays) {
 		this.remindDays = remindDays;
@@ -152,7 +152,7 @@ public class SingleCarparkUser extends DomainObject {
 			pcs.firePropertyChange("remindDays", null, null);
 	}
 	public Integer getDelayDays() {
-		return delayDays;
+		return delayDays==null?0:delayDays;
 	}
 	public void setDelayDays(Integer delayDays) {
 		this.delayDays = delayDays;

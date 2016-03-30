@@ -190,7 +190,8 @@ public class CarparkUtils {
 	 * @param cLabel 显示控件
 	 * @param device 当前显示的窗体 display
 	 */
-	public static void setBackgroundImage(byte[] imageBytes, CLabel cLabel, Display device) {
+	static Map<Control, DisposeListener> mapControlToDisposeListener=new HashMap<>();
+	public static void setBackgroundImage(byte[] imageBytes, Control cLabel, Display device) {
 		if (cLabel.getData("lastImage") != null){
 			Image lastImage = (Image)cLabel.getData("lastImage");
 			lastImage.dispose();
@@ -198,20 +199,28 @@ public class CarparkUtils {
 			cLabel.setData("lastImage",null);
 			LOGGER.info("销毁图片成功！");
 		}
-		cLabel.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				if (cLabel.getData("lastImage") != null){
-					Image lastImage = (Image)cLabel.getData("lastImage");
-					lastImage.dispose();
-					cLabel.setBackgroundImage(null);
-					cLabel.setData("lastImage",null);
-					LOGGER.info("销毁图片成功！");
+		if (mapControlToDisposeListener.get(cLabel)==null) {
+			DisposeListener listener = new DisposeListener() {
+				@Override
+				public void widgetDisposed(DisposeEvent e) {
+					if (cLabel.getData("lastImage") != null){
+						Image lastImage = (Image)cLabel.getData("lastImage");
+						lastImage.dispose();
+						cLabel.setBackgroundImage(null);
+						cLabel.setData("lastImage",null);
+						LOGGER.info("销毁图片成功！");
+						cLabel.removeDisposeListener(this);
+						mapControlToDisposeListener.remove(cLabel);
+					}
 				}
-			}
-		});
+			};
+			cLabel.addDisposeListener(listener);
+			mapControlToDisposeListener.put(cLabel, listener);
+		}
 		if (imageBytes == null || imageBytes.length <= 0) {
-			cLabel.setText("无图片");
+			if (cLabel instanceof CLabel) {
+				((CLabel)cLabel).setText("无图片");
+			}
 			return;
 		}
 
@@ -225,7 +234,9 @@ public class CarparkUtils {
 			ImageData data = img.getImageData().scaledTo(width, height);
 			Image createImg = ImageDescriptor.createFromImageData(data).createImage();
 			img.dispose();
-			cLabel.setText("");
+			if (cLabel instanceof CLabel) {
+				((CLabel)cLabel).setText("");
+			}
 			cLabel.setBackgroundImage(createImg);
 			cLabel.setData("lastImage",createImg);
 		} catch (Exception e) {

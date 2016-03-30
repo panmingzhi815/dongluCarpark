@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.CarparkUserService;
+import com.donglu.carpark.ui.CarparkManagePresenter;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.view.user.wizard.AddUserModel;
 import com.donglu.carpark.ui.view.user.wizard.AddUserWizard;
@@ -24,6 +25,7 @@ import com.donglu.carpark.ui.view.user.wizard.MonthlyUserPayWizard;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkModuleEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
@@ -42,7 +44,8 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 	String plateNo;
 	int will=0; 
 	String ed;
-	
+	@Inject
+	CarparkManagePresenter carparkManagePresenter;
 	@Inject
 	private CommonUIFacility commonui;
 	@Inject
@@ -59,6 +62,10 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 
 	
 	private void expirationReminder() {
+		SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.固定车到期提醒.name());
+		if (findSystemSettingByKey==null||findSystemSettingByKey.getSettingValue().equals("false")) {
+			return;
+		}
 		ExecutorService userRemindThreadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("固定车到期提醒线程池"));
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("定时检测固定用户是否到期"));
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
@@ -81,13 +88,16 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 							Display.getDefault().asyncExec(new Runnable() {
 								@Override
 								public void run() {
-									// if (user.getValidTo().before(date)) {
-									// continue;
-									// }
-									log.info("{}即将过期,过期时间：{}", user, user.getValidTo());
+									log.info("{}即将过期,过期时间：{}", user, user.getValitoLabel());
 									UserRemindMessageBox window = new UserRemindMessageBox(user);
 									int open = window.open();
+									System.out.println(open);
+									if (open==0) {
+										userRemindThreadPool.shutdownNow();
+										return;
+									}
 									if (open == 1) {
+										carparkManagePresenter.setSelete(SingleCarparkModuleEnum.固定车);
 										view.getModel().setSelected(Arrays.asList(user));
 									} else if (open == 3) {
 										SingleCarparkSystemSetting ss = findSystemSettingByKey;

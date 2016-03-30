@@ -20,17 +20,24 @@ import com.donglu.carpark.ui.view.systemuser.SystemUserListPresenter;
 import com.donglu.carpark.ui.view.user.CarparkPayHistoryPresenter;
 import com.donglu.carpark.ui.view.user.PrepaidUserPayHistoryPresenter;
 import com.donglu.carpark.ui.view.user.UserPresenter;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkModuleEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.ui.util.EventHelper;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
+@Singleton
 public class CarparkManagePresenter {
 	// 停车场管理界面
 	private CarparkManageApp view;
 
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
+	
+	@Inject
+	private EventHelper bus;
 	
 	private CarparkPayHistoryPresenter carparkPayHistoryPresenter;
 	private ReturnAccountPresenter returnAccountPresenter;
@@ -75,7 +82,7 @@ public class CarparkManagePresenter {
 		lockCarPresenter = Login.injector.getInstance(LockCarPresenter.class);
 		carparkPresenter = Login.injector.getInstance(CarparkPresenter.class);
 		systemUserListPresenter = Login.injector.getInstance(SystemUserListPresenter.class);
-
+		bus.register(this);
 		refreshSystemSetting();
 	}
 	/**
@@ -162,6 +169,10 @@ public class CarparkManagePresenter {
 
 	public SystemUserListPresenter getSystemUserListPresenter() {
 		return systemUserListPresenter;
+	}
+
+	public void setSelete(SingleCarparkModuleEnum module) {
+		getView().select(module);
 	}
 
 }

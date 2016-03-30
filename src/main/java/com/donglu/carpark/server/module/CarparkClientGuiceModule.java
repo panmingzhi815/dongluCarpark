@@ -17,8 +17,7 @@ public class CarparkClientGuiceModule extends AbstractModule {
     	this.bindConstant().annotatedWith(Names.named("HBM2DDL")).to("update");
 		this.bind(HardwareFacility.class).to(HardwareFacilityImpl.class);
 		this.bind(CarparkDatabaseServiceProvider.class).to(CarparkHessianServiceProvider.class).in(Singleton.class);
-		this.bind(CommonUIFacility.class).to(SWTUIFacility.class)
-		.in(Singleton.class);
+		this.bind(CommonUIFacility.class).to(SWTUIFacility.class).in(Singleton.class);
 		this.install(new CarparkHardwareGuiceModule());
     }
 }

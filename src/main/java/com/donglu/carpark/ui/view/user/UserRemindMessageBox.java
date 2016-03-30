@@ -65,7 +65,6 @@ public class UserRemindMessageBox {
 		shell.setText("用户到期提醒");
 		shell.setLayout(new GridLayout(1, false));
 		Rectangle clientArea = shell.getDisplay().getClientArea();
-		System.out.println(clientArea);
 		int down=clientArea.width-360;
 		int left=clientArea.height-235;
 		shell.setLocation(down, left);

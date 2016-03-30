@@ -1,6 +1,7 @@
 package com.donglu.carpark.ui;
 
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.databinding.DataBindingContext;
@@ -28,6 +29,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import com.beust.jcommander.JCommander;
 import com.donglu.carpark.ui.common.AbstractApp;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkModuleEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.ui.main.DongluUIAppConfigurator;
 import com.dongluhitec.card.ui.main.javafx.DongluJavaFXModule;
@@ -52,6 +54,11 @@ public class CarparkManageApp extends AbstractApp{
 	private Map<SystemSettingTypeEnum, String> mapSystemSetting=Maps.newHashMap();
 
 	private Composite composite_returnAccount_search;
+	
+	Map<SingleCarparkModuleEnum, TabItem> mapModuleToItem=new HashMap<>();
+
+
+	private TabFolder tabFolder;
 	
 	/**
 	 * Launch the application.
@@ -144,7 +151,7 @@ public class CarparkManageApp extends AbstractApp{
 		presenter.setView(this);
 		
 		for (SystemSettingTypeEnum t : SystemSettingTypeEnum.values()) {
-			mapSystemSetting.put(t, null);
+			mapSystemSetting.put(t, t.getDefaultValue());
 		}
 		presenter.init();
 	}
@@ -167,7 +174,7 @@ public class CarparkManageApp extends AbstractApp{
 			}
 		});
 		
-		TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
+		tabFolder = new TabFolder(shell, SWT.NONE);
 		tabFolder.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
 		TabItem tabItem_9 = new TabItem(tabFolder, SWT.NONE);
@@ -181,6 +188,7 @@ public class CarparkManageApp extends AbstractApp{
 		
 		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
 		tabItem.setText("固定车设置");
+		mapModuleToItem.put(SingleCarparkModuleEnum.固定车, tabItem);
 		
 		Composite composite_user = new Composite(tabFolder, SWT.NONE);
 		tabItem.setControl(composite_user);
@@ -443,6 +451,10 @@ public class CarparkManageApp extends AbstractApp{
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
 		return bindingContext;
+	}
+
+	public void select(SingleCarparkModuleEnum module) {
+		tabFolder.setSelection(mapModuleToItem.get(module));
 	}
 
 	

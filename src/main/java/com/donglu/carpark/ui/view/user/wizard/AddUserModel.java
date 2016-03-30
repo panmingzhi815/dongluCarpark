@@ -46,6 +46,8 @@ public class AddUserModel extends SingleCarparkUser {
 		user.setRemindDays(getRemindDays());
 		user.setLeftMoney(getLeftMoney());
 		user.setCarType(getCarType());
+		user.setTelephone(getTelephone());
+		user.setParkingSpace(getParkingSpace());
 		return user;
 	}
 	public void setSingleCarparkUser(SingleCarparkUser user){
@@ -61,6 +63,8 @@ public class AddUserModel extends SingleCarparkUser {
 		setRemark(user.getRemark());
 		setLeftMoney(user.getLeftMoney());
 		setCarType(user.getCarType());
+		setTelephone(user.getTelephone());
+		setParkingSpace(user.getParkingSpace());
 	}
 
 	public MonthlyUserPayModel getModel() {

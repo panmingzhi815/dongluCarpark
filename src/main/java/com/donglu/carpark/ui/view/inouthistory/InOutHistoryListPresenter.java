@@ -49,6 +49,7 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	private SingleCarparkCarpark carpark = new SingleCarparkCarpark();
 	@SuppressWarnings("unused")
 	private String modifyPlateNO;
+	private float shouldMoney;
 
 	@Override
 	public void go(Composite c) {
@@ -67,8 +68,8 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		AbstractListView<SingleCarparkInOutHistory>.Model model = v.getModel();
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(model.getList().size(), 500, plateNo, userName, carType, inout, start, end, operaName, inDevice,
-				outDevice, returnAccount, carpark.getId());
-		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName, inDevice, outDevice, returnAccount, carpark.getId());
+				outDevice, returnAccount, carpark.getId(),shouldMoney);
+		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName, inDevice, outDevice, returnAccount, carpark.getId(),shouldMoney);
 //		List<SingleCarparkInOutHistory> filter = filter(findByCondition, modifyPlateNO);
 		model.setCountSearchAll(countByCondition.intValue());
 		model.AddList(findByCondition);
@@ -121,7 +122,7 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	}
 
 	public void search(String plateNo, String userName, Date start, Date end, String operaName, String carType, String inout, String inDevice, String outDevice, String returnAccount,
-			SingleCarparkCarpark carpark, String modifyPlateNO) {
+			SingleCarparkCarpark carpark, float shouldMoney) {
 		this.plateNo = plateNo;
 		this.userName = userName;
 		this.start = start;
@@ -138,7 +139,7 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 			this.returnAccount = null;
 		}
 		this.carpark = carpark;
-		this.modifyPlateNO = modifyPlateNO;
+		this.shouldMoney = shouldMoney;
 		refresh();
 	}
 

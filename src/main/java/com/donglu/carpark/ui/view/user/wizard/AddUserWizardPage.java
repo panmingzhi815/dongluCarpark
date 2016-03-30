@@ -310,6 +310,14 @@ public class AddUserWizardPage extends WizardPage {
 		IObservableValue carparkSlotTypeModelObserveValue = BeanProperties.value("carparkSlotType").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer_2, carparkSlotTypeModelObserveValue, null, null);
 		//
+		IObservableValue observeTextText_4ObserveWidget_1 = WidgetProperties.text(SWT.Modify).observe(text_4);
+		IObservableValue telephoneModelObserveValue = BeanProperties.value("telephone").observe(model);
+		bindingContext.bindValue(observeTextText_4ObserveWidget_1, telephoneModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_5ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_5);
+		IObservableValue parkingSpaceModelObserveValue = BeanProperties.value("parkingSpace").observe(model);
+		bindingContext.bindValue(observeTextText_5ObserveWidget, parkingSpaceModelObserveValue, null, null);
+		//
 		return bindingContext;
 	}
 }
