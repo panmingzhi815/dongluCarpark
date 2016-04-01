@@ -2,6 +2,7 @@ package com.donglu.carpark.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
@@ -218,4 +219,7 @@ public interface CarparkInOutServiceI {
 	Long updateCarparkStillTime(SingleCarparkCarpark carpark,SingleCarparkDevice device, String plateNO, String bigImg);
 
 	List<CarparkStillTime> findCarparkStillTime(String plateNO, Date inTime);
+	
+	Map<String, Long> getDeviceFlows(boolean inOrOut,Date start,Date end);
+	List<String> findAllDeviceName(boolean inOrOut);
 }

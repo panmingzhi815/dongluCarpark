@@ -174,7 +174,7 @@ public class CarparkPresenter  extends AbstractPresenter{
 		refreshCharges();		
 	}
 	@Override
-	protected CarparkView getView(Composite c) {
+	protected CarparkView createView(Composite c) {
 		if (view!=null) {
 			return view;
 		}

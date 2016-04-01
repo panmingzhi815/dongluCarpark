@@ -10,7 +10,6 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -24,16 +23,9 @@ public class ShowDialog extends Dialog {
 	protected boolean haveButon=true;
 
 	
-	public ShowDialog(Shell parent, int style) {
-		super(parent, style);
-		shell = new Shell(getParent(),SWT.CLOSE );
-		setText("");
-	}
-
-	
 	public ShowDialog(String name) {
 		super(Display.getCurrent().getActiveShell(), SWT.NONE);
-		shell = new Shell(getParent(),SWT.CLOSE );
+		shell = new Shell(getParent(),getParent().getStyle());
 		shell.setSize(300, 300);
 		setText(name);
 	}

@@ -65,6 +65,16 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		    }
 		});
 		addItem.setToolTipText("查看图片");
+		ToolItem countItem = new ToolItem(mainToolbar, SWT.NONE);
+		countItem.setText("统计");
+		countItem.setData("type", "count");
+		countItem.addSelectionListener(new SelectionAdapter() {
+		    @Override
+		    public void widgetSelected(SelectionEvent e) {
+		    	getPresenter().flowStatistics();
+		    }
+		});
+		countItem.setToolTipText("流量统计");
 	}
 
 	@Override

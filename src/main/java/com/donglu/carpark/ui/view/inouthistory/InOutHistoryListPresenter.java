@@ -3,7 +3,9 @@ package com.donglu.carpark.ui.view.inouthistory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
+import com.donglu.carpark.ui.common.ShowDialog;
 import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
@@ -33,6 +36,8 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	private CarparkDatabaseServiceProvider sp;
 	@Inject
 	private CommonUIFacility commonui;
+	@Inject
+	private CountFlowPresenter countFlowPresenter;
 
 	private String plateNo;
 	private String userName;
@@ -217,5 +222,13 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 			commonui.info("操作失败", "操作失败"+e.getMessage());
 			LOGGER.info("导出进出场记录失败",e);
 		}
+	}
+
+	public void flowStatistics() {
+		ShowDialog d=new ShowDialog("报表统计");
+		d.setPresenter(countFlowPresenter);
+		d.setHaveButon(false);
+		d.setSize(600, 600);
+		d.open();
 	}
 }

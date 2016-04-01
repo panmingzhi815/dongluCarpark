@@ -13,6 +13,7 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
+import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.TextUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 
@@ -82,12 +83,12 @@ public class InInfoView extends Composite implements View{
 		text_plateno.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		text_plateno.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		text_plateno.setTextLimit(8);
+		text_plateno.setData(ConstUtil.NO_CHANGE_FOCUS, "true");
 		TextUtils.createPlateNOAutoCompleteField(text_plateno);
 		Label label_14 = new Label(composite_22, SWT.NONE);
 		label_14.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_14.setText("进场时间");
 		label_14.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
-
 		text_time = new Text(composite_22, SWT.BORDER);
 		text_time.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
 		text_time.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));

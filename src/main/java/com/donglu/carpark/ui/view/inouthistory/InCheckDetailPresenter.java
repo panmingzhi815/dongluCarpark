@@ -37,9 +37,7 @@ public class InCheckDetailPresenter implements Presenter{
 		try {
 			carInTask.checkUser(false);
 			model.getMapInCheck().remove(plateNO);
-			if (model.getMapInCheck().keySet().size()<1) {
-				view.getShell().dispose();
-			}
+			model.setInShowPlateNO(plateNO);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -46,6 +46,7 @@ import com.donglu.carpark.ui.view.DevicePresenter;
 import com.donglu.carpark.ui.view.InInfoPresenter;
 import com.donglu.carpark.ui.view.OutInfoPresenter;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.MyHashMap;
 import com.donglu.carpark.util.MyMapCache;
 import com.donglu.carpark.util.CarparkFileUtils;
@@ -1115,7 +1116,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		control.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				// System.out.println("sdads============"+e.keyCode);
 				keyReleasedByControl(carOutChargeCheck, e);
 			}
 
@@ -1402,6 +1402,12 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			return;
 		}
 		if (e.keyCode == StrUtil.SMAIL_KEY_ENTER || e.keyCode == 13) {
+			if (e.getSource()!=null) {
+				Control c = (Control) e.getSource();
+				if (c.getData(ConstUtil.NO_CHANGE_FOCUS)!=null) {
+					return;
+				}
+			}
 			text_real.setFocus();
 			text_real.selectAll();
 		}

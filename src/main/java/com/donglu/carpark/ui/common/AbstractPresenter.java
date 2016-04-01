@@ -3,10 +3,11 @@ package com.donglu.carpark.ui.common;
 import org.eclipse.swt.widgets.Composite;
 
 public abstract class AbstractPresenter implements Presenter {
-
+	View view;
 	@Override
 	public void go(Composite c) {
-		getView(c).setPresenter(this);
+		view = createView(c);
+		view.setPresenter(this);
 		continue_go();
 	}
 
@@ -14,6 +15,10 @@ public abstract class AbstractPresenter implements Presenter {
 		
 	}
 
-	protected abstract View getView(Composite c);
+	protected abstract View createView(Composite c);
+
+	public View getView() {
+		return view;
+	}
 	
 }

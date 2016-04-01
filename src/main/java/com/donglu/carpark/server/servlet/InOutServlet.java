@@ -1,6 +1,7 @@
 package com.donglu.carpark.server.servlet;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 
@@ -352,5 +353,19 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	@Override
 	public List<CarparkStillTime> findCarparkStillTime(String plateNO, Date inTime) {
 		return carparkInOutService.findCarparkStillTime(plateNO, inTime);
+	}
+
+
+
+	@Override
+	public Map<String, Long> getDeviceFlows(boolean inOrOut,Date start,Date end) {
+		return carparkInOutService.getDeviceFlows(inOrOut, start, end);		
+	}
+
+
+
+	@Override
+	public List<String> findAllDeviceName(boolean inOrOut) {
+		return carparkInOutService.findAllDeviceName(inOrOut);
 	}
 }

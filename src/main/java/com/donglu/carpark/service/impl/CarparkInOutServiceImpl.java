@@ -2,10 +2,14 @@ package com.donglu.carpark.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
@@ -111,7 +115,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			unitOfWork.end();
 		}
 	}
-
 	private void createCriteriaByCondition(Criteria c, String plateNo, String userName, String carType, String inout, Date start, Date end, String operaName, String inDevice, String outDevice,
 			Long returnAccount, Long carparkId, float shouldMoney) {
 		if (!StrUtil.isEmpty(inout)) {
@@ -1078,6 +1081,60 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		} finally{
 			unitOfWork.end();
 		}
+	}
+	@Override
+	public Map<String, Long> getDeviceFlows(boolean inOrOut,Date start,Date end){
+		unitOfWork.begin();
+		try {
+			String deviceName=SingleCarparkInOutHistory.Property.inDevice.name();
+			String time=SingleCarparkInOutHistory.Property.inTime.name();
+			if (!inOrOut) {
+				deviceName=SingleCarparkInOutHistory.Property.outDevice.name();
+				time=SingleCarparkInOutHistory.Property.outTime.name();
+			}
+			System.out.println(start+"============="+end);
+			Map<String, Long> mapDeviceToCount=new HashMap<>();
+			String qlString = "select count(h),h."+deviceName+" from SingleCarparkInOutHistory h where h."+deviceName+" is not null and h."+time+" between ?1 and ?2 group by h."+deviceName;
+			System.out.println(qlString);
+			Query createQuery = emprovider.get().createQuery(qlString);
+			createQuery.setParameter(1, start);
+			createQuery.setParameter(2, end);
+			List resultList = createQuery.getResultList();
+			for (Object object : resultList) {
+				Object[] os=(Object[]) object;
+				mapDeviceToCount.put(os[1]+"", (Long) os[0]);
+			}
+			return mapDeviceToCount;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			unitOfWork.end();
+		}
+		return Collections.EMPTY_MAP;
+	}
+
+	@Override
+	public List<String> findAllDeviceName(boolean inOrOut) {
+		unitOfWork.begin();
+		try {
+			String deviceName=SingleCarparkInOutHistory.Property.inDevice.name();
+			if (!inOrOut) {
+				deviceName=SingleCarparkInOutHistory.Property.outDevice.name();
+			}
+			String qlString = "select h."+deviceName+" from SingleCarparkInOutHistory h where h."+deviceName+" is not null group by h."+deviceName;
+			System.out.println(qlString);
+			Query createQuery = emprovider.get().createQuery(qlString);
+			List resultList = createQuery.getResultList();
+			for (Object object : resultList) {
+				System.out.println(object);
+			}
+			return resultList;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			unitOfWork.end();
+		}
+		return Collections.EMPTY_LIST;
 	}
 
 }

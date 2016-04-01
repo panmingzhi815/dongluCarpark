@@ -107,10 +107,10 @@ public class InCheckDetailView extends Composite implements View{
 					TabItem[] selection = tabFolder.getSelection();
 					TabItem x = selection[0];
 					model.getMapInCheck().remove(s);
+					x.dispose();
 					if (model.getMapInCheck().keySet().size()<1) {
 						getShell().dispose();
 					}
-					x.dispose();
 				}
 			});
 			button.setText("取消");
