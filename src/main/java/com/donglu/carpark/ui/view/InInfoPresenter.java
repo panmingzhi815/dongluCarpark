@@ -37,7 +37,7 @@ public class InInfoPresenter  implements Presenter{
 	}
 
 	public void check(String editPlateNO) {
-		if (StrUtil.isEmpty(model.getMapInCheck().keySet())) {
+		if (StrUtil.isEmpty(model.getMapInCheck().keySet())||(editPlateNO.length()<2||editPlateNO.length()>10)) {
 			return;
 		}
 		if (!StrUtil.isEmpty(editPlateNO)&&model.getMapInCheck().keySet().size()==1) {

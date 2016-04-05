@@ -402,17 +402,14 @@ public class CarOutTask implements Runnable{
 				}
 				tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg, d);
 				return true;
-			}else if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期所属停车场限制).equals("true")) {
+			} else if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期所属停车场限制).equals("true")) {
 				if (device.getCarpark().equals(user.getCarpark())) {
 					presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), true);
-				}else{
-					presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
-					return true;
 				}
-			}else{
-				presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
-				return true;
 			}
+			presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
+			model.setOutShowPlateNO(model.getOutShowPlateNO()+"(已过期)");
+			return true;
 		} 
 		
 		boolean fixCarStillCharge = CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车非所属停车场停留收费).equals("true")&&!device.getCarpark().equals(user.getCarpark());

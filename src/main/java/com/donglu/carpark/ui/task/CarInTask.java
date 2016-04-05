@@ -89,6 +89,7 @@ public class CarInTask implements Runnable {
 	private String smallImgFileName;
 	//大图片名称
 	private String bigImgFileName;
+	private boolean isFixCarverdueCheck=false;
 	
 	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter,
 			Float rightSize, CLabel lbl_inSmallImg, CLabel lbl_inBigImg) {
@@ -218,7 +219,7 @@ public class CarInTask implements Runnable {
 		if (isEmptyPlateNo) {
 			saveImage();
 		}
-		if (!StrUtil.isEmpty(user)) {//固定车操作
+		if (!StrUtil.isEmpty(user)&&!isFixCarverdueCheck) {//固定车操作
 			if(fixCarShowToDevice(isInCheck)){
 				return;
 			}
@@ -468,7 +469,11 @@ public class CarInTask implements Runnable {
 					return false;
 				}
 			}
-			presenter.showContentToDevice(device, "车辆已过期,请联系管理员", false);
+			model.setInShowPlateNO(model.getInShowPlateNO()+"(已过期)");
+			presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS, false);
+			model.getMapInCheck().put(plateNO, this);
+			model.setInCheckClick(true);
+			isFixCarverdueCheck=true;
 			return true;
 		}
 		if (StrUtil.isEmpty(cch.getId())) {

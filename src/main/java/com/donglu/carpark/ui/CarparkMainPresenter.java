@@ -1303,6 +1303,8 @@ public class CarparkMainPresenter {
 					if (!StrUtil.isEmpty(CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH))) {
 						String string = (String) CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
 						fl = string + fl;
+					}else{
+						fl = System.getProperty("user.dir") + fl;
 					}
 					File file = new File(fl);
 					if (!file.exists() && !file.isDirectory()) {
@@ -1315,10 +1317,11 @@ public class CarparkMainPresenter {
 					File bigFile = new File(finalBigFileName);
 					bigFile.createNewFile();
 					Files.write(bigImage, bigFile);
-
+					log.info("保存大图片到本地：{}",bigFile);
 					File smallFile = new File(finalSmallFileName);
 					smallFile.createNewFile();
 					Files.write(smallImage, smallFile);
+					log.info("保存小图片到本地：{}",smallFile);
 					ImgCompress.compress(smallFile.getPath());
 					String ip = CarparkClientConfig.getInstance().getServerIp();
 					if (true) {

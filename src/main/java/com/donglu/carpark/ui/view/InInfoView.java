@@ -82,7 +82,6 @@ public class InInfoView extends Composite implements View{
 		text_plateno.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
 		text_plateno.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		text_plateno.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		text_plateno.setTextLimit(8);
 		text_plateno.setData(ConstUtil.NO_CHANGE_FOCUS, "true");
 		TextUtils.createPlateNOAutoCompleteField(text_plateno);
 		Label label_14 = new Label(composite_22, SWT.NONE);

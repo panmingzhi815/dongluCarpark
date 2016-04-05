@@ -257,6 +257,7 @@ public class SettingView extends Composite implements View {
 		button_26.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_26.setText("固定车到期停车场限制");
 		button_26.setToolTipText("固定车到期后是否允许进入所属停车场，勾选后允许随意进出所属停车场");
+		button_26.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车到期所属停车场限制)));
 
 		Button button_28 = new Button(group, SWT.CHECK);
 		button_28.addSelectionListener(new SelectionAdapter() {

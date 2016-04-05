@@ -15,7 +15,6 @@ public class TextUtils {
 	static Map<String, String> map=new HashMap<>();
 	public static void createPlateNOAutoCompleteField(Text text){
 		init();
-		text.setTextLimit(10);
 		TextContentAdapter ad = new TextContentAdapter(){
 			@Override
 			public void setControlContents(Control control, String text, int cursorPosition) {
