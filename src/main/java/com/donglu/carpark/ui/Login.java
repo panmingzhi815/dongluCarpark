@@ -23,14 +23,13 @@ import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.server.module.CarparkClientGuiceModule;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.SystemUserServiceI;
+import com.donglu.carpark.service.background.ClientCheckSoftDogServiceI;
+import com.donglu.carpark.service.background.DeleteImageServiceI;
 import com.donglu.carpark.ui.common.App;
-import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.TestMap;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.db.setting.SNSettingType;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -40,7 +39,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.eclipse.swt.events.KeyAdapter;
@@ -52,14 +50,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
@@ -393,7 +384,7 @@ public class Login {
 							sp.start();
 
 							LOGGER.info("服务启动花费时间{}", System.nanoTime() - nanoTime);
-							autoDeletePhoto();
+							startBackGroundServer();
 
 							SystemUserServiceI systemUserService = sp.getSystemUserService();
 							SingleCarparkSystemUser findByNameAndPassword = systemUserService.findByNameAndPassword(cbo_userName.getText(), txt_password.getText());
@@ -505,14 +496,10 @@ public class Login {
 							System.exit(0);
 						}
 					}
-
 					
 				});
 			}
 		}).start();
-		if (Boolean.valueOf(System.getProperty(CHECK_SOFT_DOG) == null ? "true" : "false")) {
-			checkSoftDog();
-		}
 	}
 	private void setErrorMessage(String string) {
 		GridData gd_composite = (GridData) composite_msg.getLayoutData();
@@ -543,121 +530,21 @@ public class Login {
 		}
 
 	}
-
+	
+	private void startBackGroundServer() {
+		autoDeletePhoto();
+		if (Boolean.valueOf(System.getProperty(CHECK_SOFT_DOG) == null ? "true" : "false")) {
+			checkSoftDog();
+		}
+	}
+	
 	// 检测加密狗
 	private void checkSoftDog() {
-		String defaultValue = SystemSettingTypeEnum.软件版本.getDefaultValue();
-		if (defaultValue.indexOf("beta")>-1) {
-			LOGGER.info("测试版本，3小时后关闭");
-			Timer timer = new Timer();
-			timer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					System.exit(0);
-				}
-			}, 1000*60*60*3);
-			return;
-		}
-		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					LOGGER.info("客户端从数据库获取注册信息");
-					Map<SNSettingType, SingleCarparkSystemSetting> findAllSN = sp.getCarparkService().findAllSN();
-					String sn = findAllSN.get(SNSettingType.sn).getSettingValue();
-					String validTo = findAllSN.get(SNSettingType.validTo).getSettingValue();
-
-					if (StrUtil.isEmpty(sn) || StrUtil.isEmpty(validTo)) {
-						LOGGER.info("没有检测到注册码，请检测服务器加密狗");
-						commonui.error("检查失败", "没有检测到注册码，请检测服务器加密狗");
-						System.exit(0);
-						return;
-					}
-					LOGGER.info("检查注册码成功,有效期至{}", validTo);
-				} catch (Exception e) {
-					e.printStackTrace();
-					commonui.error("检查失败", "没有检测到注册码，请检测服务器加密狗");
-					System.exit(0);
-				}
-			}
-		}, 5, 60 * 3, TimeUnit.MINUTES);
+		injector.getInstance(ClientCheckSoftDogServiceI.class).startAsync();
 	}
 
 	// 自动删除图片
 	private void autoDeletePhoto() {
-		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
-			@Override
-			public void run() {
-				SingleCarparkSystemSetting ss1 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.是否自动删除图片.name());
-				if (StrUtil.isEmpty(ss1) || ss1.getSettingValue().equals(SystemSettingTypeEnum.是否自动删除图片.getDefaultValue())) {
-					LOGGER.info("是否自动删除图片设置为{}", StrUtil.isEmpty(ss1)?null:ss1.getSettingValue());
-					return;
-				}
-				SingleCarparkSystemSetting ss2 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存多少天.name());
-				int saveMonth = Integer.valueOf(ss2 == null ? SystemSettingTypeEnum.图片保存多少天.getDefaultValue() : ss2.getSettingValue());
-				LOGGER.info("图片保存多少天设置为{}", saveMonth);
-				String imgSavePath = (String) CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
-				String savePath = (imgSavePath == null ? System.getProperty("user.dir") : imgSavePath) + "/img/";
-				Date d = new Date();
-				DateTime deleteTime = new DateTime(d).minusDays(saveMonth + 1);
-				String nowMonth=deleteTime.toString("MM");
-				String day = deleteTime.toString("dd");
-				String month = deleteTime.toString("MM");
-				int year = deleteTime.getYear();
-				int nowYear=deleteTime.getYear();
-				File file;
-				while (true) {
-					String pathname = savePath + year + "/" + month;
-					LOGGER.info("检测文件夹{}是否存在", pathname);
-					file = new File(pathname);
-					if (file.isDirectory()) {
-						LOGGER.info("文件夹{}存在,准备删除文件夹", pathname);
-						if (month.equals(nowMonth)) {
-							for (File f : file.listFiles()) {
-								try {
-									if (Integer.valueOf(f.getName())<=Integer.valueOf(day)) {
-										CarparkUtils.deleteDir(f);
-									}
-								} catch (NumberFormatException e) {
-									continue;
-								}
-							}
-						}else{
-							CarparkUtils.deleteDir(file);
-						}
-					} else {
-						while (true) {
-    						String pathname1 = savePath + (year);
-    						LOGGER.info("检测文件夹{}是否存在", pathname1);
-    						file = new File(pathname1);
-    						if (file.isDirectory()) {
-    							LOGGER.info("文件夹{}存在,准备删除文件夹", pathname1);
-    							if (year==nowYear) {
-    								for (File f : file.listFiles()) {
-    									try {
-    										if (Integer.valueOf(f.getName())<=Integer.valueOf(month)) {
-    											CarparkUtils.deleteDir(f);
-    										}
-    									} catch (NumberFormatException e) {
-    										continue;
-    									}
-    								}
-    							}else{
-    								CarparkUtils.deleteDir(file);
-    							}
-    						}else{
-        						LOGGER.info("文件夹{}不存在,退出任务", pathname1);
-        						break;
-    						}
-    						year-=1;
-						}
-						break;
-					}
-					month=deleteTime.minusMonths(1).toString("MM");
-				}
-			}
-		}, 5, 60 * 24, TimeUnit.MINUTES);
+		injector.getInstance(DeleteImageServiceI.class).startAsync();
 	}
 }

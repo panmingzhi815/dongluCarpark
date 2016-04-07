@@ -14,7 +14,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -560,10 +559,7 @@ public class CarparkUtils {
         if (dir.isDirectory()) {
             String[] children = dir.list();
             for (int i=0; i<children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
+                deleteDir(new File(dir, children[i]));
             }
         }
         // 目录此时为空，可以删除
@@ -934,5 +930,13 @@ public class CarparkUtils {
 				setBackgroundImage(bigImage, label, label.getDisplay());
 			}
 		});
+	}
+	/**
+	 *检查服务器是否是在本地
+	 * @return
+	 */
+	public static boolean checkServerIsLocal() {
+		String dbServerIp = CarparkClientConfig.getInstance().getDbServerIp();
+		return dbServerIp.equals("localhost") || dbServerIp.equals("127.0.0.1") || dbServerIp.equals(StrUtil.getHostIp());
 	}
 }

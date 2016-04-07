@@ -12,7 +12,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.util.CarparkFileUtils;
@@ -69,8 +68,6 @@ public class SettingView extends Composite implements View {
 		SashForm sashForm = new SashForm(this, SWT.NONE);
 		String readObject = (String) CarparkFileUtils.readObject(cLIENT_IMAGE_SAVE_FILE_PATH);
 		String string = readObject == null ? System.getProperty("user.dir") + "/img" : readObject;
-		String dbServerIp = CarparkClientConfig.getInstance().getDbServerIp();
-		
 
 		scrolledComposite = new ScrolledComposite(sashForm, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
@@ -403,7 +400,7 @@ public class SettingView extends Composite implements View {
 		Composite composite_5 = new Composite(group, SWT.NONE);
 		GridData gd_composite_5 = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
 		gd_composite_5.exclude = false;
-		if (dbServerIp.equals("localhost") || dbServerIp.equals("127.0.0.1") || dbServerIp.equals(StrUtil.getHostIp())) {
+		if (CarparkUtils.checkServerIsLocal()) {
 
 		} else
 			gd_composite_5.exclude = true;
