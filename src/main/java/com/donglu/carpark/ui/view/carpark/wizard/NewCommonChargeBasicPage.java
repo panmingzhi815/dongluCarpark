@@ -14,6 +14,7 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
@@ -25,7 +26,9 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
@@ -46,6 +49,10 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 
@@ -77,7 +84,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 	private ComboViewer comboViewer_1;
 	private ComboViewer comboViewer_2;
 	private ComboViewer comboViewer_3;
-	private ComboViewer comboViewer_4;
+	private ComboViewer comboViewer_carType;
 	private Button button_6;
 	private Text text_4;
 	private Button button_1;
@@ -135,6 +142,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
         comboViewer.setContentProvider(new ArrayContentProvider());
         comboViewer.setLabelProvider(new LabelProvider());
         comboViewer.setInput(CarparkDurationTypeEnum.values());
+        model.setCarparkDurationTypeEnum(CarparkDurationTypeEnum.进场时长);
         
         Label label_4 = new Label(composite_1, SWT.RIGHT);
         label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -153,13 +161,13 @@ public class NewCommonChargeBasicPage extends WizardPage {
         label_11.setText("车  辆  类  型");
         label_11.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         
-        comboViewer_4 = new ComboViewer(composite_1, SWT.READ_ONLY);
-        Combo combo_4 = comboViewer_4.getCombo();
+        comboViewer_carType = new ComboViewer(composite_1, SWT.READ_ONLY);
+        Combo combo_4 = comboViewer_carType.getCombo();
         combo_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        comboViewer_4.setContentProvider(new ArrayContentProvider());
-        comboViewer_4.setLabelProvider(new LabelProvider());
-        comboViewer_4.setInput(model.getCarparkCarTypeList());
-        
+        comboViewer_carType.setContentProvider(new ArrayContentProvider());
+        comboViewer_carType.setLabelProvider(new LabelProvider());
+        comboViewer_carType.setInput(model.getCarparkCarTypeList());
+        model.setCarparkCarType(model.getCarparkCarTypeList().get(1));
         button = new Button(composite_1, SWT.CHECK | SWT.RIGHT);
         button.addSelectionListener(new SelectionAdapter() {
         	CarparkHolidayTypeEnum type=null;
@@ -284,8 +292,11 @@ public class NewCommonChargeBasicPage extends WizardPage {
         	@Override
         	public void widgetSelected(SelectionEvent e) {
         		CarparkDurationStandard carparkDurationStandard = new CarparkDurationStandard();
-            	carparkDurationStandard.setStartTime(new Date(1900, 1, 1, startTime.getHours(), startTime.getMinutes()));
-            	carparkDurationStandard.setEndTime(new Date(1900, 1, 1, endTime.getHours(), endTime.getMinutes()));
+        		Date sTime = StrUtil.parseDateTime(new org.joda.time.DateTime(1900,1,1,startTime.getHours(), startTime.getMinutes()).toString(StrUtil.DATETIME_PATTERN));
+        		Date eTime = StrUtil.parseDateTime(new org.joda.time.DateTime(1900, 1, 1, endTime.getHours(), endTime.getMinutes()).toString(StrUtil.DATETIME_PATTERN));
+        		System.out.println(StrUtil.formatDateTime(sTime)+"=="+StrUtil.formatDateTime(eTime));
+            	carparkDurationStandard.setStartTime(sTime);
+            	carparkDurationStandard.setEndTime(eTime);
             	
         		int hours = startTime.getHours();
         		int hours2 = endTime.getHours();
@@ -408,7 +419,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 					Text unitDurationPrice = (Text)cp0.getData("unitDurationPrice");
 					Text crossDayUnitTimeLength = (Text)cp0.getData("crossDayUnitTimeLength");
 					Text crossDayUnitPrice = (Text)cp0.getData("crossDayUnitPrice");
-					int data = (int) cp0.getData("priceSize");
+//					int data = (int) cp0.getData("priceSize");
 					
                     Object obj = cp0.getData("DurationId");
                     carparkDurationStandard.setId(obj == null ? null : (Long)obj);
@@ -419,17 +430,17 @@ public class NewCommonChargeBasicPage extends WizardPage {
 					carparkDurationStandard.setCrossDayUnitDuration(Integer.valueOf(crossDayUnitTimeLength.getText()));
 					carparkDurationStandard.setCrossDayPrice(Float.valueOf(crossDayUnitPrice.getText()));
 					carparkDurationStandard.setStandardCode(text.getText());
-					for (int i = 0; i < data; i++) {
-						CarparkDurationPrice carparkDurationPrice = new CarparkDurationPrice();
-	        			int durationLength = i+1;
-						carparkDurationPrice.setDurationLength(durationLength);
-	        			float durationLengthPrice = ((60*durationLength)/valueOf)*valueOf2;
-	        			if (carparkDurationStandard.getMaxPrice()!=null&&carparkDurationStandard.getMaxPrice()>0&&durationLengthPrice>carparkDurationStandard.getMaxPrice()) {
-	        				durationLengthPrice=carparkDurationStandard.getMaxPrice();
-						}
-						carparkDurationPrice.setDurationLengthPrice(durationLengthPrice);
-	        			carparkDurationStandard.addCarparkDurationPriceList(carparkDurationPrice);
-					}
+//					for (int i = 0; i < data; i++) {
+//						CarparkDurationPrice carparkDurationPrice = new CarparkDurationPrice();
+//	        			int durationLength = i+1;
+//						carparkDurationPrice.setDurationLength(durationLength);
+//	        			float durationLengthPrice = ((60*durationLength)/valueOf)*valueOf2;
+//	        			if (carparkDurationStandard.getMaxPrice()!=null&&carparkDurationStandard.getMaxPrice()>0&&durationLengthPrice>carparkDurationStandard.getMaxPrice()) {
+//	        				durationLengthPrice=carparkDurationStandard.getMaxPrice();
+//						}
+//						carparkDurationPrice.setDurationLengthPrice(durationLengthPrice);
+//	        			carparkDurationStandard.addCarparkDurationPriceList(carparkDurationPrice);
+//					}
 				}
 				if(cp0.getData("key") == "composite_durationPrice"){
 					for(int i=1;i<=24;i++){
@@ -438,6 +449,23 @@ public class NewCommonChargeBasicPage extends WizardPage {
 							CarparkDurationPrice carparkDurationPrice = new CarparkDurationPrice();
 							carparkDurationPrice.setDurationLength(i);
 							carparkDurationPrice.setDurationLengthPrice(Float.valueOf(((Text)data).getText()));
+							carparkDurationPrice.setStandardCode(text.getText());
+							carparkDurationStandard.addCarparkDurationPriceList(carparkDurationPrice);
+						}
+					}
+				}
+				if (cp0.getData("key")=="table") {
+					Table table = (Table) cp0.getData("table");
+					TableItem[] items2 = table.getItems();
+					for (int i=0;i<items2.length;i++) {
+						TableItem tableItem = items2[i];
+						String text2 = tableItem.getText(3);
+						System.out.println("tableItem.getText(3)=="+text2);
+						if (!StrUtil.isEmpty(text2)) {
+							Float valueOf = Float.valueOf(text2);
+							CarparkDurationPrice carparkDurationPrice = new CarparkDurationPrice();
+							carparkDurationPrice.setDurationLength(i+1);
+							carparkDurationPrice.setDurationLengthPrice(valueOf);
 							carparkDurationPrice.setStandardCode(text.getText());
 							carparkDurationStandard.addCarparkDurationPriceList(carparkDurationPrice);
 						}
@@ -546,7 +574,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 
 			Button button_4 = new Button(composite_durationConfig, SWT.NONE);
 
-			button_4.setText("预览");
+			button_4.setText("生成");
 
 			Composite composite_6 = new Composite(composite_2, SWT.NONE);
 			composite_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -572,7 +600,9 @@ public class NewCommonChargeBasicPage extends WizardPage {
 			Table table = tableViewer.getTable();
 			table.setLinesVisible(true);
 			table.setHeaderVisible(true);
-
+			composite_5.setData("key", "table");
+			composite_5.setData("table", table);
+			table.setData("carparkDurationStandard",carparkDurationStandard);
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.NONE);
 			TableColumn tableColumn = tableViewerColumn.getColumn();
 			tableColumn.setWidth(134);
@@ -582,10 +612,21 @@ public class NewCommonChargeBasicPage extends WizardPage {
 			TableColumn tableColumn_1 = tableViewerColumn_1.getColumn();
 			tableColumn_1.setWidth(156);
 			tableColumn_1.setText("收费金额");
+			
+			TableViewerColumn tableViewerColumn_2 = new TableViewerColumn(tableViewer, SWT.NONE);
+			TableColumn tableColumn_2 = tableViewerColumn_2.getColumn();
+			tableColumn_2.setWidth(156);
+			tableColumn_2.setText("时段时长");
+			
+			TableViewerColumn tableViewerColumn_3 = new TableViewerColumn(tableViewer, SWT.NONE);
+			TableColumn tableColumn_3 = tableViewerColumn_3.getColumn();
+			tableColumn_3.setWidth(156);
+			tableColumn_3.setText("时段收费");
+			
 			button_4.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					initHourPrice(text_startStepTime, text_startStepPrice, text_mapPrice, unitDurationLength, unitDurationPrice, table, carparkDurationStandard.getCarparkDurationPriceList().size());
+					initHourPrice(text_startStepTime, text_startStepPrice, text_mapPrice, unitDurationLength, unitDurationPrice, table, carparkDurationStandard.getCarparkDurationHoursSize(),true);
 					table.setVisible(true);
 				}
 			});
@@ -603,118 +644,12 @@ public class NewCommonChargeBasicPage extends WizardPage {
 					}
 				}
 			});
-			 initHourPrice(text_startStepTime, text_startStepPrice, text_mapPrice, unitDurationLength, unitDurationPrice, table,carparkDurationStandard.getCarparkDurationPriceList().size());
+			 initHourPrice(text_startStepTime, text_startStepPrice, text_mapPrice, unitDurationLength, unitDurationPrice, table,carparkDurationStandard.getCarparkDurationHoursSize(),false);
 			tabItem_1.setControl(composite_2);
 			tf.setSelection(tabItem_1);
 		}
     }
     
-    
-    
-//    public void createDurationTab(List<CarparkDurationStandard> durationStandards){
-//    	for (CarparkDurationStandard carparkDurationStandard : durationStandards) {
-//    		
-//    		
-//    		
-//    		TabItem tabItem = new TabItem(tf, SWT.NONE);
-//    		tabItem.setText(StrUtil.formatDate(carparkDurationStandard.getStartTime(), "HH:mm:ss") +
-//    				"-"+StrUtil.formatDate(carparkDurationStandard.getEndTime(), "HH:mm:ss"));
-//    		
-//    		Composite composite = new Composite(tf, SWT.NONE);
-//    		composite.setLayout(new GridLayout(1,false));
-//    		
-//    		Composite composite_start_step = new Composite(composite, SWT.NONE);
-//    		composite_start_step.setLayout(new GridLayout(6,false));
-//    		composite_start_step.setData("key", "composite_start_step");
-//    		 GridData gd_label_13 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-//    	     gd_label_13.widthHint = 33;
-//    		Label label_9 = new Label(composite_start_step, SWT.NONE);
-//            label_9.setText("起步收费时长");
-//            Text text_startStepTime = new Text(composite_start_step, SWT.BORDER);
-//            text_startStepTime.setLayoutData(gd_label_13);
-//            text_startStepTime.setText(carparkDurationStandard.getStartStepTime()==null?"0":carparkDurationStandard.getStartStepTime()+"");
-//            composite_start_step.setData("startStepTime", text_startStepTime);
-//            
-//            Label label_10 = new Label(composite_start_step, SWT.NONE);
-//            label_10.setText("起步收费金额");
-//            Text text_startStepPrice = new Text(composite_start_step, SWT.BORDER);
-//            text_startStepPrice.setLayoutData(gd_label_13);
-//            text_startStepPrice.setText(carparkDurationStandard.getStartStepPrice()==null?"0.0":carparkDurationStandard.getStartStepPrice()+"");
-//            composite_start_step.setData("startStepPrice", text_startStepPrice);
-//            
-//            Label label_maxPrice = new Label(composite_start_step, SWT.NONE);
-//            label_maxPrice.setText("时段最大收费");
-//            Text text_maxPrice = new Text(composite_start_step, SWT.BORDER);
-//            text_maxPrice.setLayoutData(gd_label_13);
-//            text_maxPrice.setText(carparkDurationStandard.getMaxPrice()==null?"0.0":carparkDurationStandard.getMaxPrice()+"");
-//            composite_start_step.setData("maxPrice", text_maxPrice);
-//    		
-//    		Composite composite_durationConfig = new Composite(composite, SWT.NONE);
-//    		composite_durationConfig.setData("key","composite_durationConfig");
-//    		composite_durationConfig.setLayout(new MigLayout("","[]5[]10[]5[]10[]5[]10[]5[]"));
-//            composite_durationConfig.setData("DurationId",carparkDurationStandard.getId());
-//            
-//           
-//            
-//    		Integer unitDuration = carparkDurationStandard.getUnitDuration();
-//    		new Label(composite_durationConfig,SWT.NONE).setText("单 位 时 长 ");
-//    		Text text2 = new Text(composite_durationConfig, SWT.BORDER);
-//    		text2.setText((unitDuration == null ? 0 : unitDuration) +"");
-//    		text2.setLayoutData("w 50");
-//    		composite_durationConfig.setData("unitDurationLength", text2);
-//    		
-//    		Float unitPrice = carparkDurationStandard.getUnitPrice();
-//    		new Label(composite_durationConfig,SWT.NONE).setText("单 位 金 额");
-//    		Text text3 = new Text(composite_durationConfig, SWT.BORDER);
-//    		text3.setText((unitPrice == null ? 0 : unitPrice)+"");
-//    		text3.setLayoutData("w 50");
-//    		composite_durationConfig.setData("unitDurationPrice", text3);
-//    		
-//    		Integer crossDayUnitDuration = carparkDurationStandard.getCrossDayUnitDuration();
-//            new Label(composite_durationConfig,SWT.NONE).setText("跨天单位时长");
-//            text_crossDayUnitTimeLength = new Text(composite_durationConfig, SWT.BORDER);
-//            text_crossDayUnitTimeLength.setText((crossDayUnitDuration == null ? 0 : crossDayUnitDuration)+"");
-//            text_crossDayUnitTimeLength.setLayoutData("w 50");
-//            composite_durationConfig.setData("crossDayUnitTimeLength", text_crossDayUnitTimeLength);
-//            
-//            Float crossDayPrice = carparkDurationStandard.getCrossDayPrice();
-//            new Label(composite_durationConfig,SWT.NONE).setText("跨天单位金额");
-//            text_crossDayUnitPrice = new Text(composite_durationConfig, SWT.BORDER);
-//            text_crossDayUnitPrice.setText((crossDayPrice == null ? 0 : crossDayPrice)+"");
-//            text_crossDayUnitPrice.setLayoutData("w 50");
-//            composite_durationConfig.setData("crossDayUnitPrice", text_crossDayUnitPrice);
-//    		
-//            new Label(composite,SWT.SEPARATOR | SWT.HORIZONTAL).setLayoutData(new GridData(GridData.FILL_HORIZONTAL));;
-//            
-//            
-//    		Composite composite_durationPrice = new Composite(composite, SWT.NONE);
-//    		composite_durationPrice.setData("key","composite_durationPrice");
-//    		composite_durationPrice.setLayoutData(new GridData(GridData.FILL_BOTH));
-//    		composite_durationPrice.setLayout(new GridLayout(12, false));
-//    		GridData gd = new GridData();
-//    		gd.widthHint = 30;
-//    		//先按时长排序
-//    		List<CarparkDurationPrice> carparkDurationPriceList = carparkDurationStandard.getCarparkDurationPriceList();
-//    		Collections.sort(carparkDurationPriceList, new Comparator<CarparkDurationPrice>() {
-//				@Override
-//				public int compare(CarparkDurationPrice o1, CarparkDurationPrice o2) {
-//					return o1.getDurationLength() - o2.getDurationLength();
-//				}
-//			});
-//    		
-//    		for (CarparkDurationPrice carparkDurationPrice : carparkDurationPriceList) {
-//    			new Label(composite_durationPrice, SWT.NONE).setText(carparkDurationPrice.getDurationLength()+"小时收费");
-//    			Text text4 = new Text(composite_durationPrice, SWT.BORDER);
-//    			text4.setText(carparkDurationPrice.getDurationLengthPrice()+"");
-//    			text4.setLayoutData(gd);
-//    			composite_durationPrice.setData(carparkDurationPrice.getDurationLength()+"", text4);
-//    			new Label(composite_durationPrice, SWT.NONE).setText("元　");
-//			}
-//    		
-//    		tabItem.setControl(composite);
-//    		tf.setSelection(tabItem);
-//		}
-//    }
 
     private void init() {
 		if(Strings.isNullOrEmpty(this.model.getFreeTimeEnable())){
@@ -759,8 +694,9 @@ public class NewCommonChargeBasicPage extends WizardPage {
 	 * @param text_unitDurationPrice
 	 * @param table
 	 * @param hourSize 
+	 * @param isNew 
 	 */
-	private void initHourPrice(Text text_startStepTime, Text text_startStepPrice, Text text_mapPrice, Text text_unitDurationTime, Text text_unitDurationPrice, Table table, int hourSize) {
+	private void initHourPrice(Text text_startStepTime, Text text_startStepPrice, Text text_mapPrice, Text text_unitDurationTime, Text text_unitDurationPrice, Table table, int hourSize, boolean isNew) {
 		TableItem[] items = table.getItems();
 		for (TableItem tableItem : items) {
 			tableItem.dispose();
@@ -771,11 +707,86 @@ public class NewCommonChargeBasicPage extends WizardPage {
 		Float price = Float.valueOf(text_unitDurationPrice.getText());
 		Float maxPrice = Float.valueOf(text_mapPrice.getText());
 		List<DurationInfo> list=getDuratonPriceInfo(startsStepTime,startsStepPrice,time,price,maxPrice,hourSize);
-		for (DurationInfo info : list) {
-			TableItem i=new TableItem(table, SWT.NONE);
-			i.setText(new String[]{info.getName(),info.getPrice()+""});
+		List<DurationInfo> listDay=getDuratonPriceInfo(table,time,price,maxPrice,hourSize,isNew);
+		for (int i=0;i<list.size();i++) {
+			DurationInfo info=list.get(i);
+			TableItem ti=new TableItem(table, SWT.NONE);
+			String[] strings = new String[4];
+			strings[0]=info.getName();
+			strings[1]=info.getPrice()+"";
+			ti.setText(strings);
+		}
+		for (int i = 0; i < listDay.size(); i++) {
+			if (listDay.size() > i) {
+				TableItem item = table.getItem(i);
+				if (item==null) {
+					item=new TableItem(table, 0);
+				}
+				DurationInfo durationInfo = listDay.get(i);
+				String s = durationInfo.getDayDurationName();
+				String p = durationInfo.getDayDurationPrice() + "";
+				item.setText(2, s);
+				item.setText(3, p);
+				Text t = new Text(table, 0);
+				TableEditor edit = new TableEditor(table);
+				edit.grabHorizontal = true;
+				t.setText(p);
+				edit.setEditor(t, item, 3);
+				t.addModifyListener(new ModifyListener() {
+					public void modifyText(ModifyEvent e) {
+						edit.getItem().setText(3, t.getText());
+					}
+				});
+				item.addDisposeListener(new DisposeListener() {
+					@Override
+					public void widgetDisposed(DisposeEvent e) {
+						t.dispose();
+						edit.dispose();
+					}
+				});
+				item.addListener(SWT.SELECTED, new Listener() {
+					
+					@Override
+					public void handleEvent(Event event) {
+						System.out.println(t.getText());
+					}
+				});
+			}
 		}
 	}
+
+	private List<DurationInfo> getDuratonPriceInfo(Table table, Integer time, Float price, Float maxPrice, int hour,boolean isNew) {
+		ArrayList<DurationInfo> list = new ArrayList<>();
+		int totalMinute = 60 * hour;
+		if (totalMinute <= 0||time==0) {
+			return list;
+		}
+		int nowMinute = 0;
+		float nowPrice = 0;
+		CarparkDurationStandard data = (CarparkDurationStandard) table.getData("carparkDurationStandard");
+		for (int i = 0; i < totalMinute/time; i++) {
+			int flag = nowMinute;
+			DurationInfo info = new DurationInfo();
+			nowMinute+=time;
+			nowPrice+=price;
+			info.setTime(nowMinute);
+			info.setDayDurationName(CarparkUtils.getMinuteToTime(flag) + "-" + CarparkUtils.getMinuteToTime(nowMinute));
+			float dayDurationPrice = nowPrice;
+			if (maxPrice>0) {
+				dayDurationPrice = nowPrice>maxPrice?maxPrice:nowPrice;
+			}
+			info.setDayDurationPrice(dayDurationPrice);
+			if (data.getId()!=null&&!isNew) {
+				List<CarparkDurationPrice> carparkDurationPriceList = data.getCarparkDurationPriceList();
+				if (!StrUtil.isEmpty(carparkDurationPriceList)) {
+					info.setDayDurationPrice(carparkDurationPriceList.get(i).getDurationLengthPrice());
+				}
+			}
+			list.add(info);
+		}
+		return list;
+	}
+
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
@@ -811,7 +822,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 		IObservableValue observe_enableCharge_model = BeansObservables.observeValue(model, "freeTimeEnable");
 		bindingContext.bindValue(observeSingleSelectionComboViewer_3, observe_enableCharge_model, null, null);
 		//
-		IObservableValue observeSingleSelectionComboViewer_4 = ViewerProperties.singleSelection().observe(comboViewer_4);
+		IObservableValue observeSingleSelectionComboViewer_4 = ViewerProperties.singleSelection().observe(comboViewer_carType);
 		IObservableValue observe_carType_model = BeansObservables.observeValue(model, "carparkCarType");
 		bindingContext.bindValue(observeSingleSelectionComboViewer_4, observe_carType_model, null, null);
 		//

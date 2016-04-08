@@ -3,6 +3,7 @@ package com.dongluhitec.card.domain.db.singlecarpark;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.DomainObject;
 
 @Entity
@@ -67,6 +69,9 @@ public class CarparkDurationStandard extends DomainObject{
 	}
 
 	public Integer getUnitDuration() {
+		if (unitDuration==null) {
+			return 0;
+		}
 		return unitDuration;
 	}
 
@@ -184,5 +189,15 @@ public class CarparkDurationStandard extends DomainObject{
 		this.maxPrice = maxPrice;
 		if (pcs != null)
 			pcs.firePropertyChange("maxPrice", null, null);
+	}
+
+	public int getCarparkDurationHoursSize() {
+		int countTime = CarparkUtils.countTime(startTime, endTime, TimeUnit.HOURS);
+		if (countTime==0) {
+			countTime=24;
+		}else if (countTime<0) {
+			countTime=countTime*-1;
+		}
+		return countTime;
 	}
 }

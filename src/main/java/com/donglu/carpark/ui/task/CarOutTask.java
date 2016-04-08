@@ -433,6 +433,7 @@ public class CarOutTask implements Runnable{
 			model.setTotalTime(StrUtil.MinusTime2(inTime, date));
 		}
 		singleCarparkInOutHistory.setPlateNo(nowPlateNO);
+		singleCarparkInOutHistory.setOutPlateNO(plateNO);
 		singleCarparkInOutHistory.setOutTime(date);
 		singleCarparkInOutHistory.setOperaName(model.getUserName());
 		singleCarparkInOutHistory.setOutDevice(device.getName());

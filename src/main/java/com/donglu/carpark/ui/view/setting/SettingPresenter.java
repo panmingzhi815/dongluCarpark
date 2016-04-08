@@ -137,10 +137,15 @@ public class SettingPresenter implements Presenter {
 	public void cleanCarWithIn() {
 
 		String input = commonui.input("场内车清理", "请输入需要清理停了多少天的场内车","30");
+		if (input==null) {
+			return;
+		}
 		Integer date;
 		try {
 			date = Integer.valueOf(input);
 			if (date<=0) {
+				commonui.info("提示", "天数不能小于1");
+				cleanCarWithIn();
 				return;
 			}
 		} catch (NumberFormatException e) {

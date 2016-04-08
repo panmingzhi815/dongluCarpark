@@ -99,7 +99,7 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
     	
     	int totalHour = 0;
     	for (CarparkDurationStandard carparkDurationStandard : durationTable) {
-    		totalHour += carparkDurationStandard.getCarparkDurationPriceList().size();
+    		totalHour += carparkDurationStandard.getCarparkDurationHoursSize();
 		}
     	if(totalHour != 24){
     		commonui.error("错误", "时段不完整");

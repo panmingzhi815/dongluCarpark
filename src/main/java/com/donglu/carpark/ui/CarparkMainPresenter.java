@@ -1381,7 +1381,8 @@ public class CarparkMainPresenter {
 			Date outTime2 = cs.getOutTime();
 			int minusMinute=cs.getStillSecond();
 			if (outTime2==null) {
-				minusMinute = CarparkUtils.countTime(inTime, date, TimeUnit.MINUTES);
+				minusMinute = CarparkUtils.countTime(cs.getInTime(), date, TimeUnit.MINUTES);
+				System.out.println(inTime+"-"+date+"===="+minusMinute);
 			}
 			if (minusMinute>canStillMinute) {
 				minute+=(minusMinute-canStillMinute);

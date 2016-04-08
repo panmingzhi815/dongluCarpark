@@ -14,6 +14,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -938,5 +939,10 @@ public class CarparkUtils {
 	public static boolean checkServerIsLocal() {
 		String dbServerIp = CarparkClientConfig.getInstance().getDbServerIp();
 		return dbServerIp.equals("localhost") || dbServerIp.equals("127.0.0.1") || dbServerIp.equals(StrUtil.getHostIp());
+	}
+	public static Date getDate(int year, int month, int date, int hours, int minutes, int seconds) {
+		Calendar c = Calendar.getInstance();
+		c.set(year, month, date, hours, minutes, seconds);
+		return c.getTime();
 	}
 }
