@@ -7,6 +7,8 @@ import java.util.List;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.CarparkMainPresenter;
@@ -17,7 +19,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 public class DevicePresenter  implements Presenter{
-	
+	private final static Logger logger = LoggerFactory.getLogger(DevicePresenter.class);
 	private DeviceView view;
 	@Inject
 	private CommonUIFacility commonui;
@@ -35,8 +37,12 @@ public class DevicePresenter  implements Presenter{
 		view.initDevices(listDevice);
 	}
 	public void handPhotograph(String ip) {
-		presenter.handPhotograph(ip);
-		CarparkMainApp.mapHandPhotograph.put(ip, new Date());
+		try {
+			presenter.handPhotograph(ip);
+			CarparkMainApp.mapHandPhotograph.put(ip, new Date());
+		} catch (Exception e) {
+			logger.error("车牌拍照时发生错误");
+		}
 	}
 	public void addDevice(CTabFolder tabFolder) {
 		presenter.addDevice(tabFolder, type);
@@ -67,39 +73,55 @@ public class DevicePresenter  implements Presenter{
 		presenter.createCamera(CarparkMainApp.mapIpToDevice.get(ip), composite);
 	}
 	public void controlItem(Boolean dispose){
-		if (StrUtil.isEmpty(view)) {
-			return;
+		try {
+			if (StrUtil.isEmpty(view)) {
+				return;
+			}
+			view.controlItem(dispose);
+		} catch (Exception e) {
+			logger.info("权限控制时发生错误",e);
 		}
-		view.controlItem(dispose);
 	}
 	public void openDoor() {
-		CTabItem selection = view.getTabFolder().getSelection();
-		if (StrUtil.isEmpty(selection)) {
-			return;
+		try {
+			CTabItem selection = view.getTabFolder().getSelection();
+			if (StrUtil.isEmpty(selection)) {
+				return;
+			}
+			String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
+			presenter.openDoor(CarparkMainApp.mapIpToDevice.get(ip));
+			CarparkMainApp.mapOpenDoor.put(ip, true);
+			handPhotograph(ip);
+		} catch (Exception e) {
+			logger.error("车辆开闸时发生错误");
 		}
-		String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
-		presenter.openDoor(CarparkMainApp.mapIpToDevice.get(ip));
-		CarparkMainApp.mapOpenDoor.put(ip, true);
-		handPhotograph(ip);
 	}
 	public void closeDoor() {
-		CTabItem selection = view.getTabFolder().getSelection();
-		if (StrUtil.isEmpty(selection)) {
-			return;
+		try {
+			CTabItem selection = view.getTabFolder().getSelection();
+			if (StrUtil.isEmpty(selection)) {
+				return;
+			}
+			String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
+			presenter.closeDoor(CarparkMainApp.mapIpToDevice.get(ip));
+		} catch (Exception e) {
+			logger.error("设备落杆时发生错误",e);
 		}
-		String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
-		presenter.closeDoor(CarparkMainApp.mapIpToDevice.get(ip));
 		
 	}
 	public String getType() {
 		return type;
 	}
 	public void fleet(boolean isopen) {
-		CTabItem selection = view.getTabFolder().getSelection();
-		if (StrUtil.isEmpty(selection)) {
-			return;
+		try {
+			CTabItem selection = view.getTabFolder().getSelection();
+			if (StrUtil.isEmpty(selection)) {
+				return;
+			}
+			String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
+			presenter.fleetDoor(CarparkMainApp.mapIpToDevice.get(ip),isopen);
+		} catch (Exception e) {
+			logger.error("设备操作车队时发生错误",e);
 		}
-		String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
-		presenter.fleetDoor(CarparkMainApp.mapIpToDevice.get(ip),isopen);
 	}
 }

@@ -66,6 +66,14 @@ public class CarOutTask implements Runnable{
 
 	
 	public static Map<String, String> mapTempCharge=CarparkMainApp.mapTempCharge;
+
+	private Date date;
+
+	private SingleCarparkDevice device;
+
+	private SingleCarparkUser user;
+
+	private SingleCarparkInOutHistory ch;
 	
 	public CarOutTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage,CarparkMainModel model,
 			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, CLabel lbl_outBigImg,
@@ -90,13 +98,13 @@ public class CarOutTask implements Runnable{
 	@Override
 	public void run(){
 		try {
-			SingleCarparkDevice device = mapIpToDevice.get(ip);
+			device = mapIpToDevice.get(ip);
 			
 			
 			model.setDisContinue(false);
 			model.setHandSearch(false);
 			long nanoTime = System.nanoTime();
-			Date date = new Date();
+			date = new Date();
 			boolean checkPlateNODiscernGap = presenter.checkPlateNODiscernGap(mapPlateNoDate, plateNO, date);
 			if (!checkPlateNODiscernGap) {
 				return;
@@ -136,21 +144,21 @@ public class CarOutTask implements Runnable{
 				LOGGER.info("没有找到ip为：" + ip + "的设备");
 				return;
 			}
-			SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkById(device.getCarpark().getId());
+			SingleCarparkCarpark carpark = device.getCarpark();
 			
 			if (StrUtil.isEmpty(carpark)) {
 				LOGGER.info("没有找到名字为：" + carpark + "的停车场");
 				return;
 			}
 			model.setIp(ip);
-			String bigImg = folder + "/" + bigImgFileName;
-			String smallImg = folder + "/" + smallImgFileName;
+			String bigImgSaveFilePath = folder + "/" + bigImgFileName;
+			String smallImgSaveFilePath = folder + "/" + smallImgFileName;
 			//
 			if (StrUtil.isEmpty(plateNO)) {
 				LOGGER.error("空的车牌");
 				model.setSearchPlateNo(plateNO);
-				model.setSearchBigImage(bigImg);
-				model.setSearchSmallImage(smallImg);
+				model.setSearchBigImage(bigImgSaveFilePath);
+				model.setSearchSmallImage(smallImgSaveFilePath);
 				model.setHandSearch(true);
 				model.setOutPlateNOEditable(true);
 				return;
@@ -163,16 +171,16 @@ public class CarOutTask implements Runnable{
 				return;
 			}
 			
-			SingleCarparkUser user = sp.getCarparkUserService().findUserByPlateNo(plateNO,device.getCarpark().getId());
+			user = sp.getCarparkUserService().findUserByPlateNo(plateNO,device.getCarpark().getId());
 			// 没有找到入场记录
 			List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO,carpark);
 			if (StrUtil.isEmpty(user)||user.getType().equals("储值")) {
 				if (StrUtil.isEmpty(findByNoOut)&&device.getCarpark().getIsCharge()) {
-					notFindInHistory(device, bigImg, smallImg);
+					notFindInHistory(device, bigImgSaveFilePath, smallImgSaveFilePath);
 					return;
 				}
 			}
-			SingleCarparkInOutHistory ch = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
+			ch = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
 			LOGGER.info("车辆出场显示进口图片");
 			DEFAULT_DISPLAY.asyncExec(new Runnable() {
 				@Override
@@ -193,14 +201,10 @@ public class CarOutTask implements Runnable{
 			String carType = "临时车";
 			
 			if (!StrUtil.isEmpty(user)) {
-//				Date userOutTime = new DateTime(user.getValidTo()).plusDays(user.getDelayDays()==null?0:user.getDelayDays()).toDate();
-//				if (userOutTime.after(date)) {
-					carType="固定车";
-//				}
+				carType="固定车";
 			}
 			String roadType = device.getRoadType();
 			LOGGER.info("车辆类型为：{}==通道类型为：{}", carType, roadType);
-			// System.out.println("=====车辆类型为："+carType+"通道类型为："+roadType);
 			long nanoTime2 = System.nanoTime();
 			LOGGER.info(dateString + "==" + ip + "==" + device.getInType() + "==" + plateNO + "车辆类型：" + carType + "" + "保存图片：" + (nanoTime1 - nanoTime) + "==查找固定用户：" + (nanoTime2 - nanoTime3)
 					+ "==界面操作：" + (nanoTime3 - nanoTime1));
@@ -208,11 +212,11 @@ public class CarOutTask implements Runnable{
 
 			if (carType.equals("固定车")) {
 				if (!user.getType().equals("储值")) {
-					if (fixCarOutProcess(ip, plateNO, date, device, user, roadType, equals, bigImg, smallImg)) {
+					if (fixCarOutProcess(bigImgSaveFilePath, smallImgSaveFilePath)) {
 						return;
 					}
 				}else{
-					if(prepaidCarOut(device, date, carpark, bigImg, smallImg, user, ch)){
+					if(prepaidCarOut(bigImgSaveFilePath, smallImgSaveFilePath)){
 						return;
 					}
 				}
@@ -223,9 +227,9 @@ public class CarOutTask implements Runnable{
 					presenter.showContentToDevice(device, CarparkMainApp.FIX_ROAD, false);
 					return;
 				}
-				tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg,null);
+				tempCarOutProcess(ip, plateNO, device, date, bigImgSaveFilePath, smallImgSaveFilePath,null);
 			}
-			CarparkMainApp.mapCameraLastImage.put(ip, bigImg);
+			CarparkMainApp.mapCameraLastImage.put(ip, bigImgSaveFilePath);
 		} catch (Exception e) {
 			LOGGER.error("车辆出场时发生错误",e);
 		}
@@ -242,8 +246,9 @@ public class CarOutTask implements Runnable{
 	 * @param ch
 	 * @return 
 	 */
-	public boolean prepaidCarOut(SingleCarparkDevice device, Date date, SingleCarparkCarpark carpark, String bigImg, String smallImg, SingleCarparkUser user, SingleCarparkInOutHistory ch) {
+	public boolean prepaidCarOut(String bigImg, String smallImg) {
 		LOGGER.info("储值车出场");
+		SingleCarparkCarpark carpark=device.getCarpark();
 		if (CarparkUtils.checkRoadType(device,model, presenter, DeviceRoadTypeEnum.临时车通道,DeviceRoadTypeEnum.固定车通道)) {
 			return true;
 		}
@@ -337,7 +342,7 @@ public class CarOutTask implements Runnable{
 	 * @param smallImg
 	 * @return 返回true终止操作
 	 */
-	private boolean fixCarOutProcess(final String ip, final String plateNO, Date date, SingleCarparkDevice device, SingleCarparkUser user, String roadType, boolean equals, String bigImg,
+	private boolean fixCarOutProcess(String bigImg,
 			String smallImg) throws Exception {
 		
 		if (!StrUtil.isEmpty(user.getTempCarTime())) {
@@ -372,8 +377,8 @@ public class CarOutTask implements Runnable{
 			}
 			nowPlateNO = model.getOutShowPlateNO();
 			if (!nowPlateNO.equals(plateNO)) {
-				SingleCarparkUser findUserByPlateNo = sp.getCarparkUserService().findUserByPlateNo(nowPlateNO, device.getCarpark().getId());
-				if (StrUtil.isEmpty(findUserByPlateNo)) {
+				user = sp.getCarparkUserService().findUserByPlateNo(nowPlateNO, device.getCarpark().getId());
+				if (StrUtil.isEmpty(user)) {
 					tempCarOutProcess(ip, nowPlateNO, device, date, bigImg, smallImg, null);
 					return true;
 				}

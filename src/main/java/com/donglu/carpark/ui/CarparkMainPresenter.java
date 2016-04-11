@@ -140,19 +140,23 @@ public class CarparkMainPresenter {
 	 * @param selection
 	 */
 	public void deleteDeviceTabItem(CTabItem selection) {
-		if (selection != null) {
-			String ip = mapDeviceTabItem.get(selection);
-			System.out.println("删除设备" + ip);
-			selection.dispose();
-			mapIpToJNA.get(ip).closeEx(ip);
-			mapDeviceTabItem.remove(selection);
-			mapDeviceType.remove(ip);
-			mapIpToDevice.remove(ip);
-			if (mapIpToDevice.keySet().size() <= 0) {
-				model.setCarpark(null);
+		try {
+			if (selection != null) {
+				String ip = mapDeviceTabItem.get(selection);
+				System.out.println("删除设备" + ip);
+				selection.dispose();
+				mapIpToJNA.get(ip).closeEx(ip);
+				mapDeviceTabItem.remove(selection);
+				mapDeviceType.remove(ip);
+				mapIpToDevice.remove(ip);
+				if (mapIpToDevice.keySet().size() <= 0) {
+					model.setCarpark(null);
+				}
+				CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
+				setIsTwoChanel();
 			}
-			CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
-			setIsTwoChanel();
+		} catch (Exception e) {
+			log.error("删除设备时发生错误",e);
 		}
 	}
 
@@ -759,6 +763,7 @@ public class CarparkMainPresenter {
 			}
 			return carparkOpenDoor;
 		} catch (Exception e) {
+			e.printStackTrace();
 			return false;
 		}
 	}
