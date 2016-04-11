@@ -695,8 +695,14 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
 			c.setFirstResult(0);
 			c.setMaxResults(size);
-			c.addOrder(Order.asc(SingleCarparkInOutHistory.Property.inTime.name()));
-			return c.getResultList();
+			
+			c.addOrder(Order.desc(SingleCarparkInOutHistory.Property.inTime.name()));
+			List<SingleCarparkInOutHistory> resultList = c.getResultList();
+			resultList=CarparkUtils.sortObjectPropety(resultList, "inTimeLabel", true);
+			for (SingleCarparkInOutHistory singleCarparkInOutHistory : resultList) {
+				System.out.println(StrUtil.formatDateTime(singleCarparkInOutHistory.getInTime()));
+			}
+			return resultList;
 		} finally{
 			unitOfWork.end();
 		}
