@@ -7,6 +7,8 @@ import java.util.List;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.CarparkMainPresenter;
@@ -17,7 +19,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 public class DevicePresenter  implements Presenter{
-	
+	static final Logger log = LoggerFactory.getLogger(DevicePresenter.class);
 	private DeviceView view;
 	@Inject
 	private CommonUIFacility commonui;
@@ -73,33 +75,45 @@ public class DevicePresenter  implements Presenter{
 		view.controlItem(dispose);
 	}
 	public void openDoor() {
-		CTabItem selection = view.getTabFolder().getSelection();
-		if (StrUtil.isEmpty(selection)) {
-			return;
+		try {
+			CTabItem selection = view.getTabFolder().getSelection();
+			if (StrUtil.isEmpty(selection)) {
+				return;
+			}
+			String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
+			presenter.openDoor(CarparkMainApp.mapIpToDevice.get(ip));
+			CarparkMainApp.mapOpenDoor.put(ip, true);
+			handPhotograph(ip);
+		} catch (Exception e) {
+			log.error("设备开闸时发生错误",e);
 		}
-		String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
-		presenter.openDoor(CarparkMainApp.mapIpToDevice.get(ip));
-		CarparkMainApp.mapOpenDoor.put(ip, true);
-		handPhotograph(ip);
 	}
 	public void closeDoor() {
-		CTabItem selection = view.getTabFolder().getSelection();
-		if (StrUtil.isEmpty(selection)) {
-			return;
+		try {
+			CTabItem selection = view.getTabFolder().getSelection();
+			if (StrUtil.isEmpty(selection)) {
+				return;
+			}
+			String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
+			presenter.closeDoor(CarparkMainApp.mapIpToDevice.get(ip));
+		} catch (Exception e) {
+			log.error("设备落杆时发生错误",e);
 		}
-		String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
-		presenter.closeDoor(CarparkMainApp.mapIpToDevice.get(ip));
 		
 	}
 	public String getType() {
 		return type;
 	}
 	public void fleet(boolean isopen) {
-		CTabItem selection = view.getTabFolder().getSelection();
-		if (StrUtil.isEmpty(selection)) {
-			return;
+		try {
+			CTabItem selection = view.getTabFolder().getSelection();
+			if (StrUtil.isEmpty(selection)) {
+				return;
+			}
+			String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
+			presenter.fleetDoor(CarparkMainApp.mapIpToDevice.get(ip),isopen);
+		} catch (Exception e) {
+			log.error("设备车队是发生错误！",e);
 		}
-		String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
-		presenter.fleetDoor(CarparkMainApp.mapIpToDevice.get(ip),isopen);
 	}
 }
