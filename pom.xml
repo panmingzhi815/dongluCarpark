@@ -27,8 +27,17 @@
 					<artifactId>javassist</artifactId>
 					<groupId>org.javassist</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>vlcj</artifactId>
+					<groupId>uk.co.caprica</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
+		 <dependency>
+            <groupId>uk.co.caprica</groupId>
+            <artifactId>vlcj</artifactId>
+            <version>2.1.0</version>
+        </dependency>
 		
 		<dependency>
 			<artifactId>jaxb-xjc</artifactId>

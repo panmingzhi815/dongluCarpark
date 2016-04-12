@@ -56,7 +56,7 @@ public class YunConfigUI {
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
-		shell = new Shell();
+		shell = new Shell(SWT.MIN|SWT.CLOSE|SWT.ON_TOP);
 		shell.setSize(450, 300);
 		shell.setText("云服务上传配置");
 		shell.setLayout(new GridLayout(1, false));

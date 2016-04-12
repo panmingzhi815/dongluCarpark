@@ -88,7 +88,7 @@ public class ServerUI {
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
-		shell = new Shell();
+		shell = new Shell(SWT.CLOSE|SWT.MIN|SWT.ON_TOP);
 		shell.setSize(450, 300);
 		shell.setText("数据库配置");
 		shell.setLayout(new GridLayout(1, false));

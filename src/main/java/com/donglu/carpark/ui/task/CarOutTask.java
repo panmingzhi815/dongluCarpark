@@ -119,14 +119,18 @@ public class CarOutTask implements Runnable{
 			DEFAULT_DISPLAY.asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					if (StrUtil.isEmpty(lbl_outSmallImg)) {
-						return;
+					try {
+						if (StrUtil.isEmpty(lbl_outSmallImg)) {
+							return;
+						}
+						CarparkUtils.setBackgroundImage(bigImage, lbl_outBigImg, DEFAULT_DISPLAY);
+						CarparkUtils.setBackgroundImage(smallImage, lbl_outSmallImg, DEFAULT_DISPLAY);
+						CarparkUtils.setBackgroundImageName(lbl_outBigImg, folder + "/" + bigImgFileName);
+						text_real.setFocus();
+						text_real.selectAll();
+					} catch (Exception e) {
+						LOGGER.info("显示出场出口 图片时发生错误",e);
 					}
-					CarparkUtils.setBackgroundImage(bigImage, lbl_outBigImg, DEFAULT_DISPLAY);
-					CarparkUtils.setBackgroundImage(smallImage, lbl_outSmallImg, DEFAULT_DISPLAY);
-					CarparkUtils.setBackgroundImageName(lbl_outBigImg, folder + "/" + bigImgFileName);
-					text_real.setFocus();
-					text_real.selectAll();
 				}
 			});
 			model.setOutShowPlateNO(plateNO);
@@ -156,8 +160,10 @@ public class CarOutTask implements Runnable{
 				return;
 			}
 			//锁车判断
+			LOGGER.info("锁车判断");
 			SingleCarparkLockCar findLockCarByPlateNO = sp.getCarparkInOutService().findLockCarByPlateNO(plateNO, true);
 			if (!StrUtil.isEmpty(findLockCarByPlateNO)) {
+				LOGGER.info("车辆已锁，禁止出场");
 				presenter.showPlateNOToDevice(device, plateNO);
 				presenter.showContentToDevice(device, "车辆已锁", false);
 				return;
@@ -172,31 +178,30 @@ public class CarOutTask implements Runnable{
 					return;
 				}
 			}
+			LOGGER.info("查找固定用户为{}",user);
 			SingleCarparkInOutHistory ch = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
 			LOGGER.info("车辆出场显示进口图片");
-			DEFAULT_DISPLAY.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (StrUtil.isEmpty(ch)||StrUtil.isEmpty(lbl_inBigImg)) {
-						return;
+			if (!StrUtil.isEmpty(ch)&&!StrUtil.isEmpty(lbl_inBigImg)) {
+				DEFAULT_DISPLAY.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							CarparkUtils.setBackgroundImage(CarparkUtils.getImageByte(ch.getBigImg()), lbl_inBigImg, DEFAULT_DISPLAY);
+							CarparkUtils.setBackgroundImageName(lbl_inBigImg, ch.getBigImg());
+						} catch (Exception e) {
+							LOGGER.info("显示出场进口图片时发生错误",e);
+						}
 					}
-					CarparkUtils.setBackgroundImage(CarparkUtils.getImageByte(ch.getBigImg()), lbl_inBigImg, DEFAULT_DISPLAY);
-					CarparkUtils.setBackgroundImageName(lbl_inBigImg, ch.getBigImg());
-				}
-			});
-			
-			
-
+				});
+			}
+			LOGGER.info("发送显示车牌{}到设备{}",plateNO,ip);
 			presenter.showPlateNOToDevice(device, plateNO);
 			//
 			long nanoTime3 = System.nanoTime();
 			String carType = "临时车";
 			
 			if (!StrUtil.isEmpty(user)) {
-//				Date userOutTime = new DateTime(user.getValidTo()).plusDays(user.getDelayDays()==null?0:user.getDelayDays()).toDate();
-//				if (userOutTime.after(date)) {
-					carType="固定车";
-//				}
+				carType="固定车";
 			}
 			String roadType = device.getRoadType();
 			LOGGER.info("车辆类型为：{}==通道类型为：{}", carType, roadType);

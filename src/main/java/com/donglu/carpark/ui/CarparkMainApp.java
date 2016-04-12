@@ -309,13 +309,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			init();
 			createContents();
 			shell.setImage(JFaceUtil.getImage("carpark_16"));
-			shell.addDisposeListener(new DisposeListener() {
-
-				@Override
-				public void widgetDisposed(DisposeEvent e) {
-					systemExit();
-				}
-			});
 
 			shell.open();
 			shell.layout();
@@ -378,13 +371,18 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	 * 
 	 */
 	public void systemExit() {
-		outTheadPool.shutdownNow();
+		try {
+			outTheadPool.shutdownNow();
 
-		inThreadPool.shutdownNow();
+			inThreadPool.shutdownNow();
 
-		refreshService.shutdownNow();
-		presenter.systemExit();
-		System.exit(0);
+			refreshService.shutdownNow();
+			presenter.systemExit();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			System.exit(0);
+		}
 	}
 
 	/**
@@ -513,8 +511,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 				boolean confirm = commonui.confirm("退出提示", "确定要退出监控界面！！");
 				if (!confirm) {
 					e.doit = false;
-				} else {
-					shell.dispose();
 				}
 			}
 		});
@@ -1105,7 +1101,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			if (inDevicePresenter2!=null) {
 				inDevicePresenter2.controlItem(true);
 			}
-			if (inDevicePresenter2!=null) {
+			if (outDevicePresenter2!=null) {
 				outDevicePresenter2.controlItem(true);
 			}
 		}

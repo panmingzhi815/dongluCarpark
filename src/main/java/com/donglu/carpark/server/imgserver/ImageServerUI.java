@@ -242,7 +242,7 @@ public class ImageServerUI {
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
-		shell = new Shell();
+		shell = new Shell(SWT.MAX|SWT.MIN|SWT.CLOSE|SWT.ON_TOP|SWT.RESIZE);
 		shell.setSize(535, 99);
 		shell.setText("服务器");
 		shell.setLayout(new GridLayout(5, false));

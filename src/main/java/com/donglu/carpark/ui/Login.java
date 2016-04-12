@@ -214,7 +214,7 @@ public class Login {
 	 */
 	@SuppressWarnings("unchecked")
 	protected void createContents() {
-		shell = new Shell(SWT.MIN|SWT.CLOSE);
+		shell = new Shell(SWT.MIN|SWT.CLOSE|SWT.ON_TOP);
 		shell.setSize(300, 272);
 		shell.setText("用户登录");
 		GridLayout gridLayout = new GridLayout(1, false);
