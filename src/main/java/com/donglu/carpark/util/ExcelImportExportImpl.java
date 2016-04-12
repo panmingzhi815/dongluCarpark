@@ -286,9 +286,10 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 			row.createCell(6).setCellValue(StrUtil.formatDate(user.getValidTo(), USER_VALIDTO));
 			row.createCell(7).setCellValue(user.getCarparkNo());
 			row.createCell(8).setCellValue(user.getParkingSpace());
-			row.createCell(9).setCellValue(user.getCarpark().getCode());
-			row.createCell(10).setCellValue(user.getCarpark().getName());
-			row.createCell(11).setCellValue(user.getRemark());
+			row.createCell(9).setCellValue(user.getCarparkSlotType()+"");
+			row.createCell(10).setCellValue(user.getCarpark().getCode());
+			row.createCell(11).setCellValue(user.getCarpark().getName());
+			row.createCell(12).setCellValue(user.getRemark());
 		}
 		FileOutputStream fileOut = new FileOutputStream(path);
 		wb.write(fileOut);
@@ -330,13 +331,13 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				}
 				// 导入用户
 				CardUser cardUser = null;
-				String name,plateNO,address,type,validTo,carparkNo,remark,telephone,parkingSpace;
+				String name,plateNO,address,type,validTo,carparkNo,remark,telephone,parkingSpace,carparkSlotType;
 				plateNO=getCellStringValue(row, 2);
 				if (StrUtil.isEmpty(plateNO)) {
 					throw new Exception("空的车牌");
 				}
-				String caparkCode=getCellStringValue(row, 9);
-				String caparkName=getCellStringValue(row, 10);
+				String caparkCode=getCellStringValue(row, 10);
+				String caparkName=getCellStringValue(row, 11);
 				
 				if (map.get(caparkCode) == null) {
 					SingleCarparkCarpark findCarparkByCode = sp.getCarparkService().findCarparkByCode(caparkCode);
@@ -357,8 +358,9 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				carparkNo=getCellStringValue(row, 7);
 				telephone=getCellStringValue(row, 3);
 				parkingSpace=getCellStringValue(row, 8);
+				carparkSlotType=getCellStringValue(row, 9);
 				
-				remark=getCellStringValue(row, 11);
+				remark=getCellStringValue(row, 12);
 				SingleCarparkUser user=new SingleCarparkUser();
 				user.setName(name);
 				user.setPlateNo(plateNO);
@@ -370,11 +372,16 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				user.setCreateDate(new Date());
 				user.setCarpark(map.get(caparkCode));
 				carparkUserService.saveUser(user);
-				setCellStringvalue(row, 12, "处理成功", cellStyle);
+				try {
+					user.setCarparkSlotType(SingleCarparkUser.CarparkSlotTypeEnum.valueOf(carparkSlotType));
+				} catch (Exception e) {
+					throw new Exception("没有找到车位类型");
+				}
+				setCellStringvalue(row, 13, "处理成功", cellStyle);
 			} catch (Exception e) {
 				failNum++;
 				e.printStackTrace();
-				setCellStringvalue(row, 12, "保存失败" + e.getMessage(), cellStyle);
+				setCellStringvalue(row, 13, "保存失败" + e.getMessage(), cellStyle);
 			} finally {
 				currentRow++;
 				row = sheet.getRow(currentRow);

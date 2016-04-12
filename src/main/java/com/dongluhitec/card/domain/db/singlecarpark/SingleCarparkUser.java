@@ -62,7 +62,7 @@ public class SingleCarparkUser extends DomainObject {
 	private SingleCarparkCarpark carpark;
 	
 	public String getValitoLabel(){
-		return StrUtil.formatDate(validTo, "yyyy-MM-dd HH:mm:ss");
+		return StrUtil.formatDate(validTo, "yyyy-MM-dd");
 	}
 	public String getName() {
 		return name;
@@ -188,6 +188,9 @@ public class SingleCarparkUser extends DomainObject {
 			pcs.firePropertyChange("leftMoney", null, null);
 	}
 	public CarTypeEnum getCarType() {
+		if (carType==null) {
+			return CarTypeEnum.SmallCar;
+		}
 		return carType;
 	}
 	public void setCarType(CarTypeEnum carType) {
