@@ -29,6 +29,8 @@ import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -230,6 +232,14 @@ public abstract class AbstractListView<T> extends Composite {
 		btn_more.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		btn_more.setText("更多");
 		initDataBindings();
+		table.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.keyCode==127) {
+					presenter.delete(model.getSelected());
+				}
+			}
+		});
 	}
 
 	public AbstractListView(Composite parent, int style, Class<T> class1, String[] strings, String[] strings2, int[] is) {
