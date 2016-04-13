@@ -26,9 +26,9 @@ public enum SystemSettingTypeEnum {
 	启用车牌报送("false"),
 	车位数显示方式("0"),
 	免费原因("其他原因"),
-	固定车提醒时间(""),
+	固定车提醒时间(""),停车场重复计费("false"),
 	
-	DateBase_version("1.0.0.7_beta"),软件版本("1.0.0.7"),发布时间("2015-03-23 17:00:00"),       ;
+	DateBase_version("1.0.0.7_beta"),软件版本("1.0.0.7"),发布时间("2015-03-23 17:00:00"),        ;
 	;
 	
 	private String defaultValue;

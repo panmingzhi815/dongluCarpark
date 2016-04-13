@@ -270,7 +270,7 @@ public class SettingView extends Composite implements View {
 
 		Composite composite_2 = new Composite(group, SWT.NONE);
 		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
-		composite_2.setLayout(new GridLayout(3, false));
+		composite_2.setLayout(new GridLayout(7, false));
 
 		Label label = new Label(composite_2, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -304,24 +304,27 @@ public class SettingView extends Composite implements View {
 		Label label_1 = new Label(composite_2, SWT.NONE);
 		label_1.setText("秒");
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		Label label2 = new Label(composite_2, SWT.NONE);
+		GridData gd_label2 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_label2.widthHint = 50;
+		label2.setLayoutData(gd_label2);
 
-		Composite composite_3 = new Composite(group, SWT.NONE);
-		composite_3.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
-		composite_3.setLayout(new GridLayout(3, false));
-
-		Label label_2 = new Label(composite_3, SWT.NONE);
-		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		Label label_2 = new Label(composite_2, SWT.NONE);
 		label_2.setText("双摄像头等待间隔");
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 
-		text_1 = new Text(composite_3, SWT.BORDER);
+		text_1 = new Text(composite_2, SWT.BORDER);
+		GridData gd_text_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_text_1.widthHint = 50;
+		text_1.setLayoutData(gd_text_1);
 
 		text_1.setToolTipText("0表示无双摄像头");
 		text_1.setText(mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
 		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		GridData gd_text_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_text_1.widthHint = 82;
-		text_1.setLayoutData(gd_text_1);
+
+		Label label_3 = new Label(composite_2, SWT.NONE);
+		label_3.setText("毫秒");
+		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_1.addKeyListener(new KeyAdapter() {
 			String s = text_1.getText();
 
@@ -340,13 +343,9 @@ public class SettingView extends Composite implements View {
 			}
 		});
 
-		Label label_3 = new Label(composite_3, SWT.NONE);
-		label_3.setText("毫秒");
-		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-
 		Composite composite_4 = new Composite(group, SWT.NONE);
 		composite_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
-		composite_4.setLayout(new GridLayout(4, false));
+		composite_4.setLayout(new GridLayout(5, false));
 
 		Button button_11 = new Button(composite_4, SWT.CHECK);
 		button_11.addSelectionListener(new SelectionAdapter() {
@@ -396,6 +395,18 @@ public class SettingView extends Composite implements View {
 		button_14.setSelection(false);
 		button_14.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_14.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.进场允许手动入场)));
+
+		Button button_29 = new Button(composite_4, SWT.CHECK);
+		button_29.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.停车场重复计费, button_29.getSelection() + "");
+			}
+		});
+		button_29.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_29.setText("停车场重复收费");
+		button_29.setToolTipText("选中后,选中后车辆每次出场都会收费，不会累计收费到了一天最大收费就不收费了");
+		button_29.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场重复计费)));
 
 		Composite composite_5 = new Composite(group, SWT.NONE);
 		GridData gd_composite_5 = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
@@ -492,7 +503,7 @@ public class SettingView extends Composite implements View {
 
 		Composite composite_7 = new Composite(group, SWT.NONE);
 		composite_7.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
-		composite_7.setLayout(new GridLayout(2, false));
+		composite_7.setLayout(new GridLayout(4, false));
 
 		Button btn_imgSaveMonth = new Button(composite_7, SWT.CHECK);
 		btn_imgSaveMonth.addSelectionListener(new SelectionAdapter() {
@@ -531,12 +542,12 @@ public class SettingView extends Composite implements View {
 		GridData gd_text_4 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_text_4.widthHint = 67;
 		text_setting_imgSaveDays.setLayoutData(gd_text_4);
+		Label label3 = new Label(composite_7, SWT.NONE);
+		GridData gd_label3 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_label3.widthHint = 50;
+		label3.setLayoutData(gd_label3);
 
-		Composite composite_1 = new Composite(group, SWT.NONE);
-		composite_1.setLayout(new GridLayout(4, false));
-		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
-
-		Button btnCheckButton_1 = new Button(composite_1, SWT.CHECK);
+		Button btnCheckButton_1 = new Button(composite_7, SWT.CHECK);
 		btnCheckButton_1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -547,10 +558,9 @@ public class SettingView extends Composite implements View {
 		btnCheckButton_1.setText("启用车牌报送");
 		btnCheckButton_1.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用车牌报送)));
 
-		Label lbl_space = new Label(composite_1, SWT.NONE);
-		GridData gd_lblNewLabel_2 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lblNewLabel_2.widthHint = 90;
-		lbl_space.setLayoutData(gd_lblNewLabel_2);
+		Composite composite_1 = new Composite(group, SWT.NONE);
+		composite_1.setLayout(new GridLayout(2, false));
+		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
 
 		Label lblNewLabel_3 = new Label(composite_1, SWT.NONE);
 		lblNewLabel_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -861,7 +871,7 @@ public class SettingView extends Composite implements View {
 
 		listComposite = new Composite(sashForm, SWT.NONE);
 		listComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
-		sashForm.setWeights(new int[] {731, 164});
+		sashForm.setWeights(new int[] { 731, 164 });
 	}
 
 	public SettingView(Composite c, int style, Map<SystemSettingTypeEnum, String> mapSystemSetting) {

@@ -831,7 +831,7 @@ public class CarparkMainPresenter {
 	public float countShouldMoney(Long carparkId, CarTypeEnum carType, Date startTime, Date endTime) {
 		float charge = 0;
 		try {
-			charge = countTempCarCharge.charge(carparkId, carType, startTime, endTime, sp, model);
+			charge = countTempCarCharge.charge(carparkId, carType, startTime, endTime, sp, model,Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场重复计费)));
 			System.out.println("charge===========" + charge);
 		} catch (Exception e1) {
 			e1.printStackTrace();

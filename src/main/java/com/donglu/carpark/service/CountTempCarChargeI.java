@@ -13,5 +13,5 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
  *
  */
 public interface CountTempCarChargeI extends Serializable {
-	public float charge(Long carparkId,CarTypeEnum carType, Date inTime, Date outTime,CarparkDatabaseServiceProvider sp,CarparkMainModel model);
+	public float charge(Long carparkId,CarTypeEnum carType, Date inTime, Date outTime,CarparkDatabaseServiceProvider sp,CarparkMainModel model,boolean reCharge);
 }
