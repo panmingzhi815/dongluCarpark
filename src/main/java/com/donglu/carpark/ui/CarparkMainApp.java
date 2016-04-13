@@ -161,8 +161,8 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	private CarparkMainPresenter presenter;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
-
-	private final CarparkMainModel model = new CarparkMainModel();
+	@Inject
+	private CarparkMainModel model;
 	private CLabel lbl_outSmallImg;
 	private CLabel lbl_outBigImg;
 
@@ -391,8 +391,8 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	private void init() {
 		readDevices();
 		initVioce();
+		System.out.println(model);
 		presenter.setView(this);
-		presenter.setModel(model);
 		presenter.setIsTwoChanel();
 		String userName = System.getProperty("userName");
 		model.setUserName(userName);

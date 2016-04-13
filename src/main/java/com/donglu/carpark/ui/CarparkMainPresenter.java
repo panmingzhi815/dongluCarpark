@@ -122,7 +122,7 @@ public class CarparkMainPresenter {
 	Map<String, SingleCarparkDevice> mapIpToDevice = CarparkMainApp.mapIpToDevice;
 	// 保存设置信息
 	private Map<SystemSettingTypeEnum, String> mapSystemSetting = CarparkMainApp.mapSystemSetting;
-
+	@Inject
 	private CarparkMainModel model;
 	// 收费计算类
 	private CountTempCarChargeI countTempCarCharge;
@@ -466,14 +466,7 @@ public class CarparkMainPresenter {
 
 	public void setView(CarparkMainApp view) {
 		this.view = view;
-	}
-
-	public CarparkMainModel getModel() {
-		return model;
-	}
-
-	public void setModel(CarparkMainModel model) {
-		this.model = model;
+		System.out.println("presenter"+model);
 	}
 
 	/**

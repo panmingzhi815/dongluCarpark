@@ -22,7 +22,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
-
+import com.google.inject.Singleton;
+@Singleton
 public class CarparkMainModel extends DomainObject{
 	
 	// 保存设备的进出口信息
