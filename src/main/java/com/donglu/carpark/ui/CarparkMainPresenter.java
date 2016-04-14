@@ -1075,9 +1075,9 @@ public class CarparkMainPresenter {
 				log.info("对设备{}，地址{}-{}开闸", device.getName(), device.getLinkAddress(), device.getAddress());
 				showPlateNOToDevice(device, "");
 				if (inOrOut) {
-					showContentToDevice(device, CarparkMainApp.CAR_IN_MSG, false);
+					showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.进口开闸语音).getContent(), false);
 				} else {
-					showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, false);
+					showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.出口开闸语音).getContent(), false);
 				}
 			}
 		};

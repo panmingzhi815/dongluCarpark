@@ -470,7 +470,7 @@ public class CarInTask implements Runnable {
 				}
 			}
 			model.setInShowPlateNO(model.getInShowPlateNO()+"(已过期)");
-			presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS, false);
+			presenter.showContentToDevice(device,model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent(), false);
 			model.getMapInCheck().put(plateNO, this);
 			model.setInCheckClick(true);
 			isFixCarverdueCheck=true;

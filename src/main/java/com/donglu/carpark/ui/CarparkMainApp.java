@@ -122,17 +122,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 
 	public static final String TEMP_CAR_AUTO_PASS = "tempCarAutoPass";
 
-	public static final String CAR_IS_ARREARS = "车辆已过期,请联系管理员";
-
-	public static final String CAR_OUT_MSG = "祝您一路平安";
-
-	static final String CAR_IN_MSG = "欢迎光临,请入场停车";
-
-	public static final String TEMP_ROAD = "临时车通道";
-
-	public static final String FIX_ROAD = "固定车通道";
-
-	protected static final String CAR_WILL_ARREARS = "车辆即将到期";
 
 	private final AtomicInteger refreshTimes = new AtomicInteger(0);
 	private final Integer refreshTimeSpeedSecond = 3;

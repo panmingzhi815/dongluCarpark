@@ -223,11 +223,6 @@ public class CarOutTask implements Runnable{
 				}
 				presenter.plateSubmit(ch, date, device, bigImage);
 			} else {// 临时车操作
-				//固定车通道
-				if (equals) {
-					presenter.showContentToDevice(device, CarparkMainApp.FIX_ROAD, false);
-					return;
-				}
 				tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg,null);
 			}
 			CarparkMainApp.mapCameraLastImage.put(ip, bigImg);
@@ -409,10 +404,10 @@ public class CarOutTask implements Runnable{
 				return true;
 			} else if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期所属停车场限制).equals("true")) {
 				if (device.getCarpark().equals(user.getCarpark())) {
-					presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), true);
+					presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent() + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), true);
 				}
 			}
-			presenter.showContentToDevice(device, CarparkMainApp.CAR_IS_ARREARS + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
+			presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent() + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
 			model.setOutShowPlateNO(model.getOutShowPlateNO()+"(已过期)");
 			return true;
 		} 
@@ -538,7 +533,7 @@ public class CarOutTask implements Runnable{
 			model.setChargedMoney(0F);
 			if (StrUtil.isEmpty(isCharge) || !isCharge) {
 				sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
-				presenter.showContentToDevice(device, CarparkMainApp.CAR_OUT_MSG, true);
+				presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			} else {
 				CarTypeEnum carType = CarTypeEnum.SmallCar;
 				if (mapTempCharge.keySet().size() > 1) {
@@ -552,14 +547,6 @@ public class CarOutTask implements Runnable{
 						model.setChargeHistory(singleCarparkInOutHistory);
 						model.setBtnClick(true);
 						return;
-//						try {
-//							if (model.getDisContinue()) {
-//								return;
-//							}
-//							Thread.sleep(500);
-//						} catch (InterruptedException e) {
-//							e.printStackTrace();
-//						}
 					}
 					//自动识别大车小车
 					if (autoSelectCarType) {
