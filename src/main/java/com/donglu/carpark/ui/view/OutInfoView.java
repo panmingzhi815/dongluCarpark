@@ -10,7 +10,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.model.CarparkMainModel;
-import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
@@ -127,7 +126,7 @@ public class OutInfoView extends Composite implements View{
 		});
 		GridData gd_btn_check = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_btn_check.exclude = false;
-		if (!Boolean.valueOf(CarparkMainApp.mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认) == null ? SystemSettingTypeEnum.固定车出场确认.getDefaultValue() : CarparkMainApp.mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认))) {
+		if (!Boolean.valueOf(model.getMapSystemSetting().get(SystemSettingTypeEnum.固定车出场确认) == null ? SystemSettingTypeEnum.固定车出场确认.getDefaultValue() : model.getMapSystemSetting().get(SystemSettingTypeEnum.固定车出场确认))) {
 			gd_btn_check.exclude = true;
 		}
 		btn_check.setLayoutData(gd_btn_check);

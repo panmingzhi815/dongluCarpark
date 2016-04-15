@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
-import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
@@ -45,13 +44,13 @@ public class CarInTask implements Runnable {
 	private byte[] bigImage;
 	private byte[] smallImage;
 	// 保存车牌最近的处理时间
-	private final Map<String, Date> mapPlateNoDate = CarparkMainApp.mapPlateNoDate;
+	private final Map<String, Date> mapPlateNoDate;
 	// 保存设备的信息
-	private final Map<String, SingleCarparkDevice> mapIpToDevice = CarparkMainApp.mapIpToDevice;
+	private final Map<String, SingleCarparkDevice> mapIpToDevice;
 	// 保存设置信息
-	private final Map<SystemSettingTypeEnum, String> mapSystemSetting = CarparkMainApp.mapSystemSetting;
+	private final Map<SystemSettingTypeEnum, String> mapSystemSetting;
 	// 保存最近的手动拍照时间
-	private final Map<String, Date> mapHandPhotograph = CarparkMainApp.mapHandPhotograph;
+	private final Map<String, Date> mapHandPhotograph;
 
 
 	private Float rightSize;
@@ -105,6 +104,10 @@ public class CarInTask implements Runnable {
 		this.lbl_inSmallImg = lbl_inSmallImg;
 		this.lbl_inBigImg = lbl_inBigImg;
 		content=model.getMapVoice().get(DeviceVoiceTypeEnum.临时车进场语音).getContent();
+		mapIpToDevice = model.getMapIpToDevice();
+		mapPlateNoDate = model.getMapPlateNoDate();
+		mapSystemSetting = model.getMapSystemSetting();
+		mapHandPhotograph = model.getMapHandPhotograph();
 	}
 
 	@Override
@@ -277,7 +280,7 @@ public class CarInTask implements Runnable {
 		model.addInHistorys(cch);
 		model.setInHistorySelect(cch);
 		LOGGER.info("保存车牌：{}的进场记录到数据库成功", plateNO);
-		CarparkMainApp.mapCameraLastImage.put(ip, cch.getBigImg());
+		model.getMapCameraLastImage().put(ip, cch.getBigImg());
 		model.setHistory(null);
 		presenter.showContentToDevice(device, content, isOpenDoor);
 		LOGGER.info("对设备{}，发送消息{}，开门信号：{}",device.getName(),content,isOpenDoor);

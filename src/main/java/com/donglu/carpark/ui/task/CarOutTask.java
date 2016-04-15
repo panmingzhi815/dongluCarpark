@@ -54,18 +54,18 @@ public class CarOutTask implements Runnable{
 	private final Combo carTypeSelectCombo;
 	
 	// 保存车牌最近的处理时间
-	private final Map<String, Date> mapPlateNoDate = CarparkMainApp.mapPlateNoDate;
+	private final Map<String, Date> mapPlateNoDate;
 	// 保存设备的信息
-	private final Map<String, SingleCarparkDevice> mapIpToDevice = CarparkMainApp.mapIpToDevice;
+	private final Map<String, SingleCarparkDevice> mapIpToDevice;
 	// 保存设置信息
-	private final Map<SystemSettingTypeEnum, String> mapSystemSetting = CarparkMainApp.mapSystemSetting;
+	private final Map<SystemSettingTypeEnum, String> mapSystemSetting;
 	// 保存最近的手动拍照时间
-	private final Map<String, Date> mapHandPhotograph = CarparkMainApp.mapHandPhotograph;
+	private final Map<String, Date> mapHandPhotograph;
 
 	private Float rightSize;
 
 	
-	public static Map<String, String> mapTempCharge=CarparkMainApp.mapTempCharge;
+	public static Map<String, String> mapTempCharge;
 	
 	public CarOutTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage,CarparkMainModel model,
 			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, CLabel lbl_outBigImg,
@@ -85,6 +85,11 @@ public class CarOutTask implements Runnable{
 		this.text_real=text_real;
 		this.rightSize=rightSize;
 		this.lbl_inBigImg=lbl_inBigImg;
+		mapIpToDevice = model.getMapIpToDevice();
+		mapPlateNoDate = model.getMapPlateNoDate();
+		mapSystemSetting = model.getMapSystemSetting();
+		mapHandPhotograph = model.getMapHandPhotograph();
+		mapTempCharge=model.getMapTempCharge();
 	}
 	
 	@Override
@@ -225,7 +230,7 @@ public class CarOutTask implements Runnable{
 			} else {// 临时车操作
 				tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg,null);
 			}
-			CarparkMainApp.mapCameraLastImage.put(ip, bigImg);
+			model.getMapCameraLastImage().put(ip, bigImg);
 		} catch (Exception e) {
 			LOGGER.error("车辆出场时发生错误",e);
 		}

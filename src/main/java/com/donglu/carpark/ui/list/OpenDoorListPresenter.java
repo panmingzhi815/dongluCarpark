@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
+import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.wizard.OpenDoorDetailWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
@@ -31,7 +32,6 @@ public class OpenDoorListPresenter extends AbstractListPresenter<SingleCarparkOp
 	}
 	@Override
 	public void refresh() {
-		
 		List<SingleCarparkOpenDoorLog> findByNameOrPlateNo = sp.getCarparkInOutService().findOpenDoorLogBySearch(operaName,start,end,deviceName);
 		view.getModel().setList(findByNameOrPlateNo);
 		view.getModel().setCountSearch(findByNameOrPlateNo.size());
@@ -49,7 +49,7 @@ public class OpenDoorListPresenter extends AbstractListPresenter<SingleCarparkOp
 	@Override
 	public void mouseDoubleClick(List<SingleCarparkOpenDoorLog> list) {
 		SingleCarparkOpenDoorLog singleCarparkOpenDoorLog = list.get(0);
-		OpenDoorDetailWizard wizard=new OpenDoorDetailWizard(singleCarparkOpenDoorLog);
-		commonui.showWizard(wizard);
+		ImageDialog id=new ImageDialog(singleCarparkOpenDoorLog.getImage());
+		id.open();
 	}
 }

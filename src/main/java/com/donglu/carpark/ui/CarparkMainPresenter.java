@@ -115,14 +115,14 @@ public class CarparkMainPresenter {
 	private SearchErrorCarPresenter searchErrorCarPresenter;
 
 	// 保存设备的进出口信息
-	Map<String, String> mapDeviceType = CarparkMainApp.mapDeviceType;
+	Map<String, String> mapDeviceType;
 
 	// 保存设备的界面信息
-	Map<CTabItem, String> mapDeviceTabItem = CarparkMainApp.mapDeviceTabItem;
+	Map<CTabItem, String> mapDeviceTabItem;
 	// 保存设备的信息
-	Map<String, SingleCarparkDevice> mapIpToDevice = CarparkMainApp.mapIpToDevice;
+	Map<String, SingleCarparkDevice> mapIpToDevice;
 	// 保存设置信息
-	private Map<SystemSettingTypeEnum, String> mapSystemSetting = CarparkMainApp.mapSystemSetting;
+	private Map<SystemSettingTypeEnum, String> mapSystemSetting;
 	@Inject
 	private CarparkMainModel model;
 	// 收费计算类
@@ -214,7 +214,8 @@ public class CarparkMainPresenter {
 	}
 
 	public void setIsTwoChanel() {
-		CarparkMainApp.mapIsTwoChanel.clear();
+		Map<String, Boolean> mapIsTwoChanel = model.getMapIsTwoChanel();
+		mapIsTwoChanel.clear();
 		Map<String, SingleCarparkDevice> map = new HashMap<>();
 		Collection<SingleCarparkDevice> values = mapIpToDevice.values();
 		for (SingleCarparkDevice singleCarparkDevice : values) {
@@ -222,12 +223,12 @@ public class CarparkMainPresenter {
 			SingleCarparkDevice singleCarparkDevice2 = map.get(linkAddress);
 			if (StrUtil.isEmpty(singleCarparkDevice2)) {
 				map.put(linkAddress, singleCarparkDevice);
-				CarparkMainApp.mapIsTwoChanel.put(linkAddress, false);
+				mapIsTwoChanel.put(linkAddress, false);
 			} else {
-				CarparkMainApp.mapIsTwoChanel.put(linkAddress, true);
+				mapIsTwoChanel.put(linkAddress, true);
 			}
 		}
-		log.info("双摄像头信息：{}", CarparkMainApp.mapIsTwoChanel);
+		log.info("双摄像头信息：{}", mapIsTwoChanel);
 	}
 
 	/**
@@ -365,13 +366,14 @@ public class CarparkMainPresenter {
 				createPlayRight.playMedia(url);
 			}
 		});
+		createAutoMenuItem(pop);
 		canvas1.add(pop);
 		canvas1.addMouseListener(new java.awt.event.MouseAdapter() {
 
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					String img = CarparkMainApp.mapCameraLastImage.get(ip);
+					String img = model.getMapCameraLastImage().get(ip);
 					if (StrUtil.isEmpty(img)) {
 						return;
 					}
@@ -391,6 +393,33 @@ public class CarparkMainPresenter {
 
 		});
 		jna.openEx(ip, getView());
+	}
+
+	private void createAutoMenuItem(PopupMenu pop) {
+		String property = System.getProperty("autoTiggerWithTest");
+		log.info("自动测试{}设置为：{}","autoTiggerWithTest",property);
+		if (property==null||property.equals("")) {
+			return;
+		}
+		MenuItem refreshItem = new MenuItem("自动拍照");
+		pop.add(refreshItem);
+		refreshItem.addActionListener(new ActionListener() {
+			private ScheduledExecutorService autoTiggerWithTest;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println(refreshItem.getLabel());
+				if (autoTiggerWithTest==null) {
+					autoTiggerWithTest = autoTiggerWithTest(property);
+					refreshItem.setLabel("停止拍照");
+				}else{
+					autoTiggerWithTest.shutdownNow();
+					refreshItem.setLabel("自动拍照");
+					autoTiggerWithTest=null;
+				}
+			}
+		});
+		
 	}
 
 	/**
@@ -955,22 +984,22 @@ public class CarparkMainPresenter {
 	}
 
 	public void init() {
+		mapDeviceType = model.getMapDeviceType();
+		mapDeviceTabItem = model.getMapDeviceTabItem();
+		mapIpToDevice = model.getMapIpToDevice();
+		mapSystemSetting = model.getMapSystemSetting();
+		
 		saveImageTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("保存图片任务"));
 		openDoorTheadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
 		checkPlayerPlaying();
 		countTempCarCharge = new CountTempCarChargeImpl();
 		autoCheckDeviceLinkInfo();
-		autoTiggerWithTest();
 	}
 	/**
 	 * 用来测试进出场
+	 * @param property 
 	 */
-	private void autoTiggerWithTest() {
-		String property = System.getProperty("autoTiggerWithTest");
-		log.info("自动测试{}设置为：{}","autoTiggerWithTest",property);
-		if (property==null||property.equals("")) {
-			return;
-		}
+	private ScheduledExecutorService autoTiggerWithTest(String property) {
 		Map<String, List<SingleCarparkDevice>> map=new HashMap<>();
 		for (SingleCarparkDevice d : mapIpToDevice.values()) {
 			String inType = d.getInType();
@@ -1008,6 +1037,7 @@ public class CarparkMainPresenter {
 				nowSize++;
 			}
 		}, testDelayTime, testDelayTime, TimeUnit.SECONDS);
+		return newSingleThreadScheduledExecutor;
 	}
 
 	/**

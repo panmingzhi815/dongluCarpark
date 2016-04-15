@@ -10,7 +10,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.model.CarparkMainModel;
-import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.util.ConstUtil;
@@ -23,6 +22,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+
+import java.util.Map;
+
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
@@ -108,12 +110,13 @@ public class InInfoView extends Composite implements View{
 		});
 		GridData gd_btn_check = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_btn_check.exclude = false;
+		Map<SystemSettingTypeEnum, String> mapSystemSetting = model.getMapSystemSetting();
 		if (Boolean
-				.valueOf(CarparkMainApp.mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认) == null ? SystemSettingTypeEnum.临时车入场是否确认.getDefaultValue() : CarparkMainApp.mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认))
+				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认) == null ? SystemSettingTypeEnum.临时车入场是否确认.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认))
 				|| Boolean.valueOf(
-						CarparkMainApp.mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认) == null ? SystemSettingTypeEnum.固定车入场是否确认.getDefaultValue() : CarparkMainApp.mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认))
+						mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认) == null ? SystemSettingTypeEnum.固定车入场是否确认.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认))
 				|| !Boolean.valueOf(
-						CarparkMainApp.mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进) == null ? SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue() : CarparkMainApp.mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进))) {
+						mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进) == null ? SystemSettingTypeEnum.是否允许无牌车进.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.是否允许无牌车进))) {
 			
 		} else {
 			gd_btn_check.exclude = true;

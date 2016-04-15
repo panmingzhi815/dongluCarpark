@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -81,7 +80,7 @@ public class DeviceView extends Composite implements View{
 				if (StrUtil.isEmpty(selection)) {
 					return;
 				}
-				getPresenter().handPhotograph(CarparkMainApp.mapDeviceTabItem.get(selection));
+				getPresenter().handPhotograph(getPresenter().getModel().getMapDeviceTabItem().get(selection));
 			}
 		});
 		toolItem_in_openDoor = new ToolItem(toolBar3, SWT.NONE);
@@ -207,7 +206,7 @@ public class DeviceView extends Composite implements View{
 					getPresenter().createRightCamera(d.getIp(), composite);
 				}
 			});
-			CarparkMainApp.mapDeviceTabItem.put(tabItem, d.getIp());
+			getPresenter().getModel().getMapDeviceTabItem().put(tabItem, d.getIp());
 			tabItem.addDisposeListener(new DisposeListener() {
 				
 				@Override

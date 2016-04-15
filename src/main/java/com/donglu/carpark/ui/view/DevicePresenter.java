@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.common.Presenter;
@@ -23,6 +24,8 @@ public class DevicePresenter  implements Presenter{
 	private DeviceView view;
 	@Inject
 	private CommonUIFacility commonui;
+	@Inject
+	private CarparkMainModel model;
 	
 	private CarparkMainPresenter presenter;
 
@@ -38,7 +41,7 @@ public class DevicePresenter  implements Presenter{
 	}
 	public void handPhotograph(String ip) {
 		presenter.handPhotograph(ip);
-		CarparkMainApp.mapHandPhotograph.put(ip, new Date());
+		model.getMapHandPhotograph().put(ip, new Date());
 	}
 	public void addDevice(CTabFolder tabFolder) {
 		presenter.addDevice(tabFolder, type);
@@ -66,7 +69,7 @@ public class DevicePresenter  implements Presenter{
 		this.listDevice = listDevice;
 	}
 	public void createRightCamera(String ip, Composite composite) {
-		presenter.createCamera(CarparkMainApp.mapIpToDevice.get(ip), composite);
+		presenter.createCamera(model.getMapIpToDevice().get(ip), composite);
 	}
 	public void controlItem(Boolean dispose){
 		if (StrUtil.isEmpty(view)) {
@@ -80,9 +83,9 @@ public class DevicePresenter  implements Presenter{
 			if (StrUtil.isEmpty(selection)) {
 				return;
 			}
-			String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
-			presenter.openDoor(CarparkMainApp.mapIpToDevice.get(ip));
-			CarparkMainApp.mapOpenDoor.put(ip, true);
+			String ip = model.getMapDeviceTabItem().get(selection);
+			presenter.openDoor(model.getMapIpToDevice().get(ip));
+			model.getMapOpenDoor().put(ip, true);
 			handPhotograph(ip);
 		} catch (Exception e) {
 			log.error("设备开闸时发生错误",e);
@@ -94,8 +97,8 @@ public class DevicePresenter  implements Presenter{
 			if (StrUtil.isEmpty(selection)) {
 				return;
 			}
-			String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
-			presenter.closeDoor(CarparkMainApp.mapIpToDevice.get(ip));
+			String ip = model.getMapDeviceTabItem().get(selection);
+			presenter.closeDoor(model.getMapIpToDevice().get(ip));
 		} catch (Exception e) {
 			log.error("设备落杆时发生错误",e);
 		}
@@ -110,10 +113,13 @@ public class DevicePresenter  implements Presenter{
 			if (StrUtil.isEmpty(selection)) {
 				return;
 			}
-			String ip = CarparkMainApp.mapDeviceTabItem.get(selection);
-			presenter.fleetDoor(CarparkMainApp.mapIpToDevice.get(ip),isopen);
+			String ip = model.getMapDeviceTabItem().get(selection);
+			presenter.fleetDoor(model.getMapIpToDevice().get(ip),isopen);
 		} catch (Exception e) {
 			log.error("设备车队是发生错误！",e);
 		}
+	}
+	public CarparkMainModel getModel() {
+		return model;
 	}
 }

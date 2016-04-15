@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
@@ -34,7 +33,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.custom.CTabItem;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
@@ -47,7 +45,6 @@ import com.donglu.carpark.ui.view.InInfoPresenter;
 import com.donglu.carpark.ui.view.OutInfoPresenter;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
-import com.donglu.carpark.util.MyHashMap;
 import com.donglu.carpark.util.MyMapCache;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -155,41 +152,26 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	private CLabel lbl_outSmallImg;
 	private CLabel lbl_outBigImg;
 
-	public static Image inSmallImage;
-	public static Image inBigImage;
-	public static Image outSmallImage;
-	public static Image outBigImage;
 
-	// 保存设备的进出口信息
-	public static final Map<String, String> mapDeviceType = new MyHashMap<>();
-
-	// 保存设备的进出口信息
-	public static final Map<String, String> mapCameraLastImage = new MyHashMap<>();
-
-	// 保存设备的界面信息
-	public static final Map<CTabItem, String> mapDeviceTabItem = Maps.newHashMap();
-	// 保存设备的信息
-	public static final Map<String, SingleCarparkDevice> mapIpToDevice = Maps.newHashMap();
 	// 保存设置信息
-	public static final Map<SystemSettingTypeEnum, String> mapSystemSetting = Maps.newHashMap();
+	public Map<SystemSettingTypeEnum, String> mapSystemSetting = Maps.newHashMap();
 	// 保存车牌最近的处理时间
-	public static final Map<String, Date> mapPlateNoDate = new MyMapCache<>(600*1000, 5);
+	public Map<String, Date> mapPlateNoDate = new MyMapCache<>(600*1000, 5);
 
-	public static final Map<String, Boolean> mapOpenDoor = Maps.newHashMap();
+	public Map<String, Boolean> mapOpenDoor = Maps.newHashMap();
 
 	// 保存最近的手动拍照时间
-	public static final Map<String, Date> mapHandPhotograph = Maps.newHashMap();
+	public Map<String, Date> mapHandPhotograph = Maps.newHashMap();
 
-	public static final Map<String, CarInTask> mapInTwoCameraTask = Maps.newHashMap();
-	public static final Map<String, CarOutTask> mapOutTwoCameraTask = Maps.newHashMap();
+	public Map<String, CarInTask> mapInTwoCameraTask = Maps.newHashMap();
+	public Map<String, CarOutTask> mapOutTwoCameraTask = Maps.newHashMap();
 
-	public static final Map<String, Boolean> mapIsTwoChanel = Maps.newHashMap();
-	Map<String, List<SingleCarparkDevice>> mapTypeDevices = Maps.newHashMap();
-
-	public static Map<String, String> mapTempCharge;
-
+	public Map<String, Boolean> mapIsTwoChanel = Maps.newHashMap();
+	public Map<String, List<SingleCarparkDevice>> mapTypeDevices = Maps.newHashMap();
+	//保存临时收费车辆类型
+	public Map<String, String> mapTempCharge=Maps.newHashMap();;
 	// 保存双摄像头处理任务
-	final Map<String, Timer> mapTwoChanelTimer = new HashMap<>();
+	public Map<String, Timer> mapTwoChanelTimer = new HashMap<>();
 
 	private String userType;
 	private Label lblNewLabel;
@@ -272,8 +254,8 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 				}
 				singleCarparkDevice.setCarpark(carpark);
 				model.setCarpark(carpark);
-				mapDeviceType.put(key, inType);
-				mapIpToDevice.put(key, singleCarparkDevice);
+				model.getMapDeviceType().put(key, inType);
+				model.getMapIpToDevice().put(key, singleCarparkDevice);
 				List<SingleCarparkDevice> list = mapTypeDevices.get(inType);
 				if (StrUtil.isEmpty(list)) {
 					list = new ArrayList<>();
@@ -378,6 +360,17 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	 * 初始化
 	 */
 	private void init() {
+		mapSystemSetting = model.getMapSystemSetting();
+		mapPlateNoDate = model.getMapPlateNoDate();
+		mapOpenDoor = model.getMapOpenDoor();
+		mapHandPhotograph = model.getMapHandPhotograph();
+		mapInTwoCameraTask = model.getMapInTwoCameraTask();
+		mapOutTwoCameraTask = model.getMapOutTwoCameraTask();
+		mapIsTwoChanel = model.getMapIsTwoChanel();
+		mapTypeDevices = model.getMapTypeDevices();
+		mapTempCharge = model.getMapTempCharge();
+		mapTwoChanelTimer = model.getMapTwoChanelTimer();
+		presenter.init();
 		readDevices();
 		initVioce();
 		System.out.println(model);
@@ -410,8 +403,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		model.setTotalSlot(presenter.getSlotOfLeft());
 		CarparkFileUtils.writeObject(IMAGE_SAVE_SITE, mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置));
 
-		presenter.init();
-		mapTempCharge = Maps.newHashMap();
 		List<CarparkChargeStandard> listTemp = sp.getCarparkService().findAllCarparkChargeStandard(model.getCarpark(), true);
 		for (CarparkChargeStandard carparkChargeStandard : listTemp) {
 			String name = carparkChargeStandard.getCarparkCarType().getName();
@@ -462,9 +453,9 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
-				Set<String> keySet = mapIpToDevice.keySet();
+				Set<String> keySet = model.getMapIpToDevice().keySet();
 				for (String c : keySet) {
-					presenter.showNowTimeToDevice(mapIpToDevice.get(c));
+					presenter.showNowTimeToDevice(model.getMapIpToDevice().get(c));
 				}
 			}
 		}, 1, 60 * 60, TimeUnit.SECONDS);
@@ -915,7 +906,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 					float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carparkCarType, inTime, outTime);
 					LOGGER.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", h.getPlateNo(), device.getCarpark(), model.getCarTypeEnum(), model.getInTime(), model.getOutTime(),
 							model.getTotalTime(), countShouldMoney);
-					presenter.showContentToDevice(mapIpToDevice.get(model.getIp()), CarparkUtils.getCarStillTime(model.getTotalTime()) + CarparkUtils.formatFloatString("请缴费" + countShouldMoney + "元"),
+					presenter.showContentToDevice(model.getMapIpToDevice().get(model.getIp()), CarparkUtils.getCarStillTime(model.getTotalTime()) + CarparkUtils.formatFloatString("请缴费" + countShouldMoney + "元"),
 							false);
 					model.setShouldMony(countShouldMoney);
 					model.setReal(countShouldMoney);
@@ -1174,11 +1165,12 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		model.setPlateInTime(new Date(),10);
 		LOGGER.info("车辆{}在设备{}通道{}处进场,可信度：{}", plateNO, ip, channel, rightSize);
 		try {
-			Preconditions.checkNotNull(mapDeviceType.get(ip), "not monitor device:" + ip);
+			Preconditions.checkNotNull(model.getMapDeviceType().get(ip), "not monitor device:" + ip);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
 		}
+		Map<String, SingleCarparkDevice> mapIpToDevice = model.getMapIpToDevice();
 		if (model.getIsOpenFleet()) {
 			LOGGER.info("车队模式，保存车牌{}的进场记录到操作员日志",plateNO);
 			presenter.saveFleetInOutHistory(mapIpToDevice.get(ip),plateNO,bigImage);
@@ -1189,7 +1181,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		if (boolean1 != null && boolean1) {
 			mapOpenDoor.put(ip, null);
 			boolean inOrOut = true;
-			if (mapDeviceType.get(ip).indexOf("出口")>-1) {
+			if (model.getMapDeviceType().get(ip).indexOf("出口")>-1) {
 				inOrOut = false;
 			}
 			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO, inOrOut);
@@ -1201,7 +1193,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		String linkAddress = mapIpToDevice.get(ip).getLinkInfo();
 
 		Boolean isTwoChanel = mapIsTwoChanel.get(linkAddress);
-		if (mapDeviceType.get(ip).indexOf("出口")>-1) {
+		if (model.getMapDeviceType().get(ip).indexOf("出口")>-1) {
 			// 是否是双摄像头
 			if (!equals && isTwoChanel) {
 				CarOutTask carOutTask = mapOutTwoCameraTask.get(linkAddress);
@@ -1252,7 +1244,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 				outTaskSubmit(ip, plateNO, linkAddress, task);
 			}
 
-		} else if (mapDeviceType.get(ip).indexOf("进口")>-1) {
+		} else if (model.getMapDeviceType().get(ip).indexOf("进口")>-1) {
 			if (!equals && isTwoChanel) {
 				CarInTask carInTask = mapInTwoCameraTask.get(linkAddress);
 				if (!StrUtil.isEmpty(carInTask)) {
@@ -1550,11 +1542,11 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			while (model.isBtnClick()) {
 				int i = 0;
 				try {
-					if (i > 120) {
+					if (i > 600) {
 						stop();
 						return;
 					}
-					TimeUnit.MILLISECONDS.sleep(500);
+					TimeUnit.MILLISECONDS.sleep(200);
 					i++;
 				} catch (Exception e) {
 					e.printStackTrace();
