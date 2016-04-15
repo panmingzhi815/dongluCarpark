@@ -42,6 +42,10 @@ Source: "D:\git\dongluCarpark\target\carpark\升级.ini"; DestDir: "{app}"; Flags:
 Source: "D:\git\dongluCarpark\target\carpark\bin\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; 注意: 不要在任何共享系统文件上使用“Flags: ignoreversion”
 
+;删除旧版本文件
+[installDelete]
+Type: filesandordirs; Name:"{app}\bin\jar"
+Type: filesandordirs; Name:"{app}\bin\native"
 ;开始菜单快捷方式： 
 [Icons]
 Name: "{group}\停车场服务器"; Filename: "{app}\服务器.exe";WorkingDir: "{app}"

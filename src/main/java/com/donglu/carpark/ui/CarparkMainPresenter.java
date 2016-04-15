@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -790,6 +791,11 @@ public class CarparkMainPresenter {
 	 * @param ip
 	 */
 	public void openDoorToPhotograph(String ip) {
+		String property = System.getProperty(PlateNOJNA.CAMERA_OPEN_DOOR);
+		if (property!=null&&property.equals("false")) {
+			log.info("软件触发摄像机开闸：{}",false);
+			return;
+		}
 		mapIpToJNA.get(ip).openDoor(ip);
 	}
 
@@ -954,6 +960,54 @@ public class CarparkMainPresenter {
 		checkPlayerPlaying();
 		countTempCarCharge = new CountTempCarChargeImpl();
 		autoCheckDeviceLinkInfo();
+		autoTiggerWithTest();
+	}
+	/**
+	 * 用来测试进出场
+	 */
+	private void autoTiggerWithTest() {
+		String property = System.getProperty("autoTiggerWithTest");
+		log.info("自动测试{}设置为：{}","autoTiggerWithTest",property);
+		if (property==null||property.equals("")) {
+			return;
+		}
+		Map<String, List<SingleCarparkDevice>> map=new HashMap<>();
+		for (SingleCarparkDevice d : mapIpToDevice.values()) {
+			String inType = d.getInType();
+			List<SingleCarparkDevice> list = map.get(inType);
+			if (list==null) {
+				list=new ArrayList<>();
+			}
+			list.add(d);
+			map.put(inType, list);
+		}
+		List<List<SingleCarparkDevice>> list=new ArrayList<>();
+		for (String s : map.keySet()) {
+			list.add(map.get(s));
+		}
+		Integer testDelayTime=10;
+		try {
+			testDelayTime = Integer.valueOf(property);
+		} catch (NumberFormatException e) {
+			
+		}
+		
+		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+			int inTypeSize = list.size();
+			int nowSize=0;
+			@Override
+			public void run() {
+				if (nowSize>=inTypeSize) {
+					nowSize=0;
+				}
+				List<SingleCarparkDevice> list2 = list.get(nowSize);
+				for (SingleCarparkDevice d : list2) {
+					handPhotograph(d.getIp());
+				}
+				nowSize++;
+			}
+		}, testDelayTime, testDelayTime, TimeUnit.SECONDS);
 	}
 
 	/**

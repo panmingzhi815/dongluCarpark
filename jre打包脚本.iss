@@ -34,6 +34,8 @@ Name: "chinesesimp"; MessagesFile: "compiler:Default.isl"
 Source: "D:\git\dongluCarpark\target\jre\*"; DestDir: "{app}\jre"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; 注意: 不要在任何共享系统文件上使用“Flags: ignoreversion”
 
+[installDelete]
+Type: filesandordirs; Name:"{app}\jre"
 [Icons]
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
