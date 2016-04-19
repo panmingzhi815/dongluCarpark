@@ -121,6 +121,8 @@ public class ImageServerUI {
 	private boolean isSystemTraySupported=true;
 	//判断界面是否打开
 	private boolean isOpen=false;
+	private String btnStartType="start";
+	private String btnStartText="启    动";
 	/**
 	 * Launch the application.
 	 * 
@@ -153,11 +155,11 @@ public class ImageServerUI {
 		System.out.println(file.exists());
 		long nanoTime = System.nanoTime();
 		createTrayIcon();
+		shell = new Shell(SWT.MAX|SWT.MIN|SWT.CLOSE|SWT.ON_TOP|SWT.RESIZE);
 		Object readObject = CarparkFileUtils.readObject("autoStartServer");
 		if (readObject != null) {
 			autoStartServerCfg = (boolean) readObject;
 		}
-		createContents();
 		if (autoStartServerCfg) {
 			autoStartServer();
 		}
@@ -165,6 +167,7 @@ public class ImageServerUI {
 		if (autoStartServerCfg) {
 			shell.setVisible(false);
 		}else{
+			createContents();
     		shell.open();
     		isOpen=true;
     		shell.layout();
@@ -180,9 +183,15 @@ public class ImageServerUI {
 
 	private void autoStartServer() {
 		LOGGER.info("自动启动服务器服务");
-		icon.displayMessage("服务器启动", "正在启动停车场服务器\n请稍后。。。。。。", MessageType.INFO);
-		startServer();
-		icon.displayMessage("服务器启动", "停车场服务器启动成功！", MessageType.INFO);
+		try {
+			icon.displayMessage("服务器启动", "正在启动停车场服务器\n请稍后。。。。。。", MessageType.INFO);
+			startServer();
+			icon.displayMessage("服务器启动", "停车场服务器启动成功！", MessageType.INFO);
+		} catch (Exception e) {
+			if (e.getMessage().indexOf("服务器")>-1) {
+				icon.displayMessage("服务器启动", "停车场服务器启动失败！", MessageType.ERROR);
+			}
+		}
 	}
 
 	protected void importSN() {
@@ -220,7 +229,6 @@ public class ImageServerUI {
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
-		shell = new Shell(SWT.MAX|SWT.MIN|SWT.CLOSE|SWT.ON_TOP|SWT.RESIZE);
 		shell.setSize(535, 99);
 		shell.setText("服务器");
 		shell.setLayout(new GridLayout(5, false));
@@ -282,20 +290,40 @@ public class ImageServerUI {
 
 		btnStart = new Button(shell, SWT.NONE);
 		btnStart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		btnStart.setData("type", "start");
+		btnStart.setData("type", btnStartType);
 		btnStart.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				String data = (String) btnStart.getData("type");
 				if (data.equals("start")) {
-					startServer();
+					try {
+						btnStart.setText("启动中");
+						btnStart.setEnabled(false);
+						startServer();
+						String open = text.getText();
+						CarparkFileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
+						SingleCarparkSystemSetting s = new SingleCarparkSystemSetting();
+						s.setSettingKey(SystemSettingTypeEnum.图片保存位置.name());
+						s.setSettingValue(open);
+						sp.getCarparkService().saveSystemSetting(s);
+						btnStart.setEnabled(true);
+						btnStart.setText(btnStartText);
+						btnStart.setData("type", btnStartType);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+						if (e1.getMessage().indexOf("服务器")>-1) {
+							commonui.error("启动失败", ""+e1);
+							btnStart.setText("启    动");
+							btnStart.setEnabled(true);
+						}
+					}
 				}
 				if (data.equals("stop")) {
 					System.exit(0);
 				}
 			}
 		});
-		btnStart.setText("启    动");
+		btnStart.setText(btnStartText);
 		
 		shell.setImage(JFaceUtil.getImage("carpark_16"));
 		
@@ -399,11 +427,10 @@ public class ImageServerUI {
 	}
 	/**
 	 * 启动服务
+	 * @throws Exception 
 	 */
-	protected void startServer() {
+	protected void startServer() throws Exception {
 		try {
-			btnStart.setText("启动中");
-			btnStart.setEnabled(false);
 			sp.start();
 			SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.DateBase_version.name());
 			if (StrUtil.isEmpty(findSystemSettingByKey)) {
@@ -412,16 +439,6 @@ public class ImageServerUI {
 				findSystemSettingByKey.setSettingValue(SystemSettingTypeEnum.DateBase_version.getDefaultValue());
 				sp.getCarparkService().saveSystemSetting(findSystemSettingByKey);
 			}
-//			File f = new File(System.getProperty("user.dir"));
-			// System.out.println(f.getPath());
-			// String[] list = f.list();
-			// for (String string : list) {
-			// boolean matches = string.matches("^[0-9]{8}.txt$");
-			// if (matches) {
-			// System.out.println("========="+matches);
-			//// CarparkUtils.loadIniFromFile(new File("../升级.ini"));
-			// }
-			// }
 			if (!findSystemSettingByKey.getSettingValue().equals(SystemSettingTypeEnum.软件版本.getDefaultValue())) {
 				SystemUpdate update = new SystemUpdate();
 				try {
@@ -430,16 +447,9 @@ public class ImageServerUI {
 					e.printStackTrace();
 				}
 			}
-			String open = text.getText();
-			CarparkFileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
-			SingleCarparkSystemSetting s = new SingleCarparkSystemSetting();
-			s.setSettingKey(SystemSettingTypeEnum.图片保存位置.name());
-			s.setSettingValue(open);
-			sp.getCarparkService().saveSystemSetting(s);
 			if (Boolean.valueOf(System.getProperty(Login.CHECK_SOFT_DOG) == null ? "true" : "false")) {
 				autoCheckSoftDog();
 			}
-			// sp.stop();
 			
 			int port = 8899;
 			String property = System.getProperty("ServerPort");
@@ -452,15 +462,12 @@ public class ImageServerUI {
 			carparkDBServerProvider.get().startDbServlet(servletHandler);
 		    server.setHandler(servletHandler);
 			server.start();
-			btnStart.setEnabled(true);
-			btnStart.setText("退出");
-			btnStart.setData("type", "stop");
+			btnStartText = "退出";
+			btnStartType = "stop";
+			
 		} catch (Exception e) {
-			e.printStackTrace();
-			commonui.error("启动失败", ""+e);
 			LOGGER.error("启动失败", e);
-			btnStart.setText("启    动");
-			btnStart.setEnabled(true);
+			throw new Exception("服务器启动失败");
 		}
 		autoDeleteSameInOutHistory();
 		autoSendInfoToCloud();
@@ -727,6 +734,7 @@ public class ImageServerUI {
 			@Override
 			public void run() {
 				if (!isOpen) {
+					createContents();
 					shell.open();
 					isOpen=true;
 					shell.layout();
