@@ -6,7 +6,19 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 
+import java.awt.Image;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
+import java.awt.TrayIcon.MessageType;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
 import java.net.InetAddress;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
@@ -20,10 +32,9 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Tray;
-import org.eclipse.swt.widgets.TrayItem;
 
 import com.donglu.carpark.server.CarparkDBServer;
+import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.ServerUI;
 import com.donglu.carpark.server.module.CarparkServerGuiceModule;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
@@ -97,14 +108,19 @@ public class ImageServerUI {
 	@Inject
 	private Provider<CarparkDBServer> carparkDBServerProvider;
 
-	private TrayItem trayItem;
 
 	private AppVerifier av;
 	private Button btnStart;
-	private boolean autoStartServer=false;
+	private boolean autoStartServerCfg=false;
 	private String ip;
 
 	public static Injector serverInjector;
+	//系统托盘图片
+	private TrayIcon icon;
+	//判断是否允许创建系统托盘
+	private boolean isSystemTraySupported=true;
+	//判断界面是否打开
+	private boolean isOpen=false;
 	/**
 	 * Launch the application.
 	 * 
@@ -113,7 +129,6 @@ public class ImageServerUI {
 	public static void main(String[] args) {
 		Display display = Display.getDefault();
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
-
 			@Override
 			public void run() {
 				try {
@@ -134,11 +149,154 @@ public class ImageServerUI {
 	 * Open the window.
 	 */
 	public void open() {
+		File file = new File(CarparkServerConfig.configFileName);
+		System.out.println(file.exists());
 		long nanoTime = System.nanoTime();
-		Display display = Display.getDefault();
-		// init();
+		createTrayIcon();
+		Object readObject = CarparkFileUtils.readObject("autoStartServer");
+		if (readObject != null) {
+			autoStartServerCfg = (boolean) readObject;
+		}
 		createContents();
-		shell.open();
+		if (autoStartServerCfg) {
+			autoStartServer();
+		}
+		Display display = Display.getDefault();
+		if (autoStartServerCfg) {
+			shell.setVisible(false);
+		}else{
+    		shell.open();
+    		isOpen=true;
+    		shell.layout();
+		}
+		LOGGER.info("界面加载用时：{}", System.nanoTime() - nanoTime);
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+		System.exit(0);
+	}
+
+	private void autoStartServer() {
+		LOGGER.info("自动启动服务器服务");
+		icon.displayMessage("服务器启动", "正在启动停车场服务器\n请稍后。。。。。。", MessageType.INFO);
+		startServer();
+		icon.displayMessage("服务器启动", "停车场服务器启动成功！", MessageType.INFO);
+	}
+
+	protected void importSN() {
+		try {
+			sp.start();
+			CarparkService carparkService = sp.getCarparkService();
+			Map<SNSettingType, SingleCarparkSystemSetting> mapSN = carparkService.findAllSN();
+
+			ImportSNModel m = new ImportSNModel();
+			if (!StrUtil.isEmpty(mapSN)) {
+				SingleCarparkSystemSetting sn = mapSN.get(SNSettingType.sn);
+				m.setSn(StrUtil.isEmpty(sn) ? "" : sn.getSettingValue());
+			}
+			av = new AppVerifierImpl(new SoftDogWin());
+			ImportSNWizard importSNWizard = new ImportSNWizard(av, sp, m);
+			commonui.showWizard(importSNWizard);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void init() {
+		try {
+			sp.start();
+			SingleCarparkSystemSetting s = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存位置.name());
+			filePath = StrUtil.isEmpty(s) ? System.getProperty("user.dir") : s.getSettingValue();
+			CarparkFileUtils.writeObject(IMAGE_SAVE_DIRECTORY, filePath);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+		}
+	}
+
+	/**
+	 * Create contents of the window.
+	 */
+	protected void createContents() {
+		shell = new Shell(SWT.MAX|SWT.MIN|SWT.CLOSE|SWT.ON_TOP|SWT.RESIZE);
+		shell.setSize(535, 99);
+		shell.setText("服务器");
+		shell.setLayout(new GridLayout(5, false));
+		shell.addShellListener(new ShellAdapter() {
+			@Override
+			public void shellClosed(ShellEvent e) {
+				MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION | SWT.APPLICATION_MODAL);
+
+				box.setText("退出提示");
+				box.setMessage("确认退出服务器？退出服务器后客户端的图片将不会在服务器端备份！");
+				int open = box.open();
+				if (open == SWT.YES) {
+				} else {
+					e.doit = false;
+				}
+			}
+			@Override
+			public void shellIconified(ShellEvent e) {
+				if (isSystemTraySupported) {
+					shell.setVisible(false);
+				}
+			}
+
+		});
+		shell.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				System.exit(0);
+			}
+		});
+		Label label = new Label(shell, SWT.NONE);
+		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("图片保存路径");
+
+		text = new Text(shell, SWT.BORDER);
+		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text.setEditable(false);
+		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_text.widthHint = 214;
+		text.setLayoutData(gd_text);
+		Object readObject = CarparkFileUtils.readObject(IMAGE_SAVE_DIRECTORY);
+		text.setText(readObject == null ? System.getProperty("user.dir") : (String) readObject);
+		Button button = new Button(shell, SWT.NONE);
+		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				DirectoryDialog directoryDialog = new DirectoryDialog(shell, SWT.SINGLE);
+				String open = directoryDialog.open();
+				if (StrUtil.isEmpty(open)) {
+					return;
+				}
+				CarparkFileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
+				text.setText(open);
+			}
+		});
+		button.setText("...");
+
+		btnStart = new Button(shell, SWT.NONE);
+		btnStart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		btnStart.setData("type", "start");
+		btnStart.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String data = (String) btnStart.getData("type");
+				if (data.equals("start")) {
+					startServer();
+				}
+				if (data.equals("stop")) {
+					System.exit(0);
+				}
+			}
+		});
+		btnStart.setText("启    动");
+		
 		shell.setImage(JFaceUtil.getImage("carpark_16"));
 		
 		Button button_1 = new Button(shell, SWT.CHECK);
@@ -190,154 +348,54 @@ public class ImageServerUI {
 			}
 		});
 		menuItem_2.setText("云上传配置");
-		Object readObject = CarparkFileUtils.readObject("autoStartServer");
-		if (readObject!=null) {
-			autoStartServer = (boolean) readObject;
-			button_1.setSelection(autoStartServer);
-		}
-		shell.layout();
-		
-		LOGGER.info("界面加载用时：{}",System.nanoTime()-nanoTime);
-		if (autoStartServer) {
-			startServer();
-		}
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
-			}
-		}
-		System.exit(0);
-	}
-
-	protected void importSN() {
-		try {
-			sp.start();
-			CarparkService carparkService = sp.getCarparkService();
-			Map<SNSettingType, SingleCarparkSystemSetting> mapSN = carparkService.findAllSN();
-
-			ImportSNModel m = new ImportSNModel();
-			if (!StrUtil.isEmpty(mapSN)) {
-				SingleCarparkSystemSetting sn = mapSN.get(SNSettingType.sn);
-				m.setSn(StrUtil.isEmpty(sn) ? "" : sn.getSettingValue());
-			}
-			av = new AppVerifierImpl(new SoftDogWin());
-			ImportSNWizard importSNWizard = new ImportSNWizard(av, sp, m);
-			commonui.showWizard(importSNWizard);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void init() {
-		try {
-			sp.start();
-			SingleCarparkSystemSetting s = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存位置.name());
-			filePath = StrUtil.isEmpty(s) ? System.getProperty("user.dir") : s.getSettingValue();
-			CarparkFileUtils.writeObject(IMAGE_SAVE_DIRECTORY, filePath);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-		}
+		button_1.setSelection(autoStartServerCfg);
 	}
 
 	/**
-	 * Create contents of the window.
+	 * 
 	 */
-	protected void createContents() {
-		shell = new Shell(SWT.MAX|SWT.MIN|SWT.CLOSE|SWT.ON_TOP|SWT.RESIZE);
-		shell.setSize(535, 99);
-		shell.setText("服务器");
-		shell.setLayout(new GridLayout(5, false));
-		shell.addShellListener(new ShellAdapter() {
-
+	private void createTrayIcon() {
+		isSystemTraySupported = SystemTray.isSupported();
+		if (!isSystemTraySupported) {
+			return;
+		}
+		SystemTray systemTray = SystemTray.getSystemTray();
+		
+		URL resource = getClass().getResource("/carpark_16.png");
+		Image image = Toolkit.getDefaultToolkit().getImage(resource);
+		icon = new TrayIcon(image);
+		icon.addMouseListener(new MouseAdapter() {
 			@Override
-			public void shellClosed(ShellEvent e) {
-				MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION | SWT.APPLICATION_MODAL);
-
-				box.setText("退出提示");
-				box.setMessage("确认退出服务器？退出服务器后客户端的图片将不会在服务器端备份！");
-				int open = box.open();
-				if (open == SWT.YES) {
-					trayItem.dispose();
-				} else {
-					e.doit = false;
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount()==2) {
+					openView();
 				}
 			}
-			
-			@Override
-			public void shellIconified(ShellEvent e) {
-				shell.setVisible(false);
-			}
-
 		});
-		shell.addDisposeListener(new DisposeListener() {
-			
+		icon.setToolTip("停车场服务器");
+		PopupMenu popup = new PopupMenu();
+		java.awt.MenuItem close = new java.awt.MenuItem("关闭");
+		close.addActionListener(new ActionListener() {
 			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				trayItem.dispose();
+			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
 		});
-		Display default1 = Display.getDefault();
-		Tray systemTray = default1.getSystemTray();
-		trayItem = new TrayItem(systemTray, SWT.NONE);
-		trayItem.setToolTipText("服务器");
-		trayItem.setImage(JFaceUtil.getImage("carpark_16"));
-		trayItem.addSelectionListener(new SelectionAdapter() {
-
+		java.awt.MenuItem open = new java.awt.MenuItem("打开");
+		open.addActionListener(new ActionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				shell.setMaximized(true);
-				shell.setMaximized(false);
-				shell.setVisible(true);
+			public void actionPerformed(ActionEvent e) {
+				openView();
 			}
 		});
-
-		Label label = new Label(shell, SWT.NONE);
-		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("图片保存路径");
-
-		text = new Text(shell, SWT.BORDER);
-		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text.setEditable(false);
-		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_text.widthHint = 214;
-		text.setLayoutData(gd_text);
-		Object readObject = CarparkFileUtils.readObject(IMAGE_SAVE_DIRECTORY);
-		text.setText(readObject == null ? System.getProperty("user.dir") : (String) readObject);
-		Button button = new Button(shell, SWT.NONE);
-		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				DirectoryDialog directoryDialog = new DirectoryDialog(shell, SWT.SINGLE);
-				String open = directoryDialog.open();
-				if (StrUtil.isEmpty(open)) {
-					return;
-				}
-				CarparkFileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
-				text.setText(open);
-			}
-		});
-		button.setText("...");
-
-		btnStart = new Button(shell, SWT.NONE);
-		btnStart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		btnStart.setData("type", "start");
-		btnStart.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				String data = (String) btnStart.getData("type");
-				if (data.equals("start")) {
-					startServer();
-				}
-				if (data.equals("stop")) {
-					System.exit(0);
-				}
-			}
-		});
-		btnStart.setText("启    动");
+		popup.add(open);
+		popup.add(close);
+		icon.setPopupMenu(popup);
+		try {
+			systemTray.add(icon);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	/**
 	 * 启动服务
@@ -659,6 +717,28 @@ public class ImageServerUI {
 				}
 			}
 		}, 30, 60 * 30, TimeUnit.SECONDS);
+	}
 
+	/**
+	 * 
+	 */
+	private void openView() {
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!isOpen) {
+					shell.open();
+					isOpen=true;
+					shell.layout();
+				}
+				if (shell.isVisible()) {
+					return;
+				}
+				shell.setVisible(false);
+				shell.setMaximized(true);
+				shell.setMaximized(false);
+				shell.setVisible(true);
+			}
+		});
 	}
 }

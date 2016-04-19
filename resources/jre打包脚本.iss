@@ -21,7 +21,7 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\java
 DefaultGroupName=java虚拟机
 DisableProgramGroupPage=yes
-OutputDir=D:\
+OutputDir=.
 OutputBaseFilename=java虚拟机1.0
 Compression=lzma
 SolidCompression=yes
@@ -31,7 +31,7 @@ AlwaysRestart=yes
 Name: "chinesesimp"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "D:\git\dongluCarpark\target\jre\*"; DestDir: "{app}\jre"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "jre\*"; DestDir: "{app}\jre"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; 注意: 不要在任何共享系统文件上使用“Flags: ignoreversion”
 
 [installDelete]

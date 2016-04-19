@@ -19,7 +19,7 @@ public class CarparkServerConfig implements Serializable{
 	public static final String SQLSERVER2008 = "SQLSERVER2008";
 	private static final String SQLSERVER2005 = "SQLSERVER2005";
 	public static final String CARPARK = "carpark";
-	public final String configFileName = "CarparkServerConfig.properties";
+	public static final String configFileName = "CarparkServerConfig.properties";
 	public static CarparkServerConfig instance;
 	
 	private boolean hwPoll;
