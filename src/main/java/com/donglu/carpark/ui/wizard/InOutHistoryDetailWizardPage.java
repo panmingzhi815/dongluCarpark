@@ -8,7 +8,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 
 import com.donglu.carpark.model.ShowInOutHistoryModel;
-import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.layout.GridData;
@@ -150,9 +150,9 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 						outImage=null;
 					}
 					
-					inImage = CarparkUtils.getImage(CarparkUtils.getImageByte(model.getBigImg()), lbl_inBigImg, getShell());
+					inImage = ImageUtils.getImage(ImageUtils.getImageByte(model.getBigImg()), lbl_inBigImg, getShell());
 					lbl_inBigImg.setImage(inImage);
-					outImage = CarparkUtils.getImage(CarparkUtils.getImageByte(model.getOutBigImg()), lbl_outBigImg, getShell());
+					outImage = ImageUtils.getImage(ImageUtils.getImageByte(model.getOutBigImg()), lbl_outBigImg, getShell());
 					lbl_outBigImg.setImage(outImage);
 					if (StrUtil.isEmpty(outImage)) {
 						sashForm.setWeights(new int[]{1,0});

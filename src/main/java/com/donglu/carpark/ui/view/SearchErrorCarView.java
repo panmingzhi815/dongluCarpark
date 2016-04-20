@@ -11,7 +11,7 @@ import org.eclipse.swt.layout.GridData;
 import com.donglu.carpark.model.SearchErrorCarModel;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
-import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ImageUtils;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
@@ -91,9 +91,9 @@ public class SearchErrorCarView extends Composite implements View{
 			public void mouseDoubleClick(MouseEvent e) {
 				model.setNoPlateNoSelect(null);
 					SingleCarparkInOutHistory select = model.getHavePlateNoSelect();
-					lbl_bigImg.setImage(CarparkUtils.getImage(CarparkUtils.getImageByte(select.getBigImg()),lbl_bigImg, getShell()));
-					model.setBigImg(CarparkUtils.getImageByte(model.getSaveBigImg()));
-					model.setSmallImg(CarparkUtils.getImageByte(model.getSaveSmallImg()));
+					lbl_bigImg.setImage(ImageUtils.getImage(ImageUtils.getImageByte(select.getBigImg()),lbl_bigImg, getShell()));
+					model.setBigImg(ImageUtils.getImageByte(model.getSaveBigImg()));
+					model.setSmallImg(ImageUtils.getImageByte(model.getSaveSmallImg()));
 			}
 		});
 		table.setLinesVisible(true);
@@ -130,9 +130,9 @@ public class SearchErrorCarView extends Composite implements View{
 			public void mouseDoubleClick(MouseEvent e) {
 				model.setHavePlateNoSelect(null);
 				SingleCarparkInOutHistory select = model.getNoPlateNoSelect();
-				model.setBigImg(CarparkUtils.getImageByte(model.getSaveBigImg()));
-				model.setSmallImg(CarparkUtils.getImageByte(model.getSaveSmallImg()));
-				lbl_bigImg.setImage(CarparkUtils.getImage(CarparkUtils.getImageByte(select.getBigImg()),lbl_bigImg, getShell()));
+				model.setBigImg(ImageUtils.getImageByte(model.getSaveBigImg()));
+				model.setSmallImg(ImageUtils.getImageByte(model.getSaveSmallImg()));
+				lbl_bigImg.setImage(ImageUtils.getImage(ImageUtils.getImageByte(select.getBigImg()),lbl_bigImg, getShell()));
 			}
 		});
 		table_1.setLinesVisible(true);

@@ -4,7 +4,7 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ImageUtils;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
@@ -80,7 +80,7 @@ public class ImageDialog extends Dialog {
 
 	}
 	private void setImage(String img) {
-		CarparkUtils.setBackgroundImage(CarparkUtils.getImageByte(img), lbl_image, img,true);
+		ImageUtils.setBackgroundImage(ImageUtils.getImageByte(img), lbl_image, img,true);
 	}
 	public static void main(String[] args) {
 		ImageDialog d=new ImageDialog("");

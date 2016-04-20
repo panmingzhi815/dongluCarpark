@@ -20,6 +20,7 @@ import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
@@ -130,9 +131,9 @@ public class CarOutTask implements Runnable{
 						if (StrUtil.isEmpty(lbl_outSmallImg)) {
 							return;
 						}
-						CarparkUtils.setBackgroundImage(bigImage, lbl_outBigImg, DEFAULT_DISPLAY);
-						CarparkUtils.setBackgroundImage(smallImage, lbl_outSmallImg, DEFAULT_DISPLAY);
-						CarparkUtils.setBackgroundImageName(lbl_outBigImg, folder + "/" + bigImgFileName);
+						ImageUtils.setBackgroundImage(bigImage, lbl_outBigImg, DEFAULT_DISPLAY);
+						ImageUtils.setBackgroundImage(smallImage, lbl_outSmallImg, DEFAULT_DISPLAY);
+						ImageUtils.setBackgroundImageName(lbl_outBigImg, folder + "/" + bigImgFileName);
 						text_real.setFocus();
 						text_real.selectAll();
 					} catch (Exception e) {
@@ -193,8 +194,8 @@ public class CarOutTask implements Runnable{
 					@Override
 					public void run() {
 						try {
-							CarparkUtils.setBackgroundImage(CarparkUtils.getImageByte(ch.getBigImg()), lbl_inBigImg, DEFAULT_DISPLAY);
-							CarparkUtils.setBackgroundImageName(lbl_inBigImg, ch.getBigImg());
+							ImageUtils.setBackgroundImage(ImageUtils.getImageByte(ch.getBigImg()), lbl_inBigImg, DEFAULT_DISPLAY);
+							ImageUtils.setBackgroundImageName(lbl_inBigImg, ch.getBigImg());
 						} catch (Exception e) {
 							LOGGER.info("显示出场进口图片时发生错误",e);
 						}

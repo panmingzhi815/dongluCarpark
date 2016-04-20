@@ -582,7 +582,7 @@ public class SettingView extends Composite implements View {
 		combo_slot.setLayoutData(gd_combo_slot);
 		comboViewer_slot.setContentProvider(new ArrayContentProvider());
 		comboViewer_slot.setLabelProvider(new LabelProvider());
-		comboViewer_slot.setInput(new String[] { "显示临时车剩余车位", "显示固定车剩余车位", "显示总剩余车位","实时临时车位","实时固定车位"});
+		comboViewer_slot.setInput(new String[] { "显示临时车剩余车位", "显示固定车剩余车位", "显示总剩余车位","实时临时车位","实时固定车位","实时总车位数"});
 		combo_slot.select(Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位数显示方式)));
 
 		Composite composite_9 = new Composite(group, SWT.NONE);

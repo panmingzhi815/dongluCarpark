@@ -5,7 +5,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.donglu.carpark.model.ConcentrateModel;
 import com.donglu.carpark.ui.common.AbstractApp;
-import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ImageUtils;
 import com.donglu.carpark.util.TextUtils;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.inject.Guice;
@@ -454,7 +454,7 @@ public class ConcentrateApp extends AbstractApp {
 	}
 
 	public void setInImage(String bigImg) {
-		byte[] imageByte = CarparkUtils.getImageByte(bigImg);
-		CarparkUtils.setBackgroundImage(imageByte, lbl_inImg, shell.getDisplay());
+		byte[] imageByte = ImageUtils.getImageByte(bigImg);
+		ImageUtils.setBackgroundImage(imageByte, lbl_inImg, shell.getDisplay());
 	}
 }

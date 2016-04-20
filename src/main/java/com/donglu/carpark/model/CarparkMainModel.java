@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Timer;
 
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.graphics.Image;
 import org.joda.time.DateTime;
 
 import com.donglu.carpark.ui.task.CarInTask;
@@ -72,15 +71,15 @@ public class CarparkMainModel extends DomainObject {
 	private String inShowPlateNO;
 	private String inShowTime;
 	private String inShowMeg;
-	private Image inShowSmallImg;
-	private Image inShowBigImg;
+	private byte[] inShowSmallImg;
+	private byte[] inShowBigImg;
 
 	// 出口显示信息
 	private String outShowPlateNO;
 	private String outShowTime;
 	private String outShowMeg;
-	private Image outShowSmallImg;
-	private Image outShowBigImg;
+	private byte[] outShowSmallImg;
+	private byte[] outShowBigImg;
 	private boolean outPlateNOEditable = false;
 
 	private boolean inCheckIsClick = false;
@@ -88,6 +87,7 @@ public class CarparkMainModel extends DomainObject {
 	String userName;
 	String workTime;
 	int totalSlot;
+	String totalSlotTooltip;
 	int hoursSlot;
 	int monthSlot;
 	float totalCharge;
@@ -357,21 +357,21 @@ public class CarparkMainModel extends DomainObject {
 			pcs.firePropertyChange("inShowMeg", null, null);
 	}
 
-	public Image getInShowSmallImg() {
+	public byte[] getInShowSmallImg() {
 		return inShowSmallImg;
 	}
 
-	public void setInShowSmallImg(Image inShowSmallImg) {
+	public void setInShowSmallImg(byte[] inShowSmallImg) {
 		this.inShowSmallImg = inShowSmallImg;
 		if (pcs != null)
 			pcs.firePropertyChange("inShowSmallImg", null, null);
 	}
 
-	public Image getInShowBigImg() {
+	public byte[] getInShowBigImg() {
 		return inShowBigImg;
 	}
 
-	public void setInShowBigImg(Image inShowBigImg) {
+	public void setInShowBigImg(byte[] inShowBigImg) {
 		this.inShowBigImg = inShowBigImg;
 		if (pcs != null)
 			pcs.firePropertyChange("inShowBigImg", null, null);
@@ -407,21 +407,21 @@ public class CarparkMainModel extends DomainObject {
 			pcs.firePropertyChange("outShowMeg", null, null);
 	}
 
-	public Image getOutShowSmallImg() {
+	public byte[] getOutShowSmallImg() {
 		return outShowSmallImg;
 	}
 
-	public void setOutShowSmallImg(Image outShowSmallImg) {
+	public void setOutShowSmallImg(byte[] outShowSmallImg) {
 		this.outShowSmallImg = outShowSmallImg;
 		if (pcs != null)
 			pcs.firePropertyChange("outShowSmallImg", null, null);
 	}
 
-	public Image getOutShowBigImg() {
+	public byte[] getOutShowBigImg() {
 		return outShowBigImg;
 	}
 
-	public void setOutShowBigImg(Image outShowBigImg) {
+	public void setOutShowBigImg(byte[] outShowBigImg) {
 		this.outShowBigImg = outShowBigImg;
 		if (pcs != null)
 			pcs.firePropertyChange("outShowBigImg", null, null);
@@ -825,5 +825,14 @@ public class CarparkMainModel extends DomainObject {
 
 	public Map<String, Timer> getMapTwoChanelTimer() {
 		return mapTwoChanelTimer;
+	}
+
+	public String getTotalSlotTooltip() {
+		return totalSlotTooltip;
+	}
+
+	public void setTotalSlotTooltip(String totalSlotTooltip) {
+		this.totalSlotTooltip = totalSlotTooltip;
+		firePropertyChange("totalSlotTooltip", null, null);
 	}
 }

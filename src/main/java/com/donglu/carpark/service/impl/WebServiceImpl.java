@@ -1,7 +1,5 @@
 package com.donglu.carpark.service.impl;
 
-import java.io.IOException;
-import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Base64;
@@ -11,20 +9,18 @@ import java.util.Iterator;
 import javax.xml.namespace.QName;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.MessageFormatter;
 
 import com.donglu.carpark.server.imgserver.YunConfigUI;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.WebService;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ImageUtils;
 import com.donglu.carpark.yun.CarparkYunConfig;
 import com.donglu.carpark.yun.RQDataExchange;
 import com.donglu.carpark.yun.RQDataExchangeSoap;
@@ -115,7 +111,7 @@ public class WebServiceImpl implements  WebService{
 					+ "DutyName=\"\" PortCharges=\"\" Company=\"{}\" Area=\"{}\" PD=\"0\"><Document xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" "
 					+ "dt:dt=\"bin.base64\" DocumentName=\"{}\" DocumentExt=\"{}\">{}</Document></Root>";
 			
-			byte[] imageByte = CarparkUtils.getImageByte(in.getBigImg());
+			byte[] imageByte = ImageUtils.getImageByte(in.getBigImg());
 			if (imageByte==null) {
 				imageByte=new byte[0];
 			}
@@ -153,7 +149,7 @@ public class WebServiceImpl implements  WebService{
 							+ "IfFree=\"{}\" FreeAmount=\"{}\" FreeReason=\"\" IfPreferential=\"{}\" PreferentialAmount=\"{}\" "
 							+ "PreferentialReason=\"\" Company =\"{}\" Area=\"{}\"> <Document xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" "
 							+ "dt:dt=\"bin.base64\" DocumentName=\"{}\" DocumentExt=\"{}\">{}</Document></Root>";
-			String encodeToString = Base64.getEncoder().encodeToString(CarparkUtils.getImageByte(out.getOutBigImg()));
+			String encodeToString = Base64.getEncoder().encodeToString(ImageUtils.getImageByte(out.getOutBigImg()));
 			Float factMoney = out.getFactMoney();
 			int ifFree=factMoney<=0?1:0;
 			Float freeMoney = out.getFreeMoney()==null?0:out.getFreeMoney();

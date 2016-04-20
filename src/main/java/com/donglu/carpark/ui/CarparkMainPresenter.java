@@ -59,6 +59,7 @@ import com.donglu.carpark.ui.wizard.model.ChangeUserModel;
 import com.donglu.carpark.ui.wizard.model.ReturnAccountModel;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ImageUtils;
 import com.donglu.carpark.util.ImgCompress;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.LPRInOutType;
@@ -70,6 +71,7 @@ import com.dongluhitec.card.domain.db.LinkStyleEnum;
 import com.dongluhitec.card.domain.db.SerialDeviceAddress;
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
@@ -78,6 +80,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
@@ -196,6 +199,7 @@ public class CarparkMainPresenter {
 			addDevice(device);
 			addDevice(tabFolder, type, device);
 			showUsualContentToDevice(device);
+			showPositionToDevice(device,this.model.getTotalSlot());
 		} catch (Exception e) {
 			log.error("添加设备时发生错误", e);
 		}
@@ -305,7 +309,7 @@ public class CarparkMainPresenter {
 		checkCameraPlayStatus.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
-				log.info("开始第{}次检查摄像机的连接状态",checkPlayerPlayingSize);
+				log.debug("开始第{}次检查摄像机的连接状态",checkPlayerPlayingSize);
 				for (String url : mapPlayer.keySet()) {
 					MediaPlayer mediaPlayer = mapPlayer.get(url);
 					boolean playing = mediaPlayer.isPlaying();
@@ -342,7 +346,7 @@ public class CarparkMainPresenter {
 		final EmbeddedMediaPlayer createPlayRight = webCameraDevice.createPlay(new_Frame1, url);
 		mapPlayer.put(url, createPlayRight);
 		mapCameraToDeviceIp.put(url, device);
-		
+
 		getView().shell.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
@@ -357,17 +361,26 @@ public class CarparkMainPresenter {
 				mapPlayer.remove(url);
 			}
 		});
-		PopupMenu pop = new PopupMenu();
+		PopupMenu popMenu = new PopupMenu();
 		MenuItem refreshItem = new MenuItem("重新播放");
-		pop.add(refreshItem);
+		MenuItem refreshSettingItem = new MenuItem("刷新设置");
+		popMenu.add(refreshItem);
+		popMenu.add(refreshSettingItem);
+		refreshSettingItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				refreshSystemSetting();
+			}
+		});
 		refreshItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				createPlayRight.playMedia(url);
 			}
 		});
-		createAutoMenuItem(pop);
-		canvas1.add(pop);
+		createAutoMenuItem(popMenu);
+		canvas1.add(popMenu);
 		canvas1.addMouseListener(new java.awt.event.MouseAdapter() {
 
 			@Override
@@ -385,14 +398,31 @@ public class CarparkMainPresenter {
 						}
 					});
 				}
-				if (e.getButton()==3&&e.getClickCount() == 1) {
+				if (e.getButton() == 3 && e.getClickCount() == 1) {
 					System.out.println("打开刷新菜单");
-					pop.show(canvas1, e.getX(), e.getY());
+					popMenu.show(canvas1, e.getX(), e.getY());
 				}
 			}
 
 		});
 		jna.openEx(ip, getView());
+	}
+
+	protected void refreshSystemSetting() {
+		// 获取设置信息设置
+		List<SingleCarparkSystemSetting> findAllSystemSetting = sp.getCarparkService().findAllSystemSetting();
+		for (SystemSettingTypeEnum systemSetting : SystemSettingTypeEnum.values()) {
+			mapSystemSetting.put(systemSetting, systemSetting.getDefaultValue());
+		}
+		for (SingleCarparkSystemSetting ss : findAllSystemSetting) {
+			SystemSettingTypeEnum valueOf = null;
+			try {
+				valueOf = SystemSettingTypeEnum.valueOf(ss.getSettingKey());
+				mapSystemSetting.put(valueOf, ss.getSettingValue());
+			} catch (Exception e) {
+				continue;
+			}
+		}
 	}
 
 	private void createAutoMenuItem(PopupMenu pop) {
@@ -470,6 +500,7 @@ public class CarparkMainPresenter {
 				commonui.info("修改成功", "修改设备" + ip + "成功");
 				log.info("发送平时显示类容");
 				showUsualContentToDevice(device2);
+				showPositionToDevice(device,this.model.getTotalSlot());
 				setIsTwoChanel();
 				// sendPositionToAllDevice(true);
 				return;
@@ -988,12 +1019,29 @@ public class CarparkMainPresenter {
 		mapDeviceTabItem = model.getMapDeviceTabItem();
 		mapIpToDevice = model.getMapIpToDevice();
 		mapSystemSetting = model.getMapSystemSetting();
-		
+		refreshSystemSetting();
 		saveImageTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("保存图片任务"));
 		openDoorTheadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
 		checkPlayerPlaying();
 		countTempCarCharge = new CountTempCarChargeImpl();
+		
 		autoCheckDeviceLinkInfo();
+		setIsTwoChanel();
+		String userName = System.getProperty("userName");
+		model.setUserName(userName);
+		model.setWorkTime(new Date());
+		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
+		model.setHoursSlot(carparkInOutService.findTempSlotIsNow(model.getCarpark()));
+		model.setMonthSlot(carparkInOutService.findFixSlotIsNow(model.getCarpark()));
+		model.setTotalCharge(carparkInOutService.findFactMoneyByName(userName));
+		model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
+		model.setTotalSlot(getSlotOfLeft());
+		
+		List<CarparkChargeStandard> listTemp = sp.getCarparkService().findAllCarparkChargeStandard(model.getCarpark(), true);
+		for (CarparkChargeStandard carparkChargeStandard : listTemp) {
+			String name = carparkChargeStandard.getCarparkCarType().getName();
+			model.getMapTempCharge().put(name, carparkChargeStandard.getCode());
+		}
 	}
 	/**
 	 * 用来测试进出场
@@ -1297,7 +1345,7 @@ public class CarparkMainPresenter {
 			model.setChargeDevice(null);
 			model.setChargeHistory(null);
 			model.setPlateInTime(new Date(), 5);
-			plateSubmit(singleCarparkInOutHistory, singleCarparkInOutHistory.getOutTime(), device, CarparkUtils.getImageByte(singleCarparkInOutHistory.getOutBigImg()));
+			plateSubmit(singleCarparkInOutHistory, singleCarparkInOutHistory.getOutTime(), device, ImageUtils.getImageByte(singleCarparkInOutHistory.getOutBigImg()));
 			updatePosition(device.getCarpark(), singleCarparkInOutHistory.getUserId(), false);
 			return true;
 		} catch (Exception e) {
@@ -1498,18 +1546,25 @@ public class CarparkMainPresenter {
 		switch (slotShowType) {
 		case "0":
 			findTotalSlotIsNow = sp.getCarparkInOutService().findTotalSlotIsNow(model.getCarpark());
+			model.setTotalSlotTooltip("临时车位");
 			break;
 		case "1":
 			findTotalSlotIsNow=getFixSlotWithChange();
+			model.setTotalSlotTooltip("固定车位");
 			break;
 		case "2":
 			findTotalSlotIsNow=getTotalSlotWithChange();
+			model.setTotalSlotTooltip("总车位");
 			break;
 		case "3":
-			findTotalSlotIsNow = getRealTineSlot(false);
+			findTotalSlotIsNow = getRealTineSlot(1);
+			
 			break;
 		case "4":
-			findTotalSlotIsNow = getRealTineSlot(true);
+			findTotalSlotIsNow = getRealTineSlot(2);
+			break;
+		case "5":
+			findTotalSlotIsNow = getRealTineSlot(3);
 			break;
 		}
 		
@@ -1520,15 +1575,20 @@ public class CarparkMainPresenter {
 	 * @param findTotalSlotIsNow
 	 * @return
 	 */
-	private Integer getRealTineSlot(boolean isFixOrTemp) {
+	private Integer getRealTineSlot(int type) {
 		Integer findTotalSlotIsNow =0;
 		try {
 			SingleCarparkCarpark carpark = model.getCarpark().getMaxParent();
 			SingleCarparkCarpark findCarparkById = sp.getCarparkService().findCarparkById(carpark.getId());
-			if (isFixOrTemp) {
+			if (type==2) {
 				findTotalSlotIsNow=findCarparkById.getLeftFixNumberOfSlot();
-			}else{
+				model.setTotalSlotTooltip("实时固定车位，双击进行修改");
+			}else if(type==1){
 				findTotalSlotIsNow=findCarparkById.getLeftTempNumberOfSlot();
+				model.setTotalSlotTooltip("实时临时车位，双击进行修改");
+			}else{
+				findTotalSlotIsNow=findCarparkById.getLeftTempNumberOfSlot()+findCarparkById.getLeftFixNumberOfSlot();
+				model.setTotalSlotTooltip("实时总车位，双击进行修改");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1563,6 +1623,36 @@ public class CarparkMainPresenter {
 
 	public void updatePosition(SingleCarparkCarpark carpark, Long userId, boolean inOrOut) {
 		sp.getPositionUpdateService().updatePosion(carpark, userId, inOrOut);
+	}
+
+	public void editPosition() {
+		SingleCarparkCarpark carpark = model.getCarpark().getMaxParent();
+		if (StrUtil.isEmpty(model.getTotalSlotTooltip())||model.getTotalSlotTooltip().indexOf("实时")<0) {
+			return;
+		}
+		SingleCarparkCarpark c = sp.getCarparkService().findCarparkById(carpark.getId());
+		Integer fixSlot = c.getTrueLeftFixNumberOfSlot()==null?c.getFixNumberOfSlot():c.getTrueLeftFixNumberOfSlot();
+		Integer tempSlot = c.getTrueLeftTempNumberOfSlot()==null?c.getTempNumberOfSlot():c.getTrueLeftTempNumberOfSlot();
+		String fix = commonui.input("车位数修改", "输入新的剩余固定车位数",""+fixSlot);
+		if (fix==null) {
+			return;
+		}
+		String temp = commonui.input("车位数修改", "输入新的剩余临时车位数",""+tempSlot);
+		if (temp==null) {
+			return;
+		}
+		
+		try {
+			fixSlot =Integer.valueOf(fix);
+			tempSlot =Integer.valueOf(temp);
+		} catch (NumberFormatException e) {
+			commonui.error("错误", "请设置正确的车位数");
+			return;
+		}
+		c.setLeftFixNumberOfSlot(fixSlot);
+		c.setLeftTempNumberOfSlot(tempSlot);
+		sp.getCarparkService().saveCarpark(c);
+		commonui.info("成功", "修改车位数成功");
 	}
 	
 

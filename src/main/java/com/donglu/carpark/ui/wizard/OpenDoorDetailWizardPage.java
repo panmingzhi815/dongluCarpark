@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 
-import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import org.eclipse.swt.layout.GridData;
 
@@ -91,7 +91,7 @@ public class OpenDoorDetailWizardPage extends WizardPage {
 				image.dispose();
 				image=null;
 			}
-			label.setImage(CarparkUtils.getImage(CarparkUtils.getImageByte(model.getImage()), label, getShell()));
+			label.setImage(ImageUtils.getImage(ImageUtils.getImageByte(model.getImage()), label, getShell()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

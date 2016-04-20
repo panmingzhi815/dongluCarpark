@@ -4,7 +4,8 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
-import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ImageUtils;
+
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.core.databinding.DataBindingContext;
 
@@ -35,8 +36,8 @@ public class SearchHistoryByHandWizardPage extends WizardPage {
 		setControl(container);
 		container.setLayout(new FillLayout(SWT.HORIZONTAL));
 		presenter.go(container);
-		presenter.getModel().setBigImg(CarparkUtils.getImageByte(presenter.getModel().getSaveBigImg()));
-		presenter.getModel().setSmallImg(CarparkUtils.getImageByte(presenter.getModel().getSaveSmallImg()));
+		presenter.getModel().setBigImg(ImageUtils.getImageByte(presenter.getModel().getSaveBigImg()));
+		presenter.getModel().setSmallImg(ImageUtils.getImageByte(presenter.getModel().getSaveSmallImg()));
 		
 		m_bindingContext = initDataBindings();
 	}

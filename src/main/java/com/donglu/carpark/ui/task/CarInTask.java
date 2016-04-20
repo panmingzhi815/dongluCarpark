@@ -16,6 +16,7 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
@@ -149,8 +150,8 @@ public class CarInTask implements Runnable {
 					if (StrUtil.isEmpty(lbl_inSmallImg)) {
 						return;
 					}
-					CarparkUtils.setBackgroundImage(smallImage, lbl_inSmallImg, DEFAULT_DISPLAY);
-					CarparkUtils.setBackgroundImage(bigImage, lbl_inBigImg, getBigImgSavePath());
+					ImageUtils.setBackgroundImage(smallImage, lbl_inSmallImg, DEFAULT_DISPLAY);
+					ImageUtils.setBackgroundImage(bigImage, lbl_inBigImg, getBigImgSavePath());
 				}
 			});
 			model.setInShowPlateNO(plateNO);

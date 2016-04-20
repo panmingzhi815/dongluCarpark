@@ -42,9 +42,9 @@ public class ImageUploadServlet extends HttpServlet {
         }
         id = new String(Base64.getDecoder().decode(id), Charsets.UTF_8);
         Object o=CarparkFileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):CarparkFileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);
-        LOGGER.info("服务器图片保存位置{}，接收到请求图片：{}",o,id);
+        LOGGER.debug("服务器图片保存位置{}，接收到请求图片：{}",o,id);
         String filePathFromId = parseFilePathFromId(id,o+"\\img\\");
-        LOGGER.info("服务器图片位置：{}",filePathFromId);
+        LOGGER.debug("服务器图片位置：{}",filePathFromId);
         byte[] bytes = getBytes(filePathFromId);
 
         if (bytes == null) {
@@ -78,12 +78,12 @@ public class ImageUploadServlet extends HttpServlet {
 					if(!item.isFormField()) {
 						// 取出上传文件的文件名称
 						String name = item.getName();
-						LOGGER.info("name",name);
+						LOGGER.debug("name",name);
 						byte[] decode = Base64.getDecoder().decode(name);
 						name = new String(decode,"UTF-8");
-						LOGGER.info("string",name);
+						LOGGER.debug("string",name);
 						String fileName =name.substring(name.lastIndexOf("img"), name.length());
-						LOGGER.info("fileName={}",fileName);
+						LOGGER.debug("fileName={}",fileName);
 						Object o=CarparkFileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):CarparkFileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);
 						String path =o +""+ File.separatorChar+ fileName;
 						// 上传文件
@@ -93,7 +93,6 @@ public class ImageUploadServlet extends HttpServlet {
 						
 						response.setContentType("text/html;charset=UTF-8");
 						PrintWriter out = response.getWriter();
-						 System.out.println(path);
 						out.print("上传的文件为："+ name);
 						out.print("保存的地址为："+ path );
 						out.flush();

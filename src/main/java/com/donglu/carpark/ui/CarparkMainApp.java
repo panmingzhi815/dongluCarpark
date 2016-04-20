@@ -36,7 +36,6 @@ import org.eclipse.swt.custom.CLabel;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
-import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.ui.common.AbstractApp;
 import com.donglu.carpark.ui.task.CarInTask;
 import com.donglu.carpark.ui.task.CarOutTask;
@@ -50,13 +49,11 @@ import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
-import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -115,7 +112,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 
 	public static final String VILIDTO_DATE = ",有效期至yyyy年MM月dd日";
 
-	public static final String IMAGE_SAVE_SITE = "imageSaveSite";// 图片保存位置
 
 	public static final String TEMP_CAR_AUTO_PASS = "tempCarAutoPass";
 
@@ -375,44 +371,10 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		mapTypeDevices = model.getMapTypeDevices();
 		mapTempCharge = model.getMapTempCharge();
 		mapTwoChanelTimer = model.getMapTwoChanelTimer();
-		presenter.init();
-		readDevices();
-		initVioce();
-		System.out.println(model);
 		presenter.setView(this);
-		presenter.setIsTwoChanel();
-		String userName = System.getProperty("userName");
-		model.setUserName(userName);
-		model.setWorkTime(new Date());
-
-		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		model.setHoursSlot(carparkInOutService.findTempSlotIsNow(model.getCarpark()));
-		model.setMonthSlot(carparkInOutService.findFixSlotIsNow(model.getCarpark()));
-		model.setTotalCharge(carparkInOutService.findFactMoneyByName(userName));
-		model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
-
-		// 获取设置信息设置
-		List<SingleCarparkSystemSetting> findAllSystemSetting = sp.getCarparkService().findAllSystemSetting();
-		for (SystemSettingTypeEnum systemSetting : SystemSettingTypeEnum.values()) {
-			mapSystemSetting.put(systemSetting, systemSetting.getDefaultValue());
-		}
-		for (SingleCarparkSystemSetting ss : findAllSystemSetting) {
-			SystemSettingTypeEnum valueOf = null;
-			try {
-				valueOf = SystemSettingTypeEnum.valueOf(ss.getSettingKey());
-			} catch (Exception e) {
-				continue;
-			}
-			mapSystemSetting.put(valueOf, ss.getSettingValue());
-		}
-		model.setTotalSlot(presenter.getSlotOfLeft());
-		CarparkFileUtils.writeObject(IMAGE_SAVE_SITE, mapSystemSetting.get(SystemSettingTypeEnum.图片保存位置));
-
-		List<CarparkChargeStandard> listTemp = sp.getCarparkService().findAllCarparkChargeStandard(model.getCarpark(), true);
-		for (CarparkChargeStandard carparkChargeStandard : listTemp) {
-			String name = carparkChargeStandard.getCarparkCarType().getName();
-			mapTempCharge.put(name, carparkChargeStandard.getCode());
-		}
+		readDevices();
+		presenter.init();
+		initVioce();
 
 		outTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("出场任务"));
 		inThreadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("进场任务"));
@@ -624,6 +586,13 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		text_total.setEditable(false);
 		text_total.setText("1000");
 		text_total.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+		text_total.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				presenter.editPosition();
+			}
+		});
 
 		Label label = new Label(composite_13, SWT.NONE);
 		label.setText("临时车位");
@@ -1441,6 +1410,10 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		IObservableValue observeTextText_totalObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_total);
 		IObservableValue totalSlotModelObserveValue = BeanProperties.value("totalSlot").observe(model);
 		bindingContext.bindValue(observeTextText_totalObserveWidget, totalSlotModelObserveValue, null, null);
+		
+		IObservableValue observeTooltipTextText_totalObserveWidget = WidgetProperties.tooltipText().observe(text_total);
+		IObservableValue totalLeftSlotModelObserveValue = BeanProperties.value("totalSlotTooltip").observe(model);
+		bindingContext.bindValue(observeTooltipTextText_totalObserveWidget, totalLeftSlotModelObserveValue, null, null);
 		//
 		IObservableValue observeTextText_hoursObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_hours);
 		IObservableValue hoursSlotModelObserveValue = BeanProperties.value("hoursSlot").observe(model);

@@ -14,7 +14,7 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.task.CarInTask;
-import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ImageUtils;
 import com.donglu.carpark.util.TextUtils;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -120,7 +120,7 @@ public class InCheckDetailView extends Composite implements View{
 			CLabel label = new CLabel(composite_2, SWT.NONE);
 			label.setAlignment(SWT.CENTER);
 //			ImgUtil.setBackgroundImage(label,carInTask.getBigImage());
-			CarparkUtils.setBackgroundImage(carInTask.getBigImage(), label,carInTask.getBigImgSavePath());
+			ImageUtils.setBackgroundImage(carInTask.getBigImage(), label,carInTask.getBigImgSavePath());
 			mapItemWithLabel.put(tbtmbdw, label);
 		}
 		tabFolder.addSelectionListener(new SelectionAdapter() {
@@ -133,7 +133,7 @@ public class InCheckDetailView extends Composite implements View{
 				}
 				TabItem tabItem = selection[0];
 				CarInTask carInTask=mapItemWithTask.get(tabItem);
-				CarparkUtils.setBackgroundImage(carInTask.getBigImage(), mapItemWithLabel.get(tabItem),carInTask.getBigImgSavePath());
+				ImageUtils.setBackgroundImage(carInTask.getBigImage(), mapItemWithLabel.get(tabItem),carInTask.getBigImgSavePath());
 			}
 		});
 	}

@@ -222,7 +222,7 @@ public class SingleCarparkCarpark extends DomainObject {
 	}
 	public Integer getLeftTempNumberOfSlot() {
 		if (leftTempNumberOfSlot==null) {
-			return 0;
+			return tempNumberOfSlot;
 		}
 		return leftTempNumberOfSlot;
 	}
@@ -239,7 +239,7 @@ public class SingleCarparkCarpark extends DomainObject {
 	}
 	public Integer getLeftFixNumberOfSlot() {
 		if (leftFixNumberOfSlot==null) {
-			return 0;
+			return fixNumberOfSlot;
 		}
 		return leftFixNumberOfSlot;
 	}
