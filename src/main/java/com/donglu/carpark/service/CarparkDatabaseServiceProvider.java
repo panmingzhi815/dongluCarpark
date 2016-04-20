@@ -28,5 +28,7 @@ public interface CarparkDatabaseServiceProvider {
 	PlateSubmitServiceI getPlateSubmitService();
 
 	PositionUpdateServiceI getPositionUpdateService();
+
+	ImageServiceI getImageService();
 }
 

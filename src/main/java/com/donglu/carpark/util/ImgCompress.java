@@ -55,12 +55,12 @@ public class ImgCompress {
 	 */
 	public static void compress(String fileName){
 		try {
-			log.info("准备压缩图片：{}",fileName);
+			log.debug("准备压缩图片：{}",fileName);
 			ImgCompress imgCompress = new ImgCompress(fileName);
 			imgCompress.resizeFix(imgCompress.getWidth(), imgCompress.getHeight());
-			log.info("压缩图片：[{}]成功",fileName);
+			log.debug("压缩图片：[{}]成功",fileName);
 		} catch (IOException e) {
-			log.info("压缩图片：["+fileName+"]失败",e);
+			log.error("压缩图片：["+fileName+"]失败",e);
 		}
 	}
 	

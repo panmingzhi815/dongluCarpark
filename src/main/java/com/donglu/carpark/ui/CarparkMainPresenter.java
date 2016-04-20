@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.model.SearchErrorCarModel;
 import com.donglu.carpark.model.ShowInOutHistoryModel;
-import com.donglu.carpark.server.imgserver.FileuploadSend;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.service.CountTempCarChargeI;
@@ -994,8 +993,7 @@ public class CarparkMainPresenter {
 						long nanoTime = System.nanoTime();
 						log.info("准备将图片{}上传到服务器{}", finalFileName, ip);
 						try {
-							String upload = FileuploadSend.upload("http://" + ip + ":8899/carparkImage/", finalFileName);
-
+							String upload = sp.getImageService().saveImageInServer(bigImage, finalFileName);
 							log.info("图片上传到服务器{}成功,{}", ip, upload);
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -1443,25 +1441,25 @@ public class CarparkMainPresenter {
 					File bigFile = new File(finalBigFileName);
 					bigFile.createNewFile();
 					Files.write(bigImage, bigFile);
-					log.info("保存大图片到本地：{}",bigFile);
+					log.debug("保存大图片到本地：{}",bigFile);
 					File smallFile = new File(finalSmallFileName);
 					smallFile.createNewFile();
 					Files.write(smallImage, smallFile);
-					log.info("保存小图片到本地：{}",smallFile);
+					log.debug("保存小图片到本地：{}",smallFile);
 					ImgCompress.compress(smallFile.getPath());
 					String ip = CarparkClientConfig.getInstance().getServerIp();
 					if (true) {
 						long nanoTime = System.nanoTime();
-						log.info("准备将图片{}上传到服务器{}", finalBigFileName, ip);
+						log.debug("准备将图片{}上传到服务器{}", finalBigFileName, ip);
 						try {
-							String bigUpload = FileuploadSend.upload("http://" + ip + ":8899/carparkImage/", finalBigFileName);
-							String smallUpload = FileuploadSend.upload("http://" + ip + ":8899/carparkImage/", finalSmallFileName);
+							String bigUpload = sp.getImageService().saveImageInServer(bigImage1, finalBigFileName);
+							String smallUpload = sp.getImageService().saveImageInServer(Files.toByteArray(smallFile), finalSmallFileName);
 							log.info("图片上传到服务器{}成功,{}", ip, bigUpload + "==" + smallUpload);
 						} catch (Exception e) {
 							e.printStackTrace();
 							log.error("图片上传到服务器{}失败", ip);
 						} finally {
-							log.info("上传图片花费时间：{}", System.nanoTime() - nanoTime);
+							log.debug("上传图片花费时间：{}", System.nanoTime() - nanoTime);
 						}
 					}
 				} catch (IOException e) {

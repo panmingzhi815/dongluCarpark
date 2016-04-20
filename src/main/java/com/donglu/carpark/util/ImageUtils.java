@@ -28,9 +28,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.donglu.carpark.server.imgserver.FileuploadSend;
-import com.donglu.carpark.ui.CarparkClientConfig;
+import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkManageApp;
+import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.io.Files;
@@ -238,14 +238,14 @@ public class ImageUtils {
 			File file=new File(pathname);
 			LOGGER.info("获取图片{}",pathname);
 			if (file.exists()) {
-				LOGGER.info("在本地找到图片，获取图片{}",pathname);
+				LOGGER.info("在本地找到图片，获取图片{}",file.getParent());
 				image=Files.toByteArray(file);
 			}else{
 				String substring = img.substring(img.lastIndexOf("/")+1);
-				String actionUrl = "http://"+CarparkClientConfig.getInstance().getDbServerIp()+":8899/carparkImage/";
-				LOGGER.info("本地未找到图片，准备发送请求{}获取图片{}",actionUrl,pathname);
-				image = FileuploadSend.download(actionUrl, substring);
-				LOGGER.info("从{}获取图片成功",actionUrl);
+				LOGGER.info("本地未找到图片，准备到服务器获取图片{}",pathname);
+				CarparkDatabaseServiceProvider sp=Login.injector.getInstance(CarparkDatabaseServiceProvider.class);
+				image = sp.getImageService().getImage(substring);
+				LOGGER.info("从获取图片成功");
 			}
 			return image;
 		} catch (IOException e) {
