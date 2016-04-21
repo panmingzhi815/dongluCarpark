@@ -1,5 +1,7 @@
 package com.donglu.carpark.ui;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,7 +34,6 @@ import org.joda.time.DateTime;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.custom.CLabel;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
@@ -105,17 +106,6 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 
 public class CarparkMainApp extends AbstractApp implements PlateNOResult {
-
-	private static final String AUTO_SEND_POSITION_TO_DEVICE = "autoSendPositionToDevice";
-
-	public static final String MAP_IP_TO_DEVICE = "mapIpToDevice";
-
-	public static final String VILIDTO_DATE = ",有效期至yyyy年MM月dd日";
-
-
-	public static final String TEMP_CAR_AUTO_PASS = "tempCarAutoPass";
-
-
 	private final AtomicInteger refreshTimes = new AtomicInteger(0);
 	private final Integer refreshTimeSpeedSecond = 3;
 
@@ -145,8 +135,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	private CarparkDatabaseServiceProvider sp;
 	@Inject
 	private CarparkMainModel model;
-	private CLabel lbl_outSmallImg;
-	private CLabel lbl_outBigImg;
 
 
 	// 保存设置信息
@@ -205,9 +193,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	@Inject
 	private Provider<OutInfoPresenter> outInfoPresenterProvider;
 
-	private CLabel lbl_inSmallImg;
 
-	private CLabel lbl_inBigImg;
 
 	private int sendPositionToDeviceTime = 5;
 	private Text txt_chargedMoney;
@@ -234,7 +220,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	 */
 	@SuppressWarnings("unchecked")
 	public void readDevices() {
-		Object readObject = CarparkFileUtils.readObject(MAP_IP_TO_DEVICE);
+		Object readObject = CarparkFileUtils.readObject(ConstUtil.MAP_IP_TO_DEVICE);
 		if (readObject != null) {
 			Map<String, SingleCarparkDevice> map = (Map<String, SingleCarparkDevice>) readObject;
 			Map<Long, SingleCarparkCarpark> mapCarparkWithId=new HashMap<>();
@@ -379,7 +365,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		outTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("出场任务"));
 		inThreadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("进场任务"));
 		refreshService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每秒刷新停车场全局监控信息"));
-		if (StrUtil.isEmpty(System.getProperty(AUTO_SEND_POSITION_TO_DEVICE))) {
+		if (StrUtil.isEmpty(System.getProperty(ConstUtil.AUTO_SEND_POSITION_TO_DEVICE))) {
 			autoSendPositionToDevice();
 		}
 		autoSendTimeToDevice();
@@ -513,8 +499,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			InInfoPresenter inInfoPresenter = inInfoPresenterProvider.get();
 			inInfoPresenter.setModel(model);
 			inInfoPresenter.go(composite_5);
-			lbl_inBigImg = inInfoPresenter.getInBigImgLabel();
-			lbl_inSmallImg = inInfoPresenter.getInSmallImgLabel();
 		}
 		Boolean rightBotttomCamera = Boolean
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.右下监控) == null ? SystemSettingTypeEnum.右下监控.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.右下监控));
@@ -531,8 +515,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			outInfoPresenter.setPresenter(presenter);
 			outInfoPresenter.setCommonui(commonui);
 			outInfoPresenter.go(composite_21_1);
-			lbl_outBigImg = outInfoPresenter.getOutBigImgLabel();
-			lbl_outSmallImg = outInfoPresenter.getOutSmallImgLabel();
 		}
 
 		Boolean isCarHandIn = Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.进场允许手动入场));
@@ -1119,10 +1101,10 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			@Override
 			public void run() {
 				try {
-//					if(model.getPlateInTime().after(new Date())){
-//						LOGGER.info("车辆进出场时间为{}，暂时不发送车位",model.getPlateInTime());
-//						return;
-//					}
+					if(model.getPlateInTime().after(new Date())){
+						LOGGER.info("车辆进出场时间为{}，暂时不发送车位",model.getPlateInTime());
+						return;
+					}
 					presenter.sendPositionToAllDevice(true);
 				} catch (Exception e) {
 					LOGGER.info("发送车位时发生错误",e);
@@ -1212,7 +1194,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 				LOGGER.info("已经有5个任务正在等待处理暂不添加任务{}", listOutTask);
 				return;
 			}
-			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, lbl_outBigImg, lbl_outSmallImg, lbl_inBigImg, carTypeSelectCombo, text_real, rightSize);
+			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, carTypeSelectCombo, rightSize);
 			mapOutTwoCameraTask.put(linkAddress, task);
 			if (!(!equals && isTwoChanel)) {
 				outTaskSubmit(ip, plateNO, linkAddress, task);
@@ -1257,7 +1239,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 					mapTwoChanelTimer.put(linkAddress, t);
 				}
 			}
-			CarInTask task = new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, rightSize, lbl_inSmallImg, lbl_inBigImg);
+			CarInTask task = new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, rightSize);
 			if (!(!equals && isTwoChanel)) {
 				inThreadPool.submit(task);
 			}
@@ -1466,6 +1448,21 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		IObservableValue observeTextText_realObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_real);
 		IObservableValue realModelObserveValue = BeanProperties.value("real").observe(model);
 		bindingContext.bindValue(observeTextText_realObserveWidget, realModelObserveValue, null, null);
+		model.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent e) {
+				if (!e.getPropertyName().equals("real")) {
+					return;
+				}
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						text_real.setFocus();
+						text_real.selectAll();
+					}
+				});
+			}
+		});
 		//
 		IObservableValue observeEnabledComboObserveWidget = WidgetProperties.enabled().observe(carTypeSelectCombo);
 		IObservableValue comboCarTypeEnableModelObserveValue = BeanProperties.value("comboCarTypeEnable").observe(model);

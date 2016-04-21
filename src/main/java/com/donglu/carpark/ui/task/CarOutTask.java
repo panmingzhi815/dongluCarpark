@@ -6,10 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Text;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
-import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
@@ -34,7 +31,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 public class CarOutTask implements Runnable{
-	private static final Display DEFAULT_DISPLAY = Display.getDefault();
 
 	private static Logger LOGGER = LoggerFactory.getLogger(CarInTask.class);
 	
@@ -44,11 +40,7 @@ public class CarOutTask implements Runnable{
 	private final CarparkMainModel model;
 	private final CarparkDatabaseServiceProvider sp;
 	private final CarparkMainPresenter presenter;
-	private final CLabel lbl_outBigImg;
-	private final CLabel lbl_outSmallImg;
-	private final CLabel lbl_inBigImg;
 	
-	private final Text text_real;
 	
 	private byte[] bigImage;
 	private byte[] smallImage;
@@ -71,9 +63,8 @@ public class CarOutTask implements Runnable{
 	private SingleCarparkInOutHistory ch;
 	
 	public CarOutTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage,CarparkMainModel model,
-			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, CLabel lbl_outBigImg,
-			CLabel lbl_outSmallImg,CLabel lbl_inBigImg, Combo carTypeSelectCombo,
-			Text text_real,Float rightSize) {
+			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter,
+			Combo carTypeSelectCombo,Float rightSize) {
 		super();
 		this.ip = ip;
 		this.plateNO = plateNO;
@@ -82,12 +73,8 @@ public class CarOutTask implements Runnable{
 		this.model = model;
 		this.sp = sp;
 		this.presenter = presenter;
-		this.lbl_outBigImg = lbl_outBigImg;
-		this.lbl_outSmallImg = lbl_outSmallImg;
 		this.carTypeSelectCombo=carTypeSelectCombo;
-		this.text_real=text_real;
 		this.rightSize=rightSize;
-		this.lbl_inBigImg=lbl_inBigImg;
 		mapIpToDevice = model.getMapIpToDevice();
 		mapPlateNoDate = model.getMapPlateNoDate();
 		mapSystemSetting = model.getMapSystemSetting();
@@ -124,25 +111,12 @@ public class CarOutTask implements Runnable{
 
 			// 界面图片
 			LOGGER.info("车辆出场显示出口图片");
-			DEFAULT_DISPLAY.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						if (StrUtil.isEmpty(lbl_outSmallImg)) {
-							return;
-						}
-						ImageUtils.setBackgroundImage(bigImage, lbl_outBigImg, DEFAULT_DISPLAY);
-						ImageUtils.setBackgroundImage(smallImage, lbl_outSmallImg, DEFAULT_DISPLAY);
-						ImageUtils.setBackgroundImageName(lbl_outBigImg, folder + "/" + bigImgFileName);
-						text_real.setFocus();
-						text_real.selectAll();
-					} catch (Exception e) {
-						LOGGER.info("显示出场出口 图片时发生错误",e);
-					}
-				}
-			});
 			model.setOutShowPlateNO(plateNO);
 			model.setOutShowTime(dateString);
+			model.setOutBigImageName(folder + "/" + bigImgFileName);
+			model.setOutShowBigImg(bigImage);
+			model.setOutShowSmallImg(smallImage);
+			
 			//
 			if (StrUtil.isEmpty(device)) {
 				LOGGER.info("没有找到ip为：" + ip + "的设备");
@@ -189,19 +163,9 @@ public class CarOutTask implements Runnable{
 			LOGGER.info("查找固定用户为{}",user);
 			ch = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
 			LOGGER.info("车辆出场显示进口图片");
-			if (!StrUtil.isEmpty(ch)&&!StrUtil.isEmpty(lbl_inBigImg)) {
-				DEFAULT_DISPLAY.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							ImageUtils.setBackgroundImage(ImageUtils.getImageByte(ch.getBigImg()), lbl_inBigImg, DEFAULT_DISPLAY);
-							ImageUtils.setBackgroundImageName(lbl_inBigImg, ch.getBigImg());
-						} catch (Exception e) {
-							LOGGER.info("显示出场进口图片时发生错误",e);
-						}
-					}
-				});
-			}
+			model.setInBigImageName(ch.getBigImg());
+			model.setInShowBigImg(ImageUtils.getImageByte(ch.getBigImg()));
+			
 			LOGGER.info("发送显示车牌{}到设备{}",plateNO,ip);
 			presenter.showPlateNOToDevice(device, plateNO);
 			//
@@ -413,10 +377,10 @@ public class CarOutTask implements Runnable{
 				return true;
 			} else if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期所属停车场限制).equals("true")) {
 				if (device.getCarpark().equals(user.getCarpark())) {
-					presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent() + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), true);
+					presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent() + StrUtil.formatDate(user.getValidTo(), ConstUtil.VILIDTO_DATE), true);
 				}
 			}
-			presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent() + StrUtil.formatDate(user.getValidTo(), CarparkMainApp.VILIDTO_DATE), false);
+			presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent() + StrUtil.formatDate(user.getValidTo(), ConstUtil.VILIDTO_DATE), false);
 			model.setOutShowPlateNO(model.getOutShowPlateNO()+"(已过期)");
 			return true;
 		} 
@@ -616,7 +580,7 @@ public class CarOutTask implements Runnable{
 				String s = "请缴费" + shouldMoney + "元";
 				s = CarparkUtils.getCarStillTime(model.getTotalTime())+CarparkUtils.formatFloatString(s);
 
-				String property = System.getProperty(CarparkMainApp.TEMP_CAR_AUTO_PASS);
+				String property = System.getProperty(ConstUtil.TEMP_CAR_AUTO_PASS);
 				Boolean valueOf = Boolean.valueOf(property);
 				// 临时车零收费是否自动出场
 				Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));

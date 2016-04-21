@@ -7,9 +7,9 @@ import java.util.List;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Composite;
 
-import com.donglu.carpark.server.imgserver.ImageServerUI;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.domain.db.setting.SNSettingType;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
@@ -80,7 +80,7 @@ public class ImportSNWizard extends Wizard implements AbstractWizard {
 			ss4.setSettingKey(SNSettingType.validTo.name());
 		}
 		Date d = (Date) companyName[1];
-		ss4.setSettingValue(StrUtil.formatDate(d, ImageServerUI.YYYY_MM_DD));
+		ss4.setSettingValue(StrUtil.formatDate(d, ConstUtil.YYYY_MM_DD));
 		list.add(ss4);
 		return list;
 	}

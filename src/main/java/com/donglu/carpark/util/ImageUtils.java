@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
-import com.donglu.carpark.ui.CarparkManageApp;
 import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -111,7 +110,7 @@ public class ImageUtils {
 			cLabel.addDisposeListener(listener);
 		}
 		if(cLabel.getData("imageType")!=null&&cLabel.getData("imageType").equals("big")){
-			
+			setMouseDoubleClick(cLabel,!(cLabel.getData("imageType")!=null&&cLabel.getData("imageType").equals("big")));
 		}
 		if (imageBytes == null || imageBytes.length <= 0) {
 			if (cLabel instanceof CLabel) {
@@ -140,6 +139,36 @@ public class ImageUtils {
 		}
 	}
 	
+	private static void setMouseDoubleClick(Control label, boolean isClose) {
+		Object data = label.getData("labelMouseDoubleClick");
+		if (data!=null) {
+			return;
+		}
+		MouseAdapter listener=null;
+		if (isClose) {
+			listener = new MouseAdapter() {
+				@Override
+				public void mouseDoubleClick(MouseEvent e) {
+					label.getShell().dispose();
+				}
+			};
+		} else {
+			listener = new MouseAdapter() {
+				@Override
+				public void mouseDoubleClick(MouseEvent e) {
+					String lastImage = (String) label.getData("imgName");
+					if (StrUtil.isEmpty(lastImage)) {
+						return;
+					}
+					ImageDialog imageDialog = new ImageDialog(lastImage);
+					imageDialog.open();
+				}
+			};
+		}
+		label.addMouseListener(listener);
+		label.setData("labelMouseDoubleClick",listener);
+	}
+
 	/**
 	 * 将图片数据直接显示至Label背景
 	 * 每次显示图片后，将图片保存至label的引用中，下次再要显示时，先判断是否有引用，如果有引用，则先要销毁以前的引用，避免swt 的 handler 资源泄漏
@@ -231,7 +260,7 @@ public class ImageUtils {
 		if (StrUtil.isEmpty(img)) {
 			return null;
 		}
-		String filePath=(String) CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
+		String filePath=(String) CarparkFileUtils.readObject(ConstUtil.CLIENT_IMAGE_SAVE_FILE_PATH);
 		try {
 			byte[] image;
 			String pathname = (filePath==null?"":filePath)+"/img/"+img;
@@ -304,38 +333,14 @@ public class ImageUtils {
 		label.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				Listener[] listeners = label.getListeners(SWT.MouseDoubleClick);
-				MouseAdapter listener=null;
-				if (isClose) {
-					listener = new MouseAdapter() {
-						@Override
-						public void mouseDoubleClick(MouseEvent e) {
-							label.getShell().dispose();
-						}
-					};
-				} else {
-					listener = new MouseAdapter() {
-						@Override
-						public void mouseDoubleClick(MouseEvent e) {
-							String lastImage = (String) label.getData("imgName");
-							if (StrUtil.isEmpty(lastImage)) {
-								return;
-							}
-							ImageDialog imageDialog = new ImageDialog(lastImage);
-							imageDialog.open();
-						}
-					};
-				}
-				if (listeners.length==0) {
-					label.setData("imgName", imageName);
-					label.addMouseListener(listener);
-				}
+				setMouseDoubleClick(label, isClose);
+				label.setData("imgName", imageName);
 				setBackgroundImage(bigImage, label, label.getDisplay());
 			}
 		});
 	}
 	
-	public void bindImageWithBig(Object model,String propertyName,Control label){
+	public static void bindImageWithBig(Object model,String propertyName,String imageName,Control label){
 		IObservableValue iObservableValue = BeanProperties.value(propertyName).observe(model);
 		iObservableValue.addValueChangeListener(new IValueChangeListener() {
 			@Override
@@ -344,6 +349,24 @@ public class ImageUtils {
 				setBackgroundImage(image, label, label.getDisplay());
 			}
 		});
+		if (!StrUtil.isEmpty(imageName)) {
+			IObservableValue iObservableNameValue = BeanProperties.value(imageName).observe(model);
+			iObservableNameValue.addValueChangeListener(new IValueChangeListener() {
+				@Override
+				public void handleValueChange(ValueChangeEvent event) {
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							label.setData("imgName", imageName);
+							label.setData("imageType", "big");
+						}
+					});
+				}
+			});
+		}
+	}
+	public static void bindImageWithBig(Object model,String propertyName,Control label){
+		bindImageWithBig(model, propertyName, null, label);
 	}
 	
 	/**

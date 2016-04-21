@@ -44,6 +44,7 @@ import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.wizard.sn.ImportSNModel;
 import com.donglu.carpark.ui.wizard.sn.ImportSNWizard;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.SystemUpdate;
 import com.donglu.carpark.yun.CarparkYunConfig;
@@ -86,10 +87,7 @@ import org.eclipse.swt.widgets.MenuItem;
 public class ImageServerUI {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(ImageServerUI.class);
-	public static final String YYYY_MM_DD = "yyyy-MM-dd";
-
-
-	public static final String IMAGE_SAVE_DIRECTORY = "directory";
+	
 	protected Shell shell;
 	private Text text;
 
@@ -107,7 +105,6 @@ public class ImageServerUI {
 	private WebService webService;
 	@Inject
 	private Provider<CarparkDBServer> carparkDBServerProvider;
-
 
 	private AppVerifier av;
 	private Button btnStart;
@@ -218,7 +215,7 @@ public class ImageServerUI {
 			sp.start();
 			SingleCarparkSystemSetting s = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存位置.name());
 			filePath = StrUtil.isEmpty(s) ? System.getProperty("user.dir") : s.getSettingValue();
-			CarparkFileUtils.writeObject(IMAGE_SAVE_DIRECTORY, filePath);
+			CarparkFileUtils.writeObject(ConstUtil.IMAGE_SAVE_DIRECTORY, filePath);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -270,7 +267,7 @@ public class ImageServerUI {
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		gd_text.widthHint = 214;
 		text.setLayoutData(gd_text);
-		Object readObject = CarparkFileUtils.readObject(IMAGE_SAVE_DIRECTORY);
+		Object readObject = CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY);
 		text.setText(readObject == null ? System.getProperty("user.dir") : (String) readObject);
 		Button button = new Button(shell, SWT.NONE);
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -282,7 +279,7 @@ public class ImageServerUI {
 				if (StrUtil.isEmpty(open)) {
 					return;
 				}
-				CarparkFileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
+				CarparkFileUtils.writeObject(ConstUtil.IMAGE_SAVE_DIRECTORY, open);
 				text.setText(open);
 			}
 		});
@@ -301,7 +298,7 @@ public class ImageServerUI {
 						btnStart.setEnabled(false);
 						startServer();
 						String open = text.getText();
-						CarparkFileUtils.writeObject(IMAGE_SAVE_DIRECTORY, open);
+						CarparkFileUtils.writeObject(ConstUtil.IMAGE_SAVE_DIRECTORY, open);
 						SingleCarparkSystemSetting s = new SingleCarparkSystemSetting();
 						s.setSettingKey(SystemSettingTypeEnum.图片保存位置.name());
 						s.setSettingValue(open);
@@ -716,7 +713,7 @@ public class ImageServerUI {
 					}
 					SingleCarparkSystemSetting vilidTo = new SingleCarparkSystemSetting();
 					vilidTo.setSettingKey(SNSettingType.validTo.name());
-					vilidTo.setSettingValue(StrUtil.formatDate(dateOfExpire, YYYY_MM_DD));
+					vilidTo.setSettingValue(StrUtil.formatDate(dateOfExpire, ConstUtil.YYYY_MM_DD));
 					sp.getCarparkService().saveSystemSetting(vilidTo);
 					LOGGER.info("把解析到的信息保存到数据库");
 				} catch (Exception e) {

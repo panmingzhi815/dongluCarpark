@@ -77,6 +77,7 @@ public class ImageDialog extends Dialog {
 		shell.setText(getText());
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
 		lbl_image = new CLabel(shell, SWT.NONE);
+		lbl_image.setToolTipText("双击关闭");
 
 	}
 	private void setImage(String img) {

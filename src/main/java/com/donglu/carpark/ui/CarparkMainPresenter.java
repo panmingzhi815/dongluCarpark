@@ -58,6 +58,7 @@ import com.donglu.carpark.ui.wizard.model.ChangeUserModel;
 import com.donglu.carpark.ui.wizard.model.ReturnAccountModel;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ImageUtils;
 import com.donglu.carpark.util.ImgCompress;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -975,8 +976,9 @@ public class CarparkMainPresenter {
 				try {
 					byte[] bigImage = bigImage1 == null ? new byte[0] : bigImage1;
 					String fl = "/img/" + f;
-					if (!StrUtil.isEmpty(CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH))) {
-						String string = (String) CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
+					Object readObject = CarparkFileUtils.readObject(ConstUtil.CLIENT_IMAGE_SAVE_FILE_PATH);
+					if (!StrUtil.isEmpty(readObject)) {
+						String string = (String) readObject;
 						fl = string + fl;
 					}
 					File file = new File(fl);
@@ -1424,8 +1426,9 @@ public class CarparkMainPresenter {
 					byte[] bigImage = bigImage1 == null ? new byte[0] : bigImage1;
 					byte[] smallImage = smallImage1 == null ? new byte[0] : smallImage1;
 					String fl = "/img/" + f;
-					if (!StrUtil.isEmpty(CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH))) {
-						String string = (String) CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
+					Object readObject = CarparkFileUtils.readObject(ConstUtil.CLIENT_IMAGE_SAVE_FILE_PATH);
+					if (!StrUtil.isEmpty(readObject)) {
+						String string = (String) readObject;
 						fl = string + fl;
 					}else{
 						fl = System.getProperty("user.dir") + fl;

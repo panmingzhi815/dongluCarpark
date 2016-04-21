@@ -73,6 +73,7 @@ public class CarparkMainModel extends DomainObject {
 	private String inShowMeg;
 	private byte[] inShowSmallImg;
 	private byte[] inShowBigImg;
+	private String inBigImageName;
 
 	// 出口显示信息
 	private String outShowPlateNO;
@@ -80,6 +81,7 @@ public class CarparkMainModel extends DomainObject {
 	private String outShowMeg;
 	private byte[] outShowSmallImg;
 	private byte[] outShowBigImg;
+	private String outBigImageName;
 	private boolean outPlateNOEditable = false;
 
 	private boolean inCheckIsClick = false;
@@ -834,5 +836,23 @@ public class CarparkMainModel extends DomainObject {
 	public void setTotalSlotTooltip(String totalSlotTooltip) {
 		this.totalSlotTooltip = totalSlotTooltip;
 		firePropertyChange("totalSlotTooltip", null, null);
+	}
+
+	public String getInBigImageName() {
+		return inBigImageName;
+	}
+
+	public void setInBigImageName(String inBigImageName) {
+		this.inBigImageName = inBigImageName;
+		firePropertyChange("inBigImageName", null, null);
+	}
+
+	public String getOutBigImageName() {
+		return outBigImageName;
+	}
+
+	public void setOutBigImageName(String outBigImageName) {
+		this.outBigImageName = outBigImageName;
+		firePropertyChange("outBigImageName", null, null);
 	}
 }

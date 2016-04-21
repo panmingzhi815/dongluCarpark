@@ -14,6 +14,7 @@ import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.util.ConstUtil;
+import com.donglu.carpark.util.ImageUtils;
 import com.donglu.carpark.util.TextUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
@@ -233,6 +234,8 @@ public class OutInfoView extends Composite implements View{
 		IObservableValue handSearchModelObserveValue = BeanProperties.value("handSearch").observe(model);
 		bindingContext.bindValue(observeEnabledButtonObserveWidget, handSearchModelObserveValue, null, null);
 		//
+		ImageUtils.bindImageWithBig(model, "outShowBigImg", "outBigImageName", lbl_bigImg);
+		ImageUtils.bindImageWithBig(model, "outShowSmallImg", "", lbl_smallImg);
 		return bindingContext;
 	}
 }

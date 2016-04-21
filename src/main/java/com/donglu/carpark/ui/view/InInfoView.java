@@ -13,10 +13,9 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.util.ConstUtil;
+import com.donglu.carpark.util.ImageUtils;
 import com.donglu.carpark.util.TextUtils;
-import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
-import com.dongluhitec.card.ui.util.ImgUtil;
 
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -193,8 +192,8 @@ public class InInfoView extends Composite implements View{
 		IObservableValue observeEnabledBtn_checkObserveWidget = WidgetProperties.enabled().observe(btn_check);
 		bindingContext.bindValue(observeEnabledBtn_checkObserveWidget, inCheckClickModelObserveValue, null, null);
 		//
-		JFaceUtil.bindImage(model, "inBigImage", lbl_bigImg);
-		JFaceUtil.bindImage(model, "inSmallImage", lbl_smallImg);
+		ImageUtils.bindImageWithBig(model, "inShowBigImg", "inBigImageName", lbl_bigImg);
+		ImageUtils.bindImageWithBig(model, "inShowSmallImg", lbl_smallImg);
 		return bindingContext;
 	}
 }

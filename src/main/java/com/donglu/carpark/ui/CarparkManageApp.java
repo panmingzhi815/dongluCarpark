@@ -43,11 +43,7 @@ import org.eclipse.swt.events.SelectionEvent;
 
 
 public class CarparkManageApp extends AbstractApp{
-	public static final String CLIENT_IMAGE_SAVE_FILE_PATH = "clientImageSaveFilePath";
-
-
 	protected Shell shell;
-	
 	@Inject
 	private CarparkManagePresenter presenter;
 	
@@ -56,7 +52,6 @@ public class CarparkManageApp extends AbstractApp{
 	private Composite composite_returnAccount_search;
 	
 	Map<SingleCarparkModuleEnum, TabItem> mapModuleToItem=new HashMap<>();
-
 
 	private TabFolder tabFolder;
 	

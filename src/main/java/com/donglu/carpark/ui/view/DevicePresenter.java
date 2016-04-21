@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
-import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.common.Presenter;
 import com.dongluhitec.card.common.ui.CommonUIFacility;

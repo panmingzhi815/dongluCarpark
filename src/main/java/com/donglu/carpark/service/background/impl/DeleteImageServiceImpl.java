@@ -16,9 +16,9 @@ import org.joda.time.DateTime;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.background.AbstractCarparkBackgroundService;
 import com.donglu.carpark.service.background.DeleteImageServiceI;
-import com.donglu.carpark.ui.CarparkManageApp;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
@@ -104,7 +104,7 @@ public class DeleteImageServiceImpl extends AbstractCarparkBackgroundService imp
 		SingleCarparkSystemSetting ss2 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存多少天.name());
 		int saveMonth = Integer.valueOf(ss2 == null ? SystemSettingTypeEnum.图片保存多少天.getDefaultValue() : ss2.getSettingValue());
 		log.info("图片保存多少天设置为{}", saveMonth);
-		String imgSavePath = (String) CarparkFileUtils.readObject(CarparkManageApp.CLIENT_IMAGE_SAVE_FILE_PATH);
+		String imgSavePath = (String) CarparkFileUtils.readObject(ConstUtil.CLIENT_IMAGE_SAVE_FILE_PATH);
 		if (!StrUtil.isEmpty(imgSavePath)) {
 			clientImageSavePath = imgSavePath + "/img/";
 		}

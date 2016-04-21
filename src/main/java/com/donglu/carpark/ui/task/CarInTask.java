@@ -5,9 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +14,6 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
-import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
@@ -31,7 +28,6 @@ import com.dongluhitec.card.domain.util.StrUtil;
 
 public class CarInTask implements Runnable {
 	private static final String SLOT_IS_FULL = "车位已满";
-	private static final Display DEFAULT_DISPLAY = Display.getDefault();
 	private static Logger LOGGER = LoggerFactory.getLogger(CarInTask.class);
 	private static final String CAR_IN_MSG = "欢迎光临,请入场停车";
 	static Image inSmallImage;
@@ -57,9 +53,7 @@ public class CarInTask implements Runnable {
 	private Float rightSize;
 
 
-	private final CLabel lbl_inSmallImg;
 
-	private final CLabel lbl_inBigImg;
 
 	//是否为空车牌
 	private boolean isEmptyPlateNo = false;
@@ -92,7 +86,7 @@ public class CarInTask implements Runnable {
 	private boolean isFixCarverdueCheck=false;
 	
 	public CarInTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage, CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter,
-			Float rightSize, CLabel lbl_inSmallImg, CLabel lbl_inBigImg) {
+			Float rightSize) {
 		super();
 		this.ip = ip;
 		this.plateNO = plateNO;
@@ -102,8 +96,6 @@ public class CarInTask implements Runnable {
 		this.sp = sp;
 		this.presenter = presenter;
 		this.rightSize = rightSize;
-		this.lbl_inSmallImg = lbl_inSmallImg;
-		this.lbl_inBigImg = lbl_inBigImg;
 		content=model.getMapVoice().get(DeviceVoiceTypeEnum.临时车进场语音).getContent();
 		mapIpToDevice = model.getMapIpToDevice();
 		mapPlateNoDate = model.getMapPlateNoDate();
@@ -144,18 +136,22 @@ public class CarInTask implements Runnable {
 			smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
 			LOGGER.debug("开始在界面显示车牌：{}的抓拍图片", plateNO);
 			smallImgSavePath = imageSavefolder + "/" + smallImgFileName;
-			DEFAULT_DISPLAY.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (StrUtil.isEmpty(lbl_inSmallImg)) {
-						return;
-					}
-					ImageUtils.setBackgroundImage(smallImage, lbl_inSmallImg, DEFAULT_DISPLAY);
-					ImageUtils.setBackgroundImage(bigImage, lbl_inBigImg, getBigImgSavePath());
-				}
-			});
+//			DEFAULT_DISPLAY.asyncExec(new Runnable() {
+//				@Override
+//				public void run() {
+//					if (StrUtil.isEmpty(lbl_inSmallImg)) {
+//						return;
+//					}
+//					ImageUtils.setBackgroundImage(smallImage, lbl_inSmallImg, DEFAULT_DISPLAY);
+//					ImageUtils.setBackgroundImage(bigImage, lbl_inBigImg, getBigImgSavePath());
+//				}
+//			});
+			
 			model.setInShowPlateNO(plateNO);
 			model.setInShowTime(dateString);
+			model.setInShowSmallImg(smallImage);
+			model.setInShowBigImg(bigImage);
+			model.setInBigImageName(getBigImgSavePath());
 			
 			// 空车牌处理
 			if (StrUtil.isEmpty(plateNO)) {

@@ -6,9 +6,9 @@ import java.util.Map;
 
 import org.eclipse.jface.wizard.Wizard;
 
-import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.util.CarparkFileUtils;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIFacility.Progress;
@@ -103,7 +103,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard{
 	}
 	@SuppressWarnings("unchecked")
 	protected void init() {
-		Object readObject = CarparkFileUtils.readObject(CarparkMainApp.MAP_IP_TO_DEVICE);
+		Object readObject = CarparkFileUtils.readObject(ConstUtil.MAP_IP_TO_DEVICE);
 		if (readObject != null) {
 			Map<String, SingleCarparkDevice> map = (Map<String, SingleCarparkDevice>) readObject;
 			if (map!=null) {

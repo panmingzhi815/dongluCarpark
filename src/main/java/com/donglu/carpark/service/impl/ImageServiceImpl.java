@@ -10,9 +10,9 @@ import java.nio.file.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.donglu.carpark.server.imgserver.ImageServerUI;
 import com.donglu.carpark.service.ImageServiceI;
 import com.donglu.carpark.util.CarparkFileUtils;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.blservice.DongluServiceException;
 import com.google.common.base.Strings;
 
@@ -20,7 +20,7 @@ public class ImageServiceImpl implements ImageServiceI {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ImageServiceImpl.class);
 	@Override
 	public String saveImageInServer(byte[] image, String imageName) {
-		Object o=CarparkFileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):CarparkFileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);
+		Object o=CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY);
 		try {
 			String fileName =imageName.substring(imageName.lastIndexOf("img"));
 			Path path = Paths.get(o+"\\"+fileName);
@@ -40,7 +40,7 @@ public class ImageServiceImpl implements ImageServiceI {
 	@Override
 	public byte[] getImage(String imageName) {
 		try {
-			Object o=CarparkFileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):CarparkFileUtils.readObject(ImageServerUI.IMAGE_SAVE_DIRECTORY);
+			Object o=CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY);
 			LOGGER.debug("服务器图片保存位置{}，接收到请求图片：{}",o,imageName);
 			String filePathFromId = parseFilePathFromId(imageName,o+"\\img\\");
 			LOGGER.debug("服务器图片位置：{}",filePathFromId);
