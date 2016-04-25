@@ -263,11 +263,11 @@ public class ImageUtils {
 		String filePath=(String) CarparkFileUtils.readObject(ConstUtil.CLIENT_IMAGE_SAVE_FILE_PATH);
 		try {
 			byte[] image;
-			String pathname = (filePath==null?"":filePath)+"/img/"+img;
+			String pathname = (filePath==null?System.getProperty("user.dir"):filePath)+"/img/"+img;
 			File file=new File(pathname);
 			LOGGER.info("获取图片{}",pathname);
 			if (file.exists()) {
-				LOGGER.info("在本地找到图片，获取图片{}",file.getParent());
+				LOGGER.info("在本地找到图片，获取图片{}",file);
 				image=Files.toByteArray(file);
 			}else{
 				String substring = img.substring(img.lastIndexOf("/")+1);
@@ -277,7 +277,7 @@ public class ImageUtils {
 				LOGGER.info("从获取图片成功");
 			}
 			return image;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			LOGGER.info("根据图片名称获得图片失败");
 			return null;
 		}
@@ -324,6 +324,7 @@ public class ImageUtils {
 						}
 					};
 					label.addMouseListener(listener);
+					label.setData("labelMouseDoubleClick",listener);
 				}
 				setBackgroundImage(bigImage, label, label.getDisplay());
 			}
@@ -357,7 +358,8 @@ public class ImageUtils {
 					Display.getDefault().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							label.setData("imgName", imageName);
+							Object value = iObservableNameValue.getValue();
+							label.setData("imgName", value);
 							label.setData("imageType", "big");
 						}
 					});

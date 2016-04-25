@@ -163,8 +163,10 @@ public class CarOutTask implements Runnable{
 			LOGGER.info("查找固定用户为{}",user);
 			ch = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
 			LOGGER.info("车辆出场显示进口图片");
-			model.setInBigImageName(ch.getBigImg());
-			model.setInShowBigImg(ImageUtils.getImageByte(ch.getBigImg()));
+			if (ch!=null) {
+				model.setInBigImageName(ch.getBigImg());
+				model.setInShowBigImg(ImageUtils.getImageByte(ch.getBigImg()));
+			}
 			
 			LOGGER.info("发送显示车牌{}到设备{}",plateNO,ip);
 			presenter.showPlateNOToDevice(device, plateNO);
@@ -216,6 +218,10 @@ public class CarOutTask implements Runnable{
 	 * @return 
 	 */
 	public boolean prepaidCarOut(SingleCarparkDevice device, Date date, SingleCarparkCarpark carpark, String bigImg, String smallImg, SingleCarparkUser user) {
+		if (ch==null) {
+			notFindInHistory(device, bigImg, smallImg);
+			return true;
+		}
 		LOGGER.info("储值车出场");
 		if (CarparkUtils.checkRoadType(device,model, presenter, DeviceRoadTypeEnum.临时车通道,DeviceRoadTypeEnum.固定车通道)) {
 			return true;
@@ -354,8 +360,7 @@ public class CarOutTask implements Runnable{
 		}
 		//
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		List<SingleCarparkInOutHistory> findByNoCharge = carparkInOutService.findByNoOut(nowPlateNO, device.getCarpark());
-		SingleCarparkInOutHistory singleCarparkInOutHistory = StrUtil.isEmpty(findByNoCharge) ? null : findByNoCharge.get(0);
+		SingleCarparkInOutHistory singleCarparkInOutHistory = ch;
 		Date validTo = user.getValidTo();
 		Integer delayDays = user.getDelayDays();
 

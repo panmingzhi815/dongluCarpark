@@ -41,9 +41,9 @@ public class ImageServiceImpl implements ImageServiceI {
 	public byte[] getImage(String imageName) {
 		try {
 			Object o=CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY);
-			LOGGER.debug("服务器图片保存位置{}，接收到请求图片：{}",o,imageName);
+			LOGGER.info("服务器图片保存位置{}，接收到请求图片：{}",o,imageName);
 			String filePathFromId = parseFilePathFromId(imageName,o+"\\img\\");
-			LOGGER.debug("服务器图片位置：{}",filePathFromId);
+			LOGGER.info("服务器图片位置：{}",filePathFromId);
 			byte[] bytes = getBytes(filePathFromId);
 			return bytes;
 		} catch (Exception e) {
