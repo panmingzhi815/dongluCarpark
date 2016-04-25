@@ -531,7 +531,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		}
 		model.setCarparkCarType(listCarType.size() > 1 ? listCarType.get(0) : "小车");
 		controlToolItem();
-		addKeyLisenter(shell);
 
 		ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
@@ -1028,6 +1027,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		scrolledComposite.setContent(group);
 		scrolledComposite.setMinSize(group.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		initDataBindings();
+		addKeyLisenter(shell);
 	}
 
 	public void controlToolItem() {
@@ -1050,7 +1050,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			public void keyReleased(KeyEvent e) {
 				keyReleasedByControl(carOutChargeCheck, e);
 			}
-
 		});
 		Control[] children = null;
 		if (control instanceof Shell) {

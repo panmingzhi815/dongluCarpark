@@ -255,6 +255,9 @@ public class CarparkMainPresenter {
 				log.info("车辆进出场，在时间：{}后在对设备{}发车位数,现在时间：{}",plateInTime,d,when);
 				return;
 			}
+			if (d.getInType().indexOf("进口")<0) {
+				return;
+			}
 			if (isreturn) {
 				showPositionToDevice(d, model.getTotalSlot());
 			} else {
@@ -699,9 +702,6 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	public synchronized boolean showPositionToDevice(SingleCarparkDevice device, int position) {
-		if (device.getInType().indexOf("进口")<0) {
-			return true;
-		}
 		if (checkDeviceLinkStatus(device)) {
 			return false;
 		}

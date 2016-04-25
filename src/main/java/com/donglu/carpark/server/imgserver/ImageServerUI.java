@@ -148,32 +148,36 @@ public class ImageServerUI {
 	 * Open the window.
 	 */
 	public void open() {
-		File file = new File(CarparkServerConfig.configFileName);
-		System.out.println(file.exists());
-		long nanoTime = System.nanoTime();
-		createTrayIcon();
-		shell = new Shell(SWT.MAX|SWT.MIN|SWT.CLOSE|SWT.ON_TOP|SWT.RESIZE);
-		Object readObject = CarparkFileUtils.readObject("autoStartServer");
-		if (readObject != null) {
-			autoStartServerCfg = (boolean) readObject;
-		}
-		if (autoStartServerCfg) {
-			autoStartServer();
-		}
-		Display display = Display.getDefault();
-		if (autoStartServerCfg) {
-			shell.setVisible(false);
-		}else{
-			createContents();
-    		shell.open();
-    		isOpen=true;
-    		shell.layout();
-		}
-		LOGGER.info("界面加载用时：{}", System.nanoTime() - nanoTime);
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
+		try {
+			File file = new File(CarparkServerConfig.configFileName);
+			System.out.println(file.exists());
+			long nanoTime = System.nanoTime();
+			createTrayIcon();
+			shell = new Shell(SWT.MAX|SWT.MIN|SWT.CLOSE|SWT.ON_TOP|SWT.RESIZE);
+			Object readObject = CarparkFileUtils.readObject("autoStartServer");
+			if (readObject != null) {
+				autoStartServerCfg = (boolean) readObject;
 			}
+			if (autoStartServerCfg) {
+				autoStartServer();
+			}
+			Display display = Display.getDefault();
+			if (autoStartServerCfg) {
+				shell.setVisible(false);
+			}else{
+				createContents();
+				shell.open();
+				isOpen=true;
+				shell.layout();
+			}
+			LOGGER.info("界面加载用时：{}", System.nanoTime() - nanoTime);
+			while (!shell.isDisposed()) {
+				if (!display.readAndDispatch()) {
+					display.sleep();
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("服务器发送错误,系统退出",e);
 		}
 		System.exit(0);
 	}

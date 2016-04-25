@@ -2,7 +2,7 @@
     <id>dir</id>
     <!-- 最终打包成一个用于发布的zip文件 -->
     <formats>
-        <format>zip</format>
+        <format>dir</format>
     </formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
     <!-- Adds dependencies to zip package under lib directory -->
