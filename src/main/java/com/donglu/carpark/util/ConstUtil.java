@@ -32,4 +32,8 @@ public class ConstUtil {
 	 * 服务器图片保存位置
 	 */
 	public static final String IMAGE_SAVE_DIRECTORY = "directory";
+	/**
+	 * 保存商铺服务器地址
+	 */
+	public static final String STORE_SERVER_PATH = "yunServerAddress";
 }

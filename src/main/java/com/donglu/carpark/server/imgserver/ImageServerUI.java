@@ -17,10 +17,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +107,6 @@ public class ImageServerUI {
 	private AppVerifier av;
 	private Button btnStart;
 	private boolean autoStartServerCfg=false;
-	private String ip;
 
 	public static Injector serverInjector;
 	//系统托盘图片
@@ -377,6 +374,14 @@ public class ImageServerUI {
 			}
 		});
 		menuItem_2.setText("云上传配置");
+		MenuItem menuItem_3 = new MenuItem(menu_1, SWT.NONE);
+		menuItem_3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				new StoreServerUI().open();
+			}
+		});
+		menuItem_3.setText("商铺配置");
 		button_1.setSelection(autoStartServerCfg);
 	}
 
@@ -460,53 +465,19 @@ public class ImageServerUI {
 			
 			this.server = new Server(port);
 			ServletHandler servletHandler = new ServletHandler();
-			carparkDBServerProvider.get().startDbServlet(servletHandler);
+			CarparkDBServer carparkDBServer = carparkDBServerProvider.get();
+			carparkDBServer.startDbServlet(servletHandler);
 		    server.setHandler(servletHandler);
 			server.start();
 			btnStartText = "退出";
 			btnStartType = "stop";
-			
+			carparkDBServer.startBackgroudService();
 		} catch (Exception e) {
 			LOGGER.error("启动失败", e);
 			throw new Exception("服务器启动失败");
 		}
 		autoDeleteSameInOutHistory();
 		autoSendInfoToCloud();
-		autoUpdateIpToYunServer();
-		
-	}
-	private void autoUpdateIpToYunServer() {
-		ip = "";
-		String yunServerAddress = System.getProperty("yunServerAddress");
-		String resolveAddress=System.getProperty("resolveAddress");
-		LOGGER.info("云服务器地址{},需要解析的地址为：{}",yunServerAddress,resolveAddress);
-		if (StrUtil.isEmpty(yunServerAddress)||StrUtil.isEmpty(resolveAddress)) {
-			return;
-		}
-		ScheduledExecutorService deleteExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("没隔10秒解析本地ip"));
-		deleteExecutor.scheduleWithFixedDelay(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					InetAddress server=InetAddress.getByName(resolveAddress);
-					String hostIp = server.getHostAddress();
-					LOGGER.info("解析后的ip为{}",hostIp);
-					if (!StrUtil.isEmpty(ip)&&ip.equals(hostIp)) {
-						return;
-					}
-					String actionUrl=yunServerAddress+"?method=updateIp&updateIp="+Base64.getEncoder().encodeToString(hostIp.getBytes("utf-8"));
-					LOGGER.info("准备发送ip{}到{}",hostIp,actionUrl);
-					String upload = FileuploadSend.upload(actionUrl, null);
-					if (upload!=null&&upload.equals("true")) {
-						ip=hostIp;
-					}
-					LOGGER.info("发送结果为{}",upload);
-				} catch (Exception e) {
-					LOGGER.info("解析域名失败",e);
-				}
-			}
-		}, 10, 10, TimeUnit.SECONDS);
-		
 	}
 
 	private void autoDeleteSameInOutHistory() {

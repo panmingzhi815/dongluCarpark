@@ -1,4 +1,4 @@
-yunServerAddress 云服务地址 例如：http://127.0.0.1:8080/store/StoreServlet
+yunServerAddress 云服务地址 例如：http://127.0.0.1:8080/store
 resolveAddress 解析的ip地址 例如：www.baidu.com
 yunUploadUrl 云上传地址
 

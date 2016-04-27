@@ -11,6 +11,7 @@ import com.donglu.carpark.server.servlet.StoreServiceServlet;
 import com.donglu.carpark.server.servlet.StoreServlet;
 import com.donglu.carpark.server.servlet.UpdatePositionServlet;
 import com.donglu.carpark.server.servlet.UserServlet;
+import com.donglu.carpark.service.background.StoreServerLinkServiceI;
 import com.dongluhitec.card.server.ServerUtil;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -35,6 +36,9 @@ public class CarparkDBServer {
 	@Inject
 	private Provider<UpdatePositionServlet> updatePositionServletProvider;
 	
+	@Inject
+	private Provider<StoreServerLinkServiceI> storeServerLinkServiceProvider;
+	
 	public void startDbServlet(ServletHandler handler){
 		ServerUtil.startServlet("/user/*", handler, userServlerProvider);
 		ServerUtil.startServlet("/carpark/*", handler, carparkServletProvider);
@@ -45,5 +49,9 @@ public class CarparkDBServer {
 		ServerUtil.startServlet("/server/*", handler, serverServletProvider);
 		ServerUtil.startServlet("/plateSubmit/*", handler, plateSubmitServletProvider);
 		ServerUtil.startServlet("/positionUpdate/*", handler, updatePositionServletProvider);
+	}
+	
+	public void startBackgroudService(){
+		storeServerLinkServiceProvider.get().startAsync();
 	}
 }

@@ -9,16 +9,18 @@ public abstract class AbstractCarparkBackgroundService extends AbstractScheduled
 	String name;
 	protected static Logger log = LoggerFactory.getLogger(AbstractCarparkBackgroundService.class);
 	private Scheduler scheduler;
-	int num=0;
+	int num=1;
 	public AbstractCarparkBackgroundService(Scheduler scheduler, String name) {
 		this.scheduler=scheduler;
 		this.name=name;
 	}
 	@Override
 	protected void runOneIteration() throws Exception {
-		log.info("第{}次执行服务:{}",name);
+		long currentTimeMillis = System.currentTimeMillis();
+		log.debug("第{}次执行服务:{}",num,name);
 		run();
 		num++;
+		log.debug("服务：【{}】执行完成花费时间：{}",name,(System.currentTimeMillis() - currentTimeMillis));
 	}
 
 	protected abstract void run();
