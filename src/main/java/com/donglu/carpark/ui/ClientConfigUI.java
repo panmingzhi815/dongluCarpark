@@ -71,7 +71,7 @@ public class ClientConfigUI {
 	 * @wbp.parser.entryPoint
 	 */
 	protected void createContents() {
-		shell = new Shell();
+		shell = new Shell(SWT.CLOSE|SWT.ON_TOP);
 		shell.setSize(309, 88);
 		shell.setText("数据库配置");
 		shell.setLayout(new GridLayout(1, false));
@@ -117,28 +117,14 @@ public class ClientConfigUI {
 		try {
 			String dbServer_ip = text_ip.getText().trim();
 			String upload = FileuploadSend.upload("http://" + dbServer_ip + ":8899/server/", null);
-			String[] s = upload.split("/");
-
+			System.out.println(upload);
 			CarparkClientConfig instance = CarparkClientConfig.getInstance();
 			instance.setServerIp(dbServer_ip);
-			instance.setDbServerIp(s[0]);
-			instance.setDbServerPort(s[1]);
-			instance.setDbServerUsername(s[2]);
-			instance.setDbServerPassword(s[3]);
-			System.out.println(instance);
-			CarparkFileUtils.writeObject(CARPARK_CLIENT_CONFIG, instance);
-			writeToConfig();
 			commonui.info("连接成功", "连接成功");
 		} catch (Exception e) {
 			e.printStackTrace();
 			commonui.error("连接失败", "连接失败");
 		}
-
-	}
-
-	private void writeToConfig() {
-		CarparkClientConfig instance = CarparkClientConfig.getInstance();
-		instance.setDbServerIp(text_ip.getText());
 
 	}
 }

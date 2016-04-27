@@ -4,16 +4,20 @@ import com.caucho.hessian.client.HessianProxyFactory;
 import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.ClientConfigUI;
 import com.donglu.carpark.util.CarparkFileUtils;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.*;
 import com.google.inject.persist.PersistService;
 
 import java.net.MalformedURLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *客户端的service服务配置
  */
 public class CarparkHessianServiceProvider extends AbstractCarparkDatabaseServiceProvider{
-
+	static final Logger logger = LoggerFactory.getLogger(CarparkHessianServiceProvider.class);
     private PersistService persistService;
    
     @Override
@@ -40,15 +44,18 @@ public class CarparkHessianServiceProvider extends AbstractCarparkDatabaseServic
     }
 
     public class Model extends AbstractModule {
-
         @Override
         protected void configure() {
             CarparkClientConfig cf=(CarparkClientConfig) CarparkFileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
             if (cf==null) {
 				return;
 			}
-            String url = "http://"+CarparkClientConfig.getInstance().getDbServerIp()+":8899/";
-//            LOGGER.info("客户端远程数据底层地址:{}",url);
+            String dbServerIp = CarparkClientConfig.getInstance().getServerIp();
+            if (dbServerIp.equals(StrUtil.getHostIp())) {
+				
+			}
+			String url = "http://"+dbServerIp+":8899/";
+			logger.info("客户端远程数据底层地址:{}",url);
 
             HessianProxyFactory factory = new HessianProxyFactory();
             factory.setOverloadEnabled(true);
