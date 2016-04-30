@@ -1506,16 +1506,33 @@ public class CarparkMainPresenter {
 			findTotalSlotIsNow=getTotalSlotWithChange();
 			break;
 		case "3":
-			try {
-				SingleCarparkCarpark carpark = model.getCarpark().getMaxParent();
-				SingleCarparkCarpark findCarparkById = sp.getCarparkService().findCarparkById(carpark.getId());
-				findTotalSlotIsNow=findCarparkById.getLeftTempNumberOfSlot();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			findTotalSlotIsNow = getRealTineSlot(false);
+			break;
+		case "4":
+			findTotalSlotIsNow = getRealTineSlot(true);
 			break;
 		}
 		
+		return findTotalSlotIsNow;
+	}
+
+	/**
+	 * @param findTotalSlotIsNow
+	 * @return
+	 */
+	private Integer getRealTineSlot(boolean isFixOrTemp) {
+		Integer findTotalSlotIsNow =0;
+		try {
+			SingleCarparkCarpark carpark = model.getCarpark().getMaxParent();
+			SingleCarparkCarpark findCarparkById = sp.getCarparkService().findCarparkById(carpark.getId());
+			if (isFixOrTemp) {
+				findTotalSlotIsNow=findCarparkById.getLeftFixNumberOfSlot();
+			}else{
+				findTotalSlotIsNow=findCarparkById.getLeftTempNumberOfSlot();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return findTotalSlotIsNow;
 	}
 	/**
