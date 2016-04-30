@@ -283,6 +283,7 @@ public class CarInTask implements Runnable {
 		model.getMapCameraLastImage().put(ip, cch.getBigImg());
 		model.setHistory(null);
 		presenter.showContentToDevice(device, content, isOpenDoor);
+		presenter.updatePosition(carpark,cch.getUserId(),true);
 		LOGGER.info("对设备{}，发送消息{}，开门信号：{}",device.getName(),content,isOpenDoor);
 	}
 

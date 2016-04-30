@@ -250,7 +250,12 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 				}
 				SingleCarparkCarpark carpark=mapCarparkWithId.get(singleCarparkDevice.getCarpark().getId());
 				if (carpark==null) {
-					carpark = sp.getCarparkService().findCarparkById(singleCarparkDevice.getCarpark().getId());
+					try {
+						carpark = sp.getCarparkService().findCarparkById(singleCarparkDevice.getCarpark().getId());
+					} catch (Exception e) {
+						LOGGER.error("没有找到停车场：{}",singleCarparkDevice.getCarpark());
+						continue;
+					}
 				}
 				singleCarparkDevice.setCarpark(carpark);
 				model.setCarpark(carpark);

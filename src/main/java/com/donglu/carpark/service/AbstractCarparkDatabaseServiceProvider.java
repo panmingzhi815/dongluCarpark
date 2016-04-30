@@ -7,8 +7,8 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 	private CarparkInOutServiceI carparkInOutService;
 	private SystemOperaLogServiceI systemOperaLogService;
 	private StoreServiceI storeService;
-	
 	private PlateSubmitServiceI plateSubmitService;
+	private PositionUpdateServiceI positionUpdateService;
 	
 	private boolean started=false;
 
@@ -102,6 +102,15 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 
 	public void setPlateSubmitService(PlateSubmitServiceI plateSubmitService) {
 		this.plateSubmitService = plateSubmitService;
+	}
+
+	public PositionUpdateServiceI getPositionUpdateService() {
+		checkState();
+		return positionUpdateService;
+	}
+
+	public void setPositionUpdateService(PositionUpdateServiceI positionUpdateService) {
+		this.positionUpdateService = positionUpdateService;
 	}
 
 }

@@ -160,4 +160,9 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 		systemOperaLogService.saveOperaLog(systemOperaLogType, content, bigImage, operaName, objects);
 	}
 
+	@Override
+	public SingleCarparkUser findUserById(Long userId) {
+		return carparkUserService.findUserById(userId);
+	}
+
 }

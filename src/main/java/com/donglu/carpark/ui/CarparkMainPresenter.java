@@ -1169,7 +1169,7 @@ public class CarparkMainPresenter {
 	}
 
 	public void showNowTimeToDevice(SingleCarparkDevice singleCarparkDevice) {
-		hardwareService.setDate(getDevice(singleCarparkDevice), new Date());
+		hardwareService.setCarparkDate(getDevice(singleCarparkDevice), new Date());
 	}
 
 	/**
@@ -1298,6 +1298,7 @@ public class CarparkMainPresenter {
 			model.setChargeHistory(null);
 			model.setPlateInTime(new Date(), 5);
 			plateSubmit(singleCarparkInOutHistory, singleCarparkInOutHistory.getOutTime(), device, CarparkUtils.getImageByte(singleCarparkInOutHistory.getOutBigImg()));
+			updatePosition(device.getCarpark(), singleCarparkInOutHistory.getUserId(), false);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1504,6 +1505,15 @@ public class CarparkMainPresenter {
 		case "2":
 			findTotalSlotIsNow=getTotalSlotWithChange();
 			break;
+		case "3":
+			try {
+				SingleCarparkCarpark carpark = model.getCarpark().getMaxParent();
+				SingleCarparkCarpark findCarparkById = sp.getCarparkService().findCarparkById(carpark.getId());
+				findTotalSlotIsNow=findCarparkById.getLeftTempNumberOfSlot();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			break;
 		}
 		
 		return findTotalSlotIsNow;
@@ -1532,6 +1542,10 @@ public class CarparkMainPresenter {
 
 	public void saveFleetInOutHistory(SingleCarparkDevice device, String plateNO, byte[] bigImage) {
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.车队操作, "车辆：{}在车队期间从设备[{}]{}场",bigImage, System.getProperty("userName"),plateNO,device.getName(),device.getInType().substring(0, 1));
+	}
+
+	public void updatePosition(SingleCarparkCarpark carpark, Long userId, boolean inOrOut) {
+		sp.getPositionUpdateService().updatePosion(carpark, userId, inOrOut);
 	}
 	
 

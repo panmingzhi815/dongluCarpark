@@ -31,6 +31,7 @@ import org.eclipse.nebula.widgets.cdatetime.CDateTime;
 import org.eclipse.nebula.widgets.cdatetime.CDT;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
+import org.eclipse.swt.custom.ScrolledComposite;
 
 
 public class InOutHistoryView extends Composite implements View{
@@ -55,8 +56,12 @@ public class InOutHistoryView extends Composite implements View{
 		super(parent, style);
 		setLayout(new GridLayout(1, false));
 		
-		Group group = new Group(this, SWT.NONE);
-		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		ScrolledComposite scrolledComposite = new ScrolledComposite(this, SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+		
+		Group group = new Group(scrolledComposite, SWT.NONE);
 		group.setText("查询");
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridLayout gl_group = new GridLayout(13, false);
@@ -228,6 +233,8 @@ public class InOutHistoryView extends Composite implements View{
 		});
 		button_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_2.setText("导出");
+		scrolledComposite.setContent(group);
+		scrolledComposite.setMinSize(group.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		
 		listComposite = new Composite(this, SWT.NONE);
 		listComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));

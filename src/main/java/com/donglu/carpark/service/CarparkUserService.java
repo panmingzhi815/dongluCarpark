@@ -30,4 +30,6 @@ public interface CarparkUserService {
 	Long savePrepaidUserPayHistory(SingleCarparkPrepaidUserPayHistory pph);
 	List<SingleCarparkPrepaidUserPayHistory> findPrepaidUserPayHistoryList(int begin,int max,String userName,String plateNO,Date start,Date end);
 	int countPrepaidUserPayHistoryList(String userName,String plateNO,Date start,Date end);
+	
+	SingleCarparkUser findUserById(Long userId);
 }

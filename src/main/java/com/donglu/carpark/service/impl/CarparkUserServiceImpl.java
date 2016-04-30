@@ -258,5 +258,15 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			unitOfWork.end();
 		}
 	}
+	@Override
+	public SingleCarparkUser findUserById(Long userId) {
+		unitOfWork.begin();
+		try {
+			SingleCarparkUser find = emprovider.get().find(SingleCarparkUser.class, userId);
+			return find;
+		} finally{
+			unitOfWork.end();
+		}
+	}
 
 }

@@ -8,16 +8,11 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
-import com.donglu.carpark.ui.CarparkMainApp;
 import com.donglu.carpark.ui.common.AbstractPresenter;
-import com.donglu.carpark.ui.common.Presenter;
-import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.wizard.AddCarparkChildWizard;
 import com.donglu.carpark.ui.wizard.AddCarparkWizard;
-import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
@@ -69,20 +64,29 @@ public class CarparkPresenter  extends AbstractPresenter{
 	 */
 	private void addAndEditCarpark(SingleCarparkCarpark model) {
 		try {
+			Long id = model.getId();
+			Integer totalNumberOfSlot = model.getTotalNumberOfSlot();
+			Integer fixNumberOfSlot = model.getFixNumberOfSlot();
+			Integer tempNumberOfSlot = model.getTempNumberOfSlot();
 			CarparkService carparkService = sp.getCarparkService();
 			AddCarparkWizard w = new AddCarparkWizard(model, sp);
-			SingleCarparkCarpark showWizard = (SingleCarparkCarpark) commonui.showWizard(w);
-			if (StrUtil.isEmpty(showWizard)) {
+			SingleCarparkCarpark carpark = (SingleCarparkCarpark) commonui.showWizard(w);
+			if (StrUtil.isEmpty(carpark)) {
 				return;
 			}
-			showWizard.setTempNumberOfSlot(showWizard.getTotalNumberOfSlot() - showWizard.getFixNumberOfSlot());
-			showWizard.setLeftNumberOfSlot(showWizard.getTotalNumberOfSlot());
-			carparkService.saveCarpark(showWizard);
-			if (StrUtil.isEmpty(model.getCode())) {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "添加了停车场:" + showWizard.getCode(),OPERANAME);
+			carpark.setTempNumberOfSlot(carpark.getTotalNumberOfSlot() - carpark.getFixNumberOfSlot());
+			carpark.setLeftNumberOfSlot(carpark.getTotalNumberOfSlot());
+			Long saveCarpark = carparkService.saveCarpark(carpark);
+			if (totalNumberOfSlot!=carpark.getTotalNumberOfSlot()||model.getFixNumberOfSlot()!=fixNumberOfSlot) {
+				carpark.setId(saveCarpark);
+				sp.getPositionUpdateService().updatePosion(carpark, true, carpark.getFixNumberOfSlot()-fixNumberOfSlot);
+				sp.getPositionUpdateService().updatePosion(carpark, false, carpark.getTempNumberOfSlot()-tempNumberOfSlot);
+			}
+			if (StrUtil.isEmpty(id)) {
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "添加了停车场:" + carpark.getCode(),OPERANAME);
 				commonui.info("提示", "添加停车场成功");
 			} else {
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "修改了停车场:" + showWizard.getCode(),OPERANAME);
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "修改了停车场:" + carpark.getCode(),OPERANAME);
 				commonui.info("提示", "修改停车场成功");
 			}
 			refreshCarpark();

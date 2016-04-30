@@ -131,35 +131,38 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		
 		lbl_outBigImg = new Label(composite_5, SWT.NONE);
 		lbl_outBigImg.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		lbl_outBigImg.setBounds(0, 0, 400, 300);
-		lbl_inBigImg.setBounds(0, 0, 400, 300);
 		sashForm.setWeights(new int[] {1, 1});
 		setImage();
 		m_bindingContext = initDataBindings();
 	}
 	
 	private void setImage() {
-		try {
-			if (inImage!=null) {
-				inImage.dispose();
-				inImage=null;
+		getShell().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if (inImage!=null) {
+						inImage.dispose();
+						inImage=null;
+					}
+					if (outImage!=null) {
+						outImage.dispose();
+						outImage=null;
+					}
+					
+					inImage = CarparkUtils.getImage(CarparkUtils.getImageByte(model.getBigImg()), lbl_inBigImg, getShell());
+					lbl_inBigImg.setImage(inImage);
+					outImage = CarparkUtils.getImage(CarparkUtils.getImageByte(model.getOutBigImg()), lbl_outBigImg, getShell());
+					lbl_outBigImg.setImage(outImage);
+					if (StrUtil.isEmpty(outImage)) {
+						sashForm.setWeights(new int[]{1,0});
+					}
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
-			if (outImage!=null) {
-				outImage.dispose();
-				outImage=null;
-			}
-			
-			inImage = CarparkUtils.getImage(CarparkUtils.getImageByte(model.getBigImg()), lbl_inBigImg, getShell());
-			lbl_inBigImg.setImage(inImage);
-			outImage = CarparkUtils.getImage(CarparkUtils.getImageByte(model.getOutBigImg()), lbl_outBigImg, getShell());
-			lbl_outBigImg.setImage(outImage);
-			if (StrUtil.isEmpty(outImage)) {
-				sashForm.setWeights(new int[]{1,0});
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		});
 		
 	}
 

@@ -104,6 +104,7 @@ public class ImageServerUI {
 	private boolean autoStartServer=false;
 	private String ip;
 
+	public static Injector serverInjector;
 	/**
 	 * Launch the application.
 	 * 
@@ -112,13 +113,14 @@ public class ImageServerUI {
 	public static void main(String[] args) {
 		Display display = Display.getDefault();
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
+
 			@Override
 			public void run() {
 				try {
 					long nanoTime = System.nanoTime();
-					Injector createInjector = Guice.createInjector(new CarparkServerGuiceModule());
+					serverInjector = Guice.createInjector(new CarparkServerGuiceModule());
 					LOGGER.info("依赖注入用时：{}",(System.nanoTime()-nanoTime));
-					ImageServerUI window = createInjector.getInstance(ImageServerUI.class);
+					ImageServerUI window = serverInjector.getInstance(ImageServerUI.class);
 					LOGGER.info("获取界面用时：{}",(System.nanoTime()-nanoTime));
 					window.open();
 				} catch (Exception e) {

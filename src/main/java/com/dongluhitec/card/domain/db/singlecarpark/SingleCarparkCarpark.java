@@ -42,19 +42,22 @@ public class SingleCarparkCarpark extends DomainObject {
 	
 	@NotNull(message = "车位总数不能为空")
 	@Min(value = 0, message = "车位总数不能小于0")
-	private Integer totalNumberOfSlot;
+	private Integer totalNumberOfSlot=0;
 	
 	@NotNull(message = "剩余车位总数不能为空")
 	@Min(value = 0, message = "剩余车位总数不能小于0")
-	private Integer leftNumberOfSlot;
+	private Integer leftNumberOfSlot=0;
 	
 	@Column(name = "fixNumberOfSlot")
 	@Min(value = 0, message = "固定车位总数不能小于0")
-	private Integer fixNumberOfSlot;
+	private Integer fixNumberOfSlot=0;
 
 	@Column(name = "tempNumberOfSlot")
 	@Min(value = 0, message = "临时车位总数不能小于0")
-	private Integer tempNumberOfSlot;
+	private Integer tempNumberOfSlot=0;
+	
+	private Integer leftTempNumberOfSlot=0;
+	private Integer leftFixNumberOfSlot=0;
 	
 	private Boolean fixCarOneIn;
 	private Boolean isCharge=true;
@@ -216,5 +219,44 @@ public class SingleCarparkCarpark extends DomainObject {
 				getCarpaek(singleCarparkCarpark, list);
 			}
 		}
+	}
+	public Integer getLeftTempNumberOfSlot() {
+		if (leftTempNumberOfSlot==null) {
+			return 0;
+		}
+		return leftTempNumberOfSlot;
+	}
+	public Integer getTrueLeftTempNumberOfSlot() {
+		return leftTempNumberOfSlot;
+	}
+	
+	public void setLeftTempNumberOfSlot(Integer leftTempNumberOfSlot) {
+		if (leftTempNumberOfSlot>tempNumberOfSlot) {
+			leftTempNumberOfSlot=tempNumberOfSlot;
+		}
+		this.leftTempNumberOfSlot = leftTempNumberOfSlot;
+		firePropertyChange("leftTempNumberOfSlot", null, null);
+	}
+	public Integer getLeftFixNumberOfSlot() {
+		if (leftFixNumberOfSlot==null) {
+			return 0;
+		}
+		return leftFixNumberOfSlot;
+	}
+	public Integer getTrueLeftFixNumberOfSlot() {
+		return leftFixNumberOfSlot;
+	}
+	public void setLeftFixNumberOfSlot(Integer leftFixNumberOfSlot) {
+		if (leftFixNumberOfSlot>fixNumberOfSlot) {
+			leftFixNumberOfSlot=fixNumberOfSlot;
+		}
+		this.leftFixNumberOfSlot = leftFixNumberOfSlot;
+		firePropertyChange("leftFixNumberOfSlot", null, null);
+	}
+	public SingleCarparkCarpark getMaxParent() {
+		if (getParent()!=null) {
+			return getParent().getMaxParent();
+		}
+		return this;
 	}
 }

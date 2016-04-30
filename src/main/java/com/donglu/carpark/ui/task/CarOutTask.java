@@ -66,6 +66,8 @@ public class CarOutTask implements Runnable{
 
 	
 	public static Map<String, String> mapTempCharge;
+
+	private SingleCarparkInOutHistory ch;
 	
 	public CarOutTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage,CarparkMainModel model,
 			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, CLabel lbl_outBigImg,
@@ -184,7 +186,7 @@ public class CarOutTask implements Runnable{
 				}
 			}
 			LOGGER.info("查找固定用户为{}",user);
-			SingleCarparkInOutHistory ch = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
+			ch = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
 			LOGGER.info("车辆出场显示进口图片");
 			if (!StrUtil.isEmpty(ch)&&!StrUtil.isEmpty(lbl_inBigImg)) {
 				DEFAULT_DISPLAY.asyncExec(new Runnable() {
@@ -222,11 +224,12 @@ public class CarOutTask implements Runnable{
 						return;
 					}
 				}else{
-					if(prepaidCarOut(device, date, carpark, bigImg, smallImg, user, ch)){
+					if(prepaidCarOut(device, date, carpark, bigImg, smallImg, user)){
 						return;
 					}
 				}
 				presenter.plateSubmit(ch, date, device, bigImage);
+				presenter.updatePosition(carpark, user.getId(), false);
 			} else {// 临时车操作
 				tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg,null);
 			}
@@ -247,7 +250,7 @@ public class CarOutTask implements Runnable{
 	 * @param ch
 	 * @return 
 	 */
-	public boolean prepaidCarOut(SingleCarparkDevice device, Date date, SingleCarparkCarpark carpark, String bigImg, String smallImg, SingleCarparkUser user, SingleCarparkInOutHistory ch) {
+	public boolean prepaidCarOut(SingleCarparkDevice device, Date date, SingleCarparkCarpark carpark, String bigImg, String smallImg, SingleCarparkUser user) {
 		LOGGER.info("储值车出场");
 		if (CarparkUtils.checkRoadType(device,model, presenter, DeviceRoadTypeEnum.临时车通道,DeviceRoadTypeEnum.固定车通道)) {
 			return true;
