@@ -279,4 +279,9 @@ public interface CarparkService {
 	 * @return
 	 */
 	public List<SingleCarparkDeviceVoice> findAllVoiceInfo();
+	/**
+	 * 保存语音信息
+	 * @param list
+	 */
+	public Long saveDeviceVoice(List<SingleCarparkDeviceVoice> list);
 }

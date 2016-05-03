@@ -393,4 +393,11 @@ public class CarparkServlet extends HessianServlet implements CarparkService {
 	public List<SingleCarparkDeviceVoice> findAllVoiceInfo() {
 		return carparkService.findAllVoiceInfo();
 	}
+
+
+
+	@Override
+	public Long saveDeviceVoice(List<SingleCarparkDeviceVoice> list) {
+		return carparkService.saveDeviceVoice(list);
+	}
 }

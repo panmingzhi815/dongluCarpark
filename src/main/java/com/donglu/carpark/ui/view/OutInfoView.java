@@ -10,7 +10,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.model.CarparkMainModel;
-import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.util.ConstUtil;
@@ -30,8 +29,6 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 
 public class OutInfoView extends Composite implements View{
 	@SuppressWarnings("unused")
@@ -162,6 +159,7 @@ public class OutInfoView extends Composite implements View{
 		composite_24.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		lbl_smallImg = new CLabel(composite_24, SWT.NONE);
+		lbl_smallImg.setToolTipText("出场小图");
 		lbl_smallImg.setText("出场车牌");
 		lbl_smallImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 		lbl_smallImg.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
@@ -172,18 +170,12 @@ public class OutInfoView extends Composite implements View{
 		composite_25.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		lbl_bigImg = new CLabel(composite_25, SWT.NONE);
-		lbl_bigImg.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				String lastImage = (String)lbl_bigImg.getData("imgName");
-				ImageDialog imageDialog = new ImageDialog(lastImage);
-				imageDialog.open();
-			}
-		});
+		lbl_bigImg.setToolTipText("出场大图");
 		lbl_bigImg.setText("出场车牌");
 		lbl_bigImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 		lbl_bigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));
 		lbl_bigImg.setAlignment(SWT.CENTER);
+		lbl_bigImg.setData("imageType", "big");
 		m_bindingContext = initDataBindings();
 	}
 

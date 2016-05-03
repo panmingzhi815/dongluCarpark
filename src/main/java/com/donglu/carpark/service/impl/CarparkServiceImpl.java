@@ -817,5 +817,18 @@ public class CarparkServiceImpl implements CarparkService {
 			unitOfWork.end();
 		}
 	}
+
+	@Transactional
+	public Long saveDeviceVoice(List<SingleCarparkDeviceVoice> list) {
+		DatabaseOperation<SingleCarparkDeviceVoice> dom = DatabaseOperation.forClass(SingleCarparkDeviceVoice.class, emprovider.get());
+		for (SingleCarparkDeviceVoice singleCarparkDeviceVoice : list) {
+			if (singleCarparkDeviceVoice.getId()!=null) {
+				dom.save(singleCarparkDeviceVoice);
+			}else{
+				dom.insert(singleCarparkDeviceVoice);
+			}
+		}
+		return list.size()*1l;
+	}
 		
 }

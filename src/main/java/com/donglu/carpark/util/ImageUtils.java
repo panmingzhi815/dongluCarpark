@@ -140,6 +140,7 @@ public class ImageUtils {
 	}
 	
 	private static void setMouseDoubleClick(Control label, boolean isClose) {
+		System.out.println(label.getListeners(SWT.MouseDoubleClick).length);
 		Object data = label.getData("labelMouseDoubleClick");
 		if (data!=null) {
 			return;
@@ -166,6 +167,7 @@ public class ImageUtils {
 			};
 		}
 		label.addMouseListener(listener);
+		System.out.println(label.getListeners(SWT.MouseDoubleClick).length);
 		label.setData("labelMouseDoubleClick",listener);
 	}
 
@@ -360,7 +362,6 @@ public class ImageUtils {
 						public void run() {
 							Object value = iObservableNameValue.getValue();
 							label.setData("imgName", value);
-							label.setData("imageType", "big");
 						}
 					});
 				}

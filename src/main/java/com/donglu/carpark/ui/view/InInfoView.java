@@ -134,6 +134,7 @@ public class InInfoView extends Composite implements View{
 		composite_24.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		lbl_smallImg = new CLabel(composite_24, SWT.NONE);
+		lbl_smallImg.setToolTipText("进场小图");
 		lbl_smallImg.setText("进场车牌");
 		lbl_smallImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 		lbl_smallImg.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.BOLD));
@@ -144,10 +145,12 @@ public class InInfoView extends Composite implements View{
 		composite_25.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		lbl_bigImg = new CLabel(composite_25, SWT.NONE);
+		lbl_bigImg.setToolTipText("进场大图");
 		lbl_bigImg.setText("入场车牌");
 		lbl_bigImg.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 		lbl_bigImg.setFont(SWTResourceManager.getFont("微软雅黑", 23, SWT.BOLD));
 		lbl_bigImg.setAlignment(SWT.CENTER);
+		lbl_bigImg.setData("imageType", "big");
 		m_bindingContext = initDataBindings();
 	}
 

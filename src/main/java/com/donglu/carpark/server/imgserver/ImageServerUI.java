@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -49,7 +50,9 @@ import com.donglu.carpark.yun.CarparkYunConfig;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.setting.SNSettingType;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
@@ -449,6 +452,7 @@ public class ImageServerUI {
 				SystemUpdate update = new SystemUpdate();
 				try {
 					update.systemUpdate(findSystemSettingByKey.getSettingValue(), SystemSettingTypeEnum.软件版本.getDefaultValue());
+					updateDatabase(findSystemSettingByKey);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -480,10 +484,35 @@ public class ImageServerUI {
 		autoSendInfoToCloud();
 	}
 
+	private void updateDatabase(SingleCarparkSystemSetting dbVersion) {
+		try {
+			dbVersion.setSettingValue(SystemSettingTypeEnum.DateBase_version.getDefaultValue());
+			sp.getCarparkService().saveSystemSetting(dbVersion);
+			List<SingleCarparkDeviceVoice> findAllVoiceInfo = sp.getCarparkService().findAllVoiceInfo();
+			Map<DeviceVoiceTypeEnum, SingleCarparkDeviceVoice> map=new HashMap<>();
+			for (SingleCarparkDeviceVoice singleCarparkDeviceVoice : findAllVoiceInfo) {
+				map.put(singleCarparkDeviceVoice.getType(), singleCarparkDeviceVoice);
+			}
+			List<SingleCarparkDeviceVoice> list=new ArrayList<>();
+			for (DeviceVoiceTypeEnum vt : DeviceVoiceTypeEnum.values()) {
+				if (map.get(vt)!=null) {
+					continue;
+				}
+				SingleCarparkDeviceVoice dv=new SingleCarparkDeviceVoice();
+				dv.setContent(vt.getContent());
+				dv.setVolume(vt.getVolume());
+				dv.setType(vt);
+				list.add(dv);
+			}
+			sp.getCarparkService().saveDeviceVoice(list);
+		} catch (Exception e) {
+			LOGGER.error("更新数据库时发生错误",e);
+		}
+	}
+
 	private void autoDeleteSameInOutHistory() {
 		ScheduledExecutorService deleteExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每隔一小时清除数据库的重复进出场记录"));
 		deleteExecutor.scheduleWithFixedDelay(new Runnable() {
-			
 			@Override
 			public void run() {
 				CarparkUtils.cleanSameInOutHistory();
