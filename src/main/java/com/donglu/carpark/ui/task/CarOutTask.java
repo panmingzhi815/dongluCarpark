@@ -295,6 +295,7 @@ public class CarOutTask implements Runnable{
 		LOGGER.info("没有找到车牌{}的入场记录", plateNO);
 		presenter.showPlateNOToDevice(device, plateNO);
 		presenter.showContentToDevice(device, "此车未入场", false);
+		model.setOutShowPlateNO(model.getOutShowPlateNO()+"-未入场");
 		model.setSearchPlateNo(plateNO);
 		model.setSearchBigImage(bigImg);
 		model.setSearchSmallImage(smallImg);
@@ -320,6 +321,7 @@ public class CarOutTask implements Runnable{
 			String smallImg) throws Exception {
 		
 		if (!StrUtil.isEmpty(user.getTempCarTime())) {
+			LOGGER.info("固定车做临时车计费：{}",user.getTempCarTime());
 			tempCarOutProcess(ip, plateNO, device, date, bigImg, smallImg, StrUtil.parse(user.getTempCarTime().split(",")[0], StrUtil.DATETIME_PATTERN));
 			model.setUser(user);
 			return true;
@@ -386,7 +388,7 @@ public class CarOutTask implements Runnable{
 				}
 			}
 			presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent() + StrUtil.formatDate(user.getValidTo(), ConstUtil.VILIDTO_DATE), false);
-			model.setOutShowPlateNO(model.getOutShowPlateNO()+"(已过期)");
+			model.setOutShowPlateNO(model.getOutShowPlateNO()+"-已过期");
 			return true;
 		} 
 		

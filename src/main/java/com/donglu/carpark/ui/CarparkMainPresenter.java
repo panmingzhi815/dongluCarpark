@@ -1125,7 +1125,7 @@ public class CarparkMainPresenter {
 	public void showManualSearch(String plateNO, String bigImg, String smallImg) {
 		try {
 
-			searchErrorCarPresenter.getModel().setPlateNo(model.getOutShowPlateNO());
+			searchErrorCarPresenter.getModel().setPlateNo(model.getOutShowPlateNO().split("-")[0]);
 			searchErrorCarPresenter.getModel().setHavePlateNoSelect(null);
 			searchErrorCarPresenter.getModel().setNoPlateNoSelect(null);
 			searchErrorCarPresenter.getModel().setSaveBigImg(bigImg);

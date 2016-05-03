@@ -29,6 +29,8 @@ import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.ModifyEvent;
 
 public class MonthlyUserPayBasicPage extends WizardPage {
 
@@ -170,12 +172,10 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_6.setText("到期时间");
 		dateChooserCombo = new DateChooserCombo(composite, SWT.BORDER);
-		dateChooserCombo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
+		dateChooserCombo.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
 				Date value = dateChooserCombo.getValue();
 				model.setOverdueTime(StrUtil.getTodayBottomTime(value));
-				System.out.println(value);
 			}
 		});
 		dateChooserCombo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

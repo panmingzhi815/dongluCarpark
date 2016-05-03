@@ -37,14 +37,14 @@ public class InInfoPresenter  implements Presenter{
 	}
 
 	public void check(String editPlateNO) {
-		if (StrUtil.isEmpty(model.getMapInCheck().keySet())||(editPlateNO.length()<2||editPlateNO.length()>10)) {
+		if (StrUtil.isEmpty(model.getMapInCheck().keySet())||(editPlateNO.length()<2)) {
 			return;
 		}
 		if (!StrUtil.isEmpty(editPlateNO)&&model.getMapInCheck().keySet().size()==1) {
 			for (String plateNO : model.getMapInCheck().keySet()) {
 				
 				CarInTask in=model.getMapInCheck().get(plateNO);
-				in.setEditPlateNo(editPlateNO);
+				in.setEditPlateNo(editPlateNO.split("-")[0]);
 				in.refreshUserAndHistory();
 				try {
 					in.checkUser(false);

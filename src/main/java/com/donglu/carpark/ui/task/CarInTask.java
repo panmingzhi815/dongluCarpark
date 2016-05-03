@@ -136,16 +136,6 @@ public class CarInTask implements Runnable {
 			smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
 			LOGGER.debug("开始在界面显示车牌：{}的抓拍图片", plateNO);
 			smallImgSavePath = imageSavefolder + "/" + smallImgFileName;
-//			DEFAULT_DISPLAY.asyncExec(new Runnable() {
-//				@Override
-//				public void run() {
-//					if (StrUtil.isEmpty(lbl_inSmallImg)) {
-//						return;
-//					}
-//					ImageUtils.setBackgroundImage(smallImage, lbl_inSmallImg, DEFAULT_DISPLAY);
-//					ImageUtils.setBackgroundImage(bigImage, lbl_inBigImg, getBigImgSavePath());
-//				}
-//			});
 			
 			model.setInShowPlateNO(plateNO);
 			model.setInShowTime(dateString);
@@ -298,12 +288,12 @@ public class CarInTask implements Runnable {
 		if (!StrUtil.isEmpty(blackUser)) {
 			Holiday findHolidayByDate = sp.getCarparkService().findHolidayByDate(new Date());
 			if (!StrUtil.isEmpty(findHolidayByDate) && !StrUtil.isEmpty(blackUser.getHolidayIn()) && blackUser.getHolidayIn()) {
-				model.setInShowMeg("黑名单");
+				model.setInShowPlateNO(model.getInShowPlateNO()+"-黑名单");
 				presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
 				return true;
 			}
 			if (StrUtil.isEmpty(findHolidayByDate) && !StrUtil.isEmpty(blackUser.getWeekDayIn()) && blackUser.getWeekDayIn()) {
-				model.setInShowMeg("黑名单");
+				model.setInShowPlateNO(model.getInShowPlateNO()+"-黑名单");
 				presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
 				return true;
 			}
@@ -318,7 +308,7 @@ public class CarInTask implements Runnable {
 			if (blackUser.getTimeIn()) {
 				LOGGER.info("黑名单车牌：{}允许进入的时间为{}点到{}点", plateNO, hoursStart, hoursEnd);
 				if (now.isBefore(dt.getMillis()) || now.isAfter(de.getMillis())) {
-					model.setInShowMeg("黑名单");
+					model.setInShowPlateNO(model.getInShowPlateNO()+"-黑名单");
 					presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
 					return true;
 				}
@@ -327,7 +317,7 @@ public class CarInTask implements Runnable {
 				LOGGER.info("黑名单车牌：{}不能进入的时间为{}点到{}点", plateNO, hoursStart, hoursEnd);
 				if (now.toDate().after(dt.toDate()) && now.toDate().before(de.toDate())) {
 					LOGGER.error("车牌：{}为黑名单,现在时间为{}，在{}点到{}点之间", plateNO, now.toString("HH:mm:ss"), hoursStart, hoursEnd);
-					model.setInShowMeg("黑名单");
+					model.setInShowPlateNO(model.getInShowPlateNO()+"-黑名单");
 					presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
 					return true;
 				}
@@ -470,7 +460,7 @@ public class CarInTask implements Runnable {
 					return false;
 				}
 			}
-			model.setInShowPlateNO(model.getInShowPlateNO()+"(已过期)");
+			model.setInShowPlateNO(model.getInShowPlateNO()+"-已过期");
 			presenter.showContentToDevice(device,model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent(), false);
 			model.getMapInCheck().put(plateNO, this);
 			model.setInCheckClick(true);
@@ -495,6 +485,7 @@ public class CarInTask implements Runnable {
 				if (Integer.valueOf(user.getCarparkNo()) <= list.size()) {
 					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，不允许进入", valueOf2, user.getCarparkNo(), list.size());
 					presenter.showContentToDevice(device,model.getMapVoice().get(DeviceVoiceTypeEnum.固定车车位停满禁止进入语音).getContent(), false);
+					model.setInShowPlateNO(model.getInShowPlateNO()+"-个人车位满");
 					return true;
 				}
 			}
