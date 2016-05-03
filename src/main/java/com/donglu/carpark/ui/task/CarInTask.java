@@ -494,6 +494,7 @@ public class CarInTask implements Runnable {
 			} else {
 				if (Integer.valueOf(user.getCarparkNo()) <= list.size()) {
 					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，不允许进入", valueOf2, user.getCarparkNo(), list.size());
+					presenter.showContentToDevice(device,model.getMapVoice().get(DeviceVoiceTypeEnum.固定车车位停满禁止进入语音).getContent(), false);
 					return true;
 				}
 			}

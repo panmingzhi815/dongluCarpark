@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,15 +73,21 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			@Override
 			public void run() {
 				final Date date = new Date();
-				log.info("{}进行固定车到期提醒操作",date);
+				log.debug("{}进行固定车到期提醒操作",date);
 				final SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.固定车提醒时间.name());
 				if (findSystemSettingByKey != null && findSystemSettingByKey.getSettingValue().equals(StrUtil.formatDate(date))) {
 					log.info("今天已经提醒过了，不在提醒");
 					return;
 				}
 				List<SingleCarparkUser> list = view.getModel().getList();
-				for (final SingleCarparkUser user : list) {
-					if ((user.getRemindDays() == null || user.getRemindDays() == 0) && user.getValidTo().after(date)) {
+				for (SingleCarparkUser user : list) {
+					Date validTo = user.getValidTo();
+					log.debug("用户：{}的过期时间为：{}",user,validTo);
+					if (validTo==null) {
+						continue;
+					}
+					Date remind =new DateTime(validTo).minusDays(user.getRemindDays() == null?5:user.getRemindDays()).toDate();
+					if (remind.after(date)) {
 						continue;
 					}
 					Runnable runnable = new Runnable() {
@@ -88,7 +95,10 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 							Display.getDefault().asyncExec(new Runnable() {
 								@Override
 								public void run() {
-									log.info("{}即将过期,过期时间：{}", user, user.getValitoLabel());
+									if (findSystemSettingByKey != null && findSystemSettingByKey.getSettingValue().equals(StrUtil.formatDate(date))) {
+										return;
+									}
+									log.debug("{}即将过期,过期时间：{}", user, user.getValitoLabel());
 									UserRemindMessageBox window = new UserRemindMessageBox(user);
 									int open = window.open();
 									System.out.println(open);
