@@ -16,6 +16,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 
 public interface CarparkService {
@@ -284,4 +285,14 @@ public interface CarparkService {
 	 * @param list
 	 */
 	public Long saveDeviceVoice(List<SingleCarparkDeviceVoice> list);
+	
+	/**
+	 * 访客车辆
+	 * @param visitor
+	 * @return
+	 */
+	public Long saveVisitor(SingleCarparkVisitor visitor);
+	public Long deleteVisitor(SingleCarparkVisitor visitor);
+	public List<SingleCarparkVisitor> findVisitorByLike(int start, int max, String userName, String plateNo);
+	public SingleCarparkVisitor findVisitorByPlateAndCarpark(String plateNo,SingleCarparkCarpark carpark);
 }

@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkManagePresenter;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
-import com.donglu.carpark.util.ExcelImportExport;
-import com.donglu.carpark.util.ExcelImportExportImpl;
+import com.donglu.carpark.ui.view.visitor.wizard.AddVisitorModel;
+import com.donglu.carpark.ui.view.visitor.wizard.AddVisitorWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
-import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
@@ -41,13 +41,58 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 
 
 	@Override
-	public void add() {}
+	public void add() {
+		try {
+			AddVisitorModel model = new AddVisitorModel();
+			addAndEdit(model);
+		} catch (Exception e) {
+			commonui.error("", "添加访客失败",e);
+		}
+	}
+
+
+
+	/**
+	 * @param model
+	 */
+	private void addAndEdit(AddVisitorModel model) {
+		AddVisitorWizard wizard=new AddVisitorWizard(model);
+		List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
+		if (StrUtil.isEmpty(findAllCarpark)) {
+			commonui.info("", "请先创建停车场");
+			return;
+		}
+		if (model.getId()==null) {
+			model.setCarpark(findAllCarpark.get(0));
+		}
+		model.setListCarpark(findAllCarpark);
+		Object showWizard = commonui.showWizard(wizard);
+		if (StrUtil.isEmpty(showWizard)) {
+			return;
+		}
+		SingleCarparkVisitor visitor=model.getVisitor();
+		sp.getCarparkService().saveVisitor(visitor);
+		if (model.getId()==null) {
+			commonui.info("成功", "添加访客成功");
+		}else{
+			commonui.info("成功", "修改访客成功");
+		}
+	}
 
 	@Override
-	public void delete(List<SingleCarparkVisitor> list) {}
+	public void delete(List<SingleCarparkVisitor> list) {
+		for (SingleCarparkVisitor visitor : list) {
+			sp.getCarparkService().deleteVisitor(visitor);
+		}
+		
+		commonui.info("成功", "删除访客成功");
+	}
 
 	@Override
-	public void refresh() {}
+	public void refresh() {
+		List<SingleCarparkVisitor> findVisitorByLike = sp.getCarparkService().findVisitorByLike(0,500,userName,plateNo);
+		view.getModel().setList(findVisitorByLike);
+	}
 
 	public void search(String userName, String plateNo) {
 		this.userName=userName;
@@ -55,37 +100,19 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 		refresh();
 	}
 
-	public void pay() {}
-
-	public void importAll() {
+	public void edit() {
 		try {
-			String path = commonui.selectToSave();
-			if (StrUtil.isEmpty(path)) {
+			List<SingleCarparkVisitor> selected = view.getModel().getSelected();
+			if (StrUtil.isEmpty(selected)) {
 				return;
 			}
-			ExcelImportExport export=new ExcelImportExportImpl();
-			int excelRowNum = export.getExcelRowNum(path);
-			if (excelRowNum<2) {
-				return;
-			}
-			int importUser = export.importUser(path, sp);
-			if (importUser>0) {
-				commonui.info("导入提示", "导入完成。有"+importUser+"条数据导入失败");
-			}else{
-				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "导入了"+(excelRowNum-3)+"条记录",System.getProperty("userName"));
-				commonui.info("导入提示", "导入成功");
-			}
+			SingleCarparkVisitor visitor = selected.get(0);
+			AddVisitorModel model = new AddVisitorModel();
+			model.setVisitor(visitor);
+			addAndEdit(model);
 		} catch (Exception e) {
-			e.printStackTrace();
-			commonui.error("导入提示", "导入失败");
-		}finally{
-			refresh();
+			commonui.error("", "修改访客失败",e);
 		}
-		
 	}
-
-	public void exportAll() {}
-
-	public void edit() {}
 	
 }

@@ -9,7 +9,6 @@ import org.eclipse.swt.widgets.ToolItem;
 
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.View;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 
 public class VisitorListView extends AbstractListView<SingleCarparkVisitor>implements View {
@@ -18,9 +17,10 @@ public class VisitorListView extends AbstractListView<SingleCarparkVisitor>imple
 				new String[] { SingleCarparkVisitor.Property.plateNO.name(),
 						SingleCarparkVisitor.Property.name.name(),
 						SingleCarparkVisitor.Property.telephone.name(),
-						SingleCarparkVisitor.Property.validTo.name(), 
+						SingleCarparkVisitor.Label.validToLabel.name(), 
 						SingleCarparkVisitor.Property.allIn.name(), 
 						SingleCarparkVisitor.Property.inCount.name(),
+						SingleCarparkVisitor.Property.carpark.name(),
 						SingleCarparkVisitor.Property.remark.name() },
 				new String[] { "车牌号", "姓名", "电话", "到期时间", "次数限制", "进场次数", "停车场", "备注" }, new int[] { 100, 100, 100, 100, 100, 100, 100, 200, 100, 100, 100, 100 }, null);
 	}
@@ -37,7 +37,7 @@ public class VisitorListView extends AbstractListView<SingleCarparkVisitor>imple
 	@Override
 	protected void createMenuBarToolItem(ToolBar toolBar_menu) {
 		super.createMenuBarToolItem(toolBar_menu);
-		ToolItem toolItem_impot = new ToolItem(toolBar_menu, SWT.NONE);
+//		ToolItem toolItem_impot = new ToolItem(toolBar_menu, SWT.NONE);
 //		toolItem_impot.addSelectionListener(new SelectionAdapter() {
 //			@Override
 //			public void widgetSelected(SelectionEvent e) {

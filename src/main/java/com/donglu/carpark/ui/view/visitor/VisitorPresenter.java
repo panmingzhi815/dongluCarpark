@@ -12,12 +12,23 @@ public class VisitorPresenter  extends AbstractPresenter{
 	public VisitorListPresenter getListPresenter() {
 		return listPresenter;
 	}
+	
 	public void search(String userName, String plateNo) {
 		listPresenter.search(userName,plateNo);
 	}
 	@Override
 	protected VisitorView createView(Composite c) {
 		return new VisitorView(c, c.getStyle());
+	}
+
+	@Override
+	protected void continue_go() {
+		listPresenter.go(getView().getListComposite());
+	}
+
+	@Override
+	public VisitorView getView() {
+		return (VisitorView) super.getView();
 	}
 	
 }

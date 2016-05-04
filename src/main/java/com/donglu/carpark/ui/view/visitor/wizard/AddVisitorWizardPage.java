@@ -8,60 +8,43 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
-import org.eclipse.core.databinding.observable.map.IObservableMap;
-import org.eclipse.core.databinding.beans.BeansObservables;
 
 import com.donglu.carpark.util.TextUtils;
-import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser.CarparkSlotTypeEnum;
-import com.dongluhitec.card.domain.util.StrUtil;
 
-import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
-import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.nebula.widgets.cdatetime.CDateTime;
-import org.eclipse.nebula.widgets.cdatetime.CDT;
-import org.eclipse.nebula.widgets.datechooser.DateChooser;
 import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
+import org.eclipse.core.databinding.observable.map.IObservableMap;
+import org.eclipse.core.databinding.beans.BeansObservables;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
+import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
 public class AddVisitorWizardPage extends WizardPage {
 	private Text text;
 	private Text text_1;
 	private Text txt_carNO;
-	private SingleCarparkVisitor model;
+	private AddVisitorModel model;
 	private Text text_2;
 	private Text text_4;
+	private ComboViewer comboViewer;
 
 	
 	/**
 	 * Create the wizard.
 	 * @param model 
 	 */
-	public AddVisitorWizardPage(SingleCarparkVisitor model) {
+	public AddVisitorWizardPage(AddVisitorModel model) {
 		super("wizardPage");
 		this.model=model;
-		if (StrUtil.isEmpty(model.getId())) {
-			setDescription("添加固定用户");
-		}else{
-			setDescription("修改固定用户");
-		}
 	}
 
 	/**
@@ -136,6 +119,16 @@ public class AddVisitorWizardPage extends WizardPage {
 		});
 		dateChooserCombo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		dateChooserCombo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		
+		Label lblNewLabel = new Label(composite, SWT.NONE);
+		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel.setText("停 车 场");
+		
+		comboViewer = new ComboViewer(composite, SWT.NONE);
+		Combo combo = comboViewer.getCombo();
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		Label label_6 = new Label(composite, SWT.NONE);
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -175,6 +168,18 @@ public class AddVisitorWizardPage extends WizardPage {
 		IObservableValue observeTextText_2ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_2);
 		IObservableValue remarkModelObserveValue = BeanProperties.value("remark").observe(model);
 		bindingContext.bindValue(observeTextText_2ObserveWidget, remarkModelObserveValue, null, null);
+		//
+		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
+		IObservableMap observeMap = BeansObservables.observeMap(listContentProvider.getKnownElements(), SingleCarparkCarpark.class, "labelString");
+		comboViewer.setLabelProvider(new ObservableMapLabelProvider(observeMap));
+		comboViewer.setContentProvider(listContentProvider);
+		//
+		IObservableList listCarparkModelObserveList = BeanProperties.list("listCarpark").observe(model);
+		comboViewer.setInput(listCarparkModelObserveList);
+		//
+		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
+		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer, carparkModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

@@ -23,6 +23,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.server.util.HibernateSerializerFactory;
 import com.google.inject.Inject;
@@ -399,5 +400,33 @@ public class CarparkServlet extends HessianServlet implements CarparkService {
 	@Override
 	public Long saveDeviceVoice(List<SingleCarparkDeviceVoice> list) {
 		return carparkService.saveDeviceVoice(list);
+	}
+
+
+
+	@Override
+	public Long saveVisitor(SingleCarparkVisitor visitor) {
+		return carparkService.saveVisitor(visitor);
+	}
+
+
+
+	@Override
+	public Long deleteVisitor(SingleCarparkVisitor visitor) {
+		return carparkService.deleteVisitor(visitor);
+	}
+
+
+
+	@Override
+	public List<SingleCarparkVisitor> findVisitorByLike(int start, int max, String userName, String plateNo) {
+		return carparkService.findVisitorByLike(start, max, userName, plateNo);
+	}
+
+
+
+	@Override
+	public SingleCarparkVisitor findVisitorByPlateAndCarpark(String plateNo, SingleCarparkCarpark carpark) {
+		return carparkService.findVisitorByPlateAndCarpark(plateNo, carpark);
 	}
 }

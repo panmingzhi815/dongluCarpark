@@ -3,25 +3,20 @@ package com.donglu.carpark.ui.view.visitor.wizard;
 
 import org.eclipse.jface.wizard.Wizard;
 
-import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.WidgetUtil;
 
 public class AddVisitorWizard extends Wizard implements AbstractWizard {
-	SingleCarparkVisitor model;
+	private AddVisitorModel model;
 	private AddVisitorWizardPage page;
-	CarparkDatabaseServiceProvider sp;
-
-	public AddVisitorWizard(SingleCarparkVisitor model, CarparkDatabaseServiceProvider sp) {
+	public AddVisitorWizard(AddVisitorModel model) {
 		this.model = model;
-		this.sp=sp;
 		if (StrUtil.isEmpty(model.getId())) {
-			setWindowTitle("添加固定用户");
+			setWindowTitle("添加访客用户");
 		} else {
-			setWindowTitle("修改固定用户");
+			setWindowTitle("修改访客用户");
 		}
 	}
 

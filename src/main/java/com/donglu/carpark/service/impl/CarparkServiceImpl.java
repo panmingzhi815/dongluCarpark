@@ -46,6 +46,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayH
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
@@ -829,6 +830,62 @@ public class CarparkServiceImpl implements CarparkService {
 			}
 		}
 		return list.size()*1l;
+	}
+
+	@Transactional
+	public Long saveVisitor(SingleCarparkVisitor visitor) {
+		DatabaseOperation<SingleCarparkVisitor> dom = DatabaseOperation.forClass(SingleCarparkVisitor.class, emprovider.get());
+		if (visitor.getId()==null) {
+			dom.insert(visitor);
+		}else{
+			dom.save(visitor);
+		}
+		return visitor.getId();
+	}
+
+	@Transactional
+	public Long deleteVisitor(SingleCarparkVisitor visitor) {
+		DatabaseOperation<SingleCarparkVisitor> dom = DatabaseOperation.forClass(SingleCarparkVisitor.class, emprovider.get());
+		dom.remove(visitor);
+		return visitor.getId();
+	}
+
+	@Override
+	public List<SingleCarparkVisitor> findVisitorByLike(int start, int max, String userName, String plateNo) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkVisitor.class);
+			if (!StrUtil.isEmpty(userName)) {
+				c.add(Restrictions.like(SingleCarparkVisitor.Property.name.name(), userName,MatchMode.ANYWHERE));
+			}
+			if (!StrUtil.isEmpty(plateNo)) {
+				c.add(Restrictions.like(SingleCarparkVisitor.Property.plateNO.name(), plateNo,MatchMode.ANYWHERE));
+			}
+			c.setFirstResult(start);
+			c.setMaxResults(max);
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public SingleCarparkVisitor findVisitorByPlateAndCarpark(String plateNo, SingleCarparkCarpark carpark) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkVisitor.class);
+			if (!StrUtil.isEmpty(carpark)) {
+				c.add(Restrictions.eq(SingleCarparkVisitor.Property.name.name(), carpark));
+			}
+			if (!StrUtil.isEmpty(plateNo)) {
+				c.add(Restrictions.like(SingleCarparkVisitor.Property.plateNO.name(), plateNo,MatchMode.ANYWHERE));
+			}
+			c.setFirstResult(0);
+			c.setMaxResults(1);
+			return (SingleCarparkVisitor) c.getSingleResultOrNull();
+		} finally{
+			unitOfWork.end();
+		}
 	}
 		
 }

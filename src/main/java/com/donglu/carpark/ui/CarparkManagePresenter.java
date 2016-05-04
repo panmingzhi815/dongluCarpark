@@ -20,11 +20,11 @@ import com.donglu.carpark.ui.view.systemuser.SystemUserListPresenter;
 import com.donglu.carpark.ui.view.user.CarparkPayHistoryPresenter;
 import com.donglu.carpark.ui.view.user.PrepaidUserPayHistoryPresenter;
 import com.donglu.carpark.ui.view.user.UserPresenter;
+import com.donglu.carpark.ui.view.visitor.VisitorPresenter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkModuleEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.ui.util.EventHelper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -36,8 +36,6 @@ public class CarparkManagePresenter {
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
 	
-	@Inject
-	private EventHelper bus;
 	
 	private CarparkPayHistoryPresenter carparkPayHistoryPresenter;
 	private ReturnAccountPresenter returnAccountPresenter;
@@ -54,6 +52,7 @@ public class CarparkManagePresenter {
 	private LockCarPresenter lockCarPresenter;
 	private CarparkPresenter carparkPresenter;
 	private SystemUserListPresenter systemUserListPresenter;
+	private VisitorPresenter visitorPresenter;
 
 	public CarparkManageApp getView() {
 		return view;
@@ -82,7 +81,7 @@ public class CarparkManagePresenter {
 		lockCarPresenter = Login.injector.getInstance(LockCarPresenter.class);
 		carparkPresenter = Login.injector.getInstance(CarparkPresenter.class);
 		systemUserListPresenter = Login.injector.getInstance(SystemUserListPresenter.class);
-		bus.register(this);
+		visitorPresenter=Login.injector.getInstance(VisitorPresenter.class);
 		refreshSystemSetting();
 	}
 	/**
@@ -173,6 +172,10 @@ public class CarparkManagePresenter {
 
 	public void setSelete(SingleCarparkModuleEnum module) {
 		getView().select(module);
+	}
+
+	public VisitorPresenter getVisitorPresenter() {
+		return visitorPresenter;	
 	}
 
 }
