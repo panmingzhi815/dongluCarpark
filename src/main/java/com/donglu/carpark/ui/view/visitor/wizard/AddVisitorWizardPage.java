@@ -112,6 +112,7 @@ public class AddVisitorWizardPage extends WizardPage {
 		lblNewLabel_1.setText("时间限制");
 		
 		DateChooserCombo dateChooserCombo = new DateChooserCombo(composite, SWT.BORDER);
+		dateChooserCombo.setValue(model.getValidTo());
 		dateChooserCombo.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				model.setValidTo(dateChooserCombo.getValue());

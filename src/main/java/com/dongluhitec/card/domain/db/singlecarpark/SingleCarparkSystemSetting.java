@@ -55,5 +55,13 @@ public class SingleCarparkSystemSetting extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("lastUpdate", null, null);
 	}
-	
+	public Boolean getBooleanValue(){
+		Boolean b = false;
+		try {
+			b = Boolean.valueOf(settingValue);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return b;
+	}
 }

@@ -39,4 +39,12 @@ public enum SystemSettingTypeEnum {
 	public String getDefaultValue() {
 		return defaultValue;
 	}
+	public boolean getBooleanValue(){
+		try {
+			return Boolean.valueOf(defaultValue);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 }

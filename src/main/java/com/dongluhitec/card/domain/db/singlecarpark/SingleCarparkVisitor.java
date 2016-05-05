@@ -17,23 +17,25 @@ public class SingleCarparkVisitor extends DomainObject {
 	 */
 	private static final long serialVersionUID = -146910856653100859L;
 	public enum Property{
-		plateNO,name,telephone,allIn,inCount,validTo,remark,carpark
+		id,plateNO,name,telephone,allIn,inCount,validTo,remark,carpark,status
 	}
 	public enum Label{
 		validToLabel
+	}
+	public enum VisitorStatus{
+		可用,不可用
 	}
 	private String plateNO;
 	private String name;
 	private String telephone;
 	private Integer allIn=0;
-	private Integer inCount;
+	private int inCount=0;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date validTo;
 	private String remark;
 	@ManyToOne
 	private SingleCarparkCarpark carpark;
-	
-	
+	private String status;
 	public String getValidToLabel(){
 		if (validTo==null) {
 			return "";
@@ -68,10 +70,10 @@ public class SingleCarparkVisitor extends DomainObject {
 		this.allIn = allIn;
 		firePropertyChange("allIn", null, null);
 	}
-	public Integer getInCount() {
+	public int getInCount() {
 		return inCount;
 	}
-	public void setInCount(Integer inCount) {
+	public void setInCount(int inCount) {
 		this.inCount = inCount;
 		firePropertyChange("inCount", null, null);
 	}
@@ -95,6 +97,15 @@ public class SingleCarparkVisitor extends DomainObject {
 	public void setCarpark(SingleCarparkCarpark carpark) {
 		this.carpark = carpark;
 		firePropertyChange("carpark", null, null);
+	}
+	public void setStatus(String status) {
+		this.status=status;
+	}
+	public String getStatus() {
+		if (status==null) {
+			return VisitorStatus.可用.name();
+		}
+		return status;
 	}
 	
 }

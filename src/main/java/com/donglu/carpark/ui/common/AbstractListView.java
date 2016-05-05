@@ -72,6 +72,9 @@ public abstract class AbstractListView<T> extends Composite {
 		}
 
 		public void setList(List<T> list) {
+			selected.clear();
+			if (pcs != null)
+				pcs.firePropertyChange("selected", null, null);
 			this.list = list;
 			if (pcs != null)
 				pcs.firePropertyChange("list", null, null);

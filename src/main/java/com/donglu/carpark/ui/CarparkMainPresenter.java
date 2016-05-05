@@ -1628,21 +1628,29 @@ public class CarparkMainPresenter {
 
 	public void editPosition() {
 		SingleCarparkCarpark carpark = model.getCarpark().getMaxParent();
-		if (StrUtil.isEmpty(model.getTotalSlotTooltip())||model.getTotalSlotTooltip().indexOf("实时")<0) {
+		Integer slotShowType = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位数显示方式));
+		if (StrUtil.isEmpty(model.getTotalSlotTooltip())||slotShowType<3) {
 			return;
 		}
 		SingleCarparkCarpark c = sp.getCarparkService().findCarparkById(carpark.getId());
 		Integer fixSlot = c.getTrueLeftFixNumberOfSlot()==null?c.getFixNumberOfSlot():c.getTrueLeftFixNumberOfSlot();
 		Integer tempSlot = c.getTrueLeftTempNumberOfSlot()==null?c.getTempNumberOfSlot():c.getTrueLeftTempNumberOfSlot();
-		String fix = commonui.input("车位数修改", "输入新的剩余固定车位数",""+fixSlot);
-		if (fix==null) {
-			return;
-		}
-		String temp = commonui.input("车位数修改", "输入新的剩余临时车位数",""+tempSlot);
-		if (temp==null) {
-			return;
-		}
 		
+		String fix = null;
+		if (slotShowType==4||slotShowType==5) {
+			fix = commonui.input("车位数修改", "输入新的剩余固定车位数", "" + fixSlot);
+			if (fix == null) {
+				return;
+			} 
+			
+		}
+		String temp = null;
+		if (slotShowType==3||slotShowType==5) {
+			temp = commonui.input("车位数修改", "输入新的剩余临时车位数", "" + tempSlot);
+			if (temp == null) {
+				return;
+			} 
+		}
 		try {
 			fixSlot =Integer.valueOf(fix);
 			tempSlot =Integer.valueOf(temp);
@@ -1654,6 +1662,7 @@ public class CarparkMainPresenter {
 		c.setLeftTempNumberOfSlot(tempSlot);
 		sp.getCarparkService().saveCarpark(c);
 		commonui.info("成功", "修改车位数成功");
+		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "", System.getProperty("userName"));
 	}
 	
 

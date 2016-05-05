@@ -20,9 +20,10 @@ public class VisitorListView extends AbstractListView<SingleCarparkVisitor>imple
 						SingleCarparkVisitor.Label.validToLabel.name(), 
 						SingleCarparkVisitor.Property.allIn.name(), 
 						SingleCarparkVisitor.Property.inCount.name(),
+						SingleCarparkVisitor.Property.status.name(),
 						SingleCarparkVisitor.Property.carpark.name(),
 						SingleCarparkVisitor.Property.remark.name() },
-				new String[] { "车牌号", "姓名", "电话", "到期时间", "次数限制", "进场次数", "停车场", "备注" }, new int[] { 100, 100, 100, 100, 100, 100, 100, 200, 100, 100, 100, 100 }, null);
+				new String[] { "车牌号", "姓名", "电话", "到期时间", "次数限制", "进场次数","状态", "停车场", "备注" }, new int[] { 100, 100, 100, 100, 100, 100, 100, 200, 100, 100, 100, 100 }, null);
 	}
 
 	@Override
@@ -37,23 +38,6 @@ public class VisitorListView extends AbstractListView<SingleCarparkVisitor>imple
 	@Override
 	protected void createMenuBarToolItem(ToolBar toolBar_menu) {
 		super.createMenuBarToolItem(toolBar_menu);
-//		ToolItem toolItem_impot = new ToolItem(toolBar_menu, SWT.NONE);
-//		toolItem_impot.addSelectionListener(new SelectionAdapter() {
-//			@Override
-//			public void widgetSelected(SelectionEvent e) {
-//				getPresenter().importAll();
-//			}
-//		});
-//		toolItem_impot.setText("导入");
-//		ToolItem toolItem_export = new ToolItem(toolBar_menu, SWT.NONE);
-//		toolItem_export.addSelectionListener(new SelectionAdapter() {
-//			@Override
-//			public void widgetSelected(SelectionEvent e) {
-//				getPresenter().exportAll();
-//			}
-//		});
-//		toolItem_export.setText("导出");
-
 		ToolItem toolItem_edit = new ToolItem(toolBar_menu, SWT.NONE);
 		toolItem_edit.addSelectionListener(new SelectionAdapter() {
 			@Override

@@ -12,9 +12,8 @@ public class FreeReasonPresenter implements Presenter{
 	private String reasons;
 	@Override
 	public void go(Composite c) {
-		view=new FreeReasonView(c, c.getStyle(),reasons);
+		view=new FreeReasonView(c, c.getStyle(),model,reasons);
 		view.setPresenter(this);
-		view.setModel(model);
 	}
 	@Override
 	public Object getModel() {

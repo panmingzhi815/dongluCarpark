@@ -1,10 +1,9 @@
 package com.donglu.carpark.ui.view.visitor;
 
+import java.util.Date;
 import java.util.List;
 
 import org.eclipse.swt.widgets.Composite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkManagePresenter;
@@ -14,14 +13,14 @@ import com.donglu.carpark.ui.view.visitor.wizard.AddVisitorWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor.VisitorStatus;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
-public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVisitor>{
-	private static final Logger log = LoggerFactory.getLogger(VisitorListPresenter.class);
+public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVisitor> {
 	VisitorListView view;
-	
-	String userName; 
+
+	String userName;
 	String plateNo;
 	@Inject
 	CarparkManagePresenter carparkManagePresenter;
@@ -29,16 +28,15 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 	private CommonUIFacility commonui;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
+
 	@Override
 	public void go(Composite c) {
-		view=new VisitorListView(c,c.getStyle());
+		view = new VisitorListView(c, c.getStyle());
 		view.setPresenter(this);
 		view.setTableTitle("固定用户列表");
 		view.setShowMoreBtn(false);
 		refresh();
 	}
-	
-
 
 	@Override
 	public void add() {
@@ -46,23 +44,22 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 			AddVisitorModel model = new AddVisitorModel();
 			addAndEdit(model);
 		} catch (Exception e) {
-			commonui.error("", "添加访客失败",e);
+			commonui.error("", "添加访客失败", e);
 		}
+
 	}
-
-
 
 	/**
 	 * @param model
 	 */
 	private void addAndEdit(AddVisitorModel model) {
-		AddVisitorWizard wizard=new AddVisitorWizard(model);
+		AddVisitorWizard wizard = new AddVisitorWizard(model);
 		List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
 		if (StrUtil.isEmpty(findAllCarpark)) {
 			commonui.info("", "请先创建停车场");
 			return;
 		}
-		if (model.getId()==null) {
+		if (model.getId() == null) {
 			model.setCarpark(findAllCarpark.get(0));
 		}
 		model.setListCarpark(findAllCarpark);
@@ -70,33 +67,52 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 		if (StrUtil.isEmpty(showWizard)) {
 			return;
 		}
-		SingleCarparkVisitor visitor=model.getVisitor();
+		SingleCarparkVisitor visitor = model.getVisitor();
+		if (visitor.getAllIn()!=null&&visitor.getAllIn()>0) {
+			if (visitor.getAllIn()>visitor.getInCount()) {
+				visitor.setStatus(VisitorStatus.可用.name());
+			}else{
+				visitor.setStatus(VisitorStatus.不可用.name());
+			}
+		}
+		if (visitor.getValidTo()!=null) {
+			if (StrUtil.getTodayBottomTime(visitor.getValidTo()).after(new Date())) {
+				visitor.setStatus(VisitorStatus.可用.name());
+			}else{
+				visitor.setStatus(VisitorStatus.不可用.name());
+			}
+		}
 		sp.getCarparkService().saveVisitor(visitor);
-		if (model.getId()==null) {
+		if (model.getId() == null) {
 			commonui.info("成功", "添加访客成功");
-		}else{
+		} else {
 			commonui.info("成功", "修改访客成功");
 		}
+		refresh();
 	}
 
 	@Override
 	public void delete(List<SingleCarparkVisitor> list) {
-		for (SingleCarparkVisitor visitor : list) {
-			sp.getCarparkService().deleteVisitor(visitor);
+		try {
+			for (SingleCarparkVisitor visitor : list) {
+				sp.getCarparkService().deleteVisitor(visitor);
+			}
+			commonui.info("成功", "删除访客成功");
+			refresh();
+		} catch (Exception e) {
+			commonui.error("成功", "删除访客成功", e);
 		}
-		
-		commonui.info("成功", "删除访客成功");
 	}
 
 	@Override
 	public void refresh() {
-		List<SingleCarparkVisitor> findVisitorByLike = sp.getCarparkService().findVisitorByLike(0,500,userName,plateNo);
+		List<SingleCarparkVisitor> findVisitorByLike = sp.getCarparkService().findVisitorByLike(0, 500, userName, plateNo);
 		view.getModel().setList(findVisitorByLike);
 	}
 
 	public void search(String userName, String plateNo) {
-		this.userName=userName;
-		this.plateNo=plateNo;
+		this.userName = userName;
+		this.plateNo = plateNo;
 		refresh();
 	}
 
@@ -111,8 +127,8 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 			model.setVisitor(visitor);
 			addAndEdit(model);
 		} catch (Exception e) {
-			commonui.error("", "修改访客失败",e);
+			commonui.error("", "修改访客失败", e);
 		}
 	}
-	
+
 }

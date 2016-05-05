@@ -23,6 +23,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser.CarparkSlotTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor.VisitorStatus;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -325,7 +327,30 @@ public class CarInTask implements Runnable {
 		}
 		return false;
 	}
-
+	private boolean visitorCarIn() {
+		SingleCarparkVisitor visitor = sp.getCarparkService().findVisitorByPlateAndCarpark(plateNO, carpark);
+		if (visitor==null||visitor.getStatus().equals(VisitorStatus.不可用.name())) {
+			return true;
+		}
+		Integer allIn = visitor.getAllIn();
+		int inCount = visitor.getInCount();
+		if (allIn!=null&&allIn>0) {
+			if (allIn<=inCount) {
+				return true;
+			}
+			visitor.setInCount(inCount+1);
+			sp.getCarparkService().saveVisitor(visitor);
+		}
+		Date validTo = visitor.getValidTo();
+		if (validTo!=null) {
+			if (validTo.before(date)) {
+				return true;
+			}
+		}
+		model.setInShowPlateNO(model.getInShowPlateNO()+"-访客车");
+		isOpenDoor=true;
+		return false;
+	}
 	/**
 	 * @param device
 	 * @param user
@@ -363,6 +388,7 @@ public class CarInTask implements Runnable {
 			isOpenDoor=true;
 //			presenter.showContentToDevice(device, content, true);
 		}
+		model.setInShowPlateNO(model.getInShowPlateNO()+"-储值车");
 		return false;
 	}
 
@@ -387,6 +413,9 @@ public class CarInTask implements Runnable {
 				}
 			}
 		}
+		if (!visitorCarIn()) {
+			return false;
+		}
 		LOGGER.debug("判断是否允许临时车进");
 		if (device.getCarpark().isTempCarIsIn()) {
 			presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定停车场临时车进入语音).getContent(), false);
@@ -408,6 +437,7 @@ public class CarInTask implements Runnable {
 			}
 		}
 		isOpenDoor=true;
+		model.setInShowPlateNO(model.getInShowPlateNO()+"-临时车");
 		return false;
 	}
 
@@ -510,6 +540,7 @@ public class CarInTask implements Runnable {
 		}else{
 			cch.setIsCountSlot(true);
 		}
+		model.setInShowPlateNO(model.getInShowPlateNO()+"-固定车");
 		return false;
 	}
 

@@ -29,6 +29,8 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 
 public class OutInfoView extends Composite implements View{
 	@SuppressWarnings("unused")
@@ -83,6 +85,15 @@ public class OutInfoView extends Composite implements View{
 		label_7.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 
 		text_plateno = new Text(composite_22, SWT.BORDER);
+		text_plateno.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				if (text_plateno.getEditable()) {
+					String text = text_plateno.getText();
+					text_plateno.setText(text.split("-")[0]);
+				}
+			}
+		});
 		text_plateno.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
 		text_plateno.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		text_plateno.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
