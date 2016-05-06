@@ -616,4 +616,7 @@ public class CarparkUtils {
 		c.set(year, month, date, hours, minutes, seconds);
 		return c.getTime();
 	}
+	public static String getLoginUserName() {
+		return System.getProperty(ConstUtil.USER_NAME);
+	}
 }

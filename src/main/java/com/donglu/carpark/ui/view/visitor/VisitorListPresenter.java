@@ -10,10 +10,13 @@ import com.donglu.carpark.ui.CarparkManagePresenter;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.view.visitor.wizard.AddVisitorModel;
 import com.donglu.carpark.ui.view.visitor.wizard.AddVisitorWizard;
+import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor.VisitorStatus;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
@@ -84,8 +87,10 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 		}
 		sp.getCarparkService().saveVisitor(visitor);
 		if (model.getId() == null) {
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.访客, "添加访客"+visitor.getPlateNO(), System.getProperty(ConstUtil.USER_NAME));
 			commonui.info("成功", "添加访客成功");
 		} else {
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.访客, "修改访客"+model.getPlateNO()+">"+visitor.getPlateNO(), System.getProperty(ConstUtil.USER_NAME));
 			commonui.info("成功", "修改访客成功");
 		}
 		refresh();
@@ -96,6 +101,7 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 		try {
 			for (SingleCarparkVisitor visitor : list) {
 				sp.getCarparkService().deleteVisitor(visitor);
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.访客, "删除访客："+visitor.getPlateNO(), CarparkUtils.getLoginUserName());
 			}
 			commonui.info("成功", "删除访客成功");
 			refresh();
