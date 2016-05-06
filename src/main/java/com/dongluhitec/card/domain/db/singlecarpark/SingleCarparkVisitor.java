@@ -2,6 +2,7 @@ package com.dongluhitec.card.domain.db.singlecarpark;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
@@ -25,6 +26,7 @@ public class SingleCarparkVisitor extends DomainObject {
 	public enum VisitorStatus{
 		可用,不可用
 	}
+	@Column(unique=true)
 	private String plateNO;
 	private String name;
 	private String telephone;

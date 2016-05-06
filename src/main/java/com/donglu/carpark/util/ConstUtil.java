@@ -36,4 +36,8 @@ public class ConstUtil {
 	 * 保存商铺服务器地址
 	 */
 	public static final String STORE_SERVER_PATH = "yunServerAddress";
+	/**
+	 * 登录名
+	 */
+	public static final String USER_NAME = "userName";
 }
