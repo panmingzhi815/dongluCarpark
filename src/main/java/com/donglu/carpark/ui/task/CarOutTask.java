@@ -463,19 +463,24 @@ public class CarOutTask implements Runnable{
 		if (visitor==null||visitor.getStatus().equals(VisitorStatus.不可用.name())) {
 			return true;
 		}
-		Integer allIn = visitor.getAllIn();
-		int inCount = visitor.getInCount();
-		if (allIn!=null&&allIn>0) {
-			if(allIn==inCount){
-				visitor.setStatus(VisitorStatus.不可用.name());
-				sp.getCarparkService().saveVisitor(visitor);
-			}
-		}
+		boolean flag=false;
 		Date validTo = visitor.getValidTo();
 		if (validTo!=null) {
 			if (validTo.before(date)) {
-				return true;
+				flag= true;
 			}
+		}else{
+			Integer allIn = visitor.getAllIn();
+			int inCount = visitor.getInCount();
+			if (allIn!=null&&allIn>0) {
+				if(allIn<=inCount){
+					flag=true;
+				}
+			}
+		}
+		if (flag) {
+			visitor.setStatus(VisitorStatus.不可用.name());
+			sp.getCarparkService().saveVisitor(visitor);
 		}
 		if (ch==null) {
 			ch=new SingleCarparkInOutHistory();
@@ -487,7 +492,9 @@ public class CarOutTask implements Runnable{
 		model.setCarType("访客车");
 		model.setInTime(ch.getInTime());
 		model.setOutTime(date);
-		
+		ch.setPlateNo(plateNO);
+		ch.setCarType("临时车");
+		ch.setRemarkString("访客车");
 		saveOutHistory();
 		presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 		model.setOutShowPlateNO(model.getOutShowPlateNO()+"-访客车");

@@ -332,19 +332,20 @@ public class CarInTask implements Runnable {
 		if (visitor==null||visitor.getStatus().equals(VisitorStatus.不可用.name())) {
 			return true;
 		}
-		Integer allIn = visitor.getAllIn();
-		int inCount = visitor.getInCount();
-		if (allIn!=null&&allIn>0) {
-			if (allIn<=inCount) {
-				return true;
-			}
-			visitor.setInCount(inCount+1);
-			sp.getCarparkService().saveVisitor(visitor);
-		}
 		Date validTo = visitor.getValidTo();
 		if (validTo!=null) {
-			if (validTo.before(date)) {
+			if (StrUtil.getTodayBottomTime(validTo).before(date)) {
 				return true;
+			}
+		}else{
+			Integer allIn = visitor.getAllIn();
+			int inCount = visitor.getInCount();
+			if (allIn!=null&&allIn>0) {
+				if (allIn<=inCount) {
+					return true;
+				}
+				visitor.setInCount(inCount+1);
+				sp.getCarparkService().saveVisitor(visitor);
 			}
 		}
 		model.setInShowPlateNO(model.getInShowPlateNO()+"-访客车");
@@ -401,6 +402,9 @@ public class CarInTask implements Runnable {
 	 * @return
 	 */
 	public boolean tempCarShowToDevice( boolean incheck) throws Exception {
+		if (!visitorCarIn()) {
+			return false;
+		}
 		if (incheck) {
 			// 临时车是否确认
 			boolean flag = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认));
@@ -412,9 +416,6 @@ public class CarInTask implements Runnable {
 					return true;
 				}
 			}
-		}
-		if (!visitorCarIn()) {
-			return false;
 		}
 		LOGGER.debug("判断是否允许临时车进");
 		if (device.getCarpark().isTempCarIsIn()) {

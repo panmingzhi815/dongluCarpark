@@ -1171,10 +1171,9 @@ public class CarparkMainPresenter {
 			String s = mapSystemSetting.get(SystemSettingTypeEnum.同一车牌识别间隔) == null ? SystemSettingTypeEnum.同一车牌识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.同一车牌识别间隔);
 			log.info("同一车牌识别间隔为：{}", s);
 			Integer timeGap = Integer.valueOf(s);
-			DateTime plusSeconds = new DateTime(date).plusSeconds(timeGap);
-			boolean after = plusSeconds.toDate().after(nowDate);
-			if (after) {
-				log.info("车牌{}在{}做过处理，暂不做处理", plateNO, StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss"));
+			long abs = Math.abs(date.getTime()-nowDate.getTime());
+			if (abs<timeGap*1000) {
+				log.info("车牌{}在{}做过处理，暂不做处理", plateNO, StrUtil.formatDateTime(date));
 				return false;
 			}
 		}

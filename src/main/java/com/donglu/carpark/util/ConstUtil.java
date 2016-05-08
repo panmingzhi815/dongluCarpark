@@ -3,6 +3,9 @@ package com.donglu.carpark.util;
  * 保存一些常量,静态变量
  */
 public class ConstUtil {
+	/**
+	 * Text 的data的key 值 true时回车不改变焦点
+	 */
 	public static final String NO_CHANGE_FOCUS = "noChangeFocus";
 	/**
 	 * 启用发送车位  值不等于空则启用

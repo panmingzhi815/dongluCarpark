@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Temporal;
@@ -25,7 +26,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,isCountSlot,freeReason
 	}
 	public enum Label{
-		inTimeLabel,outTimeLabel
+		inTimeLabel,outTimeLabel,remarkString
 	}
 	public enum Query{
 		deleteWithNotOutByDate;
@@ -87,6 +88,8 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private Date reviseInTime;
 	
 	private String freeReason;
+	@Lob
+	private byte[] remark;
 
 	public String getPlateNo() {
 		return plateNo;
@@ -401,6 +404,28 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		this.freeReason = freeReason;
 		if (pcs != null)
 			pcs.firePropertyChange("freeReason", null, null);
+	}
+	public byte[] getRemark() {
+		return remark;
+	}
+	public void setRemark(byte[] remark) {
+		this.remark = remark;
+		firePropertyChange("remark", null, null);
+	}
+	public String getRemarkString() {
+		try {
+			String string = new String(remark,"UTF-8");
+			return string;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	public void setRemarkString(String remark) {
+		try {
+			this.remark = remark.getBytes("UTF-8");
+		} catch (Exception e) {
+		}
+		firePropertyChange("remark", null, null);
 	}
 	
 }

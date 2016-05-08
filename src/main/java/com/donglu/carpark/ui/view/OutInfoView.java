@@ -88,8 +88,8 @@ public class OutInfoView extends Composite implements View{
 		text_plateno.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
-				if (text_plateno.getEditable()) {
-					String text = text_plateno.getText();
+				String text = text_plateno.getText();
+				if (text_plateno.getEditable()&&!StrUtil.isEmpty(text)) {
 					text_plateno.setText(text.split("-")[0]);
 				}
 			}
