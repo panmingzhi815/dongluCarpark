@@ -123,14 +123,8 @@ public class OutInfoView extends Composite implements View{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				String outShowPlateNO = model.getOutShowPlateNO();
-				if (StrUtil.isEmpty(outShowPlateNO)) {
-					return;
-				}
-				if (outShowPlateNO.length() > 8) {
-					commonui.info("车牌错误", "请输入正确的车牌");
-					return;
-				}
 				model.setOutCheckClick(false);
+				getPresenter().check(outShowPlateNO);
 			}
 		});
 		GridData gd_btn_check = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -217,10 +211,6 @@ public class OutInfoView extends Composite implements View{
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
-		IObservableValue observeEnabledBtn_checkObserveWidget = WidgetProperties.enabled().observe(btn_check);
-		IObservableValue inCheckClickModelObserveValue = BeanProperties.value("inCheckClick").observe(model);
-		bindingContext.bindValue(observeEnabledBtn_checkObserveWidget, inCheckClickModelObserveValue, null, null);
-		//
 		IObservableValue observeEditableText_platenoObserveWidget = WidgetProperties.editable().observe(text_plateno);
 		IObservableValue outPlateNOEditableModelObserveValue = BeanProperties.value("outPlateNOEditable").observe(model);
 		bindingContext.bindValue(observeEditableText_platenoObserveWidget, outPlateNOEditableModelObserveValue, null, null);
@@ -236,6 +226,10 @@ public class OutInfoView extends Composite implements View{
 		IObservableValue observeEnabledButtonObserveWidget = WidgetProperties.enabled().observe(button);
 		IObservableValue handSearchModelObserveValue = BeanProperties.value("handSearch").observe(model);
 		bindingContext.bindValue(observeEnabledButtonObserveWidget, handSearchModelObserveValue, null, null);
+		//
+		IObservableValue observeEnabledBtn_checkObserveWidget = WidgetProperties.enabled().observe(btn_check);
+		IObservableValue outCheckClickModelObserveValue = BeanProperties.value("outCheckClick").observe(model);
+		bindingContext.bindValue(observeEnabledBtn_checkObserveWidget, outCheckClickModelObserveValue, null, null);
 		//
 		ImageUtils.bindImageWithBig(model, "outShowBigImg", "outBigImageName", lbl_bigImg);
 		ImageUtils.bindImageWithBig(model, "outShowSmallImg", "", lbl_smallImg);

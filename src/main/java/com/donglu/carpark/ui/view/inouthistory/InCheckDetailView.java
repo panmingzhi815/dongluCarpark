@@ -120,7 +120,7 @@ public class InCheckDetailView extends Composite implements View{
 			CLabel label = new CLabel(composite_2, SWT.NONE);
 			label.setAlignment(SWT.CENTER);
 //			ImgUtil.setBackgroundImage(label,carInTask.getBigImage());
-			ImageUtils.setBackgroundImage(carInTask.getBigImage(), label,carInTask.getBigImgSavePath());
+			ImageUtils.setBackgroundImage(carInTask.getBigImage(), label,carInTask.getBigImgFileName());
 			mapItemWithLabel.put(tbtmbdw, label);
 		}
 		tabFolder.addSelectionListener(new SelectionAdapter() {
@@ -133,7 +133,7 @@ public class InCheckDetailView extends Composite implements View{
 				}
 				TabItem tabItem = selection[0];
 				CarInTask carInTask=mapItemWithTask.get(tabItem);
-				ImageUtils.setBackgroundImage(carInTask.getBigImage(), mapItemWithLabel.get(tabItem),carInTask.getBigImgSavePath());
+				ImageUtils.setBackgroundImage(carInTask.getBigImage(), mapItemWithLabel.get(tabItem),carInTask.getBigImgFileName());
 			}
 		});
 	}

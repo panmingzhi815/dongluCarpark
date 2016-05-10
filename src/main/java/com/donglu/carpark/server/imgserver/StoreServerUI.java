@@ -72,7 +72,7 @@ public class StoreServerUI {
 		gd_txtHttpstore.widthHint = 280;
 		txtHttpstore.setLayoutData(gd_txtHttpstore);
 		new Label(composite, SWT.NONE);
-		
+		txtHttpstore.setText((String) CarparkFileUtils.readObject(ConstUtil.STORE_SERVER_PATH));
 		Button btnNewButton = new Button(composite, SWT.NONE);
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
 			@Override

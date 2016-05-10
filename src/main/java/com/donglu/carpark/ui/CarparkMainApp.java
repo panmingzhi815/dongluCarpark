@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -58,9 +57,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.hardware.plateDevice.PlateNOResult;
 import com.dongluhitec.card.util.ThreadUtil;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.inject.Inject;
@@ -105,7 +102,7 @@ import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 
-public class CarparkMainApp extends AbstractApp implements PlateNOResult {
+public class CarparkMainApp extends AbstractApp{
 	private final AtomicInteger refreshTimes = new AtomicInteger(0);
 	private final Integer refreshTimeSpeedSecond = 3;
 
@@ -160,8 +157,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	private String userType;
 	private Label lblNewLabel;
 
-	// 保存出场排队任务信息
-	private List<String> listOutTask = new ArrayList<>();
 	private RateLimiter rateLimiter = RateLimiter.create(1);
 
 	private ExecutorService outTheadPool;
@@ -364,7 +359,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 
 		outTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("出场任务"));
 		inThreadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("进场任务"));
-		refreshService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每秒刷新停车场全局监控信息"));
 		if (StrUtil.isEmpty(System.getProperty(ConstUtil.AUTO_SEND_POSITION_TO_DEVICE))) {
 			autoSendPositionToDevice();
 		}
@@ -381,7 +375,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			LOGGER.info("发送车位数间隔SendPositionToDeviceTime为:{}", sendPositionToDeviceTime);
 		}
 	}
-
 	/**
 	 * 初始化语音信息
 	 */
@@ -898,12 +891,10 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		lbl_charge.addMouseTrackListener(new MouseTrackAdapter() {
 			@Override
 			public void mouseExit(MouseEvent e) {
-				System.out.println("mouse Exit");
 			}
 
 			@Override
 			public void mouseHover(MouseEvent e) {
-				System.out.println("mouse hover");
 			}
 		});
 		lbl_charge.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
@@ -1111,141 +1102,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 			}
 		}, sendPositionToDeviceTime, sendPositionToDeviceTime, TimeUnit.SECONDS);
 	}
-
-	/**
-	 * 车牌识别监控
-	 */
-	@Override
-	public void invok(final String ip, int channel, final String plateNO, final byte[] bigImage, final byte[] smallImage, float rightSize) {
-		model.setPlateInTime(new Date(),10);
-		LOGGER.info("车辆{}在设备{}通道{}处进场,可信度：{}", plateNO, ip, channel, rightSize);
-		try {
-			Preconditions.checkNotNull(model.getMapDeviceType().get(ip), "not monitor device:" + ip);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return;
-		}
-		Map<String, SingleCarparkDevice> mapIpToDevice = model.getMapIpToDevice();
-		if (model.getIsOpenFleet()) {
-			LOGGER.info("车队模式，保存车牌{}的进场记录到操作员日志",plateNO);
-			presenter.saveFleetInOutHistory(mapIpToDevice.get(ip),plateNO,bigImage);
-			return;
-		}
-		// 开闸
-		Boolean boolean1 = mapOpenDoor.get(ip);
-		if (boolean1 != null && boolean1) {
-			mapOpenDoor.put(ip, null);
-			boolean inOrOut = true;
-			if (model.getMapDeviceType().get(ip).indexOf("出口")>-1) {
-				inOrOut = false;
-			}
-			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO, inOrOut);
-			return;
-		}
-
-		boolean equals = (mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔))
-				.equals(SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue());
-		String linkAddress = mapIpToDevice.get(ip).getLinkInfo();
-
-		Boolean isTwoChanel = mapIsTwoChanel.get(linkAddress);
-		if (model.getMapDeviceType().get(ip).indexOf("出口")>-1) {
-			// 是否是双摄像头
-			if (!equals && isTwoChanel) {
-				CarOutTask carOutTask = mapOutTwoCameraTask.get(linkAddress);
-				if (!StrUtil.isEmpty(carOutTask)) {
-					if (carOutTask.getRightSize() < rightSize) {
-						carOutTask.setBigImage(bigImage);
-						carOutTask.setPlateNO(plateNO);
-						carOutTask.setSmallImage(smallImage);
-						carOutTask.setIp(ip);
-						carOutTask.setRightSize(rightSize);
-					}
-					Timer timer = mapTwoChanelTimer.get(linkAddress);
-					if (timer != null) {
-						timer.cancel();
-						outTaskSubmit(ip, plateNO, linkAddress, carOutTask);
-						mapOutTwoCameraTask.remove(linkAddress);
-						mapTwoChanelTimer.remove(linkAddress);
-					}
-					return;
-				} else {
-					Integer two = Integer.valueOf(
-							mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
-					Timer t = new Timer();
-					long nanoTime = System.nanoTime();
-					t.schedule(new TimerTask() {
-						public void run() {
-							LOGGER.info("双摄像头等待超时任务处理：{},{}",two,System.nanoTime()-nanoTime);
-							CarOutTask carOutTask = mapOutTwoCameraTask.get(linkAddress);
-							outTaskSubmit(ip, plateNO, linkAddress, carOutTask);
-							mapOutTwoCameraTask.remove(linkAddress);
-							Timer timer = mapTwoChanelTimer.get(linkAddress);
-							if (timer != null) {
-								timer.cancel();
-								mapTwoChanelTimer.remove(linkAddress);
-							}
-						}
-					}, two);
-					mapTwoChanelTimer.put(linkAddress, t);
-				}
-			}
-			if (listOutTask.size() > 5) {
-				LOGGER.info("已经有5个任务正在等待处理暂不添加任务{}", listOutTask);
-				return;
-			}
-			CarOutTask task = new CarOutTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, carTypeSelectCombo, rightSize);
-			mapOutTwoCameraTask.put(linkAddress, task);
-			if (!(!equals && isTwoChanel)) {
-				outTaskSubmit(ip, plateNO, linkAddress, task);
-			}
-
-		} else if (model.getMapDeviceType().get(ip).indexOf("进口")>-1) {
-			if (!equals && isTwoChanel) {
-				CarInTask carInTask = mapInTwoCameraTask.get(linkAddress);
-				if (!StrUtil.isEmpty(carInTask)) {
-					if (carInTask.getRightSize() < rightSize) {
-						carInTask.setBigImage(bigImage);
-						carInTask.setPlateNO(plateNO);
-						carInTask.setSmallImage(smallImage);
-						carInTask.setIp(ip);
-						carInTask.setRightSize(rightSize);
-					}
-					Timer timer = mapTwoChanelTimer.get(linkAddress);
-					if (timer != null) {
-						mapInTwoCameraTask.remove(linkAddress);
-						timer.cancel();
-						inThreadPool.submit(carInTask);
-						mapTwoChanelTimer.remove(linkAddress);
-					}
-					return;
-				} else {
-					Integer two = Integer.valueOf(
-							mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
-					Timer t = new Timer();
-					t.schedule(new TimerTask() {
-						public void run() {
-							LOGGER.info("双摄像头等待超时任务处理：{}",two);
-							CarInTask carInTask = mapInTwoCameraTask.get(linkAddress);
-							inThreadPool.submit(carInTask);
-							mapInTwoCameraTask.remove(linkAddress);
-							Timer timer = mapTwoChanelTimer.get(linkAddress);
-							if (timer != null) {
-								timer.cancel();
-								mapTwoChanelTimer.remove(linkAddress);
-							}
-						}
-					}, two);
-					mapTwoChanelTimer.put(linkAddress, t);
-				}
-			}
-			CarInTask task = new CarInTask(ip, plateNO, bigImage, smallImage, model, sp, presenter, rightSize);
-			if (!(!equals && isTwoChanel)) {
-				inThreadPool.submit(task);
-			}
-			mapInTwoCameraTask.put(linkAddress, task);
-		}
-	}
-
 	/**
 	 * 获取车辆类型
 	 * 
@@ -1274,6 +1130,7 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 	 * @param refreshTimeSpeedSecond
 	 */
 	public void refreshCarparkBasicInfo(Integer refreshTimeSpeedSecond) {
+		refreshService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每秒刷新停车场全局监控信息"));
 		refreshService.scheduleAtFixedRate(() -> {
 			try {
 				model.setCurrentTime(StrUtil.formatDateTime(new Date()));
@@ -1315,15 +1172,6 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		// btnCharge.setData(BTN_CHARGE_DEVICE, null);
 	}
 
-	@Override
-	public void invok(String ip, int channel, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize, String plateColor) {
-		try {
-			model.setOutPlateNOColor(plateColor);
-			invok(ip, channel, plateNO, bigImage, smallImage, rightSize);
-		} catch (Exception e) {
-			LOGGER.error("", e);
-		}
-	}
 
 	/**
 	 * @param carOutChargeCheck
@@ -1462,6 +1310,15 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 				});
 			}
 		});
+		model.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent e) {
+				if (!e.getPropertyName().equals("carparkCarType")) {
+					return;
+				}
+				CarparkUtils.setFocus(carTypeSelectCombo);
+			}
+		});
 		//
 		IObservableValue observeEnabledComboObserveWidget = WidgetProperties.enabled().observe(carTypeSelectCombo);
 		IObservableValue comboCarTypeEnableModelObserveValue = BeanProperties.value("comboCarTypeEnable").observe(model);
@@ -1500,33 +1357,5 @@ public class CarparkMainApp extends AbstractApp implements PlateNOResult {
 		bindingContext.bindValue(observeTextText_chargedMoneybserveWidget, chargedMoneyModelObserveValue, null, null);
 		//
 		return bindingContext;
-	}
-
-	/**
-	 * @param ip
-	 * @param plateNO
-	 * @param linkAddress
-	 * @param carOutTask
-	 */
-	public void outTaskSubmit(final String ip, final String plateNO, String linkAddress, CarOutTask carOutTask) {
-		String key = new Date() + "current has device:" + ip + " with plate:" + plateNO + " process";
-		outTheadPool.submit(carOutTask);
-		listOutTask.add(key);
-		outTheadPool.submit(() -> {
-			while (model.isBtnClick()) {
-				int i = 0;
-				try {
-					if (i > 600) {
-						stop();
-						return;
-					}
-					TimeUnit.MILLISECONDS.sleep(200);
-					i++;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			listOutTask.remove(key);
-		});
 	}
 }

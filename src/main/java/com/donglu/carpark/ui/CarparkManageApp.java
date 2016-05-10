@@ -458,6 +458,7 @@ public class CarparkManageApp extends AbstractApp{
 
 	public void select(SingleCarparkModuleEnum module) {
 		tabFolder.setSelection(mapModuleToItem.get(module));
+		shell.forceFocus();
 	}
 
 	

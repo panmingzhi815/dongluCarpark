@@ -61,7 +61,12 @@ public class CarparkMainModel extends DomainObject {
 	private final Map<String, Timer> mapTwoChanelTimer = new HashMap<>();
 
 	private final Map<String, CarInTask> mapInCheck = new MyMapCache<>(600000, 5);
+	private final Map<String, CarOutTask> mapOutCheck = new MyMapCache<>(600000, 1);
+	
 	private final Map<DeviceVoiceTypeEnum, SingleCarparkDeviceVoice> mapVoice = new HashMap<>();
+	//保存待出场信息
+	private final List<CarOutTask> listOutTask=new ArrayList<>();
+	private long lastCarOutTime=0;
 
 	/**
 	 * 
@@ -103,8 +108,6 @@ public class CarparkMainModel extends DomainObject {
 	String totalTime;
 	float shouldMony;
 	float real;
-
-	SingleCarparkInOutHistory history;
 
 	String ip;
 
@@ -318,17 +321,6 @@ public class CarparkMainModel extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("btnClick", null, null);
 	}
-
-	public SingleCarparkInOutHistory getHistory() {
-		return history;
-	}
-
-	public void setHistory(SingleCarparkInOutHistory history) {
-		this.history = history;
-		if (pcs != null)
-			pcs.firePropertyChange("history", null, null);
-	}
-
 	public String getInShowPlateNO() {
 		return inShowPlateNO;
 	}
@@ -491,6 +483,8 @@ public class CarparkMainModel extends DomainObject {
 
 	public void setCarparkCarType(String carparkCarType) {
 		this.carparkCarType = carparkCarType;
+		if (pcs != null)
+			pcs.firePropertyChange("carparkCarType", null, null);
 	}
 
 	public String getCarparkCarType() {
@@ -854,5 +848,21 @@ public class CarparkMainModel extends DomainObject {
 	public void setOutBigImageName(String outBigImageName) {
 		this.outBigImageName = outBigImageName;
 		firePropertyChange("outBigImageName", null, null);
+	}
+
+	public List<CarOutTask> getListOutTask() {
+		return listOutTask;
+	}
+
+	public long getLastCarOutTime() {
+		return lastCarOutTime;
+	}
+
+	public void setLastCarOutTime(long lastCarOutTime) {
+		this.lastCarOutTime = lastCarOutTime;
+	}
+
+	public Map<String, CarOutTask> getMapOutCheck() {
+		return mapOutCheck;
 	}
 }

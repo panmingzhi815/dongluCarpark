@@ -48,7 +48,6 @@ public class InInfoView extends Composite implements View{
 	public InInfoView(Composite parent, int style) {
 		super(parent, style);
 		createView();
-	
 	}
 
 	/**

@@ -45,6 +45,7 @@ import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.common.ShowDialog;
+import com.donglu.carpark.ui.task.CarInOutResult;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
 import com.donglu.carpark.ui.view.inouthistory.FreeReasonPresenter;
 import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
@@ -94,10 +95,12 @@ import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
-
+@Singleton
 public class CarparkMainPresenter {
 	private Logger log = LoggerFactory.getLogger(CarparkMainPresenter.class);
 	@Inject
@@ -132,6 +135,8 @@ public class CarparkMainPresenter {
 	private CountTempCarChargeI countTempCarCharge;
 
 	private CarparkMainApp view;
+	@Inject
+	private Provider<CarInOutResult> carInOutResultProvider;
 
 	private App app;
 
@@ -408,7 +413,7 @@ public class CarparkMainPresenter {
 			}
 
 		});
-		jna.openEx(ip, getView());
+		jna.openEx(ip, carInOutResultProvider.get());
 	}
 
 	protected void refreshSystemSetting() {
@@ -1154,7 +1159,7 @@ public class CarparkMainPresenter {
 				// }
 			}
 			sp.getCarparkInOutService().saveInOutHistory(select);
-			view.invok(model.getIp(), 0, select.getPlateNo(), m.getBigImg(), m.getSmallImg(), 1);
+			carInOutResultProvider.get().invok(model.getIp(), 0, select.getPlateNo(), m.getBigImg(), m.getSmallImg(), 1);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1343,6 +1348,7 @@ public class CarparkMainPresenter {
 			model.setComboCarTypeEnable(false);
 			model.setChargeDevice(null);
 			model.setChargeHistory(null);
+			model.setOutCheckClick(false);
 			model.setPlateInTime(new Date(), 5);
 			plateSubmit(singleCarparkInOutHistory, singleCarparkInOutHistory.getOutTime(), device, ImageUtils.getImageByte(singleCarparkInOutHistory.getOutBigImg()));
 			updatePosition(device.getCarpark(), singleCarparkInOutHistory.getUserId(), false);
@@ -1417,14 +1423,14 @@ public class CarparkMainPresenter {
 		model.setHandPlateNO(null);
 	}
 
-	public void saveImage(String f, String smallImgFileName, String bigImgFileName, byte[] smallImage1, byte[] bigImage1) {
+	public void saveImage(String smallImgFileName, String bigImgFileName, byte[] smallImage1, byte[] bigImage1) {
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {
 				try {
 					byte[] bigImage = bigImage1 == null ? new byte[0] : bigImage1;
 					byte[] smallImage = smallImage1 == null ? new byte[0] : smallImage1;
-					String fl = "/img/" + f;
+					String fl = "/img";
 					Object readObject = CarparkFileUtils.readObject(ConstUtil.CLIENT_IMAGE_SAVE_FILE_PATH);
 					if (!StrUtil.isEmpty(readObject)) {
 						String string = (String) readObject;
@@ -1441,6 +1447,7 @@ public class CarparkMainPresenter {
 					String finalSmallFileName = fl + "/" + smallImgFileName;
 
 					File bigFile = new File(finalBigFileName);
+					Files.createParentDirs(bigFile);
 					bigFile.createNewFile();
 					Files.write(bigImage, bigFile);
 					log.debug("保存大图片到本地：{}",bigFile);
