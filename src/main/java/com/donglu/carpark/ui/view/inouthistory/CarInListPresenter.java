@@ -14,6 +14,7 @@ import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -35,12 +36,6 @@ public class CarInListPresenter extends AbstractListPresenter<CarInInfo> {
 	private String plateNo;
 	private Map<String, SingleCarparkLockCar> mapLockCar;
 	private Map<String, SingleCarparkUser> mapUser;
-
-	@Override
-	public void go(Composite c) {
-		v = new CarInListView(c, c.getStyle());
-		v.setPresenter(this);
-	}
 
 	@Override
 	public void refresh() {
@@ -178,5 +173,11 @@ public class CarInListPresenter extends AbstractListPresenter<CarInInfo> {
 			e.printStackTrace();
 		}
 		refresh();
+	}
+
+	@Override
+	protected View createView(Composite c) {
+		v = new CarInListView(c, c.getStyle());
+		return v;
 	}
 }

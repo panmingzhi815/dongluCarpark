@@ -159,8 +159,8 @@ public class CarInTask extends AbstractTask {
 	 * @param nanoTime3
 	 */
 	public void saveInHistory() {
-		LOGGER.info("车辆类型为：{}==t通道类型为：{}", carType, device.getRoadType());
-		LOGGER.info(date + "==" + ip + "====" + plateNO + "车辆类型：" + carType + "==" + "保存图片：==查找固定用户：==界面操作：");
+		LOGGER.debug("车辆类型为：{}==t通道类型为：{}", carType, device.getRoadType());
+		LOGGER.debug(date + "==" + ip + "====" + plateNO + "车辆类型：" + carType + "==" + "保存图片：==查找固定用户：==界面操作：");
 		LOGGER.info("把车牌:{}的进场记录保存到数据库", plateNO);
 		
 		cch.setPlateNo(plateNO);
@@ -379,7 +379,7 @@ public class CarInTask extends AbstractTask {
 	 * @return 是否需要退出 true退出
 	 */
 	public boolean fixCarShowToDevice(boolean incheck) throws Exception {
-		
+		logger.info("固定车进场");
 		if (incheck) {
 			// 固定车入场确认
 			boolean flag = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认));
@@ -456,15 +456,15 @@ public class CarInTask extends AbstractTask {
 		if (StrUtil.getTodayBottomTime(date2).before(date)) {
 			content = fixCarInMsg + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天";
 			isOpenDoor=true;
-			LOGGER.info("固定车：{}，{}", plateNO, content);
+			LOGGER.debug("固定车：{}，{}", plateNO, content);
 		} else {
 			content = fixCarInMsg;
 			isOpenDoor=true;
-			LOGGER.info("固定车：{}，{}", plateNO, content);
+			LOGGER.debug("固定车：{}，{}", plateNO, content);
 		}
 		Integer carparkSlot = user.getCarparkSlot();
 		if (user.getCarparkSlotType().equals(CarparkSlotTypeEnum.固定车位)) {
-			LOGGER.info("车辆{}用户固定车位{},不计算车位",cch.getPlateNo(),carparkSlot);
+			LOGGER.debug("车辆{}用户固定车位{},不计算车位",cch.getPlateNo(),carparkSlot);
 			cch.setIsCountSlot(false);
 		}else{
 			cch.setIsCountSlot(true);

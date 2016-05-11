@@ -1174,7 +1174,7 @@ public class CarparkMainPresenter {
 		Date date = mapPlateNoDate.get(plateNO);
 		if (date != null) {
 			String s = mapSystemSetting.get(SystemSettingTypeEnum.同一车牌识别间隔) == null ? SystemSettingTypeEnum.同一车牌识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.同一车牌识别间隔);
-			log.info("同一车牌识别间隔为：{}", s);
+			log.debug("同一车牌识别间隔为：{}", s);
 			Integer timeGap = Integer.valueOf(s);
 			long abs = Math.abs(date.getTime()-nowDate.getTime());
 			if (abs<timeGap*1000) {
@@ -1490,7 +1490,11 @@ public class CarparkMainPresenter {
 	}
 
 	public void refreshCarWithIn() {
-		model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
+		try {
+			model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
+		} catch (Exception e) {
+			log.error("刷新进场记录是发生错误",e);
+		}
 	}
 	/**
 	 * 固定车在非所属停车场停留超时收费

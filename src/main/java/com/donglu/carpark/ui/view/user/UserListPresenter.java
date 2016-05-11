@@ -19,6 +19,7 @@ import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.ui.CarparkManagePresenter;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.view.user.wizard.AddUserModel;
 import com.donglu.carpark.ui.view.user.wizard.AddUserWizard;
 import com.donglu.carpark.ui.view.user.wizard.MonthlyUserPayModel;
@@ -51,15 +52,6 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 	private CommonUIFacility commonui;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
-	@Override
-	public void go(Composite c) {
-		view=new UserListView(c,c.getStyle());
-		view.setPresenter(this);
-		view.setTableTitle("固定用户列表");
-		view.setShowMoreBtn(false);
-		refresh();
-		expirationReminder();
-	}
 
 	
 	private void expirationReminder() {
@@ -376,6 +368,22 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			commonui.error("操作失败", "修改失败!");
 		}
 	
+	}
+
+
+	@Override
+	protected View createView(Composite c) {
+		view=new UserListView(c,c.getStyle());
+		view.setTableTitle("固定用户列表");
+		view.setShowMoreBtn(false);
+		return view;
+	}
+
+
+	@Override
+	protected void continue_go() {
+		refresh();
+		expirationReminder();
 	}
 	
 }

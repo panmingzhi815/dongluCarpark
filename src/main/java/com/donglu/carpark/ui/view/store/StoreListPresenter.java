@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.StoreServiceI;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.view.store.wizard.AddStoreModel;
 import com.donglu.carpark.ui.view.store.wizard.AddStoreWizard;
 import com.donglu.carpark.ui.view.store.wizard.ChargeStoreModel;
@@ -31,14 +32,6 @@ public class StoreListPresenter extends AbstractListPresenter<SingleCarparkStore
 	private CommonUIFacility commonui;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
-
-	@Override
-	public void go(Composite c) {
-		view = new StoreListView(c, c.getStyle());
-		view.setPresenter(this);
-		view.setTableTitle("商铺列表");
-		view.setShowMoreBtn(false);
-	}
 
 	@Override
 	public void add() {
@@ -202,6 +195,17 @@ public class StoreListPresenter extends AbstractListPresenter<SingleCarparkStore
 			commonui.info("操作失败", "保存失败!");
 		}
 
+	}
+
+	@Override
+	protected View createView(Composite c) {
+		view = new StoreListView(c, c.getStyle());
+		view.setTableTitle("商铺列表");
+		view.setShowMoreBtn(false);
+		return view;
+	}
+	@Override
+	protected void continue_go() {
 	}
 
 }

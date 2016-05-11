@@ -32,7 +32,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 
 public class CarOutTask extends AbstractTask{
 	
-	private static Logger LOGGER = LoggerFactory.getLogger(CarInTask.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(CarOutTask.class);
 	
 	// 保存车牌最近的处理时间
 	private final Map<String, Date> mapPlateNoDate;
@@ -68,9 +68,9 @@ public class CarOutTask extends AbstractTask{
 			mapPlateNoDate.put(plateNO, date);
 			initImgPath();
 			long nanoTime1 = System.nanoTime();
-			LOGGER.info("==" + ip + "====" + plateNO);
+			LOGGER.debug("==" + ip + "====" + plateNO);
 			// 界面图片
-			LOGGER.info("车辆出场显示出口图片");
+			LOGGER.debug("车辆出场显示出口图片");
 			model.setOutShowPlateNO(plateNO);
 			model.setOutShowTime(StrUtil.formatDateTime(date));
 			model.setOutBigImageName(bigImgFileName);
@@ -79,13 +79,13 @@ public class CarOutTask extends AbstractTask{
 			
 			//
 			if (StrUtil.isEmpty(device)) {
-				LOGGER.info("没有找到ip为：" + ip + "的设备");
+				LOGGER.error("没有找到ip为：" + ip + "的设备");
 				return;
 			}
 			carpark = sp.getCarparkService().findCarparkById(device.getCarpark().getId());
 			
 			if (StrUtil.isEmpty(carpark)) {
-				LOGGER.info("没有找到名字为：" + carpark + "的停车场");
+				LOGGER.error("没有找到名字为：" + carpark + "的停车场");
 				return;
 			}
 			model.setIp(ip);
@@ -107,20 +107,20 @@ public class CarOutTask extends AbstractTask{
 			}
 			
 			refreshUserAndHistory(true);
-			LOGGER.info("车辆出场显示进口图片");
+			LOGGER.debug("车辆出场显示进口图片");
 			if (cch!=null) {
 				model.setInBigImageName(cch.getBigImg());
 				model.setInShowBigImg(ImageUtils.getImageByte(cch.getBigImg()));
 			}
 			
-			LOGGER.info("发送显示车牌{}到设备{}",plateNO,ip);
+			LOGGER.debug("发送显示车牌{}到设备{}",plateNO,ip);
 			presenter.showPlateNOToDevice(device, plateNO);
 			//
 			long nanoTime3 = System.nanoTime();
 			
-			LOGGER.info("车辆类型为：{}==通道类型为：{}", carType, device.getRoadType());
+			LOGGER.debug("车辆类型为：{}==通道类型为：{}", carType, device.getRoadType());
 			long nanoTime2 = System.nanoTime();
-			LOGGER.info("==" + ip + "==" + device.getInType() + "==" + plateNO + "车辆类型：" + carType + "" + "保存图片：" + (nanoTime1 - nanoTime) + "==查找固定用户：" + (nanoTime2 - nanoTime3)
+			LOGGER.debug("==" + ip + "==" + device.getInType() + "==" + plateNO + "车辆类型：" + carType + "" + "保存图片：" + (nanoTime1 - nanoTime) + "==查找固定用户：" + (nanoTime2 - nanoTime3)
 					+ "==界面操作：" + (nanoTime3 - nanoTime1));
 			checkUserAndOut(true);
 		} catch (Exception e) {
@@ -283,6 +283,7 @@ public class CarOutTask extends AbstractTask{
 	 */
 	private boolean fixCarOutProcess(boolean check) throws Exception {
 		carType = "固定车";
+		logger.info("固定车出场");
 		if (check) {
 			model.setOutShowPlateNO(model.getOutShowPlateNO()+"-固定车");
 			if (!StrUtil.isEmpty(user.getTempCarTime())) {
@@ -342,10 +343,12 @@ public class CarOutTask extends AbstractTask{
 		model.setReal(0);
 		// 未找到入场记录
 		if (StrUtil.isEmpty(cch)) {
+			logger.warn("为找到固定车{}的入场记录",editPlateNo);
 			cch=new SingleCarparkInOutHistory();
 			model.setInTime(null);
 			model.setTotalTime("未入场");
 			if (fixCarStillCharge) {
+				logger.info("固定车非所属停车场停留超时收费设置为{},终止放行",fixCarStillCharge);
 				notFindInHistory();
 				return true;
 			}
@@ -359,6 +362,7 @@ public class CarOutTask extends AbstractTask{
 		cch.setUserId(user.getId());
 		cch.setUserName(user.getName());
 		if (fixCarStillCharge) {
+			logger.info("固定车非所属停车场停留超时收费设置为{}",fixCarStillCharge);
 			float shouldMoney=presenter.countFixCarShouldMoney(user,device,cch.getInTime(),date,plateNO);
 			if (shouldMoney>0) {
 				model.setShouldMony(shouldMoney);
@@ -441,7 +445,7 @@ public class CarOutTask extends AbstractTask{
 		if (isNew||!editPlateNo.equals(plateNO)) {
 			user = sp.getCarparkUserService().findUserByPlateNo(editPlateNo,device.getCarpark().getId());
 			List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(editPlateNo,carpark);
-			LOGGER.info("查找固定用户为{}",user);
+			LOGGER.debug("查找固定用户为{}",user);
 			cch = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
 		}
 	}
@@ -449,6 +453,7 @@ public class CarOutTask extends AbstractTask{
 	 * 
 	 */
 	private void saveOutHistory() {
+		logger.info("保存车牌{}出场数据到数据库",editPlateNo);
 		cch.setOutPlateNO(plateNO);
 		cch.setOutTime(date);
 		cch.setOperaName(model.getUserName());
@@ -464,6 +469,7 @@ public class CarOutTask extends AbstractTask{
 				cch.setOutPhotographType("手动");
 		}
 		sp.getCarparkInOutService().saveInOutHistory(cch);
+		logger.info("保存车牌{}出场数据到数据库成功",editPlateNo);
 	}
 	private void tempCarOutProcess(Date reviseInTime) throws Exception{
 		if (!visitorCarOut()) {

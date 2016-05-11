@@ -8,8 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.ImageDialog;
-import com.donglu.carpark.ui.wizard.OpenDoorDetailWizard;
-import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.google.inject.Inject;
 
@@ -20,16 +19,7 @@ public class OpenDoorListPresenter extends AbstractListPresenter<SingleCarparkOp
 	private Date end;
 	private String deviceName;
 	@Inject
-	private CommonUIFacility commonui;
-	@Inject
 	private CarparkDatabaseServiceProvider sp;
-	@Override
-	public void go(Composite c) {
-		view=new OpenDoorLogListView(c,c.getStyle());
-		view.setPresenter(this);
-		view.setTableTitle("手动抬杆记录");
-//		view.setShowMoreBtn(true);
-	}
 	@Override
 	public void refresh() {
 		List<SingleCarparkOpenDoorLog> findByNameOrPlateNo = sp.getCarparkInOutService().findOpenDoorLogBySearch(operaName,start,end,deviceName);
@@ -51,5 +41,12 @@ public class OpenDoorListPresenter extends AbstractListPresenter<SingleCarparkOp
 		SingleCarparkOpenDoorLog singleCarparkOpenDoorLog = list.get(0);
 		ImageDialog id=new ImageDialog(singleCarparkOpenDoorLog.getImage());
 		id.open();
+	}
+	@Override
+	protected View createView(Composite c) {
+		view=new OpenDoorLogListView(c,c.getStyle());
+		view.setPresenter(this);
+		view.setTableTitle("手动抬杆记录");
+		return view;
 	}
 }

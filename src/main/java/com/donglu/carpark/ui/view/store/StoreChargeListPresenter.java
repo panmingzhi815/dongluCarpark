@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -31,13 +32,6 @@ public class StoreChargeListPresenter extends AbstractListPresenter<SingleCarpar
 
 	private Date end;
 
-	@Override
-	public void go(Composite c) {
-		view = new StoreChargeListView(c, c.getStyle());
-		view.setPresenter(this);
-		view.setTableTitle("商铺充值记录表");
-		view.setShowMoreBtn(true);
-	}
 	
 	@Override
 	public void refresh() {
@@ -72,5 +66,13 @@ public class StoreChargeListPresenter extends AbstractListPresenter<SingleCarpar
 			commonui.error("导出提示", "导出时发生错误！" + e.getMessage());
 		}
 
+	}
+
+	@Override
+	protected View createView(Composite c) {
+		view = new StoreChargeListView(c, c.getStyle());
+		view.setTableTitle("商铺充值记录表");
+		view.setShowMoreBtn(true);		
+		return view;
 	}
 }

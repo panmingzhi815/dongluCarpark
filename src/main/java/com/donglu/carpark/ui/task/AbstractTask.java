@@ -75,14 +75,14 @@ public abstract class AbstractTask implements Runnable {
 	 */
 	protected void initImgPath() {
 		//图片保存文件夹
-		logger.debug("生成车牌：{}的抓拍图片位置", plateNO);
+		logger.debug("准备生成车牌：{}的抓拍图片位置", plateNO);
 		String imageSavefolder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
 		String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
 		bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
 		smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
 		smallImgFileName = imageSavefolder + "/" + smallImgFileName;
 		bigImgFileName=imageSavefolder + "/" + bigImgFileName;
-		logger.info("生成车牌：{}的抓拍图片位置：{}--{}", smallImgFileName,bigImgFileName);
+		logger.debug("生成车牌：{}的抓拍图片位置：{}--{}", smallImgFileName,bigImgFileName);
 	}
 
 	public String getPlateNO() {

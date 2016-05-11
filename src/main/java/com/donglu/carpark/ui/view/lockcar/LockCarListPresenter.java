@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.view.lockcar.wizard.LocaCarWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
@@ -26,14 +27,6 @@ public class LockCarListPresenter extends AbstractListPresenter<SingleCarparkLoc
 	private CommonUIFacility commonui;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
-	@Override
-	public void go(Composite c) {
-		view=new LockCarListView(c,c.getStyle());
-		view.setPresenter(this);
-		view.setTableTitle("固定用户列表");
-		view.setShowMoreBtn(false);
-		refresh();
-	}
 
 	
 	@Override
@@ -81,6 +74,19 @@ public class LockCarListPresenter extends AbstractListPresenter<SingleCarparkLoc
 			m.setStatus(SingleCarparkLockCar.Status.已解锁.name());
 			sp.getCarparkInOutService().saveLockCar(m);
 		}
+		refresh();
+	}
+
+
+	@Override
+	protected View createView(Composite c) {
+		view=new LockCarListView(c,c.getStyle());
+		return view;
+	}
+	@Override
+	protected void continue_go() {
+		view.setTableTitle("固定用户列表");
+		view.setShowMoreBtn(false);
 		refresh();
 	}
 	

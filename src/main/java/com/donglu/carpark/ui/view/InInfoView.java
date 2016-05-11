@@ -10,8 +10,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.model.CarparkMainModel;
+import com.donglu.carpark.ui.common.AbstractView;
 import com.donglu.carpark.ui.common.Presenter;
-import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ImageUtils;
 import com.donglu.carpark.util.TextUtils;
@@ -34,7 +34,7 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 
-public class InInfoView extends Composite implements View{
+public class InInfoView extends AbstractView{
 	@SuppressWarnings("unused")
 	private DataBindingContext m_bindingContext;
 	private Presenter presenter;

@@ -2,14 +2,11 @@ package com.donglu.carpark.ui.common;
 
 import java.util.List;
 
-import org.eclipse.swt.widgets.Composite;
 
 import com.dongluhitec.card.domain.util.StrUtil;
 
 
-public abstract class AbstractListPresenter<T> implements ListPresenter<T> {
-	@Override
-	public abstract void go(Composite c);
+public abstract class AbstractListPresenter<T> extends AbstractPresenter implements ListPresenter<T> {
 
 	@Override
 	public void add() {

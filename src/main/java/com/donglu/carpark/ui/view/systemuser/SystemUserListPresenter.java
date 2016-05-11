@@ -9,6 +9,7 @@ import com.donglu.carpark.model.SystemUserModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.SystemUserServiceI;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.wizard.AddSystemUserWizard;
 import com.donglu.carpark.ui.wizard.EditSystemUserWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -26,14 +27,6 @@ public class SystemUserListPresenter extends AbstractListPresenter<SingleCarpark
 	private CommonUIFacility commonui;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
-	@Override
-	public void go(Composite c) {
-		view=new SystemUserListView(c,c.getStyle());
-		view.setPresenter(this);
-		view.setTableTitle("系统用户列表");
-		view.setShowMoreBtn(false);
-		refresh();
-	}
 
 	@Override
 	public void add() {
@@ -153,5 +146,18 @@ public class SystemUserListPresenter extends AbstractListPresenter<SingleCarpark
 			commonui.error("提示", "修改失败！");
 		}
 
+	}
+
+	@Override
+	protected View createView(Composite c) {
+		view=new SystemUserListView(c,c.getStyle());
+		return view;
+	}
+	
+	@Override
+	protected void continue_go() {
+		view.setTableTitle("系统用户列表");
+		view.setShowMoreBtn(false);
+		refresh();
 	}
 }

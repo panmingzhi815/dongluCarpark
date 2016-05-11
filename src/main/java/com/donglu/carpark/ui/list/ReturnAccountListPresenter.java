@@ -10,6 +10,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -27,12 +28,6 @@ public class ReturnAccountListPresenter extends AbstractListPresenter<SingleCarp
 	private String userName;
 	private Date start;
 	private Date end;
-
-	@Override
-	public void go(Composite c) {
-		v = new ReturnAccountListView(c, c.getStyle());
-		v.setPresenter(this);
-	}
 
 	public void search(String operaName, String userName, Date start, Date end) {
 		AbstractListView<SingleCarparkReturnAccount>.Model model = v.getModel();
@@ -79,6 +74,12 @@ public class ReturnAccountListPresenter extends AbstractListPresenter<SingleCarp
 			e.printStackTrace();
 
 		}
+	}
+
+	@Override
+	protected View createView(Composite c) {
+		v = new ReturnAccountListView(c, c.getStyle());
+		return v;
 	}
 
 }

@@ -88,11 +88,11 @@ public class ImageUtils {
 			lastImage.dispose();
 			cLabel.setBackgroundImage(null);
 			cLabel.setData("lastImage",null);
-			LOGGER.info("销毁图片成功！");
+			LOGGER.debug("销毁图片成功！");
 		}
 		Object data1 = cLabel.getData("imageDisposeListener");
 		if (data1==null) {
-			LOGGER.info("设置图片时添加disponse监听");
+			LOGGER.debug("设置图片时添加disponse监听");
 			DisposeListener listener = new DisposeListener() {
 				@Override
 				public void widgetDisposed(DisposeEvent e) {
@@ -101,7 +101,7 @@ public class ImageUtils {
 						lastImage.dispose();
 						cLabel.setBackgroundImage(null);
 						cLabel.setData("lastImage",null);
-						LOGGER.info("label销毁监听器--销毁图片成功！");
+						LOGGER.debug("label销毁监听器--销毁图片成功！");
 						cLabel.removeDisposeListener(this);
 					}
 				}
@@ -140,7 +140,6 @@ public class ImageUtils {
 	}
 	
 	private static void setMouseDoubleClick(Control label, boolean isClose) {
-		System.out.println(label.getListeners(SWT.MouseDoubleClick).length);
 		Object data = label.getData("labelMouseDoubleClick");
 		if (data!=null) {
 			return;
@@ -167,7 +166,6 @@ public class ImageUtils {
 			};
 		}
 		label.addMouseListener(listener);
-		System.out.println(label.getListeners(SWT.MouseDoubleClick).length);
 		label.setData("labelMouseDoubleClick",listener);
 	}
 
@@ -184,7 +182,7 @@ public class ImageUtils {
 			lastImage.dispose();
 			cLabel.setBackgroundImage(null);
 			cLabel.setData("lastImage",null);
-			LOGGER.info("销毁图片成功！");
+			LOGGER.debug("销毁图片成功！");
 		}
 
 		if (imageBytes == null || imageBytes.length <= 0) {
@@ -227,7 +225,6 @@ public class ImageUtils {
 			stream = new ByteArrayInputStream(image);
 			Image newImg = new Image(shell.getDisplay(), stream);
 			Rectangle rectangle = lbl.getBounds();
-			System.out.println(rectangle);
 			if (rectangle.width==0) {
 				return newImg;
 			}
@@ -267,20 +264,20 @@ public class ImageUtils {
 			byte[] image;
 			String pathname = (filePath==null?System.getProperty("user.dir"):filePath)+"/img/"+img;
 			File file=new File(pathname);
-			LOGGER.info("获取图片{}",pathname);
+			LOGGER.debug("获取图片{}",pathname);
 			if (file.exists()) {
-				LOGGER.info("在本地找到图片，获取图片{}",file);
+				LOGGER.debug("在本地找到图片，获取图片{}",file);
 				image=Files.toByteArray(file);
 			}else{
 				String substring = img.substring(img.lastIndexOf("/")+1);
-				LOGGER.info("本地未找到图片，准备到服务器获取图片{}",pathname);
+				LOGGER.debug("本地未找到图片，准备到服务器获取图片{}",pathname);
 				CarparkDatabaseServiceProvider sp=Login.injector.getInstance(CarparkDatabaseServiceProvider.class);
 				image = sp.getImageService().getImage(substring);
-				LOGGER.info("从获取图片成功");
+				LOGGER.debug("从获取图片成功");
 			}
 			return image;
 		} catch (Exception e) {
-			LOGGER.info("根据图片名称获得图片失败");
+			LOGGER.error("根据图片名称获得图片失败",e);
 			return null;
 		}
 
@@ -301,7 +298,7 @@ public class ImageUtils {
 			}
 			return imageByteArray;
 		} catch (Exception e) {
-			LOGGER.info("更据图片获取图片字节失败");
+			LOGGER.error("更据图片获取图片字节失败",e);
 			return null;
 		}
 	}
@@ -344,6 +341,7 @@ public class ImageUtils {
 	}
 	
 	public static void bindImageWithBig(Object model,String propertyName,String imageName,Control label){
+		LOGGER.debug("绑定图片：model={}的property={}-imageName={},label={}",model,propertyName,imageName,label);
 		IObservableValue iObservableValue = BeanProperties.value(propertyName).observe(model);
 		iObservableValue.addValueChangeListener(new IValueChangeListener() {
 			@Override

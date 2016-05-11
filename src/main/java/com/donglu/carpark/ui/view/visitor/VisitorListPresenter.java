@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkManagePresenter;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.view.visitor.wizard.AddVisitorModel;
 import com.donglu.carpark.ui.view.visitor.wizard.AddVisitorWizard;
 import com.donglu.carpark.util.CarparkUtils;
@@ -32,14 +33,6 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
 
-	@Override
-	public void go(Composite c) {
-		view = new VisitorListView(c, c.getStyle());
-		view.setPresenter(this);
-		view.setTableTitle("固定用户列表");
-		view.setShowMoreBtn(false);
-		refresh();
-	}
 
 	@Override
 	public void add() {
@@ -135,6 +128,18 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 		} catch (Exception e) {
 			commonui.error("", "修改访客失败", e);
 		}
+	}
+
+	@Override
+	protected View createView(Composite c) {
+		view = new VisitorListView(c, c.getStyle());
+		return view;
+	}
+	@Override
+	protected void continue_go() {
+		view.setTableTitle("固定用户列表");
+		view.setShowMoreBtn(false);
+		refresh();
 	}
 
 }

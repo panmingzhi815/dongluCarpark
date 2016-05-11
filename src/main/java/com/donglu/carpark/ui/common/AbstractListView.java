@@ -40,7 +40,7 @@ import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
-public abstract class AbstractListView<T> extends Composite {
+public abstract class AbstractListView<T> extends AbstractView {
 	protected ListPresenter<T> presenter;
 	private Table table;
 	private Model model = new Model();

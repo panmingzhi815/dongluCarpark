@@ -16,6 +16,7 @@ import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.ShowDialog;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
@@ -55,16 +56,9 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	private float shouldMoney;
 
 	@Override
-	public void go(Composite c) {
-		v = new InOutHistoryListView(c, c.getStyle());
-		v.setPresenter(this);
-	}
-
-	@Override
 	public void refresh() {
 		v.getModel().setList(new ArrayList<>());
 		defaultSearch();
-
 	}
 
 	private void defaultSearch() {
@@ -228,5 +222,11 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		d.setHaveButon(false);
 		d.setSize(600, 600);
 		d.open();
+	}
+
+	@Override
+	protected View createView(Composite c) {
+		v = new InOutHistoryListView(c, c.getStyle());
+		return v;
 	}
 }

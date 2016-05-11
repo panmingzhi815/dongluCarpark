@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.wizard.AddBlackUserWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
@@ -21,13 +22,6 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 	private CommonUIFacility commonui;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
-	@Override
-	public void go(Composite c) {
-		view=new BlackUserListView(c,c.getStyle());
-		view.setPresenter(this);
-		view.setTableTitle("黑名单列表");
-	}
-
 	@Override
 	public void add() {
 		addAndEditBlackUser(new SingleCarparkBlackUser());
@@ -95,6 +89,13 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	protected View createView(Composite c) {
+		view=new BlackUserListView(c,c.getStyle());
+		view.setTableTitle("黑名单列表");
+		return view;
 	}
 	
 }

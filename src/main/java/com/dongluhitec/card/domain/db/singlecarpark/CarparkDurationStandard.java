@@ -15,6 +15,7 @@ import javax.persistence.Table;
 
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity
 @Table(name="carpark_duration_standard")
@@ -199,5 +200,14 @@ public class CarparkDurationStandard extends DomainObject{
 			countTime=countTime*-1;
 		}
 		return countTime;
+	}
+	public String getStartEndLabel(){
+		try {
+			String startEndLabel = StrUtil.formatDate(getStartTime(), "HH:mm:ss") + "-" + StrUtil.formatDate(getEndTime(), "HH:mm:ss");
+			return startEndLabel;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

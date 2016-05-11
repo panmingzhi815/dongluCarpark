@@ -11,6 +11,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.ui.CarparkManagePresenter;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.view.carpark.wizard.AddMonthChargeModel;
 import com.donglu.carpark.ui.view.carpark.wizard.AddMonthChargeWizard;
 import com.donglu.carpark.ui.view.carpark.wizard.NewCommonChargeModel;
@@ -43,13 +44,6 @@ public class ChargeListPresenter extends AbstractListPresenter<CarparkChargeInfo
 	private CarparkDatabaseServiceProvider sp;
 
 	private SingleCarparkCarpark carpark;
-	@Override
-	public void go(Composite c) {
-		view=new ChargeListView(c,c.getStyle());
-		view.setPresenter(this);
-		view.setTableTitle("收费设置");
-		view.setShowMoreBtn(false);
-	}
 
 	
 	/**
@@ -310,6 +304,15 @@ public class ChargeListPresenter extends AbstractListPresenter<CarparkChargeInfo
 	public void setCarpark(SingleCarparkCarpark carpark) {
 		this.carpark = carpark;
 		refresh();
+	}
+
+
+	@Override
+	protected View createView(Composite c) {
+		view=new ChargeListView(c,c.getStyle());
+		view.setTableTitle("收费设置");
+		view.setShowMoreBtn(false);
+		return view;
 	}
 	
 }

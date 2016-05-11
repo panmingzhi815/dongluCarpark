@@ -8,10 +8,9 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import com.donglu.carpark.ui.common.AbstractListView;
-import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 
-public class UserListView extends AbstractListView<SingleCarparkUser> implements View {
+public class UserListView extends AbstractListView<SingleCarparkUser> {
 	//SingleCarparkUser.Property.id.name(),"编号",60,
 	public UserListView(Composite parent, int style) {
 		super(parent, style,SingleCarparkUser.class,new String[]{

@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
+import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -27,11 +28,7 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
 	
-	public Composite getView(Composite parent, int style){
-		view=new CarparkPayHistoryListView(parent, style);
-		view.setPresenter(this);
-		return view;
-	}
+
 	
 	@Override
 	public void refresh(){
@@ -87,5 +84,11 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 			e.printStackTrace();
 		}
 		
+	}
+
+	@Override
+	protected View createView(Composite c) {
+		view=new CarparkPayHistoryListView(c, c.getStyle());
+		return view;
 	}
 }

@@ -26,7 +26,7 @@ import org.joda.time.DateTime;
  */
 public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
 
-    private final NewCommonChargeModel model;
+    private NewCommonChargeModel model;
    
     private CommonUIFacility commonui;
    
@@ -105,7 +105,26 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
     		commonui.error("错误", "时段不完整");
     		return false;
     	}
-    	
+		if (model.getId() != null) {
+			boolean flag=false;
+			String sFlag="";
+			List<CarparkDurationStandard> carparkDurationStandards = model.getCarparkDurationStandards();
+			for (CarparkDurationStandard carparkDurationStandard : carparkDurationStandards) {
+				String startEndLabel = carparkDurationStandard.getStartEndLabel();
+				Boolean boolean1 = page.getMapAutoCreate().get(startEndLabel);
+				if (boolean1) {
+					flag=boolean1;
+					sFlag=startEndLabel;
+					break;
+				}
+			}
+			if (flag) {
+				boolean confirm = commonui.confirm("确认修改", "时段["+sFlag+"]的时段收费会重新自动生成，是否修改临时收费设置？");
+				if (!confirm) {
+					model=null;
+				}
+			}
+		}
         return true;
     }
     
