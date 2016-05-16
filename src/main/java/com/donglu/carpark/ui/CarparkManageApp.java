@@ -164,8 +164,7 @@ public class CarparkManageApp extends AbstractApp{
 			
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				System.exit(0);
-				
+				presenter.systemExit();
 			}
 		});
 		

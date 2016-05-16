@@ -214,8 +214,8 @@ public class CarInOutResult implements PlateNOResult {
 			@Override
 			public void run() {
 				try {
-					boolean b = !model.isBtnClick();
-					if ((b||new Date().getTime()-model.getLastCarOutTime()>120000)&&model.getListOutTask().size()>0) {
+//					boolean b = !model.isBtnClick()||new Date().getTime()-model.getLastCarOutTime()>120000;
+					if (model.getListOutTask().size()>0) {
 						CarOutTask remove = model.getListOutTask().remove(0);
 						logger.info("检测到出场任务：{}",remove);
 						outTheadPool.submit(remove);

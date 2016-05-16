@@ -516,6 +516,7 @@ public class CarOutTask extends AbstractTask{
 			model.setChargedMoney(0F);
 			if (StrUtil.isEmpty(isCharge) || !isCharge) {
 				sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
+				presenter.updatePosition(carpark, null, false);
 				presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			} else {
 				CarTypeEnum carType = CarTypeEnum.SmallCar;
@@ -628,12 +629,14 @@ public class CarOutTask extends AbstractTask{
 				io.setOutDevice(device.getName());
 				io.setOperaName(System.getProperty("userName"));
 				model.setPlateNo(plateNO);
+				model.setInTime(null);
 				model.setOutTime(date);
 				model.setCarType("临时车");
 				model.setTotalTime("未入场");
 				sp.getCarparkInOutService().saveInOutHistory(io);
 				LOGGER.info("保存车辆{}的出场记录成功",plateNO);
 				presenter.showPlateNOToDevice(device, plateNO);
+				presenter.updatePosition(carpark, null, false);
 				presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			}else{
 				notFindInHistory();

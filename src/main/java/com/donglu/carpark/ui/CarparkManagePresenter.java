@@ -21,8 +21,10 @@ import com.donglu.carpark.ui.view.user.CarparkPayHistoryPresenter;
 import com.donglu.carpark.ui.view.user.PrepaidUserPayHistoryPresenter;
 import com.donglu.carpark.ui.view.user.UserPresenter;
 import com.donglu.carpark.ui.view.visitor.VisitorPresenter;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkModuleEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
@@ -82,6 +84,7 @@ public class CarparkManagePresenter {
 		carparkPresenter = Login.injector.getInstance(CarparkPresenter.class);
 		systemUserListPresenter = Login.injector.getInstance(SystemUserListPresenter.class);
 		visitorPresenter=Login.injector.getInstance(VisitorPresenter.class);
+		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.登录登出, "登录了管理界面", System.getProperty(ConstUtil.USER_NAME));
 		refreshSystemSetting();
 	}
 	/**
@@ -105,11 +108,6 @@ public class CarparkManagePresenter {
 			}
 		}
 	}
-
-
-
-	
-
 	public CarparkPayHistoryPresenter getCarparkPayHistoryPresenter() {
 		return carparkPayHistoryPresenter;
 	}
@@ -176,6 +174,11 @@ public class CarparkManagePresenter {
 
 	public VisitorPresenter getVisitorPresenter() {
 		return visitorPresenter;	
+	}
+
+	public void systemExit() {
+		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.登录登出, "用户退出了管理界面", System.getProperty(ConstUtil.USER_NAME));
+		System.exit(0);
 	}
 
 }

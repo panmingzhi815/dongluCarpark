@@ -1029,10 +1029,10 @@ public class CarparkMainPresenter {
 		openDoorTheadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
 		checkPlayerPlaying();
 		countTempCarCharge = new CountTempCarChargeImpl();
-		
 		autoCheckDeviceLinkInfo();
 		setIsTwoChanel();
 		String userName = System.getProperty("userName");
+		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.登录登出, "登录了监控界面", userName);
 		model.setUserName(userName);
 		model.setWorkTime(new Date());
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
@@ -1487,6 +1487,7 @@ public class CarparkMainPresenter {
 		openDoorTheadPool.shutdownNow();
 		saveImageTheadPool.shutdownNow();
 		checkCameraPlayStatus.shutdownNow();
+		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.登录登出, "退出了监控界面", System.getProperty(ConstUtil.USER_NAME));
 	}
 
 	public void refreshCarWithIn() {
@@ -1652,6 +1653,12 @@ public class CarparkMainPresenter {
 			if (fix == null) {
 				return;
 			} 
+			try {
+				fixSlot =Integer.valueOf(fix);
+			} catch (NumberFormatException e) {
+				commonui.error("错误", "请设置正确的车位数");
+				return;
+			}
 			
 		}
 		String temp = null;
@@ -1659,14 +1666,13 @@ public class CarparkMainPresenter {
 			temp = commonui.input("车位数修改", "输入新的剩余临时车位数", "" + tempSlot);
 			if (temp == null) {
 				return;
-			} 
-		}
-		try {
-			fixSlot =Integer.valueOf(fix);
-			tempSlot =Integer.valueOf(temp);
-		} catch (NumberFormatException e) {
-			commonui.error("错误", "请设置正确的车位数");
-			return;
+			}
+			try {
+				tempSlot =Integer.valueOf(temp);
+			} catch (NumberFormatException e) {
+				commonui.error("错误", "请设置正确的车位数");
+				return;
+			}
 		}
 		c.setLeftFixNumberOfSlot(fixSlot);
 		c.setLeftTempNumberOfSlot(tempSlot);
