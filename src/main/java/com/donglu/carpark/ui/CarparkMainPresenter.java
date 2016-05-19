@@ -142,6 +142,8 @@ public class CarparkMainPresenter {
 
 	private ExecutorService saveImageTheadPool;
 	private ExecutorService openDoorTheadPool;
+	
+	private int openDoorDelay=500;
 
 	/**
 	 * 删除一个设备tab页
@@ -680,7 +682,8 @@ public class CarparkMainPresenter {
 			Device d = getDevice(device);
 			if (isOpenDoor) {
 				if (d!=null) {
-					Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoor(d, content, device.getVolume() == null ? 1 : device.getVolume());
+					log.info("对设备：sip:{},kip:{} 开闸",device.getIp(),device.getLinkAddress());
+					Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoorWithDelay(d, content, device.getVolume() == null ? 1 : device.getVolume(), openDoorDelay);
 					openDoorToPhotograph(device.getIp());
 					return carparkContentVoiceAndOpenDoor;
 				}else{
@@ -693,7 +696,7 @@ public class CarparkMainPresenter {
 			}
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("对设备"+device.getIp()+"开闸失败",e);
 			return false;
 		}
 	}
@@ -799,6 +802,7 @@ public class CarparkMainPresenter {
 		} catch (Exception e) {
 			return false;
 		}
+//		return true;
 	}
 
 	/**
@@ -1046,6 +1050,11 @@ public class CarparkMainPresenter {
 		for (CarparkChargeStandard carparkChargeStandard : listTemp) {
 			String name = carparkChargeStandard.getCarparkCarType().getName();
 			model.getMapTempCharge().put(name, carparkChargeStandard.getCode());
+		}
+		try {
+			openDoorDelay=Integer.valueOf(System.getProperty(ConstUtil.OPEN_DOOR_DELAY));
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
 		}
 	}
 	/**
@@ -1612,10 +1621,15 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	private Integer getTotalSlotWithChange() {
-		int findTotalCarIn = sp.getCarparkInOutService().findTotalCarIn(model.getCarpark());
-		
-		int i = model.getHoursSlot()+model.getMonthSlot()-findTotalCarIn;
-		return i<0?0:i;
+		try {
+			int findTotalCarIn = sp.getCarparkInOutService().findTotalCarIn(model.getCarpark());
+			
+			int i = model.getHoursSlot()+model.getMonthSlot()-findTotalCarIn;
+			return i<0?0:i;
+		} catch (Exception e) {
+			log.error("获取停车场总车位是发生错误",e);
+		}
+		return 0;
 	}
 
 	/**

@@ -43,4 +43,8 @@ public class ConstUtil {
 	 * 登录名
 	 */
 	public static final String USER_NAME = "userName";
+	/**
+	 * 开闸延迟
+	 */
+	public static final String OPEN_DOOR_DELAY = "openDoorDelay";
 }

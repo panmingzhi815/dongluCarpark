@@ -13,6 +13,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.joda.time.DateTime;
+
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -194,6 +196,11 @@ public class CarparkDurationStandard extends DomainObject{
 
 	public int getCarparkDurationHoursSize() {
 		int countTime = CarparkUtils.countTime(startTime, endTime, TimeUnit.HOURS);
+		DateTime dateTime = new DateTime(endTime);
+		if (dateTime.getHourOfDay()<new DateTime(startTime).getHourOfDay()) {
+			Date date = dateTime.plusDays(1).toDate();
+			countTime = CarparkUtils.countTime(startTime, date, TimeUnit.HOURS);
+		}
 		if (countTime==0) {
 			countTime=24;
 		}else if (countTime<0) {

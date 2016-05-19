@@ -8,7 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
@@ -238,6 +240,14 @@ public class SettingPresenter implements Presenter {
 			return null;
 		}
 		return input;
+	}
+
+	public String getDatabaseFilePath() {
+		String path = null;
+		FileDialog fileDialog = new FileDialog(view.getShell(), SWT.SINGLE);
+		fileDialog.setText("请选择路径");
+		path = fileDialog.open();
+		return path;
 	}
 
 }

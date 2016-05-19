@@ -136,10 +136,15 @@ public class CarInTask extends AbstractTask {
 	/**
 	 * @throws Exception
 	 */
+	/**
+	 * @param isInCheck
+	 * @throws Exception
+	 */
 	public void checkUser(boolean isInCheck) throws Exception {
 		if (isEmptyPlateNo) {
 			saveImage();
 		}
+		checkFixCar(editPlateNo);
 		if (!StrUtil.isEmpty(user)&&!isFixCarverdueCheck) {//固定车操作
 			if(fixCarShowToDevice(isInCheck)){
 				return;
@@ -150,6 +155,28 @@ public class CarInTask extends AbstractTask {
 			}
 		}
 		saveInHistory();
+	}
+
+	/**
+	 * @return
+	 */
+	private boolean checkFixCar(String editPlateNo) {
+		if (user==null) {
+			return true;
+		}
+		String[] split = user.getPlateNo().split(",");
+		boolean isFixCar=false;
+		for (String string : split) {
+			boolean equals = editPlateNo.equals(string);
+			if (equals) {
+				isFixCar=equals;
+				break;
+			}
+		}
+		if (!isFixCar) {
+			user=null;
+		}
+		return isFixCar;
 	}
 
 	/**

@@ -371,12 +371,12 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				user.setRemark(remark);
 				user.setCreateDate(new Date());
 				user.setCarpark(map.get(caparkCode));
-				carparkUserService.saveUser(user);
 				try {
 					user.setCarparkSlotType(SingleCarparkUser.CarparkSlotTypeEnum.valueOf(carparkSlotType));
 				} catch (Exception e) {
-					throw new Exception("没有找到车位类型");
+					
 				}
+				carparkUserService.saveUser(user);
 				setCellStringvalue(row, 13, "处理成功", cellStyle);
 			} catch (Exception e) {
 				failNum++;

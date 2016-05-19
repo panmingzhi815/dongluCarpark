@@ -435,9 +435,7 @@ public class SettingView extends Composite implements View {
 		button_15.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				FileDialog fileDialog = new FileDialog(getShell(), SWT.SINGLE);
-				fileDialog.setText("请选择路径");
-				String open = fileDialog.open();
+				String open = getPresenter().getDatabaseFilePath();
 				if (StrUtil.isEmpty(open)) {
 					return;
 				}

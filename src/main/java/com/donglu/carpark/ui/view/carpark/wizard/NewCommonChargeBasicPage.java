@@ -289,9 +289,10 @@ public class NewCommonChargeBasicPage extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				CarparkDurationStandard carparkDurationStandard = new CarparkDurationStandard();
-				Date sTime = StrUtil.parseDateTime(new org.joda.time.DateTime(1900, 1, 1, startTime.getHours(), startTime.getMinutes()).toString(StrUtil.DATETIME_PATTERN));
-				Date eTime = StrUtil.parseDateTime(new org.joda.time.DateTime(1900, 1, 1, endTime.getHours(), endTime.getMinutes()).toString(StrUtil.DATETIME_PATTERN));
-				System.out.println(StrUtil.formatDateTime(sTime) + "==" + StrUtil.formatDateTime(eTime));
+//				Date sTime = StrUtil.parseDateTime(new org.joda.time.DateTime(1900, 1, 1, startTime.getHours(), startTime.getMinutes()).toString(StrUtil.DATETIME_PATTERN));
+//				Date eTime = StrUtil.parseDateTime(new org.joda.time.DateTime(1900, 1, 1, endTime.getHours(), endTime.getMinutes()).toString(StrUtil.DATETIME_PATTERN));
+				Date sTime =new Date(1900, 1, 1, startTime.getHours(), startTime.getMinutes());
+				Date eTime=new Date(1900, 1, 1, endTime.getHours(), endTime.getMinutes());
 				carparkDurationStandard.setStartTime(sTime);
 				carparkDurationStandard.setEndTime(eTime);
 

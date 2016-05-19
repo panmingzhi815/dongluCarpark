@@ -351,7 +351,9 @@ public class ImageServerUI {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				ui.open();
+				shell.setEnabled(false);
 				init();
+				shell.setEnabled(true);
 				text.setText(filePath);
 				text.setFocus();
 			}

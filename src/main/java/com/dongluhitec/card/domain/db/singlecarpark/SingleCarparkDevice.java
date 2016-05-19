@@ -19,7 +19,8 @@ public class SingleCarparkDevice extends DomainObject{
 	private String identifire;//编号
 	private String name;//名字
 	private String ip="192.168.1.1";//车牌识别ip
-	private String inType;//出入口类型
+	private String inType;//出入口类型 监控位置
+	private String inOrOut; //进或者出
 	private String type;//设备类型  tcp or 485
 	private String linkAddress;//连接地址
 	private String address="1.1";//设备地址
@@ -177,5 +178,19 @@ public class SingleCarparkDevice extends DomainObject{
 			}
 		}
 		return super.equals(obj);
+	}
+	public String getInOrOut() {
+		if (inOrOut==null) {
+			if (getInType().indexOf("进口")>-1) {
+				return "进口";
+			}else{
+				return "出口";
+			}
+		}
+		return inOrOut;
+	}
+	public void setInOrOut(String inOrOut) {
+		this.inOrOut = inOrOut;
+		firePropertyChange("inOrOut", null, null);
 	}
 }

@@ -3,6 +3,7 @@ package com.donglu.carpark.service.background.impl;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.joda.time.DateTime;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.background.AbstractCarparkBackgroundService;
@@ -49,6 +50,10 @@ public class ClientCheckSoftDogServiceImpl extends AbstractCarparkBackgroundServ
 				commonui.error("检查失败", "没有检测到注册码，请检测服务器加密狗");
 				System.exit(0);
 				return;
+			}
+			if (new DateTime(validTo).plusDays(30).isBeforeNow()) {
+				log.info("检查注册码成功,有效期至{},即将到期", validTo);
+				commonui.info("注册码", "注册码即将到期，请及时注册！！！");
 			}
 			log.info("检查注册码成功,有效期至{}", validTo);
 		} catch (Exception e) {

@@ -62,8 +62,9 @@ public class CarInOutResult implements PlateNOResult {
 	public void invok(String ip, int channel, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize) {
 		model.setPlateInTime(new Date(),10);
 		logger.info("车辆{}在设备{}通道{}处进场,可信度：{}", plateNO, ip, channel, rightSize);
+		String deviceType = model.getMapDeviceType().get(ip);
 		try {
-			Preconditions.checkNotNull(model.getMapDeviceType().get(ip), "not monitor device:" + ip);
+			Preconditions.checkNotNull(deviceType, "not monitor device:" + ip);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
@@ -79,7 +80,7 @@ public class CarInOutResult implements PlateNOResult {
 		if (boolean1 != null && boolean1) {
 			mapOpenDoor.put(ip, null);
 			boolean inOrOut = true;
-			if (model.getMapDeviceType().get(ip).indexOf("出口")>-1) {
+			if (deviceType.indexOf("出口")>-1) {
 				inOrOut = false;
 			}
 			presenter.saveOpenDoor(mapIpToDevice.get(ip), bigImage, plateNO, inOrOut);
@@ -91,7 +92,7 @@ public class CarInOutResult implements PlateNOResult {
 		String linkAddress = mapIpToDevice.get(ip).getLinkInfo();
 
 		Boolean isTwoChanel = mapIsTwoChanel.get(linkAddress);
-		if (model.getMapDeviceType().get(ip).indexOf("出口")>-1) {
+		if (deviceType.indexOf("出口")>-1) {
 			// 是否是双摄像头
 			if (!equals && isTwoChanel) {
 				CarOutTask carOutTask = mapOutTwoCameraTask.get(linkAddress);
@@ -142,7 +143,7 @@ public class CarInOutResult implements PlateNOResult {
 				outTaskSubmit(ip, plateNO, linkAddress, task);
 			}
 
-		} else if (model.getMapDeviceType().get(ip).indexOf("进口")>-1) {
+		} else if (deviceType.indexOf("进口")>-1) {
 			if (!equals && isTwoChanel) {
 				CarInTask carInTask = mapInTwoCameraTask.get(linkAddress);
 				if (!StrUtil.isEmpty(carInTask)) {
@@ -214,8 +215,8 @@ public class CarInOutResult implements PlateNOResult {
 			@Override
 			public void run() {
 				try {
-//					boolean b = !model.isBtnClick()||new Date().getTime()-model.getLastCarOutTime()>120000;
-					if (model.getListOutTask().size()>0) {
+					boolean b = !model.isBtnClick()||System.currentTimeMillis()-model.getLastCarOutTime()>120000;
+					if (b&&!StrUtil.isEmpty(model.getListOutTask())) {
 						CarOutTask remove = model.getListOutTask().remove(0);
 						logger.info("检测到出场任务：{}",remove);
 						outTheadPool.submit(remove);
