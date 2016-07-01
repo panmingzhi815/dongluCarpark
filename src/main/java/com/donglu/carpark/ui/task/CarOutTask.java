@@ -34,8 +34,6 @@ public class CarOutTask extends AbstractTask{
 	
 	private static Logger LOGGER = LoggerFactory.getLogger(CarOutTask.class);
 	
-	// 保存车牌最近的处理时间
-	private final Map<String, Date> mapPlateNoDate;
 	// 保存设置信息
 	private final Map<SystemSettingTypeEnum, String> mapSystemSetting;
 	// 保存最近的手动拍照时间
@@ -46,7 +44,6 @@ public class CarOutTask extends AbstractTask{
 	public CarOutTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage,CarparkMainModel model,
 			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter,Float rightSize) {
 		super(model, sp, presenter, ip, plateNO, bigImage, smallImage, rightSize);
-		mapPlateNoDate = model.getMapPlateNoDate();
 		mapSystemSetting = model.getMapSystemSetting();
 		mapHandPhotograph = model.getMapHandPhotograph();
 		mapTempCharge=model.getMapTempCharge();

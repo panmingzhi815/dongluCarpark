@@ -195,7 +195,8 @@ public class DeviceView extends Composite implements View{
 		for (SingleCarparkDevice d : listDevice) {
 			CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
 			tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
-			tabItem.setText(d.getName() == null ? d.getIp() : d.getName());
+			String name = d.getName() == null ? d.getIp() : d.getName();
+			tabItem.setText(name+"("+d.getInOrOut()+")");
 			final Composite composite = new Composite(tabFolder, SWT.BORDER | SWT.EMBEDDED);
 			tabItem.setControl(composite);
 			composite.setLayout(new FillLayout());

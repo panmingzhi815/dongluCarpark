@@ -77,6 +77,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice.DeviceInOutTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
@@ -192,6 +193,9 @@ public class CarparkMainPresenter {
 			model.setList(findAllCarpark);
 			model.setCarpark(findAllCarpark.get(0));
 			model.setType("tcp");
+			model.setInType(type);
+			model.setInOutType(DeviceInOutTypeEnum.valueOf(model.getInOrOut()));
+//			model.seti
 			AddDeviceWizard v = new AddDeviceWizard(model);
 			if (type.indexOf("出口")>-1) {
 				model.setAdvertise("欢迎再次光临");
@@ -200,7 +204,6 @@ public class CarparkMainPresenter {
 			if (showWizard == null) {
 				return;
 			}
-			showWizard.setInType(type);
 			SingleCarparkDevice device = showWizard.getDevice();
 			this.model.setCarpark(device.getCarpark());
 			addDevice(device);
@@ -291,7 +294,7 @@ public class CarparkMainPresenter {
 		}
 		CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
 		tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
-		tabItem.setText(name);
+		tabItem.setText(name+"("+device.getInOrOut()+")");
 		Composite composite = new Composite(tabFolder, SWT.BORDER | SWT.EMBEDDED);
 		tabItem.setControl(composite);
 		composite.setLayout(new FillLayout());
@@ -1054,7 +1057,6 @@ public class CarparkMainPresenter {
 		try {
 			openDoorDelay=Integer.valueOf(System.getProperty(ConstUtil.OPEN_DOOR_DELAY));
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
 		}
 	}
 	/**

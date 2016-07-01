@@ -22,6 +22,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 	@SuppressWarnings("unused")
 	private String tcpLabel;
 	private DeviceRoadTypeEnum deviceRoadType=DeviceRoadTypeEnum.混合车通道;
+	private DeviceInOutTypeEnum inOutType=DeviceInOutTypeEnum.进口;
 	
 	public AddDeviceModel(){
 		SingleCarparkCarpark s=new SingleCarparkCarpark();
@@ -53,6 +54,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		device.setAdvertise(getAdvertise());
 		device.setScreenType(getScreenType());
 		device.setCameraType(getCameraType());
+		device.setInOrOut(getInOutType().toString());
 		return device;
 	}
 	public String getSerialAddress() {
@@ -93,6 +95,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		setAdvertise(device.getAdvertise());
 		setScreenType(device.getScreenType());
 		setCameraType(device.getCameraType()==null?CameraTypeEnum.信路威:device.getCameraType());
+		setInOutType(DeviceInOutTypeEnum.valueOf(device.getInOrOut()));
 	}
 	public String getVoice() {
 		return voice;
@@ -125,6 +128,13 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		this.deviceRoadType = deviceRoadType;
 		if (pcs != null)
 			pcs.firePropertyChange("deviceRoadType", null, null);
+	}
+	public DeviceInOutTypeEnum getInOutType() {
+		return inOutType;
+	}
+	public void setInOutType(DeviceInOutTypeEnum inOutType) {
+		this.inOutType = inOutType;
+		firePropertyChange("inOutType", null, null);
 	}
 	
 }

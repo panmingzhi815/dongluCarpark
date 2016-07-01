@@ -32,7 +32,6 @@ public class CarInTask extends AbstractTask {
 	private static final String CAR_IN_MSG = "欢迎光临,请入场停车";
 
 	// 保存车牌最近的处理时间
-	private final Map<String, Date> mapPlateNoDate;
 	// 保存设置信息
 	private final Map<SystemSettingTypeEnum, String> mapSystemSetting;
 	// 保存最近的手动拍照时间
@@ -49,7 +48,6 @@ public class CarInTask extends AbstractTask {
 			Float rightSize) {
 		super(model, sp, presenter, ip, plateNO, bigImage, smallImage, rightSize);
 		content=model.getMapVoice().get(DeviceVoiceTypeEnum.临时车进场语音).getContent();
-		mapPlateNoDate = model.getMapPlateNoDate();
 		mapSystemSetting = model.getMapSystemSetting();
 		mapHandPhotograph = model.getMapHandPhotograph();
 	}
@@ -103,8 +101,6 @@ public class CarInTask extends AbstractTask {
 			cch = new SingleCarparkInOutHistory();
 		}
 
-		saveImage();
-
 		showPlateToDevice();
 
 		if (checkBlackUser(device, date)) {
@@ -115,15 +111,6 @@ public class CarInTask extends AbstractTask {
 		checkUser(!isEmptyPlateNo);
 	}
 
-
-	/**
-	 * 保存图片
-	 */
-	public void saveImage() {
-		LOGGER.debug("开始保存车牌：{}的图片", plateNO);
-		mapPlateNoDate.put(plateNO, date);
-		presenter.saveImage(smallImgFileName,bigImgFileName,smallImage, bigImage);
-	}
 
 	/**
 	 * 

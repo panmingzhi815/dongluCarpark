@@ -28,6 +28,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice.DeviceInOutTypeEnum;
+
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 
 public class AddDeviceBasicPage extends WizardPage {
@@ -73,6 +75,9 @@ public class AddDeviceBasicPage extends WizardPage {
 	private Label label_10;
 	private Combo combo_4;
 	private ComboViewer comboViewer_4;
+	private Label lblNewLabel;
+	private Combo combo_5;
+	private ComboViewer comboViewer_5;
 
 	/**
 	 * Create the wizard.
@@ -242,6 +247,17 @@ public class AddDeviceBasicPage extends WizardPage {
 		comboViewer.setInput(DeviceRoadTypeEnum.values());
 		combo.select(0);
 		
+		lblNewLabel = new Label(composite, SWT.NONE);
+		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel.setText("进出类型");
+		
+		comboViewer_5 = new ComboViewer(composite, SWT.READ_ONLY);
+		combo_5 = comboViewer_5.getCombo();
+		combo_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		comboViewer_5.setContentProvider(new ArrayContentProvider());
+		comboViewer_5.setLabelProvider(new LabelProvider());
+		comboViewer_5.setInput(DeviceInOutTypeEnum.values());
+		
 		label_7 = new Label(composite, SWT.NONE);
 		label_7.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_7.setText("所属停车场");
@@ -340,6 +356,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue observeSingleSelectionComboViewer_4 = ViewerProperties.singleSelection().observe(comboViewer_4);
 		IObservableValue cameraTypeModelObserveValue = BeanProperties.value("cameraType").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer_4, cameraTypeModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer_5 = ViewerProperties.singleSelection().observe(comboViewer_5);
+		IObservableValue inOutTypeModelObserveValue = BeanProperties.value("inOutType").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer_5, inOutTypeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

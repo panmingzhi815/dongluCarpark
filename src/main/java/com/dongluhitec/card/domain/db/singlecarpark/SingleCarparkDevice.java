@@ -11,6 +11,10 @@ import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity
 public class SingleCarparkDevice extends DomainObject{
+	
+	public enum DeviceInOutTypeEnum{
+		进口,出口
+	}
 	/**
 	 * 
 	 */

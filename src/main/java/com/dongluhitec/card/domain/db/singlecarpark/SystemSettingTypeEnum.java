@@ -28,7 +28,7 @@ public enum SystemSettingTypeEnum {
 	免费原因("其他原因"),
 	固定车提醒时间(""),停车场重复计费("false"),
 	
-	DateBase_version("1.0.0.9"),软件版本("1.0.0.9"),发布时间("2016-05-08 17:00:00"), 更新文件夹("jar,native"),        ;
+	DateBase_version("1.0.0.10"),软件版本("1.0.0.10"),发布时间("2016-07-01 17:00:00"), 更新文件夹("jar,native"),        ;
 	;
 	
 	private String defaultValue;

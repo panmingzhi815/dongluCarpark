@@ -1,6 +1,7 @@
 package com.donglu.carpark.ui.task;
 
 import java.util.Date;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,8 @@ public abstract class AbstractTask implements Runnable {
 	protected String bigImgFileName;
 
 	protected String type = "进场";
+	// 保存车牌最近的处理时间
+	protected final Map<String, Date> mapPlateNoDate;
 
 	public AbstractTask(CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, String ip, String plateNO, byte[] bigImage, byte[] smallImage, Float rightSize) {
 		super();
@@ -57,6 +60,7 @@ public abstract class AbstractTask implements Runnable {
 		this.rightSize = rightSize;
 		editPlateNo=plateNO;
 		device = model.getMapIpToDevice().get(ip);
+		mapPlateNoDate = model.getMapPlateNoDate();
 	}
 
 	@Override
@@ -83,6 +87,15 @@ public abstract class AbstractTask implements Runnable {
 		smallImgFileName = imageSavefolder + "/" + smallImgFileName;
 		bigImgFileName=imageSavefolder + "/" + bigImgFileName;
 		logger.debug("生成车牌：{}的抓拍图片位置：{}--{}", smallImgFileName,bigImgFileName);
+		saveImage();
+	}
+	/**
+	 * 保存图片
+	 */
+	public void saveImage() {
+		logger.debug("开始保存车牌：{}的图片", plateNO);
+		mapPlateNoDate.put(plateNO, date);
+		presenter.saveImage(smallImgFileName,bigImgFileName,smallImage, bigImage);
 	}
 
 	public String getPlateNO() {
