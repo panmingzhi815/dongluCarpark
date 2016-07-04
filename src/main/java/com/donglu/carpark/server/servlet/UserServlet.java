@@ -1,5 +1,6 @@
 package com.donglu.carpark.server.servlet;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.caucho.hessian.server.HessianServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkUserService;
+import com.donglu.carpark.service.SettingService;
 import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.donglu.carpark.service.SystemUserServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
@@ -22,7 +24,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.server.util.HibernateSerializerFactory;
 import com.google.inject.Inject;
 
-public class UserServlet extends HessianServlet implements CarparkUserService, SystemUserServiceI,SystemOperaLogServiceI {
+public class UserServlet extends HessianServlet implements CarparkUserService, SystemUserServiceI,SystemOperaLogServiceI,SettingService{
 	/**
 	 * 
 	 */
@@ -34,6 +36,7 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 	private CarparkUserService carparkUserService;
 	private SystemUserServiceI systemUserService;
 	private SystemOperaLogServiceI systemOperaLogService;
+	private SettingService settingService;
 
 
     @Override
@@ -48,6 +51,7 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
         this.carparkUserService = sp.getCarparkUserService();
         this.systemUserService = sp.getSystemUserService();
         this.systemOperaLogService = sp.getSystemOperaLogService();
+        settingService=sp.getSettingService();
     }
 	
 	@Override
@@ -163,6 +167,31 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 	@Override
 	public SingleCarparkUser findUserById(Long userId) {
 		return carparkUserService.findUserById(userId);
+	}
+
+	@Override
+	public List<File> getServerChildFiles(String file) {
+		return settingService.getServerChildFiles(file);
+	}
+
+	@Override
+	public boolean backupDataBase(String filePath) {
+		return settingService.backupDataBase(filePath);
+	}
+
+	@Override
+	public int restoreDataBase(String filePath) {
+		return settingService.restoreDataBase(filePath);
+	}
+
+	@Override
+	public boolean createServerDirectory(String path) {
+		return settingService.createServerDirectory(path);
+	}
+
+	@Override
+	public boolean createServerFile(String path) {
+		return settingService.createServerFile(path);
 	}
 
 }

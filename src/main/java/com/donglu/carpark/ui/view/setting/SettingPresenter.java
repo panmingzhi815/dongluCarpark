@@ -1,6 +1,5 @@
 package com.donglu.carpark.ui.view.setting;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -10,20 +9,15 @@ import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.FileDialog;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
-import com.donglu.carpark.ui.CarparkClientConfig;
-import com.donglu.carpark.ui.ClientConfigUI;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.list.BlackUserListPresenter;
 import com.donglu.carpark.ui.view.setting.wizard.DownloadPlateModel;
 import com.donglu.carpark.ui.view.setting.wizard.DownloadPlateWizard;
 import com.donglu.carpark.ui.wizard.holiday.AddYearHolidayModel;
 import com.donglu.carpark.ui.wizard.holiday.AddYearHolidayWizard;
-import com.donglu.carpark.util.CarparkFileUtils;
-import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
@@ -32,7 +26,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
-import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.inject.Inject;
 
 public class SettingPresenter implements Presenter {
@@ -164,52 +157,31 @@ public class SettingPresenter implements Presenter {
 	}
 
 	public void backup(String path) {
-		CarparkClientConfig ccc = (CarparkClientConfig) CarparkFileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
-		if (StrUtil.isEmpty(ccc)) {
-			return;
-		}
-		boolean executeSQL = CarparkUtils.backupDateBase(path, ccc.getDbServerIp(), ccc.getDbServerPort(), ccc.getDbServerUsername(), ccc.getDbServerPassword());
+		boolean executeSQL = sp.getSettingService().backupDataBase(path);
 		if (executeSQL) {
 			commonui.info("成功", "备份数据库到" + path + "成功");
 		} else {
 			commonui.error("失败", "备份数据库到" + path + "失败");
 		}
-
-	
-
 	}
 
 	public void restoreDataBase(String path) {
-
 		try {
-			File f = new File(path);
-			if (!f.exists()) {
+			int restoreDataBase = sp.getSettingService().restoreDataBase(path);
+			if (restoreDataBase == 0) {
 				commonui.error("错误", "没有找到数据库备份文件");
 				return;
 			}
-			CarparkClientConfig ccc = (CarparkClientConfig) CarparkFileUtils.readObject(ClientConfigUI.CARPARK_CLIENT_CONFIG);
-			if (StrUtil.isEmpty(ccc)) {
-				return;
+			if (restoreDataBase == 1) {
+				commonui.error("还原失败", "还原数据库失败");
 			}
-			String onlineSql = "ALTER DATABASE carpark SET ONLINE WITH ROLLBACK IMMEDIATE";
-			String restoreSql = "USE master ALTER DATABASE carpark SET OFFLINE WITH ROLLBACK IMMEDIATE;RESTORE DATABASE carpark FROM disk = '" + path + "' WITH REPLACE;";
-			boolean executeSQL = DatabaseUtil.executeSQL(ccc.getDbServerIp(), ccc.getDbServerPort(), "master", ccc.getDbServerUsername(), ccc.getDbServerPassword(), restoreSql, "SQLSERVER 2008");
-			boolean executeSQL2 = DatabaseUtil.executeSQL(ccc.getDbServerIp(), ccc.getDbServerPort(), "master", ccc.getDbServerUsername(), ccc.getDbServerPassword(), onlineSql, "SQLSERVER 2008");
-			if (!executeSQL && !executeSQL2) {
-				if (!executeSQL) {
-					commonui.error("还原失败", "还原数据库失败");
-				}
-				if (!executeSQL2) {
-					commonui.error("失败", "重新建立数据库连接失败，请重启程序");
-				}
+			if (restoreDataBase == 2) {
+				commonui.error("失败", "重新建立数据库连接失败，请重启程序");
 			}
 			commonui.info("成功", "还原数据库成功");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-	
-
 	}
 	/**
 	 * 下载车牌信息到设备
@@ -244,9 +216,8 @@ public class SettingPresenter implements Presenter {
 
 	public String getDatabaseFilePath() {
 		String path = null;
-		FileDialog fileDialog = new FileDialog(view.getShell(), SWT.SINGLE);
-		fileDialog.setText("请选择路径");
-		path = fileDialog.open();
+		ServiceFileChoser fs=new ServiceFileChoser(view.getShell(), SWT.CLOSE);
+		path=fs.open();
 		return path;
 	}
 

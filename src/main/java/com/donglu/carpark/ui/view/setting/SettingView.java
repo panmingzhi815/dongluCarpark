@@ -2,7 +2,6 @@ package com.donglu.carpark.ui.view.setting;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Group;
 
@@ -410,11 +409,6 @@ public class SettingView extends Composite implements View {
 
 		Composite composite_5 = new Composite(group, SWT.NONE);
 		GridData gd_composite_5 = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
-		gd_composite_5.exclude = false;
-		if (CarparkUtils.checkServerIsLocal()) {
-
-		} else
-			gd_composite_5.exclude = true;
 		composite_5.setLayoutData(gd_composite_5);
 		composite_5.setLayout(new GridLayout(5, false));
 

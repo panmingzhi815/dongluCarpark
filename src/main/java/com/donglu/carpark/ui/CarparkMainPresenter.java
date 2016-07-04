@@ -325,6 +325,12 @@ public class CarparkMainPresenter {
 				log.debug("开始第{}次检查摄像机的连接状态",checkPlayerPlayingSize);
 				for (String url : mapPlayer.keySet()) {
 					MediaPlayer mediaPlayer = mapPlayer.get(url);
+					SingleCarparkDevice device = mapCameraToDeviceIp.get(url);
+					if (checkPlayerPlayingSize>0&&checkPlayerPlayingSize%60==0&&device!=null&&device.getCameraType().equals(CameraTypeEnum.智芯)) {
+						log.info("自动刷新华夏智芯摄像机:{}，防止摄像机黑屏",device.getIp());
+						mediaPlayer.playMedia(url);
+						continue;
+					}
 					boolean playing = mediaPlayer.isPlaying();
 					if (!playing) {
 						log.info("设备连接{}已断开", url);

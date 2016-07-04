@@ -30,5 +30,7 @@ public interface CarparkDatabaseServiceProvider {
 	PositionUpdateServiceI getPositionUpdateService();
 
 	ImageServiceI getImageService();
+
+	public SettingService getSettingService();
 }
 
