@@ -8,7 +8,9 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import com.donglu.carpark.ui.common.AbstractListView;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 
 public class UserListView extends AbstractListView<SingleCarparkUser> {
 	//SingleCarparkUser.Property.id.name(),"编号",60,
@@ -40,6 +42,9 @@ public class UserListView extends AbstractListView<SingleCarparkUser> {
 
 	@Override
 	protected void createMenuBarToolItem(ToolBar toolBar_menu) {
+		if (!ConstUtil.checkPrivilege(SystemUserTypeEnum.普通管理员)) {
+			return;
+		}
 		ToolItem toolItem_pay = new ToolItem(toolBar_menu, SWT.NONE);
 		toolItem_pay.addSelectionListener(new SelectionAdapter() {
 			@Override

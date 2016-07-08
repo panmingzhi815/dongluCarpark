@@ -10,6 +10,8 @@ import org.eclipse.swt.widgets.ToolItem;
 
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.View;
+import com.donglu.carpark.util.ConstUtil;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 
 public class ChargeListView extends AbstractListView<CarparkChargeInfo> implements View {
 	//SingleCarparkUser.Property.id.name(),"编号",60,
@@ -37,7 +39,9 @@ public class ChargeListView extends AbstractListView<CarparkChargeInfo> implemen
 	@Override
 	protected void createMenuBarToolItem(ToolBar toolBar_menu) {
 		toolBar_menu.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		
+		if (!ConstUtil.checkPrivilege(SystemUserTypeEnum.系统管理员)) {
+			return;
+		}
 		ToolItem toolItem_5 = new ToolItem(toolBar_menu, SWT.NONE);
 		toolItem_5.setToolTipText("添加临时收费设置");
 		toolItem_5.setText("添加临时收费设置");

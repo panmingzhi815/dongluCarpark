@@ -15,6 +15,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.google.common.util.concurrent.RateLimiter;
 
@@ -270,7 +271,7 @@ public class InOutHistoryView extends Composite implements View{
 	public void setComboValue(List<SingleCarparkSystemUser> findAll) {
 		comboViewer_1.setInput(findAll);
 		comboViewer_1.getCombo().select(0);
-		if (System.getProperty("userType").equals(SystemUserTypeEnum.操作员.name())) {
+		if (ConstUtil.getLevel()<2) {
 			comboViewer_1.getCombo().setEnabled(false);
 		}
 	}

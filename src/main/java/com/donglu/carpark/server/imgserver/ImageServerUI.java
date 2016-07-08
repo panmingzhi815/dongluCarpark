@@ -721,7 +721,7 @@ public class ImageServerUI {
 					sp.getCarparkService().saveSystemSetting(vilidTo);
 					LOGGER.info("把解析到的信息保存到数据库");
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.error("解析注册码信息失败",e);
 				}
 			}
 		}, 30, 60 * 30, TimeUnit.SECONDS);

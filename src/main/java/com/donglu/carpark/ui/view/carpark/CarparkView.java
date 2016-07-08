@@ -11,6 +11,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
+import com.donglu.carpark.util.ConstUtil;
 
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -23,6 +24,8 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.wb.rcp.databinding.BeansListObservableFactory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
+
 import org.eclipse.wb.rcp.databinding.TreeBeanAdvisor;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.wb.rcp.databinding.TreeObservableLabelProvider;
@@ -55,54 +58,55 @@ public class CarparkView extends Composite implements View{
 		label.setLayoutData(gd_label);
 		label.setText("停车场设置");
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
-		ToolBar toolBar = new ToolBar(composite_1, SWT.FLAT | SWT.RIGHT);
-		toolBar.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
-		
-		ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
-		toolItem.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				getPresenter().addCarpark();
-			}
-		});
-		toolItem.setText("添加主停车场");
-		
-		ToolItem toolItem_1 = new ToolItem(toolBar, SWT.NONE);
-		toolItem_1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				getPresenter().addChildCapark();
-			}
-		});
-		toolItem_1.setText("添加子停车场");
-		
-		ToolItem toolItem_2 = new ToolItem(toolBar, SWT.NONE);
-		toolItem_2.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				getPresenter().deleteCarpark();
-			}
-		});
-		toolItem_2.setText("删除");
-		
-		ToolItem toolItem_3 = new ToolItem(toolBar, SWT.NONE);
-		toolItem_3.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				getPresenter().editCarpark();
-			}
-		});
-		toolItem_3.setText("修改");
-		
-		ToolItem toolItem_4 = new ToolItem(toolBar, SWT.NONE);
-		toolItem_4.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				getPresenter().refreshCarpark();
-			}
-		});
-		toolItem_4.setText("刷新");
+		if (ConstUtil.checkPrivilege(SystemUserTypeEnum.系统管理员)) {
+			ToolBar toolBar = new ToolBar(composite_1, SWT.FLAT | SWT.RIGHT);
+			toolBar.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+			
+			ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
+			toolItem.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					getPresenter().addCarpark();
+				}
+			});
+			toolItem.setText("添加主停车场");
+			
+			ToolItem toolItem_1 = new ToolItem(toolBar, SWT.NONE);
+			toolItem_1.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					getPresenter().addChildCapark();
+				}
+			});
+			toolItem_1.setText("添加子停车场");
+			
+			ToolItem toolItem_2 = new ToolItem(toolBar, SWT.NONE);
+			toolItem_2.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					getPresenter().deleteCarpark();
+				}
+			});
+			toolItem_2.setText("删除");
+			
+			ToolItem toolItem_3 = new ToolItem(toolBar, SWT.NONE);
+			toolItem_3.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					getPresenter().editCarpark();
+				}
+			});
+			toolItem_3.setText("修改");
+			
+			ToolItem toolItem_4 = new ToolItem(toolBar, SWT.NONE);
+			toolItem_4.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					getPresenter().refreshCarpark();
+				}
+			});
+			toolItem_4.setText("刷新");
+		}
 		
 		treeViewer = new TreeViewer(composite_1, SWT.BORDER);
 		Tree tree = treeViewer.getTree();

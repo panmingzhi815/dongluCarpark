@@ -1022,7 +1022,8 @@ public class CarparkMainApp extends AbstractApp{
 	}
 
 	public void controlToolItem() {
-		if (System.getProperty("userType").equals(SystemUserTypeEnum.操作员.name())) {
+		int level = SystemUserTypeEnum.getLevel(System.getProperty("userType"));
+		if (level<3) {
 			inDevicePresenter.controlItem(true);
 			outDevicePresenter.controlItem(true);
 			if (inDevicePresenter2!=null) {

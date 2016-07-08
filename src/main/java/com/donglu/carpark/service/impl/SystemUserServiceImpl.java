@@ -87,7 +87,7 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 		SingleCarparkSystemUser systemUser=new SingleCarparkSystemUser();
 		systemUser.setUserName("admin");
 		systemUser.setPassword("admin");
-		systemUser.setType("系统管理员");
+		systemUser.setType("超级管理员");
 		systemUser.setCreateDate(new Date());
 		dom.insert(systemUser);
 		DatabaseOperation<CarparkCarType> dom1= DatabaseOperation.forClass(CarparkCarType.class, emprovider.get());

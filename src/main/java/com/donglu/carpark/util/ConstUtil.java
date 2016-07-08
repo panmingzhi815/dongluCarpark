@@ -1,4 +1,7 @@
 package com.donglu.carpark.util;
+
+import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
+
 /**
  * 保存一些常量,静态变量
  */
@@ -47,4 +50,34 @@ public class ConstUtil {
 	 * 开闸延迟
 	 */
 	public static final String OPEN_DOOR_DELAY = "openDoorDelay";
+	/**
+	 * 获取权限级别
+	 * @return
+	 */
+	public static int getLevel(){
+		String userName = System.getProperty(USER_NAME);
+		if (userName.equals("admin")) {
+			return 99;
+		}
+		String property = System.getProperty("userType");
+		return SystemUserTypeEnum.getLevel(property);
+	}
+	public static boolean checkPrivilege(SystemUserTypeEnum... userTypes) {
+		if (userTypes==null) {
+			return true;
+		}
+		int level = getLevel();
+		if (level==99) {
+			return true;
+		}
+		for (SystemUserTypeEnum userType : userTypes) {
+			if (userType==null) {
+				continue;
+			}
+			if (userType.getLevel()==level) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

@@ -12,9 +12,11 @@ import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.wizard.AddSystemUserWizard;
 import com.donglu.carpark.ui.wizard.EditSystemUserWizard;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
@@ -96,13 +98,13 @@ public class SystemUserListPresenter extends AbstractListPresenter<SingleCarpark
 	 * @return
 	 */
 	private boolean check(String loginType, String type) {
-		if (loginType.equals("系统管理员")) {
+		int level = ConstUtil.getLevel();
+		if (level==99) {
 			return true;
 		}
-		if (loginType.equals("普通管理员")) {
-			if (type.equals("操作员")) {
-				return true;
-			}
+		if (level==2||level==3) {
+			int level2 = SystemUserTypeEnum.getLevel(type);
+			return level2==1;
 		}
 		return false;
 	}
