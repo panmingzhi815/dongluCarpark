@@ -359,6 +359,7 @@ public class CarInTask extends AbstractTask {
 				}
 			}
 		}
+		model.setInShowPlateNO(model.getInShowPlateNO()+"-临时车");
 		LOGGER.debug("判断是否允许临时车进");
 		if (device.getCarpark().isTempCarIsIn()) {
 			presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定停车场临时车进入语音).getContent(), false);
@@ -380,7 +381,6 @@ public class CarInTask extends AbstractTask {
 			}
 		}
 		isOpenDoor=true;
-		model.setInShowPlateNO(model.getInShowPlateNO()+"-临时车");
 		return false;
 	}
 
@@ -424,6 +424,11 @@ public class CarInTask extends AbstractTask {
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车).equals("true")) {
 				content="车辆已过期"+content;
 				return tempCarShowToDevice(false);
+			}else{
+//				boolean confirm = presenter.getCommonui().confirm("提示", "车辆已过期是否允许车辆按临时车进入");
+//				if (confirm) {
+//					return tempCarShowToDevice(false);
+//				}
 			}
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期所属停车场限制).equals("true")) {
 				LOGGER.info("固定车到期，固定车到期所属停车场限制:{}。判断是否进入所属停车场",true);

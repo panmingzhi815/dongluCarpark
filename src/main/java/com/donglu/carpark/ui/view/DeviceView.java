@@ -196,7 +196,7 @@ public class DeviceView extends Composite implements View{
 			CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
 			tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
 			String name = d.getName() == null ? d.getIp() : d.getName();
-			tabItem.setText(name+"("+d.getInOrOut()+")");
+			tabItem.setText(name);
 			final Composite composite = new Composite(tabFolder, SWT.BORDER | SWT.EMBEDDED);
 			tabItem.setControl(composite);
 			composite.setLayout(new FillLayout());

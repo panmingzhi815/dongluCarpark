@@ -437,8 +437,6 @@ public class CarparkMainApp extends AbstractApp{
 				boolean confirm = commonui.confirm("退出提示", "确定要退出监控界面！！");
 				if (!confirm) {
 					e.doit = false;
-				}else{
-					systemExit();
 				}
 			}
 		});

@@ -59,7 +59,8 @@ public class StoreServerLinkServiceImpl extends AbstractCarparkBackgroundService
 
 	@Override
 	protected void run() {
-		if (path == null) {
+		logger.info("网页服务器:{}",path);
+		if (StrUtil.isEmpty(path.trim())) {
 			logger.warn("store网页服务器地址为{},停止运行",path);
 			stopAsync();
 			return;

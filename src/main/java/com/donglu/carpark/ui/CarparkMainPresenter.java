@@ -294,7 +294,7 @@ public class CarparkMainPresenter {
 		}
 		CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
 		tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
-		tabItem.setText(name+"("+device.getInOrOut()+")");
+		tabItem.setText(name);
 		Composite composite = new Composite(tabFolder, SWT.BORDER | SWT.EMBEDDED);
 		tabItem.setControl(composite);
 		composite.setLayout(new FillLayout());
@@ -316,6 +316,7 @@ public class CarparkMainPresenter {
 	int checkPlayerPlayingSize=0;
 	private Map<String, Integer> mapDeviceFailInfo = new HashMap<>();
 	private ScheduledExecutorService checkCameraPlayStatus;
+	private long timeOut = 1000L;
 
 	private void checkPlayerPlaying() {
 		checkCameraPlayStatus = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每10秒检测摄像机连接状态"));
@@ -326,7 +327,7 @@ public class CarparkMainPresenter {
 				for (String url : mapPlayer.keySet()) {
 					MediaPlayer mediaPlayer = mapPlayer.get(url);
 					SingleCarparkDevice device = mapCameraToDeviceIp.get(url);
-					if (checkPlayerPlayingSize>0&&checkPlayerPlayingSize%60==0&&device!=null&&device.getCameraType().equals(CameraTypeEnum.智芯)) {
+					if (checkPlayerPlayingSize>0&&checkPlayerPlayingSize%10==0&&device!=null&&device.getCameraType().equals(CameraTypeEnum.智芯)) {
 						log.info("自动刷新华夏智芯摄像机:{}，防止摄像机黑屏",device.getIp());
 						mediaPlayer.playMedia(url);
 						continue;
@@ -691,7 +692,7 @@ public class CarparkMainPresenter {
 			Device d = getDevice(device);
 			if (isOpenDoor) {
 				if (d!=null) {
-					log.info("对设备：sip:{},kip:{} 开闸",device.getIp(),device.getLinkAddress());
+					log.info("对设备：ip:{},kip:{} 开闸,发送语音：[{}]",device.getIp(),device.getLinkAddress(),content);
 					Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoorWithDelay(d, content, device.getVolume() == null ? 1 : device.getVolume(), openDoorDelay);
 					openDoorToPhotograph(device.getIp());
 					return carparkContentVoiceAndOpenDoor;
@@ -782,7 +783,7 @@ public class CarparkMainPresenter {
 		link.setType(device.getType().equals("485") ? LinkTypeEnum.COM : LinkTypeEnum.TCP);
 		link.setAddress(device.getLinkAddress());
 		link.setProtocol(LinkProtocolEnum.Carpark);
-		link.setTimeOut(400L);
+		link.setTimeOut(timeOut);
 		SerialDeviceAddress address = new SerialDeviceAddress();
 		address.setAddress(device.getAddress());
 		d.setAddress(address);
@@ -1064,6 +1065,13 @@ public class CarparkMainPresenter {
 			openDoorDelay=Integer.valueOf(System.getProperty(ConstUtil.OPEN_DOOR_DELAY));
 		} catch (NumberFormatException e) {
 		}
+		try {
+			String property = System.getProperty("timeOut");
+			timeOut=Long.valueOf(property);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		log.debug("超时时间timeOut为：",timeOut);
 	}
 	/**
 	 * 用来测试进出场
@@ -1097,14 +1105,18 @@ public class CarparkMainPresenter {
 			int nowSize=0;
 			@Override
 			public void run() {
-				if (nowSize>=inTypeSize) {
-					nowSize=0;
+				try {
+					if (nowSize>=inTypeSize) {
+						nowSize=0;
+					}
+					List<SingleCarparkDevice> list2 = list.get(nowSize);
+					for (SingleCarparkDevice d : list2) {
+						System.out.println(d.getIp());
+						handPhotograph(d.getIp());
+					}
+					nowSize++;
+				} catch (Exception e) {
 				}
-				List<SingleCarparkDevice> list2 = list.get(nowSize);
-				for (SingleCarparkDevice d : list2) {
-					handPhotograph(d.getIp());
-				}
-				nowSize++;
 			}
 		}, testDelayTime, testDelayTime, TimeUnit.SECONDS);
 		return newSingleThreadScheduledExecutor;
@@ -1701,6 +1713,10 @@ public class CarparkMainPresenter {
 		sp.getCarparkService().saveCarpark(c);
 		commonui.info("成功", "修改车位数成功");
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "", System.getProperty("userName"));
+	}
+
+	public CommonUIFacility getCommonui() {
+		return commonui;
 	}
 	
 
