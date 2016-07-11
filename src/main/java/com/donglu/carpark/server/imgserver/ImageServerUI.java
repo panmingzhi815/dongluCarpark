@@ -701,19 +701,23 @@ public class ImageServerUI {
 						return;
 					}
 					Date dateOfExpire = null;
-					try {
-						LOGGER.info("解析从数据库获取注册码信息");
-						av = new AppVerifierImpl(new SoftDogWin());
-						AppAuthorization decrypt = av.decrypt(sn.getSettingValue());
-						dateOfExpire = decrypt.getDateOfExpire();
-						// dateOfExpire=new DateTime(2015,12,8,1,1).toDate();
-						if (StrUtil.getTodayBottomTime(dateOfExpire).before(new Date())) {
-							LOGGER.info("解析从数据库获取注册码信息成功,已过期{}", dateOfExpire);
-							dateOfExpire = null;
+					for (int i = 0; i < 3; i++) {
+						try {
+							LOGGER.info("第{}次解析从数据库获取注册码信息",i+1);
+							av = new AppVerifierImpl(new SoftDogWin());
+							AppAuthorization decrypt = av.decrypt(sn.getSettingValue());
+							dateOfExpire = decrypt.getDateOfExpire();
+							// dateOfExpire=new DateTime(2015,12,8,1,1).toDate();
+							if (StrUtil.getTodayBottomTime(dateOfExpire).before(new Date())) {
+								LOGGER.info("解析从数据库获取注册码信息成功,已过期{}", dateOfExpire);
+								dateOfExpire = null;
+							}
+							LOGGER.info("解析从数据库获取注册码信息成功");
+							break;
+						} catch (Exception e) {
+							LOGGER.error("解析从数据库获取注册码信息失败",e);
 						}
-						LOGGER.info("解析从数据库获取注册码信息成功");
-					} catch (Exception e) {
-						LOGGER.info("解析从数据库获取注册码信息失败");
+						Thread.sleep(1000);
 					}
 					SingleCarparkSystemSetting vilidTo = new SingleCarparkSystemSetting();
 					vilidTo.setSettingKey(SNSettingType.validTo.name());
