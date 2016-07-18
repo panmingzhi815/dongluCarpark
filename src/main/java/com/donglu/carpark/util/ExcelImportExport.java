@@ -27,4 +27,5 @@ public interface ExcelImportExport {
 	public void exportUser(String path,List<SingleCarparkUser> list) throws Exception ;
 	public int importUser(String path,CarparkDatabaseServiceProvider sp) throws Exception ;
 	public void export(String path,String[] names,String[] cloumns,List<? extends Object> list)throws Exception;
+	List<String> importPlateNOByUser(String path) throws Exception;
 }

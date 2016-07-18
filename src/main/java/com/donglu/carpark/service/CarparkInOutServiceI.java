@@ -8,9 +8,11 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkFreeTempCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 
 /**
  * 对进出场信息操作，对锁车信息操作
@@ -222,4 +224,30 @@ public interface CarparkInOutServiceI {
 	
 	Map<String, Long> getDeviceFlows(boolean inOrOut,Date start,Date end);
 	List<String> findAllDeviceName(boolean inOrOut);
+	/**
+	 * 临时车优惠
+	 * @param start
+	 * @param maxValue
+	 * @param plateNo
+	 * @return
+	 */
+	List<SingleCarparkFreeTempCar> findTempCarFreeByLike(int start, int maxValue, String plateNo);
+	SingleCarparkFreeTempCar findTempCarFreeByPlateNO(String plateNo);
+	Long deleteTempCarFree(SingleCarparkFreeTempCar ft);
+	Long saveTempCarFree(SingleCarparkFreeTempCar ft);
+	/**
+	 * 查找固定车的场内记录
+	 * @param user 用户
+	 * @param b 是否为固定车进入 true 固定车进入 false 临时车进入
+	 * @return
+	 */
+	List<SingleCarparkInOutHistory> findInOutHistoryByUser(SingleCarparkUser user, Boolean b);
+	/**
+	 * 查找场内车记录
+	 * @param carpark
+	 * @param pn
+	 * @param b 是否为固定车
+	 * @return
+	 */
+	List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(SingleCarparkCarpark carpark, String pn, boolean b);
 }

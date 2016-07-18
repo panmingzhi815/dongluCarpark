@@ -10,6 +10,7 @@ import com.donglu.carpark.ui.view.OpenDoorLogPresenter;
 import com.donglu.carpark.ui.view.ReturnAccountPresenter;
 import com.donglu.carpark.ui.view.SystemLogPresenter;
 import com.donglu.carpark.ui.view.carpark.CarparkPresenter;
+import com.donglu.carpark.ui.view.free.TempCarFreePresenter;
 import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
 import com.donglu.carpark.ui.view.lockcar.LockCarPresenter;
 import com.donglu.carpark.ui.view.setting.SettingPresenter;
@@ -55,6 +56,7 @@ public class CarparkManagePresenter {
 	private CarparkPresenter carparkPresenter;
 	private SystemUserListPresenter systemUserListPresenter;
 	private VisitorPresenter visitorPresenter;
+	private TempCarFreePresenter tempCarFreePresenter;
 
 	public CarparkManageApp getView() {
 		return view;
@@ -84,6 +86,7 @@ public class CarparkManagePresenter {
 		carparkPresenter = Login.injector.getInstance(CarparkPresenter.class);
 		systemUserListPresenter = Login.injector.getInstance(SystemUserListPresenter.class);
 		visitorPresenter=Login.injector.getInstance(VisitorPresenter.class);
+		tempCarFreePresenter=Login.injector.getInstance(TempCarFreePresenter.class);
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.登录登出, "登录了管理界面", System.getProperty(ConstUtil.USER_NAME));
 		refreshSystemSetting();
 	}
@@ -179,6 +182,10 @@ public class CarparkManagePresenter {
 	public void systemExit() {
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.登录登出, "用户退出了管理界面", System.getProperty(ConstUtil.USER_NAME));
 		System.exit(0);
+	}
+
+	public TempCarFreePresenter getTempCarFreePresenter() {
+		return tempCarFreePresenter;
 	}
 
 }

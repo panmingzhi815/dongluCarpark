@@ -3,6 +3,9 @@ package com.donglu.carpark.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -119,6 +122,60 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		}finally{
 			unitOfWork.end();
 		}
+	}
+	@Override
+	public List<SingleCarparkUser> findAllUserByPlateNO(String plateNO, Long carparkId, Date validTo) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+//			c.add(Restrictions.isNotNull("validTo"));
+			
+			if (!StrUtil.isEmpty(plateNO)) {
+				c.add(Restrictions.like("plateNo", plateNO,MatchMode.ANYWHERE));
+			}else{
+				return new ArrayList<>();
+			}
+			if (!StrUtil.isEmpty(carparkId)) {
+				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
+				SingleCarparkCarpark entityWithId = dom.getEntityWithId(carparkId);
+				List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+				c.add(Restrictions.in("carpark",list));
+			}
+			SingleCarparkUser user = (SingleCarparkUser) c.getSingleResultOrNull();
+			if (user!=null&&!user.getType().equals("储值")&&StrUtil.isEmpty(user.getValidTo())) {
+				return null;
+			}
+			return null;
+		}finally{
+			unitOfWork.end();
+		}
+	}
+	@Override
+	public int sumAllUserSlotByPlateNO(String plateNO, Long carparkId, Date validTo) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+//			c.add(Restrictions.isNotNull("validTo"));
+			
+			if (!StrUtil.isEmpty(plateNO)) {
+				c.add(Restrictions.eq("name", plateNO));
+			}else{
+				return 0;
+			}
+			if (!StrUtil.isEmpty(carparkId)) {
+				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
+				SingleCarparkCarpark entityWithId = dom.getEntityWithId(carparkId);
+				List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+				c.add(Restrictions.in("carpark",list));
+			}
+			c.setProjection(Projections.sum(SingleCarparkUser.Property.carparkSlot.name()));
+			Object singleResultOrNull = c.getSingleResultOrNull();
+			System.out.println(singleResultOrNull.getClass());
+			return 0;
+		}finally{
+			unitOfWork.end();
+		}
+	
 	}
 	@Override
 	public List<SingleCarparkUser> findUserByMonthChargeId(Long id) {
@@ -268,5 +325,38 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			unitOfWork.end();
 		}
 	}
-
+	@Override
+	public List<SingleCarparkUser> findUserByNameAndCarpark(String name, SingleCarparkCarpark carpark, Date validTo) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+//			c.add(Restrictions.isNotNull("validTo"));
+			
+			if (!StrUtil.isEmpty(name)) {
+				c.add(Restrictions.eq(SingleCarparkUser.Property.name.name(), name));
+			}else{
+				return new ArrayList<>();
+			}
+			if (!StrUtil.isEmpty(validTo)) {
+				c.add(Restrictions.ge(SingleCarparkUser.Property.validTo.name(), validTo));
+			}
+			if (!StrUtil.isEmpty(carpark)) {
+				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
+				SingleCarparkCarpark entityWithId = dom.getEntityWithId(carpark.getId());
+				List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+				c.add(Restrictions.in("carpark",list));
+			}
+			List<SingleCarparkUser> resultList = c.getResultList();
+			resultList=resultList.stream().filter(new Predicate<SingleCarparkUser>() {
+				@Override
+				public boolean test(SingleCarparkUser user) {
+					return !user.getType().equals("储值")&&!StrUtil.isEmpty(user.getValidTo());
+				}
+			}).collect(Collectors.toList());
+			return resultList;
+		}finally{
+			unitOfWork.end();
+		}
+	
+	}
 }

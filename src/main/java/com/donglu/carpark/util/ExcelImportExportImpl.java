@@ -434,4 +434,48 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		fileOut.close();
 	}
 
+	@Override
+	public List<String> importPlateNOByUser(String path) throws Exception {
+		List<String> list=new ArrayList<>();
+		int failNum = 0;
+		HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(path));
+		HSSFSheet sheet = wb.getSheetAt(0);
+		int currentRow = 0;
+		HSSFRow row = sheet.getRow(currentRow);
+		boolean isContent=false;
+		while (row != null) {
+			try {
+				if (!isContent) {
+					String cellStringValue = getCellStringValue(row, 0);
+					if (cellStringValue!=null&&cellStringValue.equals("编号")) {
+						isContent=true;
+					}else{
+						if (currentRow>=1) {
+							isContent=true;
+						}
+					}
+					continue;
+				}
+				// 根据用户excel导入信息
+				String plateNO=getCellStringValue(row, 2);
+				if (StrUtil.isEmpty(plateNO)) {
+					throw new Exception("空的车牌");
+				}
+				String[] split = plateNO.split(",");
+				for (String string : split) {
+					if (!list.contains(string)) {
+						list.add(string);
+					}
+				}
+			} catch (Exception e) {
+				failNum++;
+				e.printStackTrace();
+			} finally {
+				currentRow++;
+				row = sheet.getRow(currentRow);
+			}
+		}
+		return list;
+	}
+
 }

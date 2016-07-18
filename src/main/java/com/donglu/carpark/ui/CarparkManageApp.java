@@ -287,6 +287,14 @@ public class CarparkManageApp extends AbstractApp{
 		composite_1.setLayout(new FillLayout(SWT.HORIZONTAL));
 		presenter.getVisitorPresenter().go(composite_1);
 		
+		TabItem tabItem_12 = new TabItem(tabFolder, SWT.NONE);
+		tabItem_12.setText("临时车优惠");
+		
+		Composite composite_3 = new Composite(tabFolder, SWT.NONE);
+		tabItem_12.setControl(composite_3);
+		composite_3.setLayout(new FillLayout(SWT.HORIZONTAL));
+		presenter.getTempCarFreePresenter().go(composite_3);
+		
 		TabItem tabItem_8 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_8.setText("参数设置");
 		

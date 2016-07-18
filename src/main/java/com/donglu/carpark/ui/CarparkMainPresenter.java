@@ -46,6 +46,7 @@ import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.common.ShowDialog;
 import com.donglu.carpark.ui.task.CarInOutResult;
+import com.donglu.carpark.ui.task.ConfimBox;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
 import com.donglu.carpark.ui.view.inouthistory.FreeReasonPresenter;
 import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
@@ -78,6 +79,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice.DeviceInOutTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkFreeTempCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
@@ -340,7 +342,7 @@ public class CarparkMainPresenter {
 				}
 				checkPlayerPlayingSize++;
 			}
-		}, 10, 10, TimeUnit.SECONDS);
+		}, 1000, 10, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -909,10 +911,32 @@ public class CarparkMainPresenter {
 	public float countShouldMoney(Long carparkId, CarTypeEnum carType, Date startTime, Date endTime) {
 		float charge = 0;
 		try {
+			int freeMinute=0;
+			int freeMoney=0;
+			//获取临时车优惠
+			SingleCarparkFreeTempCar findTempCarFreeByPlateNO = sp.getCarparkInOutService().findTempCarFreeByPlateNO(model.getOutShowPlateNO().split("-")[0]);
+			if (findTempCarFreeByPlateNO!=null&&findTempCarFreeByPlateNO.getStatus()) {
+				freeMinute = findTempCarFreeByPlateNO.getFreeMinute();
+				freeMoney = findTempCarFreeByPlateNO.getFreeMoney();
+			}
+			startTime=new DateTime(startTime).plusMinutes(freeMinute).toDate();
 			charge = countTempCarCharge.charge(carparkId, carType, startTime, endTime, sp, model,Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场重复计费)));
-			System.out.println("charge===========" + charge);
+			String property = System.getProperty(ConstUtil.AN_HOUR_SHOULD_MONEY);
+			if (!StrUtil.isEmpty(property)) {
+				log.info("设置一小时收费{}为:{}",ConstUtil.AN_HOUR_SHOULD_MONEY,property);
+				try {
+					int money=Integer.valueOf(property);
+					int countTime = StrUtil.countTime(startTime, endTime, TimeUnit.HOURS);
+					int i = money*countTime;
+					if (i>0&&i<charge) {
+						charge=i;
+					}
+				} catch (Exception e) {
+				}
+			}
+			charge=charge-freeMoney;
 		} catch (Exception e1) {
-			e1.printStackTrace();
+			log.error("计算收费时发生错误",e1);
 		}
 
 		return charge;
@@ -974,7 +998,8 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-		mapIpToJNA.get(ip).tigger(ip);
+//		mapIpToJNA.get(ip).tigger(ip);
+		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", null, null, 11);
 	}
 
 	/**
@@ -1024,7 +1049,6 @@ public class CarparkMainPresenter {
 						}
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
 					log.error("上传图片出错", e);
 				}
 			}
@@ -1069,7 +1093,6 @@ public class CarparkMainPresenter {
 			String property = System.getProperty("timeOut");
 			timeOut=Long.valueOf(property);
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		log.debug("超时时间timeOut为：",timeOut);
 	}
@@ -1190,7 +1213,7 @@ public class CarparkMainPresenter {
 			sp.getCarparkInOutService().saveInOutHistory(select);
 			carInOutResultProvider.get().invok(model.getIp(), 0, select.getPlateNo(), m.getBigImg(), m.getSmallImg(), 1);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("人工查找时发生错误",e);
 		}
 	}
 
@@ -1556,8 +1579,18 @@ public class CarparkMainPresenter {
 			}
 			System.out.println(cs+"======"+minusMinute);
 		}
+		if (minute>StrUtil.countTime(inTime, outTime, TimeUnit.MINUTES)) {
+			log.info("计算失败返回0");
+			return 0;
+		}
 		log.info("车牌：{}，在所属停车场外停留时间：{}",plateNO,minute);
 		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(device.getCarpark().getId(), user.getCarType().index(), inTime, new DateTime(inTime).plusMinutes(minute).toDate());
+		if (calculateTempCharge>0) {
+			Boolean open = new ConfimBox("提示", "固定车["+plateNO+"]在所属停车场外停留"+minute+"分钟，收费"+calculateTempCharge+"元,是否收费？").open();
+			if (!open) {
+				return 0;
+			}
+		}
 		log.info("固定车{}，缴费：{}",plateNO,calculateTempCharge);
 		return calculateTempCharge;
 	}

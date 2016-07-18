@@ -50,6 +50,7 @@ public class ConstUtil {
 	 * 开闸延迟
 	 */
 	public static final String OPEN_DOOR_DELAY = "openDoorDelay";
+	public static final String AN_HOUR_SHOULD_MONEY = "anHourShouldMoney";
 	/**
 	 * 获取权限级别
 	 * @return

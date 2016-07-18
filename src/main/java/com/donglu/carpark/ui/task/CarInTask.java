@@ -1,10 +1,15 @@
 package com.donglu.carpark.ui.task;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Shell;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -420,20 +425,34 @@ public class CarInTask extends AbstractTask {
 				return true;
 			}
 		}
-		if (date.after(new DateTime(user.getValidTo()).plusDays(user.getDelayDays() == null ? 0 : user.getDelayDays()).toDate())) {
+		//用户所有信息
+		List<SingleCarparkUser> listUser=sp.getCarparkUserService().findUserByNameAndCarpark(user.getName(),carpark,null);
+		Date validTo = user.getValidTo();
+		//获取最晚过期时间
+		for (SingleCarparkUser singleCarparkUser : listUser) {
+			Date validTo2 = singleCarparkUser.getValidTo();
+			if (validTo2.after(validTo)) {
+				user=singleCarparkUser;
+				validTo=validTo2;
+			}
+		}
+		String fixCarInMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.固定车进场语音).getContent();
+		//过期判断
+		if (date.after(new DateTime(validTo).plusDays(user.getDelayDays() == null ? 0 : user.getDelayDays()).toDate())) {
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车).equals("true")) {
 				content="车辆已过期"+content;
 				return tempCarShowToDevice(false);
 			}else{
-//				boolean confirm = presenter.getCommonui().confirm("提示", "车辆已过期是否允许车辆按临时车进入");
-//				if (confirm) {
-//					return tempCarShowToDevice(false);
-//				}
+				boolean confirm = new ConfimBox(editPlateNo,"车辆在["+StrUtil.formatDate(validTo)+"]过期是否允许车辆按临时车进入").open();
+				if (confirm) {
+					cch.setReviseInTime(date);
+					return tempCarShowToDevice(false);
+				}
 			}
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期所属停车场限制).equals("true")) {
 				LOGGER.info("固定车到期，固定车到期所属停车场限制:{}。判断是否进入所属停车场",true);
 				if (device.getCarpark().equals(user.getCarpark())) {
-					content = "月租车辆," + CAR_IN_MSG + ",车辆已过期,请及时续费";
+					content = fixCarInMsg + ",车辆已过期,请及时续费";
 					isOpenDoor=true;
 					return false;
 				}
@@ -445,35 +464,65 @@ public class CarInTask extends AbstractTask {
 			isFixCarverdueCheck=true;
 			return true;
 		}
+		//车位判断
 		if (StrUtil.isEmpty(cch.getId())) {
-			Boolean valueOf2 = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费) == null ? "false" : mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));
-			List<SingleCarparkInOutHistory> list = new ArrayList<>();
-			String[] plateNos = user.getPlateNo().split(",");
-			for (String pn : plateNos) {
-				List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut = sp.getCarparkInOutService().findInOutHistoryByCarparkAndPlateNO(user.getCarpark().getId(), pn);
-				list.addAll(findHistoryByChildCarparkInOut);
+			Integer slot = 0;
+			Set<String> platesSet=new HashSet<>();
+			for (SingleCarparkUser singleCarparkUser : listUser) {
+				if (singleCarparkUser.getValidTo().after(date)) {
+					slot+=singleCarparkUser.getCarparkSlot();
+					platesSet.addAll(Arrays.asList(singleCarparkUser.getPlateNo().split(",")));
+				}
 			}
-			if (valueOf2) {
-				if (Integer.valueOf(user.getCarparkNo()) <= list.size()) {
+			Boolean isFixCarSlotFullAutoBeTemp = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费) == null ? "false" : mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));
+			int fixCarInSize = 0;
+			String inPlates="";
+			for (String pn : platesSet) {
+				List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut=null;
+				//如果找到这俩车的记录，判断这辆车是否为临时车进场，临时车进场则永远为临时车
+				if (pn.equals(editPlateNo)) {
+					findHistoryByChildCarparkInOut = sp.getCarparkInOutService().findInOutHistoryByCarparkAndPlateNO(null, pn);
+					for (SingleCarparkInOutHistory singleCarparkInOutHistory : findHistoryByChildCarparkInOut) {
+						if (singleCarparkInOutHistory.getReviseInTime()!=null) {
+							return tempCarShowToDevice(false);
+						}
+					}
+					continue;
+				}else{
+					//查找场内固定车标示的车辆
+					findHistoryByChildCarparkInOut = sp.getCarparkInOutService().findInOutHistoryByCarparkAndPlateNO(null, pn,true);
+				}
+				if (StrUtil.isEmpty(findHistoryByChildCarparkInOut)) {
+					continue;
+				}
+				fixCarInSize++;
+				inPlates+="["+pn+"]";
+			}
+			if (isFixCarSlotFullAutoBeTemp) {
+				if (slot <= fixCarInSize) {
 					setFixCarToTemIn(date, user);
-					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，作临时车进入", valueOf2, user.getCarparkNo(), list.size());
+					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，作临时车进入", isFixCarSlotFullAutoBeTemp, user.getCarparkNo(), fixCarInSize);
 					return tempCarShowToDevice(false);
 				}
 			} else {
-				if (Integer.valueOf(user.getCarparkNo()) <= list.size()) {
-					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，不允许进入", valueOf2, user.getCarparkNo(), list.size());
+				if (slot <= fixCarInSize) {
+					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，不允许进入", isFixCarSlotFullAutoBeTemp, user.getCarparkNo(), fixCarInSize);
 					presenter.showContentToDevice(device,model.getMapVoice().get(DeviceVoiceTypeEnum.固定车车位停满禁止进入语音).getContent(), false);
 					model.setInShowPlateNO(model.getInShowPlateNO()+"-个人车位满");
+					boolean confirm = new ConfimBox(editPlateNo,"车辆["+editPlateNo+"]进入停车场["+carpark.getName()+"]\n车位已满,车辆"+inPlates+"已进场,是否作为临时车进入").open();
+					if (confirm) {
+						cch.setReviseInTime(date);
+						return tempCarShowToDevice(false);
+					}
 					return true;
 				}
 			}
 		}
 
 		// int parseInt = Integer.parseInt(StrUtil.isEmpty(user.getCarparkNo())?"0":user.getCarparkNo());
-		String fixCarInMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.固定车进场语音).getContent();
-		Date date2 = new DateTime(user.getValidTo()).minusDays(user.getRemindDays() == null ? 0 : user.getRemindDays()).toDate();
+		Date date2 = new DateTime(validTo).minusDays(user.getRemindDays() == null ? 0 : user.getRemindDays()).toDate();
 		if (StrUtil.getTodayBottomTime(date2).before(date)) {
-			content = fixCarInMsg + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天";
+			content = fixCarInMsg + ",剩余" + CarparkUtils.countDayByBetweenTime(date, validTo) + "天";
 			isOpenDoor=true;
 			LOGGER.debug("固定车：{}，{}", plateNO, content);
 		} else {
@@ -518,13 +567,15 @@ public class CarInTask extends AbstractTask {
 		if (StrUtil.isEmpty(cch)) {
 			cch = new SingleCarparkInOutHistory();
 		}
+		cch.setReviseInTime(null);
 	}
 	/**
 	 * @param date
 	 * @param user
 	 */
 	private synchronized void setFixCarToTemIn(Date date, SingleCarparkUser user) {
-		user.setTempCarTime((StrUtil.isEmpty(user.getTempCarTime()) ? "" : user.getTempCarTime() + ",") + StrUtil.formatDate(date, StrUtil.DATETIME_PATTERN));
-		sp.getCarparkUserService().saveUser(user);
+//		user.setTempCarTime((StrUtil.isEmpty(user.getTempCarTime()) ? "" : user.getTempCarTime() + ",") + StrUtil.formatDate(date, StrUtil.DATETIME_PATTERN));
+//		sp.getCarparkUserService().saveUser(user);
+		cch.setReviseInTime(date);
 	}
 }

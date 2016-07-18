@@ -25,6 +25,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 
 public class InOutHistoryDetailWizardPage extends WizardPage {
 	@SuppressWarnings("unused")
@@ -80,6 +82,12 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 			}
 		});
 		Composite container = new Composite(parent, SWT.NULL);
+		container.addControlListener(new ControlAdapter() {
+			@Override
+			public void controlResized(ControlEvent e) {
+				setImage();
+			}
+		});
 
 		setControl(container);
 		container.setLayout(new GridLayout(1, false));

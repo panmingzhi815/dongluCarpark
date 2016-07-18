@@ -283,12 +283,6 @@ public class CarOutTask extends AbstractTask{
 		logger.info("固定车出场");
 		if (check) {
 			model.setOutShowPlateNO(model.getOutShowPlateNO()+"-固定车");
-			if (!StrUtil.isEmpty(user.getTempCarTime())) {
-				LOGGER.info("固定车做临时车计费：{}",user.getTempCarTime());
-				tempCarOutProcess(StrUtil.parse(user.getTempCarTime().split(",")[0], StrUtil.DATETIME_PATTERN));
-				model.setUser(user);
-				return true;
-			}
 			if (CarparkUtils.checkRoadType(device, model, presenter, DeviceRoadTypeEnum.临时车通道,DeviceRoadTypeEnum.储值车通道)) {
 				return true;
 			}
@@ -304,22 +298,33 @@ public class CarOutTask extends AbstractTask{
 			}
 		}
 		Date validTo = user.getValidTo();
+		List<SingleCarparkUser> findUserByNameAndCarpark = sp.getCarparkUserService().findUserByNameAndCarpark(user.getName(), carpark, null);
+		for (SingleCarparkUser singleCarparkUser : findUserByNameAndCarpark) {
+			if (singleCarparkUser.getValidTo().after(validTo)) {
+				validTo=singleCarparkUser.getValidTo();
+				user=singleCarparkUser;
+			}
+		}
 		Integer delayDays = user.getDelayDays();
 
 		Calendar c = Calendar.getInstance();
 		c.setTime(validTo);
 		c.add(Calendar.DATE, delayDays);
 		Date time = c.getTime();
-
+		//过期判断
 		if (StrUtil.getTodayBottomTime(time).before(date)) {
 			LOGGER.info("车辆:{}已到期", editPlateNo);
+			Date d = null;
+			if (StrUtil.isEmpty(cch) || cch.getInTime().before(validTo)) {
+				d = validTo;
+			} else {
+				d = cch.getInTime();
+			}
+			if (cch!=null||cch.getReviseInTime()!=null) {
+				tempCarOutProcess(cch.getReviseInTime());
+				return true;
+			}
 			if (Boolean.valueOf(getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车))) {
-				Date d = null;
-				if (StrUtil.isEmpty(cch) || cch.getInTime().before(validTo)) {
-					d = validTo;
-				} else {
-					d = cch.getInTime();
-				}
 				tempCarOutProcess(d);
 				return true;
 			} else if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期所属停车场限制).equals("true")) {
@@ -330,8 +335,14 @@ public class CarOutTask extends AbstractTask{
 			presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent() + StrUtil.formatDate(user.getValidTo(), ConstUtil.VILIDTO_DATE), false);
 			model.setOutShowPlateNO(model.getOutShowPlateNO()+"-已过期");
 			return true;
-		} 
-		
+		}
+		//车位判断
+		if (cch!=null&&!StrUtil.isEmpty(cch.getReviseInTime())) {
+			LOGGER.info("固定车做临时车计费：{}",user.getTempCarTime());
+			tempCarOutProcess(cch.getReviseInTime());
+			model.setUser(user);
+			return true;
+		}
 		boolean fixCarStillCharge = CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车非所属停车场停留收费).equals("true")&&!device.getCarpark().equals(user.getCarpark());
 		model.setPlateNo(editPlateNo);
 		model.setCarType(carType);

@@ -1,0 +1,2 @@
+use carpark
+alter table SingleCarparkUser drop CONSTRAINT uc_SingleCarparkUser_1

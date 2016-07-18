@@ -15,6 +15,7 @@ import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.service.SettingService;
 import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.donglu.carpark.service.SystemUserServiceI;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemOperaLog;
@@ -192,6 +193,21 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 	@Override
 	public boolean createServerFile(String path) {
 		return settingService.createServerFile(path);
+	}
+
+	@Override
+	public List<SingleCarparkUser> findAllUserByPlateNO(String plateNO, Long carparkId, Date validTo) {
+		return carparkUserService.findAllUserByPlateNO(plateNO, carparkId, validTo);
+	}
+
+	@Override
+	public int sumAllUserSlotByPlateNO(String plateNO, Long carparkId, Date validTo) {
+		return carparkUserService.sumAllUserSlotByPlateNO(plateNO, carparkId, validTo);
+	}
+
+	@Override
+	public List<SingleCarparkUser> findUserByNameAndCarpark(String name, SingleCarparkCarpark carpark, Date validTo) {
+		return carparkUserService.findUserByNameAndCarpark(name, carpark, validTo);
 	}
 
 }

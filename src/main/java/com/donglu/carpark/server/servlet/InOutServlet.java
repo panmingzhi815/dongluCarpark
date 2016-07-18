@@ -15,9 +15,11 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkFreeTempCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.server.util.HibernateSerializerFactory;
 import com.google.inject.Inject;
 
@@ -367,5 +369,48 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	@Override
 	public List<String> findAllDeviceName(boolean inOrOut) {
 		return carparkInOutService.findAllDeviceName(inOrOut);
+	}
+
+
+
+	@Override
+	public List<SingleCarparkFreeTempCar> findTempCarFreeByLike(int start, int maxValue, String plateNo) {
+		return carparkInOutService.findTempCarFreeByLike(start, maxValue, plateNo);
+	}
+
+
+
+	@Override
+	public SingleCarparkFreeTempCar findTempCarFreeByPlateNO(String plateNo) {
+		return carparkInOutService.findTempCarFreeByPlateNO(plateNo);
+	}
+
+
+
+	@Override
+	public Long deleteTempCarFree(SingleCarparkFreeTempCar ft) {
+		return carparkInOutService.deleteTempCarFree(ft);
+	}
+
+
+
+	@Override
+	public Long saveTempCarFree(SingleCarparkFreeTempCar ft) {
+		return carparkInOutService.saveTempCarFree(ft);
+	}
+
+
+
+	@Override
+	public List<SingleCarparkInOutHistory> findInOutHistoryByUser(SingleCarparkUser user, Boolean b) {
+		return carparkInOutService.findInOutHistoryByUser(user, b);
+	}
+
+
+
+	@Override
+	public List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(SingleCarparkCarpark carpark, String pn,
+			boolean b) {
+		return carparkInOutService.findInOutHistoryByCarparkAndPlateNO(carpark, pn, b);
 	}
 }
