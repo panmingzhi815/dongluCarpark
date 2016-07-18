@@ -39,6 +39,7 @@ public class DeviceView extends Composite implements View{
 	private ToolItem toolItem_in_openDoor;
 	private ToolItem toolItem_in_closeDoor;
 	private ToolItem toolItem_in_fleet;
+	private ToolItem toolItem_testDevice;
 
 	public DeviceView(Composite parent, int style) {
 		super(parent, style);
@@ -110,6 +111,22 @@ public class DeviceView extends Composite implements View{
 					return;
 				}
 				getPresenter().closeDoor();
+			}
+		});
+		toolItem_testDevice = new ToolItem(toolBar3, SWT.NONE);
+		toolItem_testDevice.setText("检测");
+		
+		toolItem_testDevice.setToolTipText("检测设备是否正常");
+		toolItem_testDevice.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				if (!rateLimiter.tryAcquire()) {
+					return;
+				}
+				getShell().setEnabled(false);
+				getPresenter().testDevice();
+				getShell().setEnabled(true);
 			}
 		});
 //		toolItem_in_fleet = new ToolItem(toolBar3, SWT.NONE);

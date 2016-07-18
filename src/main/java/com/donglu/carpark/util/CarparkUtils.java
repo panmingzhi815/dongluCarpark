@@ -619,4 +619,25 @@ public class CarparkUtils {
 	public static String getLoginUserName() {
 		return System.getProperty(ConstUtil.USER_NAME);
 	}
+	public static boolean ping(String ip){
+		long currentTimeMillis = System.currentTimeMillis();
+		try {
+			Process exec = Runtime.getRuntime().exec("ping "+ip);
+			InputStream inputStream = exec.getInputStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "GBK"));
+			String readLine = br.readLine();
+			int i=1;
+			while (readLine!=null&&System.currentTimeMillis()-currentTimeMillis<3000) {
+				System.out.println(i+"="+readLine);
+				if (i==3) {
+					break;
+				}
+				readLine = br.readLine();
+				i++;
+			}
+			return readLine.indexOf("TTL")>-1;
+		} catch (Exception e) {
+		}
+		return false;
+	}
 }
