@@ -298,7 +298,7 @@ public class CarOutTask extends AbstractTask{
 			}
 		}
 		Date validTo = user.getValidTo();
-		List<SingleCarparkUser> findUserByNameAndCarpark = sp.getCarparkUserService().findUserByNameAndCarpark(user.getName(), carpark, null);
+		List<SingleCarparkUser> findUserByNameAndCarpark = sp.getCarparkUserService().findUserByNameAndCarpark(editPlateNo, carpark, null);
 		for (SingleCarparkUser singleCarparkUser : findUserByNameAndCarpark) {
 			if (singleCarparkUser.getValidTo().after(validTo)) {
 				validTo=singleCarparkUser.getValidTo();
@@ -337,7 +337,7 @@ public class CarOutTask extends AbstractTask{
 			return true;
 		}
 		//车位判断
-		if (cch!=null&&!StrUtil.isEmpty(cch.getReviseInTime())) {
+		if (cch!=null&&!StrUtil.isEmpty(cch.getReviseInTime())&&!cch.getIsOverdue()) {
 			LOGGER.info("固定车做临时车计费：{}",user.getTempCarTime());
 			tempCarOutProcess(cch.getReviseInTime());
 			model.setUser(user);

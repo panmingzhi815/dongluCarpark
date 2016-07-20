@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 
@@ -13,7 +14,7 @@ public interface CarparkUserService {
 	Long deleteUser(SingleCarparkUser user);
 	
 	List<SingleCarparkUser> findAll();
-	List<SingleCarparkUser> findByNameOrPlateNo(String name,String plateNo, int willOverdue, String overdue);
+	List<SingleCarparkUser> findByNameOrPlateNo(String name,String plateNo, String address, SingleCarparkMonthlyCharge monthlyCharge, int willOverdue, String overdue);
 	/**
 	 * 根据车牌查找单个用户
 	 * @param plateNO
@@ -63,4 +64,10 @@ public interface CarparkUserService {
 	 * @return
 	 */
 	List<SingleCarparkUser> findUserByNameAndCarpark(String name, SingleCarparkCarpark carpark,Date validTo);
+	/**
+	 * 根据车位查找用户
+	 * @param parkingSpace
+	 * @return
+	 */
+	SingleCarparkUser findUserByParkingSpace(String parkingSpace);
 }

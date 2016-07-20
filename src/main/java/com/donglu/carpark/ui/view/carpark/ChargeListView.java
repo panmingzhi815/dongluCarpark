@@ -39,7 +39,7 @@ public class ChargeListView extends AbstractListView<CarparkChargeInfo> implemen
 	@Override
 	protected void createMenuBarToolItem(ToolBar toolBar_menu) {
 		toolBar_menu.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		if (!ConstUtil.checkPrivilege(SystemUserTypeEnum.系统管理员)) {
+		if (!ConstUtil.checkPrivilege(SystemUserTypeEnum.超级管理员)) {
 			return;
 		}
 		ToolItem toolItem_5 = new ToolItem(toolBar_menu, SWT.NONE);

@@ -405,7 +405,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return c.getResultList();
 		} catch (Exception e) {
-			e.printStackTrace();
 			return new ArrayList<>();
 		} finally {
 			unitOfWork.end();
@@ -428,7 +427,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return c.getResultList();
 		} catch (Exception e) {
-			e.printStackTrace();
 			return new ArrayList<>();
 		} finally {
 			unitOfWork.end();
@@ -754,7 +752,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return c.getResultList();
 		} catch (Exception e) {
-			e.printStackTrace();
 			return new ArrayList<>();
 		} finally {
 			unitOfWork.end();
@@ -1074,7 +1071,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return cst.getId();
 		} catch (Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 	}
@@ -1101,7 +1097,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 				deviceName=SingleCarparkInOutHistory.Property.outDevice.name();
 				time=SingleCarparkInOutHistory.Property.outTime.name();
 			}
-			System.out.println(start+"============="+end);
 			Map<String, Long> mapDeviceToCount=new HashMap<>();
 			String qlString = "select count(h),h."+deviceName+" from SingleCarparkInOutHistory h where h."+deviceName+" is not null and h."+time+" between ?1 and ?2 group by h."+deviceName;
 			System.out.println(qlString);
@@ -1115,7 +1110,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return mapDeviceToCount;
 		} catch (Exception e) {
-			e.printStackTrace();
 		}finally{
 			unitOfWork.end();
 		}
@@ -1139,7 +1133,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return resultList;
 		} catch (Exception e) {
-			e.printStackTrace();
 		}finally{
 			unitOfWork.end();
 		}
@@ -1225,7 +1218,11 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 				c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plateNO));
 			}
 			if (!StrUtil.isEmpty(carpark)) {
-				c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), carpark.getId()));
+				carpark = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get()).getEntityWithId(carpark.getId());
+				List<SingleCarparkCarpark> list=new ArrayList<>();
+				list.add(carpark);
+				carpark.getChildCarpark(carpark, list);
+				c.add(Restrictions.in(SingleCarparkInOutHistory.Property.carparkId.name(), StrUtil.getListIdByEntity(list)));
 			}
 			if (b) {
 				c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.reviseInTime.name()));
@@ -1237,5 +1234,4 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			unitOfWork.end();
 		}
 	}
-
 }

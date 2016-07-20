@@ -179,6 +179,12 @@ public class SingleCarparkMonthlyCharge extends DomainObject{
 		if (pcs != null)
 			pcs.firePropertyChange("parkType", null, null);
 	}
-	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj!=null&&obj.getClass().equals(getClass())) {
+			return getClass().cast(obj).getId().equals(getId());
+		}
+		return super.equals(obj);
+	}
 	
 }

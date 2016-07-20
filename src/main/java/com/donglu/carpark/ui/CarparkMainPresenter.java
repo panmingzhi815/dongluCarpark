@@ -342,7 +342,7 @@ public class CarparkMainPresenter {
 				}
 				checkPlayerPlayingSize++;
 			}
-		}, 1000, 10, TimeUnit.SECONDS);
+		}, 10, 10, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -537,7 +537,7 @@ public class CarparkMainPresenter {
 				this.model.setCarpark(device2.getCarpark());
 			}
 		} catch (Exception e1) {
-			e1.printStackTrace();
+			log.error("修改设备时发生错误",e1);
 		} finally {
 
 		}
@@ -623,7 +623,7 @@ public class CarparkMainPresenter {
 			this.model.setTotalCharge(carparkInOutService.findFactMoneyByName(userName));
 			this.model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("归账时发生错误",e);
 		}
 	}
 
@@ -741,7 +741,7 @@ public class CarparkMainPresenter {
 				return true;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("显示车位时发生错误",e);
 			return false;
 		}finally{
 			try {
@@ -771,7 +771,7 @@ public class CarparkMainPresenter {
 				hardwareService.carparkPosition(d, position);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("发送车位(无返回)时发生错误",e);
 		}
 	}
 	private Device getDevice(SingleCarparkDevice device) {
@@ -893,7 +893,7 @@ public class CarparkMainPresenter {
 			}
 			return carparkUsualContent;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("发送广告语时发生错误",e);
 			return false;
 		}
 	}
@@ -998,8 +998,8 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-//		mapIpToJNA.get(ip).tigger(ip);
-		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", null, null, 11);
+		mapIpToJNA.get(ip).tigger(ip);
+//		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", null, null, 11);
 	}
 
 	/**
@@ -1042,8 +1042,7 @@ public class CarparkMainPresenter {
 							String upload = sp.getImageService().saveImageInServer(bigImage, finalFileName);
 							log.info("图片上传到服务器{}成功,{}", ip, upload);
 						} catch (Exception e) {
-							e.printStackTrace();
-							log.error("图片上传到服务器{}失败", ip);
+							log.error("图片上传到服务器"+ip+"失败", e);
 						} finally {
 							log.info("上传图片花费时间：{}", System.nanoTime() - nanoTime);
 						}
@@ -1406,7 +1405,7 @@ public class CarparkMainPresenter {
 			updatePosition(device.getCarpark(), singleCarparkInOutHistory.getUserId(), false);
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("收费时发生错误",e);
 			return false;
 		}
 	}
@@ -1445,7 +1444,7 @@ public class CarparkMainPresenter {
 				CarparkUtils.cleanSameInOutHistory();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("修改车牌时发生错误",e);
 		}
 	}
 
@@ -1517,14 +1516,12 @@ public class CarparkMainPresenter {
 							String smallUpload = sp.getImageService().saveImageInServer(Files.toByteArray(smallFile), finalSmallFileName);
 							log.info("图片上传到服务器{}成功,{}", ip, bigUpload + "==" + smallUpload);
 						} catch (Exception e) {
-							e.printStackTrace();
-							log.error("图片上传到服务器{}失败", ip);
+							log.error("图片上传到服务器"+ip+"失败", e);
 						} finally {
 							log.debug("上传图片花费时间：{}", System.nanoTime() - nanoTime);
 						}
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
 					log.error("上传图片出错", e);
 				}
 			}
@@ -1665,7 +1662,7 @@ public class CarparkMainPresenter {
 				model.setTotalSlotTooltip("实时总车位，双击进行修改");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("获取车位时发生错误",e);
 		}
 		return findTotalSlotIsNow;
 	}

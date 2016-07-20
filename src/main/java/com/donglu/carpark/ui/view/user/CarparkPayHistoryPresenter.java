@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.Presenter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 public class CarparkPayHistoryPresenter  implements Presenter{
@@ -49,6 +50,14 @@ public class CarparkPayHistoryPresenter  implements Presenter{
 
 	public void export() {
 		carparkPayHistoryListPresenter.export();
+	}
+
+	public void split(Date start, Date end) {
+		if (start!=null&&end!=null) {
+			start=StrUtil.getMonthTopTime(start);
+			end=StrUtil.getMonthBottomTime(end);
+			carparkPayHistoryListPresenter.split(start,end);
+		}
 	}
 
 }

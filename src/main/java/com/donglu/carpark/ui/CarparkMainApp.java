@@ -271,7 +271,6 @@ public class CarparkMainApp extends AbstractApp{
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error("系统发生异常", e);
 			// shell.dispose();
 			// open();
@@ -310,7 +309,6 @@ public class CarparkMainApp extends AbstractApp{
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error("系统发生异常", e);
 			// shell.dispose();
 			// open();
@@ -332,7 +330,7 @@ public class CarparkMainApp extends AbstractApp{
 			refreshService.shutdownNow();
 			presenter.systemExit();
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("关闭时发生错误",e);
 		}finally{
 			System.exit(0);
 		}

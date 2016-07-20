@@ -4,6 +4,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkUserService;
 import com.dongluhitec.card.domain.db.CardUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.base.Strings;
@@ -289,7 +290,9 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 			row.createCell(9).setCellValue(user.getCarparkSlotType()+"");
 			row.createCell(10).setCellValue(user.getCarpark().getCode());
 			row.createCell(11).setCellValue(user.getCarpark().getName());
-			row.createCell(12).setCellValue(user.getRemark());
+			row.createCell(12).setCellValue(user.getMonthChargeCode());
+			row.createCell(13).setCellValue(user.getMonthChargeName());
+			row.createCell(14).setCellValue(user.getRemark());
 		}
 		FileOutputStream fileOut = new FileOutputStream(path);
 		wb.write(fileOut);
@@ -306,6 +309,7 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		int currentRow = 0;
 		HSSFRow row = sheet.getRow(currentRow);
 		Map<String, SingleCarparkCarpark> map=new HashMap<>();
+		Map<String, SingleCarparkMonthlyCharge> mapCharge=new HashMap<>();
 		CellStyle cellStyle = wb.createCellStyle();
 		cellStyle.setBorderBottom((short) 1);
 		cellStyle.setBorderLeft((short) 1);
@@ -337,7 +341,6 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 					throw new Exception("空的车牌");
 				}
 				String caparkCode=getCellStringValue(row, 10);
-				String caparkName=getCellStringValue(row, 11);
 				
 				if (map.get(caparkCode) == null) {
 					SingleCarparkCarpark findCarparkByCode = sp.getCarparkService().findCarparkByCode(caparkCode);
@@ -347,10 +350,25 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 						map.put(caparkCode, findCarparkByCode);
 					}
 				}
-				SingleCarparkUser findUserByPlateNo = carparkUserService.findUserByPlateNo(plateNO,map.get(caparkCode).getId());
-				if (!StrUtil.isEmpty(findUserByPlateNo)) {
-					throw new Exception("车牌已存在");
+				SingleCarparkUser user=new SingleCarparkUser();
+				String chargeCode=getCellStringValue(row, 12);
+				if (!StrUtil.isEmpty(chargeCode)) {
+					SingleCarparkMonthlyCharge mc = mapCharge.get(chargeCode);
+					if (mc==null) {
+						mc = sp.getCarparkService().findMonthlyChargeByCode(chargeCode, map.get(caparkCode));
+						if (mc==null) {
+							throw new Exception("收费标准未找到");
+						}
+						mapCharge.put(chargeCode, mc);
+					}
+					user.setMonthChargeId(mc.getId());
+					user.setMonthChargeCode(mc.getChargeCode());
+					user.setMonthChargeName(mc.getChargeName());
 				}
+//				SingleCarparkUser findUserByPlateNo = carparkUserService.findUserByPlateNo(plateNO,map.get(caparkCode).getId());
+//				if (!StrUtil.isEmpty(findUserByPlateNo)) {
+//					throw new Exception("车牌已存在");
+//				}
 				name = getCellStringValue(row, 1);
 				address=getCellStringValue(row, 4);
 				type=getCellStringValue(row, 5);
@@ -358,19 +376,34 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				carparkNo=getCellStringValue(row, 7);
 				telephone=getCellStringValue(row, 3);
 				parkingSpace=getCellStringValue(row, 8);
+				if (!StrUtil.isEmpty(parkingSpace)) {
+					SingleCarparkUser u =sp.getCarparkUserService().findUserByParkingSpace(parkingSpace);
+					if (u!=null) {
+						throw new Exception("车位已经存在");
+					}
+				}
 				carparkSlotType=getCellStringValue(row, 9);
 				
-				remark=getCellStringValue(row, 12);
-				SingleCarparkUser user=new SingleCarparkUser();
+				remark=getCellStringValue(row, 14);
+				
 				user.setName(name);
 				user.setPlateNo(plateNO);
 				user.setAddress(address);
 				user.setType(type);
-				user.setValidTo(StrUtil.parse(validTo, USER_VALIDTO));
+				user.setTelephone(telephone);
+				Date parse = StrUtil.parse(validTo, USER_VALIDTO);
+				if (parse==null) {
+					parse=StrUtil.parse(validTo, "yyyy-MM-dd");
+					if (parse!=null) {
+						parse=StrUtil.getTodayBottomTime(parse);
+					}
+				}
+				user.setValidTo(parse);
 				user.setCarparkNo(carparkNo);
 				user.setRemark(remark);
 				user.setCreateDate(new Date());
 				user.setCarpark(map.get(caparkCode));
+				user.setParkingSpace(parkingSpace);
 				try {
 					user.setCarparkSlotType(SingleCarparkUser.CarparkSlotTypeEnum.valueOf(carparkSlotType));
 				} catch (Exception e) {

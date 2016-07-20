@@ -76,7 +76,12 @@ public class AddUserWizardPage extends WizardPage {
 			setPageComplete(false);
 		}
 		setControl(container);
-		container.setLayout(new GridLayout(1, false));
+		GridLayout gl_container = new GridLayout(1, false);
+		gl_container.verticalSpacing = 0;
+		gl_container.marginWidth = 0;
+		gl_container.marginHeight = 0;
+		gl_container.horizontalSpacing = 0;
+		container.setLayout(gl_container);
 		
 		Composite composite = new Composite(container, SWT.BORDER);
 		composite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
@@ -103,6 +108,15 @@ public class AddUserWizardPage extends WizardPage {
 		gd_text.widthHint = 150;
 		text.setLayoutData(gd_text);
 		TextUtils.createPlateNOAutoCompleteField(text);
+		
+		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
+		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_1.setText("车位编号");
+		
+		text_5 = new Text(composite, SWT.BORDER);
+		text_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		Label label_1 = new Label(composite, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -192,15 +206,6 @@ public class AddUserWizardPage extends WizardPage {
 		GridData gd_text_4 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_4.widthHint = 150;
 		txt_carNO.setLayoutData(gd_text_4);
-		
-		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
-		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_1.setText("车位编号");
-		
-		text_5 = new Text(composite, SWT.BORDER);
-		text_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label label_8 = new Label(composite, SWT.NONE);
 		label_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

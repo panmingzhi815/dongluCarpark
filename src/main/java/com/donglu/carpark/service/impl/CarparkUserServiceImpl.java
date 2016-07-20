@@ -3,7 +3,6 @@ package com.donglu.carpark.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -20,6 +19,7 @@ import org.joda.time.DateTime;
 import com.donglu.carpark.service.CarparkUserService;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -68,7 +68,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		}
 	}
 	@Override
-	public List<SingleCarparkUser> findByNameOrPlateNo(String name, String plateNo, int willOverdue, String overdue) {
+	public List<SingleCarparkUser> findByNameOrPlateNo(String name, String plateNo,String address,SingleCarparkMonthlyCharge monthlyCharge, int willOverdue, String overdue) {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
@@ -81,6 +81,12 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			if (willOverdue>0) {
 				Date date = new DateTime(StrUtil.getTodayBottomTime(new Date())).plusDays(willOverdue).toDate();
 				c.add(Restrictions.le(SingleCarparkUser.Property.validTo.name(), date));
+			}
+			if (!StrUtil.isEmpty(monthlyCharge)) {
+				c.add(Restrictions.eq(SingleCarparkUser.Property.monthChargeId.name(), monthlyCharge.getId()));
+			}
+			if (!StrUtil.isEmpty(address)) {
+				c.add(Restrictions.like("address", address, MatchMode.ANYWHERE));
 			}
 			if (!StrUtil.isEmpty(overdue)) {
 				if (overdue.equals("是")) {
@@ -333,7 +339,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 //			c.add(Restrictions.isNotNull("validTo"));
 			
 			if (!StrUtil.isEmpty(name)) {
-				c.add(Restrictions.eq(SingleCarparkUser.Property.name.name(), name));
+				c.add(Restrictions.like(SingleCarparkUser.Property.plateNo.name(), name,MatchMode.ANYWHERE));
 			}else{
 				return new ArrayList<>();
 			}
@@ -358,5 +364,16 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			unitOfWork.end();
 		}
 	
+	}
+	@Override
+	public SingleCarparkUser findUserByParkingSpace(String parkingSpace) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+			c.add(Restrictions.eq(SingleCarparkUser.Property.parkingSpace.name(), parkingSpace));
+			return (SingleCarparkUser) c.getSingleResultOrNull();
+		}finally{
+			unitOfWork.end();
+		}
 	}
 }

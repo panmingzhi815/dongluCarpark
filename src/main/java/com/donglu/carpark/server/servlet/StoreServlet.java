@@ -52,13 +52,7 @@ public class StoreServlet extends HttpServlet {
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		try {
-			sp.start();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		String method = req.getParameter("method");
-		System.out.println(method);
 		if (StrUtil.isEmpty(method)) {
 			logger.error("空的方法");
 			return;

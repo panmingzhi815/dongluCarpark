@@ -60,7 +60,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.dongluhitec.card.hardware" level="INFO">
+    <logger name="com.dongluhitec.card.hardware" level="ERROR">
         <appender-ref ref="DEVICE_MESSAGE_DEBUG"/>
     </logger>
 

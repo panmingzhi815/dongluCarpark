@@ -42,7 +42,7 @@ public class CarparkPayHistoryView extends Composite implements View {
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		group.setText("查询");
-		group.setLayout(new GridLayout(10, false));
+		group.setLayout(new GridLayout(11, false));
 
 		Label label = new Label(group, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -111,6 +111,16 @@ public class CarparkPayHistoryView extends Composite implements View {
 		});
 		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_1.setText("导出");
+		
+		Button button_2 = new Button(group, SWT.NONE);
+		button_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().split(dateChooserCombo.getValue(), dateChooserCombo_1.getValue());
+			}
+		});
+		button_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_2.setText("分账");
 
 		listComposite = new Composite(this, SWT.NONE);
 		listComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));

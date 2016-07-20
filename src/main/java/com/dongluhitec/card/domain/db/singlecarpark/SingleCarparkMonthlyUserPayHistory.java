@@ -11,10 +11,10 @@ import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
 public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	public enum Property{
-		userName,userType,plateNO,chargesMoney,operaName,overdueTime,createTime
+		userName,userType,plateNO,chargesMoney,operaName,overdueTime,createTime,parkingSpace,monthChargeName
 	}
 	public enum Label{
-		createTimeLabel,overdueTimeLabel
+		createTimeLabel,overdueTimeLabel,startTimeLabel
 	}
 	/**
 	 * 
@@ -41,6 +41,11 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
     private Float chargesMoney;
     
     private String operaName;
+    
+    private Long monthChargeId;//月租编号
+	private String monthChargeCode;
+	private String monthChargeName;
+	private String parkingSpace;
 
 	public String getUserName() {
 		return userName;
@@ -51,6 +56,12 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	}
 	public String getOverdueTimeLabel(){
 		return StrUtil.formatDate(overdueTime, "yyyy-MM-dd HH:mm:ss");
+	}
+	public String getStartTimeLabel(){
+		if (oldOverDueTime==null) {
+			return getCreateTimeLabel();
+		}
+		return StrUtil.formatDate(oldOverDueTime, "yyyy-MM-dd HH:mm:ss");
 	}
 	public void setUserName(String userName) {
 		this.userName = userName;
@@ -180,6 +191,42 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 		this.userType = userType;
 		if (pcs != null)
 			pcs.firePropertyChange("userType", null, null);
+	}
+
+	public Long getMonthChargeId() {
+		return monthChargeId;
+	}
+
+	public void setMonthChargeId(Long monthChargeId) {
+		this.monthChargeId = monthChargeId;
+		firePropertyChange("monthChargeId", null, null);
+	}
+
+	public String getMonthChargeCode() {
+		return monthChargeCode;
+	}
+
+	public void setMonthChargeCode(String monthChargeCode) {
+		this.monthChargeCode = monthChargeCode;
+		firePropertyChange("monthChargeCode", null, null);
+	}
+
+	public String getMonthChargeName() {
+		return monthChargeName;
+	}
+
+	public void setMonthChargeName(String monthChargeName) {
+		this.monthChargeName = monthChargeName;
+		firePropertyChange("monthChargeName", null, null);
+	}
+
+	public String getParkingSpace() {
+		return parkingSpace;
+	}
+
+	public void setParkingSpace(String parkingSpace) {
+		this.parkingSpace = parkingSpace;
+		firePropertyChange("parkingSpace", null, null);
 	}
 	
 }

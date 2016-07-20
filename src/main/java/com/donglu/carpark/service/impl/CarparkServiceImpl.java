@@ -559,7 +559,6 @@ public class CarparkServiceImpl implements CarparkService {
 			List<Holiday> resultList = c.getResultList();
 			return resultList;
 		}catch(Exception e){
-			e.printStackTrace();
 			return new ArrayList<>();
 		}finally{
 			unitOfWork.end();
@@ -573,7 +572,6 @@ public class CarparkServiceImpl implements CarparkService {
 			c.add(Restrictions.eq("start", date));
 			return (Holiday) c.getSingleResultOrNull();
 		}catch(Exception e){
-			e.printStackTrace();
 			return null;
 		}finally{
 			unitOfWork.end();
@@ -691,7 +689,6 @@ public class CarparkServiceImpl implements CarparkService {
 			}
 			return carparkChargeStandardList;
 		} catch (Exception e) {
-			e.printStackTrace();
 			return Lists.newArrayList();
 		}finally{
 			unitOfWork.end();
