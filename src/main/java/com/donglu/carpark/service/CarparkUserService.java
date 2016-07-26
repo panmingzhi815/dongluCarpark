@@ -3,7 +3,9 @@ package com.donglu.carpark.service;
 import java.util.Date;
 import java.util.List;
 
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 
@@ -12,8 +14,30 @@ public interface CarparkUserService {
 	Long deleteUser(SingleCarparkUser user);
 	
 	List<SingleCarparkUser> findAll();
-	List<SingleCarparkUser> findByNameOrPlateNo(String name,String plateNo, int willOverdue, String overdue);
+	List<SingleCarparkUser> findByNameOrPlateNo(String name,String plateNo, String address, SingleCarparkMonthlyCharge monthlyCharge, int willOverdue, String overdue);
+	/**
+	 * 根据车牌查找单个用户
+	 * @param plateNO
+	 * @param carparkId
+	 * @return
+	 */
 	SingleCarparkUser findUserByPlateNo(String plateNO, Long carparkId);
+	/**
+	 * 根据车牌过期时间查找所有用户
+	 * @param plateNO
+	 * @param carparkId
+	 * @param validTo
+	 * @return
+	 */
+	List<SingleCarparkUser> findAllUserByPlateNO(String plateNO, Long carparkId,Date validTo);
+	/**
+	 * 根据车牌计算用户总车位数
+	 * @param plateNO
+	 * @param carparkId
+	 * @param validTo
+	 * @return
+	 */
+	int sumAllUserSlotByPlateNO(String plateNO, Long carparkId,Date validTo);
 	
 	List<SingleCarparkUser> findUserByMonthChargeId(Long id);
 	Long saveUserByMany(List<SingleCarparkUser> list);
@@ -32,4 +56,18 @@ public interface CarparkUserService {
 	int countPrepaidUserPayHistoryList(String userName,String plateNO,Date start,Date end);
 	
 	SingleCarparkUser findUserById(Long userId);
+	/**
+	 * 根据用户名,停车场过期时间查找用户
+	 * @param name
+	 * @param carpark
+	 * @param validTo
+	 * @return
+	 */
+	List<SingleCarparkUser> findUserByNameAndCarpark(String name, SingleCarparkCarpark carpark,Date validTo);
+	/**
+	 * 根据车位查找用户
+	 * @param parkingSpace
+	 * @return
+	 */
+	SingleCarparkUser findUserByParkingSpace(String parkingSpace);
 }

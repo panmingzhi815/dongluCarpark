@@ -102,18 +102,18 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 //		});
 		combo_1 = comboViewer.getCombo();
 		combo_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		combo_1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				SingleCarparkMonthlyCharge selectMonth = model.getSelectMonth();
-				if (StrUtil.isEmpty(selectMonth)) {
-					return;
-				}
-				model.setCarType(selectMonth.getCarType());
-				model.setMonthamount(selectMonth.getRentingDays());
-				model.setMonthCharge(selectMonth.getPrice());
-			}
-		});
+//		combo_1.addSelectionListener(new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				SingleCarparkMonthlyCharge selectMonth = model.getSelectMonth();
+//				if (StrUtil.isEmpty(selectMonth)) {
+//					return;
+//				}
+//				model.setCarType(selectMonth.getCarType());
+//				model.setMonthamount(selectMonth.getRentingDays());
+//				model.setMonthCharge(selectMonth.getPrice());
+//			}
+//		});
 		combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		Label label = new Label(composite, SWT.NONE);
@@ -143,7 +143,7 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		cbv_chargesCount = new ComboViewer(composite, SWT.BORDER | SWT.READ_ONLY);
 		cbv_chargesCount.setLabelProvider(new LabelProvider());
 		cbv_chargesCount.setContentProvider(new ArrayContentProvider());
-		cbv_chargesCount.setInput(new Integer[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+		cbv_chargesCount.setInput(new Integer[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12});
 		combo = cbv_chargesCount.getCombo();
 		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
@@ -151,23 +151,9 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		combo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Integer chargesCount = Integer.parseInt(combo.getText());
-				model.setOldOverDueTime(model.getOverdueTime());
-				Calendar calendar = Calendar.getInstance();
-				calendar.setTime(initOverdueTime == null ? model.getCreateTime() : initOverdueTime);
-				calendar.add(Calendar.MONTH, model.getMonthamount() * chargesCount);
-				float s=model.getMonthCharge()*chargesCount;
-				model.setChargesMoney(s);
-				Date time = calendar.getTime();
-				Date todayBottomTime = StrUtil.getTodayBottomTime(time);
-				model.setOverdueTime(todayBottomTime);
-				// TODO bind?
-				dateChooserCombo.setValue(todayBottomTime);
-//				
-//				text_chargesMoney.setText(s + "");
+				countMoneyOrTime();
 			}
 		});
-		
 		Label label_6 = new Label(composite, SWT.NONE);
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_6.setText("到期时间");
@@ -180,7 +166,6 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		});
 		dateChooserCombo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		dateChooserCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-
 		Label label_7 = new Label(composite, SWT.NONE);
 		label_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_7.setText("本次缴费");
@@ -235,17 +220,39 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		IObservableValue freeModelObserveValue = BeanProperties.value("free").observe(model);
 		bindingContext.bindValue(observeEnabledCombo_1ObserveWidget, freeModelObserveValue, null, null);
 		//
-		IObservableValue observeEnabledComboObserveWidget = WidgetProperties.enabled().observe(combo);
-		bindingContext.bindValue(observeEnabledComboObserveWidget, freeModelObserveValue, null, null);
-		//
-		IObservableValue observeEnabledText_chargesMoneyObserveWidget_1 = WidgetProperties.enabled().observe(text_chargesMoney);
-		IObservableValue payMoneyModelObserveValue = BeanProperties.value("payMoney").observe(model);
-		bindingContext.bindValue(observeEnabledText_chargesMoneyObserveWidget_1, payMoneyModelObserveValue, null, null);
-		//
 		IObservableValue observeEnabledDateChooserComboObserveWidget = WidgetProperties.enabled().observe(dateChooserCombo);
 		IObservableValue payDateModelObserveValue = BeanProperties.value("payDate").observe(model);
 		bindingContext.bindValue(observeEnabledDateChooserComboObserveWidget, payDateModelObserveValue, null, null);
 		//
+		IObservableValue observeEditableText_chargesMoneyObserveWidget = WidgetProperties.editable().observe(text_chargesMoney);
+		IObservableValue payMoneyModelObserveValue = BeanProperties.value("payMoney").observe(model);
+		bindingContext.bindValue(observeEditableText_chargesMoneyObserveWidget, payMoneyModelObserveValue, null, null);
+		//
+		IObservableValue observeEnabledComboObserveWidget = WidgetProperties.enabled().observe(combo);
+		IObservableValue selectedSizeModelObserveValue = BeanProperties.value("selectedSize").observe(model);
+		bindingContext.bindValue(observeEnabledComboObserveWidget, selectedSizeModelObserveValue, null, null);
+		//
 		return bindingContext;
+	}
+
+	private void countMoneyOrTime() {
+		Integer chargesCount = Integer.parseInt(combo.getText());
+		model.setOldOverDueTime(model.getOverdueTime());
+		Calendar calendar = Calendar.getInstance();
+		Date date = initOverdueTime == null ? model.getCreateTime() : initOverdueTime;
+		calendar.setTime(date);
+		calendar.add(Calendar.MONTH, model.getMonthamount() * chargesCount);
+		float s=model.getMonthCharge()*chargesCount;
+		model.setChargesMoney(s);
+		Date time = calendar.getTime();
+		if (StrUtil.getMonthBottomTime(date).getTime()-date.getTime()<1000*60*60*24) {
+			time=StrUtil.getMonthBottomTime(time);
+		}
+		Date todayBottomTime = StrUtil.getTodayBottomTime(time);
+		model.setOverdueTime(todayBottomTime);
+		// TODO bind?
+		dateChooserCombo.setValue(todayBottomTime);
+//				
+//				text_chargesMoney.setText(s + "");
 	}
 }

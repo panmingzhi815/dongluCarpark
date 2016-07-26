@@ -6,6 +6,9 @@ import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.service.PlateSubmitServiceI;
 import com.donglu.carpark.util.CarparkDataBaseUtil;
@@ -18,6 +21,7 @@ import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.io.Files;
 
 public class PlateSubmitServiceImpl implements PlateSubmitServiceI {
+	Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private ExecutorService plateSubmitThreadPool;
 
@@ -29,6 +33,7 @@ public class PlateSubmitServiceImpl implements PlateSubmitServiceI {
 		Runnable runnable = new Runnable() {
 			public void run() {
 				try {
+					logger.info("对车牌{}进行车牌报送",plateNO);
 					SingleCarparkCarpark carpark = device.getCarpark();
 					String folder = "D:\\Pic\\" + StrUtil.formatDate(date, "yyyyMMdd");
 					String inOutType = device.getInType().indexOf("进口") > -1 ? "01" : "11";
@@ -39,15 +44,12 @@ public class PlateSubmitServiceImpl implements PlateSubmitServiceI {
 							+ "VALUES ('{}','0','{}','{}','{}','{}','1','{}',{},0);";
 					String inOrOut = inOutType.equals("01") ? "0" : "1";
 					sql = CarparkUtils.formatString(sql, plateNO, StrUtil.formatDateTime(date), carpark.getCode(), inOrOut, device.getIdentifire(), imageId, image.length);
-					System.out.println("sql======" + sql);
-
 					boolean executeSQL = CarparkDataBaseUtil.executeSQL(sql, "platepark", CarparkServerConfig.getInstance());
 					if (!executeSQL) {
 						plateSubmitThreadPool.submit(this);
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
-					plateSubmitThreadPool.submit(this);
+					logger.error("车牌报送保存数据时发生错误",e);
 				}
 			}
 		};

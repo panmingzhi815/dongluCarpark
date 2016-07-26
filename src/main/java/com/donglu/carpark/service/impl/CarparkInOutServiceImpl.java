@@ -32,6 +32,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkFreeTempCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
@@ -406,7 +407,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return c.getResultList();
 		} catch (Exception e) {
-			e.printStackTrace();
 			return new ArrayList<>();
 		} finally {
 			unitOfWork.end();
@@ -429,7 +429,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return c.getResultList();
 		} catch (Exception e) {
-			e.printStackTrace();
 			return new ArrayList<>();
 		} finally {
 			unitOfWork.end();
@@ -755,7 +754,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return c.getResultList();
 		} catch (Exception e) {
-			e.printStackTrace();
 			return new ArrayList<>();
 		} finally {
 			unitOfWork.end();
@@ -1075,7 +1073,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return cst.getId();
 		} catch (Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 	}
@@ -1102,7 +1099,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 				deviceName=SingleCarparkInOutHistory.Property.outDevice.name();
 				time=SingleCarparkInOutHistory.Property.outTime.name();
 			}
-			System.out.println(start+"============="+end);
 			Map<String, Long> mapDeviceToCount=new HashMap<>();
 			String qlString = "select count(h),h."+deviceName+" from SingleCarparkInOutHistory h where h."+deviceName+" is not null and h."+time+" between ?1 and ?2 group by h."+deviceName;
 			System.out.println(qlString);
@@ -1116,7 +1112,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return mapDeviceToCount;
 		} catch (Exception e) {
-			e.printStackTrace();
 		}finally{
 			unitOfWork.end();
 		}
@@ -1139,7 +1134,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return resultList;
 		} catch (Exception e) {
-			e.printStackTrace();
 		}finally{
 			unitOfWork.end();
 		}
@@ -1275,4 +1269,98 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}
 	}
 
+	public List<SingleCarparkFreeTempCar> findTempCarFreeByLike(int start, int maxValue, String plateNo) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkFreeTempCar.class);
+			if (!StrUtil.isEmpty(plateNo)) {
+				c.add(Restrictions.like(SingleCarparkFreeTempCar.Property.plateNo.name(), plateNo,MatchMode.ANYWHERE));
+			}
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public SingleCarparkFreeTempCar findTempCarFreeByPlateNO(String plateNo) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkFreeTempCar.class);
+			c.add(Restrictions.eq(SingleCarparkFreeTempCar.Property.plateNo.name(), plateNo));
+			c.setFirstResult(0);
+			c.setMaxResults(1);
+			return (SingleCarparkFreeTempCar) c.getSingleResultOrNull();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+	@Transactional
+	@Override
+	public Long deleteTempCarFree(SingleCarparkFreeTempCar ft) {
+		DatabaseOperation<SingleCarparkFreeTempCar> dom = DatabaseOperation.forClass(SingleCarparkFreeTempCar.class, emprovider.get());
+		dom.remove(ft);
+		return ft.getId();
+	}
+	@Transactional
+	@Override
+	public Long saveTempCarFree(SingleCarparkFreeTempCar ft) {
+		DatabaseOperation<SingleCarparkFreeTempCar> dom = DatabaseOperation.forClass(SingleCarparkFreeTempCar.class, emprovider.get());
+		if (ft.getId()==null) {
+			dom.insert(ft);
+		}else{
+			dom.save(ft);
+		}
+		return ft.getId();
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> findInOutHistoryByUser(SingleCarparkUser user, Boolean b) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.userName.name(), user.getName()));
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			if (b!=null) {
+				if (b) {
+					c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.reviseInTime.name()));
+				}else{
+					c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.reviseInTime.name()));
+				}
+			}
+			return c.getResultList();
+		} catch(Exception e){
+			return null;
+		}finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(SingleCarparkCarpark carpark, String plateNO,
+			boolean b) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			if (!StrUtil.isEmpty(plateNO)) {
+				c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plateNO));
+			}
+			if (!StrUtil.isEmpty(carpark)) {
+				carpark = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get()).getEntityWithId(carpark.getId());
+				List<SingleCarparkCarpark> list=new ArrayList<>();
+				list.add(carpark);
+				carpark.getChildCarpark(carpark, list);
+				c.add(Restrictions.in(SingleCarparkInOutHistory.Property.carparkId.name(), StrUtil.getListIdByEntity(list)));
+			}
+			if (b) {
+				c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.reviseInTime.name()));
+			}else{
+				c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.reviseInTime.name()));
+			}
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
 }

@@ -8,6 +8,7 @@ import org.eclipse.jface.wizard.Wizard;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.WidgetUtil;
 
@@ -46,11 +47,11 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 			MonthlyUserPayModel m = model.getModel();
 			if (!StrUtil.isEmpty(m)) {
 				if (StrUtil.isEmpty(m.getSelectMonth())) {
-					page2.setErrorMessage("请选择月租类型");
+					setErrorMessage("请选择月租类型");
 					return false;
 				}
 				if (StrUtil.isEmpty(m.getChargesMoney())) {
-					page2.setErrorMessage("请输入充值金额");
+					setErrorMessage("请输入充值金额");
 					return false;
 				}
 			}
@@ -58,13 +59,36 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 		if(!model.getType().equals("储值")){
 			if (!StrUtil.isEmpty(model.getModel())) {
 				if (StrUtil.isEmpty(model.getModel().getOverdueTime())) {
-					page.setErrorMessage("固定用户必须有个有效期");
+					setErrorMessage("固定用户必须有个有效期");
 					return false;
 				}
 			}
 		}
-		page.setErrorMessage(null);
+		String parkingSpace = model.getParkingSpace();
+		if (!StrUtil.isEmpty(parkingSpace)) {
+			SingleCarparkUser u = sp.getCarparkUserService().findUserByParkingSpace(parkingSpace);
+			if (model.getId() != null) {
+				if (!model.getId().equals(u.getId())) {
+					setErrorMessage("车位已存在");
+					return false;
+				}
+			} else {
+				if (u != null) {
+					setErrorMessage("车位已存在");
+					return false;
+				}
+			}
+		}
+		setErrorMessage(null);
+		model.setPlateNo(model.getPlateNo().toUpperCase());
 		return true;
+	}
+	
+	private void setErrorMessage(String string) {
+		page.setErrorMessage(string);
+		if (page2!=null) {
+			page2.setErrorMessage(string);
+		}
 	}
 
 	/**
@@ -114,6 +138,7 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 			m.setPayMoney(true);
 		}else{
 			m.setFree(true);
+			m.setPayMoney(true);
 		}
 		return super.getNextPage(page);
 	}

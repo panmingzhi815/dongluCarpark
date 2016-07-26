@@ -217,9 +217,9 @@ public abstract class AbstractListView<T> extends AbstractView {
 		lbl_allcount.setLayoutData(gd_lbl_allcount);
 		lbl_allcount.setText("0000000");
 		Composite composite_3 = new Composite(cmp_bottom, SWT.NONE);
-		createBottomComposite(composite_3);
 		composite_3.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		composite_3.setLayout(new FillLayout(SWT.HORIZONTAL));
+		createBottomComposite(composite_3);
 
 		// Composite composite_4 = new Composite(composite_3, SWT.NONE);
 		// composite_4.setLayout(new GridLayout(1, false));

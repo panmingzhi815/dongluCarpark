@@ -469,7 +469,6 @@ public class StoreServerLinkServiceImpl extends AbstractCarparkBackgroundService
 		try {
 			storeHessianService = (StoreHessianServiceI) h.create(StoreHessianServiceI.class, path + "/StoreHessianServlet");
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
 			path=null;
 		}
 		super.startUp();

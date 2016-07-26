@@ -23,7 +23,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	
 	public enum Property{
 		plateNo,userName,carType,inTime,outTime,inDevice,outDevice,operaName,returnAccount,shouldMoney,factMoney,freeMoney
-		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,isCountSlot,freeReason
+		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,isCountSlot,freeReason,reviseInTime
 	}
 	public enum Label{
 		inTimeLabel,outTimeLabel,remarkString
@@ -86,6 +86,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private String chargeOperaName;
 	
 	private Date reviseInTime;
+	private Boolean isOverdue=false;
 	
 	private String freeReason;
 	@Lob
@@ -426,6 +427,16 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		} catch (Exception e) {
 		}
 		firePropertyChange("remark", null, null);
+	}
+	public Boolean getIsOverdue() {
+		if (isOverdue==null) {
+			return false;
+		}
+		return isOverdue;
+	}
+	public void setIsOverdue(Boolean isOverdue) {
+		this.isOverdue = isOverdue;
+		firePropertyChange("isOverdue", null, null);
 	}
 	
 }

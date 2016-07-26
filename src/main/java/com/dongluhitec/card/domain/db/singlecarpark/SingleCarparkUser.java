@@ -20,7 +20,7 @@ public class SingleCarparkUser extends DomainObject {
 	public enum Property{
 		id,plateNo,name,type,carType,address,carparkNo,leftMoney,createDate,validTo,remark
 		,telephone,parkingSpace,carpark,
-		carparkSlot,carparkSlotType
+		carparkSlot,carparkSlotType,monthChargeId,monthChargeName
 	}
 	public enum Label{
 	valitoLabel
@@ -45,6 +45,8 @@ public class SingleCarparkUser extends DomainObject {
 	private Integer remindDays=0;
 	private Integer delayDays=0;
 	private Long monthChargeId;//月租编号
+	private String monthChargeCode;
+	private String monthChargeName;
 	
 	private CarTypeEnum carType=CarTypeEnum.SmallCar;
 	
@@ -232,6 +234,20 @@ public class SingleCarparkUser extends DomainObject {
 	public void setCarparkSlotType(CarparkSlotTypeEnum carparkSlotType) {
 		this.carparkSlotType = carparkSlotType;
 		firePropertyChange("carparkSlotType", null, null);
+	}
+	public String getMonthChargeName() {
+		return monthChargeName;
+	}
+	public void setMonthChargeName(String monthChargeName) {
+		this.monthChargeName = monthChargeName;
+		firePropertyChange("monthChargeName", null, null);
+	}
+	public String getMonthChargeCode() {
+		return monthChargeCode;
+	}
+	public void setMonthChargeCode(String monthChargeCode) {
+		this.monthChargeCode = monthChargeCode;
+		firePropertyChange("monthChargeCode", null, null);
 	}
 	
 }

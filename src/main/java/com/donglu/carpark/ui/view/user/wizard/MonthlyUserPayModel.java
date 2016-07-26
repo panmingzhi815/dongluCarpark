@@ -20,6 +20,7 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 	@SuppressWarnings("unused")
 	private String createTimeLabel;
 	private boolean free=true;
+	private boolean isSelectedSize=true;
 	private boolean payMoney=false;
 	private boolean payDate=true;
 	public int getCount() {
@@ -50,6 +51,11 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 		this.selectMonth = selectMonth;
 		if (pcs != null)
 			pcs.firePropertyChange("selectMonth", null, null);
+		if (selectMonth!=null) {
+			setCarType(selectMonth.getCarType());
+			setMonthCharge(selectMonth.getPrice());
+			setMonthamount(selectMonth.getRentingDays());
+		}
 	}
 	
 	public SingleCarparkMonthlyUserPayHistory getSingleCarparkMonthlyUserPayHistory(){
@@ -70,6 +76,11 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 		s.setId(id);
 		s.setOperaName(getOperaName());
 		s.setUserType(getUserType());
+		if (selectMonth!=null) {
+			s.setMonthChargeId(selectMonth.getId());
+			s.setMonthChargeCode(selectMonth.getChargeCode());
+			s.setMonthChargeName(selectMonth.getChargeName());
+		}
 		return s;
 	}
 
@@ -90,6 +101,7 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 
 	public void setFree(boolean free) {
 		this.free = free;
+		setSelectedSize(free);
 		if (pcs != null)
 			pcs.firePropertyChange("free", null, null);
 	}
@@ -112,5 +124,14 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 		this.payDate = payDate;
 		if (pcs != null)
 			pcs.firePropertyChange("payDate", null, null);
+	}
+
+	public boolean isSelectedSize() {
+		return isSelectedSize;
+	}
+
+	public void setSelectedSize(boolean isSelectedSize) {
+		this.isSelectedSize = isSelectedSize;
+		firePropertyChange("isSelectedSize", null, null);
 	}
 }

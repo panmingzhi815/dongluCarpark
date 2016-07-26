@@ -136,7 +136,7 @@ public class ImageServerUI {
 					LOGGER.info("获取界面用时：{}",(System.nanoTime()-nanoTime));
 					window.open();
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.error("启动时发生错误",e);
 				}
 			}
 		});
@@ -208,7 +208,7 @@ public class ImageServerUI {
 			ImportSNWizard importSNWizard = new ImportSNWizard(av, sp, m);
 			commonui.showWizard(importSNWizard);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("导入注册码时发生错误",e);
 		}
 	}
 
@@ -219,7 +219,7 @@ public class ImageServerUI {
 			filePath = StrUtil.isEmpty(s) ? System.getProperty("user.dir") : s.getSettingValue();
 			CarparkFileUtils.writeObject(ConstUtil.IMAGE_SAVE_DIRECTORY, filePath);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("初始化时发生错误",e);
 		} finally {
 		}
 	}
@@ -309,7 +309,6 @@ public class ImageServerUI {
 						btnStart.setText(btnStartText);
 						btnStart.setData("type", btnStartType);
 					} catch (Exception e1) {
-						e1.printStackTrace();
 						if (e1.getMessage().indexOf("服务器")>-1) {
 							commonui.error("启动失败", ""+e1);
 							btnStart.setText("启    动");
@@ -431,7 +430,7 @@ public class ImageServerUI {
 		try {
 			systemTray.add(icon);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("添加托盘图标时发生错误",e);
 		}
 	}
 	/**
@@ -454,7 +453,7 @@ public class ImageServerUI {
 					update.systemUpdate(findSystemSettingByKey.getSettingValue(), SystemSettingTypeEnum.软件版本.getDefaultValue());
 					updateDatabase(findSystemSettingByKey);
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.error("数据库更新时发生错误",e);
 				}
 			}
 			if (Boolean.valueOf(System.getProperty(Login.CHECK_SOFT_DOG) == null ? "true" : "false")) {
@@ -576,7 +575,7 @@ public class ImageServerUI {
 						LOGGER.info("上传用户{}的记录结果为{}",singleCarparkUser.getPlateNo(),sendUser);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.error("上传固定用户信息时发生错误",e);
 				}finally{
 					CarparkFileUtils.writeObject("userLastUploadId",id);
 					CarparkFileUtils.writeObject("userErrorUploadId",errorIds);
@@ -611,7 +610,7 @@ public class ImageServerUI {
 						LOGGER.info("上传车牌{}的进场记录结果为{}",in.getPlateNo(), sendInHistory);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.error("上传进场记录时发生错误",e);
 				} finally {
 					CarparkFileUtils.writeObject("inLastUploadId", id);
 					CarparkFileUtils.writeObject("inErrorUploadId", errorIds);
@@ -649,7 +648,7 @@ public class ImageServerUI {
 						LOGGER.info("上传车牌{}的出场记录结果为{}",in.getPlateNo(), sendOutHistory);
 					}
 				} catch (Exception e) {
-					LOGGER.info("上传出场记录失败");
+					LOGGER.error("上传出场记录失败",e);
 				}finally{
 					CarparkFileUtils.writeObject("outLastUploadId",id);
 					CarparkFileUtils.writeObject("outErrorUploadId",errorIds);
@@ -669,7 +668,7 @@ public class ImageServerUI {
 						LOGGER.info("上传停车场{}信息结果：{}",singleCarparkCarpark,sendCarparkInfo);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.error("上传停车场信息时发生错误",e);
 				}
 			}
 		}, uploadTime, uploadTime, TimeUnit.SECONDS);
@@ -679,7 +678,7 @@ public class ImageServerUI {
 				try {
 					webService.getLockCarInfo();
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.error("锁车时发生错误",e);
 				}
 				
 			}

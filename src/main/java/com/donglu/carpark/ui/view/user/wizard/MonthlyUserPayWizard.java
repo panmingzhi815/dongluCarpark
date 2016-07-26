@@ -35,10 +35,10 @@ public class MonthlyUserPayWizard extends Wizard implements AbstractWizard{
 				page.setErrorMessage("请选择月租");
 				return false;
 			}
-			if (StrUtil.isEmpty(model.getOverdueTime())||model.getOverdueTime().before(new Date())) {
-				page.setErrorMessage("过期时间必须在现在时间之后");
-				return false;
-			}
+//			if (StrUtil.isEmpty(model.getOverdueTime())||model.getOverdueTime().before(new Date())) {
+//				page.setErrorMessage("过期时间必须在现在时间之后");
+//				return false;
+//			}
 			if (StrUtil.isEmpty(model.getChargesMoney())) {
 				page.setErrorMessage("请输入收费金额");
 				return false;
