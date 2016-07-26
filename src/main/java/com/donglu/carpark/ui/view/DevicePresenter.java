@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.common.Presenter;
-import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -129,24 +128,10 @@ public class DevicePresenter  implements Presenter{
 				return;
 			}
 			String ip = model.getMapDeviceTabItem().get(selection);
-			boolean ping = CarparkUtils.ping(ip);
-			String msg="";
-			if (!ping) {
-				msg="摄像机["+ip+"]通讯失败\n";
-			}
-			SingleCarparkDevice device = model.getMapIpToDevice().get(ip);
-			String linkAddress = device.getLinkAddress();
-			if(linkAddress!=null&&linkAddress.indexOf(":")>-1){
-				String substring = linkAddress.substring(0, linkAddress.indexOf(":"));
-				boolean ping2 = CarparkUtils.ping(substring);
-				if (!ping2) {
-					msg+="控制器["+substring+"]通讯失败";
-				}
-			}else{
-				msg+="控制器不正确";
-			}
-			if (StrUtil.isEmpty(msg)) {
-				msg="设备检测正常";
+			String msg="设备正常";
+			String m = presenter.checkDeviceStatus(ip);
+			if (!StrUtil.isEmpty(m)) {
+				msg=m;
 			}
 			commonui.info("结果", msg);
 		} catch (Exception e) {

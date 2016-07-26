@@ -25,6 +25,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 
 public class InOutHistoryDetailWizardPage extends WizardPage {
 	@SuppressWarnings("unused")
@@ -80,12 +83,28 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 			}
 		});
 		Composite container = new Composite(parent, SWT.NULL);
+		container.addControlListener(new ControlAdapter() {
+			@Override
+			public void controlResized(ControlEvent e) {
+				setImage();
+			}
+		});
 
 		setControl(container);
-		container.setLayout(new GridLayout(1, false));
+		GridLayout gl_container = new GridLayout(1, false);
+		gl_container.verticalSpacing = 0;
+		gl_container.marginWidth = 0;
+		gl_container.marginHeight = 0;
+		gl_container.horizontalSpacing = 0;
+		container.setLayout(gl_container);
 		
 		Composite composite = new Composite(container, SWT.BORDER);
-		composite.setLayout(new GridLayout(1, false));
+		GridLayout gl_composite = new GridLayout(1, false);
+		gl_composite.verticalSpacing = 0;
+		gl_composite.marginWidth = 0;
+		gl_composite.marginHeight = 0;
+		gl_composite.horizontalSpacing = 0;
+		composite.setLayout(gl_composite);
 		GridData gd_composite = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_composite.widthHint = 554;
 		gd_composite.heightHint = 427;
@@ -121,16 +140,14 @@ public class InOutHistoryDetailWizardPage extends WizardPage {
 		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		Composite composite_4 = new Composite(sashForm, SWT.NONE);
-		composite_4.setLayout(new GridLayout(1, false));
+		composite_4.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		lbl_inBigImg = new Label(composite_4, SWT.NONE);
-		lbl_inBigImg.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		Composite composite_5 = new Composite(sashForm, SWT.NONE);
-		composite_5.setLayout(new GridLayout(1, false));
+		composite_5.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		lbl_outBigImg = new Label(composite_5, SWT.NONE);
-		lbl_outBigImg.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		sashForm.setWeights(new int[] {1, 1});
 		setImage();
 		m_bindingContext = initDataBindings();

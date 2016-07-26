@@ -12,7 +12,9 @@ import com.caucho.hessian.server.HessianServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -367,5 +369,54 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	@Override
 	public List<String> findAllDeviceName(boolean inOrOut) {
 		return carparkInOutService.findAllDeviceName(inOrOut);
+	}
+
+
+
+	@Override
+	public List<DeviceErrorMessage> findDeviceErrorMessageBySearch(int first, int max, String deviceName, Date start, Date end) {
+		return carparkInOutService.findDeviceErrorMessageBySearch(first, max, deviceName, start, end);
+	}
+
+
+
+	@Override
+	public Long countDeviceErrorMessageBySearch(String deviceName, Date start, Date end) {
+		return carparkInOutService.countDeviceErrorMessageBySearch(deviceName, start, end);
+	}
+
+
+
+	@Override
+	public Long saveDeviceErrorMessage(DeviceErrorMessage deviceErrorMessage) {
+		return carparkInOutService.saveDeviceErrorMessage(deviceErrorMessage);
+	}
+
+
+
+	@Override
+	public DeviceErrorMessage findDeviceErrorMessageByDevice(SingleCarparkDevice device) {
+		return carparkInOutService.findDeviceErrorMessageByDevice(device);
+	}
+
+
+
+	@Override
+	public Long saveCarparkOffLineHistory(CarparkOffLineHistory carparkOffLineHistory) {
+		return carparkInOutService.saveCarparkOffLineHistory(carparkOffLineHistory);
+	}
+
+
+
+	@Override
+	public List<CarparkOffLineHistory> findCarparkOffLineHistoryBySearch(int first, int max, String plateNO, Date start, Date end) {
+		return carparkInOutService.findCarparkOffLineHistoryBySearch(first, max, plateNO, start, end);
+	}
+
+
+
+	@Override
+	public Long countCarparkOffLineHistoryBySearch(String plateNO, Date start, Date end) {
+		return carparkInOutService.countCarparkOffLineHistoryBySearch(plateNO, start, end);
 	}
 }

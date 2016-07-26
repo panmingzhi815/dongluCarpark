@@ -26,7 +26,9 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkHolidayTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -1130,7 +1132,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 				deviceName=SingleCarparkInOutHistory.Property.outDevice.name();
 			}
 			String qlString = "select h."+deviceName+" from SingleCarparkInOutHistory h where h."+deviceName+" is not null group by h."+deviceName;
-			System.out.println(qlString);
 			Query createQuery = emprovider.get().createQuery(qlString);
 			List resultList = createQuery.getResultList();
 			for (Object object : resultList) {
@@ -1143,6 +1144,135 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			unitOfWork.end();
 		}
 		return Collections.EMPTY_LIST;
+	}
+
+	@Override
+	public List<DeviceErrorMessage> findDeviceErrorMessageBySearch(int first, int max, String deviceName, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createDeviceErrorMessageBySearchCriteria(deviceName, start, end);
+			c.setFirstResult(first);
+			c.setMaxResults(max);
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	/**
+	 * @param deviceName
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	private Criteria createDeviceErrorMessageBySearchCriteria(String deviceName, Date start, Date end) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), DeviceErrorMessage.class);
+		if (!StrUtil.isEmpty(deviceName)) {
+			c.add(Restrictions.like(DeviceErrorMessage.Property.deviceName.name(), deviceName, MatchMode.ANYWHERE));
+		}
+		if (!StrUtil.isEmpty(start)) {
+			c.add(Restrictions.ge(DeviceErrorMessage.Property.checkDate.name(), start));
+		}
+		if (!StrUtil.isEmpty(end)) {
+			c.add(Restrictions.le(DeviceErrorMessage.Property.checkDate.name(), end));
+		}
+		return c;
+	}
+
+	@Override
+	public Long countDeviceErrorMessageBySearch(String deviceName, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c=createDeviceErrorMessageBySearchCriteria(deviceName, start, end);
+			c.setProjection(Projections.rowCount());
+			Long l=(Long) c.getSingleResultOrNull();
+			return l==null?0L:l;
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Transactional
+	@Override
+	public Long saveDeviceErrorMessage(DeviceErrorMessage deviceErrorMessage) {
+		DatabaseOperation<DeviceErrorMessage> dom = DatabaseOperation.forClass(DeviceErrorMessage.class, emprovider.get());
+		if (deviceErrorMessage.getId() == null) {
+			dom.insert(deviceErrorMessage);
+		} else {
+			dom.save(deviceErrorMessage);
+		}
+		return deviceErrorMessage.getId();
+	}
+
+	@Override
+	public DeviceErrorMessage findDeviceErrorMessageByDevice(SingleCarparkDevice device) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), DeviceErrorMessage.class);
+			c.add(Restrictions.eq(DeviceErrorMessage.Property.ip.name(), device.getIp()));
+			c.add(Restrictions.isNull(DeviceErrorMessage.Property.nomalTime.name()));
+			return (DeviceErrorMessage) c.getSingleResultOrNull();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Transactional
+	@Override
+	public Long saveCarparkOffLineHistory(CarparkOffLineHistory carparkOffLineHistory) {
+		DatabaseOperation<CarparkOffLineHistory> dom = DatabaseOperation.forClass(CarparkOffLineHistory.class, emprovider.get());
+		if (carparkOffLineHistory.getId() == null) {
+			dom.insert(carparkOffLineHistory);
+		} else {
+			dom.save(carparkOffLineHistory);
+		}
+		return carparkOffLineHistory.getId();
+	}
+
+	@Override
+	public List<CarparkOffLineHistory> findCarparkOffLineHistoryBySearch(int first, int max, String plateNO, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createCarparkOffLineHistoryBySearchCriteria(plateNO, start, end);
+			c.setFirstResult(first);
+			c.setMaxResults(max);
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	/**
+	 * @param plateNO
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public Criteria createCarparkOffLineHistoryBySearchCriteria(String plateNO, Date start, Date end) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), CarparkOffLineHistory.class);
+		if (!StrUtil.isEmpty(plateNO)) {
+			c.add(Restrictions.like(CarparkOffLineHistory.Property.plateNO.name(), plateNO, MatchMode.ANYWHERE));
+		}
+		if (!StrUtil.isEmpty(start)) {
+			c.add(Restrictions.ge(CarparkOffLineHistory.Property.inTime.name(), start));
+		}
+		if (!StrUtil.isEmpty(end)) {
+			c.add(Restrictions.le(CarparkOffLineHistory.Property.inTime.name(), end));
+		}
+		return c;
+	}
+
+	@Override
+	public Long countCarparkOffLineHistoryBySearch(String plateNO, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createCarparkOffLineHistoryBySearchCriteria(plateNO, start, end);
+			c.setProjection(Projections.rowCount());
+			Long l=(Long) c.getSingleResultOrNull();
+			return l==null?0l:l;
+		} finally{
+			unitOfWork.end();
+		}
 	}
 
 }

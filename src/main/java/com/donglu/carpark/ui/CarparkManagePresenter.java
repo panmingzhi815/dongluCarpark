@@ -10,8 +10,10 @@ import com.donglu.carpark.ui.view.OpenDoorLogPresenter;
 import com.donglu.carpark.ui.view.ReturnAccountPresenter;
 import com.donglu.carpark.ui.view.SystemLogPresenter;
 import com.donglu.carpark.ui.view.carpark.CarparkPresenter;
+import com.donglu.carpark.ui.view.deviceerror.DeviceErrorPresenter;
 import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
 import com.donglu.carpark.ui.view.lockcar.LockCarPresenter;
+import com.donglu.carpark.ui.view.offline.CarparkOffLineHistoryPresenter;
 import com.donglu.carpark.ui.view.setting.SettingPresenter;
 import com.donglu.carpark.ui.view.store.StoreChargePresenter;
 import com.donglu.carpark.ui.view.store.StoreFreePresenter;
@@ -55,6 +57,8 @@ public class CarparkManagePresenter {
 	private CarparkPresenter carparkPresenter;
 	private SystemUserListPresenter systemUserListPresenter;
 	private VisitorPresenter visitorPresenter;
+	private DeviceErrorPresenter deviceErrorPresenter;
+	private CarparkOffLineHistoryPresenter carparkOffLineHistoryPresenter;
 
 	public CarparkManageApp getView() {
 		return view;
@@ -84,6 +88,8 @@ public class CarparkManagePresenter {
 		carparkPresenter = Login.injector.getInstance(CarparkPresenter.class);
 		systemUserListPresenter = Login.injector.getInstance(SystemUserListPresenter.class);
 		visitorPresenter=Login.injector.getInstance(VisitorPresenter.class);
+		deviceErrorPresenter=Login.injector.getInstance(DeviceErrorPresenter.class);
+		carparkOffLineHistoryPresenter=Login.injector.getInstance(CarparkOffLineHistoryPresenter.class);
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.登录登出, "登录了管理界面", System.getProperty(ConstUtil.USER_NAME));
 		refreshSystemSetting();
 	}
@@ -179,6 +185,14 @@ public class CarparkManagePresenter {
 	public void systemExit() {
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.登录登出, "用户退出了管理界面", System.getProperty(ConstUtil.USER_NAME));
 		System.exit(0);
+	}
+
+	public DeviceErrorPresenter getDeviceErrorPresenter() {
+		return deviceErrorPresenter;
+	}
+
+	public CarparkOffLineHistoryPresenter getCarparkOffLineHistoryPresenter() {
+		return carparkOffLineHistoryPresenter;
 	}
 
 }

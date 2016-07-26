@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -222,4 +224,26 @@ public interface CarparkInOutServiceI {
 	
 	Map<String, Long> getDeviceFlows(boolean inOrOut,Date start,Date end);
 	List<String> findAllDeviceName(boolean inOrOut);
+	/**
+	 * 获取设备故障信息
+	 * @param first
+	 * @param max
+	 * @param deviceName
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	List<DeviceErrorMessage> findDeviceErrorMessageBySearch(int first, int max, String deviceName, Date start, Date end);
+
+	Long countDeviceErrorMessageBySearch(String deviceName, Date start, Date end);
+	
+	Long saveDeviceErrorMessage(DeviceErrorMessage deviceErrorMessage);
+
+	DeviceErrorMessage findDeviceErrorMessageByDevice(SingleCarparkDevice device);
+
+	Long saveCarparkOffLineHistory(CarparkOffLineHistory carparkOffLineHistory);
+	
+	List<CarparkOffLineHistory> findCarparkOffLineHistoryBySearch(int first, int max, String plateNO, Date start, Date end);
+
+	Long countCarparkOffLineHistoryBySearch(String plateNO, Date start, Date end);
 }

@@ -628,7 +628,6 @@ public class CarparkUtils {
 			String readLine = br.readLine();
 			int i=1;
 			while (readLine!=null&&System.currentTimeMillis()-currentTimeMillis<3000) {
-				System.out.println(i+"="+readLine);
 				if (i==3) {
 					break;
 				}
@@ -639,5 +638,25 @@ public class CarparkUtils {
 		} catch (Exception e) {
 		}
 		return false;
+	}
+	/**
+	 * 根据时间 车牌生成大小图片存放路径
+	 * @param date
+	 * @param plateNO
+	 * @param isBig
+	 * @return
+	 */
+	public static String FormatImagePath(Date date, String plateNO,boolean isBig) {
+		String imageSavefolder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
+		String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
+		if (isBig) {
+			String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
+			bigImgFileName=imageSavefolder + "/" + bigImgFileName;
+			return bigImgFileName;
+		}else{
+    		String smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
+    		smallImgFileName = imageSavefolder + "/" + smallImgFileName;
+    		return smallImgFileName;
+		}
 	}
 }

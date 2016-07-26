@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainPresenter;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
-import com.dongluhitec.card.domain.util.StrUtil;
 
 public abstract class AbstractTask implements Runnable {
 	static final Logger logger = LoggerFactory.getLogger(AbstractTask.class);
@@ -80,12 +80,8 @@ public abstract class AbstractTask implements Runnable {
 	protected void initImgPath() {
 		//图片保存文件夹
 		logger.debug("准备生成车牌：{}的抓拍图片位置", plateNO);
-		String imageSavefolder = StrUtil.formatDate(date, "yyyy/MM/dd/HH");
-		String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
-		bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
-		smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
-		smallImgFileName = imageSavefolder + "/" + smallImgFileName;
-		bigImgFileName=imageSavefolder + "/" + bigImgFileName;
+		smallImgFileName = CarparkUtils.FormatImagePath(date,plateNO,false);
+		bigImgFileName=CarparkUtils.FormatImagePath(date,plateNO,true);
 		logger.debug("生成车牌：{}的抓拍图片位置：{}--{}", smallImgFileName,bigImgFileName);
 		saveImage();
 	}

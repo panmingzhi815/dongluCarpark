@@ -191,6 +191,10 @@ public class SettingPresenter implements Presenter {
 		List<SingleCarparkUser> findAll = sp.getCarparkUserService().findAll();
 		ArrayList<PlateDownload> list = new ArrayList<>();
 		for (SingleCarparkUser user : findAll) {
+			String[] split = user.getPlateNo().split(",");
+			if (split.length>1) {
+				continue;
+			}
 			PlateDownload pd=new PlateDownload();
 			Date validTo = user.getValidTo();
 			if (validTo==null||validTo.before(new Date())) {
@@ -203,7 +207,6 @@ public class SettingPresenter implements Presenter {
 		model.setListPlate(list);
 		DownloadPlateWizard w=new DownloadPlateWizard(model,commonui);
 		commonui.showWizard(w);
-		
 	}
 
 	public String setFreeReson() {

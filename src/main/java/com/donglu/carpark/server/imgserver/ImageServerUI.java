@@ -706,6 +706,9 @@ public class ImageServerUI {
 							LOGGER.info("第{}次解析从数据库获取注册码信息",i+1);
 							av = new AppVerifierImpl(new SoftDogWin());
 							AppAuthorization decrypt = av.decrypt(sn.getSettingValue());
+							if (decrypt==null) {
+								continue;
+							}
 							dateOfExpire = decrypt.getDateOfExpire();
 							// dateOfExpire=new DateTime(2015,12,8,1,1).toDate();
 							if (StrUtil.getTodayBottomTime(dateOfExpire).before(new Date())) {

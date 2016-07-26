@@ -264,6 +264,22 @@ public class CarparkManageApp extends AbstractApp{
 		composite_6.setLayout(new FillLayout(SWT.HORIZONTAL));
 		presenter.getPrepaidUserPayHistoryPresenter().go(composite_6);
 		
+		TabItem tabItem_12 = new TabItem(tabFolder_searchHistory, SWT.NONE);
+		tabItem_12.setText("设备故障记录");
+		
+		Composite composite_3 = new Composite(tabFolder_searchHistory, SWT.NONE);
+		tabItem_12.setControl(composite_3);
+		composite_3.setLayout(new FillLayout(SWT.HORIZONTAL));
+		presenter.getDeviceErrorPresenter().go(composite_3);
+		
+		TabItem tabItem_13 = new TabItem(tabFolder_searchHistory, SWT.NONE);
+		tabItem_13.setText("离线记录表");
+		
+		Composite composite_4 = new Composite(tabFolder_searchHistory, SWT.NONE);
+		tabItem_13.setControl(composite_4);
+		composite_4.setLayout(new FillLayout(SWT.HORIZONTAL));
+		presenter.getCarparkOffLineHistoryPresenter().go(composite_4);
+		
 		TabItem tabItem_10 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_10.setText("系统用户");
 		

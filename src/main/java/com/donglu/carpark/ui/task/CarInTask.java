@@ -488,7 +488,7 @@ public class CarInTask extends AbstractTask {
 		}else{
 			cch.setIsCountSlot(true);
 		}
-		model.setInShowPlateNO(model.getInShowPlateNO()+"-固定车");
+		model.setInShowPlateNO(model.getInShowPlateNO()+"-"+user.getName());
 		return false;
 	}
 

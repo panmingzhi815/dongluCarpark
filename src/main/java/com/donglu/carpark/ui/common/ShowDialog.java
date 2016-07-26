@@ -72,7 +72,7 @@ public class ShowDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				result=presenter.getModel();
-				shell.dispose();
+				shell.close();
 			}
 		});
 		btnNewButton.setText("确定");
@@ -82,7 +82,7 @@ public class ShowDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				result=null;
-				shell.dispose();
+				shell.close();
 			}
 		});
 		btnNewButton_1.setText("取消");

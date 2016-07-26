@@ -22,15 +22,15 @@ import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
 import com.dongluhitec.card.ui.util.ProcessBarMonitor;
 import com.dongluhitec.card.ui.util.WidgetUtil;
 
-public class DownloadPlateWizard extends Wizard implements AbstractWizard{
-	
+public class DownloadPlateWizard extends Wizard implements AbstractWizard {
+
 	private DownloadPlateModel model;
 	private DownloadPlateWizardPage page;
 	private CommonUIFacility commonui;
-	
-	public DownloadPlateWizard(DownloadPlateModel model,CommonUIFacility commonui) {
-		this.model=model;
-		this.commonui=commonui;
+
+	public DownloadPlateWizard(DownloadPlateModel model, CommonUIFacility commonui) {
+		this.model = model;
+		this.commonui = commonui;
 		setWindowTitle("对设备下载白名单信息");
 	}
 
@@ -47,28 +47,27 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard{
 	public boolean performFinish() {
 		return true;
 	}
-	
-	
-	
+
 	@Override
 	public Object getModel() {
-		
+
 		return model;
 	}
 
 	protected void downloadPlate() {
 		final java.util.List<DownloadDeviceInfo> listSelected = model.getListSelected();
 		final java.util.List<DownloadDeviceInfo> errorListInfo = new ArrayList<>();
-		Progress showProgressBar = commonui.showProgressBar("下载车牌数据到设备", 0, listSelected.size()+1);
+		Progress showProgressBar = commonui.showProgressBar("下载车牌数据到设备", 0, listSelected.size() + 1);
 		new Thread(new Runnable() {
 			public void run() {
 				long nanoTime = System.nanoTime();
 				ProcessBarMonitor monitor = showProgressBar.getMonitor();
-				int i=0;
+				int i = 0;
+				List<PlateDownload> listPlate = model.getListPlate();
+				String message = "车牌下载完成,总共有"+listPlate.size()+"个车牌下载";
 				for (DownloadDeviceInfo downloadDeviceInfo : listSelected) {
 					i++;
 					monitor.dowork(i);
-					List<PlateDownload> listPlate = model.getListPlate();
 					if (StrUtil.isEmpty(listPlate)) {
 						break;
 					}
@@ -76,8 +75,29 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard{
 					if (type.equals(CameraTypeEnum.其他)) {
 						continue;
 					}
+					if (type.equals(CameraTypeEnum.智芯)) {
+						if (listPlate.size()>6000) {
+							int j = listPlate.size()-6000;
+							listPlate=listPlate.subList(0, 6000);
+							message+="\n设备"+downloadDeviceInfo.getIp()+"下满6000条,有"+j+"条下载失败";
+						}
+					}
+					if (type.equals(CameraTypeEnum.信路威)) {
+						if (listPlate.size() > 6000) {
+							int j = listPlate.size()-6000;
+							listPlate=listPlate.subList(0, 6000);
+							message+="\n设备"+downloadDeviceInfo.getIp()+"下满6000条,有"+j+"条下载失败";
+						}
+					}
+					if (type.equals(CameraTypeEnum.臻识)) {
+						if (listPlate.size() > 5000) {
+							int j = listPlate.size()-5000;
+							listPlate=listPlate.subList(0, 5000);
+							message+="\n设备"+downloadDeviceInfo.getIp()+"下满5000条,有"+j+"条下载失败";
+						}
+					}
 					String ip = downloadDeviceInfo.getIp();
-					monitor.showMessage("正在下载车牌信息到:"+ip);
+					monitor.showMessage("正在下载车牌信息到:" + ip);
 					PlateNOJNA plateNOJNA = type.getJNA(Login.injector);
 					try {
 						plateNOJNA.openEx(ip, new PlateNOResult() {
@@ -97,20 +117,28 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard{
 					}
 				}
 				showProgressBar.finish();
-				System.out.println("下载花费时间："+(System.nanoTime()-nanoTime));
+				String msg=message;
+				Runnable runnable = new Runnable() {
+					public void run() {
+						commonui.info("提示", msg);
+					}
+				};
+				getShell().getDisplay().asyncExec(runnable);
+				System.out.println("下载花费时间：" + (System.nanoTime() - nanoTime));
 			}
 		}).start();
 	}
+
 	@SuppressWarnings("unchecked")
 	protected void init() {
 		Object readObject = CarparkFileUtils.readObject(ConstUtil.MAP_IP_TO_DEVICE);
 		if (readObject != null) {
 			Map<String, SingleCarparkDevice> map = (Map<String, SingleCarparkDevice>) readObject;
-			if (map!=null) {
-				java.util.List<SingleCarparkDevice> listDevice=new ArrayList<>(map.values());
-				java.util.List<DownloadDeviceInfo> list=new ArrayList<>();
+			if (map != null) {
+				java.util.List<SingleCarparkDevice> listDevice = new ArrayList<>(map.values());
+				java.util.List<DownloadDeviceInfo> list = new ArrayList<>();
 				for (SingleCarparkDevice singleCarparkDevice : listDevice) {
-					DownloadDeviceInfo info=new DownloadDeviceInfo();
+					DownloadDeviceInfo info = new DownloadDeviceInfo();
 					info.setIp(singleCarparkDevice.getIp());
 					info.setType(singleCarparkDevice.getCameraType());
 					list.add(info);
@@ -118,7 +146,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard{
 				model.setList(list);
 			}
 		}
-		
+
 	}
 
 }

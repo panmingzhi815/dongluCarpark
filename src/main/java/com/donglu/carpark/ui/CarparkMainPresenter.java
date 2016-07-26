@@ -73,7 +73,9 @@ import com.dongluhitec.card.domain.db.SerialDeviceAddress;
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -89,6 +91,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
+import com.dongluhitec.card.hardware.plateDevice.PastPlateResult;
 import com.dongluhitec.card.hardware.plateDevice.PlateNOJNA;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.mapper.BeanUtil;
@@ -384,8 +387,43 @@ public class CarparkMainPresenter {
 		PopupMenu popMenu = new PopupMenu();
 		MenuItem refreshItem = new MenuItem("重新播放");
 		MenuItem refreshSettingItem = new MenuItem("刷新设置");
+		MenuItem checkDeviceStatusItem = new MenuItem("刷新设置");
 		popMenu.add(refreshItem);
 		popMenu.add(refreshSettingItem);
+		popMenu.add(checkDeviceStatusItem);
+		popMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				northCamera.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						commonui.info("读记录数", "摄像机192.168.1.235拥有记录数2000");
+					}
+				});
+				try {
+					String ip = device.getIp();
+					String msg="设备正常";
+					String m = checkDeviceStatus(ip);
+					if (!StrUtil.isEmpty(m)) {
+						msg=m;
+					}
+					String s=msg;
+					Runnable runnable = new Runnable() {
+						public void run() {
+							commonui.info("结果", s);
+						}
+					};
+					northCamera.getDisplay().asyncExec(runnable);
+				} catch (Exception e1) {
+					Runnable runnable = new Runnable() {
+						public void run() {
+							commonui.error("失败", "设备检测时发生错误"+e1,e1);
+						}
+					};
+					northCamera.getDisplay().asyncExec(runnable);
+				}
+			}
+		});
 		refreshSettingItem.addActionListener(new ActionListener() {
 
 			@Override
@@ -426,6 +464,27 @@ public class CarparkMainPresenter {
 
 		});
 		jna.openEx(ip, carInOutResultProvider.get());
+		jna.pastPlate(ip, new PastPlateResult() {
+			@Override
+			public void invok(String ip, Date time, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize, String plateColor) {
+				try {
+					log.info("{}断网续传,时间：{}，车牌：{}，颜色：{}",ip,time,plateNO,plateColor);
+					CarparkOffLineHistory carparkOffLineHistory = new CarparkOffLineHistory();
+					carparkOffLineHistory.setDeviceIp(ip);
+					carparkOffLineHistory.setDeviceName(mapIpToDevice.get(ip).getName());
+					carparkOffLineHistory.setInTime(time);
+					carparkOffLineHistory.setPlateNO(plateNO);
+					String bigImagePath = CarparkUtils.FormatImagePath(time, plateNO, true);
+					carparkOffLineHistory.setBigImage(bigImagePath);
+					String smallImagePath = CarparkUtils.FormatImagePath(time, plateNO, false);
+					carparkOffLineHistory.setSmallImage(smallImagePath);
+					saveImage(smallImagePath, bigImagePath, smallImage, bigImage);
+					sp.getCarparkInOutService().saveCarparkOffLineHistory(carparkOffLineHistory);
+				} catch (Exception e) {
+					log.error(ip+"断网续传出错",e);
+				}
+			}
+		});
 	}
 
 	protected void refreshSystemSetting() {
@@ -1072,6 +1131,19 @@ public class CarparkMainPresenter {
 			e.printStackTrace();
 		}
 		log.debug("超时时间timeOut为：",timeOut);
+		 ScheduledExecutorService autoCheckDeviceStatus = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("自动检测设备连接状态"));
+		 autoCheckDeviceStatus.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					log.info("检测设备状态");
+					for (String ip : mapIpToDevice.keySet()) {
+						checkDeviceStatus(ip);
+					}
+				} catch (Exception e) {
+				}
+			}
+		}, 20, 20, TimeUnit.SECONDS);
 	}
 	/**
 	 * 用来测试进出场
@@ -1717,6 +1789,54 @@ public class CarparkMainPresenter {
 
 	public CommonUIFacility getCommonui() {
 		return commonui;
+	}
+
+	/**
+	 * @param ip
+	 */
+	public String checkDeviceStatus(String ip) {
+		log.info("检测设备{}状态",ip);
+		boolean ping = CarparkUtils.ping(ip);
+		String msg="";
+		if (!ping) {
+			msg="摄像机["+ip+"]连接失败\n";
+		}else{
+			if (mapPlayer.get(ip)!=null&&!mapPlayer.get(ip).isPlaying()) {
+				msg="摄像机["+ip+"]播放失败\n";
+			}
+		}
+		SingleCarparkDevice device = model.getMapIpToDevice().get(ip);
+		DeviceErrorMessage dem=sp.getCarparkInOutService().findDeviceErrorMessageByDevice(device);
+		String linkAddress = device.getLinkAddress();
+		String controlIp=null;
+		if(linkAddress!=null&&linkAddress.indexOf(":")>-1){
+			controlIp = linkAddress.substring(0, linkAddress.indexOf(":"));
+			boolean ping2 = CarparkUtils.ping(controlIp);
+			if (!ping2) {
+				if (!StrUtil.isEmpty(msg)) {
+					msg+=",";
+				}
+				msg+="控制器["+controlIp+"]连接失败";
+			}
+		}
+		Date date = new Date();
+		if (!StrUtil.isEmpty(msg)) {
+			if (dem==null) {
+				dem=new DeviceErrorMessage();
+				dem.setDeviceName(device.getName());
+				dem.setIp(ip);
+				dem.setControlIp(controlIp);
+				dem.setCheckDate(date);
+			}
+			dem.setErrorMsg(msg);
+			sp.getCarparkInOutService().saveDeviceErrorMessage(dem);
+		}else{
+			if (dem!=null) {
+				dem.setNomalTime(date);
+				sp.getCarparkInOutService().saveDeviceErrorMessage(dem);
+			}
+		}
+		return msg;
 	}
 	
 

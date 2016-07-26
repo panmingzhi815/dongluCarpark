@@ -282,7 +282,7 @@ public class CarOutTask extends AbstractTask{
 		carType = "固定车";
 		logger.info("固定车出场");
 		if (check) {
-			model.setOutShowPlateNO(model.getOutShowPlateNO()+"-固定车");
+			model.setOutShowPlateNO(model.getOutShowPlateNO()+"-"+user.getName());
 			if (!StrUtil.isEmpty(user.getTempCarTime())) {
 				LOGGER.info("固定车做临时车计费：{}",user.getTempCarTime());
 				tempCarOutProcess(StrUtil.parse(user.getTempCarTime().split(",")[0], StrUtil.DATETIME_PATTERN));
