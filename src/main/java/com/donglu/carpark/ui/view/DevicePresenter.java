@@ -39,8 +39,16 @@ public class DevicePresenter  implements Presenter{
 		view.initDevices(listDevice);
 	}
 	public void handPhotograph(String ip) {
+		if (!checkStatus(ip)) {
+			log.info("设备已停用");
+			return;
+		}
 		presenter.handPhotograph(ip);
 		model.getMapHandPhotograph().put(ip, new Date());
+	}
+	private boolean checkStatus(String ip) {
+		Boolean boolean1 = model.getMapIpToDeviceStatus().get(ip);
+		return boolean1==null||boolean1;
 	}
 	public void addDevice(CTabFolder tabFolder) {
 		presenter.addDevice(tabFolder, type);
@@ -83,6 +91,10 @@ public class DevicePresenter  implements Presenter{
 				return;
 			}
 			String ip = model.getMapDeviceTabItem().get(selection);
+			if (!checkStatus(ip)) {
+				log.info("设备已停用");
+				return;
+			}
 			presenter.openDoor(model.getMapIpToDevice().get(ip));
 			model.getMapOpenDoor().put(ip, true);
 			handPhotograph(ip);
@@ -97,6 +109,10 @@ public class DevicePresenter  implements Presenter{
 				return;
 			}
 			String ip = model.getMapDeviceTabItem().get(selection);
+			if (!checkStatus(ip)) {
+				log.info("设备已停用");
+				return;
+			}
 			presenter.closeDoor(model.getMapIpToDevice().get(ip));
 		} catch (Exception e) {
 			log.error("设备落杆时发生错误",e);
@@ -138,5 +154,8 @@ public class DevicePresenter  implements Presenter{
 			log.error("设备检测时发生错误",e);
 			commonui.error("失败", "设备检测时发生错误",e);
 		}
+	}
+	public CarparkMainPresenter getPresenter() {
+		return presenter;
 	}
 }

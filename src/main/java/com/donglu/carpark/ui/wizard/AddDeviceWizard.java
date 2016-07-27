@@ -2,9 +2,12 @@ package com.donglu.carpark.ui.wizard;
 
 import org.eclipse.jface.wizard.Wizard;
 
+import com.donglu.carpark.model.CarparkMainModel;
+import com.donglu.carpark.ui.Login;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 
@@ -28,7 +31,8 @@ public class AddDeviceWizard extends Wizard implements AbstractWizard{
 
 	@Override
 	public void addPages() {
-		page = new AddDeviceBasicPage(model);
+		String string = Login.injector.getInstance(CarparkMainModel.class).getMapSystemSetting().get(SystemSettingTypeEnum.允许设备限时);
+		page = new AddDeviceBasicPage(model,!string.equals("true"));
 		addPage(page);
 		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 	}

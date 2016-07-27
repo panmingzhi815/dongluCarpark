@@ -41,6 +41,8 @@ public class SingleCarparkDevice extends DomainObject{
 	@Column(name = "carparkId", nullable = true)
 	private Long carparkId;
 	
+	private String controlTime;
+	
 	public String getIdentifire() {
 		return identifire;
 	}
@@ -196,5 +198,12 @@ public class SingleCarparkDevice extends DomainObject{
 	public void setInOrOut(String inOrOut) {
 		this.inOrOut = inOrOut;
 		firePropertyChange("inOrOut", null, null);
+	}
+	public String getControlTime() {
+		return controlTime;
+	}
+	public void setControlTime(String controlTime) {
+		this.controlTime = controlTime;
+		firePropertyChange("controlTime", null, null);
 	}
 }

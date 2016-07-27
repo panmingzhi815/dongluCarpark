@@ -35,8 +35,10 @@ public class CarparkMainModel extends DomainObject {
 	private final Map<String, String> mapDeviceType = new MyHashMap<>();
 	// 保存设备的进出口信息
 	private final Map<String, String> mapCameraLastImage = new MyHashMap<>();
-	// 保存设备的界面信息
+	// 保存界面对应的设备信息
 	private final Map<CTabItem, String> mapDeviceTabItem = Maps.newHashMap();
+	// 保存设备对应的界面信息
+	private final Map<String,CTabItem> mapIpToTabItem = Maps.newHashMap();
 	// 保存设备的信息
 	private final Map<String, SingleCarparkDevice> mapIpToDevice = Maps.newHashMap();
 	// 保存设置信息
@@ -62,8 +64,10 @@ public class CarparkMainModel extends DomainObject {
 
 	private final Map<String, CarInTask> mapInCheck = new MyMapCache<>(600000, 5);
 	private final Map<String, CarOutTask> mapOutCheck = new MyMapCache<>(600000, 1);
-	
+	//保存声音信息
 	private final Map<DeviceVoiceTypeEnum, SingleCarparkDeviceVoice> mapVoice = new HashMap<>();
+	//保存设备使用状态信息
+	private final Map<String, Boolean> mapIpToDeviceStatus=new HashMap<>();
 	//保存待出场信息
 	private final List<CarOutTask> listOutTask=new ArrayList<>();
 	private long lastCarOutTime=0;
@@ -864,5 +868,13 @@ public class CarparkMainModel extends DomainObject {
 
 	public Map<String, CarOutTask> getMapOutCheck() {
 		return mapOutCheck;
+	}
+
+	public Map<String, Boolean> getMapIpToDeviceStatus() {
+		return mapIpToDeviceStatus;
+	}
+
+	public Map<String, CTabItem> getMapIpToTabItem() {
+		return mapIpToTabItem;
 	}
 }

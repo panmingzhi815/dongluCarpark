@@ -64,6 +64,7 @@ import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ImageUtils;
 import com.donglu.carpark.util.ImgCompress;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.LPRInOutType;
 import com.dongluhitec.card.domain.LinkProtocolEnum;
 import com.dongluhitec.card.domain.LinkTypeEnum;
@@ -95,6 +96,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.device.WebCameraDevice;
 import com.dongluhitec.card.hardware.plateDevice.PastPlateResult;
 import com.dongluhitec.card.hardware.plateDevice.PlateNOJNA;
+import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.mapper.BeanUtil;
 import com.dongluhitec.card.util.ThreadUtil;
@@ -106,6 +108,7 @@ import com.google.inject.Singleton;
 
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
+
 @Singleton
 public class CarparkMainPresenter {
 	private Logger log = LoggerFactory.getLogger(CarparkMainPresenter.class);
@@ -113,9 +116,9 @@ public class CarparkMainPresenter {
 	private CarparkDatabaseServiceProvider sp;
 	@Inject
 	private CommonUIFacility commonui;
-	
-	Map<String, PlateNOJNA> mapIpToJNA= new HashMap<>();
-	
+
+	Map<String, PlateNOJNA> mapIpToJNA = new HashMap<>();
+
 	@Inject
 	private WebCameraDevice webCameraDevice;
 	@Inject
@@ -127,12 +130,12 @@ public class CarparkMainPresenter {
 	private SearchErrorCarPresenter searchErrorCarPresenter;
 
 	// 保存设备的进出口信息
-	Map<String, String> mapDeviceType;
+	private Map<String, String> mapDeviceType;
 
 	// 保存设备的界面信息
-	Map<CTabItem, String> mapDeviceTabItem;
+	private Map<CTabItem, String> mapDeviceTabItem;
 	// 保存设备的信息
-	Map<String, SingleCarparkDevice> mapIpToDevice;
+	private Map<String, SingleCarparkDevice> mapIpToDevice;
 	// 保存设置信息
 	private Map<SystemSettingTypeEnum, String> mapSystemSetting;
 	@Inject
@@ -148,8 +151,10 @@ public class CarparkMainPresenter {
 
 	private ExecutorService saveImageTheadPool;
 	private ExecutorService openDoorTheadPool;
-	
-	private int openDoorDelay=500;
+
+	private int openDoorDelay = 500;
+	// 自动下载车牌到设备
+	private ScheduledExecutorService autoDownloadPlateNOToDevice;
 
 	/**
 	 * 删除一个设备tab页
@@ -165,6 +170,7 @@ public class CarparkMainPresenter {
 			mapDeviceTabItem.remove(selection);
 			mapDeviceType.remove(ip);
 			mapIpToDevice.remove(ip);
+			model.getMapIpToDeviceStatus().remove(ip);
 			if (mapIpToDevice.keySet().size() <= 0) {
 				model.setCarpark(null);
 			}
@@ -200,21 +206,25 @@ public class CarparkMainPresenter {
 			model.setType("tcp");
 			model.setInType(type);
 			model.setInOutType(DeviceInOutTypeEnum.valueOf(model.getInOrOut()));
-//			model.seti
+			// model.seti
 			AddDeviceWizard v = new AddDeviceWizard(model);
-			if (type.indexOf("出口")>-1) {
+			if (type.indexOf("出口") > -1) {
 				model.setAdvertise("欢迎再次光临");
 			}
 			AddDeviceModel showWizard = (AddDeviceModel) commonui.showWizard(v);
 			if (showWizard == null) {
 				return;
 			}
-			SingleCarparkDevice device = showWizard.getDevice();
+			final SingleCarparkDevice device = showWizard.getDevice();
 			this.model.setCarpark(device.getCarpark());
 			addDevice(device);
 			addDevice(tabFolder, type, device);
-			showUsualContentToDevice(device);
-			showPositionToDevice(device,this.model.getTotalSlot());
+			new Thread(new Runnable() {
+				public void run() {
+					showUsualContentToDevice(device);
+					showPositionToDevice(device, CarparkMainPresenter.this.model.getTotalSlot());
+				}
+			}).start();
 		} catch (Exception e) {
 			log.error("添加设备时发生错误", e);
 		}
@@ -229,6 +239,7 @@ public class CarparkMainPresenter {
 		}
 		mapIpToDevice.put(ip, device);
 		setIsTwoChanel();
+		checkDeviceControlTimeStatus(new Date(), device);
 		// sendPositionToAllDevice(true);
 	}
 
@@ -255,10 +266,10 @@ public class CarparkMainPresenter {
 	 */
 	public void sendPositionToAllDevice(boolean isreturn) {
 		Set<String> keySet = mapIpToDevice.keySet();
-		Map<String, SingleCarparkDevice> mapLinkAndDevice=new HashMap<>();
+		Map<String, SingleCarparkDevice> mapLinkAndDevice = new HashMap<>();
 		for (String c : keySet) {
 			SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(c);
-			if (singleCarparkDevice.getInType().indexOf("进口")<0) {
+			if (singleCarparkDevice.getInType().indexOf("进口") < 0) {
 				continue;
 			}
 			mapLinkAndDevice.put(singleCarparkDevice.getLinkInfo(), singleCarparkDevice);
@@ -267,10 +278,10 @@ public class CarparkMainPresenter {
 			Date when = new Date();
 			Date plateInTime = model.getPlateInTime();
 			if (plateInTime.after(when)) {
-				log.info("车辆进出场，在时间：{}后在对设备{}发车位数,现在时间：{}",plateInTime,d,when);
+				log.info("车辆进出场，在时间：{}后在对设备{}发车位数,现在时间：{}", plateInTime, d, when);
 				return;
 			}
-			if (d.getInType().indexOf("进口")<0) {
+			if (d.getInType().indexOf("进口") < 0) {
 				return;
 			}
 			if (isreturn) {
@@ -289,10 +300,10 @@ public class CarparkMainPresenter {
 	 * @param ip
 	 * @param name
 	 */
-	public void addDevice(CTabFolder tabFolder, String type,SingleCarparkDevice device) {
-		 String ip=device.getIp();
-		 String name=device.getName();
-		 
+	public void addDevice(CTabFolder tabFolder, String type, SingleCarparkDevice device) {
+		String ip = device.getIp();
+		String name = device.getName();
+
 		if (mapDeviceType.get(ip) != null) {
 			commonui.error("添加失败", "设备" + ip + "已存在");
 			// return;
@@ -304,10 +315,11 @@ public class CarparkMainPresenter {
 		tabItem.setControl(composite);
 		composite.setLayout(new FillLayout());
 		tabFolder.getDisplay().asyncExec(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				createCamera(device, composite);
+				checkDeviceControlTimeStatus(new Date(), device);
 			}
 		});
 		tabFolder.setSelection(tabItem);
@@ -316,9 +328,9 @@ public class CarparkMainPresenter {
 		CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 	}
 
-	Map<String, MediaPlayer> mapPlayer = Maps.newHashMap();
-	Map<String, SingleCarparkDevice> mapCameraToDeviceIp=Maps.newHashMap();
-	int checkPlayerPlayingSize=0;
+	private Map<String, MediaPlayer> mapPlayer = Maps.newHashMap();
+	private Map<String, SingleCarparkDevice> mapCameraToDeviceIp = Maps.newHashMap();
+	int checkPlayerPlayingSize = 0;
 	private Map<String, Integer> mapDeviceFailInfo = new HashMap<>();
 	private ScheduledExecutorService checkCameraPlayStatus;
 	private long timeOut = 1000L;
@@ -328,12 +340,12 @@ public class CarparkMainPresenter {
 		checkCameraPlayStatus.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
-				log.debug("开始第{}次检查摄像机的连接状态",checkPlayerPlayingSize);
+				log.debug("开始第{}次检查摄像机的连接状态", checkPlayerPlayingSize);
 				for (String url : mapPlayer.keySet()) {
 					MediaPlayer mediaPlayer = mapPlayer.get(url);
 					SingleCarparkDevice device = mapCameraToDeviceIp.get(url);
-					if (checkPlayerPlayingSize>0&&checkPlayerPlayingSize%10==0&&device!=null&&device.getCameraType().equals(CameraTypeEnum.智芯)) {
-						log.info("自动刷新华夏智芯摄像机:{}，防止摄像机黑屏",device.getIp());
+					if (checkPlayerPlayingSize > 0 && checkPlayerPlayingSize % 10 == 0 && device != null && device.getCameraType().equals(CameraTypeEnum.智芯)) {
+						log.info("自动刷新华夏智芯摄像机:{}，防止摄像机黑屏", device.getIp());
 						mediaPlayer.playMedia(url);
 						continue;
 					}
@@ -396,20 +408,20 @@ public class CarparkMainPresenter {
 		popMenu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				northCamera.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						commonui.info("读记录数", "摄像机192.168.1.235拥有记录数2000");
-					}
-				});
+//				northCamera.getDisplay().asyncExec(new Runnable() {
+//					@Override
+//					public void run() {
+//						commonui.info("读记录数", "摄像机192.168.1.235拥有记录数2000");
+//					}
+//				});
 				try {
 					String ip = device.getIp();
-					String msg="设备正常";
+					String msg = "设备正常";
 					String m = checkDeviceStatus(ip);
 					if (!StrUtil.isEmpty(m)) {
-						msg=m;
+						msg = m;
 					}
-					String s=msg;
+					String s = msg;
 					Runnable runnable = new Runnable() {
 						public void run() {
 							commonui.info("结果", s);
@@ -419,7 +431,7 @@ public class CarparkMainPresenter {
 				} catch (Exception e1) {
 					Runnable runnable = new Runnable() {
 						public void run() {
-							commonui.error("失败", "设备检测时发生错误"+e1,e1);
+							commonui.error("失败", "设备检测时发生错误" + e1, e1);
 						}
 					};
 					northCamera.getDisplay().asyncExec(runnable);
@@ -470,7 +482,7 @@ public class CarparkMainPresenter {
 			@Override
 			public void invok(String ip, Date time, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize, String plateColor) {
 				try {
-					log.info("{}断网续传,时间：{}，车牌：{}，颜色：{}",ip,time,plateNO,plateColor);
+					log.info("{}断网续传,时间：{}，车牌：{}，颜色：{}", ip, time, plateNO, plateColor);
 					CarparkOffLineHistory carparkOffLineHistory = new CarparkOffLineHistory();
 					carparkOffLineHistory.setDeviceIp(ip);
 					carparkOffLineHistory.setDeviceName(mapIpToDevice.get(ip).getName());
@@ -483,7 +495,7 @@ public class CarparkMainPresenter {
 					saveImage(smallImagePath, bigImagePath, smallImage, bigImage);
 					sp.getCarparkInOutService().saveCarparkOffLineHistory(carparkOffLineHistory);
 				} catch (Exception e) {
-					log.error(ip+"断网续传出错",e);
+					log.error(ip + "断网续传出错", e);
 				}
 			}
 		});
@@ -508,8 +520,8 @@ public class CarparkMainPresenter {
 
 	private void createAutoMenuItem(PopupMenu pop) {
 		String property = System.getProperty("autoTiggerWithTest");
-		log.info("自动测试{}设置为：{}","autoTiggerWithTest",property);
-		if (property==null||property.equals("")) {
+		log.info("自动测试{}设置为：{}", "autoTiggerWithTest", property);
+		if (property == null || property.equals("")) {
 			return;
 		}
 		MenuItem refreshItem = new MenuItem("自动拍照");
@@ -520,28 +532,29 @@ public class CarparkMainPresenter {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println(refreshItem.getLabel());
-				if (autoTiggerWithTest==null) {
+				if (autoTiggerWithTest == null) {
 					autoTiggerWithTest = autoTiggerWithTest(property);
 					refreshItem.setLabel("停止拍照");
-				}else{
+				} else {
 					autoTiggerWithTest.shutdownNow();
 					refreshItem.setLabel("自动拍照");
-					autoTiggerWithTest=null;
+					autoTiggerWithTest = null;
 				}
 			}
 		});
-		
+
 	}
 
 	/**
 	 * 设置摄像机操作的jna
+	 * 
 	 * @param ip
 	 * @param cameraType
 	 * @return
 	 */
 	public PlateNOJNA setJNA(String ip, CameraTypeEnum cameraType) {
-		PlateNOJNA jna=cameraType.getJNA(Login.injector);
-		mapIpToJNA.put(ip,jna);
+		PlateNOJNA jna = cameraType.getJNA(Login.injector);
+		mapIpToJNA.put(ip, jna);
 		return jna;
 	}
 
@@ -557,7 +570,7 @@ public class CarparkMainPresenter {
 				return;
 			}
 			String oldIp = mapDeviceTabItem.get(selection);
-			SingleCarparkDevice device = mapIpToDevice.get(oldIp);
+			final SingleCarparkDevice device = mapIpToDevice.get(oldIp);
 			AddDeviceModel model = new AddDeviceModel();
 			model.setDevice(device);
 			AddDeviceWizard v = new AddDeviceWizard(model);
@@ -572,7 +585,7 @@ public class CarparkMainPresenter {
 			}
 			String ip = showWizard.getIp();
 			setJNA(ip, showWizard.getCameraType());
-			SingleCarparkDevice device2 = showWizard.getDevice();
+			final SingleCarparkDevice device2 = showWizard.getDevice();
 			device2.setCarpark(sp.getCarparkService().findCarparkById(device2.getCarpark().getId()));
 			if (ip.equals(oldIp)) {
 				selection.setText(showWizard.getName());
@@ -580,10 +593,15 @@ public class CarparkMainPresenter {
 				CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 				commonui.info("修改成功", "修改设备" + ip + "成功");
 				log.info("发送平时显示类容");
-				showUsualContentToDevice(device2);
-				showPositionToDevice(device,this.model.getTotalSlot());
+				new Thread(new Runnable() {
+					public void run() {
+						showUsualContentToDevice(device2);
+						showPositionToDevice(device, CarparkMainPresenter.this.model.getTotalSlot());
+						// sendPositionToAllDevice(true);
+						checkDeviceControlTimeStatus(new Date(), device2);
+					}
+				}).start();
 				setIsTwoChanel();
-				// sendPositionToAllDevice(true);
 				return;
 			} else {
 				if (mapDeviceType.get(ip) != null) {
@@ -592,11 +610,11 @@ public class CarparkMainPresenter {
 				}
 				deleteDeviceTabItem(selection);
 				addDevice(device2);
-				addDevice(tabFolder, type,showWizard.getDevice());
+				addDevice(tabFolder, type, showWizard.getDevice());
 				this.model.setCarpark(device2.getCarpark());
 			}
 		} catch (Exception e1) {
-			log.error("修改设备时发生错误",e1);
+			log.error("修改设备时发生错误", e1);
 		} finally {
 
 		}
@@ -608,7 +626,7 @@ public class CarparkMainPresenter {
 
 	public void setView(CarparkMainApp view) {
 		this.view = view;
-		System.out.println("presenter"+model);
+		System.out.println("presenter" + model);
 	}
 
 	/**
@@ -682,7 +700,7 @@ public class CarparkMainPresenter {
 			this.model.setTotalCharge(carparkInOutService.findFactMoneyByName(userName));
 			this.model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
 		} catch (Exception e) {
-			log.error("归账时发生错误",e);
+			log.error("归账时发生错误", e);
 		}
 	}
 
@@ -752,22 +770,22 @@ public class CarparkMainPresenter {
 		try {
 			Device d = getDevice(device);
 			if (isOpenDoor) {
-				if (d!=null) {
-					log.info("对设备：ip:{},kip:{} 开闸,发送语音：[{}]",device.getIp(),device.getLinkAddress(),content);
+				if (d != null) {
+					log.info("对设备：ip:{},kip:{} 开闸,发送语音：[{}]", device.getIp(), device.getLinkAddress(), content);
 					Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoorWithDelay(d, content, device.getVolume() == null ? 1 : device.getVolume(), openDoorDelay);
 					openDoorToPhotograph(device.getIp());
 					return carparkContentVoiceAndOpenDoor;
-				}else{
+				} else {
 					openDoor(device);
 				}
 			} else {
-				if (d!=null) {
+				if (d != null) {
 					return hardwareService.carparkContentVoice(d, content, device.getVolume() == null ? 1 : device.getVolume());
 				}
 			}
 			return true;
 		} catch (Exception e) {
-			log.error("对设备"+device.getIp()+"开闸失败",e);
+			log.error("对设备" + device.getIp() + "开闸失败", e);
 			return false;
 		}
 	}
@@ -800,9 +818,9 @@ public class CarparkMainPresenter {
 				return true;
 			}
 		} catch (Exception e) {
-			log.error("显示车位时发生错误",e);
+			log.error("显示车位时发生错误", e);
 			return false;
-		}finally{
+		} finally {
 			try {
 				Thread.sleep(300);
 			} catch (InterruptedException e) {
@@ -818,7 +836,7 @@ public class CarparkMainPresenter {
 	 * @param voice
 	 */
 	public void showPositionToDeviceNoReturn(SingleCarparkDevice device, int position) {
-		if (device.getInType().indexOf("进口")<0) {
+		if (device.getInType().indexOf("进口") < 0) {
 			return;
 		}
 		if (checkDeviceLinkStatus(device)) {
@@ -826,13 +844,14 @@ public class CarparkMainPresenter {
 		}
 		try {
 			Device d = getDevice(device);
-			if (d!=null) {
+			if (d != null) {
 				hardwareService.carparkPosition(d, position);
 			}
 		} catch (Exception e) {
-			log.error("发送车位(无返回)时发生错误",e);
+			log.error("发送车位(无返回)时发生错误", e);
 		}
 	}
+
 	private Device getDevice(SingleCarparkDevice device) {
 		Device d = new Device();
 		if (StrUtil.isEmpty(device.getLinkAddress())) {
@@ -863,8 +882,8 @@ public class CarparkMainPresenter {
 		}
 		try {
 			Device d = getDevice(device);
-			boolean carparkOpenDoor=true;
-			if (d!=null) {
+			boolean carparkOpenDoor = true;
+			if (d != null) {
 				carparkOpenDoor = hardwareService.carparkOpenDoor(d);
 				// carparkOpenDoor = hardwareService.carparkControlDoor(getDevice(device), 0, -1, -1, -1);
 			}
@@ -873,7 +892,7 @@ public class CarparkMainPresenter {
 		} catch (Exception e) {
 			return false;
 		}
-//		return true;
+		// return true;
 	}
 
 	/**
@@ -887,8 +906,8 @@ public class CarparkMainPresenter {
 		}
 		try {
 			Device d = getDevice(device);
-			Boolean carparkOpenDoor=true;
-			if (d!=null) {
+			Boolean carparkOpenDoor = true;
+			if (d != null) {
 				carparkOpenDoor = hardwareService.carparkControlDoor(d, -1, 0, -1, -1);
 			}
 			return carparkOpenDoor;
@@ -896,10 +915,12 @@ public class CarparkMainPresenter {
 			return false;
 		}
 	}
+
 	/**
 	 * 设备车队操作
+	 * 
 	 * @param device
-	 * @param isopen 
+	 * @param isopen
 	 * @return
 	 */
 	public boolean fleetDoor(SingleCarparkDevice device, boolean isopen) {
@@ -908,14 +929,14 @@ public class CarparkMainPresenter {
 		}
 		try {
 			Device d = getDevice(device);
-			Boolean carparkOpenDoor=true;
-			if (d!=null) {
+			Boolean carparkOpenDoor = true;
+			if (d != null) {
 				int carTeamTime = 0;
-				String content="开启了车队";
+				String content = "开启了车队";
 				model.setIsOpenFleet(isopen);
 				if (!isopen) {
-					carTeamTime=1;
-					content="停止了车队";
+					carTeamTime = 1;
+					content = "停止了车队";
 				}
 				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.车队操作, content, System.getProperty("userName"));
 				carparkOpenDoor = hardwareService.carparkControlDoor(d, -1, -1, -1, carTeamTime);
@@ -924,16 +945,18 @@ public class CarparkMainPresenter {
 		} catch (Exception e) {
 			return false;
 		}
-		
+
 	}
+
 	/**
 	 * 摄像机开闸
+	 * 
 	 * @param ip
 	 */
 	public void openDoorToPhotograph(String ip) {
 		String property = System.getProperty(PlateNOJNA.CAMERA_OPEN_DOOR);
-		if (property!=null&&property.equals("false")) {
-			log.info("软件触发摄像机开闸：{}",false);
+		if (property != null && property.equals("false")) {
+			log.info("软件触发摄像机开闸：{}", false);
 			return;
 		}
 		mapIpToJNA.get(ip).openDoor(ip);
@@ -945,14 +968,14 @@ public class CarparkMainPresenter {
 		}
 		try {
 			Device d = getDevice(device);
-			Boolean carparkUsualContent=true;
-			
-			if (d!=null) {
+			Boolean carparkUsualContent = true;
+
+			if (d != null) {
 				carparkUsualContent = hardwareService.carparkUsualContent(d, device.getAdvertise());
 			}
 			return carparkUsualContent;
 		} catch (Exception e) {
-			log.error("发送广告语时发生错误",e);
+			log.error("发送广告语时发生错误", e);
 			return false;
 		}
 	}
@@ -970,32 +993,32 @@ public class CarparkMainPresenter {
 	public float countShouldMoney(Long carparkId, CarTypeEnum carType, Date startTime, Date endTime) {
 		float charge = 0;
 		try {
-			int freeMinute=0;
-			int freeMoney=0;
-			//获取临时车优惠
+			int freeMinute = 0;
+			int freeMoney = 0;
+			// 获取临时车优惠
 			SingleCarparkFreeTempCar findTempCarFreeByPlateNO = sp.getCarparkInOutService().findTempCarFreeByPlateNO(model.getOutShowPlateNO().split("-")[0]);
-			if (findTempCarFreeByPlateNO!=null&&findTempCarFreeByPlateNO.getStatus()) {
+			if (findTempCarFreeByPlateNO != null && findTempCarFreeByPlateNO.getStatus()) {
 				freeMinute = findTempCarFreeByPlateNO.getFreeMinute();
 				freeMoney = findTempCarFreeByPlateNO.getFreeMoney();
 			}
-			startTime=new DateTime(startTime).plusMinutes(freeMinute).toDate();
-			charge = countTempCarCharge.charge(carparkId, carType, startTime, endTime, sp, model,Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场重复计费)));
+			startTime = new DateTime(startTime).plusMinutes(freeMinute).toDate();
+			charge = countTempCarCharge.charge(carparkId, carType, startTime, endTime, sp, model, Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场重复计费)));
 			String property = System.getProperty(ConstUtil.AN_HOUR_SHOULD_MONEY);
 			if (!StrUtil.isEmpty(property)) {
-				log.info("设置一小时收费{}为:{}",ConstUtil.AN_HOUR_SHOULD_MONEY,property);
+				log.info("设置一小时收费{}为:{}", ConstUtil.AN_HOUR_SHOULD_MONEY, property);
 				try {
-					int money=Integer.valueOf(property);
+					int money = Integer.valueOf(property);
 					int countTime = StrUtil.countTime(startTime, endTime, TimeUnit.HOURS);
-					int i = money*countTime;
-					if (i>0&&i<charge) {
-						charge=i;
+					int i = money * countTime;
+					if (i > 0 && i < charge) {
+						charge = i;
 					}
 				} catch (Exception e) {
 				}
 			}
-			charge=charge-freeMoney;
+			charge = charge - freeMoney;
 		} catch (Exception e1) {
-			log.error("计算收费时发生错误",e1);
+			log.error("计算收费时发生错误", e1);
 		}
 
 		return charge;
@@ -1058,7 +1081,7 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 		mapIpToJNA.get(ip).tigger(ip);
-//		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", null, null, 11);
+		// carInOutResultProvider.get().invok(ip, 0, "粤BD021W", null, null, 11);
 	}
 
 	/**
@@ -1101,7 +1124,7 @@ public class CarparkMainPresenter {
 							String upload = sp.getImageService().saveImageInServer(bigImage, finalFileName);
 							log.info("图片上传到服务器{}成功,{}", ip, upload);
 						} catch (Exception e) {
-							log.error("图片上传到服务器"+ip+"失败", e);
+							log.error("图片上传到服务器" + ip + "失败", e);
 						} finally {
 							log.info("上传图片花费时间：{}", System.nanoTime() - nanoTime);
 						}
@@ -1115,6 +1138,7 @@ public class CarparkMainPresenter {
 		saveImageTheadPool.submit(runnable);
 	}
 
+	// 初始化
 	public void init() {
 		mapDeviceType = model.getMapDeviceType();
 		mapDeviceTabItem = model.getMapDeviceTabItem();
@@ -1137,28 +1161,28 @@ public class CarparkMainPresenter {
 		model.setTotalCharge(carparkInOutService.findFactMoneyByName(userName));
 		model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
 		model.setTotalSlot(getSlotOfLeft());
-		
+
 		List<CarparkChargeStandard> listTemp = sp.getCarparkService().findAllCarparkChargeStandard(model.getCarpark(), true);
 		for (CarparkChargeStandard carparkChargeStandard : listTemp) {
 			String name = carparkChargeStandard.getCarparkCarType().getName();
 			model.getMapTempCharge().put(name, carparkChargeStandard.getCode());
 		}
 		try {
-			openDoorDelay=Integer.valueOf(System.getProperty(ConstUtil.OPEN_DOOR_DELAY));
+			openDoorDelay = Integer.valueOf(System.getProperty(ConstUtil.OPEN_DOOR_DELAY));
 		} catch (NumberFormatException e) {
 		}
 		try {
 			String property = System.getProperty("timeOut");
-			timeOut=Long.valueOf(property);
+			timeOut = Long.valueOf(property);
 		} catch (Exception e) {
 		}
-		log.debug("超时时间timeOut为：",timeOut);
-		 ScheduledExecutorService autoCheckDeviceStatus = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("自动检测设备连接状态"));
-		 autoCheckDeviceStatus.scheduleWithFixedDelay(new Runnable() {
+		log.debug("超时时间timeOut为：", timeOut);
+		ScheduledExecutorService autoCheckDeviceStatus = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("自动检测设备连接状态"));
+		autoCheckDeviceStatus.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					log.info("检测设备状态");
+					log.debug("检测设备状态");
 					for (String ip : mapIpToDevice.keySet()) {
 						checkDeviceStatus(ip);
 					}
@@ -1166,42 +1190,151 @@ public class CarparkMainPresenter {
 				}
 			}
 		}, 20, 20, TimeUnit.SECONDS);
+		// 车牌自动下载
+		if (mapSystemSetting.get(SystemSettingTypeEnum.自动下载车牌).equals("true")) {
+			autoDownloadPlateNOToDevice = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每天晚上12点下载车牌"));
+			Date todayBottomTime = StrUtil.getTodayBottomTime(new Date());
+			autoDownloadPlateNOToDevice.scheduleWithFixedDelay(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						log.info("[自动下载车牌]准备下载车牌到所有摄像机");
+						List<SingleCarparkUser> findAll = sp.getCarparkUserService().findAll();
+						if (StrUtil.isEmpty(findAll)) {
+							return;
+						}
+						List<PlateDownload> list = new ArrayList<>();
+						for (SingleCarparkUser user : findAll) {
+							String[] split = user.getPlateNo().split(",");
+							if (split.length > 1) {
+								continue;
+							}
+							PlateDownload pd = new PlateDownload();
+							Date validTo = user.getValidTo();
+							if (validTo == null || validTo.before(new Date())) {
+								pd.setUse(false);
+							}
+							pd.setDate(validTo);
+							pd.setPlate(user.getPlateNo());
+							list.add(pd);
+						}
+						for (String ip : mapIpToDevice.keySet()) {
+							PlateNOJNA plateNOJNA = mapIpToJNA.get(ip);
+							plateNOJNA.plateDownload(list, ip);
+						}
+					} catch (Exception e) {
+						log.error("自动下载车牌时发生错误", e);
+					}
+				}
+			}, todayBottomTime.getTime() - System.currentTimeMillis(), 1000 * 60 * 60 * 24, TimeUnit.MILLISECONDS);
+		}
+		if (mapSystemSetting.get(SystemSettingTypeEnum.允许设备限时).equals("true")) {
+			ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("检查设备是否限时"));
+			newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+				@Override
+				public void run() {
+					checkAllDeviceControlTimeStatus();
+				}
+			}, 60 - DateTime.now().getSecondOfMinute(), 60, TimeUnit.SECONDS);
+		}
+
 	}
+
+	/**
+	 * 检测单个设备的时间限制情况
+	 * 
+	 * @param d
+	 * @param device
+	 * @return
+	 */
+	public boolean checkDeviceControlTimeStatus(Date d, SingleCarparkDevice device) {
+		if (mapSystemSetting.get(SystemSettingTypeEnum.允许设备限时).equals("false")) {
+			return true;
+		}
+		log.debug("检测设备{}限时状态", device.getIp());
+		String controlTime = device.getControlTime();
+		String ip = device.getIp();
+		if (StrUtil.isEmpty(controlTime)) {
+			setDeviceTabItemStatus(ip, "deviceStatus_16", "正在使用");
+			model.getMapIpToDeviceStatus().put(ip, true);
+			log.debug("设备{}未做限时设置", device.getIp());
+			return true;
+		}
+		String[] split = controlTime.split(",");
+		boolean status = true;
+		for (String string : split) {
+			String[] split2 = string.split("-");
+			if (split2.length != 2) {
+				continue;
+			}
+			try {
+				String st = StrUtil.formatDate(d) + " " + split2[0];
+				String et = StrUtil.formatDate(d) + " " + split2[1];
+				Date s = StrUtil.parse(st, "yyyy-MM-dd HH:mm");
+				Date e = StrUtil.parse(et, "yyyy-MM-dd HH:mm");
+				if (s == null || e == null) {
+					status = true;
+					continue;
+				}
+				if (d.after(s) && d.before(e)) {
+					status = true;
+					break;
+				} else {
+					status = false;
+				}
+			} catch (Exception e) {
+				log.debug("设备{}的限时设置为：{}，格式不正确", ip, device.getControlTime());
+				status = true;
+				continue;
+			}
+		}
+		if (status) {
+//			setDeviceTabItemStatus(ip, "deviceStatus_16", "正在使用");
+		} else {
+			setDeviceTabItemStatus(ip, "distribution_device_16", "设备已限时停用,限制时间："+device.getControlTime());
+		}
+		model.getMapIpToDeviceStatus().put(ip, status);
+		log.info("设备{}限时{}状态{}", ip, device.getControlTime(), status);
+		return status;
+	}
+
 	/**
 	 * 用来测试进出场
-	 * @param property 
+	 * 
+	 * @param property
 	 */
 	private ScheduledExecutorService autoTiggerWithTest(String property) {
-		Map<String, List<SingleCarparkDevice>> map=new HashMap<>();
+		Map<String, List<SingleCarparkDevice>> map = new HashMap<>();
 		for (SingleCarparkDevice d : mapIpToDevice.values()) {
 			String inType = d.getInType();
 			List<SingleCarparkDevice> list = map.get(inType);
-			if (list==null) {
-				list=new ArrayList<>();
+			if (list == null) {
+				list = new ArrayList<>();
 			}
 			list.add(d);
 			map.put(inType, list);
 		}
-		List<List<SingleCarparkDevice>> list=new ArrayList<>();
+		List<List<SingleCarparkDevice>> list = new ArrayList<>();
 		for (String s : map.keySet()) {
 			list.add(map.get(s));
 		}
-		Integer testDelayTime=10;
+		Integer testDelayTime = 10;
 		try {
 			testDelayTime = Integer.valueOf(property);
 		} catch (NumberFormatException e) {
-			
+
 		}
-		
+
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
 			int inTypeSize = list.size();
-			int nowSize=0;
+			int nowSize = 0;
+
 			@Override
 			public void run() {
 				try {
-					if (nowSize>=inTypeSize) {
-						nowSize=0;
+					if (nowSize >= inTypeSize) {
+						nowSize = 0;
 					}
 					List<SingleCarparkDevice> list2 = list.get(nowSize);
 					for (SingleCarparkDevice d : list2) {
@@ -1224,7 +1357,7 @@ public class CarparkMainPresenter {
 		for (SingleCarparkDevice d : mapIpToDevice.values()) {
 			map.put(d.getLinkInfo(), d);
 		}
-		
+
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("自动检测设备的连接状态"));
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
 			@Override
@@ -1284,7 +1417,7 @@ public class CarparkMainPresenter {
 			sp.getCarparkInOutService().saveInOutHistory(select);
 			carInOutResultProvider.get().invok(model.getIp(), 0, select.getPlateNo(), m.getBigImg(), m.getSmallImg(), 1);
 		} catch (Exception e) {
-			log.error("人工查找时发生错误",e);
+			log.error("人工查找时发生错误", e);
 		}
 	}
 
@@ -1299,8 +1432,8 @@ public class CarparkMainPresenter {
 			String s = mapSystemSetting.get(SystemSettingTypeEnum.同一车牌识别间隔) == null ? SystemSettingTypeEnum.同一车牌识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.同一车牌识别间隔);
 			log.debug("同一车牌识别间隔为：{}", s);
 			Integer timeGap = Integer.valueOf(s);
-			long abs = Math.abs(date.getTime()-nowDate.getTime());
-			if (abs<timeGap*1000) {
+			long abs = Math.abs(date.getTime() - nowDate.getTime());
+			if (abs < timeGap * 1000) {
 				log.info("车牌{}在{}做过处理，暂不做处理", plateNO, StrUtil.formatDateTime(date));
 				return false;
 			}
@@ -1343,8 +1476,8 @@ public class CarparkMainPresenter {
 		openDoorTheadPool.submit(runnable);
 	}
 
-	public void showNowTimeToDevice(SingleCarparkDevice singleCarparkDevice) {
-		hardwareService.setCarparkDate(getDevice(singleCarparkDevice), new Date());
+	public Boolean showNowTimeToDevice(SingleCarparkDevice singleCarparkDevice) {
+		return hardwareService.setCarparkDate(getDevice(singleCarparkDevice), new Date());
 	}
 
 	/**
@@ -1414,15 +1547,15 @@ public class CarparkMainPresenter {
 				if (!confirm) {
 					return false;
 				}
-				if (shouldMoney>factMoney) {
-					FreeReasonPresenter p=new FreeReasonPresenter();
+				if (shouldMoney > factMoney) {
+					FreeReasonPresenter p = new FreeReasonPresenter();
 					p.setModel(singleCarparkInOutHistory);
 					String reasons = mapSystemSetting.get(SystemSettingTypeEnum.免费原因);
 					p.setReasons(reasons);
-					ShowDialog s=new ShowDialog("免费原因");
+					ShowDialog s = new ShowDialog("免费原因");
 					s.setPresenter(p);
 					SingleCarparkInOutHistory open = (SingleCarparkInOutHistory) s.open();
-					if (open==null) {
+					if (open == null) {
 						return false;
 					}
 					singleCarparkInOutHistory.setFreeReason(open.getFreeReason());
@@ -1432,8 +1565,8 @@ public class CarparkMainPresenter {
 					model.getTotalTime(), shouldMoney);
 			boolean isConcentrate = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费));
 			if (isConcentrate) {
-				Float factMoney2 = singleCarparkInOutHistory.getFactMoney()==null?0:singleCarparkInOutHistory.getFactMoney();
-				factMoney=factMoney2+factMoney;
+				Float factMoney2 = singleCarparkInOutHistory.getFactMoney() == null ? 0 : singleCarparkInOutHistory.getFactMoney();
+				factMoney = factMoney2 + factMoney;
 				if (factMoney > shouldMoney) {
 					commonui.error("收费提示", "总收费不能超过应收" + shouldMoney + "元");
 					return false;
@@ -1477,7 +1610,7 @@ public class CarparkMainPresenter {
 			updatePosition(device.getCarpark(), singleCarparkInOutHistory.getUserId(), false);
 			return true;
 		} catch (Exception e) {
-			log.error("收费时发生错误",e);
+			log.error("收费时发生错误", e);
 			return false;
 		}
 	}
@@ -1516,7 +1649,7 @@ public class CarparkMainPresenter {
 				CarparkUtils.cleanSameInOutHistory();
 			}
 		} catch (Exception e) {
-			log.error("修改车牌时发生错误",e);
+			log.error("修改车牌时发生错误", e);
 		}
 	}
 
@@ -1558,7 +1691,7 @@ public class CarparkMainPresenter {
 					if (!StrUtil.isEmpty(readObject)) {
 						String string = (String) readObject;
 						fl = string + fl;
-					}else{
+					} else {
 						fl = System.getProperty("user.dir") + fl;
 					}
 					File file = new File(fl);
@@ -1573,11 +1706,11 @@ public class CarparkMainPresenter {
 					Files.createParentDirs(bigFile);
 					bigFile.createNewFile();
 					Files.write(bigImage, bigFile);
-					log.debug("保存大图片到本地：{}",bigFile);
+					log.debug("保存大图片到本地：{}", bigFile);
 					File smallFile = new File(finalSmallFileName);
 					smallFile.createNewFile();
 					Files.write(smallImage, smallFile);
-					log.debug("保存小图片到本地：{}",smallFile);
+					log.debug("保存小图片到本地：{}", smallFile);
 					ImgCompress.compress(smallFile.getPath());
 					String ip = CarparkClientConfig.getInstance().getServerIp();
 					if (true) {
@@ -1588,7 +1721,7 @@ public class CarparkMainPresenter {
 							String smallUpload = sp.getImageService().saveImageInServer(Files.toByteArray(smallFile), finalSmallFileName);
 							log.info("图片上传到服务器{}成功,{}", ip, bigUpload + "==" + smallUpload);
 						} catch (Exception e) {
-							log.error("图片上传到服务器"+ip+"失败", e);
+							log.error("图片上传到服务器" + ip + "失败", e);
 						} finally {
 							log.debug("上传图片花费时间：{}", System.nanoTime() - nanoTime);
 						}
@@ -1609,78 +1742,87 @@ public class CarparkMainPresenter {
 		saveImageTheadPool.shutdownNow();
 		checkCameraPlayStatus.shutdownNow();
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.登录登出, "退出了监控界面", System.getProperty(ConstUtil.USER_NAME));
+		for (String string : mapIpToDevice.keySet()) {
+			mapIpToJNA.get(string).closeAllEx();
+//			mapPlayer.get(string).release();
+		}
 	}
 
 	public void refreshCarWithIn() {
 		try {
 			model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
 		} catch (Exception e) {
-			log.error("刷新进场记录是发生错误",e);
+			log.error("刷新进场记录是发生错误", e);
 		}
 	}
+
 	/**
 	 * 固定车在非所属停车场停留超时收费
+	 * 
 	 * @param user
-	 * @param device 
+	 * @param device
 	 * @param inTime
 	 * @param date
-	 * @param plateNO 
+	 * @param plateNO
 	 * @return
 	 */
 	public float countFixCarShouldMoney(SingleCarparkUser user, SingleCarparkDevice device, Date inTime, Date outTime, String plateNO) {
-		List<CarparkStillTime> list=sp.getCarparkInOutService().findCarparkStillTime(plateNO,inTime);
-		int minute=0;
+		List<CarparkStillTime> list = sp.getCarparkInOutService().findCarparkStillTime(plateNO, inTime);
+		int minute = 0;
 		Date date = new Date();
-		int canStillMinute =Integer.valueOf( CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车非所属停车场停留时间));
-		
+		int canStillMinute = Integer.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车非所属停车场停留时间));
+
 		for (CarparkStillTime cs : list) {
 			if (cs.getCarparkId().equals(user.getCarpark().getId())) {
 				continue;
 			}
 			Date outTime2 = cs.getOutTime();
-			int minusMinute=cs.getStillSecond();
-			if (outTime2==null) {
+			int minusMinute = cs.getStillSecond();
+			if (outTime2 == null) {
 				minusMinute = CarparkUtils.countTime(cs.getInTime(), date, TimeUnit.MINUTES);
-				System.out.println(inTime+"-"+date+"===="+minusMinute);
+				System.out.println(inTime + "-" + date + "====" + minusMinute);
 			}
-			if (minusMinute>canStillMinute) {
-				minute+=(minusMinute-canStillMinute);
+			if (minusMinute > canStillMinute) {
+				minute += (minusMinute - canStillMinute);
 			}
-			System.out.println(cs+"======"+minusMinute);
+			System.out.println(cs + "======" + minusMinute);
 		}
-		if (minute>StrUtil.countTime(inTime, outTime, TimeUnit.MINUTES)) {
+		if (minute > StrUtil.countTime(inTime, outTime, TimeUnit.MINUTES)) {
 			log.info("计算失败返回0");
 			return 0;
 		}
-		log.info("车牌：{}，在所属停车场外停留时间：{}",plateNO,minute);
+		log.info("车牌：{}，在所属停车场外停留时间：{}", plateNO, minute);
 		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(device.getCarpark().getId(), user.getCarType().index(), inTime, new DateTime(inTime).plusMinutes(minute).toDate());
-		if (calculateTempCharge>0) {
-			Boolean open = new ConfimBox("提示", "固定车["+plateNO+"]在所属停车场外停留"+minute+"分钟，收费"+calculateTempCharge+"元,是否收费？").open();
+		if (calculateTempCharge > 0) {
+			Boolean open = new ConfimBox("提示", "固定车[" + plateNO + "]在所属停车场外停留" + minute + "分钟，收费" + calculateTempCharge + "元,是否收费？").open();
 			if (!open) {
 				return 0;
 			}
 		}
-		log.info("固定车{}，缴费：{}",plateNO,calculateTempCharge);
+		log.info("固定车{}，缴费：{}", plateNO, calculateTempCharge);
 		return calculateTempCharge;
 	}
 
 	/**
 	 * 车牌报送
+	 * 
 	 * @param cch
 	 * @param date
 	 * @param carpark
 	 * @param device
-	 * @param bigImage 
+	 * @param bigImage
 	 */
-	public void plateSubmit(SingleCarparkInOutHistory cch, Date date,SingleCarparkDevice device, byte[] bigImage) {
+	public void plateSubmit(SingleCarparkInOutHistory cch, Date date, SingleCarparkDevice device, byte[] bigImage) {
 		if ("false".equals(mapSystemSetting.get(SystemSettingTypeEnum.启用车牌报送))) {
 			return;
 		}
 		PlateSubmitServiceI plateSubmitService = sp.getPlateSubmitService();
-		plateSubmitService.submitPlate(cch.getPlateNo(), date, bigImage,device);
+		plateSubmitService.submitPlate(cch.getPlateNo(), date, bigImage, device);
 	}
+
 	/**
 	 * 获取剩余车位数
+	 * 
 	 * @return
 	 */
 	public int getSlotOfLeft() {
@@ -1692,16 +1834,16 @@ public class CarparkMainPresenter {
 			model.setTotalSlotTooltip("临时车位");
 			break;
 		case "1":
-			findTotalSlotIsNow=getFixSlotWithChange();
+			findTotalSlotIsNow = getFixSlotWithChange();
 			model.setTotalSlotTooltip("固定车位");
 			break;
 		case "2":
-			findTotalSlotIsNow=getTotalSlotWithChange();
+			findTotalSlotIsNow = getTotalSlotWithChange();
 			model.setTotalSlotTooltip("总车位");
 			break;
 		case "3":
 			findTotalSlotIsNow = getRealTineSlot(1);
-			
+
 			break;
 		case "4":
 			findTotalSlotIsNow = getRealTineSlot(2);
@@ -1710,7 +1852,7 @@ public class CarparkMainPresenter {
 			findTotalSlotIsNow = getRealTineSlot(3);
 			break;
 		}
-		
+
 		return findTotalSlotIsNow;
 	}
 
@@ -1719,54 +1861,58 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	private Integer getRealTineSlot(int type) {
-		Integer findTotalSlotIsNow =0;
+		Integer findTotalSlotIsNow = 0;
 		try {
 			SingleCarparkCarpark carpark = model.getCarpark().getMaxParent();
 			SingleCarparkCarpark findCarparkById = sp.getCarparkService().findCarparkById(carpark.getId());
-			if (type==2) {
-				findTotalSlotIsNow=findCarparkById.getLeftFixNumberOfSlot();
+			if (type == 2) {
+				findTotalSlotIsNow = findCarparkById.getLeftFixNumberOfSlot();
 				model.setTotalSlotTooltip("实时固定车位，双击进行修改");
-			}else if(type==1){
-				findTotalSlotIsNow=findCarparkById.getLeftTempNumberOfSlot();
+			} else if (type == 1) {
+				findTotalSlotIsNow = findCarparkById.getLeftTempNumberOfSlot();
 				model.setTotalSlotTooltip("实时临时车位，双击进行修改");
-			}else{
-				findTotalSlotIsNow=findCarparkById.getLeftTempNumberOfSlot()+findCarparkById.getLeftFixNumberOfSlot();
+			} else {
+				findTotalSlotIsNow = findCarparkById.getLeftTempNumberOfSlot() + findCarparkById.getLeftFixNumberOfSlot();
 				model.setTotalSlotTooltip("实时总车位，双击进行修改");
 			}
 		} catch (Exception e) {
-			log.error("获取车位时发生错误",e);
+			log.error("获取车位时发生错误", e);
 		}
 		return findTotalSlotIsNow;
 	}
+
 	/**
 	 * 获取剩余的总车位数
+	 * 
 	 * @return
 	 */
 	private Integer getTotalSlotWithChange() {
 		try {
 			int findTotalCarIn = sp.getCarparkInOutService().findTotalCarIn(model.getCarpark());
-			
-			int i = model.getHoursSlot()+model.getMonthSlot()-findTotalCarIn;
-			return i<0?0:i;
+
+			int i = model.getHoursSlot() + model.getMonthSlot() - findTotalCarIn;
+			return i < 0 ? 0 : i;
 		} catch (Exception e) {
-			log.error("获取停车场总车位是发生错误",e);
+			log.error("获取停车场总车位是发生错误", e);
 		}
 		return 0;
 	}
 
 	/**
 	 * 获取固定车剩余位数
+	 * 
 	 * @return
 	 */
 	private Integer getFixSlotWithChange() {
 		int findTotalFixCarIn = sp.getCarparkInOutService().findTotalFixCarIn(model.getCarpark());
 		int monthSlot = model.getMonthSlot();
-		int i = monthSlot-findTotalFixCarIn;
-		return i<0?0:i;
+		int i = monthSlot - findTotalFixCarIn;
+		return i < 0 ? 0 : i;
 	}
 
 	public void saveFleetInOutHistory(SingleCarparkDevice device, String plateNO, byte[] bigImage) {
-		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.车队操作, "车辆：{}在车队期间从设备[{}]{}场",bigImage, System.getProperty("userName"),plateNO,device.getName(),device.getInType().substring(0, 1));
+		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.车队操作, "车辆：{}在车队期间从设备[{}]{}场", bigImage, System.getProperty("userName"), plateNO, device.getName(),
+				device.getInType().substring(0, 1));
 	}
 
 	public void updatePosition(SingleCarparkCarpark carpark, Long userId, boolean inOrOut) {
@@ -1776,35 +1922,35 @@ public class CarparkMainPresenter {
 	public void editPosition() {
 		SingleCarparkCarpark carpark = model.getCarpark().getMaxParent();
 		Integer slotShowType = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位数显示方式));
-		if (StrUtil.isEmpty(model.getTotalSlotTooltip())||slotShowType<3) {
+		if (StrUtil.isEmpty(model.getTotalSlotTooltip()) || slotShowType < 3) {
 			return;
 		}
 		SingleCarparkCarpark c = sp.getCarparkService().findCarparkById(carpark.getId());
-		Integer fixSlot = c.getTrueLeftFixNumberOfSlot()==null?c.getFixNumberOfSlot():c.getTrueLeftFixNumberOfSlot();
-		Integer tempSlot = c.getTrueLeftTempNumberOfSlot()==null?c.getTempNumberOfSlot():c.getTrueLeftTempNumberOfSlot();
-		
+		Integer fixSlot = c.getTrueLeftFixNumberOfSlot() == null ? c.getFixNumberOfSlot() : c.getTrueLeftFixNumberOfSlot();
+		Integer tempSlot = c.getTrueLeftTempNumberOfSlot() == null ? c.getTempNumberOfSlot() : c.getTrueLeftTempNumberOfSlot();
+
 		String fix = null;
-		if (slotShowType==4||slotShowType==5) {
+		if (slotShowType == 4 || slotShowType == 5) {
 			fix = commonui.input("车位数修改", "输入新的剩余固定车位数", "" + fixSlot);
 			if (fix == null) {
 				return;
-			} 
+			}
 			try {
-				fixSlot =Integer.valueOf(fix);
+				fixSlot = Integer.valueOf(fix);
 			} catch (NumberFormatException e) {
 				commonui.error("错误", "请设置正确的车位数");
 				return;
 			}
-			
+
 		}
 		String temp = null;
-		if (slotShowType==3||slotShowType==5) {
+		if (slotShowType == 3 || slotShowType == 5) {
 			temp = commonui.input("车位数修改", "输入新的剩余临时车位数", "" + tempSlot);
 			if (temp == null) {
 				return;
 			}
 			try {
-				tempSlot =Integer.valueOf(temp);
+				tempSlot = Integer.valueOf(temp);
 			} catch (NumberFormatException e) {
 				commonui.error("错误", "请设置正确的车位数");
 				return;
@@ -1822,37 +1968,45 @@ public class CarparkMainPresenter {
 	}
 
 	/**
+	 * 检测设备状态
 	 * @param ip
 	 */
-	public String checkDeviceStatus(String ip) {
-		log.info("检测设备{}状态",ip);
+	public String checkDeviceStatus(final String ip) {
+		log.info("检测设备{}状态", ip);
 		boolean ping = CarparkUtils.ping(ip);
-		String msg="";
+		String msg = "";
 		if (!ping) {
-			msg="摄像机["+ip+"]连接失败\n";
-		}else{
-			if (mapPlayer.get(ip)!=null&&!mapPlayer.get(ip).isPlaying()) {
-				msg="摄像机["+ip+"]播放失败\n";
+			msg = "摄像机[" + ip + "]连接失败\n";
+		} else {
+			if (mapPlayer.get(ip) != null && !mapPlayer.get(ip).isPlaying()) {
+				msg = "摄像机[" + ip + "]播放失败\n";
 			}
 		}
 		SingleCarparkDevice device = model.getMapIpToDevice().get(ip);
-		DeviceErrorMessage dem=sp.getCarparkInOutService().findDeviceErrorMessageByDevice(device);
+		DeviceErrorMessage dem = sp.getCarparkInOutService().findDeviceErrorMessageByDevice(device);
 		String linkAddress = device.getLinkAddress();
-		String controlIp=null;
-		if(linkAddress!=null&&linkAddress.indexOf(":")>-1){
+		String controlIp = null;
+		if (linkAddress != null && linkAddress.indexOf(":") > -1) {
 			controlIp = linkAddress.substring(0, linkAddress.indexOf(":"));
 			boolean ping2 = CarparkUtils.ping(controlIp);
 			if (!ping2) {
 				if (!StrUtil.isEmpty(msg)) {
-					msg+=",";
+					msg += ",";
 				}
-				msg+="控制器["+controlIp+"]连接失败";
+				msg += "控制器[" + controlIp + "]连接失败";
+			}else{
+				//TODO 测试连接
+//				Boolean showNowTimeToDevice = showNowTimeToDevice(device);
+//				if (showNowTimeToDevice!=null&&!showNowTimeToDevice) {
+//					msg += "控制器[" + controlIp + "]失败";
+//				}
 			}
 		}
 		Date date = new Date();
+		boolean status = true;
 		if (!StrUtil.isEmpty(msg)) {
-			if (dem==null) {
-				dem=new DeviceErrorMessage();
+			if (dem == null) {
+				dem = new DeviceErrorMessage();
 				dem.setDeviceName(device.getName());
 				dem.setIp(ip);
 				dem.setControlIp(controlIp);
@@ -1860,14 +2014,49 @@ public class CarparkMainPresenter {
 			}
 			dem.setErrorMsg(msg);
 			sp.getCarparkInOutService().saveDeviceErrorMessage(dem);
-		}else{
-			if (dem!=null) {
+			status = false;
+		} else {
+			if (dem != null) {
 				dem.setNomalTime(date);
 				sp.getCarparkInOutService().saveDeviceErrorMessage(dem);
 			}
 		}
+		if (status) {
+			Boolean boolean1 = model.getMapIpToDeviceStatus().getOrDefault(ip, true);
+			if (boolean1) {
+				setDeviceTabItemStatus(ip, "deviceStatus_16", "正在使用");
+			}
+		} else {
+			setDeviceTabItemStatus(ip, "disconnect_16", msg);
+		}
 		return msg;
 	}
-	
+
+	private void setDeviceTabItemStatus(String ip, String image, String msg) {
+		CTabItem cTabItem = model.getMapIpToTabItem().get(ip);
+		if (cTabItem==null) {
+			return;
+		}
+		Runnable runnable = new Runnable() {
+			public void run() {
+				if ( !cTabItem.isDisposed()) {
+					cTabItem.setImage(JFaceUtil.getImage(image));
+					cTabItem.setToolTipText(msg);
+				}
+			}
+		};
+		cTabItem.getDisplay().asyncExec(runnable);
+	}
+
+	/**
+	 * 
+	 */
+	public void checkAllDeviceControlTimeStatus() {
+		Date d = new Date();
+		for (String ip : mapIpToDevice.keySet()) {
+			SingleCarparkDevice device = mapIpToDevice.get(ip);
+			checkDeviceControlTimeStatus(d, device);
+		}
+	}
 
 }

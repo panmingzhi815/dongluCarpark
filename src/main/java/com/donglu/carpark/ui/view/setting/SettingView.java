@@ -268,6 +268,31 @@ public class SettingView extends Composite implements View {
 		button_28.setText("固定车到期提醒");
 		button_28.setToolTipText("选择后，固定车即将到期或到期后会在管理界面提醒");
 		button_28.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车到期提醒)));
+		
+		Button button_31 = new Button(group, SWT.CHECK);
+		button_31.setToolTipText("选中后允许使设备道闸在指定时间内有效，在修改设备处设置时间");
+		button_31.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.允许设备限时, button_31.getSelection()+"");
+			}
+		});
+		button_31.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_31.setText("允许对设备进行限时工作");
+		button_31.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.允许设备限时)));
+		
+		Button button_30 = new Button(group, SWT.CHECK);
+		button_30.setToolTipText("选中后，监控界面会在每天晚上12点对所有摄像机下载固定车牌");
+		button_30.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.自动下载车牌, button_30.getSelection()+"");
+			}
+		});
+		button_30.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_30.setText("自动下载用户车牌到设备");
+		button_30.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.自动下载车牌)));
+		new Label(group, SWT.NONE);
 
 		Composite composite_2 = new Composite(group, SWT.NONE);
 		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
@@ -410,8 +435,7 @@ public class SettingView extends Composite implements View {
 		button_29.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场重复计费)));
 
 		Composite composite_5 = new Composite(group, SWT.NONE);
-		GridData gd_composite_5 = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
-		composite_5.setLayoutData(gd_composite_5);
+		composite_5.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
 		composite_5.setLayout(new GridLayout(5, false));
 
 		Label label_6 = new Label(composite_5, SWT.NONE);

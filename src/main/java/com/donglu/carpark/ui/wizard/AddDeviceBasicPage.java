@@ -78,6 +78,10 @@ public class AddDeviceBasicPage extends WizardPage {
 	private Label lblNewLabel;
 	private Combo combo_5;
 	private ComboViewer comboViewer_5;
+	private Label lblNewLabel_1;
+	private Text text_5;
+	
+	private boolean controlTime=true;
 
 	/**
 	 * Create the wizard.
@@ -86,6 +90,14 @@ public class AddDeviceBasicPage extends WizardPage {
 	 */
 	public AddDeviceBasicPage(AddDeviceModel model) {
 		super("wizardPage");
+		setTitle("添加设备");
+		setDescription("请输入设备的相关信息");
+		setImageDescriptor(JFaceUtil.getImageDescriptor("link_72"));
+		this.model=model;
+	}
+	public AddDeviceBasicPage(AddDeviceModel model,boolean controlTime) {
+		super("wizardPage");
+		this.controlTime = controlTime;
 		setTitle("添加设备");
 		setDescription("请输入设备的相关信息");
 		setImageDescriptor(JFaceUtil.getImageDescriptor("link_72"));
@@ -280,6 +292,17 @@ public class AddDeviceBasicPage extends WizardPage {
 		comboViewer_3 = new ComboViewer(composite, SWT.READ_ONLY);
 		combo_3 = comboViewer_3.getCombo();
 		combo_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		lblNewLabel_1 = new Label(composite, SWT.NONE);
+		GridData gd_lblNewLabel_1 = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		gd_lblNewLabel_1.exclude = controlTime;
+		lblNewLabel_1.setLayoutData(gd_lblNewLabel_1);
+		lblNewLabel_1.setText("时间限制");
+		
+		text_5 = new Text(composite, SWT.BORDER);
+		GridData gd_text_5 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_5.exclude = controlTime;
+		text_5.setLayoutData(gd_text_5);
 		comboViewer_3.setContentProvider(new ArrayContentProvider());
 		comboViewer_3.setLabelProvider(new LabelProvider());
 		comboViewer_3.setInput(ScreenTypeEnum.values());
@@ -360,6 +383,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue observeSingleSelectionComboViewer_5 = ViewerProperties.singleSelection().observe(comboViewer_5);
 		IObservableValue inOutTypeModelObserveValue = BeanProperties.value("inOutType").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer_5, inOutTypeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_5ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_5);
+		IObservableValue controlTimeModelObserveValue = BeanProperties.value("controlTime").observe(model);
+		bindingContext.bindValue(observeTextText_5ObserveWidget, controlTimeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

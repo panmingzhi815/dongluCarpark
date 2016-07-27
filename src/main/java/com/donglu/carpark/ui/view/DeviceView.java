@@ -3,6 +3,7 @@ package com.donglu.carpark.ui.view;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 
+import java.util.Date;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -13,6 +14,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.util.concurrent.RateLimiter;
@@ -209,6 +211,7 @@ public class DeviceView extends Composite implements View{
 		if (StrUtil.isEmpty(listDevice)) {
 			return;
 		}
+		Date date=new Date();
 		for (SingleCarparkDevice d : listDevice) {
 			CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
 			tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
@@ -225,6 +228,7 @@ public class DeviceView extends Composite implements View{
 				}
 			});
 			getPresenter().getModel().getMapDeviceTabItem().put(tabItem, d.getIp());
+			getPresenter().getModel().getMapIpToTabItem().put(d.getIp(),tabItem);
 			tabItem.addDisposeListener(new DisposeListener() {
 				
 				@Override
@@ -232,6 +236,9 @@ public class DeviceView extends Composite implements View{
 					composite.dispose();
 				}
 			});
+			tabItem.setImage(JFaceUtil.getImage("deviceStatus_16"));
+			tabItem.setToolTipText("正在使用");
+			getPresenter().getPresenter().checkDeviceControlTimeStatus(date,d);
 		}
 		tabFolder.setSelection(0);
 		if (getPresenter().getType().equals("进口")) {

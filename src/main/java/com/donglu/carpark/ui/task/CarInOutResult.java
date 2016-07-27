@@ -60,6 +60,12 @@ public class CarInOutResult implements PlateNOResult {
 
 	@Override
 	public void invok(String ip, int channel, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize) {
+		Boolean boolean2 = model.getMapIpToDeviceStatus().get(ip);
+		SingleCarparkDevice device = model.getMapIpToDevice().get(ip);
+		if (boolean2!=null&&!boolean2&&device!=null) {
+			logger.info("设备{}限时：{}",ip,device.getControlTime());
+			return;
+		}
 		model.setPlateInTime(new Date(),10);
 		logger.info("车辆{}在设备{}通道{}处进场,可信度：{}", plateNO, ip, channel, rightSize);
 		String deviceType = model.getMapDeviceType().get(ip);
@@ -69,11 +75,9 @@ public class CarInOutResult implements PlateNOResult {
 			e.printStackTrace();
 			return;
 		}
-		Map<String, SingleCarparkDevice> mapIpToDevice = model.getMapIpToDevice();
-		SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(ip);
 		if (model.getIsOpenFleet()) {
 			logger.info("车队模式，保存车牌{}的进场记录到操作员日志",plateNO);
-			presenter.saveFleetInOutHistory(singleCarparkDevice,plateNO,bigImage);
+			presenter.saveFleetInOutHistory(device,plateNO,bigImage);
 			return;
 		}
 		// 开闸
@@ -84,16 +88,16 @@ public class CarInOutResult implements PlateNOResult {
 			if (deviceType.indexOf("出口")>-1) {
 				inOrOut = false;
 			}
-			presenter.saveOpenDoor(singleCarparkDevice, bigImage, plateNO, inOrOut);
+			presenter.saveOpenDoor(device, bigImage, plateNO, inOrOut);
 			return;
 		}
 
 		boolean equals = (mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔))
 				.equals(SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue());
-		String linkAddress = singleCarparkDevice.getLinkInfo();
+		String linkAddress = device.getLinkInfo();
 
 		Boolean isTwoChanel = mapIsTwoChanel.get(linkAddress);
-		String inOrOut = singleCarparkDevice.getInOrOut();
+		String inOrOut = device.getInOrOut();
 		if (inOrOut.indexOf("出口")>-1) {
 			// 是否是双摄像头
 			if (!equals && isTwoChanel) {
