@@ -297,7 +297,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		GridData gd_lblNewLabel_1 = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
 		gd_lblNewLabel_1.exclude = controlTime;
 		lblNewLabel_1.setLayoutData(gd_lblNewLabel_1);
-		lblNewLabel_1.setText("时间限制");
+		lblNewLabel_1.setText("启用时段");
 		
 		text_5 = new Text(composite, SWT.BORDER);
 		GridData gd_text_5 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);

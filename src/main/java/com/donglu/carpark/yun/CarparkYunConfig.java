@@ -12,6 +12,9 @@ public class CarparkYunConfig implements Serializable{
 	
 	private String company="";
 	private String area="";
+	private String companyCode="";
+	private String areaCode="";
+	private String url="";
 	private Boolean autoStartServer=false;
 	
 	
@@ -92,5 +95,29 @@ public class CarparkYunConfig implements Serializable{
 
 	public void setAutoStartServer(Boolean autoStartServer) {
 		this.autoStartServer = autoStartServer;
+	}
+
+	public String getCompanyCode() {
+		return companyCode;
+	}
+
+	public void setCompanyCode(String companyCode) {
+		this.companyCode = companyCode;
+	}
+
+	public String getAreaCode() {
+		return areaCode;
+	}
+
+	public void setAreaCode(String areaCode) {
+		this.areaCode = areaCode;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
 	}
 }

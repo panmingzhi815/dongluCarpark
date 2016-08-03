@@ -19,6 +19,7 @@ public class ServerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
     	try {
+    		System.out.println("========="+req.getParameter("data"));
     		req.setCharacterEncoding("UTF-8");
     		response.setCharacterEncoding("UTF-8");
 			response.setContentType("text/html;charset=UTF-8");

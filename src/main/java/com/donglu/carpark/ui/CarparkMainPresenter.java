@@ -773,7 +773,6 @@ public class CarparkMainPresenter {
 				if (d != null) {
 					log.info("对设备：ip:{},kip:{} 开闸,发送语音：[{}]", device.getIp(), device.getLinkAddress(), content);
 					Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoorWithDelay(d, content, device.getVolume() == null ? 1 : device.getVolume(), openDoorDelay);
-					openDoorToPhotograph(device.getIp());
 					return carparkContentVoiceAndOpenDoor;
 				} else {
 					openDoor(device);
@@ -785,8 +784,12 @@ public class CarparkMainPresenter {
 			}
 			return true;
 		} catch (Exception e) {
-			log.error("对设备" + device.getIp() + "开闸失败", e);
+			log.error("对设备" + device.getIp() + "的控制器"+device.getLinkAddress()+"开闸失败", e);
 			return false;
+		}finally{
+			if (isOpenDoor) {
+				openDoorToPhotograph(device.getIp());
+			}
 		}
 	}
 
@@ -959,6 +962,7 @@ public class CarparkMainPresenter {
 			log.info("软件触发摄像机开闸：{}", false);
 			return;
 		}
+		log.info("软件触发摄像机{}开闸",ip);
 		mapIpToJNA.get(ip).openDoor(ip);
 	}
 

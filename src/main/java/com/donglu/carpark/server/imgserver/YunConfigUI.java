@@ -21,8 +21,11 @@ public class YunConfigUI {
 
 	public static final String CARPARK_YUN_CONFIG = "CarparkYunConfig";
 	protected Shell shell;
-	private Text text;
-	private Text text_1;
+	private Text text_company;
+	private Text text_area;
+	private Text text_companyCode;
+	private Text text_areaCode;
+	private Text text_url;
 
 	/**
 	 * Launch the application.
@@ -64,32 +67,59 @@ public class YunConfigUI {
 		Composite composite = new Composite(shell, SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
 		GridData gd_composite = new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1);
-		gd_composite.heightHint = 137;
+		gd_composite.heightHint = 227;
 		gd_composite.widthHint = 319;
 		composite.setLayoutData(gd_composite);
 		CarparkYunConfig cf = (CarparkYunConfig) CarparkFileUtils.readObject(CARPARK_YUN_CONFIG);
 		if (cf==null) {
 			cf=CarparkYunConfig.getInstance();
 		}
+		
+		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_2.setText("服务地址");
+		
+		text_url = new Text(composite, SWT.BORDER);
+		text_url.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_url.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label label = new Label(composite, SWT.NONE);
+		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("物业编号");
+		
+		text_companyCode = new Text(composite, SWT.BORDER);
+		text_companyCode.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_companyCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		Label lblNewLabel = new Label(composite, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel.setText("物业名称");
 		
-		text = new Text(composite, SWT.BORDER);
-		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		text.setText(cf.getCompany());
+		text_company = new Text(composite, SWT.BORDER);
+		text_company.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_company.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_company.setText(cf.getCompany());
+		
+		Label label_1 = new Label(composite, SWT.NONE);
+		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_1.setText("停车场编号");
+		
+		text_areaCode = new Text(composite, SWT.BORDER);
+		text_areaCode.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_areaCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
 		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_1.setText("停 车 场");
+		lblNewLabel_1.setText("停车场名称");
 		
-		text_1 = new Text(composite, SWT.BORDER);
-		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_area = new Text(composite, SWT.BORDER);
+		text_area.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_area.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(composite, SWT.NONE);
-		text_1.setText(cf.getArea());
+		text_area.setText(cf.getArea());
 		Button btnCheckButton = new Button(composite, SWT.CHECK);
 		btnCheckButton.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btnCheckButton.setText("启动云上传服务");
@@ -99,13 +129,17 @@ public class YunConfigUI {
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String company = text.getText();
-				String area = text_1.getText();
+				String company = text_company.getText();
+				String area = text_area.getText();
 				boolean selection = btnCheckButton.getSelection();
+				String companyCode = text_companyCode.getText();
+				String areaCode=text_areaCode.getText();
 				CarparkYunConfig instance = CarparkYunConfig.getInstance();
 				instance.setCompany(company);
 				instance.setArea(area);
 				instance.setAutoStartServer(selection);
+				instance.setCompanyCode(companyCode);
+				instance.setAreaCode(areaCode);
 				CarparkFileUtils.writeObject(CARPARK_YUN_CONFIG, instance);
 				System.out.println(company+"===="+area+"====="+selection);
 				shell.dispose();

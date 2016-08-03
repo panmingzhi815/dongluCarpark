@@ -34,11 +34,11 @@ public class FileuploadSend {
 		URL uri = new URL(actionUrl);
 		HttpURLConnection conn = (HttpURLConnection) uri.openConnection();
 		// 设置从主机读取数据超时
-		conn.setReadTimeout(2 * 1000);
+		conn.setReadTimeout(5 * 1000);
 		conn.setDoInput(true);
 		conn.setDoOutput(true);
 		conn.setUseCaches(false);
-		conn.setRequestMethod("POST");
+		conn.setRequestMethod("GET");
 		conn.setRequestProperty("connection", "keep-alive");
 		conn.setRequestProperty("Charset", "UTF-8");
 		conn.setRequestProperty("Content-Type", MULTIPART_FROM_DATA + ";boundary=" + BOUNDARY);
