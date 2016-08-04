@@ -54,6 +54,7 @@ import com.donglu.carpark.server.module.CarparkServerGuiceModule;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.WebService;
+import com.donglu.carpark.service.background.IpmsSynchroServiceI;
 import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.wizard.sn.ImportSNModel;
 import com.donglu.carpark.ui.wizard.sn.ImportSNWizard;
@@ -525,8 +526,20 @@ public class ImageServerUI {
 	 */
 	@SuppressWarnings("unchecked")
 	private void autoSendInfoToCloud() {
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.启用CJLAPP支付.name());
+					if (findSystemSettingByKey != null && findSystemSettingByKey.getBooleanValue()) {
+						IpmsSynchroServiceI instance = serverInjector.getInstance(IpmsSynchroServiceI.class);
+						instance.startAsync();
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
 		CarparkYunConfig cf = (CarparkYunConfig) CarparkFileUtils.readObject(YunConfigUI.CARPARK_YUN_CONFIG);
-		
 		if (cf==null) {
 			return;
 		}

@@ -218,7 +218,7 @@ public class CarInTask extends AbstractTask {
 		LOGGER.info("保存车牌：{}的进场记录到数据库成功", plateNO);
 		model.getMapCameraLastImage().put(ip, cch.getBigImg());
 		presenter.showContentToDevice(device, content, isOpenDoor);
-		presenter.updatePosition(carpark, cch.getUserId(), true);
+		presenter.updatePosition(carpark, cch, true);
 		LOGGER.info("对设备{}，发送消息{}，开门信号：{}", device.getName(), content, isOpenDoor);
 	}
 

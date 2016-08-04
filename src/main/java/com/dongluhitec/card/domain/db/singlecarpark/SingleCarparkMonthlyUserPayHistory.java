@@ -46,6 +46,8 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	private String monthChargeCode;
 	private String monthChargeName;
 	private String parkingSpace;
+	private String remark;
+	
 
 	public String getUserName() {
 		return userName;
@@ -227,6 +229,15 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	public void setParkingSpace(String parkingSpace) {
 		this.parkingSpace = parkingSpace;
 		firePropertyChange("parkingSpace", null, null);
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+		firePropertyChange("remark", null, null);
 	}
 	
 }

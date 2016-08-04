@@ -11,6 +11,7 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 	private PositionUpdateServiceI positionUpdateService;
 	private ImageServiceI imageService;
 	private SettingService settingService;
+	private IpmsServiceI ipmsService;
 	
 	private boolean started=false;
 
@@ -131,6 +132,15 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 
 	public void setSettingService(SettingService settingService) {
 		this.settingService = settingService;
+	}
+
+	public IpmsServiceI getIpmsService() {
+		checkState();
+		return ipmsService;
+	}
+
+	public void setIpmsService(IpmsServiceI ipmsService) {
+		this.ipmsService = ipmsService;
 	}
 
 }

@@ -304,6 +304,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			}
 			m.setOperaName(System.getProperty("userName"));
 			m.setUserType(singleCarparkUser.getType());
+			singleCarparkUser.setLastEditDate(new Date());
 			sp.getCarparkUserService().saveUser(singleCarparkUser);
 			SingleCarparkMonthlyUserPayHistory singleCarparkMonthlyUserPayHistory = m.getSingleCarparkMonthlyUserPayHistory();
 			singleCarparkMonthlyUserPayHistory.setParkingSpace(singleCarparkUser.getParkingSpace());
@@ -383,6 +384,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 
 			SingleCarparkUser user = m.getSingleCarparkUser();
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
+			user.setLastEditDate(new Date());
 			carparkUserService.saveUser(user);
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "修改了用户:"+singleCarparkUser.getName(),System.getProperty("userName"));
 			commonui.info("操作成功", "修改成功!");

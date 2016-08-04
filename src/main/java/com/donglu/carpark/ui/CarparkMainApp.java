@@ -700,6 +700,11 @@ public class CarparkMainApp extends AbstractApp{
 		TableColumn tableColumn_1 = tableViewerColumn_1.getColumn();
 		tableColumn_1.setWidth(143);
 		tableColumn_1.setText("进场时间");
+		
+		TableViewerColumn tableViewerColumn_2 = new TableViewerColumn(tableViewer, SWT.NONE);
+		TableColumn tableColumn_2 = tableViewerColumn_2.getColumn();
+		tableColumn_2.setWidth(143);
+		tableColumn_2.setText("用户");
 
 		Label lblNewLabel_1 = new Label(group, SWT.SEPARATOR | SWT.HORIZONTAL);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
@@ -1336,7 +1341,7 @@ public class CarparkMainApp extends AbstractApp{
 		bindingContext.bindValue(observeEditableText_realObserveWidget, btnClickModelObserveValue, null, null);
 		//
 		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
-		IObservableMap[] observeMaps = BeansObservables.observeMaps(listContentProvider.getKnownElements(), SingleCarparkInOutHistory.class, new String[] { "plateNo", "inTimeLabel" });
+		IObservableMap[] observeMaps = BeansObservables.observeMaps(listContentProvider.getKnownElements(), SingleCarparkInOutHistory.class, new String[] { "plateNo", "inTimeLabel","userName" });
 		tableViewer.setLabelProvider(new ObservableMapLabelProvider(observeMaps));
 		tableViewer.setContentProvider(listContentProvider);
 		//

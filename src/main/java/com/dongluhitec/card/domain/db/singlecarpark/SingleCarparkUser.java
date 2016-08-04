@@ -58,6 +58,8 @@ public class SingleCarparkUser extends DomainObject {
 	private String telephone;
 	@Column(length=200)
 	private String parkingSpace;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date lastEditDate;
 	
 	
 	@ManyToOne
@@ -248,6 +250,16 @@ public class SingleCarparkUser extends DomainObject {
 	public void setMonthChargeCode(String monthChargeCode) {
 		this.monthChargeCode = monthChargeCode;
 		firePropertyChange("monthChargeCode", null, null);
+	}
+	public Date getLastEditDate() {
+		if(lastEditDate==null){
+			return createDate;
+		}
+		return lastEditDate;
+	}
+	public void setLastEditDate(Date lastEditDate) {
+		this.lastEditDate = lastEditDate;
+		firePropertyChange("lastEditDate", null, null);
 	}
 	
 }

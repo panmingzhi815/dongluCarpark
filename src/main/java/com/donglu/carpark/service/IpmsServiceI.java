@@ -1,8 +1,10 @@
 package com.donglu.carpark.service;
 
+import com.donglu.carpark.service.impl.IpmsServiceImpl;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
-
+import com.google.inject.ImplementedBy;
+@ImplementedBy(IpmsServiceImpl.class)
 public interface IpmsServiceI {
 	/**
 	 * 添加停车记录
@@ -28,10 +30,16 @@ public interface IpmsServiceI {
 	 * @return
 	 */
 	public boolean updateUser(SingleCarparkUser user);
+	/**
+	 * 更新临时车缴费记录
+	 */
 	public void updateTempCarChargeHistory();
+	/**
+	 * 更新月卡信息
+	 */
 	public void updateUserInfo();
 	/**
-	 * 更新缴费记录
+	 * 更新固定车缴费记录
 	 */
 	public void updateFixCarChargeHistory();
 	/**

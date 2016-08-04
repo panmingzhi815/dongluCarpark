@@ -34,6 +34,7 @@ public class CarparkHessianServiceProvider extends AbstractCarparkDatabaseServic
              setPositionUpdateService(injector.getInstance(PositionUpdateServiceI.class));
              setImageService(injector.getInstance(ImageServiceI.class));
              setSettingService(injector.getInstance(SettingService.class));
+             setIpmsService(injector.getInstance(IpmsServiceI.class));
         }catch(Exception e){
         	e.printStackTrace();
         }
@@ -72,6 +73,7 @@ public class CarparkHessianServiceProvider extends AbstractCarparkDatabaseServic
 				this.bind(PlateSubmitServiceI.class).toInstance((PlateSubmitServiceI) factory.create(PlateSubmitServiceI.class, url+"plateSubmit/"));
 				this.bind(PositionUpdateServiceI.class).toInstance((PositionUpdateServiceI) factory.create(PositionUpdateServiceI.class, url+"positionUpdate/"));
 				this.bind(ImageServiceI.class).toInstance((ImageServiceI) factory.create(ImageServiceI.class, url+"carparkImage/"));
+				this.bind(IpmsServiceI.class).toInstance((IpmsServiceI) factory.create(IpmsServiceI.class, url+"ipms/"));
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}

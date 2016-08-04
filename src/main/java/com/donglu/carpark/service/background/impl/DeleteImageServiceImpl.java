@@ -118,10 +118,10 @@ public class DeleteImageServiceImpl extends AbstractCarparkBackgroundService imp
 		File file;
 		while (true) {
 			String pathname = clientImageSavePath + year + "/" + month;
-			log.info("检测文件夹{}是否存在", pathname);
+			log.debug("检测文件夹{}是否存在", pathname);
 			file = new File(pathname);
 			if (file.isDirectory()) {
-				log.info("文件夹{}存在,准备删除文件夹", pathname);
+				log.debug("文件夹{}存在,准备删除文件夹", pathname);
 				if (month.equals(nowMonth)) {
 					for (File f : file.listFiles()) {
 						try {
@@ -138,10 +138,10 @@ public class DeleteImageServiceImpl extends AbstractCarparkBackgroundService imp
 			} else {
 				while (true) {
 					String pathname1 = clientImageSavePath + (year);
-					log.info("检测文件夹{}是否存在", pathname1);
+					log.debug("检测文件夹{}是否存在", pathname1);
 					file = new File(pathname1);
 					if (file.isDirectory()) {
-						log.info("文件夹{}存在,准备删除文件夹", pathname1);
+						log.debug("文件夹{}存在,准备删除文件夹", pathname1);
 						if (year==nowYear) {
 							for (File f : file.listFiles()) {
 								try {
@@ -156,7 +156,7 @@ public class DeleteImageServiceImpl extends AbstractCarparkBackgroundService imp
 							CarparkUtils.deleteDir(file);
 						}
 					}else{
-						log.info("文件夹{}不存在,退出任务", pathname1);
+						log.debug("文件夹{}不存在,退出任务", pathname1);
 						break;
 					}
 					year-=1;

@@ -860,6 +860,23 @@ public class SettingView extends Composite implements View {
 
 		Label label_8 = new Label(group_childCarparkSetting, SWT.NONE);
 		label_8.setText("分钟");
+		
+		Group grpApp = new Group(composite, SWT.NONE);
+		grpApp.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		grpApp.setLayout(new GridLayout(1, false));
+		grpApp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		grpApp.setText("APP服务");
+		
+		Button btncjlapp = new Button(grpApp, SWT.CHECK);
+		btncjlapp.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.启用CJLAPP支付, btncjlapp.getSelection()+"");
+			}
+		});
+		btncjlapp.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		btncjlapp.setText("启用CJLAPP服务");
+		btncjlapp.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付)));
 
 		Composite composite_8 = new Composite(composite, SWT.NONE);
 		composite_8.setLayout(new GridLayout(4, false));

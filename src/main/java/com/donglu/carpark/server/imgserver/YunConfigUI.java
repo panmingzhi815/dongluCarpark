@@ -83,6 +83,7 @@ public class YunConfigUI {
 		text_url = new Text(composite, SWT.BORDER);
 		text_url.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_url.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_url.setText(cf.getUrl());
 		
 		Label label = new Label(composite, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -92,6 +93,8 @@ public class YunConfigUI {
 		text_companyCode = new Text(composite, SWT.BORDER);
 		text_companyCode.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_companyCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_companyCode.setText(cf.getCompanyCode());
+		
 		Label lblNewLabel = new Label(composite, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -110,6 +113,8 @@ public class YunConfigUI {
 		text_areaCode = new Text(composite, SWT.BORDER);
 		text_areaCode.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_areaCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_areaCode.setText(cf.getAreaCode());
+		
 		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
 		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -134,12 +139,14 @@ public class YunConfigUI {
 				boolean selection = btnCheckButton.getSelection();
 				String companyCode = text_companyCode.getText();
 				String areaCode=text_areaCode.getText();
+				String url = text_url.getText();
 				CarparkYunConfig instance = CarparkYunConfig.getInstance();
 				instance.setCompany(company);
 				instance.setArea(area);
 				instance.setAutoStartServer(selection);
 				instance.setCompanyCode(companyCode);
 				instance.setAreaCode(areaCode);
+				instance.setUrl(url);
 				CarparkFileUtils.writeObject(CARPARK_YUN_CONFIG, instance);
 				System.out.println(company+"===="+area+"====="+selection);
 				shell.dispose();

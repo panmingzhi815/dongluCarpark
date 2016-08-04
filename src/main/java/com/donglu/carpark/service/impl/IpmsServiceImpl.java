@@ -12,7 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -27,10 +28,12 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.google.inject.Inject;
 
 public class IpmsServiceImpl implements IpmsServiceI {
-	
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private String name = "东陆高新";
+	@Inject
 	private CarparkDatabaseServiceProvider sp;
 	//023ed7e373464323875e28c64dcd368b
 	private String buildindId="023ed7e373464323875e28c64dcd368b1";
@@ -43,22 +46,25 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			buildindId=instance.getCompanyCode();
 			httpUrl=instance.getUrl();
 			name=instance.getCompany();
+			log.info("获取信息parkId={}，buildindId={}，httpUrl={}，name={}",parkId,buildindId,httpUrl,name);
 		} catch (Exception e) {
 			httpUrl=null;
 		}
 	}
 	@Override
 	public boolean addInOutHistory(SingleCarparkInOutHistory ioh) {
+		synchroInOutHistory("delete", ioh);
 		return synchroInOutHistory("add", ioh);
 	}
 	/**
 	 * 同步停车记录
 	 * @param type 类型 add,update,delete
-	 * @param carInfos 车辆信息json,删除时不需要
+	 * @param ioh
 	 * @return
 	 */
 	private boolean synchroInOutHistory(String type,SingleCarparkInOutHistory ioh){
 		try {
+			log.info("{}停车场记录",type);
 			String url=httpUrl+"/api/syncParkingRecord.action";
 			String content="{\"operation\":\""+type+"\",\"origin\":\""+name+"\","
 					+ "\"parkingRecord\":{\"carNum\":\"{}\",\"carType\":\"0\",\"id\":\"{}\",\"inTimeStr\":\"{}\",\"outTimeStr\":\"{}\",\"buildingId\":\""+buildindId+"\",\"parkId\":\""+parkId+"\",\"parkName\":\"测试停车场\",\"status\":\"{}\",\"userType\":\"{}\"},\"syncId\":\"{}\",\"deptFee\"={},\"fee\"={}}";
@@ -80,14 +86,13 @@ public class IpmsServiceImpl implements IpmsServiceI {
 					int depFree=(int) (ioh.getFactMoney()==null?0:ioh.getFactMoney()*100);
 					int free=(int) (ioh.getShouldMoney()==null?0:ioh.getShouldMoney()*100);
 					content=StrUtil.formatString(content, plateNo,parkId+id,inTime,outTime,status,userType,id,depFree,free);
-					System.out.println(content);
 					carInfo="data="+URLEncoder.encode("["+content+"]", "UTF-8");
-					System.out.println(carInfo);
 			}
 			String httpPostMssage = httpPostMssage(url, carInfo);
+			log.info("{}停车场记录,结果:{}",type,httpPostMssage);
 			return JSONObject.parseObject(httpPostMssage).get("ret").toString().equals("0");
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(type+"停车场记录时发生错误",e);
 		}
 		return false;
 	}
@@ -102,6 +107,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	}
 	
 	private boolean synchroUser(String type,SingleCarparkUser user) {
+		log.info("{}用户信息",type);
 		String url=httpUrl+"/api/syncMonthCard.action";
 		try {
 			String userInfo="";
@@ -137,9 +143,10 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			String httpPostMssage = httpPostMssage(url, parameters);
 			JSONObject parseObject = JSONObject.parseObject(httpPostMssage);
 			Object object = parseObject.get("ret");
+			log.info("{}用户信息,结果：{}",type,httpPostMssage);
 			return object.toString().equals("0");
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(type+"用户信息",e);
 		}
 		return false;
 	}
@@ -151,6 +158,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	@Override
 	public void updateTempCarChargeHistory() {
 		try {
+			log.info("更新临时车缴费记录");
 			String url=httpUrl+"/api/pullPaymentRecord.action?buildingId="+buildindId;
 			String httpPostMssage = httpPostMssage(url, null);
 			JSONObject Object = JSONObject.parseObject(httpPostMssage);
@@ -161,6 +169,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			}
 			String string = URLDecoder.decode(data, "UTF-8");
 			JSONArray parseArray = JSONObject.parseArray(string);
+			log.info("更新临时车缴费记录，结果：{}",string);
 			for (Object object2 : parseArray) {
 				JSONObject jo=(JSONObject) object2;
 				System.out.println(jo);
@@ -169,7 +178,6 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				float payedMoney=jData.getFloat("balanceAmount")/100;
 				String plateNo = jData.getString("carNum");
 				Date createTime = StrUtil.parseDateTime(jData.getString("createTimeStr"));
-				System.out.println(plateNo+"===="+payedMoney+"====="+createTime);
 				CarPayHistory pay=new CarPayHistory();
 				pay.setPayedMoney(payedMoney);
 				pay.setPayTime(createTime);
@@ -178,15 +186,15 @@ public class IpmsServiceImpl implements IpmsServiceI {
 //				sp.getCarparkService().saveCarPayHistory(pay);
 				String resultUrl=httpUrl+"/api/responseResult.action?ids="+idLabel;
 				String httpPostMssage2 = httpPostMssage(resultUrl, null);
-				System.out.println(httpPostMssage2);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("更新临时车缴费记录时发生错误",e);
 		}
 	}
 	@Override
 	public void updateUserInfo() {
 		try {
+			log.info("更新固定用户信息");
 			String url=httpUrl+"/api/pullMonthCard.action?buildingId="+buildindId;
 			String httpPostMssage = httpPostMssage(url, null);
 			JSONObject parseObject = JSONObject.parseObject(httpPostMssage);
@@ -195,12 +203,17 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				return;
 			}
 			String data = (String) parseObject.get("data");
+			if (data==null) {
+				return;
+			}
 			data=URLDecoder.decode(data, "UTF-8");
+			log.info("获取更新的用户信息：{}",data);
 			JSONArray parseArray = JSONObject.parseArray(data);
 			for (Object object : parseArray) {
-				JSONObject po = JSONObject.parseObject(((JSONObject) object).getString("data"));
+				JSONObject jo = (JSONObject) object;
+				JSONObject po = JSONObject.parseObject(jo.getString("data"));
 				String status = po.getString("status");
-				if (status.equals("1")) {
+				if (!status.equals("1")) {
 					continue;
 				}
 				String tpEndTime = po.getString("tpEndTime");
@@ -214,14 +227,17 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				}
 				user.setValidTo(StrUtil.getTodayBottomTime(StrUtil.parseDateTime(tpEndTime)));
 				sp.getCarparkUserService().saveUser(user);
+				String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
+				httpPostMssage(resultUrl, null);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("更新固定用户信息时发生错误",e);
 		}
 	}
 	@Override
 	public void updateFixCarChargeHistory() {
 		try {
+			log.info("更新固定车充值记录");
 			String url=httpUrl+"/api/pullMonthCardRecharge.action?buildingId="+buildindId;
 			String httpPostMssage = httpPostMssage(url, null);
 			JSONObject parseObject = JSONObject.parseObject(httpPostMssage);
@@ -234,6 +250,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				return;
 			}
 			data=URLDecoder.decode(data, "UTF-8");
+			log.info("更新固定车充值记录：{}",data);
 			JSONArray parseArray = JSONObject.parseArray(data);
 			for (Object object : parseArray) {
 				JSONObject jo=(JSONObject) object;
@@ -246,6 +263,10 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				if (user==null) {
 					continue;
 				}
+				if (user.getType().equals("储值")) {
+					user.setLeftMoney(user.getLeftMoney()+money);
+					sp.getCarparkUserService().saveUser(user);
+				}
 				SingleCarparkMonthlyUserPayHistory mup=new SingleCarparkMonthlyUserPayHistory();
 				mup.setCreateTime(new Date(Long.valueOf(createDateTime)));
 				mup.setOldOverDueTime(user.getValidTo());
@@ -256,17 +277,22 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				mup.setUserName(user.getName());
 				mup.setUserType(user.getType());
 				mup.setParkingSpace(user.getParkingSpace());
+				mup.setRemark("app充值");
 				sp.getCarparkService().saveMonthlyUserPayHistory(mup);
 				String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
 				httpPostMssage(resultUrl, null);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("更新固定用户充值记录时发生错误",e);
 		}
 		
 	}
 	public int pay(SingleCarparkInOutHistory inout,float chargeMoney){
 		try {
+			log.info("车辆:{}出场,请求扣费:{}",inout.getPlateNo(),chargeMoney);
+			if (chargeMoney==0) {
+				return 2005;
+			}
 			int fenMoney=(int) (chargeMoney*100);
 			String recordId=parkId+inout.getId();
 			String plateNO=URLEncoder.encode(inout.getPlateNo(), "UTF-8");
@@ -276,11 +302,6 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			JSONObject parseObject = JSONObject.parseObject(httpPostMssage);
 			String string = parseObject.get("resultCode").toString();
 			int valueOf = Integer.valueOf(string.trim());
-			if (valueOf==0) {
-				inout.setChargeTime(new Date());
-				inout.setFactMoney(chargeMoney);
-				sp.getCarparkInOutService().saveInOutHistory(inout);
-			}
 			return valueOf;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -311,25 +332,25 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		
 //		is.updateUserInfo();
 		
-		is.updateTempCarChargeHistory();
+//		is.updateTempCarChargeHistory();
 //		is.updateFixCarChargeHistory();
 		
-//		SingleCarparkUser user = new SingleCarparkUser();
-//		user.setId(1L);
+		SingleCarparkUser user = new SingleCarparkUser();
+		user.setId(1L);
 //		user.setCreateDate(new Date());
 //		user.setValidTo(DateTime.now().plusMonths(2).toDate());
 //		user.setPlateNo("粤BD022W");
 //		user.setCarType(CarTypeEnum.SmallCar);
 //		is.addUser(user);
 		
-//		is.synchroUser("update", user);
+		is.synchroUser("delete", user);
 		
 		
 //		String parameters="[{\"dataId\":\"\",\"operation\":\"add\",\"origin\":\"东陆高新\",\"syncId\":\"3\",\"userMonthCard\":{\"carNum\":\" 粤B12345\",\"carType\":\"1\",\"cardType\":\"1\",\"id\":\"3\",\"buildingId\":\"1111111111111\",\"parkId\":\"1111111111111\",\"status\":\"1\",\"tpEndTime\":\"2016-03-16 10:20:25\",\"tpStartTime\":\"2016-03-1610:20:26\",\"userAddress\":\"\",\"userName\":\"AAA\",\"userPhone\":\"123456789\",\"monthFee\":1000}}]";
 //		JSONArray parseArray = JSONObject.parseArray(parameters);
 //		System.out.println();
 	}
-	public static String postMssage(String actionUrl, Map<String, Object> maps) throws Exception{
+	private String postMssage(String actionUrl, Map<String, Object> maps) throws Exception{
 		Set<String> keySet = maps.keySet();
 		String parameters=null;
 		for (String p : keySet) {
@@ -342,8 +363,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		}
 		return httpPostMssage(actionUrl, parameters);
 	}
-	public static String httpPostMssage(String actionUrl, String parameters) throws Exception {
-		System.out.println("准备对地址：["+actionUrl+"]发送消息:"+parameters);
+	private String httpPostMssage(String actionUrl, String parameters) throws Exception {
+		log.debug("准备对地址：["+actionUrl+"]发送消息:"+parameters);
 		URL url = new URL(actionUrl);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setDoInput(true);
@@ -367,10 +388,11 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			lines = new String(lines.getBytes(), "utf-8");
 			sbf.append(lines);
 		}
-		System.out.println(sbf);
+		String msg = sbf.toString();
+		log.debug(msg);
 		reader.close();
 		// 断开连接
 		connection.disconnect();
-		return sbf.toString();
+		return msg;
 	}
 }

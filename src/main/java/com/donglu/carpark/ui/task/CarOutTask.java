@@ -142,7 +142,7 @@ public class CarOutTask extends AbstractTask{
 				}
 			}
 			presenter.plateSubmit(cch, date, device, bigImage);
-			presenter.updatePosition(carpark, user.getId(), false);
+			presenter.updatePosition(carpark, cch, false);
 		} else {// 临时车操作
 			tempCarOutProcess(null);
 		}
@@ -600,6 +600,12 @@ public class CarOutTask extends AbstractTask{
 				Boolean valueOf = Boolean.valueOf(property);
 				// 临时车零收费是否自动出场
 				Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
+				int isAppPay=presenter.appPay(cch,shouldMoney);
+				if (isAppPay==2005) {
+					presenter.showContentToDevice(device,model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
+					presenter.updatePosition(carpark, singleCarparkInOutHistory, false);
+					return;
+				}
 				model.setBtnClick(true);
 				LOGGER.info("等待收费");
 				if (tempCarNoChargeIsPass) {
