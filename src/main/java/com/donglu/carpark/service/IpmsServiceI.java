@@ -4,6 +4,11 @@ import com.donglu.carpark.service.impl.IpmsServiceImpl;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.google.inject.ImplementedBy;
+/**
+ * 长颈鹿停车场app服务
+ * @author Administrator
+ *
+ */
 @ImplementedBy(IpmsServiceImpl.class)
 public interface IpmsServiceI {
 	/**
@@ -30,6 +35,12 @@ public interface IpmsServiceI {
 	 * @return
 	 */
 	public boolean updateUser(SingleCarparkUser user);
+	/**
+	 * 更新月租用户
+	 * @param user
+	 * @return
+	 */
+	public boolean deleteUser(SingleCarparkUser user);
 	/**
 	 * 更新临时车缴费记录
 	 */

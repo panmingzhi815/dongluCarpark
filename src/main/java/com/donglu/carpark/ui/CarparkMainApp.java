@@ -106,7 +106,7 @@ public class CarparkMainApp extends AbstractApp{
 	private final AtomicInteger refreshTimes = new AtomicInteger(0);
 	private final Integer refreshTimeSpeedSecond = 3;
 
-	private Logger LOGGER = LoggerFactory.getLogger(CarparkMainApp.class);
+	private Logger log = LoggerFactory.getLogger(CarparkMainApp.class);
 
 	protected Shell shell;
 	private Text text_total;
@@ -230,7 +230,7 @@ public class CarparkMainApp extends AbstractApp{
 					try {
 						carpark = sp.getCarparkService().findCarparkById(singleCarparkDevice.getCarpark().getId());
 					} catch (Exception e) {
-						LOGGER.error("没有找到停车场：{}",singleCarparkDevice.getCarpark());
+						log.error("没有找到停车场：{}",singleCarparkDevice.getCarpark());
 						continue;
 					}
 				}
@@ -271,11 +271,11 @@ public class CarparkMainApp extends AbstractApp{
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("系统发生异常", e);
+			log.error("系统发生异常", e);
 			// shell.dispose();
 			// open();
 		} finally {
-			LOGGER.error("系统退出");
+			log.error("系统退出");
 			systemExit();
 		}
 	}
@@ -309,11 +309,11 @@ public class CarparkMainApp extends AbstractApp{
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("系统发生异常", e);
+			log.error("系统发生异常", e);
 			// shell.dispose();
 			// open();
 		} finally {
-			LOGGER.error("系统退出");
+			log.error("系统退出");
 			systemExit();
 		}
 	}
@@ -330,8 +330,14 @@ public class CarparkMainApp extends AbstractApp{
 			refreshService.shutdownNow();
 			presenter.systemExit();
 		} catch (Exception e) {
-			LOGGER.error("关闭时发生错误",e);
+			log.error("关闭时发生错误",e);
 		}finally{
+			log.error("系统退出");
+			try {
+				Runtime.getRuntime().exec("taskkill /f /im 客户端.exe");
+			} catch (IOException e) {
+				log.error("",e);
+			}
 			System.exit(0);
 		}
 	}
@@ -370,7 +376,7 @@ public class CarparkMainApp extends AbstractApp{
 		} catch (NumberFormatException e) {
 
 		} finally {
-			LOGGER.info("发送车位数间隔SendPositionToDeviceTime为:{}", sendPositionToDeviceTime);
+			log.info("发送车位数间隔SendPositionToDeviceTime为:{}", sendPositionToDeviceTime);
 		}
 	}
 	/**
@@ -421,13 +427,6 @@ public class CarparkMainApp extends AbstractApp{
 			shell.setMaximized(true);
 		}
 		shell.setImage(JFaceUtil.getImage("carpark_16"));
-		shell.addDisposeListener(new DisposeListener() {
-
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				systemExit();
-			}
-		});
 		shell.setText("停车场监控-" + SystemSettingTypeEnum.软件版本.getDefaultValue() + "(" + CarparkClientConfig.getInstance().getDbServerIp() + ")");
 		shell.addShellListener(new ShellAdapter() {
 			@Override
@@ -855,7 +854,7 @@ public class CarparkMainApp extends AbstractApp{
 					CarTypeEnum carparkCarType = getCarparkCarType(carparkCarType2);
 					model.setCartypeEnum(carparkCarType);
 					float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carparkCarType, inTime, outTime);
-					LOGGER.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", h.getPlateNo(), device.getCarpark(), model.getCarTypeEnum(), model.getInTime(), model.getOutTime(),
+					log.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", h.getPlateNo(), device.getCarpark(), model.getCarTypeEnum(), model.getInTime(), model.getOutTime(),
 							model.getTotalTime(), countShouldMoney);
 					presenter.showContentToDevice(model.getMapIpToDevice().get(model.getIp()), CarparkUtils.getCarStillTime(model.getTotalTime()) + CarparkUtils.formatFloatString("请缴费" + countShouldMoney + "元"),
 							false);
@@ -1080,7 +1079,7 @@ public class CarparkMainApp extends AbstractApp{
 	 * @param ip
 	 */
 	protected void handPhotograph(String ip) {
-		LOGGER.info("对设备{}进行手动拍照", ip);
+		log.info("对设备{}进行手动拍照", ip);
 		presenter.handPhotograph(ip);
 		mapHandPhotograph.put(ip, new Date());
 	}
@@ -1096,12 +1095,12 @@ public class CarparkMainApp extends AbstractApp{
 			public void run() {
 				try {
 					if(model.getPlateInTime().after(new Date())){
-						LOGGER.info("车辆进出场时间为{}，暂时不发送车位",model.getPlateInTime());
+						log.info("车辆进出场时间为{}，暂时不发送车位",model.getPlateInTime());
 						return;
 					}
 					presenter.sendPositionToAllDevice(true);
 				} catch (Exception e) {
-					LOGGER.info("发送车位时发生错误",e);
+					log.info("发送车位时发生错误",e);
 				}
 			}
 		}, sendPositionToDeviceTime, sendPositionToDeviceTime, TimeUnit.SECONDS);
@@ -1148,7 +1147,7 @@ public class CarparkMainApp extends AbstractApp{
 				model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow(model.getCarpark()));
 				model.setMonthSlot(sp.getCarparkInOutService().findFixSlotIsNow(model.getCarpark()));
 			} catch (Exception e) {
-				LOGGER.error("刷新停车场出错", e);
+				log.error("刷新停车场出错", e);
 			}
 		} , 3000, 1000, TimeUnit.MILLISECONDS);
 	}

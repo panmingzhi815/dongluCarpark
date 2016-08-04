@@ -32,7 +32,7 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	float monthCharge;
 	//过期时间
     @Temporal(TemporalType.TIMESTAMP)
-    private Date overdueTime;
+    private Date overdueTime=new Date();
 
     //缴费前的过期时间
     private Date oldOverDueTime;

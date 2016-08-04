@@ -34,5 +34,7 @@ public interface CarparkDatabaseServiceProvider {
 	public SettingService getSettingService();
 	
 	IpmsServiceI getIpmsService();
+	
+	CarPayServiceI getCarPayService();
 }
 

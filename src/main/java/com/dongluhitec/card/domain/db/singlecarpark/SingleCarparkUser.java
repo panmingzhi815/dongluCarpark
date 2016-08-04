@@ -25,7 +25,9 @@ public class SingleCarparkUser extends DomainObject {
 	public enum Label{
 	valitoLabel
 	}
-	
+	public enum UserType{
+		普通,免费,储值
+	}
 	public enum CarparkSlotTypeEnum{
 		固定车位,非固定车位
 	}

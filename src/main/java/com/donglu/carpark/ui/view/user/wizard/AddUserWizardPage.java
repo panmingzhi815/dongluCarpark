@@ -20,6 +20,7 @@ import com.donglu.carpark.util.TextUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser.CarparkSlotTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser.UserType;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
@@ -148,7 +149,7 @@ public class AddUserWizardPage extends WizardPage {
 		combo.setLayoutData(gd_combo);
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
-		comboViewer.setInput(new String[]{"普通","免费","储值"});
+		comboViewer.setInput(UserType.values());
 		combo.select(0);
 		
 		Label label_3 = new Label(composite, SWT.NONE);
@@ -299,10 +300,6 @@ public class AddUserWizardPage extends WizardPage {
 		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer_carpark, carparkModelObserveValue, null, null);
 		//
-		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
-		IObservableValue typeModelObserveValue = BeanProperties.value("type").observe(model);
-		bindingContext.bindValue(observeSingleSelectionComboViewer, typeModelObserveValue, null, null);
-		//
 		IObservableValue observeTextText_2ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_2);
 		IObservableValue remarkModelObserveValue = BeanProperties.value("remark").observe(model);
 		bindingContext.bindValue(observeTextText_2ObserveWidget, remarkModelObserveValue, null, null);
@@ -322,6 +319,10 @@ public class AddUserWizardPage extends WizardPage {
 		IObservableValue observeTextText_5ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_5);
 		IObservableValue parkingSpaceModelObserveValue = BeanProperties.value("parkingSpace").observe(model);
 		bindingContext.bindValue(observeTextText_5ObserveWidget, parkingSpaceModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
+		IObservableValue userTypeModelObserveValue = BeanProperties.value("userType").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer, userTypeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

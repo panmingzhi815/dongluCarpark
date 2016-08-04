@@ -184,6 +184,8 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 					user.setLeftMoney(mm.getChargesMoney());
 				}
 				user.setValidTo(null);
+			}else if(user.getType().equals("永久")){
+				user.setValidTo(new DateTime(3000,1,1,1,1,1).toDate());
 			}
 			
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
@@ -206,8 +208,13 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			}
 			String userName="";
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
+			SingleCarparkSystemSetting byKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.启用CJLAPP支付.name());
+			boolean isDelete=byKey!=null&&byKey.getBooleanValue();
 			for (SingleCarparkUser singleCarparkUser : list) {
 				carparkUserService.deleteUser(singleCarparkUser);
+				if (isDelete) {
+					sp.getIpmsService().deleteUser(singleCarparkUser);
+				}
 				userName+="["+singleCarparkUser.getName()+"]";
 			}
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "删除了用户:"+userName,System.getProperty("userName"));

@@ -156,6 +156,10 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		return synchroUser("update", user);
 	}
 	@Override
+	public boolean deleteUser(SingleCarparkUser user) {
+		return synchroUser("delete", user);
+	}
+	@Override
 	public void updateTempCarChargeHistory() {
 		try {
 			log.info("更新临时车缴费记录");
@@ -183,9 +187,10 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				pay.setPayTime(createTime);
 				pay.setCreateDate(new Date());
 				pay.setPlateNO(plateNo);
-//				sp.getCarparkService().saveCarPayHistory(pay);
+				pay.setRemark("CJLAPP支付");
+				sp.getCarPayService().saveCarPayHistory(pay);
 				String resultUrl=httpUrl+"/api/responseResult.action?ids="+idLabel;
-				String httpPostMssage2 = httpPostMssage(resultUrl, null);
+				httpPostMssage(resultUrl, null);
 			}
 		} catch (Exception e) {
 			log.error("更新临时车缴费记录时发生错误",e);
@@ -217,10 +222,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 					continue;
 				}
 				String tpEndTime = po.getString("tpEndTime");
-				System.out.println(status+"===="+tpEndTime);
 				String id = ((String) po.get("id")).replace(parkId, "");
 				Long valueOf = Long.valueOf(id);
-				System.out.println(id);
 				SingleCarparkUser user = sp.getCarparkUserService().findUserById(valueOf);
 				if (user==null) {
 					continue;
@@ -277,7 +280,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				mup.setUserName(user.getName());
 				mup.setUserType(user.getType());
 				mup.setParkingSpace(user.getParkingSpace());
-				mup.setRemark("app充值");
+				mup.setRemark("CJLAPP充值");
 				sp.getCarparkService().saveMonthlyUserPayHistory(mup);
 				String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
 				httpPostMssage(resultUrl, null);

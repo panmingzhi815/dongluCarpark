@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.caucho.hessian.server.HessianServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkUserService;
+import com.donglu.carpark.service.IpmsServiceI;
 import com.donglu.carpark.service.SettingService;
 import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.donglu.carpark.service.SystemUserServiceI;
@@ -34,6 +35,8 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 	private Logger LOGGER = LoggerFactory.getLogger(UserServlet.class);
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
+	@Inject
+	private IpmsServiceI ipmsService;
 
 	private CarparkUserService carparkUserService;
 	private SystemUserServiceI systemUserService;
@@ -88,7 +91,8 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 
 	@Override
 	public Long deleteUser(SingleCarparkUser user) {
-		return carparkUserService.deleteUser(user);
+		Long deleteUser = carparkUserService.deleteUser(user);
+		return deleteUser;
 	}
 
 	@Override

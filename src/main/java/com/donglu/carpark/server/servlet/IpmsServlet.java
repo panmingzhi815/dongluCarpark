@@ -65,4 +65,9 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 		return ipmsService.pay(inout, chargeMoney);
 	}
 
+	@Override
+	public boolean deleteUser(SingleCarparkUser user) {
+		return ipmsService.deleteUser(user);
+	}
+
 }

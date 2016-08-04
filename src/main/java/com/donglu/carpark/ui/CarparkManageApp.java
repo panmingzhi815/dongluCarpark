@@ -86,7 +86,7 @@ public class CarparkManageApp extends AbstractApp{
 			long nanoTime = System.nanoTime();
 			Display display = Display.getDefault();
 			shell = new Shell();
-			shell.setSize(896, 621);
+			shell.setSize(957, 621);
 			init();
 			createContents();
 			shell.open();
@@ -194,11 +194,10 @@ public class CarparkManageApp extends AbstractApp{
 		Composite composite_5 = new Composite(tabFolder, SWT.NONE);
 		composite_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		tbtmNewItem_2.setControl(composite_5);
-		composite_5.setLayout(new GridLayout(1, false));
+		composite_5.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		TabFolder tabFolder_searchHistory = new TabFolder(composite_5, SWT.BOTTOM);
 		tabFolder_searchHistory.setFont(SWTResourceManager.getFont("微软雅黑", 9, SWT.BOLD));
-		tabFolder_searchHistory.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		TabItem tbtmNewItem_3 = new TabItem(tabFolder_searchHistory, SWT.NONE);
 		tbtmNewItem_3.setText("进出记录查询");
@@ -255,6 +254,14 @@ public class CarparkManageApp extends AbstractApp{
 		tbtmS.setControl(composite_23);
 		presenter.getStoreFreePresenter().go(composite_23);
 		composite_23.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
+		TabItem tabItem_14 = new TabItem(tabFolder_searchHistory, SWT.NONE);
+		tabItem_14.setText("第三方缴费记录");
+		
+		Composite composite_7 = new Composite(tabFolder_searchHistory, SWT.NONE);
+		tabItem_14.setControl(composite_7);
+		presenter.getCarPayPresenter().go(composite_7);
+		composite_7.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		TabItem tabItem_3 = new TabItem(tabFolder_searchHistory, SWT.NONE);
 		tabItem_3.setText("储值车消费记录");

@@ -9,6 +9,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser.UserType;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.WidgetUtil;
 
@@ -43,7 +44,7 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 
 	@Override
 	public boolean performFinish() {
-		if (model.getType().equals("普通")) {
+		if (model.getUserType().name().equals("普通")) {
 			MonthlyUserPayModel m = model.getModel();
 			if (!StrUtil.isEmpty(m)) {
 				if (StrUtil.isEmpty(m.getSelectMonth())) {
@@ -56,7 +57,7 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 				}
 			}
 		}
-		if(!model.getType().equals("储值")){
+		if(!model.getUserType().name().equals("储值")){
 			if (!StrUtil.isEmpty(model.getModel())) {
 				if (StrUtil.isEmpty(model.getModel().getOverdueTime())) {
 					setErrorMessage("固定用户必须有个有效期");
@@ -83,6 +84,7 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 		model.setPlateNo(model.getPlateNo().toUpperCase());
 		return true;
 	}
+	
 	
 	private void setErrorMessage(String string) {
 		page.setErrorMessage(string);
@@ -140,6 +142,9 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 			m.setFree(true);
 			m.setPayMoney(true);
 		}
+//		if (model.getUserType().equals(UserType.永久)) {
+//			return null;
+//		}
 		return super.getNextPage(page);
 	}
 

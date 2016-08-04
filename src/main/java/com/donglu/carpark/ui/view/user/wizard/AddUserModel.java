@@ -18,6 +18,7 @@ public class AddUserModel extends SingleCarparkUser {
 	private MonthlyUserPayModel model;
 	private int totalSlot=0;
 	private boolean free;
+	private UserType userType=UserType.普通;
 
 	public List<SingleCarparkCarpark> getAllList() {
 		return allList;
@@ -37,7 +38,7 @@ public class AddUserModel extends SingleCarparkUser {
 		user.setCarparkNo(getCarparkNo());
 		user.setName(getName());
 		user.setPlateNo(getPlateNo());
-		user.setType(getType());
+		user.setType(userType.toString());
 		user.setCreateDate(getCreateDate());
 		user.setId(getId());
 		user.setValidTo(getValidTo());
@@ -59,6 +60,7 @@ public class AddUserModel extends SingleCarparkUser {
 		setCarparkNo(user.getCarparkNo());
 		setName(user.getName());
 		setPlateNo(user.getPlateNo());
+		setUserType(UserType.valueOf(user.getType()));
 		setType(user.getType());
 		setCreateDate(user.getCreateDate());
 		setId(user.getId());
@@ -101,5 +103,14 @@ public class AddUserModel extends SingleCarparkUser {
 		this.free = free;
 		if (pcs != null)
 			pcs.firePropertyChange("free", null, null);
+	}
+
+	public UserType getUserType() {
+		return userType;
+	}
+
+	public void setUserType(UserType userType) {
+		this.userType=userType;
+		firePropertyChange("userType", null, null);
 	}
 }

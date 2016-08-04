@@ -81,4 +81,7 @@ public class ConstUtil {
 		}
 		return false;
 	}
+	public static String getUserName() {
+		return System.getProperty(USER_NAME);
+	}
 }

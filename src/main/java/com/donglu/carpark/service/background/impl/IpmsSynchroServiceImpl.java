@@ -12,6 +12,7 @@ import com.donglu.carpark.service.background.AbstractCarparkBackgroundService;
 import com.donglu.carpark.service.background.IpmsSynchroServiceI;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService implements IpmsSynchroServiceI {
@@ -31,6 +32,9 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 			Map<Long, Date> userUpdateTime=(Map<Long, Date>) CarparkFileUtils.readObject(IMPS_USER_SAVE_HISTORY);
 			userUpdateTime=userUpdateTime==null?new HashMap<>():userUpdateTime;
 			List<SingleCarparkUser> findAll = sp.getCarparkUserService().findAll();
+			if (StrUtil.isEmpty(findAll)) {
+				userUpdateTime=new HashMap<>();
+			}
 			for (SingleCarparkUser singleCarparkUser : findAll) {
 				Date date = userUpdateTime.get(singleCarparkUser.getId());
 				Date lastEditDate = singleCarparkUser.getLastEditDate();
