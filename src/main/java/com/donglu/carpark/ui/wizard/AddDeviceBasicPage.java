@@ -82,6 +82,8 @@ public class AddDeviceBasicPage extends WizardPage {
 	private Text text_5;
 	
 	private boolean controlTime=true;
+	private Label label_11;
+	private Text text_6;
 
 	/**
 	 * Create the wizard.
@@ -95,6 +97,9 @@ public class AddDeviceBasicPage extends WizardPage {
 		setImageDescriptor(JFaceUtil.getImageDescriptor("link_72"));
 		this.model=model;
 	}
+	/**
+	 * @wbp.parser.constructor
+	 */
 	public AddDeviceBasicPage(AddDeviceModel model,boolean controlTime) {
 		super("wizardPage");
 		this.controlTime = controlTime;
@@ -303,6 +308,17 @@ public class AddDeviceBasicPage extends WizardPage {
 		GridData gd_text_5 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_5.exclude = controlTime;
 		text_5.setLayoutData(gd_text_5);
+		
+		label_11 = new Label(composite, SWT.NONE);
+		GridData layoutData = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		layoutData.exclude = controlTime;
+		label_11.setLayoutData(layoutData);
+		label_11.setText("节假日限制");
+		
+		text_6 = new Text(composite, SWT.BORDER);
+		GridData layoutData2 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		layoutData2.exclude = controlTime;
+		text_6.setLayoutData(layoutData2);
 		comboViewer_3.setContentProvider(new ArrayContentProvider());
 		comboViewer_3.setLabelProvider(new LabelProvider());
 		comboViewer_3.setInput(ScreenTypeEnum.values());
@@ -387,6 +403,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue observeTextText_5ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_5);
 		IObservableValue controlTimeModelObserveValue = BeanProperties.value("controlTime").observe(model);
 		bindingContext.bindValue(observeTextText_5ObserveWidget, controlTimeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_6ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_6);
+		IObservableValue holidayControlTimeModelObserveValue = BeanProperties.value("holidayControlTime").observe(model);
+		bindingContext.bindValue(observeTextText_6ObserveWidget, holidayControlTimeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

@@ -63,8 +63,6 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -334,8 +332,9 @@ public class CarparkMainApp extends AbstractApp{
 		}finally{
 			log.error("系统退出");
 			try {
-				Runtime.getRuntime().exec("taskkill /f /im 客户端.exe");
-			} catch (IOException e) {
+				//TODO 关闭进程
+//				Runtime.getRuntime().exec("taskkill /f /im 客户端.exe");
+			} catch (Exception e) {
 				log.error("",e);
 			}
 			System.exit(0);

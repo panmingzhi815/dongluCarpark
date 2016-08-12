@@ -42,6 +42,7 @@ public class SingleCarparkDevice extends DomainObject{
 	private Long carparkId;
 	
 	private String controlTime;
+	private String holidayControlTime;
 	
 	public String getIdentifire() {
 		return identifire;
@@ -205,5 +206,12 @@ public class SingleCarparkDevice extends DomainObject{
 	public void setControlTime(String controlTime) {
 		this.controlTime = controlTime;
 		firePropertyChange("controlTime", null, null);
+	}
+	public String getHolidayControlTime() {
+		return holidayControlTime;
+	}
+	public void setHolidayControlTime(String holidayControlTime) {
+		this.holidayControlTime = holidayControlTime;
+		firePropertyChange("holidayControlTime", null, null);
 	}
 }

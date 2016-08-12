@@ -46,6 +46,7 @@ import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.common.ShowDialog;
+import com.donglu.carpark.ui.servlet.OpenDoorServlet;
 import com.donglu.carpark.ui.task.CarInOutResult;
 import com.donglu.carpark.ui.task.ConfimBox;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
@@ -80,6 +81,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice.DeviceInOutTypeEnum;
@@ -101,7 +103,6 @@ import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.mapper.BeanUtil;
 import com.dongluhitec.card.util.ThreadUtil;
-import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -163,20 +164,24 @@ public class CarparkMainPresenter {
 	 * @param selection
 	 */
 	public void deleteDeviceTabItem(CTabItem selection) {
-		if (selection != null) {
-			String ip = mapDeviceTabItem.get(selection);
-			selection.dispose();
-			mapIpToJNA.get(ip).closeEx(ip);
-			mapDeviceTabItem.remove(selection);
-			mapDeviceType.remove(ip);
-			mapIpToDevice.remove(ip);
-			model.getMapIpToDeviceStatus().remove(ip);
-			if (mapIpToDevice.keySet().size() <= 0) {
-				model.setCarpark(null);
+		try {
+			if (selection != null) {
+				String ip = mapDeviceTabItem.get(selection);
+				mapIpToDevice.remove(ip);
+				CarparkFileUtils.writeObjectForException("mapIpToDevice", mapIpToDevice);
+				selection.dispose();
+				mapIpToJNA.get(ip).closeEx(ip);
+				mapDeviceTabItem.remove(selection);
+				mapDeviceType.remove(ip);
+				model.getMapIpToDeviceStatus().remove(ip);
+				if (mapIpToDevice.keySet().size() <= 0) {
+					model.setCarpark(null);
+				}
+				setIsTwoChanel();
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "删除设备："+ip, ConstUtil.getUserName());
 			}
-			CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
-			setIsTwoChanel();
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "删除设备："+ip, ConstUtil.getUserName());
+		} catch (Exception e) {
+			commonui.error("失败", "删除失败", e);
 		}
 	}
 
@@ -192,6 +197,7 @@ public class CarparkMainPresenter {
 				commonui.info("提示", type + "最多只能添加4个设备");
 				return;
 			}
+			CarparkFileUtils.writeObjectForException("mapIpToDevice", mapIpToDevice);
 			AddDeviceModel model = new AddDeviceModel();
 			List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
 
@@ -229,6 +235,7 @@ public class CarparkMainPresenter {
 			}).start();
 		} catch (Exception e) {
 			log.error("添加设备时发生错误", e);
+			commonui.error("失败", "添加失败");
 		}
 	}
 
@@ -301,8 +308,9 @@ public class CarparkMainPresenter {
 	 * @param type
 	 * @param ip
 	 * @param name
+	 * @throws Exception 
 	 */
-	public void addDevice(CTabFolder tabFolder, String type, SingleCarparkDevice device) {
+	public void addDevice(CTabFolder tabFolder, String type, SingleCarparkDevice device) throws Exception {
 		String ip = device.getIp();
 		String name = device.getName();
 
@@ -310,9 +318,11 @@ public class CarparkMainPresenter {
 			commonui.error("添加失败", "设备" + ip + "已存在");
 			// return;
 		}
+		CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 		CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
 		tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
 		tabItem.setText(name);
+		tabItem.setImage(JFaceUtil.getImage("deviceStatus_16"));
 		Composite composite = new Composite(tabFolder, SWT.EMBEDDED);
 		tabItem.setControl(composite);
 		composite.setLayout(new FillLayout());
@@ -327,18 +337,31 @@ public class CarparkMainPresenter {
 		tabFolder.setSelection(tabItem);
 		mapDeviceTabItem.put(tabItem, ip);
 		mapDeviceType.put(ip, type);
-		CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
 	}
-
-	private Map<String, MediaPlayer> mapPlayer = Maps.newHashMap();
-	private Map<String, SingleCarparkDevice> mapCameraToDeviceIp = Maps.newHashMap();
-	int checkPlayerPlayingSize = 0;
+	//保存播放地址对应的视频流播放器
+	private final Map<String, MediaPlayer> mapPlayer = new HashMap<>();
+	//保存播放地址对应的设备
+	private Map<String, SingleCarparkDevice> mapCameraToDeviceIp = new HashMap<>();
+	//保存播放地址对应的设备
+	private Map<String, Frame> mapCameraToFrame = new HashMap<>();
+	//保存需要停止播放视频的信息
+	private Map<String, Boolean> mapNeedStopPlay=new HashMap<>();
+	private int checkPlayerPlayingSize = 0;
 	private Map<String, Integer> mapDeviceFailInfo = new HashMap<>();
 	private ScheduledExecutorService checkCameraPlayStatus;
+	//控制器超时时间
 	private long timeOut = 1000L;
+	//长颈鹿app服务
 	private IpmsServiceI ipmsService;
-
+	/**
+	 * 自动刷新停车场视频监控
+	 */
 	private void checkPlayerPlaying() {
+		String property = System.getProperty(ConstUtil.AUTO_REFRESH_CAMERA, "true");
+		log.info("自动刷新视频监控：{} 设置为：{}",ConstUtil.AUTO_REFRESH_CAMERA,property);
+		if (property.equals("false")) {
+			return;
+		}
 		checkCameraPlayStatus = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每10秒检测摄像机连接状态"));
 		checkCameraPlayStatus.scheduleWithFixedDelay(new Runnable() {
 			@Override
@@ -346,6 +369,9 @@ public class CarparkMainPresenter {
 				try {
 					log.debug("开始第{}次检查摄像机的连接状态", checkPlayerPlayingSize);
 					for (String url : mapPlayer.keySet()) {
+						if (mapNeedStopPlay.getOrDefault(url, false)) {
+							continue;
+						}
 						MediaPlayer mediaPlayer = mapPlayer.get(url);
 						SingleCarparkDevice device = mapCameraToDeviceIp.get(url);
 						if (checkPlayerPlayingSize > 0 && checkPlayerPlayingSize % 10 == 0 && device != null && device.getCameraType().equals(CameraTypeEnum.智芯)) {
@@ -365,8 +391,45 @@ public class CarparkMainPresenter {
 				}
 			}
 		}, 10, 10, TimeUnit.SECONDS);
+		autoClearPlaying();
 	}
-
+	/**
+	 * 自动清理华夏智芯摄像机缓存重新生成新的视频播放器，每天清理一次
+	 */
+	public void autoClearPlaying(){
+		String property = System.getProperty("autoClearCamera", "1");
+		log.info("自动清理华夏智芯摄像机缓存重新生成新的视频播放器：{} 设置为：{}","autoClearCamera",property);
+		if (property.equals("false")) {
+			return;
+		}
+		int clearTime=1;
+		try {
+			clearTime=Integer.valueOf(property);
+		} catch (NumberFormatException e) {
+		}
+		ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每天"+clearTime+"重新生成新的视频播放器"));
+		Date date = new Date();
+		long initialDelay=new DateTime(StrUtil.getTodayBottomTime(date)).plusHours(clearTime).getMillis()- date.getTime();
+		scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					log.info("每天重新生成新的华夏智芯摄像机视频播放");
+					for (String url : mapPlayer.keySet()) {
+						SingleCarparkDevice device = mapCameraToDeviceIp.get(url);
+						if (device==null||!device.getCameraType().equals(CameraTypeEnum.智芯)) {
+							continue;
+						}
+						mapPlayer.get(url).release();
+						EmbeddedMediaPlayer createPlay = webCameraDevice.createPlay(mapCameraToFrame.get(url), url);
+						mapPlayer.put(url, createPlay);
+					}
+				} catch (Exception e) {
+					log.error("每天重新生成新的华夏智芯摄像机视频播放,操作失败",e);
+				}
+			}
+		}, initialDelay, 1000*60*60*24, TimeUnit.MILLISECONDS);
+	}
 	/**
 	 * 创建出口监控
 	 * 
@@ -390,15 +453,9 @@ public class CarparkMainPresenter {
 		final EmbeddedMediaPlayer createPlayRight = webCameraDevice.createPlay(new_Frame1, url);
 		mapPlayer.put(url, createPlayRight);
 		mapCameraToDeviceIp.put(url, device);
+		mapCameraToFrame.put(url, new_Frame1);
 
-		getView().shell.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				createPlayRight.release();
-			}
-		});
 		northCamera.addDisposeListener(new DisposeListener() {
-
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				createPlayRight.release();
@@ -407,12 +464,21 @@ public class CarparkMainPresenter {
 		});
 		PopupMenu popMenu = new PopupMenu();
 		MenuItem refreshItem = new MenuItem("重新播放");
+		MenuItem closePlayItem = new MenuItem("关闭播放");
 		MenuItem refreshSettingItem = new MenuItem("刷新设置");
-		MenuItem checkDeviceStatusItem = new MenuItem("刷新设置");
+		MenuItem checkDeviceStatusItem = new MenuItem("检测设备");
 		popMenu.add(refreshItem);
+		popMenu.add(closePlayItem);
 		popMenu.add(refreshSettingItem);
 		popMenu.add(checkDeviceStatusItem);
-		popMenu.addActionListener(new ActionListener() {
+		closePlayItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mapPlayer.get(url).stop();
+				mapNeedStopPlay.put(url, true);
+			}
+		});
+		checkDeviceStatusItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 //				northCamera.getDisplay().asyncExec(new Runnable() {
@@ -446,7 +512,6 @@ public class CarparkMainPresenter {
 			}
 		});
 		refreshSettingItem.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				refreshSystemSetting();
@@ -455,13 +520,19 @@ public class CarparkMainPresenter {
 		refreshItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				createPlayRight.playMedia(url);
+				try {
+					mapPlayer.get(url).release();
+					MediaPlayer reCreate = webCameraDevice.createPlay(new_Frame1, url);
+					mapPlayer.put(url, reCreate);
+					mapNeedStopPlay.put(url, false);
+				} catch (Exception e1) {
+					log.info("刷新视频流监控时发生错误",e);
+				}
 			}
 		});
 		createAutoMenuItem(popMenu);
 		canvas1.add(popMenu);
 		canvas1.addMouseListener(new java.awt.event.MouseAdapter() {
-
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent e) {
 				if (e.getClickCount() == 2) {
@@ -478,7 +549,7 @@ public class CarparkMainPresenter {
 					});
 				}
 				if (e.getButton() == 3 && e.getClickCount() == 1) {
-					System.out.println("打开刷新菜单");
+					System.out.println("打开右键菜单");
 					popMenu.show(canvas1, e.getX(), e.getY());
 				}
 			}
@@ -572,6 +643,7 @@ public class CarparkMainPresenter {
 	 */
 	public void editDevice(CTabFolder tabFolder, String type) {
 		try {
+			CarparkFileUtils.writeObjectForException("mapIpToDevice", mapIpToDevice);
 			CTabItem selection = tabFolder.getSelection();
 			if (StrUtil.isEmpty(selection)) {
 				return;
@@ -579,7 +651,6 @@ public class CarparkMainPresenter {
 			String oldIp = mapDeviceTabItem.get(selection);
 			final SingleCarparkDevice device = mapIpToDevice.get(oldIp);
 			CameraTypeEnum oldCameraType = device.getCameraType();
-			String roadType = device.getRoadType();
 			AddDeviceModel model = new AddDeviceModel();
 			model.setDevice(device);
 			AddDeviceWizard v = new AddDeviceWizard(model);
@@ -596,12 +667,11 @@ public class CarparkMainPresenter {
 			setJNA(ip, showWizard.getCameraType());
 			final SingleCarparkDevice device2 = showWizard.getDevice();
 			device2.setCarpark(sp.getCarparkService().findCarparkById(device2.getCarpark().getId()));
-			String nowRoadType = device2.getRoadType();
-			String string = nowRoadType.equals(roadType)?"":"车道类型："+roadType+"改为"+nowRoadType;
+			String string =  checkDeviceEditInfo(device,device2);
 			if (ip.equals(oldIp)&&showWizard.getCameraType().equals(oldCameraType)) {
 				selection.setText(showWizard.getName());
 				mapIpToDevice.put(ip, device2);
-				CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
+				CarparkFileUtils.writeObjectForException("mapIpToDevice", mapIpToDevice);
 				commonui.info("修改成功", "修改设备" + ip + "成功");
 				new Thread(new Runnable() {
 					public void run() {
@@ -628,9 +698,36 @@ public class CarparkMainPresenter {
 			}
 		} catch (Exception e1) {
 			log.error("修改设备时发生错误", e1);
+			commonui.error("修改成功", "修改失败",e1);
 		} finally {
 
 		}
+	}
+	/**
+	 * 检测设备修改的信息
+	 * @param oldDevice
+	 * @param newDevice
+	 * @return
+	 */
+	private String checkDeviceEditInfo(SingleCarparkDevice oldDevice, SingleCarparkDevice newDevice) {
+		StringBuilder sb=new StringBuilder();
+		String roadType = oldDevice.getRoadType();
+		String roadType2 = newDevice.getRoadType();
+		if (!roadType.equals(roadType2)) {
+			sb.append("修改了车道类型:["+roadType+"]为["+roadType2+"];");
+		}
+		String inOrOut = oldDevice.getInOrOut();
+		String inOrOut2 = newDevice.getInOrOut();
+		if (!inOrOut.equals(inOrOut2)) {
+			sb.append("修改了进出口类型：["+inOrOut+"]>["+inOrOut2+"];");
+		}
+		String linkAddress = oldDevice.getLinkAddress();
+		String linkAddress2 = newDevice.getLinkAddress();
+		if (((linkAddress==null)!=(linkAddress2==null))||!linkAddress.equals(linkAddress2)) {
+			sb.append("修改了控制器地址：["+linkAddress+"]>["+linkAddress2+"];");
+		}
+		
+		return sb.toString();
 	}
 
 	public CarparkMainApp getView() {
@@ -1259,7 +1356,10 @@ public class CarparkMainPresenter {
 				}
 			}, 60 - DateTime.now().getSecondOfMinute(), 60, TimeUnit.SECONDS);
 		}
-
+		
+		if (mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录).equals("true")) {
+			CarparkUtils.startServer(10002, "/*", new OpenDoorServlet(this));
+		}
 	}
 
 	/**
@@ -1275,6 +1375,12 @@ public class CarparkMainPresenter {
 		}
 		log.debug("检测设备{}限时状态", device.getIp());
 		String controlTime = device.getControlTime();
+		Date date = new Date();
+		Holiday findHolidayByDate = sp.getCarparkService().findHolidayByDate(date);
+		if (findHolidayByDate!=null&&!StrUtil.isEmpty(device.getHolidayControlTime())) {
+			controlTime=device.getHolidayControlTime();
+			log.info("{}为节假日,限制时间为：{}",date,controlTime);
+		}
 		String ip = device.getIp();
 		if (StrUtil.isEmpty(controlTime)) {
 			setDeviceTabItemStatus(ip, "deviceStatus_16", "正在使用");
@@ -1313,10 +1419,10 @@ public class CarparkMainPresenter {
 		if (status) {
 //			setDeviceTabItemStatus(ip, "deviceStatus_16", "正在使用");
 		} else {
-			setDeviceTabItemStatus(ip, "distribution_device_16", "设备已限时停用,限制时间："+device.getControlTime());
+			setDeviceTabItemStatus(ip, "distribution_device_16", "设备已限时停用,限制时间："+controlTime);
 		}
 		model.getMapIpToDeviceStatus().put(ip, status);
-		log.info("设备{}限时{}状态{}", ip, device.getControlTime(), status);
+		log.info("设备{}限时{}状态{}", ip, controlTime, status);
 		return status;
 	}
 
@@ -1782,6 +1888,7 @@ public class CarparkMainPresenter {
 
 	public void refreshCarWithIn() {
 		try {
+			model.setInHistorys(new ArrayList<>());
 			model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
 		} catch (Exception e) {
 			log.error("刷新进场记录是发生错误", e);
@@ -2118,6 +2225,10 @@ public class CarparkMainPresenter {
 			return pay;
 		}
 		return pay;
+	}
+
+	public CarparkMainModel getModel() {
+		return model;
 	}
 
 }

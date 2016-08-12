@@ -18,8 +18,16 @@ public class CarparkFileUtils {
 
     public static String root = System.getProperty("user.dir")+ File.separator;
 	public static String objectTemp = root + "temp" + File.separator;
+	
+	public static void writeObject(String name, Object obj){
+		try {
+			writeObjectForException(name, obj);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-	public static void writeObject(String name, Object obj) {
+	public static void writeObjectForException(String name, Object obj) throws Exception {
 		ObjectOutputStream oos=null;
 		FileOutputStream fos=null;
 		try {
@@ -35,7 +43,7 @@ public class CarparkFileUtils {
 			oos=new ObjectOutputStream(fos);
 			oos.writeObject(obj);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw e;
 		}finally{
 			if (fos!=null) {
 				try {

@@ -21,6 +21,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.servlet.http.HttpServlet;
+
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.Holder;
+import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -38,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
 import com.donglu.carpark.model.CarparkMainModel;
+import com.donglu.carpark.server.CarparkDBServer;
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.CarparkMainPresenter;
@@ -657,6 +664,23 @@ public class CarparkUtils {
     		String smallImgFileName = fileName + "_" + plateNO + "_small.jpg";
     		smallImgFileName = imageSavefolder + "/" + smallImgFileName;
     		return smallImgFileName;
+		}
+	}
+
+	public static Server startServer(int port, String path, HttpServlet servlet) {
+		try {
+			Server server = new Server(port);
+			ServletHandler handler = new ServletHandler();
+			ServletHolder holer = new ServletHolder(Holder.Source.EMBEDDED);
+			holer.setAsyncSupported(false);
+			holer.setServlet(servlet);
+			handler.addServletWithMapping(holer, path);
+			server.setHandler(handler);
+			server.start();
+			return server;
+		} catch (Exception e) {
+			LOGGER.error("启动服务是发生错误");
+			return null;
 		}
 	}
 }

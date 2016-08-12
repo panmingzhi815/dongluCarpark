@@ -56,6 +56,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		device.setCameraType(getCameraType());
 		device.setInOrOut(getInOutType().toString());
 		device.setControlTime(getControlTime());
+		device.setHolidayControlTime(getHolidayControlTime());
 		return device;
 	}
 	public String getSerialAddress() {
@@ -98,6 +99,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		setCameraType(device.getCameraType()==null?CameraTypeEnum.信路威:device.getCameraType());
 		setInOutType(DeviceInOutTypeEnum.valueOf(device.getInOrOut()));
 		setControlTime(device.getControlTime());
+		setHolidayControlTime(device.getHolidayControlTime());
 	}
 	public String getVoice() {
 		return voice;

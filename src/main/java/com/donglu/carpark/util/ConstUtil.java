@@ -52,6 +52,10 @@ public class ConstUtil {
 	public static final String OPEN_DOOR_DELAY = "openDoorDelay";
 	public static final String AN_HOUR_SHOULD_MONEY = "anHourShouldMoney";
 	/**
+	 * 自动刷新停车场监控设置
+	 */
+	public static final String AUTO_REFRESH_CAMERA = "autoRefreshCamera";
+	/**
 	 * 获取权限级别
 	 * @return
 	 */
