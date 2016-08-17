@@ -723,8 +723,12 @@ public class CarparkMainPresenter {
 		}
 		String linkAddress = oldDevice.getLinkAddress();
 		String linkAddress2 = newDevice.getLinkAddress();
-		if (((linkAddress==null)!=(linkAddress2==null))||!linkAddress.equals(linkAddress2)) {
+		if ((linkAddress==null)!=(linkAddress2==null)) {
 			sb.append("修改了控制器地址：["+linkAddress+"]>["+linkAddress2+"];");
+		}else{
+			if (linkAddress!=null&&linkAddress2!=null&&!linkAddress.equals(linkAddress2)) {
+				sb.append("修改了控制器地址：["+linkAddress+"]>["+linkAddress2+"];");
+			}
 		}
 		
 		return sb.toString();
