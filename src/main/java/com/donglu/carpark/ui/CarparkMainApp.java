@@ -101,6 +101,7 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 
 public class CarparkMainApp extends AbstractApp{
+	private static final String MAIN_APP_SASH_FORM_LAYOUT = "mainAppSashFormLayout";
 	private final AtomicInteger refreshTimes = new AtomicInteger(0);
 	private final Integer refreshTimeSpeedSecond = 3;
 
@@ -190,6 +191,9 @@ public class CarparkMainApp extends AbstractApp{
 
 	private int sendPositionToDeviceTime = 5;
 	private Text txt_chargedMoney;
+	private SashForm sashForm_main;
+	private SashForm sashForm_play;
+	private SashForm sashForm_image;
 	
 	/**
 	 * Launch the application.
@@ -433,6 +437,12 @@ public class CarparkMainApp extends AbstractApp{
 				boolean confirm = commonui.confirm("退出提示", "确定要退出监控界面！！");
 				if (!confirm) {
 					e.doit = false;
+				}else{
+					int[] main = sashForm_main.getWeights();
+					int[] play = sashForm_play.getWeights();
+					int[] image = sashForm_image.getWeights();
+					int[][] is=new int[][]{main,play,image};
+					CarparkFileUtils.writeObject(MAIN_APP_SASH_FORM_LAYOUT, is);
 				}
 			}
 		});
@@ -442,13 +452,13 @@ public class CarparkMainApp extends AbstractApp{
 		gl_shell.marginHeight = 2;
 		gl_shell.horizontalSpacing = 2;
 		shell.setLayout(gl_shell);
+		int[][] is=(int[][]) CarparkFileUtils.readObject(MAIN_APP_SASH_FORM_LAYOUT);
+		sashForm_main = new SashForm(shell, SWT.VERTICAL);
+		sashForm_main.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
-		SashForm sashForm = new SashForm(shell, SWT.VERTICAL);
-		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		sashForm_play = new SashForm(sashForm_main, SWT.NONE);
 
-		SashForm sashForm_1 = new SashForm(sashForm, SWT.NONE);
-
-		Composite composite_9 = new Composite(sashForm_1, SWT.NONE);
+		Composite composite_9 = new Composite(sashForm_play, SWT.NONE);
 		inDevicePresenter = devicePresenterProvider.get();
 		inDevicePresenter.setPresenter(presenter);
 		inDevicePresenter.setType("进口");
@@ -456,24 +466,24 @@ public class CarparkMainApp extends AbstractApp{
 		inDevicePresenter.go(composite_9);
 		composite_9.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-		Composite composite_10 = new Composite(sashForm_1, SWT.NONE);
+		Composite composite_10 = new Composite(sashForm_play, SWT.NONE);
 		outDevicePresenter = devicePresenterProvider.get();
 		outDevicePresenter.setPresenter(presenter);
 		outDevicePresenter.setType("出口");
 		outDevicePresenter.setListDevice(mapTypeDevices.get("出口"));
 		outDevicePresenter.go(composite_10);
 		composite_10.setLayout(new FillLayout(SWT.HORIZONTAL));
-		sashForm_1.setWeights(new int[] { 1, 1 });
+		sashForm_play.setWeights(is==null?new int[] { 1, 1 }:is[1]);
 
-		SashForm sashForm_2 = new SashForm(sashForm, SWT.NONE);
+		sashForm_image = new SashForm(sashForm_main, SWT.NONE);
 
-		Composite composite_5 = new Composite(sashForm_2, SWT.NONE);
+		Composite composite_5 = new Composite(sashForm_image, SWT.NONE);
 		composite_5.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-		Composite composite_21_1 = new Composite(sashForm_2, SWT.NONE);
+		Composite composite_21_1 = new Composite(sashForm_image, SWT.NONE);
 		composite_21_1.setLayout(new FillLayout(SWT.HORIZONTAL));
-		sashForm_2.setWeights(new int[] { 1, 1 });
-		sashForm.setWeights(new int[] { 1, 1 });
+		sashForm_image.setWeights(is==null?new int[] { 1, 1 }:is[2]);
+		sashForm_main.setWeights(is==null?new int[] { 1, 1 }:is[0]);
 
 		Boolean leftBotttomCamera = Boolean
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.左下监控) == null ? SystemSettingTypeEnum.左下监控.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.左下监控));

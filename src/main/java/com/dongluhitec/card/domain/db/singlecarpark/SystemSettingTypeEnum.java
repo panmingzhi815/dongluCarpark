@@ -28,6 +28,7 @@ public enum SystemSettingTypeEnum {
 	免费原因("其他原因"),
 	固定车提醒时间(""),停车场重复计费("false"),保存遥控开闸记录("false"),
 	启用CJLAPP支付("false"),
+	退出时需要密码("false"),
 	
 	DateBase_version("1.0.0.11"),软件版本("1.0.0.11"),发布时间("2016-07-20 17:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 
 	;

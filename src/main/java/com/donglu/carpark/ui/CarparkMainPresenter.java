@@ -107,6 +107,7 @@ import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import com.sun.jna.Native;
 
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
@@ -374,7 +375,7 @@ public class CarparkMainPresenter {
 						}
 						MediaPlayer mediaPlayer = mapPlayer.get(url);
 						SingleCarparkDevice device = mapCameraToDeviceIp.get(url);
-						if (checkPlayerPlayingSize > 0 && checkPlayerPlayingSize % 10 == 0 && device != null && device.getCameraType().equals(CameraTypeEnum.智芯)) {
+						if (checkPlayerPlayingSize > 0 && checkPlayerPlayingSize % 3 == 0 && device != null && device.getCameraType().equals(CameraTypeEnum.智芯)) {
 							log.info("自动刷新华夏智芯摄像机:{}，防止摄像机黑屏", device.getIp());
 							mediaPlayer.playMedia(url);
 							continue;
@@ -439,8 +440,12 @@ public class CarparkMainPresenter {
 	 */
 	public void createCamera(SingleCarparkDevice device, Composite northCamera) {
 		String ip = device.getIp();
-		PlateNOJNA jna = null;
 		CameraTypeEnum cameraType = device.getCameraType() == null ? CameraTypeEnum.信路威 : device.getCameraType();
+		if (cameraType.equals(CameraTypeEnum.智芯)) {
+			createHCamera(device, northCamera);
+			return;
+		}
+		PlateNOJNA jna = null;
 		jna = setJNA(ip, cameraType);
 		Frame new_Frame1 = SWT_AWT.new_Frame(northCamera);
 		Canvas canvas1 = new Canvas();
@@ -556,6 +561,131 @@ public class CarparkMainPresenter {
 
 		});
 		jna.openEx(ip, carInOutResultProvider.get());
+		jna.pastPlate(ip, new PastPlateResult() {
+			@Override
+			public void invok(String ip, Date time, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize, String plateColor) {
+				try {
+					log.info("{}断网续传,时间：{}，车牌：{}，颜色：{}", ip, time, plateNO, plateColor);
+					CarparkOffLineHistory carparkOffLineHistory = new CarparkOffLineHistory();
+					carparkOffLineHistory.setDeviceIp(ip);
+					carparkOffLineHistory.setDeviceName(mapIpToDevice.get(ip).getName());
+					carparkOffLineHistory.setInTime(time);
+					carparkOffLineHistory.setPlateNO(plateNO);
+					String bigImagePath = CarparkUtils.FormatImagePath(time, plateNO, true);
+					carparkOffLineHistory.setBigImage(bigImagePath);
+					String smallImagePath = CarparkUtils.FormatImagePath(time, plateNO, false);
+					carparkOffLineHistory.setSmallImage(smallImagePath);
+					saveImage(smallImagePath, bigImagePath, smallImage, bigImage);
+					sp.getCarparkInOutService().saveCarparkOffLineHistory(carparkOffLineHistory);
+				} catch (Exception e) {
+					log.error(ip + "断网续传出错", e);
+				}
+			}
+		});
+	}
+	/**
+	 * 创建华夏智芯摄像机视频播放
+	 * @param device
+	 * @param northCamera
+	 */
+	public void createHCamera(SingleCarparkDevice device, Composite northCamera) {
+		String ip = device.getIp();
+		PlateNOJNA jna = null;
+		CameraTypeEnum cameraType = device.getCameraType() == null ? CameraTypeEnum.信路威 : device.getCameraType();
+		jna = setJNA(ip, cameraType);
+		Frame new_Frame1 = SWT_AWT.new_Frame(northCamera);
+		int handle=(int) Native.getComponentID(new_Frame1);
+		PopupMenu popMenu = new PopupMenu();
+		MenuItem refreshItem = new MenuItem("重新播放");
+		MenuItem closePlayItem = new MenuItem("关闭播放");
+		MenuItem refreshSettingItem = new MenuItem("刷新设置");
+		MenuItem checkDeviceStatusItem = new MenuItem("检测设备");
+		popMenu.add(refreshItem);
+		popMenu.add(closePlayItem);
+		popMenu.add(refreshSettingItem);
+		popMenu.add(checkDeviceStatusItem);
+		PlateNOJNA finalJna=jna;
+		closePlayItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				finalJna.stopPlaying(ip);
+			}
+		});
+		checkDeviceStatusItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+//				northCamera.getDisplay().asyncExec(new Runnable() {
+//					@Override
+//					public void run() {
+//						commonui.info("读记录数", "摄像机192.168.1.235拥有记录数2000");
+//					}
+//				});
+				try {
+					String ip = device.getIp();
+					String msg = "设备正常";
+					String m = checkDeviceStatus(ip);
+					if (!StrUtil.isEmpty(m)) {
+						msg = m;
+					}
+					String s = msg;
+					Runnable runnable = new Runnable() {
+						public void run() {
+							commonui.info("结果", s);
+						}
+					};
+					northCamera.getDisplay().asyncExec(runnable);
+				} catch (Exception e1) {
+					Runnable runnable = new Runnable() {
+						public void run() {
+							commonui.error("失败", "设备检测时发生错误" + e1, e1);
+						}
+					};
+					northCamera.getDisplay().asyncExec(runnable);
+				}
+			}
+		});
+		refreshSettingItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				refreshSystemSetting();
+			}
+		});
+		refreshItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					finalJna.startPlaying(ip, handle);
+				} catch (Exception e1) {
+					log.info("刷新视频流监控时发生错误",e);
+				}
+			}
+		});
+		createAutoMenuItem(popMenu);
+		new_Frame1.add(popMenu);
+		new_Frame1.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					String img = model.getMapCameraLastImage().get(ip);
+					if (StrUtil.isEmpty(img)) {
+						return;
+					}
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							ImageDialog imageDialog = new ImageDialog(img);
+							imageDialog.open();
+						}
+					});
+				}
+				if (e.getButton() == 3 && e.getClickCount() == 1) {
+					System.out.println("打开右键菜单");
+					popMenu.show(new_Frame1, e.getX(), e.getY());
+				}
+			}
+
+		});
+		jna.openEx(ip, handle,carInOutResultProvider.get());
 		jna.pastPlate(ip, new PastPlateResult() {
 			@Override
 			public void invok(String ip, Date time, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize, String plateColor) {
