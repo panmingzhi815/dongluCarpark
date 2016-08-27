@@ -5,7 +5,10 @@ import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 
 /**
@@ -57,6 +60,9 @@ public class HaiYuConfig {
     private String linkHistoryAddAndUpdatePostUrl = "";
     private String linkHistoryRemovePostUrl = "";
     private int linkHistoryDelayTime = 30;
+
+    private String carparkPostUrl = "";
+    private int carparkDelayTime = 30;
 
     public boolean isEnable() {
         return isEnable;
@@ -290,6 +296,22 @@ public class HaiYuConfig {
         this.linkHistoryDelayTime = linkHistoryDelayTime;
     }
 
+    public String getCarparkPostUrl() {
+        return carparkPostUrl;
+    }
+
+    public void setCarparkPostUrl(String carparkPostUrl) {
+        this.carparkPostUrl = carparkPostUrl;
+    }
+
+    public int getCarparkDelayTime() {
+        return carparkDelayTime;
+    }
+
+    public void setCarparkDelayTime(int carparkDelayTime) {
+        this.carparkDelayTime = carparkDelayTime;
+    }
+
     public String getKey() {
         return key;
     }
@@ -341,6 +363,9 @@ public class HaiYuConfig {
             this.linkHistoryAddAndUpdatePostUrl = properties.getProperty("linkHistoryAddAndUpdatePostUrl", "");
             this.linkHistoryRemovePostUrl = properties.getProperty("linkHistoryRemovePostUrl", "");
             this.linkHistoryDelayTime = properties.getInteger("linkHistoryDelayTime", 30);
+
+            this.carparkPostUrl = properties.getProperty("carparkPostUrl", "");
+            this.carparkDelayTime = properties.getInteger("carparkDelayTime", 30);
 
 
             LOGGER.info("读取配置文件:{} 成功", fileName);
@@ -396,6 +421,9 @@ public class HaiYuConfig {
             println(out, "设备组信息添加与修改同步地址", "%s=%s", "linkHistoryAddAndUpdatePostUrl", this.linkHistoryAddAndUpdatePostUrl);
             println(out, "设备组信息删除同步地址", "%s=%s", "linkHistoryRemovePostUrl", this.linkHistoryRemovePostUrl);
             println(out, "设备组信息同步时间间隔(秒)", "%s=%d", "linkHistoryDelayTime", this.linkHistoryDelayTime);
+
+            println(out, "停车场信息同步地址", "%s=%s", "carparkPostUrl", this.carparkPostUrl);
+            println(out, "停车场信息同步时间间隔(秒)", "%s=%d", "carparkDelayTime", this.carparkDelayTime);
 
 
             out.flush();

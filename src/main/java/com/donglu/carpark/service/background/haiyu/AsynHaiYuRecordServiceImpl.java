@@ -61,7 +61,7 @@ public class AsynHaiYuRecordServiceImpl extends AbstractCarparkBackgroundService
         try {
             LOGGER.info("向海誉发送停车场进出记录数据 {}",generateJsonStr);
             DesUtils desUtils = new DesUtils(haiYuConfig.getEncryptKey());
-            String post = desUtils.post(haiYuConfig.getCardUsagePostUrl(), generateJsonStr);
+            String post = desUtils.post(haiYuConfig.getCarparkPostUrl(), generateJsonStr);
 
             Boolean returnJsonSuccess = DesUtils.isReturnJsonSuccess(post);
             if (returnJsonSuccess != null && returnJsonSuccess) {
