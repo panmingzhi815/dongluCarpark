@@ -15,6 +15,9 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.CarparkRecordHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
 
 /**
  * 对进出场信息操作，对锁车信息操作
@@ -274,4 +277,16 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(SingleCarparkCarpark carpark, String pn, boolean b);
+
+	/**
+	 * 查询停车场历史进出记录任务,贵州海誉
+	 * @param start
+	 * @param size
+	 * @param updateEnums
+	 * @param processEnums
+	 * @return
+	 */
+    List<CarparkRecordHistory> findHaiYuRecordHistory(int start, int size, UpdateEnum[] updateEnums, ProcessEnum[] processEnums);
+
+	void updateHaiYuRecordHistory(List<Long> longList, ProcessEnum processEnum);
 }

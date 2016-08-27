@@ -11,6 +11,9 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.CarparkRecordHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
@@ -63,8 +66,10 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		DatabaseOperation<SingleCarparkInOutHistory> dom = DatabaseOperation.forClass(SingleCarparkInOutHistory.class, emprovider.get());
 		if (inout.getId() == null) {
 			dom.insert(inout);
+			this.emprovider.get().persist(new CarparkRecordHistory(inout,UpdateEnum.新添加));
 		} else {
 			dom.save(inout);
+			this.emprovider.get().merge(new CarparkRecordHistory(inout,UpdateEnum.被修改));
 		}
 		return inout.getId();
 	}
@@ -1361,6 +1366,33 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			return c.getResultList();
 		} finally{
 			unitOfWork.end();
+		}
+	}
+
+    @Override
+    public List<CarparkRecordHistory> findHaiYuRecordHistory(int start, int size, UpdateEnum[] updateEnums, ProcessEnum[] processEnums) {
+		unitOfWork.begin();
+		try {
+			Criteria criteria = CriteriaUtils.createCriteria(this.emprovider.get(), CarparkRecordHistory.class);
+			criteria.add(Restrictions.in("historyDetail.processState", processEnums));
+			criteria.add(Restrictions.in("historyDetail.updateState", updateEnums));
+			criteria.setFirstResult(start);
+			criteria.setMaxResults(size);
+			return criteria.getResultList();
+		}finally {
+			unitOfWork.end();
+		}
+    }
+
+    @Override
+	@Transactional
+    public void updateHaiYuRecordHistory(List<Long> longList, ProcessEnum processEnum) {
+		for (Long aLong : longList) {
+			EntityManager entityManager = this.emprovider.get();
+			CarparkRecordHistory reference = entityManager.getReference(CarparkRecordHistory.class, aLong);
+			reference.getHistoryDetail().setProcessState(processEnum);
+			reference.getHistoryDetail().setProcessTime(new Date());
+			entityManager.merge(reference);
 		}
 	}
 }

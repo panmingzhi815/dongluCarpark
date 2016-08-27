@@ -5,6 +5,9 @@ import java.util.Map;
 
 import javax.servlet.ServletException;
 
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.CarparkRecordHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -460,4 +463,14 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 			boolean b) {
 		return carparkInOutService.findInOutHistoryByCarparkAndPlateNO(carpark, pn, b);
 	}
+
+    @Override
+    public List<CarparkRecordHistory> findHaiYuRecordHistory(int start, int size, UpdateEnum[] updateEnums, ProcessEnum[] processEnums) {
+		return carparkInOutService.findHaiYuRecordHistory(start, size, updateEnums, processEnums);
+	}
+
+    @Override
+    public void updateHaiYuRecordHistory(List<Long> longList, ProcessEnum processEnum) {
+        carparkInOutService.updateHaiYuRecordHistory(longList, processEnum);
+    }
 }
