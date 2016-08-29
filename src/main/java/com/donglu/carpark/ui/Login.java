@@ -1,6 +1,5 @@
 package com.donglu.carpark.ui;
 
-import com.donglu.carpark.service.background.haiyu.AsynHaiYuRecordService;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Composite;
@@ -72,8 +71,6 @@ public class Login {
 	private static final String MONITOR_TEMP = "monitor.temp";
 
 	public static final String CHECK_SOFT_DOG = "checkSoftDog";
-
-	public static final String PUSH_HAIYU_RECORD = "PushHaiYuRecord";
 
 	private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
 
@@ -539,15 +536,8 @@ public class Login {
 		if (Boolean.valueOf(System.getProperty(CHECK_SOFT_DOG) == null ? "true" : "false")) {
 			checkSoftDog();
 		}
-		checkHaiYunService();
 	}
 
-	private void checkHaiYunService(){
-		if (Boolean.valueOf(System.getProperty(PUSH_HAIYU_RECORD) == null ? "true" : "false")) {
-			injector.getInstance(AsynHaiYuRecordService.class).startAsync();
-		}
-	}
-	
 	// 检测加密狗
 	private void checkSoftDog() {
 		injector.getInstance(ClientCheckSoftDogServiceI.class).startAsync();

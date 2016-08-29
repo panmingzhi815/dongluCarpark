@@ -56,6 +56,10 @@ public class ConstUtil {
 	 */
 	public static final String AUTO_REFRESH_CAMERA = "autoRefreshCamera";
 	/**
+	 * 贵州海誉进出场记录推送配置
+	 */
+	public static final String PUSH_HAIYU_RECORD = "PushHaiYuRecord";
+	/**
 	 * 获取权限级别
 	 * @return
 	 */

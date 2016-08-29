@@ -55,6 +55,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.WebService;
 import com.donglu.carpark.service.background.IpmsSynchroServiceI;
+import com.donglu.carpark.service.background.haiyu.AsynHaiYuRecordService;
 import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.wizard.sn.ImportSNModel;
 import com.donglu.carpark.ui.wizard.sn.ImportSNWizard;
@@ -482,6 +483,15 @@ public class ImageServerUI {
 		}
 		autoDeleteSameInOutHistory();
 		autoSendInfoToCloud();
+		checkHaiYunService();
+	}
+	/**
+	 * 贵州海誉推送服务
+	 */
+	private void checkHaiYunService(){
+		if (Boolean.valueOf(System.getProperty(ConstUtil.PUSH_HAIYU_RECORD) == null ? "true" : "false")) {
+			serverInjector.getInstance(AsynHaiYuRecordService.class).startAsync();
+		}
 	}
 
 	private void updateDatabase(SingleCarparkSystemSetting dbVersion) {
