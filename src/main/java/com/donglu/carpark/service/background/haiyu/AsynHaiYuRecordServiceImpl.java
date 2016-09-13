@@ -26,7 +26,7 @@ public class AsynHaiYuRecordServiceImpl extends AbstractCarparkBackgroundService
 
     @Inject
     public AsynHaiYuRecordServiceImpl(CarparkDatabaseServiceProvider sp, HaiYuConfig haiYuConfig) {
-        super(Scheduler.newFixedDelaySchedule(10, 10, TimeUnit.SECONDS), "与贵州海誉同步进出记录");
+        super(Scheduler.newFixedDelaySchedule(10, haiYuConfig.getCarparkDelayTime(), TimeUnit.SECONDS), "与贵州海誉同步进出记录");
         this.sp = sp;
         this.haiYuConfig = haiYuConfig;
     }
@@ -48,7 +48,7 @@ public class AsynHaiYuRecordServiceImpl extends AbstractCarparkBackgroundService
     private void runAddAndUpdate() throws IOException {
         final CarparkInOutServiceI cardUsageService = sp.getCarparkInOutService();
 
-        UpdateEnum[] updateEnums = {UpdateEnum.新添加};
+        UpdateEnum[] updateEnums = {UpdateEnum.新添加,UpdateEnum.被修改,UpdateEnum.被删除};
         ProcessEnum[] processEnums = {ProcessEnum.未处理,ProcessEnum.处理失败};
         List<CarparkRecordHistory> consumptionRecordList = cardUsageService.findHaiYuRecordHistory(0, 10, updateEnums, processEnums);
         if (StrUtil.isEmpty(consumptionRecordList)) {
