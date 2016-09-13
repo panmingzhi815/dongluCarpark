@@ -26,7 +26,7 @@ public class AsynHaiYuRecordServiceImpl extends AbstractCarparkBackgroundService
 
     @Inject
     public AsynHaiYuRecordServiceImpl(CarparkDatabaseServiceProvider sp, HaiYuConfig haiYuConfig) {
-        super(Scheduler.newFixedDelaySchedule(5, 10, TimeUnit.MINUTES), "与贵州海誉同步进出记录");
+        super(Scheduler.newFixedDelaySchedule(10, 10, TimeUnit.SECONDS), "与贵州海誉同步进出记录");
         this.sp = sp;
         this.haiYuConfig = haiYuConfig;
     }

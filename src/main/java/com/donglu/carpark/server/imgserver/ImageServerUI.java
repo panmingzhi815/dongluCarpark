@@ -489,7 +489,7 @@ public class ImageServerUI {
 	 * 贵州海誉推送服务
 	 */
 	private void checkHaiYunService(){
-		if (Boolean.valueOf(System.getProperty(ConstUtil.PUSH_HAIYU_RECORD) == null ? "true" : "false")) {
+		if (Boolean.valueOf(System.getProperty(ConstUtil.PUSH_HAIYU_RECORD) == null ? "false" : "true")) {
 			serverInjector.getInstance(AsynHaiYuRecordService.class).startAsync();
 		}
 	}

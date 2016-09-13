@@ -34,7 +34,6 @@ public class CarparkRecordHistory implements Serializable {
     }
 
     public CarparkRecordHistory(SingleCarparkInOutHistory carparkInOutHistory,UpdateEnum updateEnum){
-        this.id = carparkInOutHistory.getId();
         this.userName = StrUtil.isEmptyToString(carparkInOutHistory.getUserName(),"");
         this.plateNO = StrUtil.isEmptyToString(carparkInOutHistory.getPlateNo(), "");
         this.inTime = StrUtil.isEmptyToString(StrUtil.formatDateTime(carparkInOutHistory.getInTime()), "");
