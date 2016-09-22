@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -63,6 +64,7 @@ import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.SystemUpdate;
 import com.donglu.carpark.yun.CarparkYunConfig;
+import com.dongluhitec.card.blservice.ShangHaiYunCarParkService;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.setting.SNSettingType;
@@ -74,15 +76,20 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.shanghaiyunpingtai.ShanghaiYunCarparkCfg;
+import com.dongluhitec.card.shanghaiyunpingtai.YunCarparkStartService;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.dongluhitec.core.crypto.appauth.AppAuthorization;
 import com.dongluhitec.core.crypto.appauth.AppVerifier;
 import com.dongluhitec.core.crypto.appauth.AppVerifierImpl;
 import com.dongluhitec.core.crypto.softdog.SoftDogWin;
+import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import com.google.inject.persist.jpa.JpaPersistModule;
 
 public class ImageServerUI {
 
@@ -482,6 +489,28 @@ public class ImageServerUI {
 		}
 		autoDeleteSameInOutHistory();
 		autoSendInfoToCloud();
+		startBackGroudService();
+	}
+
+	private void startBackGroudService() {
+		LOGGER.info("上海云停车场服务启动设置：{}",ShanghaiYunCarparkCfg.getInstance().isStart());
+		if (ShanghaiYunCarparkCfg.getInstance().isStart()) {
+			try {
+				Injector injector = serverInjector.createChildInjector(new AbstractModule() {
+					@Override
+					protected void configure() {
+						bind(ShangHaiYunCarParkService.class).toInstance(sp.getYunCarparkService());
+					}
+				});
+				ShangHaiYunCarParkService yunCarparkService = injector.getInstance(ShangHaiYunCarParkService.class);
+				YunCarparkStartService service=new YunCarparkStartService(yunCarparkService);
+				service.start();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+//			YunCarparkStartService service=new YunCarparkStartService(sp.getYunCarparkService());
+//			service.start();
+		}
 	}
 
 	private void updateDatabase(SingleCarparkSystemSetting dbVersion) {
@@ -732,7 +761,7 @@ public class ImageServerUI {
 						} catch (Exception e) {
 							LOGGER.error("解析从数据库获取注册码信息失败",e);
 						}
-						Thread.sleep(1000);
+						Thread.sleep(10000);
 					}
 					SingleCarparkSystemSetting vilidTo = new SingleCarparkSystemSetting();
 					vilidTo.setSettingKey(SNSettingType.validTo.name());

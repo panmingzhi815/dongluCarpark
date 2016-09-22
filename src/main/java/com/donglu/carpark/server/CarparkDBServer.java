@@ -9,6 +9,7 @@ import com.donglu.carpark.server.servlet.InOutServlet;
 import com.donglu.carpark.server.servlet.IpmsServlet;
 import com.donglu.carpark.server.servlet.PlateSubmitServlet;
 import com.donglu.carpark.server.servlet.ServerServlet;
+import com.donglu.carpark.server.servlet.ShanghaiYunCarparkServlet;
 import com.donglu.carpark.server.servlet.StoreServiceServlet;
 import com.donglu.carpark.server.servlet.StoreServlet;
 import com.donglu.carpark.server.servlet.UpdatePositionServlet;
@@ -46,6 +47,8 @@ public class CarparkDBServer {
 	private Provider<IpmsServlet> ipmsServletProvider;
 	@Inject
 	private Provider<CarPayServlet> carPayServletProvider;
+	@Inject
+	private Provider<ShanghaiYunCarparkServlet> shanghaiYunCarparkServletProvider;
 	
 	public void startDbServlet(ServletHandler handler){
 		ServerUtil.startServlet("/user/*", handler, userServlerProvider);
@@ -60,6 +63,7 @@ public class CarparkDBServer {
 		ServerUtil.startServlet("/upload/*", handler, uploadServiceProvider);
 		ServerUtil.startServlet("/ipms/*", handler, ipmsServletProvider);
 		ServerUtil.startServlet("/carPay/*", handler, carPayServletProvider);
+		ServerUtil.startServlet("/shanghaiYunCarpark/*", handler, shanghaiYunCarparkServletProvider);
 	}
 	
 	public void startBackgroudService(){

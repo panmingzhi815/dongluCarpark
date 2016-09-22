@@ -12,7 +12,9 @@ import com.donglu.carpark.service.impl.SettingServiceImpl;
 import com.donglu.carpark.service.impl.StoreServiceImpl;
 import com.donglu.carpark.service.impl.SystemOperaLogServiceImpl;
 import com.donglu.carpark.service.impl.SystemUserServiceImpl;
+import com.dongluhitec.card.blservice.ShangHaiYunCarParkService;
 import com.dongluhitec.card.service.MapperConfig;
+import com.dongluhitec.card.shanghaiyunpingtai.service.impl.ShangHaiYunCarParkServiceImpl;
 import com.google.inject.*;
 import com.google.inject.name.Named;
 import com.google.inject.persist.PersistService;
@@ -22,7 +24,8 @@ import java.util.Properties;
 
 /**
  * 服务器端的服务
- *huangjianx
+ * @author HuangJianxiong
+ * 2016年2月21日 下午3:39:04
  */
 public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServiceProvider{
 
@@ -53,6 +56,8 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
             setSettingService(injector.getInstance(SettingService.class));
 //            setIpmsService(injector.getInstance(IpmsServiceI.class));
             setCarPayService(injector.getInstance(CarPayServiceI.class));
+            
+            setYunCarparkService(injector.getInstance(ShangHaiYunCarParkService.class));
     }
 
     @Override
@@ -107,6 +112,8 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
             this.bind(SettingService.class).to(SettingServiceImpl.class).in(Singleton.class);
 //            this.bind(IpmsServiceI.class).to(IpmsServiceImpl.class).in(Singleton.class);
             this.bind(CarPayServiceI.class).to(CarPayServiceImpl.class).in(Singleton.class);
+            
+            this.bind(ShangHaiYunCarParkService.class).to(ShangHaiYunCarParkServiceImpl.class).in(Singleton.class);
         }
     }
 

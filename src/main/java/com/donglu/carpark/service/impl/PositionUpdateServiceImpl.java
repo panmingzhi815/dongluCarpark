@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import com.donglu.carpark.server.imgserver.ImageServerUI;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.PositionUpdateServiceI;
+import com.dongluhitec.card.domain.db.shanghaiyunpingtai.YunCarparkSlot;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser.CarparkSlotTypeEnum;
@@ -69,6 +70,18 @@ public class PositionUpdateServiceImpl implements PositionUpdateServiceI {
 						sp.getCarparkService().saveCarpark(c);
 					} catch (Exception e) {
 						updatePosionThreadExecutor.submit(this);
+					}
+					try {
+						YunCarparkSlot s = new YunCarparkSlot();
+						s.setTotBerthNum(c.getTotalNumberOfSlot());
+						s.setMonthlyBerthNum(c.getFixNumberOfSlot());
+						s.setGuesBerthNum(c.getTempNumberOfSlot());
+						s.setTotRemainNum(c.getLeftFixNumberOfSlot()+c.getLeftTempNumberOfSlot());
+						s.setMonthlyRemainNum(c.getLeftFixNumberOfSlot());
+						s.setGuestRemainNum(c.getLeftTempNumberOfSlot());
+						sp.getYunCarparkService().saveCarparkSlot(s);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				} catch (Exception e) {
 					e.printStackTrace();

@@ -4,6 +4,7 @@ import com.caucho.hessian.client.HessianProxyFactory;
 import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.ClientConfigUI;
 import com.donglu.carpark.util.CarparkFileUtils;
+import com.dongluhitec.card.blservice.ShangHaiYunCarParkService;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.*;
 import com.google.inject.persist.PersistService;
@@ -36,6 +37,8 @@ public class CarparkHessianServiceProvider extends AbstractCarparkDatabaseServic
              setSettingService(injector.getInstance(SettingService.class));
              setIpmsService(injector.getInstance(IpmsServiceI.class));
              setCarPayService(injector.getInstance(CarPayServiceI.class));
+             
+             setYunCarparkService(injector.getInstance(ShangHaiYunCarParkService.class));
         }catch(Exception e){
         	e.printStackTrace();
         }
@@ -76,6 +79,8 @@ public class CarparkHessianServiceProvider extends AbstractCarparkDatabaseServic
 				this.bind(ImageServiceI.class).toInstance((ImageServiceI) factory.create(ImageServiceI.class, url+"carparkImage/"));
 				this.bind(IpmsServiceI.class).toInstance((IpmsServiceI) factory.create(IpmsServiceI.class, url+"ipms/"));
 				this.bind(CarPayServiceI.class).toInstance((CarPayServiceI) factory.create(CarPayServiceI.class, url+"carPay/"));
+				
+				this.bind(ShangHaiYunCarParkService.class).toInstance((ShangHaiYunCarParkService) factory.create(ShangHaiYunCarParkService.class, url+"shanghaiYunCarpark/"));
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}

@@ -1,5 +1,7 @@
 package com.donglu.carpark.service;
 
+import com.dongluhitec.card.blservice.ShangHaiYunCarParkService;
+
 public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkDatabaseServiceProvider {
 	private CarparkService carparkService;
 	private CarparkUserService carparkUserService;
@@ -13,6 +15,8 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 	private SettingService settingService;
 	private IpmsServiceI ipmsService;
 	private CarPayServiceI carPayService;
+	
+	private ShangHaiYunCarParkService yunCarparkService;
 	
 	private boolean started=false;
 
@@ -151,6 +155,15 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 
 	public void setCarPayService(CarPayServiceI carPayService) {
 		this.carPayService = carPayService;
+	}
+
+	public ShangHaiYunCarParkService getYunCarparkService() {
+		checkState();
+		return yunCarparkService;
+	}
+
+	public void setYunCarparkService(ShangHaiYunCarParkService yunCarparkService) {
+		this.yunCarparkService = yunCarparkService;
 	}
 
 }

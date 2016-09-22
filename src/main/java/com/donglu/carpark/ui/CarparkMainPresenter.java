@@ -74,6 +74,8 @@ import com.dongluhitec.card.domain.db.Device;
 import com.dongluhitec.card.domain.db.Link;
 import com.dongluhitec.card.domain.db.LinkStyleEnum;
 import com.dongluhitec.card.domain.db.SerialDeviceAddress;
+import com.dongluhitec.card.domain.db.shanghaiyunpingtai.HistoryUseStatus;
+import com.dongluhitec.card.domain.db.shanghaiyunpingtai.YunCarparkCarInOut;
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
@@ -102,6 +104,7 @@ import com.dongluhitec.card.hardware.plateDevice.PlateNOJNA;
 import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.mapper.BeanUtil;
+import com.dongluhitec.card.shanghaiyunpingtai.ShanghaiYunCarparkCfg;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
@@ -1015,8 +1018,8 @@ public class CarparkMainPresenter {
 		try {
 			Device d = getDevice(device);
 			if (isOpenDoor) {
+				log.info("对设备：ip:{},kip:{} 开闸,发送语音：[{}]", device.getIp(), device.getLinkAddress(), content);
 				if (d != null) {
-					log.info("对设备：ip:{},kip:{} 开闸,发送语音：[{}]", device.getIp(), device.getLinkAddress(), content);
 					Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoorWithDelay(d, content, device.getVolume() == null ? 1 : device.getVolume(), openDoorDelay);
 					return carparkContentVoiceAndOpenDoor;
 				} else {
@@ -1332,7 +1335,7 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 		mapIpToJNA.get(ip).tigger(ip);
-		// carInOutResultProvider.get().invok(ip, 0, "粤BD021W", null, null, 11);
+//		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", null, null, 11);
 	}
 
 	/**
@@ -2187,21 +2190,63 @@ public class CarparkMainPresenter {
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.车队操作, "车辆：{}在车队期间从设备[{}]{}场", bigImage, System.getProperty("userName"), plateNO, device.getName(),
 				device.getInType().substring(0, 1));
 	}
-
+	/**
+	 * 进出后的操作
+	 * @param carpark
+	 * @param cch
+	 * @param inOrOut
+	 */
 	public void updatePosition(SingleCarparkCarpark carpark, final SingleCarparkInOutHistory cch, final boolean inOrOut) {
-		sp.getPositionUpdateService().updatePosion(carpark, cch.getUserId(), inOrOut);
-		if (!mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")) {
-			return;
+		sp.getPositionUpdateService().updatePosion(carpark, cch==null?null:cch.getUserId(), inOrOut);
+		if (mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")) {
+			new Thread(new Runnable() {
+				public void run() {
+					if (inOrOut) {
+						ipmsService.addInOutHistory(cch);
+					} else {
+						ipmsService.updateInOutHistory(cch);
+					}
+				}
+			}).start();
 		}
-		new Thread(new Runnable() {
-			public void run() {
-				if (inOrOut) {
-					ipmsService.addInOutHistory(cch);
-				} else {
-					ipmsService.updateInOutHistory(cch);
+		
+		try {
+			if (cch!=null) {
+				boolean start = ShanghaiYunCarparkCfg.getInstance().isStart();
+				log.info("上海云停车场服务:{}",start);
+				if (start) {
+					if (inOrOut) {
+						YunCarparkCarInOut inout = new YunCarparkCarInOut();
+						inout.setCarNumber(cch.getPlateNo());
+						inout.setCarType(1);
+						inout.setParkingActType(StrUtil.isEmpty(cch.getUserName())?1:0);
+						inout.setParkingTime(cch.getInTime());
+						inout.setParkingBatchCode(StrUtil.formatDate(cch.getInTime(), "yyyyMMddHHmm"));
+						inout.setInType(HistoryUseStatus.待处理);
+						sp.getYunCarparkService().saveCarparkCarInOut(inout);
+					}else{
+						YunCarparkCarInOut inOut = sp.getYunCarparkService().findInCarHistoryByPlate(cch.getPlateNo());
+						if (inOut==null) {
+							return;
+						}
+						inOut.setLeavingActType(StrUtil.isEmpty(cch.getUserName())?1:0);
+						inOut.setLeavingTime(cch.getOutTime());
+						inOut.setFactMoney((int) (cch.getShouldMoney()*100));
+						inOut.setDueMoney(inOut.getFactMoney());
+						inOut.setPayMoney((int) (cch.getFactMoney()*100));
+						inOut.setPayDiscount((int) (cch.getFreeMoney()*100));
+						inOut.setParkingTimeLength(StrUtil.countTime(cch.getInTime(), cch.getOutTime(), TimeUnit.SECONDS));
+						inOut.setLeavingBatchCode(StrUtil.formatDate(cch.getOutTime(), "yyyyMMddHHmm"));
+						inOut.setOutType(HistoryUseStatus.待处理);
+						inOut.setFullType(HistoryUseStatus.待处理);
+						sp.getYunCarparkService().saveCarparkCarInOut(inOut);
+					}
 				}
 			}
-		}).start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	public void editPosition() {
@@ -2257,7 +2302,7 @@ public class CarparkMainPresenter {
 	 * @param ip
 	 */
 	public String checkDeviceStatus(final String ip) {
-		log.info("检测设备{}状态", ip);
+		log.debug("检测设备{}状态", ip);
 		boolean ping = CarparkUtils.ping(ip);
 		String msg = "";
 		if (!ping) {

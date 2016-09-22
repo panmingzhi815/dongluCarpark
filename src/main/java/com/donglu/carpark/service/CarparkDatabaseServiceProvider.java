@@ -1,6 +1,8 @@
 
 package com.donglu.carpark.service;
 
+import com.dongluhitec.card.blservice.ShangHaiYunCarParkService;
+
 public interface CarparkDatabaseServiceProvider {
 
 	/**
@@ -36,5 +38,7 @@ public interface CarparkDatabaseServiceProvider {
 	IpmsServiceI getIpmsService();
 	
 	CarPayServiceI getCarPayService();
+	
+	ShangHaiYunCarParkService getYunCarparkService();
 }
 

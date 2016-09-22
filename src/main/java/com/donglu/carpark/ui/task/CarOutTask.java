@@ -650,7 +650,7 @@ public class CarOutTask extends AbstractTask{
 				sp.getCarparkInOutService().saveInOutHistory(io);
 				LOGGER.info("保存车辆{}的出场记录成功",plateNO);
 				presenter.showPlateNOToDevice(device, plateNO);
-				presenter.updatePosition(carpark, null, false);
+				presenter.updatePosition(carpark, io, false);
 				presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			}else{
 				notFindInHistory();

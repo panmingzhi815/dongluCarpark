@@ -30,7 +30,7 @@ public enum SystemSettingTypeEnum {
 	启用CJLAPP支付("false"),
 	退出时需要密码("false"),
 	
-	DateBase_version("1.0.0.11"),软件版本("1.0.0.11"),发布时间("2016-07-20 17:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 
+	DateBase_version("1.0.0.12"),软件版本("1.0.0.12"),发布时间("2016-09-22 17:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 
 	;
 	
 	private String defaultValue;
