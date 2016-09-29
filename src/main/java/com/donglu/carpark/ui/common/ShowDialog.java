@@ -17,11 +17,10 @@ import org.eclipse.swt.events.SelectionEvent;
 
 public class ShowDialog extends Dialog {
 
-	protected Object result;
+	protected int result=1;
 	protected Shell shell;
 	protected Presenter presenter;
 	protected boolean haveButon=true;
-
 	
 	public ShowDialog(String name) {
 		super(Display.getCurrent().getActiveShell(), SWT.NONE);
@@ -34,7 +33,7 @@ public class ShowDialog extends Dialog {
 	 * Open the dialog.
 	 * @return the result
 	 */
-	public Object open() {
+	public int open() {
 		createContents();
 		shell.open();
 		shell.layout();
@@ -71,7 +70,6 @@ public class ShowDialog extends Dialog {
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				result=presenter.getModel();
 				shell.close();
 			}
 		});
@@ -81,7 +79,7 @@ public class ShowDialog extends Dialog {
 		btnNewButton_1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				result=null;
+				result=1;
 				shell.close();
 			}
 		});

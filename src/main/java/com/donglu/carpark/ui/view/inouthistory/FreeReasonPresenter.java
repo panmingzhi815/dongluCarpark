@@ -16,7 +16,7 @@ public class FreeReasonPresenter implements Presenter{
 		view.setPresenter(this);
 	}
 	@Override
-	public Object getModel() {
+	public SingleCarparkInOutHistory getModel() {
 		return model;
 	}
 	public void setModel(SingleCarparkInOutHistory model) {

@@ -117,20 +117,51 @@ public abstract class AbstractListView<T> extends AbstractView {
 				pcs.firePropertyChange("selected", null, null);
 		}
 	}
-
-	/**
-	 * @param parent
-	 * @param style
-	 * @param aligns
-	 */
+	
 	public AbstractListView(Composite parent, int style, Class<T> tClass, String[] columnProperties, String[] nameProperties, int[] columnLenths, int[] aligns) {
-		super(parent, style);
 		// ,Class<T> tClass,String[] columnProperties,String[] nameProperties,int[] columnLenths, int[] aligns
+		this(parent, style);
 		this.tClass = tClass;
 		this.columnProperties = columnProperties;
 		this.nameProperties = nameProperties;
 		this.columnLenths = columnLenths;
 		this.aligns = aligns;
+		tableViewerColumns = new TableViewerColumn[columnProperties.length];
+		for (int i = 0; i < columnProperties.length; i++) {
+			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.NONE);
+			tableViewerColumns[i] = tableViewerColumn;
+			TableColumn tblclmnNewColumn = tableViewerColumn.getColumn();
+			tblclmnNewColumn.setWidth(columnLenths[i]);
+			tblclmnNewColumn.setText(nameProperties[i]);
+			if (aligns != null) {
+				int j = aligns[i];
+				if (j != 0) {
+					tblclmnNewColumn.setAlignment(j);
+				}
+			}
+			int num = i;
+			tblclmnNewColumn.addSelectionListener(new SelectionAdapter() {
+				boolean flag = false;
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					model.setList(CarparkUtils.sortObjectPropety(model.getList(), columnProperties[num], flag));
+//					System.out.println(flag+"===="+columnProperties[num]);
+//					tableViewer.setSorter(new TableSort(flag, columnProperties[num]));
+					flag = !flag;
+				}
+
+			});
+		}
+		
+		initDataBindings();
+	}
+	/**
+	 * @param parent
+	 * @param style
+	 * @param aligns
+	 */
+	public AbstractListView(Composite parent, int style) {
+		super(parent, style);
 		setLayout(new GridLayout(1, false));
 
 		Composite composite = new Composite(this, SWT.NONE);
@@ -167,33 +198,6 @@ public abstract class AbstractListView<T> extends AbstractView {
 				presenter.mouseDoubleClick(model.selected);
 			}
 		});
-		tableViewerColumns = new TableViewerColumn[columnProperties.length];
-		for (int i = 0; i < columnProperties.length; i++) {
-
-			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-			tableViewerColumns[i] = tableViewerColumn;
-			TableColumn tblclmnNewColumn = tableViewerColumn.getColumn();
-			tblclmnNewColumn.setWidth(columnLenths[i]);
-			tblclmnNewColumn.setText(nameProperties[i]);
-			if (aligns != null) {
-				int j = aligns[i];
-				if (j != 0) {
-					tblclmnNewColumn.setAlignment(j);
-				}
-			}
-			int num = i;
-			tblclmnNewColumn.addSelectionListener(new SelectionAdapter() {
-				boolean flag = false;
-
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					model.setList(CarparkUtils.sortObjectPropety(model.getList(), columnProperties[num], flag));
-					flag = !flag;
-				}
-
-			});
-
-		}
 		cmp_bottom = new Composite(this, SWT.NONE);
 		cmp_bottom.setLayout(new GridLayout(5, false));
 		cmp_bottom.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
@@ -234,7 +238,6 @@ public abstract class AbstractListView<T> extends AbstractView {
 		});
 		btn_more.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		btn_more.setText("更多");
-		initDataBindings();
 		table.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {

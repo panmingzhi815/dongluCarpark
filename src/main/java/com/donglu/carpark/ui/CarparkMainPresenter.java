@@ -46,12 +46,11 @@ import com.donglu.carpark.service.PlateSubmitServiceI;
 import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
-import com.donglu.carpark.ui.common.ShowDialog;
 import com.donglu.carpark.ui.servlet.OpenDoorServlet;
 import com.donglu.carpark.ui.task.CarInOutResult;
 import com.donglu.carpark.ui.task.ConfimBox;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
-import com.donglu.carpark.ui.view.inouthistory.FreeReasonPresenter;
+import com.donglu.carpark.ui.view.inouthistory.FreeReasonDialog;
 import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
 import com.donglu.carpark.ui.wizard.AddDeviceModel;
 import com.donglu.carpark.ui.wizard.AddDeviceWizard;
@@ -1819,17 +1818,13 @@ public class CarparkMainPresenter {
 						return false;
 					}
 					if (shouldMoney > factMoney) {
-						FreeReasonPresenter p = new FreeReasonPresenter();
-						p.setModel(singleCarparkInOutHistory);
 						String reasons = mapSystemSetting.get(SystemSettingTypeEnum.免费原因);
-						p.setReasons(reasons);
-						ShowDialog s = new ShowDialog("免费原因");
-						s.setPresenter(p);
-						SingleCarparkInOutHistory open = (SingleCarparkInOutHistory) s.open();
-						if (open == null) {
+						FreeReasonDialog d=new FreeReasonDialog(reasons.split(","));
+						String open = d.open();
+						if (open ==null) {
 							return false;
 						}
-						singleCarparkInOutHistory.setFreeReason(open.getFreeReason());
+						singleCarparkInOutHistory.setFreeReason(open);
 					}
 				}
 				log.info("车辆收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", singleCarparkInOutHistory.getPlateNo(), device.getCarpark(), model.getCarTypeEnum(), model.getInTime(),

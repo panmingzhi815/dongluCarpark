@@ -103,13 +103,13 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public List<SingleCarparkInOutHistory> findByCondition(int maxResult, int size, String plateNo, String userName, String carType, String inout, Date start, Date end, String operaName,
+	public List<SingleCarparkInOutHistory> findByCondition(int maxResult, int size, String plateNo, String userName, String carType, String inout, Date start, Date end,Date outStart, Date outEnd, String operaName,
 			String inDevice, String outDevice, Long returnAccount, Long carparkId,float shouldMoney) {
 		unitOfWork.begin();
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 
-			createCriteriaByCondition(c, plateNo, userName, carType, inout, start, end, operaName, outDevice, outDevice, returnAccount,carparkId, shouldMoney);
+			createCriteriaByCondition(c, plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, outDevice, outDevice, returnAccount,carparkId, shouldMoney);
 			c.setFirstResult(maxResult);
 			c.setMaxResults(size);
 			List<SingleCarparkInOutHistory> resultList = c.getResultList();
@@ -118,7 +118,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			unitOfWork.end();
 		}
 	}
-	private void createCriteriaByCondition(Criteria c, String plateNo, String userName, String carType, String inout, Date start, Date end, String operaName, String inDevice, String outDevice,
+	private void createCriteriaByCondition(Criteria c, String plateNo, String userName, String carType, String inout, Date start, Date end,Date outStart, Date outEnd, String operaName, String inDevice, String outDevice,
 			Long returnAccount, Long carparkId, float shouldMoney) {
 		if (!StrUtil.isEmpty(inout)) {
 			if (inout.equals("是")) {
@@ -156,16 +156,17 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 		}
 
-		if (!StrUtil.isEmpty(start) && StrUtil.isEmpty(end)) {
-			Date todayTopTime = start;
-			c.add(Restrictions.or(Restrictions.ge(SingleCarparkInOutHistory.Property.inTime.name(), todayTopTime), Restrictions.ge(SingleCarparkInOutHistory.Property.outTime.name(), todayTopTime)));
-		} else if (!StrUtil.isEmpty(start) && StrUtil.isEmpty(end)) {
-			Date todayBottomTime = end;
-			c.add(Restrictions.or(Restrictions.le(SingleCarparkInOutHistory.Property.inTime.name(), todayBottomTime),
-					Restrictions.le(SingleCarparkInOutHistory.Property.outTime.name(), todayBottomTime)));
-		} else if (!StrUtil.isEmpty(start) && !StrUtil.isEmpty(end)) {
-			c.add(Restrictions.or(Restrictions.between(SingleCarparkInOutHistory.Property.inTime.name(), start, end),
-					Restrictions.between(SingleCarparkInOutHistory.Property.outTime.name(), start, end)));
+		if (!StrUtil.isEmpty(start) ) {
+			c.add(Restrictions.ge(SingleCarparkInOutHistory.Property.inTime.name(), start));
+		}
+		if (!StrUtil.isEmpty(end) ) {
+			c.add(Restrictions.le(SingleCarparkInOutHistory.Property.inTime.name(), end));
+		}
+		if (!StrUtil.isEmpty(outStart) ) {
+			c.add(Restrictions.ge(SingleCarparkInOutHistory.Property.outTime.name(), outStart));
+		}
+		if (!StrUtil.isEmpty(outEnd) ) {
+			c.add(Restrictions.le(SingleCarparkInOutHistory.Property.outTime.name(), outEnd));
 		}
 
 		if (!StrUtil.isEmpty(operaName)) {
@@ -186,11 +187,11 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public Long countByCondition(String plateNo, String userName, String carType, String inout, Date in, Date out, String operaName, String inDevice, String outDevice, Long returnAccount, Long carparkId,float shouldMoney) {
+	public Long countByCondition(String plateNo, String userName, String carType, String inout, Date in, Date out,Date outStart, Date outEnd, String operaName, String inDevice, String outDevice, Long returnAccount, Long carparkId,float shouldMoney) {
 		unitOfWork.begin();
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
-			createCriteriaByCondition(c, plateNo, userName, carType, inout, in, out, operaName, outDevice, outDevice, returnAccount, carparkId,shouldMoney);
+			createCriteriaByCondition(c, plateNo, userName, carType, inout, in, out, outStart, outEnd, operaName, outDevice, outDevice, returnAccount, carparkId,shouldMoney);
 			c.setProjection(Projections.rowCount());
 			Long resultList = (Long) c.getSingleResult();
 			return resultList;

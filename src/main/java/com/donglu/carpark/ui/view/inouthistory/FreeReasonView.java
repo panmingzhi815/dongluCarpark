@@ -11,6 +11,7 @@ import org.eclipse.swt.layout.GridData;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Combo;
@@ -22,6 +23,8 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 
 public class FreeReasonView extends Composite implements View{
 	private Presenter presenter;
@@ -79,6 +82,15 @@ public class FreeReasonView extends Composite implements View{
 		label_1.setText("备注");
 		
 		text = new Text(composite, SWT.BORDER);
+		text.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.keyCode!=StrUtil.BIG_KEY_ENTER&&e.keyCode!=StrUtil.SMAIL_KEY_ENTER) {
+					return;
+				}
+				getShell().close();
+			}
+		});
 		text.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				String text3 = combo.getText();
@@ -86,6 +98,7 @@ public class FreeReasonView extends Composite implements View{
 				model.setFreeReason(text3+"-"+text2);
 			}
 		});
+		text.setFocus();
 		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_text = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
 		gd_text.heightHint = 67;

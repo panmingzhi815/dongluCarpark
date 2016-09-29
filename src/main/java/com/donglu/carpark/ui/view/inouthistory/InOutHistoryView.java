@@ -4,6 +4,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Group;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +34,8 @@ import org.eclipse.nebula.widgets.cdatetime.CDT;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
+import org.eclipse.swt.widgets.DateTime;
 
 
 public class InOutHistoryView extends Composite implements View{
@@ -45,13 +48,16 @@ public class InOutHistoryView extends Composite implements View{
 	private Text text_inDevice;
 	private Text text_outDevice;
 	private Text text_returnAccount;
-	private CDateTime dt_end;
 	private InOutHistoryModel model;
 	private ComboViewer comboViewer;
 	private ComboViewer comboViewer_1;
 	
 	private RateLimiter rateLimiter = RateLimiter.create(2);
 	private Text text_1;
+	private DateChooserCombo dateChooserCombo_outstart;
+	private DateChooserCombo dateChooserCombo_outend;
+	private DateTime dateTime_outstart;
+	private DateTime dateTime_outend;
 
 	public InOutHistoryView(Composite parent, int style) {
 		super(parent, style);
@@ -91,13 +97,39 @@ public class InOutHistoryView extends Composite implements View{
 		text_userName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label label_2 = new Label(group, SWT.NONE);
-		label_2.setText("开始时间");
+		label_2.setText("进场时间");
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
-		CDateTime dateTime = new CDateTime(group, CDT.BORDER);
-		dateTime.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		dateTime.setPattern("yyyy-MM-dd HH:mm");
-		dateTime.setSelection(new org.joda.time.DateTime().minusHours(1).toDate());
+		Composite composite = new Composite(group, SWT.NONE);
+		GridLayout gl_composite = new GridLayout(5, false);
+		gl_composite.marginWidth = 0;
+		gl_composite.verticalSpacing = 0;
+		gl_composite.marginHeight = 0;
+		gl_composite.horizontalSpacing = 0;
+		composite.setLayout(gl_composite);
+		
+		DateChooserCombo dateChooserCombo_instart = new DateChooserCombo(composite, SWT.BORDER);
+		dateChooserCombo_instart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		dateChooserCombo_instart.setValue(new Date());
+		
+		DateTime dateTime_instart = new DateTime(composite, SWT.BORDER | SWT.TIME | SWT.SHORT);
+		dateTime_instart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		dateTime_instart.setHours(0);
+		dateTime_instart.setMinutes(0);
+		
+		Label label_9 = new Label(composite, SWT.NONE);
+		label_9.setText("-");
+		label_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		
+		DateChooserCombo dateChooserCombo_inend = new DateChooserCombo(composite, SWT.BORDER);
+		dateChooserCombo_inend.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		dateChooserCombo_inend.setValue(new Date());
+		
+		DateTime dateTime_inend = new DateTime(composite, SWT.BORDER | SWT.TIME | SWT.SHORT);
+		dateTime_inend.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		dateTime_inend.setHours(23);
+		dateTime_inend.setMinutes(59);
+		
 		Label lblNewLabel = new Label(group, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -152,7 +184,60 @@ public class InOutHistoryView extends Composite implements View{
 					if (text.equals("全部")) {
 						text=null;
 					}
-					getPresenter().search(text_plateNO.getText(),text_userName.getText(),dateTime.getSelection(),dt_end.getSelection(),
+					Date inStart=null;
+					Date inEnd=null;
+					Date outStart=null;
+					Date outEnd=null;
+					
+					Date value = dateChooserCombo_instart.getValue();
+					if (value!=null) {
+						int hours = dateTime_instart.getHours();
+						int minutes = dateTime_instart.getMinutes();
+						Calendar calendar = Calendar.getInstance();
+						calendar.setTime(value);
+						calendar.set(Calendar.HOUR_OF_DAY, hours);
+						calendar.set(Calendar.MINUTE, minutes);
+						calendar.set(Calendar.SECOND, 0);
+						calendar.set(Calendar.MILLISECOND, 0);
+						inStart=calendar.getTime();
+					}
+					value = dateChooserCombo_inend.getValue();
+					if (value!=null) {
+						int hours = dateTime_inend.getHours();
+						int minutes = dateTime_inend.getMinutes();
+						Calendar calendar = Calendar.getInstance();
+						calendar.setTime(value);
+						calendar.set(Calendar.HOUR_OF_DAY, hours);
+						calendar.set(Calendar.MINUTE, minutes);
+						calendar.set(Calendar.SECOND, 0);
+						calendar.set(Calendar.MILLISECOND, 0);
+						inEnd=calendar.getTime();
+					}
+					value = dateChooserCombo_outstart.getValue();
+					if (value!=null) {
+						int hours = dateTime_outstart.getHours();
+						int minutes = dateTime_outstart.getMinutes();
+						Calendar calendar = Calendar.getInstance();
+						calendar.setTime(value);
+						calendar.set(Calendar.HOUR_OF_DAY, hours);
+						calendar.set(Calendar.MINUTE, minutes);
+						calendar.set(Calendar.SECOND, 0);
+						calendar.set(Calendar.MILLISECOND, 0);
+						outStart=calendar.getTime();
+					}
+					value = dateChooserCombo_outend.getValue();
+					if (value!=null) {
+						int hours = dateTime_outend.getHours();
+						int minutes = dateTime_outend.getMinutes();
+						Calendar calendar = Calendar.getInstance();
+						calendar.setTime(value);
+						calendar.set(Calendar.HOUR_OF_DAY, hours);
+						calendar.set(Calendar.MINUTE, minutes);
+						calendar.set(Calendar.SECOND, 0);
+						calendar.set(Calendar.MILLISECOND, 0);
+						outEnd=calendar.getTime();
+					}
+					getPresenter().search(text_plateNO.getText(),text_userName.getText(),inStart,inEnd,outStart,outEnd,
 							text,combo_carType.getText(),combo_inorout.getText(),text_inDevice.getText(),
 							text_outDevice.getText(),text_returnAccount.getText(),singleCarparkCarpark,shouldMoney);
 				} catch (Exception e1) {
@@ -192,13 +277,39 @@ public class InOutHistoryView extends Composite implements View{
 		combo_inorout.select(0);
 		
 		Label label_6 = new Label(group, SWT.NONE);
-		label_6.setText("结束时间");
+		label_6.setText("出场时间");
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
-		dt_end = new CDateTime(group, CDT.BORDER);
-		dt_end.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		dt_end.setPattern("yyyy-MM-dd HH:mm\r\n");
-		dt_end.setSelection(new Date());
+		Composite composite_1 = new Composite(group, SWT.NONE);
+		GridLayout gl_composite_1 = new GridLayout(5, false);
+		gl_composite_1.horizontalSpacing = 0;
+		gl_composite_1.marginHeight = 0;
+		gl_composite_1.verticalSpacing = 0;
+		gl_composite_1.marginWidth = 0;
+		composite_1.setLayout(gl_composite_1);
+		
+		dateChooserCombo_outstart = new DateChooserCombo(composite_1, SWT.BORDER);
+		dateChooserCombo_outstart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		dateChooserCombo_outstart.setValue(new Date());
+		
+		dateTime_outstart = new DateTime(composite_1, SWT.BORDER | SWT.TIME | SWT.SHORT);
+		dateTime_outstart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		dateTime_outstart.setHours(0);
+		dateTime_outstart.setMinutes(0);
+		
+		Label label_10 = new Label(composite_1, SWT.NONE);
+		label_10.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_10.setText("-");
+		
+		dateChooserCombo_outend = new DateChooserCombo(composite_1, SWT.BORDER);
+		dateChooserCombo_outend.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		dateChooserCombo_outend.setValue(new Date());
+		
+		dateTime_outend = new DateTime(composite_1, SWT.BORDER | SWT.TIME | SWT.SHORT);
+		dateTime_outend.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		dateTime_outend.setHours(23);
+		dateTime_outend.setMinutes(59);
+		
 		Label lblNewLabel_1 = new Label(group, SWT.NONE);
 		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));

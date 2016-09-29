@@ -18,7 +18,7 @@ import com.google.inject.Inject;
 public class ClientCheckSoftDogServiceImpl extends AbstractCarparkBackgroundService implements ClientCheckSoftDogServiceI {
 	
 	public ClientCheckSoftDogServiceImpl() {
-		super(Scheduler.newFixedDelaySchedule(1, 1, TimeUnit.SECONDS), "客户端检查加密狗");
+		super(Scheduler.newFixedDelaySchedule(5, 30, TimeUnit.MINUTES), "客户端检查加密狗");
 	}
 
 	@Inject

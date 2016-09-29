@@ -54,6 +54,8 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	@SuppressWarnings("unused")
 	private String modifyPlateNO;
 	private float shouldMoney;
+	private Date outStart;
+	private Date outEnd;
 
 	@Override
 	public void refresh() {
@@ -64,9 +66,11 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	private void defaultSearch() {
 		AbstractListView<SingleCarparkInOutHistory>.Model model = v.getModel();
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(model.getList().size(), 500, plateNo, userName, carType, inout, start, end, operaName, inDevice,
+		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(model.getList().size(), 500, plateNo, 
+				userName, carType, inout, start, end,outStart,outEnd, operaName, inDevice,
 				outDevice, returnAccount, carpark.getId(),shouldMoney);
-		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, operaName, inDevice, outDevice, returnAccount, carpark.getId(),shouldMoney);
+		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end,outStart,outEnd,
+				operaName, inDevice, outDevice, returnAccount, carpark.getId(),shouldMoney);
 //		List<SingleCarparkInOutHistory> filter = filter(findByCondition, modifyPlateNO);
 		model.setCountSearchAll(countByCondition.intValue());
 		model.AddList(findByCondition);
@@ -118,12 +122,14 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		defaultSearch();
 	}
 
-	public void search(String plateNo, String userName, Date start, Date end, String operaName, String carType, String inout, String inDevice, String outDevice, String returnAccount,
+	public void search(String plateNo, String userName, Date start, Date end, Date outStart, Date outEnd, String operaName, String carType, String inout, String inDevice, String outDevice, String returnAccount,
 			SingleCarparkCarpark carpark, float shouldMoney) {
 		this.plateNo = plateNo;
 		this.userName = userName;
 		this.start = start;
 		this.end = end;
+		this.outStart = outStart;
+		this.outEnd = outEnd;
 		this.operaName = operaName;
 		this.carType = carType;
 		this.inout = inout;

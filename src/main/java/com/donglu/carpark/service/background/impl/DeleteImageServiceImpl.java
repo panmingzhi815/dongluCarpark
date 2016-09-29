@@ -62,7 +62,7 @@ public class DeleteImageServiceImpl extends AbstractCarparkBackgroundService imp
 				mapFileImgToLock.put(imaFileName, tryLock);
 				mapFileRaf.put(imaFileName, raf);
 			} catch (Exception e) {
-				log.error("锁定进场车辆图片时发生错误:{}"+e,imaFileName);
+				log.debug("锁定进场车辆图片时发生错误:{}"+e,imaFileName);
 			}
 		}
 		
@@ -74,7 +74,7 @@ public class DeleteImageServiceImpl extends AbstractCarparkBackgroundService imp
 				fileLock.release();
 				mapFileRaf.get(imgName).close();
 			} catch (IOException e) {
-				log.error("解锁进场车辆图片时发生错误:{}"+e,imgName);
+				log.debug("解锁进场车辆图片时发生错误:{}"+e,imgName);
 			}
 		}
 		mapFileImgToLock.clear();
