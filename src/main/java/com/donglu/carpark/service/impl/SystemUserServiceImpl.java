@@ -46,8 +46,9 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkSystemUser.class);
 			c.add(Restrictions.eq("userName", userName));
-			c.add(Restrictions.eq("password", password));
-			
+			if (password!=null) {
+				c.add(Restrictions.eq("password", password));
+			}
 			Object singleResultOrNull = c.getSingleResultOrNull();
 			if (singleResultOrNull!=null) {
 				return (SingleCarparkSystemUser) singleResultOrNull;

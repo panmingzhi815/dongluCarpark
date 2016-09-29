@@ -10,6 +10,7 @@ public class SystemUserModel extends SingleCarparkSystemUser {
 	 * 
 	 */
 	private static final long serialVersionUID = 910508348133776532L;
+	private String oldPwd;
 	private String pwd;
 	private String rePwd;
 	
@@ -55,6 +56,15 @@ public class SystemUserModel extends SingleCarparkSystemUser {
 		this.rePwd = rePwd;
 		if (pcs != null)
 			pcs.firePropertyChange("rePwd", null, null);
+	}
+
+	public String getOldPwd() {
+		return oldPwd;
+	}
+
+	public void setOldPwd(String oldPwd) {
+		this.oldPwd = oldPwd;
+		firePropertyChange("oldPwd", null, null);
 	}
 	
 }

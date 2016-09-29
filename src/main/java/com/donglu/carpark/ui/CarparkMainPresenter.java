@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.model.SearchErrorCarModel;
 import com.donglu.carpark.model.ShowInOutHistoryModel;
+import com.donglu.carpark.model.SystemUserModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.service.CountTempCarChargeI;
@@ -55,6 +56,7 @@ import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
 import com.donglu.carpark.ui.wizard.AddDeviceModel;
 import com.donglu.carpark.ui.wizard.AddDeviceWizard;
 import com.donglu.carpark.ui.wizard.ChangeUserWizard;
+import com.donglu.carpark.ui.wizard.EditSystemUserPasswordWizard;
 import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
 import com.donglu.carpark.ui.wizard.ReturnAccountWizard;
 import com.donglu.carpark.ui.wizard.SearchHistoryByHandWizard;
@@ -1349,7 +1351,6 @@ public class CarparkMainPresenter {
 	 *            图片字节
 	 */
 	public void saveImage(final String f, final String fileName, final byte[] bigImage1) {
-
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {
@@ -1960,6 +1961,7 @@ public class CarparkMainPresenter {
 
 	public void saveImage(String smallImgFileName, String bigImgFileName, byte[] smallImage1, byte[] bigImage1) {
 		Runnable runnable = new Runnable() {
+			private int errorSize=0;
 			@Override
 			public void run() {
 				try {
@@ -2007,6 +2009,10 @@ public class CarparkMainPresenter {
 					}
 				} catch (IOException e) {
 					log.error("上传图片出错", e);
+					if (errorSize<3) {
+						saveImageTheadPool.submit(this);
+					}
+					errorSize++;
 				}
 			}
 		};
@@ -2408,6 +2414,36 @@ public class CarparkMainPresenter {
 
 	public CarparkMainModel getModel() {
 		return model;
+	}
+
+	public void editUserPassword() {
+		String userName = ConstUtil.getUserName();
+		SingleCarparkSystemUser systemUser = sp.getSystemUserService().findByNameAndPassword(userName, null);
+		if (StrUtil.isEmpty(systemUser)) {
+			return;
+		}
+		SingleCarparkSystemUser singleCarparkSystemUser = systemUser;
+		SystemUserModel model = new SystemUserModel();
+		model.setUserName(singleCarparkSystemUser.getUserName());
+		model.setRemark(singleCarparkSystemUser.getRemark());
+		model.setPassword(systemUser.getPassword());
+		EditSystemUserPasswordWizard wizard = new EditSystemUserPasswordWizard(model);
+		SystemUserModel m = (SystemUserModel) commonui.showWizard(wizard);
+		if (m == null) {
+			return;
+		}
+		singleCarparkSystemUser.setPassword(m.getPwd());
+		singleCarparkSystemUser.setLastEditDate(new Date());
+		singleCarparkSystemUser.setLastEditUser(userName);
+		singleCarparkSystemUser.setRemark(m.getRemark());
+		try {
+			sp.getSystemUserService().saveSystemUser(singleCarparkSystemUser);
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "修改了系统用户:" + singleCarparkSystemUser.getUserName(),userName);
+			commonui.info("提示", "修改成功！");
+		} catch (Exception e) {
+			e.printStackTrace();
+			commonui.error("提示", "修改失败！");
+		}
 	}
 
 }

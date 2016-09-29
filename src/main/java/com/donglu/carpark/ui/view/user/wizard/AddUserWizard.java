@@ -68,7 +68,7 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 		String parkingSpace = model.getParkingSpace();
 		if (!StrUtil.isEmpty(parkingSpace)) {
 			SingleCarparkUser u = sp.getCarparkUserService().findUserByParkingSpace(parkingSpace);
-			if (model.getId() != null) {
+			if (model.getId() != null&&u!=null) {
 				if (!model.getId().equals(u.getId())) {
 					setErrorMessage("车位已存在");
 					return false;

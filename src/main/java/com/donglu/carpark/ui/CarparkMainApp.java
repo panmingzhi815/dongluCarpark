@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
@@ -85,6 +86,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -99,11 +101,14 @@ import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.PaintEvent;
 
 public class CarparkMainApp extends AbstractApp{
 	private static final String MAIN_APP_SASH_FORM_LAYOUT = "mainAppSashFormLayout";
 	private final AtomicInteger refreshTimes = new AtomicInteger(0);
 	private final Integer refreshTimeSpeedSecond = 3;
+	private static Cursor cursor;
 
 	private Logger log = LoggerFactory.getLogger(CarparkMainApp.class);
 
@@ -429,6 +434,7 @@ public class CarparkMainApp extends AbstractApp{
 			shell.setSize(1036, 889);
 			shell.setMaximized(true);
 		}
+		cursor = new Cursor(shell.getDisplay(), SWT.CURSOR_HAND);
 		shell.setImage(JFaceUtil.getImage("carpark_16"));
 		shell.setText("停车场监控-" + SystemSettingTypeEnum.软件版本.getDefaultValue() + "(" + CarparkClientConfig.getInstance().getDbServerIp() + ")");
 		shell.addShellListener(new ShellAdapter() {
@@ -601,6 +607,35 @@ public class CarparkMainApp extends AbstractApp{
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 
 		txt_userName = new Text(composite_13, SWT.BORDER | SWT.READ_ONLY);
+		txt_userName.addPaintListener(new PaintListener() {
+			public void paintControl(PaintEvent e) {
+				GC gc = e.gc;
+				Rectangle bounds = txt_userName.getBounds();
+				gc.drawImage(JFaceUtil.getImage("edit_16"), bounds.width-21, 0);
+			}
+		});
+		txt_userName.addMouseMoveListener(new MouseMoveListener() {
+			@Override
+			public void mouseMove(MouseEvent e) {
+				if (e.x>=txt_userName.getBounds().width-21) {
+					txt_userName.setCursor(cursor);
+					txt_userName.setToolTipText("修改密码");
+				}else{
+					txt_userName.setCursor(null);
+					txt_userName.setToolTipText(null);
+				}
+			}
+		});
+		txt_userName.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				if (e.x<txt_userName.getBounds().width-21) {
+					return;
+				}
+				presenter.editUserPassword();
+			}
+		});
 		txt_userName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		txt_userName.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
 		txt_userName.setText("panmingzhi");
@@ -908,7 +943,7 @@ public class CarparkMainApp extends AbstractApp{
 			public void mouseHover(MouseEvent e) {
 			}
 		});
-		lbl_charge.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
+		lbl_charge.setCursor(cursor);
 		lbl_charge.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
@@ -940,7 +975,7 @@ public class CarparkMainApp extends AbstractApp{
 				setBoundsY(lbl_free, 2);
 			}
 		});
-		lbl_free.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
+		lbl_free.setCursor(cursor);
 		lbl_free.setImage(CarparkUtils.getSwtImage("free.png"));
 		GridData gd_lbl_free = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lbl_free.widthHint = 100;
@@ -963,7 +998,7 @@ public class CarparkMainApp extends AbstractApp{
 				setBoundsY(lbl_stop, 2);
 			}
 		});
-		lbl_stop.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
+		lbl_stop.setCursor(cursor);
 		lbl_stop.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		lbl_stop.setImage(CarparkUtils.getSwtImage("stop.png"));
 
@@ -983,7 +1018,7 @@ public class CarparkMainApp extends AbstractApp{
 				setBoundsY(lbl_change, 2);
 			}
 		});
-		lbl_change.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
+		lbl_change.setCursor(cursor);
 		GridData gd_label_18 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_label_18.widthHint = 100;
 		gd_label_18.heightHint = 80;
@@ -1003,7 +1038,7 @@ public class CarparkMainApp extends AbstractApp{
 				setBoundsY(lbl_return, 2);
 			}
 		});
-		lbl_return.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
+		lbl_return.setCursor(cursor);
 		GridData gd_label_20 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_label_20.widthHint = 100;
 		gd_label_20.heightHint = 80;
@@ -1023,7 +1058,7 @@ public class CarparkMainApp extends AbstractApp{
 				setBoundsY(lbl_search, 2);
 			}
 		});
-		lbl_search.setCursor(new Cursor(shell.getDisplay(), SWT.CURSOR_HAND));
+		lbl_search.setCursor(cursor);
 		lbl_search.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		lbl_search.setImage(CarparkUtils.getSwtImage("search.png"));
 		scrolledComposite.setContent(group);
