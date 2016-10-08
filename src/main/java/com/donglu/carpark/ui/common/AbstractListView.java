@@ -9,7 +9,6 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.ToolItem;
 
-import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.DomainObject;
 
 import org.eclipse.swt.layout.FillLayout;
@@ -72,6 +71,7 @@ public abstract class AbstractListView<T> extends AbstractView {
 		}
 
 		public void setList(List<T> list) {
+			clearSort();
 			selected.clear();
 			if (pcs != null)
 				pcs.firePropertyChange("selected", null, null);
@@ -144,9 +144,12 @@ public abstract class AbstractListView<T> extends AbstractView {
 				boolean flag = false;
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					model.setList(CarparkUtils.sortObjectPropety(model.getList(), columnProperties[num], flag));
-//					System.out.println(flag+"===="+columnProperties[num]);
-//					tableViewer.setSorter(new TableSort(flag, columnProperties[num]));
+//					model.setList(CarparkUtils.sortObjectPropety(model.getList(), columnProperties[num], flag));
+					try {
+						tableViewer.setSorter(new TableSort(flag, columnProperties[num]));
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
 					flag = !flag;
 				}
 
@@ -154,6 +157,13 @@ public abstract class AbstractListView<T> extends AbstractView {
 		}
 		
 		initDataBindings();
+	}
+	public void clearSort(){
+		getDisplay().syncExec(new Runnable() {
+			public void run() {
+				tableViewer.setSorter(null);
+			}
+		});
 	}
 	/**
 	 * @param parent

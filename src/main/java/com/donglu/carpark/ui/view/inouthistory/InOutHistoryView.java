@@ -110,7 +110,6 @@ public class InOutHistoryView extends Composite implements View{
 		
 		DateChooserCombo dateChooserCombo_instart = new DateChooserCombo(composite, SWT.BORDER);
 		dateChooserCombo_instart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		dateChooserCombo_instart.setValue(new Date());
 		
 		DateTime dateTime_instart = new DateTime(composite, SWT.BORDER | SWT.TIME | SWT.SHORT);
 		dateTime_instart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -123,7 +122,6 @@ public class InOutHistoryView extends Composite implements View{
 		
 		DateChooserCombo dateChooserCombo_inend = new DateChooserCombo(composite, SWT.BORDER);
 		dateChooserCombo_inend.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		dateChooserCombo_inend.setValue(new Date());
 		
 		DateTime dateTime_inend = new DateTime(composite, SWT.BORDER | SWT.TIME | SWT.SHORT);
 		dateTime_inend.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -290,7 +288,6 @@ public class InOutHistoryView extends Composite implements View{
 		
 		dateChooserCombo_outstart = new DateChooserCombo(composite_1, SWT.BORDER);
 		dateChooserCombo_outstart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		dateChooserCombo_outstart.setValue(new Date());
 		
 		dateTime_outstart = new DateTime(composite_1, SWT.BORDER | SWT.TIME | SWT.SHORT);
 		dateTime_outstart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -303,7 +300,6 @@ public class InOutHistoryView extends Composite implements View{
 		
 		dateChooserCombo_outend = new DateChooserCombo(composite_1, SWT.BORDER);
 		dateChooserCombo_outend.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		dateChooserCombo_outend.setValue(new Date());
 		
 		dateTime_outend = new DateTime(composite_1, SWT.BORDER | SWT.TIME | SWT.SHORT);
 		dateTime_outend.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

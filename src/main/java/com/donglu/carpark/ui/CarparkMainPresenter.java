@@ -2005,6 +2005,11 @@ public class CarparkMainPresenter {
 				} catch (IOException e) {
 					log.error("上传图片出错", e);
 					if (errorSize<3) {
+						try {
+							Thread.sleep(5000);
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
 						saveImageTheadPool.submit(this);
 					}
 					errorSize++;
