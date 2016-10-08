@@ -37,8 +37,6 @@ Source: "更新概述.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "客户端.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "客户端.ini"; DestDir: "{app}"; Flags: ignoreversion
 Source: "配置说明.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "升级.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "升级.ini"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; 注意: 不要在任何共享系统文件上使用“Flags: ignoreversion”
 

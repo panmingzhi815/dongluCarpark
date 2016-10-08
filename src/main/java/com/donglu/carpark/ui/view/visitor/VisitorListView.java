@@ -20,10 +20,11 @@ public class VisitorListView extends AbstractListView<SingleCarparkVisitor>imple
 						SingleCarparkVisitor.Label.validToLabel.name(), 
 						SingleCarparkVisitor.Property.allIn.name(), 
 						SingleCarparkVisitor.Property.inCount.name(),
+						SingleCarparkVisitor.Property.outCount.name(),
 						SingleCarparkVisitor.Property.status.name(),
 						SingleCarparkVisitor.Property.carpark.name(),
 						SingleCarparkVisitor.Property.remark.name() },
-				new String[] { "车牌号", "姓名", "电话", "到期时间", "次数限制", "进场次数","状态", "停车场", "备注" }, new int[] { 100, 100, 100, 100, 100, 100, 100, 200, 100, 100, 100, 100 }, null);
+				new String[] { "车牌号", "姓名", "电话", "到期时间", "次数限制", "进场次数","出场次数","状态", "停车场", "备注" }, new int[] { 100, 100, 100, 100, 100, 100, 100, 200, 100, 100, 100, 100 }, null);
 	}
 
 	@Override

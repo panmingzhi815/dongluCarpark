@@ -38,6 +38,14 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 	public void add() {
 		try {
 			AddVisitorModel model = new AddVisitorModel();
+			List<SingleCarparkVisitor> selected = view.getModel().getSelected();
+			if (!StrUtil.isEmpty(selected)) {
+				SingleCarparkVisitor visitor = selected.get(0);
+				model.setVisitor(visitor);
+				model.setId(null);
+				model.setInCount(0);
+				model.setOutCount(0);
+			}
 			addAndEdit(model);
 		} catch (Exception e) {
 			commonui.error("", "添加访客失败", e);

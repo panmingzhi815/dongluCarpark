@@ -86,6 +86,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.widgets.TabFolder;
@@ -371,11 +372,6 @@ public class CarparkMainApp extends AbstractApp{
 
 		outTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("出场任务"));
 		inThreadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("进场任务"));
-		if (StrUtil.isEmpty(System.getProperty(ConstUtil.AUTO_SEND_POSITION_TO_DEVICE))) {
-			autoSendPositionToDevice();
-		}
-		autoSendTimeToDevice();
-		refreshCarparkBasicInfo(refreshTimeSpeedSecond);
 
 		model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
 
@@ -386,6 +382,11 @@ public class CarparkMainApp extends AbstractApp{
 		} finally {
 			log.info("发送车位数间隔SendPositionToDeviceTime为:{}", sendPositionToDeviceTime);
 		}
+		if (StrUtil.isEmpty(System.getProperty(ConstUtil.AUTO_SEND_POSITION_TO_DEVICE))) {
+			autoSendPositionToDevice();
+		}
+		autoSendTimeToDevice();
+		refreshCarparkBasicInfo(refreshTimeSpeedSecond);
 	}
 	/**
 	 * 初始化语音信息
@@ -573,7 +574,6 @@ public class CarparkMainApp extends AbstractApp{
 		text_total.setText("1000");
 		text_total.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		text_total.addMouseListener(new MouseAdapter() {
-
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 				presenter.editPosition();
@@ -607,32 +607,9 @@ public class CarparkMainApp extends AbstractApp{
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 
 		txt_userName = new Text(composite_13, SWT.BORDER | SWT.READ_ONLY);
-		txt_userName.addPaintListener(new PaintListener() {
-			public void paintControl(PaintEvent e) {
-				GC gc = e.gc;
-				Rectangle bounds = txt_userName.getBounds();
-				gc.drawImage(JFaceUtil.getImage("edit_16"), bounds.width-21, 0);
-			}
-		});
-		txt_userName.addMouseMoveListener(new MouseMoveListener() {
-			@Override
-			public void mouseMove(MouseEvent e) {
-				if (e.x>=txt_userName.getBounds().width-21) {
-					txt_userName.setCursor(cursor);
-					txt_userName.setToolTipText("修改密码");
-				}else{
-					txt_userName.setCursor(null);
-					txt_userName.setToolTipText(null);
-				}
-			}
-		});
-		txt_userName.addMouseListener(new MouseAdapter() {
-
+		setTextEditIco(txt_userName,"修改密码",new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				if (e.x<txt_userName.getBounds().width-21) {
-					return;
-				}
 				presenter.editUserPassword();
 			}
 		});
@@ -1065,6 +1042,48 @@ public class CarparkMainApp extends AbstractApp{
 		scrolledComposite.setMinSize(group.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		initDataBindings();
 		addKeyLisenter(shell);
+	}
+
+	/**
+	 * 
+	 */
+	public void setTextEditIco(Text txt_userName,String title,MouseListener mouseClick) {
+		txt_userName.addPaintListener(new PaintListener() {
+			public void paintControl(PaintEvent e) {
+				GC gc = e.gc;
+				Rectangle bounds = txt_userName.getBounds();
+				gc.drawImage(JFaceUtil.getImage("edit_16"), bounds.width-21, 0);
+			}
+		});
+		txt_userName.addMouseMoveListener(new MouseMoveListener() {
+			@Override
+			public void mouseMove(MouseEvent e) {
+				if (e.x>=txt_userName.getBounds().width-21) {
+					txt_userName.setCursor(cursor);
+					txt_userName.setToolTipText(title);
+				}else{
+					txt_userName.setCursor(null);
+					txt_userName.setToolTipText(null);
+				}
+			}
+		});
+		txt_userName.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				if (e.x<txt_userName.getBounds().width-21) {
+					return;
+				}
+				mouseClick.mouseDown(e);
+			}
+			@Override
+			public void mouseUp(MouseEvent e) {
+				mouseClick.mouseUp(e);
+			}
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				mouseClick.mouseDoubleClick(e);
+			}
+		});
 	}
 
 	public void controlToolItem() {

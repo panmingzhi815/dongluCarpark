@@ -47,6 +47,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor.VisitorStatus;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
@@ -877,6 +878,7 @@ public class CarparkServiceImpl implements CarparkService {
 			if (!StrUtil.isEmpty(plateNo)) {
 				c.add(Restrictions.like(SingleCarparkVisitor.Property.plateNO.name(), plateNo,MatchMode.ANYWHERE));
 			}
+			c.add(Restrictions.eq(SingleCarparkVisitor.Property.status.name(), VisitorStatus.可用.name()));
 			c.setFirstResult(0);
 			c.setMaxResults(1);
 			return (SingleCarparkVisitor) c.getSingleResultOrNull();

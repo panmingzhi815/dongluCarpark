@@ -18,7 +18,7 @@ public class SingleCarparkVisitor extends DomainObject {
 	 */
 	private static final long serialVersionUID = -146910856653100859L;
 	public enum Property{
-		id,plateNO,name,telephone,allIn,inCount,validTo,remark,carpark,status
+		id,plateNO,name,telephone,allIn,inCount,outCount,validTo,remark,carpark,status
 	}
 	public enum Label{
 		validToLabel
@@ -26,12 +26,12 @@ public class SingleCarparkVisitor extends DomainObject {
 	public enum VisitorStatus{
 		可用,不可用
 	}
-	@Column(unique=true)
 	private String plateNO;
 	private String name;
 	private String telephone;
 	private Integer allIn=0;
 	private int inCount=0;
+	private Integer outCount=0;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date validTo;
 	private String remark;
@@ -108,6 +108,16 @@ public class SingleCarparkVisitor extends DomainObject {
 			return VisitorStatus.可用.name();
 		}
 		return status;
+	}
+	public int getOutCount() {
+		if (outCount==null) {
+			return 0;
+		}
+		return outCount;
+	}
+	public void setOutCount(int outCount) {
+		this.outCount = outCount;
+		firePropertyChange("outCount", null, null);
 	}
 	
 }

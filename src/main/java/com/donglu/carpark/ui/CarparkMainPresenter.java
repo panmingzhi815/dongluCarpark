@@ -280,22 +280,15 @@ public class CarparkMainPresenter {
 	 */
 	public void sendPositionToAllDevice(boolean isreturn) {
 		Set<String> keySet = mapIpToDevice.keySet();
-		Map<String, SingleCarparkDevice> mapLinkAndDevice = new HashMap<>();
 		for (String c : keySet) {
-			SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(c);
-			if (singleCarparkDevice.getInType().indexOf("进口") < 0) {
+			SingleCarparkDevice d = mapIpToDevice.get(c);
+			if (d.getInType().indexOf("进口") < 0) {
 				continue;
 			}
-			mapLinkAndDevice.put(singleCarparkDevice.getLinkInfo(), singleCarparkDevice);
-		}
-		for (SingleCarparkDevice d : mapLinkAndDevice.values()) {
 			Date when = new Date();
 			Date plateInTime = model.getPlateInTime();
 			if (plateInTime.after(when)) {
 				log.info("车辆进出场，在时间：{}后在对设备{}发车位数,现在时间：{}", plateInTime, d, when);
-				return;
-			}
-			if (d.getInType().indexOf("进口") < 0) {
 				return;
 			}
 			if (isreturn) {
@@ -802,22 +795,22 @@ public class CarparkMainPresenter {
 			final SingleCarparkDevice device2 = showWizard.getDevice();
 			device2.setCarpark(sp.getCarparkService().findCarparkById(device2.getCarpark().getId()));
 			String string =  checkDeviceEditInfo(device,device2);
-			if (ip.equals(oldIp)&&showWizard.getCameraType().equals(oldCameraType)) {
+			if (ip.equals(oldIp) && showWizard.getCameraType().equals(oldCameraType)) {
 				selection.setText(showWizard.getName());
 				mapIpToDevice.put(ip, device2);
 				CarparkFileUtils.writeObjectForException("mapIpToDevice", mapIpToDevice);
-				commonui.info("修改成功", "修改设备" + ip + "成功");
 				new Thread(new Runnable() {
 					public void run() {
 						setIsTwoChanel();
 						log.info("发送平时显示类容");
 						showUsualContentToDevice(device2);
-						showPositionToDevice(device, CarparkMainPresenter.this.model.getTotalSlot());
+						showPositionToDevice(device2, CarparkMainPresenter.this.model.getTotalSlot());
 						// sendPositionToAllDevice(true);
 						checkDeviceControlTimeStatus(new Date(), device2);
-						sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "修改了设备:"+device.getIp()+string, ConstUtil.getUserName());
+						sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "修改了设备:" + device.getIp() + string, ConstUtil.getUserName());
 					}
 				}).start();
+				commonui.info("修改成功", "修改设备" + ip + "成功");
 				return;
 			} else {
 				if (mapDeviceType.get(ip) != null) {
@@ -1058,14 +1051,16 @@ public class CarparkMainPresenter {
 			Device d = getDevice(device);
 			if (d != null) {
 				String inType = device.getInType();
+				log.info("向{}设备{}：{}发送车位数:{}",inType,device.getIp(),device.getLinkInfo(),position);
+				if (inType.indexOf("出口")>-1) {
+					inType = "出口";
+				}
 				if (inType.equals("进口2")) {
 					inType = "进口";
 				}
-				if (inType.equals("出口2")) {
-					inType = "出口";
-				}
-
-				return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType), (byte) (device.getScreenType().getType()));
+				int type = device.getScreenType().getType();
+				System.out.println(type);
+				return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType), (byte) type);
 			} else {
 				return true;
 			}

@@ -44,6 +44,12 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 		model.setList(list);
 		model.setCountSearch(list.size());
 		model.setCountSearchAll(countSearchAll);
+		setTotalMoney(list);
+	}
+	/**
+	 * @param list
+	 */
+	public void setTotalMoney(List<SingleCarparkMonthlyUserPayHistory> list) {
 		float i=0;
 		for (SingleCarparkMonthlyUserPayHistory singleCarparkMonthlyUserPayHistory : list) {
 			Float chargesMoney = singleCarparkMonthlyUserPayHistory.getChargesMoney();
@@ -63,6 +69,7 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 		model.AddList(list);
 		model.setCountSearch(model.getList().size());
 		model.setCountSearchAll(countSearchAll);
+		setTotalMoney(model.getList());
 	}
 	public void searchCharge(String userName, String operaName, Date start, Date end) {
 		this.userName=userName;
