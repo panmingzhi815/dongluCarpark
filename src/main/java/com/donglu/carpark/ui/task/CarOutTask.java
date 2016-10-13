@@ -421,21 +421,23 @@ public class CarOutTask extends AbstractTask{
 			Integer allIn = visitor.getAllIn();
 			int inCount = visitor.getOutCount();
 			if (allIn!=null&&allIn>0) {
-				if(allIn>=inCount){
+				if(visitor.getInCount()>=allIn){
 					flag=true;
 				}
-			}
-			if (inCount==allIn) {
-				if(Boolean.valueOf(model.getMapSystemSetting().getOrDefault(SystemSettingTypeEnum.访客车进场次数用完不能随便出, "false"))){
-					model.setOutShowPlateNO(model.getOutShowPlateNO()+"-访客出场限制");
-					visitor.setStatus(VisitorStatus.不可用.name());
-					sp.getCarparkService().saveVisitor(visitor);
-					return false;
+				if (inCount>=allIn) {
+					if(Boolean.valueOf(model.getMapSystemSetting().getOrDefault(SystemSettingTypeEnum.访客车进场次数用完不能随便出, "false"))){
+						model.setOutShowPlateNO(model.getOutShowPlateNO()+"-出场限次");
+						if (visitor.getInCount()>=allIn) {
+							visitor.setStatus(VisitorStatus.不可用.name());
+							sp.getCarparkService().saveVisitor(visitor);
+						}
+						return false;
+					}
 				}
 			}
 		}
 		visitor.setOutCount(visitor.getOutCount()+1);
-		if (visitor.getInCount()>=visitor.getAllIn()){
+		if (flag){
 			visitor.setStatus(VisitorStatus.不可用.name());
 		}
 		sp.getCarparkService().saveVisitor(visitor);

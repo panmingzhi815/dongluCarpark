@@ -144,6 +144,9 @@ public class CountFlowPresenter  extends AbstractPresenter{
 
 	public void saveImage(String img) {
 		String selectToOpen = commonui.selectToOpen();
+		if (StrUtil.isEmpty(selectToOpen)) {
+			return;
+		}
 		String checkPath = StrUtil.checkPath(selectToOpen, new String[]{".jpeg",".png"},".png");
 		try {
 			Files.copy(Paths.get(img), Paths.get(checkPath),StandardCopyOption.REPLACE_EXISTING);

@@ -344,7 +344,7 @@ public class SettingView extends Composite implements View {
 		button_32.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.访客车进场次数用完不能随便出, button_23.getSelection()+"");
+				mapSystemSetting.put(SystemSettingTypeEnum.访客车进场次数用完不能随便出, button_32.getSelection()+"");
 			}
 		});
 		button_32.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

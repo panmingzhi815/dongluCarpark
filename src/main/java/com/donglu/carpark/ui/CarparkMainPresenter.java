@@ -206,9 +206,9 @@ public class CarparkMainPresenter {
 			AddDeviceModel model = new AddDeviceModel();
 			List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
 
-			if (!StrUtil.isEmpty(this.model.getCarpark())) {
-				findAllCarpark = sp.getCarparkService().findSameCarpark(this.model.getCarpark());
-			}
+//			if (!StrUtil.isEmpty(this.model.getCarpark())) {
+//				findAllCarpark = sp.getCarparkService().findSameCarpark(this.model.getCarpark());
+//			}
 			if (StrUtil.isEmpty(findAllCarpark)) {
 				commonui.info("提示", "请先添加停车场");
 				return;
@@ -782,9 +782,9 @@ public class CarparkMainPresenter {
 			model.setDevice(device);
 			AddDeviceWizard v = new AddDeviceWizard(model);
 			List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
-			if (!StrUtil.isEmpty(this.model.getCarpark()) && mapIpToDevice.keySet().size() > 1) {
-				findAllCarpark = sp.getCarparkService().findSameCarpark(this.model.getCarpark());
-			}
+//			if (!StrUtil.isEmpty(this.model.getCarpark()) && mapIpToDevice.keySet().size() > 1) {
+//				findAllCarpark = sp.getCarparkService().findSameCarpark(this.model.getCarpark());
+//			}
 			model.setList(findAllCarpark);
 			AddDeviceModel showWizard = (AddDeviceModel) commonui.showWizard(v);
 			if (showWizard == null) {

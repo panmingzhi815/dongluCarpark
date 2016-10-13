@@ -20,6 +20,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
@@ -607,7 +609,7 @@ public class CarparkMainApp extends AbstractApp{
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 
 		txt_userName = new Text(composite_13, SWT.BORDER | SWT.READ_ONLY);
-		setTextEditIco(txt_userName,"修改密码",new MouseAdapter() {
+		setTextEditIco(txt_userName,"edit_16","修改密码",cursor,new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				presenter.editUserPassword();
@@ -1045,42 +1047,60 @@ public class CarparkMainApp extends AbstractApp{
 	}
 
 	/**
-	 * 
+	 * 在文本框右侧添加图标、事件
 	 */
-	public void setTextEditIco(Text txt_userName,String title,MouseListener mouseClick) {
-		txt_userName.addPaintListener(new PaintListener() {
+	public void setTextEditIco(Text txt,String img,String title,Cursor cursor,MouseListener mouseClick) {
+		if (txt==null||img==null||cursor==null||mouseClick==null) {
+			return;
+		}
+		Image image = JFaceUtil.getImage(img);
+		if (image==null) {
+			log.error("设置文本框事件：{} 时，没有找到文本框图片：{}",title,img);
+			return;
+		}
+		AtomicInteger width=new AtomicInteger(0);
+		txt.addPaintListener(new PaintListener() {
 			public void paintControl(PaintEvent e) {
 				GC gc = e.gc;
-				Rectangle bounds = txt_userName.getBounds();
-				gc.drawImage(JFaceUtil.getImage("edit_16"), bounds.width-21, 0);
+				Rectangle bounds = txt.getBounds();
+				ImageData imageData = image.getImageData();
+				width.set(imageData.width+5);
+				gc.drawImage(image, bounds.width-width.get(), 0);
 			}
 		});
-		txt_userName.addMouseMoveListener(new MouseMoveListener() {
+		txt.addMouseMoveListener(new MouseMoveListener() {
 			@Override
 			public void mouseMove(MouseEvent e) {
-				if (e.x>=txt_userName.getBounds().width-21) {
-					txt_userName.setCursor(cursor);
-					txt_userName.setToolTipText(title);
+				if (e.x>=txt.getBounds().width-21) {
+					txt.setCursor(cursor);
+					txt.setToolTipText(title);
 				}else{
-					txt_userName.setCursor(null);
-					txt_userName.setToolTipText(null);
+					txt.setCursor(null);
+					txt.setToolTipText(null);
 				}
 			}
 		});
-		txt_userName.addMouseListener(new MouseAdapter() {
+		txt.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				if (e.x<txt_userName.getBounds().width-21) {
+				txt.redraw();
+				if (e.x<txt.getBounds().width-width.get()) {
 					return;
 				}
 				mouseClick.mouseDown(e);
 			}
 			@Override
 			public void mouseUp(MouseEvent e) {
+				if (e.x<txt.getBounds().width-width.get()) {
+					return;
+				}
 				mouseClick.mouseUp(e);
 			}
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
+				if (e.x<txt.getBounds().width-width.get()) {
+					return;
+				}
 				mouseClick.mouseDoubleClick(e);
 			}
 		});

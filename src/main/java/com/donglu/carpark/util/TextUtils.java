@@ -8,18 +8,41 @@ import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.SimpleContentProposalProvider;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
 
 public class TextUtils {
 	static Map<String, String> map=new HashMap<>();
+	/**
+	 * 设置文本框车牌提示
+	 * @param text
+	 */
 	public static void createPlateNOAutoCompleteField(Text text){
 		init();
 		TextContentAdapter ad = new TextContentAdapter(){
 			@Override
-			public void setControlContents(Control control, String text, int cursorPosition) {
-				text=map.get(text);
-				super.setControlContents(control, text, cursorPosition);
+			public void setControlContents(Control control, String s, int cursorPosition) {
+				s=map.get(s);
+				if ((text.getStyle()&SWT.MULTI)>0) {
+					super.setControlContents(control, s, cursorPosition);
+					return ;
+				}
+				Point selection = text.getSelection();
+				String string = text.getText();
+				string=string.replaceFirst(string.substring(0,selection.x), s);
+				text.setText(string);
+				text.setSelection(selection);
+			}
+			@Override
+			public String getControlContents(Control control) {
+				String controlContents = super.getControlContents(control);
+				if ((text.getStyle()&SWT.MULTI)>0) {
+					return controlContents;
+				}
+				controlContents=controlContents.substring(0, text.getSelection().x);
+				return controlContents;
 			}
     	};
     	SimpleContentProposalProvider proposalProvider = new SimpleContentProposalProvider(map.keySet().toArray(new String[map.keySet().size()]));

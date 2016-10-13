@@ -27,6 +27,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 
 public class AddVisitorWizardPage extends WizardPage {
 	private Text text;
@@ -101,6 +103,12 @@ public class AddVisitorWizardPage extends WizardPage {
 		label_4.setText("次数限制");
 		
 		txt_carNO = new Text(composite, SWT.BORDER);
+		txt_carNO.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				txt_carNO.selectAll();
+			}
+		});
 		txt_carNO.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_text_4 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_4.widthHint = 150;

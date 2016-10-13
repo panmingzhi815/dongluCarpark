@@ -100,11 +100,17 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 	@Override
 	public void delete(List<SingleCarparkVisitor> list) {
 		try {
+			if (StrUtil.isEmpty(list)) {
+				return;
+			}
+			boolean confirm = commonui.confirm("提示", "确认删除选中的"+list.size()+"个访客信息吗？");
+			if (!confirm) {
+				return;
+			}
 			for (SingleCarparkVisitor visitor : list) {
 				sp.getCarparkService().deleteVisitor(visitor);
 				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.访客, "删除访客："+visitor.getPlateNO(), CarparkUtils.getLoginUserName());
 			}
-			commonui.info("成功", "删除访客成功");
 			refresh();
 		} catch (Exception e) {
 			commonui.error("成功", "删除访客成功", e);
