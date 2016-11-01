@@ -9,6 +9,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.viewers.ComboViewer;
+
+import java.util.Date;
+
 import org.eclipse.core.databinding.DataBindingContext;
 
 import com.donglu.carpark.util.TextUtils;
@@ -29,6 +32,9 @@ import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 
 public class AddVisitorWizardPage extends WizardPage {
 	private Text text;
@@ -38,6 +44,7 @@ public class AddVisitorWizardPage extends WizardPage {
 	private Text text_2;
 	private Text text_4;
 	private ComboViewer comboViewer;
+	private DateChooserCombo dateChooserCombo;
 
 	
 	/**
@@ -109,6 +116,12 @@ public class AddVisitorWizardPage extends WizardPage {
 				txt_carNO.selectAll();
 			}
 		});
+		txt_carNO.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				dateChooserCombo.setValue(null);
+			}
+		});
 		txt_carNO.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_text_4 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_4.widthHint = 150;
@@ -119,11 +132,15 @@ public class AddVisitorWizardPage extends WizardPage {
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_1.setText("时间限制");
 		
-		DateChooserCombo dateChooserCombo = new DateChooserCombo(composite, SWT.BORDER);
+		dateChooserCombo = new DateChooserCombo(composite, SWT.BORDER);
 		dateChooserCombo.setValue(model.getValidTo());
 		dateChooserCombo.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
-				model.setValidTo(dateChooserCombo.getValue());
+				Date value = dateChooserCombo.getValue();
+				model.setValidTo(value);
+				if (dateChooserCombo.isFocusControl()) {
+					model.setAllIn(0);
+				}
 			}
 		});
 		dateChooserCombo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
