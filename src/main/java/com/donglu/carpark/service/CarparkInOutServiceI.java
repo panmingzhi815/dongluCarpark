@@ -3,6 +3,7 @@ package com.donglu.carpark.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
@@ -274,4 +275,13 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(SingleCarparkCarpark carpark, String pn, boolean b);
+	/**
+	 * 根据车牌和进场时间查找未出场记录，默认根据进场时间排序
+	 * @param i
+	 * @param totalSlot
+	 * @param plates
+	 * @param s
+	 * @return
+	 */
+	List<SingleCarparkInOutHistory> findInOutHistoryByInTime(int i, int totalSlot, Set<String> plates, Date s);
 }

@@ -1,10 +1,13 @@
 package com.donglu.carpark.ui.task;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -19,6 +22,7 @@ import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.FixCarInTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -393,6 +397,33 @@ public class CarOutTask extends AbstractTask{
 			LOGGER.info("车辆:{}即将到期", editPlateNo);
 		} else {
 			presenter.showContentToDevice(device, content, true);
+		}
+		if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆允许场内换车))) {
+			LOGGER.info("允许场内换车");
+			if (carpark.getParent()==null) {
+				List<SingleCarparkUser> listUsers = sp.getCarparkUserService().findAllUserByPlateNO(editPlateNo, carpark.getId(), date);
+				Set<String> plates=new HashSet<>();
+				int totalSlot=0;
+				boolean isCheckSlot=false;
+				for (SingleCarparkUser user : listUsers) {
+					String[] split = user.getPlateNo().split(",");
+					plates.addAll(Arrays.asList(split));
+					Integer carparkSlot = user.getCarparkSlot();
+					if (split.length>carparkSlot) {
+						isCheckSlot=true;
+					}
+					totalSlot+=carparkSlot;
+				}
+				if (isCheckSlot) {
+					Integer integer = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆场内换车时间));
+					Date s = new DateTime(date).plusMinutes(integer).toDate();
+					List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findInOutHistoryByInTime(0,totalSlot,plates,s);
+					for (SingleCarparkInOutHistory singleCarparkInOutHistory : list) {
+						singleCarparkInOutHistory.setFixCarInType(FixCarInTypeEnum.固定车);
+						sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
+					}
+				}
+			}
 		}
 		saveOutHistory();
 		sp.getCarparkInOutService().updateCarparkStillTime(device.getCarpark(), device, plateNO, bigImgFileName);

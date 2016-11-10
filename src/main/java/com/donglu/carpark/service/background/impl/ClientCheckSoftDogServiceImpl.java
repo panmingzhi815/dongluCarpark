@@ -1,5 +1,6 @@
 package com.donglu.carpark.service.background.impl;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +28,7 @@ public class ClientCheckSoftDogServiceImpl extends AbstractCarparkBackgroundServ
 	private CommonUIFacility commonui;
 	
 	private boolean isBetaVersion=false;
+	private Date remindTime=null;
 	@Override
 	protected void run() {
 		String defaultValue = SystemSettingTypeEnum.软件版本.getDefaultValue();
@@ -51,7 +53,7 @@ public class ClientCheckSoftDogServiceImpl extends AbstractCarparkBackgroundServ
 				System.exit(0);
 				return;
 			}
-			if (new DateTime(validTo).plusDays(30).isBeforeNow()) {
+			if (new DateTime(validTo).minusDays(30).isBeforeNow()&&(remindTime==null||System.currentTimeMillis()-remindTime.getTime()>3600000)) {
 				log.info("检查注册码成功,有效期至{},即将到期", validTo);
 				commonui.info("注册码", "注册码即将到期，请及时注册！！！");
 			}

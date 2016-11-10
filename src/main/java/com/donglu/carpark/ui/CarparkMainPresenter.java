@@ -1330,8 +1330,8 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-		mapIpToJNA.get(ip).tigger(ip);
-//		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", null, null, 11);
+//		mapIpToJNA.get(ip).tigger(ip);
+		carInOutResultProvider.get().invok(ip, 0, "川S69112", null, null, 11);
 	}
 
 	/**

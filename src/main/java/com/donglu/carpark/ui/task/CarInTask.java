@@ -13,10 +13,12 @@ import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.FixCarInTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -464,6 +466,7 @@ public class CarInTask extends AbstractTask {
 						.open();
 				if (confirm) {
 					cch.setIsOverdue(true);
+					cch.setFixCarInType(FixCarInTypeEnum.固定车过期变临时车);
 					cch.setReviseInTime(date);
 					return tempCarShowToDevice(false);
 				}
@@ -495,25 +498,38 @@ public class CarInTask extends AbstractTask {
 				}
 			}
 			Boolean isFixCarSlotFullAutoBeTemp = Boolean
-					.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费) == null ? "false"
-							: mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));
+					.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));
 			int fixCarInSize = 0;
 			String inPlates = "";
 			for (String pn : platesSet) {
 				List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut = null;
 				// 如果找到这俩车的记录，判断这辆车是否为临时车进场，临时车进场则永远为临时车
+				CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 				if (pn.equals(editPlateNo)) {
-					findHistoryByChildCarparkInOut = sp.getCarparkInOutService()
+					findHistoryByChildCarparkInOut = carparkInOutService
 							.findInOutHistoryByCarparkAndPlateNO(null, pn);
 					for (SingleCarparkInOutHistory singleCarparkInOutHistory : findHistoryByChildCarparkInOut) {
 						if (singleCarparkInOutHistory.getReviseInTime() != null) {
+							if (singleCarparkInOutHistory.getFixCarInType().equals(FixCarInTypeEnum.固定车车位满变临时车)) {
+								if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆允许场内换车))) {
+									List<SingleCarparkInOutHistory> list = carparkInOutService.findInOutHistoryByCarparkAndPlateNO(carpark, pn, true);
+									Set<String> plates=new HashSet<>();
+									for (SingleCarparkInOutHistory singleCarparkInOutHistory2 : list) {
+										plates.add(singleCarparkInOutHistory2.getPlateNo());
+									}
+									if (plates.size()<slot) {
+										fixCarInShowMsg(validTo, fixCarInMsg);
+										return false;
+									}
+								}
+							}
 							return tempCarShowToDevice(false);
 						}
 					}
 					continue;
 				} else {
 					// 查找场内固定车标示的车辆
-					findHistoryByChildCarparkInOut = sp.getCarparkInOutService()
+					findHistoryByChildCarparkInOut = carparkInOutService
 							.findInOutHistoryByCarparkAndPlateNO(carpark, pn, true);
 				}
 				if (StrUtil.isEmpty(findHistoryByChildCarparkInOut)) {
@@ -540,6 +556,7 @@ public class CarInTask extends AbstractTask {
 							+ "]").open();
 					if (confirm) {
 						cch.setReviseInTime(date);
+						cch.setFixCarInType(FixCarInTypeEnum.固定车车位满变临时车);
 						return tempCarShowToDevice(false);
 					}
 					return true;
@@ -549,6 +566,15 @@ public class CarInTask extends AbstractTask {
 
 		// int parseInt =
 		// Integer.parseInt(StrUtil.isEmpty(user.getCarparkNo())?"0":user.getCarparkNo());
+		fixCarInShowMsg(validTo, fixCarInMsg);
+		return false;
+	}
+
+	/**
+	 * @param validTo
+	 * @param fixCarInMsg
+	 */
+	public void fixCarInShowMsg(Date validTo, String fixCarInMsg) {
 		Date date2 = new DateTime(validTo).minusDays(user.getRemindDays() == null ? 0 : user.getRemindDays()).toDate();
 		if (StrUtil.getTodayBottomTime(date2).before(date)) {
 			content = fixCarInMsg + ",剩余" + CarparkUtils.countDayByBetweenTime(date, validTo) + "天";
@@ -567,7 +593,6 @@ public class CarInTask extends AbstractTask {
 			cch.setIsCountSlot(true);
 		}
 		model.setInShowPlateNO(model.getInShowPlateNO()+"-"+user.getName());
-		return false;
 	}
 
 	/**
