@@ -1051,7 +1051,7 @@ public class CarparkMainPresenter {
 			Device d = getDevice(device);
 			if (d != null) {
 				String inType = device.getInType();
-				log.info("向{}设备{}：{}发送车位数:{}",inType,device.getIp(),device.getLinkInfo(),position);
+				log.debug("向{}设备{}：{}发送车位数:{}",inType,device.getIp(),device.getLinkInfo(),position);
 				if (inType.indexOf("出口")>-1) {
 					inType = "出口";
 				}
@@ -1554,7 +1554,7 @@ public class CarparkMainPresenter {
 			setDeviceTabItemStatus(ip, "distribution_device_16", "设备已限时停用,限制时间："+controlTime);
 		}
 		model.getMapIpToDeviceStatus().put(ip, status);
-		log.info("设备{}限时{}状态{}", ip, controlTime, status);
+		log.debug("设备{}限时{}状态{}", ip, controlTime, status);
 		return status;
 	}
 
