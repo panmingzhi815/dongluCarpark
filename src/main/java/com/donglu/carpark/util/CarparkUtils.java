@@ -17,8 +17,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServlet;
@@ -44,7 +46,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
 import com.donglu.carpark.model.CarparkMainModel;
-import com.donglu.carpark.server.CarparkDBServer;
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.CarparkMainPresenter;
@@ -682,5 +683,72 @@ public class CarparkUtils {
 			LOGGER.error("启动服务是发生错误");
 			return null;
 		}
+	}
+	
+	/**
+	 * 分割车牌替换字符为‘_’ 进行车牌模糊匹配
+	 * @param plateNO
+	 * @param likeSize
+	 */
+	public static Set<String> splitPlateWithIgnoreSize(String plateNO, int likeSize) {
+		char[] charArray = plateNO.toCharArray();
+		Set<String> setS=new HashSet<>();
+		
+		int length = plateNO.length();
+		for (int i = length-likeSize; i < length; i++) {
+			for (int j = 0; j < length; j++) {
+				char[] cs=new char[length];
+				System.arraycopy(charArray, 0, cs, 0, length);
+				cs[j]='_';
+				String string = new String(cs);
+				setS.add(string);
+			}
+		}
+		return setS;
+	}
+	/**
+	 * 返回相似的一个字符串
+	 * @param plateNO
+	 * @param strings
+	 * @return
+	 */
+	public static String checkAlikeString(String plateNO, String[] strings) {
+		if (strings==null) {
+			return null;
+		}
+		if (strings.length==1) {
+			return strings[0];
+		}
+		String s=plateNO;
+		int size=0;
+		for (int i = 0; i < strings.length; i++) {
+			String string = strings[i];
+			int like=checkAlikeSize(plateNO,string);
+			
+			if (like>size) {
+				size=like;
+				s=string;
+			}
+		}
+		return s;
+	}
+	/**
+	 * 返回两个字符的相似度
+	 * @param plateNO
+	 * @param string
+	 * @return
+	 */
+	public static int checkAlikeSize(String plateNO, String string) {
+		int size=0;
+		char[] c1 = plateNO.toCharArray();
+		char[] c2 = string.toCharArray();
+		for (int i = 0; i < Math.min(c2.length, c1.length); i++) {
+			char c = c1[i];
+			char cc = c2[i];
+			if (c==cc) {
+				size++;
+			}
+		}
+		return size;
 	}
 }

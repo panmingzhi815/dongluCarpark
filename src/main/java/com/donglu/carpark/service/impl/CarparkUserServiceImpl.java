@@ -3,6 +3,7 @@ package com.donglu.carpark.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,7 @@ import javax.persistence.EntityManager;
 
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
+import org.criteria4jpa.criterion.Criterion;
 import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
 import org.criteria4jpa.criterion.SimpleExpression;
@@ -17,6 +19,7 @@ import org.criteria4jpa.projection.Projections;
 import org.joda.time.DateTime;
 
 import com.donglu.carpark.service.CarparkUserService;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -372,6 +375,51 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
 			c.add(Restrictions.eq(SingleCarparkUser.Property.parkingSpace.name(), parkingSpace));
 			return (SingleCarparkUser) c.getSingleResultOrNull();
+		}finally{
+			unitOfWork.end();
+		}
+	}
+	@Override
+	public List<SingleCarparkUser> findUserByPlateNoLikeSize(int start, int size, String plateNO, int likeSize, Long carparkId, Date validTo) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+//			c.add(Restrictions.isNotNull("validTo"));
+			
+			if (!StrUtil.isEmpty(plateNO)) {
+				if (likeSize<=0||likeSize>=7) {
+					c.add(Restrictions.like(SingleCarparkUser.Property.plateNo.name(), plateNO,MatchMode.ANYWHERE));
+				}else{
+					Set<String> set = CarparkUtils.splitPlateWithIgnoreSize(plateNO, 1);
+					List<Criterion>  list=new ArrayList<>();
+					for (String string : set) {
+						SimpleExpression like = Restrictions.like(SingleCarparkUser.Property.plateNo.name(), string,MatchMode.ANYWHERE);
+						list.add(like);
+					}
+					c.add(Restrictions.or(list.toArray(new Criterion[list.size()])));
+				}
+			}else{
+				return new ArrayList<>();
+			}
+			if (!StrUtil.isEmpty(validTo)) {
+				c.add(Restrictions.ge(SingleCarparkUser.Property.validTo.name(), validTo));
+			}
+			if (!StrUtil.isEmpty(carparkId)) {
+				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
+				SingleCarparkCarpark entityWithId = dom.getEntityWithId(carparkId);
+				List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+				c.add(Restrictions.in("carpark",list));
+			}
+			c.setFirstResult(start);
+			c.setMaxResults(size);
+			List<SingleCarparkUser> resultList = c.getResultList();
+			resultList=resultList.stream().filter(new Predicate<SingleCarparkUser>() {
+				@Override
+				public boolean test(SingleCarparkUser user) {
+					return !user.getType().equals("储值")&&!StrUtil.isEmpty(user.getValidTo());
+				}
+			}).collect(Collectors.toList());
+			return resultList;
 		}finally{
 			unitOfWork.end();
 		}

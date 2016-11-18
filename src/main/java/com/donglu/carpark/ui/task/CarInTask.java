@@ -99,11 +99,6 @@ public class CarInTask extends AbstractTask {
 				}
 			}
 		}
-		List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plateNO, carpark);
-		cch = StrUtil.isEmpty(findByNoOut) ? null : findByNoOut.get(0);
-		if (StrUtil.isEmpty(cch)) {
-			cch = new SingleCarparkInOutHistory();
-		}
 
 		showPlateToDevice();
 
@@ -111,7 +106,24 @@ public class CarInTask extends AbstractTask {
 			return;
 		}
 		LOGGER.debug("查找是否为固定车");
-		user = sp.getCarparkUserService().findUserByPlateNo(plateNO, device.getCarpark().getId());
+		String plateLikeSize = mapSystemSetting.get(SystemSettingTypeEnum.固定车车牌匹配字符数);
+		if (plateLikeSize.equals("7")) {
+			user = sp.getCarparkUserService().findUserByPlateNo(plateNO, carpark.getId());
+		}else{
+			int likeSize = Integer.valueOf(plateLikeSize);
+			List<SingleCarparkUser> list = sp.getCarparkUserService().findUserByPlateNoLikeSize(0,1,plateNO,likeSize, carpark.getId(),new Date());
+			if (!StrUtil.isEmpty(list)) {
+				user=list.get(0);
+				editPlateNo=CarparkUtils.checkAlikeString(plateNO, user.getPlateNo().split(","));
+				model.setInShowPlateNO(editPlateNo);
+			}
+		}
+		showPlateToDevice();
+		List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(editPlateNo, carpark);
+		cch = StrUtil.isEmpty(findByNoOut) ? null : findByNoOut.get(0);
+		if (StrUtil.isEmpty(cch)) {
+			cch = new SingleCarparkInOutHistory();
+		}
 		checkUser(!isEmptyPlateNo);
 	}
 
@@ -120,7 +132,7 @@ public class CarInTask extends AbstractTask {
 	 */
 	public void showPlateToDevice() {
 		LOGGER.debug("显示车牌:{}", plateNO);
-		presenter.showPlateNOToDevice(device, plateNO);
+		presenter.showPlateNOToDevice(device, editPlateNo);
 	}
 
 	/**
@@ -229,7 +241,7 @@ public class CarInTask extends AbstractTask {
 	 *            设备
 	 * @param date
 	 *            现在时间
-	 * @return
+	 * @return true为黑名单
 	 */
 	public boolean checkBlackUser(SingleCarparkDevice device, Date date) {
 		LOGGER.debug("进行黑名单判断");

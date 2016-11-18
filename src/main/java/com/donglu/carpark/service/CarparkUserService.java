@@ -70,4 +70,15 @@ public interface CarparkUserService {
 	 * @return
 	 */
 	SingleCarparkUser findUserByParkingSpace(String parkingSpace);
+	/**
+	 * 查找相似车牌
+	 * @param start
+	 * @param size
+	 * @param plateNO
+	 * @param likeSize
+	 * @param carparkId
+	 * @param validTo
+	 * @return
+	 */
+	List<SingleCarparkUser> findUserByPlateNoLikeSize(int start, int size, String plateNO, int likeSize, Long carparkId, Date validTo);
 }

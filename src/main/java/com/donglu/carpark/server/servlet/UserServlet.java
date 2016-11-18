@@ -220,4 +220,9 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 		return carparkUserService.findUserByParkingSpace(parkingSpace);
 	}
 
+	@Override
+	public List<SingleCarparkUser> findUserByPlateNoLikeSize(int start, int size, String plateNO, int likeSize, Long carparkId, Date validTo) {
+		return carparkUserService.findUserByPlateNoLikeSize(start, size, plateNO, likeSize, carparkId, validTo);
+	}
+
 }

@@ -87,6 +87,9 @@ public class SingleCarparkUser extends DomainObject {
 			pcs.firePropertyChange("plateNo", null, null);
 	}
 	public String getType() {
+		if (type==null) {
+			return "普通";
+		}
 		return type;
 	}
 	public void setType(String type) {

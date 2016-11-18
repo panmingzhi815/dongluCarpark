@@ -25,6 +25,7 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -721,6 +722,33 @@ public class SettingView extends Composite implements View {
 			}
 		});
 		btnNewButton_1.setText("删除");
+		
+		Group group_3 = new Group(composite, SWT.NONE);
+		group_3.setLayout(new GridLayout(1, false));
+		group_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		group_3.setText("固定车设置");
+		
+		Composite composite_11 = new Composite(group_3, SWT.NONE);
+		composite_11.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		composite_11.setLayout(new GridLayout(2, false));
+		
+		Label label_10 = new Label(composite_11, SWT.NONE);
+		label_10.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_10.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_10.setText("固定车放行需连续正确匹配车牌字符数量");
+		
+		Combo combo_1 = new Combo(composite_11, SWT.READ_ONLY);
+		GridData gd_combo_1 = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_combo_1.widthHint = 50;
+		combo_1.setLayoutData(gd_combo_1);
+		combo_1.setItems(new String[]{"6","7"});
+		combo_1.setText(mapSystemSetting.get(SystemSettingTypeEnum.固定车车牌匹配字符数));
+		combo_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.固定车车牌匹配字符数,combo_1.getText());
+			}
+		});
 
 		Group group_1 = new Group(composite, SWT.NONE);
 		group_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));

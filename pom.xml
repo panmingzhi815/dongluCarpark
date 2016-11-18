@@ -27,6 +27,10 @@
 					<artifactId>javassist</artifactId>
 					<groupId>org.javassist</groupId>
 				</exclusion>
+				<!-- <exclusion>
+					<artifactId>antlr</artifactId>
+					<groupId>antlr</groupId>
+				</exclusion> -->
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -40,6 +44,11 @@
 			<artifactId>javassist</artifactId>
 			<version>3.20.0-GA</version>
 		</dependency>
+		<!-- <dependency>
+			<artifactId>antlr</artifactId>
+			<groupId>antlr</groupId>
+			<version>3.5.1</version>
+		</dependency> -->
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
