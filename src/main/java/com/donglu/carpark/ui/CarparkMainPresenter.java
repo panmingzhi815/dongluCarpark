@@ -103,6 +103,7 @@ import com.dongluhitec.card.hardware.device.WebCameraDevice;
 import com.dongluhitec.card.hardware.plateDevice.PastPlateResult;
 import com.dongluhitec.card.hardware.plateDevice.PlateNOJNA;
 import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
+import com.dongluhitec.card.hardware.plateDevice.bx.BXScreenService;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.mapper.BeanUtil;
 import com.dongluhitec.card.shanghaiyunpingtai.ShanghaiYunCarparkCfg;
@@ -162,6 +163,8 @@ public class CarparkMainPresenter {
 	private int openDoorDelay = 500;
 	// 自动下载车牌到设备
 	private ScheduledExecutorService autoDownloadPlateNOToDevice;
+	
+	private BXScreenService bxScreenService = null;
 
 	/**
 	 * 删除一个设备tab页
@@ -960,8 +963,16 @@ public class CarparkMainPresenter {
 		}
 		try {
 			Device d = getDevice(device);
-			Boolean carparkPlate = hardwareService.carparkPlate(d, plateNO);
-			return carparkPlate;
+			if (d!=null) {
+				int type = device.getScreenType().getType();
+				if (type<16) {
+					Boolean carparkPlate = hardwareService.carparkPlate(d, plateNO);
+					return carparkPlate;
+				}else{
+					showPlateNOToBXScreen(device.getLinkAddress(), plateNO);
+				}
+			}
+			return true;
 		} catch (Exception e) {
 			setDeviceLinkFail(device);
 			return false;
@@ -1011,17 +1022,22 @@ public class CarparkMainPresenter {
 		}
 		try {
 			Device d = getDevice(device);
-			if (isOpenDoor) {
-				log.info("对设备：ip:{},kip:{} 开闸,发送语音：[{}]", device.getIp(), device.getLinkAddress(), content);
-				if (d != null) {
-					Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoorWithDelay(d, content, device.getVolume() == null ? 1 : device.getVolume(), openDoorDelay);
-					return carparkContentVoiceAndOpenDoor;
-				} else {
-					openDoor(device);
+			if (d != null) {
+				int screenType = device.getScreenType().getType();
+				if (screenType<16) {
+					if (isOpenDoor) {
+						log.info("对设备：ip:{},kip:{} 开闸,发送语音：[{}]", device.getIp(), device.getLinkAddress(), content);
+						Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoorWithDelay(d, content, device.getVolume() == null ? 1 : device.getVolume(), openDoorDelay);
+						return carparkContentVoiceAndOpenDoor;
+					} else {
+						return hardwareService.carparkContentVoice(d, content, device.getVolume() == null ? 1 : device.getVolume());
+					}
+				}else{
+					showContentToBXScreen(device.getLinkAddress(), content);
 				}
 			} else {
-				if (d != null) {
-					return hardwareService.carparkContentVoice(d, content, device.getVolume() == null ? 1 : device.getVolume());
+				if (isOpenDoor) {
+					openDoor(device);
 				}
 			}
 			return true;
@@ -1050,17 +1066,23 @@ public class CarparkMainPresenter {
 		try {
 			Device d = getDevice(device);
 			if (d != null) {
-				String inType = device.getInType();
-				log.debug("向{}设备{}：{}发送车位数:{}",inType,device.getIp(),device.getLinkInfo(),position);
-				if (inType.indexOf("出口")>-1) {
-					inType = "出口";
+				int screenType = device.getScreenType().getType();
+				if (screenType<16) {
+					String inType = device.getInType();
+					log.debug("向{}设备{}：{}发送车位数:{}",inType,device.getIp(),device.getLinkInfo(),position);
+					if (inType.indexOf("出口")>-1) {
+						inType = "出口";
+					}
+					if (inType.equals("进口2")) {
+						inType = "进口";
+					}
+					int type = device.getScreenType().getType();
+					System.out.println(type);
+					return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType), (byte) type);
+				}else{
+					showPositionToBXScreen(device.getLinkAddress(), position);
+					return true;
 				}
-				if (inType.equals("进口2")) {
-					inType = "进口";
-				}
-				int type = device.getScreenType().getType();
-				System.out.println(type);
-				return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType), (byte) type);
 			} else {
 				return true;
 			}
@@ -2438,6 +2460,34 @@ public class CarparkMainPresenter {
 		} catch (Exception e) {
 			e.printStackTrace();
 			commonui.error("提示", "修改失败！");
+		}
+	}
+	/**
+	 * 发生语音内容到BX屏幕
+	 */
+	public void showContentToBXScreen(String ip,String content){
+		initBXScreen();
+		bxScreenService.sendContent(ip, content);
+	}
+	/**
+	 * 发生语音内容到BX屏幕
+	 */
+	public void showPlateNOToBXScreen(String ip,String plateNO){
+		initBXScreen();
+		bxScreenService.sendPlateNO(ip, plateNO);
+	}
+	
+	public void showPositionToBXScreen(String ip,int position){
+		initBXScreen();
+		bxScreenService.sendPosition(ip, position);
+	}
+
+	/**
+	 * 
+	 */
+	public void initBXScreen() {
+		if (bxScreenService==null) {
+			bxScreenService = Login.injector.getInstance(BXScreenService.class);
 		}
 	}
 

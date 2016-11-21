@@ -27,10 +27,10 @@
 					<artifactId>javassist</artifactId>
 					<groupId>org.javassist</groupId>
 				</exclusion>
-				<!-- <exclusion>
+				<exclusion>
 					<artifactId>antlr</artifactId>
 					<groupId>antlr</groupId>
-				</exclusion> -->
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -44,11 +44,23 @@
 			<artifactId>javassist</artifactId>
 			<version>3.20.0-GA</version>
 		</dependency>
-		<!-- <dependency>
+		<!-- bx屏幕sdkjar包比我们的版本高 -->
+		<dependency>
 			<artifactId>antlr</artifactId>
 			<groupId>antlr</groupId>
 			<version>3.5.1</version>
-		</dependency> -->
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/antlr-3.5.1.jar</systemPath>
+		</dependency>
+		<dependency>
+			<artifactId>antlr-runtime</artifactId>
+			<groupId>antlr-runtime</groupId>
+			<version>3.5.1</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/antlr-runtime-3.5.1.jar</systemPath>
+		</dependency>
+		
+		
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
