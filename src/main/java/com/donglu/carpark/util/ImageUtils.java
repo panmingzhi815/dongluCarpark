@@ -255,31 +255,38 @@ public class ImageUtils {
 	 * @return
 	 */
 	public static byte[] getImageByte(String img) {
-		
+
 		if (StrUtil.isEmpty(img)) {
 			return null;
 		}
-		String filePath=(String) CarparkFileUtils.readObject(ConstUtil.CLIENT_IMAGE_SAVE_FILE_PATH);
+		String filePath = (String) CarparkFileUtils.readObject(ConstUtil.CLIENT_IMAGE_SAVE_FILE_PATH);
+		byte[] image;
+		String pathname = (filePath == null ? System.getProperty("user.dir") : filePath) + "/img/" + img;
 		try {
-			byte[] image;
-			String pathname = (filePath==null?System.getProperty("user.dir"):filePath)+"/img/"+img;
-			File file=new File(pathname);
-			LOGGER.debug("获取图片{}",pathname);
+			File file = new File(pathname);
+			LOGGER.debug("获取图片{}", pathname);
 			if (file.exists()) {
-				LOGGER.debug("在本地找到图片，获取图片{}",file);
-				image=Files.toByteArray(file);
-			}else{
-				String substring = img.substring(img.lastIndexOf("/")+1);
-				LOGGER.debug("本地未找到图片，准备到服务器获取图片{}",pathname);
-				CarparkDatabaseServiceProvider sp=Login.injector.getInstance(CarparkDatabaseServiceProvider.class);
-				image = sp.getImageService().getImage(substring);
-				LOGGER.debug("从获取图片成功");
+				LOGGER.debug("在本地找到图片，获取图片{}", file);
+				image = Files.toByteArray(file);
+				if (!StrUtil.isEmpty(image)) {
+					LOGGER.debug("从获取图片成功");
+					return image;
+				}
 			}
+		} catch (Exception e) {
+			LOGGER.error("在本地根据图片名称获得图片失败", e);
+		}
+		try {
+			String substring = img.substring(img.lastIndexOf("/") + 1);
+			LOGGER.debug("本地未找到图片，准备到服务器获取图片{}", pathname);
+			CarparkDatabaseServiceProvider sp = Login.injector.getInstance(CarparkDatabaseServiceProvider.class);
+			image = sp.getImageService().getImage(substring);
+			LOGGER.debug("从获取图片成功");
 			return image;
 		} catch (Exception e) {
-			LOGGER.error("根据图片名称获得图片失败",e);
-			return null;
+			LOGGER.error("从服务器根据图片名称获得图片失败", e);
 		}
+		return null;
 
 	}
 	public static byte[] getImageBytes(Image image){

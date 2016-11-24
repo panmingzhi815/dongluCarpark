@@ -2,6 +2,7 @@ package com.donglu.carpark.ui.task;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -101,22 +102,33 @@ public class CarInTask extends AbstractTask {
 			}
 		}
 
-		showPlateToDevice();
 
 		if (checkBlackUser(device, date)) {
 			return;
 		}
 		LOGGER.debug("查找是否为固定车");
-		String plateLikeSize = mapSystemSetting.get(SystemSettingTypeEnum.固定车车牌匹配字符数);
-		if (plateLikeSize.equals("7")) {
-			user = sp.getCarparkUserService().findUserByPlateNo(plateNO, carpark.getId());
-		}else{
-			int likeSize = Integer.valueOf(plateLikeSize);
-			List<SingleCarparkUser> list = sp.getCarparkUserService().findUserByPlateNoLikeSize(0,1,plateNO,likeSize, carpark.getId(),new Date());
-			if (!StrUtil.isEmpty(list)) {
-				user=list.get(0);
-				editPlateNo=CarparkUtils.checkAlikeString(plateNO, user.getPlateNo().split(","));
-				model.setInShowPlateNO(editPlateNo);
+		user = sp.getCarparkUserService().findUserByPlateNo(plateNO, carpark.getId());
+		if (user==null) {
+			String plateLikeSize = mapSystemSetting.get(SystemSettingTypeEnum.固定车车牌匹配字符数);
+			if (!plateLikeSize.equals("7")) {
+				int likeSize = Integer.valueOf(plateLikeSize);
+				List<SingleCarparkUser> list = sp.getCarparkUserService().findUserByPlateNoLikeSize(0,1,plateNO,likeSize, carpark.getId(),new Date());
+				if (!StrUtil.isEmpty(list)) {
+					//获取用户所有车牌
+					Map<String, SingleCarparkUser> map=new HashMap<String, SingleCarparkUser>();
+					Set<String> plates=new HashSet<>();
+					for (SingleCarparkUser singleCarparkUser : list) {
+						String[] split = singleCarparkUser.getPlateNo().split(",");
+						for (String string : split) {
+							map.put(string, singleCarparkUser);
+							plates.add(string);
+						}
+					}
+					//取得最相似的车牌
+					editPlateNo=CarparkUtils.checkAlikeString(plateNO, plates.toArray(new String[plates.size()]));
+					user=map.get(editPlateNo);
+					model.setInShowPlateNO(editPlateNo);
+				}
 			}
 		}
 		showPlateToDevice();

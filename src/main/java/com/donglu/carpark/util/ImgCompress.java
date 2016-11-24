@@ -103,11 +103,14 @@ public class ImgCompress {
 		BufferedImage image = new BufferedImage(w, h,BufferedImage.SCALE_SMOOTH ); 
 		image.getGraphics().drawImage(img, 0, 0, w, h, null); // 绘制缩小后的图
 		File destFile = new File(IMAGE_FILE_PATH);
-		FileOutputStream out = new FileOutputStream(destFile); // 输出到文件流
-		// 可以正常实现bmp、png、gif转jpg
-		JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
-		encoder.encode(image); // JPEG编码
-		out.close();
+		try(FileOutputStream out = new FileOutputStream(destFile)){
+			// 可以正常实现bmp、png、gif转jpg
+			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
+			encoder.encode(image); // JPEG编码
+		}catch(Exception e){
+			throw new IOException("生成缩略图片时发生错误", e);
+		}
+		
 	}
 	public int getWidth() {
 		return width;

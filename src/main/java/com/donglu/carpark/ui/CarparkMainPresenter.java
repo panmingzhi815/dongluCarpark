@@ -1006,6 +1006,9 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	public boolean showContentToDevice(SingleCarparkDevice device, String content, boolean isOpenDoor) {
+		if (StrUtil.isEmpty(content)) {
+			return true;
+		}
 		if (checkDeviceLinkStatus(device)) {
 			return false;
 		}
@@ -1395,7 +1398,7 @@ public class CarparkMainPresenter {
 		mapIpToDevice = model.getMapIpToDevice();
 		mapSystemSetting = model.getMapSystemSetting();
 		refreshSystemSetting();
-		saveImageTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("保存图片任务"));
+		saveImageTheadPool = Executors.newFixedThreadPool(2,ThreadUtil.createThreadFactory("保存图片任务"));
 		openDoorTheadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
 		checkPlayerPlaying();
 		countTempCarCharge = new CountTempCarChargeImpl();
@@ -2365,7 +2368,7 @@ public class CarparkMainPresenter {
 
 	private void setDeviceTabItemStatus(String ip, String image, String msg) {
 		CTabItem cTabItem = model.getMapIpToTabItem().get(ip);
-		if (cTabItem==null) {
+		if (cTabItem==null||cTabItem.isDisposed()) {
 			return;
 		}
 		Runnable runnable = new Runnable() {

@@ -73,5 +73,8 @@
     <logger name="com.donglu.carpark.ui" level="ERROR">
         <appender-ref ref="UI_MESSAGE_DEBUG"/>
     </logger>
+     <logger name="com.donglu.carpark.util" level="ERROR">
+        <appender-ref ref="UI_MESSAGE_DEBUG"/>
+    </logger>
  	<logger name="org.eclipse.jetty" level="ERROR"></logger> 
 </configuration>
