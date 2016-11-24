@@ -1,11 +1,15 @@
 package com.donglu.carpark.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 
 /**
  * 保存一些常量,静态变量
  */
 public class ConstUtil {
+	private static final Map<String, String> mapCache=new HashMap<>();
 	/**
 	 * Text 的data的key 值 true时回车不改变焦点
 	 */
@@ -56,6 +60,10 @@ public class ConstUtil {
 	 */
 	public static final String AUTO_REFRESH_CAMERA = "autoRefreshCamera";
 	/**
+	 * 访客车名称
+	 */
+	public static final String VISITOR_NAME="visitorName";
+	/**
 	 * 获取权限级别
 	 * @return
 	 */
@@ -86,6 +94,21 @@ public class ConstUtil {
 		return false;
 	}
 	public static String getUserName() {
-		return System.getProperty(USER_NAME);
+		String string = mapCache.get(USER_NAME);
+		if (string!=null) {
+			return string;
+		}
+		String property = System.getProperty(USER_NAME);
+		mapCache.put(USER_NAME, property);
+		return property;
+	}
+	public static String getVisitorName() {
+		String string = mapCache.get(VISITOR_NAME);
+		if (string!=null) {
+			return string;
+		}
+		String property = System.getProperty(VISITOR_NAME);
+		mapCache.put(VISITOR_NAME, property);
+		return System.getProperty(VISITOR_NAME, "访客车");
 	}
 }

@@ -294,5 +294,6 @@ public interface CarparkService {
 	public Long saveVisitor(SingleCarparkVisitor visitor);
 	public Long deleteVisitor(SingleCarparkVisitor visitor);
 	public List<SingleCarparkVisitor> findVisitorByLike(int start, int max, String userName, String plateNo);
+	public int countVisitorByLike(String userName, String plateNo);
 	public SingleCarparkVisitor findVisitorByPlateAndCarpark(String plateNo,SingleCarparkCarpark carpark);
 }

@@ -15,6 +15,7 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
@@ -304,10 +305,20 @@ public class CarInTask extends AbstractTask {
 			if (StrUtil.getTodayBottomTime(validTo).before(date)) {
 				return true;
 			}
+			Integer allIn = visitor.getAllIn();
+			if (allIn!=null&&allIn>0) {
+				int inCount = visitor.getInCount();
+				if (allIn <= inCount) {
+					return true;
+				}
+				visitor.setInCount(inCount + 1);
+				sp.getCarparkService().saveVisitor(visitor);
+			}
+			
 		} else {
 			Integer allIn = visitor.getAllIn();
-			int inCount = visitor.getInCount();
 			if (allIn != null && allIn > 0) {
+				int inCount = visitor.getInCount();
 				if (allIn <= inCount) {
 					return true;
 				}
@@ -315,7 +326,7 @@ public class CarInTask extends AbstractTask {
 				sp.getCarparkService().saveVisitor(visitor);
 			}
 		}
-		model.setInShowPlateNO(model.getInShowPlateNO() + "-访客车");
+		model.setInShowPlateNO(model.getInShowPlateNO() + "-"+ConstUtil.getVisitorName());
 		isOpenDoor = true;
 		return false;
 	}

@@ -28,6 +28,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.beust.jcommander.JCommander;
 import com.donglu.carpark.ui.common.AbstractApp;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkModuleEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
@@ -303,7 +304,7 @@ public class CarparkManageApp extends AbstractApp{
 		presenter.getStorePresenter().go(composite_20);
 		
 		TabItem tabItem_11 = new TabItem(tabFolder, SWT.NONE);
-		tabItem_11.setText("访客管理");
+		tabItem_11.setText(ConstUtil.getVisitorName()+"管理");
 		
 		Composite composite_1 = new Composite(tabFolder, SWT.NONE);
 		tabItem_11.setControl(composite_1);

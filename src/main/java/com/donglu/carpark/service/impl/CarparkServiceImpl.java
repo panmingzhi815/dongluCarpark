@@ -852,16 +852,39 @@ public class CarparkServiceImpl implements CarparkService {
 	public List<SingleCarparkVisitor> findVisitorByLike(int start, int max, String userName, String plateNo) {
 		unitOfWork.begin();
 		try {
-			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkVisitor.class);
-			if (!StrUtil.isEmpty(userName)) {
-				c.add(Restrictions.like(SingleCarparkVisitor.Property.name.name(), userName,MatchMode.ANYWHERE));
-			}
-			if (!StrUtil.isEmpty(plateNo)) {
-				c.add(Restrictions.like(SingleCarparkVisitor.Property.plateNO.name(), plateNo,MatchMode.ANYWHERE));
-			}
+			Criteria c = createFindVisitorByLikeCriteria(userName, plateNo);
+			c.addOrder(Order.desc("id"));
 			c.setFirstResult(start);
 			c.setMaxResults(max);
 			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	/**
+	 * @param userName
+	 * @param plateNo
+	 * @return
+	 */
+	public Criteria createFindVisitorByLikeCriteria(String userName, String plateNo) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkVisitor.class);
+		if (!StrUtil.isEmpty(userName)) {
+			c.add(Restrictions.like(SingleCarparkVisitor.Property.name.name(), userName,MatchMode.ANYWHERE));
+		}
+		if (!StrUtil.isEmpty(plateNo)) {
+			c.add(Restrictions.like(SingleCarparkVisitor.Property.plateNO.name(), plateNo,MatchMode.ANYWHERE));
+		}
+		return c;
+	}
+	@Override
+	public int countVisitorByLike(String userName, String plateNo) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindVisitorByLikeCriteria(userName, plateNo);
+			c.setProjection(Projections.rowCount());
+			Long total = (Long) c.getSingleResultOrNull();
+			return total==null?0:total.intValue();
 		} finally{
 			unitOfWork.end();
 		}
@@ -886,5 +909,6 @@ public class CarparkServiceImpl implements CarparkService {
 			unitOfWork.end();
 		}
 	}
+
 		
 }

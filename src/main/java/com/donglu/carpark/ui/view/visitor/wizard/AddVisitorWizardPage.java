@@ -10,6 +10,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.viewers.ComboViewer;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.eclipse.core.databinding.DataBindingContext;
@@ -21,8 +22,6 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.beans.BeansObservables;
@@ -32,9 +31,7 @@ import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.widgets.DateTime;
 
 public class AddVisitorWizardPage extends WizardPage {
 	private Text text;
@@ -45,6 +42,7 @@ public class AddVisitorWizardPage extends WizardPage {
 	private Text text_4;
 	private ComboViewer comboViewer;
 	private DateChooserCombo dateChooserCombo;
+	private DateTime dateTime;
 
 	
 	/**
@@ -116,12 +114,6 @@ public class AddVisitorWizardPage extends WizardPage {
 				txt_carNO.selectAll();
 			}
 		});
-		txt_carNO.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				dateChooserCombo.setValue(null);
-			}
-		});
 		txt_carNO.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_text_4 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_4.widthHint = 150;
@@ -132,19 +124,22 @@ public class AddVisitorWizardPage extends WizardPage {
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_1.setText("时间限制");
 		
-		dateChooserCombo = new DateChooserCombo(composite, SWT.BORDER);
+		Composite composite_1 = new Composite(composite, SWT.NONE);
+		GridLayout gl_composite_1 = new GridLayout(2, false);
+		gl_composite_1.verticalSpacing = 0;
+		gl_composite_1.marginWidth = 0;
+		gl_composite_1.marginHeight = 0;
+		gl_composite_1.horizontalSpacing = 0;
+		composite_1.setLayout(gl_composite_1);
+		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		dateChooserCombo = new DateChooserCombo(composite_1, SWT.BORDER);
 		dateChooserCombo.setValue(model.getValidTo());
-		dateChooserCombo.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				Date value = dateChooserCombo.getValue();
-				model.setValidTo(value);
-				if (dateChooserCombo.isFocusControl()) {
-					model.setAllIn(0);
-				}
-			}
-		});
 		dateChooserCombo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		dateChooserCombo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		
+		dateTime = new DateTime(composite_1, SWT.BORDER | SWT.TIME | SWT.SHORT);
+		dateTime.setHours(23);
+		dateTime.setMinutes(59);
 		
 		Label lblNewLabel = new Label(composite, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -166,6 +161,27 @@ public class AddVisitorWizardPage extends WizardPage {
 		gd_text_2.heightHint = 60;
 		text_2.setLayoutData(gd_text_2);
 		initDataBindings();
+		if (model.getValidTo()!=null) {
+			Date validTo = model.getValidTo();
+			Calendar c = Calendar.getInstance();
+			c.setTime(validTo);
+			int hours = c.get(Calendar.HOUR_OF_DAY);
+			int minute = c.get(Calendar.MINUTE);
+			dateTime.setHours(hours);
+			dateTime.setMinutes(minute);
+		}
+	}
+	
+	public Date getValidTo(){
+		Date date = dateChooserCombo.getValue();
+		if (date!=null) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(date);
+			c.set(Calendar.HOUR_OF_DAY, dateTime.getHours());
+			c.set(Calendar.MINUTE, dateTime.getMinutes());
+			return c.getTime();
+		}
+		return date;
 	}
 
 	@Override

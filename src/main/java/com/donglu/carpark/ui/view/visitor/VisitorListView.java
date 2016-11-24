@@ -34,6 +34,7 @@ public class VisitorListView extends AbstractListView<SingleCarparkVisitor>imple
 
 	@Override
 	protected void searchMore() {
+		getPresenter().searchMore();
 	}
 
 	@Override

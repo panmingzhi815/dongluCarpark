@@ -401,7 +401,7 @@ public class CarOutTask extends AbstractTask{
 	}
 
 	/**
-	 * @return
+	 * @return false 出场完成，true 做临时车
 	 */
 	private String getSettingValue(Map<SystemSettingTypeEnum,String> map,SystemSettingTypeEnum type) {
 		return map.get(type)==null?type.getDefaultValue():mapSystemSetting.get(type);
@@ -415,8 +415,33 @@ public class CarOutTask extends AbstractTask{
 		Date validTo = visitor.getValidTo();
 		validTo=StrUtil.getTodayBottomTime(validTo);
 		if (validTo!=null) {
+			//过期判断
 			if (validTo.before(date)) {
 				flag= true;
+				if (Boolean.valueOf(model.getMapSystemSetting().getOrDefault(SystemSettingTypeEnum.访客车进场次数用完不能随便出, "false"))) {
+					model.setOutShowPlateNO(model.getOutShowPlateNO() + "-出场限制");
+					visitor.setStatus(VisitorStatus.不可用.name());
+					sp.getCarparkService().saveVisitor(visitor);
+					return false;
+				}
+			} else {//判断是否超次
+				Integer allIn = visitor.getAllIn();
+				if (allIn != null && allIn > 0) {
+					int inCount = visitor.getOutCount();
+					if (visitor.getInCount() >= allIn) {
+						flag = true;
+					}
+					if (inCount >= allIn) {
+						if (Boolean.valueOf(model.getMapSystemSetting().getOrDefault(SystemSettingTypeEnum.访客车进场次数用完不能随便出, "false"))) {
+							model.setOutShowPlateNO(model.getOutShowPlateNO() + "-出场限制");
+							if (visitor.getInCount() >= allIn) {
+								visitor.setStatus(VisitorStatus.不可用.name());
+								sp.getCarparkService().saveVisitor(visitor);
+							}
+							return false;
+						}
+					}
+				}
 			}
 		}else{
 			Integer allIn = visitor.getAllIn();
@@ -449,15 +474,15 @@ public class CarOutTask extends AbstractTask{
 			model.setTotalTime(StrUtil.MinusTime2(cch.getInTime(), date));
 		}
 		model.setPlateNo(plateNO);
-		model.setCarType("访客车");
+		model.setCarType(ConstUtil.getVisitorName());
 		model.setInTime(cch.getInTime());
 		model.setOutTime(date);
 		cch.setPlateNo(plateNO);
 		cch.setCarType("临时车");
-		cch.setRemarkString("访客车");
+		cch.setRemarkString(ConstUtil.getVisitorName());
 		saveOutHistory();
 		presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
-		model.setOutShowPlateNO(model.getOutShowPlateNO()+"-访客车");
+		model.setOutShowPlateNO(model.getOutShowPlateNO()+"-"+ConstUtil.getVisitorName());
 		presenter.updatePosition(carpark, null, false);
 		return false;
 	}

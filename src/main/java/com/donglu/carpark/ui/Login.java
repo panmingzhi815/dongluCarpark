@@ -28,8 +28,10 @@ import com.donglu.carpark.service.background.DeleteImageServiceI;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.util.TestMap;
 import com.donglu.carpark.util.CarparkFileUtils;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -130,7 +132,7 @@ public class Login {
 					window.open();
 				} catch (Exception e) {
 					e.printStackTrace();
-					LOGGER.error("main is error");
+					LOGGER.error("main is error",e);
 				}
 			}
 		});
@@ -369,20 +371,20 @@ public class Login {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				long nanoTime = System.nanoTime();
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						String userName = null;
 						String pwd = null;
 						String type = null;
-						long nanoTime = System.nanoTime();
+						
 						try {
 							if (!check()) {
 								btn_login.setEnabled(true);
 								return;
 							}
 							sp.start();
-
 							LOGGER.info("服务启动花费时间{}", System.nanoTime() - nanoTime);
 							startBackGroundServer();
 
@@ -405,6 +407,13 @@ public class Login {
 							System.setProperty("userName", userName);
 							System.setProperty("password", pwd);
 							System.setProperty("userType", type);
+							
+							SingleCarparkSystemSetting systemSetting = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.访客车名称.name());
+							if (systemSetting!=null) {
+								System.setProperty(ConstUtil.VISITOR_NAME, systemSetting.getSettingValue());
+							}else{
+								System.setProperty(ConstUtil.VISITOR_NAME, SystemSettingTypeEnum.访客车名称.getDefaultValue());
+							}
 						} catch (Exception e1) {
 							e1.printStackTrace();
 							lbl_errorMsg.setText(e1.getMessage());
