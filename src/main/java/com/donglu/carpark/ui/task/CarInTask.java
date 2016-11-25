@@ -314,7 +314,9 @@ public class CarInTask extends AbstractTask {
 		}
 		Date validTo = visitor.getValidTo();
 		if (validTo != null) {
-			if (StrUtil.getTodayBottomTime(validTo).before(date)) {
+			if (validTo.before(date)) {
+				visitor.setStatus(VisitorStatus.不可用.name());
+				sp.getCarparkService().saveVisitor(visitor);
 				return true;
 			}
 			Integer allIn = visitor.getAllIn();
@@ -324,6 +326,11 @@ public class CarInTask extends AbstractTask {
 					return true;
 				}
 				visitor.setInCount(inCount + 1);
+				if (Boolean.valueOf(model.getMapSystemSetting().getOrDefault(SystemSettingTypeEnum.访客车进场次数用完不能随便出, "false"))) {
+					if (visitor.getOutCount()>=allIn) {
+						visitor.setStatus(VisitorStatus.不可用.name());
+					}
+				}
 				sp.getCarparkService().saveVisitor(visitor);
 			}
 			
@@ -335,6 +342,11 @@ public class CarInTask extends AbstractTask {
 					return true;
 				}
 				visitor.setInCount(inCount + 1);
+				if (Boolean.valueOf(model.getMapSystemSetting().getOrDefault(SystemSettingTypeEnum.访客车进场次数用完不能随便出, "false"))) {
+					if (visitor.getOutCount()>=allIn) {
+						visitor.setStatus(VisitorStatus.不可用.name());
+					}
+				}
 				sp.getCarparkService().saveVisitor(visitor);
 			}
 		}
