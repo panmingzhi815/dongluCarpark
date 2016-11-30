@@ -100,7 +100,6 @@ public class CarInTask extends AbstractTask {
 			}
 		}
 
-		showPlateToDevice();
 
 		if (checkBlackUser(device, date)) {
 			return;

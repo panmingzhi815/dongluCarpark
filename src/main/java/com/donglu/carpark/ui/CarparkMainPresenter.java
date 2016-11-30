@@ -34,6 +34,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.donglu.carpark.hardware.bx.BXScreenService;
+import com.donglu.carpark.hardware.bx.BXScreenServiceImpl;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.model.SearchErrorCarModel;
 import com.donglu.carpark.model.ShowInOutHistoryModel;
@@ -85,6 +87,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
+import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice.DeviceInOutTypeEnum;
@@ -103,7 +106,6 @@ import com.dongluhitec.card.hardware.device.WebCameraDevice;
 import com.dongluhitec.card.hardware.plateDevice.PastPlateResult;
 import com.dongluhitec.card.hardware.plateDevice.PlateNOJNA;
 import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
-import com.dongluhitec.card.hardware.plateDevice.bx.BXScreenService;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.mapper.BeanUtil;
 import com.dongluhitec.card.shanghaiyunpingtai.ShanghaiYunCarparkCfg;
@@ -969,7 +971,7 @@ public class CarparkMainPresenter {
 					Boolean carparkPlate = hardwareService.carparkPlate(d, plateNO);
 					return carparkPlate;
 				}else{
-					showPlateNOToBXScreen(device.getLinkAddress(), plateNO);
+					showPlateNOToBXScreen(device, plateNO);
 				}
 			}
 			return true;
@@ -1033,7 +1035,7 @@ public class CarparkMainPresenter {
 						return hardwareService.carparkContentVoice(d, content, device.getVolume() == null ? 1 : device.getVolume());
 					}
 				}else{
-					showContentToBXScreen(device.getLinkAddress(), content);
+					showContentToBXScreen(device, content);
 				}
 			} else {
 				if (isOpenDoor) {
@@ -1080,7 +1082,7 @@ public class CarparkMainPresenter {
 					System.out.println(type);
 					return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType), (byte) type);
 				}else{
-					showPositionToBXScreen(device.getLinkAddress(), position);
+					showPositionToBXScreen(device, position);
 					return true;
 				}
 			} else {
@@ -1241,6 +1243,9 @@ public class CarparkMainPresenter {
 			Boolean carparkUsualContent = true;
 
 			if (d != null) {
+				if (device.getScreenType().equals(ScreenTypeEnum.BX6E2)) {
+					
+				}else
 				carparkUsualContent = hardwareService.carparkUsualContent(d, device.getAdvertise());
 			}
 			return carparkUsualContent;
@@ -1352,8 +1357,8 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-		mapIpToJNA.get(ip).tigger(ip);
-//		carInOutResultProvider.get().invok(ip, 0, "sBD021W", null, null, 11);
+//		mapIpToJNA.get(ip).tigger(ip);
+		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", null, null, 11);
 	}
 
 	/**
@@ -1514,6 +1519,7 @@ public class CarparkMainPresenter {
 		if (mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录).equals("true")) {
 			CarparkUtils.startServer(10002, "/*", new OpenDoorServlet(this));
 		}
+		initBXScreen();
 	}
 
 	/**
@@ -1759,6 +1765,9 @@ public class CarparkMainPresenter {
 	}
 
 	public Boolean showNowTimeToDevice(SingleCarparkDevice singleCarparkDevice) {
+		if (singleCarparkDevice.getScreenType().equals(ScreenTypeEnum.BX6E2)) {
+			return false;
+		}
 		return hardwareService.setCarparkDate(getDevice(singleCarparkDevice), new Date());
 	}
 
@@ -2465,21 +2474,23 @@ public class CarparkMainPresenter {
 	/**
 	 * 发生语音内容到BX屏幕
 	 */
-	public void showContentToBXScreen(String ip,String content){
-		initBXScreen();
-		bxScreenService.sendContent(ip, content);
-	}
-	/**
-	 * 发生语音内容到BX屏幕
-	 */
-	public void showPlateNOToBXScreen(String ip,String plateNO){
-		initBXScreen();
-		bxScreenService.sendPlateNO(ip, plateNO);
+	public void showContentToBXScreen(SingleCarparkDevice device,String content){
+//		initBXScreen();
+		bxScreenService.sendContent(Integer.valueOf(device.getIdentifire()),device.getLinkAddress(), content);
 	}
 	
-	public void showPositionToBXScreen(String ip,int position){
-		initBXScreen();
-		bxScreenService.sendPosition(ip, position);
+	ExecutorService newFixedThreadPool = Executors.newFixedThreadPool(1);
+	/**
+	 * 发生车牌内容到BX屏幕
+	 */
+	public void showPlateNOToBXScreen(SingleCarparkDevice device, final String plateNO) {
+		Integer valueOf = Integer.valueOf(device.getIdentifire());
+		bxScreenService.sendPlateNO(valueOf,device.getLinkAddress(), plateNO);
+	}
+	
+	public void showPositionToBXScreen(SingleCarparkDevice device,int position){
+//		initBXScreen();
+		bxScreenService.sendPosition(Integer.valueOf(device.getIdentifire()),device.getLinkAddress(), position);
 	}
 
 	/**
@@ -2487,7 +2498,8 @@ public class CarparkMainPresenter {
 	 */
 	public void initBXScreen() {
 		if (bxScreenService==null) {
-			bxScreenService = Login.injector.getInstance(BXScreenService.class);
+			bxScreenService = new BXScreenServiceImpl();
+			bxScreenService.init(0);
 		}
 	}
 
