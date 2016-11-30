@@ -71,6 +71,11 @@ public class CarparkMainModel extends DomainObject {
 	//保存待出场信息
 	private final List<CarOutTask> listOutTask=new ArrayList<>();
 	private long lastCarOutTime=0;
+	
+	//卡片关联
+	private Map<String, String> mapPlateToCard=new HashMap<>();
+	private Map<String, String> mapCardEventTime=new HashMap<>();
+	private Map<String, String> mapCardToIp=new HashMap<>();
 
 	/**
 	 * 

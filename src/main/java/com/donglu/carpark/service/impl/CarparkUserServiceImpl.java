@@ -20,6 +20,7 @@ import org.joda.time.DateTime;
 
 import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.util.CarparkUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -423,5 +424,15 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		}finally{
 			unitOfWork.end();
 		}
+	}
+	@Override
+	public Long saveSingleCarparkCard(SingleCarparkCard card) {
+		DatabaseOperation<SingleCarparkCard> dom = DatabaseOperation.forClass(SingleCarparkCard.class, emprovider.get());
+		if (card.getId()!=null) {
+			dom.save(card);
+		}else{
+			dom.insert(card);
+		}
+		return card.getId();
 	}
 }

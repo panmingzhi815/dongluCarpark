@@ -20,6 +20,7 @@ import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
+import com.dongluhitec.card.domain.db.singlecarpark.MachTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -107,6 +108,21 @@ public class CarInTask extends AbstractTask {
 			return;
 		}
 		LOGGER.debug("查找是否为固定车");
+		checkFixCar();
+		showPlateToDevice();
+		List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(editPlateNo, carpark);
+		cch = StrUtil.isEmpty(findByNoOut) ? null : findByNoOut.get(0);
+		if (StrUtil.isEmpty(cch)) {
+			cch = new SingleCarparkInOutHistory();
+		}
+		checkUser(!isEmptyPlateNo);
+	}
+
+	/**
+	 * 
+	 * @return true终止
+	 */
+	public boolean checkFixCar() {
 		user = sp.getCarparkUserService().findUserByPlateNo(plateNO, carpark.getId());
 		if (user==null) {
 			String plateLikeSize = mapSystemSetting.get(SystemSettingTypeEnum.固定车车牌匹配字符数);
@@ -131,13 +147,11 @@ public class CarInTask extends AbstractTask {
 				}
 			}
 		}
-		showPlateToDevice();
-		List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(editPlateNo, carpark);
-		cch = StrUtil.isEmpty(findByNoOut) ? null : findByNoOut.get(0);
-		if (StrUtil.isEmpty(cch)) {
-			cch = new SingleCarparkInOutHistory();
+		MachTypeEnum machType = device.getMachType();
+		if (machType.equals(MachTypeEnum.PAC)&&user!=null) {
+			
 		}
-		checkUser(!isEmptyPlateNo);
+		return false;
 	}
 
 	/**

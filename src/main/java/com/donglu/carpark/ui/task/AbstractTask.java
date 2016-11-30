@@ -173,4 +173,8 @@ public abstract class AbstractTask implements Runnable {
 	public String getBigImgFileName() {
 		return bigImgFileName;
 	}
+
+	public Date getDate() {
+		return date;
+	}
 }
