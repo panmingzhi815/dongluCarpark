@@ -546,7 +546,7 @@ public class Login {
 			checkSoftDog();
 		}
 	}
-	
+
 	// 检测加密狗
 	private void checkSoftDog() {
 		injector.getInstance(ClientCheckSoftDogServiceI.class).startAsync();
