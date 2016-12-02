@@ -12,6 +12,7 @@ import com.donglu.carpark.ui.view.SystemLogPresenter;
 import com.donglu.carpark.ui.view.carpark.CarparkPresenter;
 import com.donglu.carpark.ui.view.deviceerror.DeviceErrorPresenter;
 import com.donglu.carpark.ui.view.free.TempCarFreePresenter;
+import com.donglu.carpark.ui.view.img.ImageHistoryPresenter;
 import com.donglu.carpark.ui.view.inouthistory.CarPayPresenter;
 import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
 import com.donglu.carpark.ui.view.lockcar.LockCarPresenter;
@@ -63,6 +64,7 @@ public class CarparkManagePresenter {
 	private CarparkOffLineHistoryPresenter carparkOffLineHistoryPresenter;
 	private TempCarFreePresenter tempCarFreePresenter;
 	private CarPayPresenter carPayPresenter;
+	private ImageHistoryPresenter imageHistoryPresenter;
 
 	public CarparkManageApp getView() {
 		return view;
@@ -96,6 +98,7 @@ public class CarparkManagePresenter {
 		carparkOffLineHistoryPresenter=Login.injector.getInstance(CarparkOffLineHistoryPresenter.class);
 		tempCarFreePresenter=Login.injector.getInstance(TempCarFreePresenter.class);
 		carPayPresenter=Login.injector.getInstance(CarPayPresenter.class);
+		imageHistoryPresenter=Login.injector.getInstance(ImageHistoryPresenter.class);
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.登录登出, "登录了管理界面", System.getProperty(ConstUtil.USER_NAME));
 		refreshSystemSetting();
 	}
@@ -206,6 +209,10 @@ public class CarparkManagePresenter {
 
 	public CarPayPresenter getCarPayPresenter() {
 		return carPayPresenter;
+	}
+
+	public ImageHistoryPresenter getImageHistoryPresenter() {
+		return imageHistoryPresenter;
 	}
 
 }

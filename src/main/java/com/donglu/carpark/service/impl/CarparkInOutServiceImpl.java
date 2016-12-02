@@ -33,6 +33,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkFreeTempCar;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkImageHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
@@ -1361,6 +1362,74 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 			return c.getResultList();
 		} finally{
+			unitOfWork.end();
+		}
+	}
+	@Transactional
+	@Override
+	public Long saveImageHistory(SingleCarparkImageHistory ih) {
+		DatabaseOperation<SingleCarparkImageHistory> dom = DatabaseOperation.forClass(SingleCarparkImageHistory.class, emprovider.get());
+		if (ih.getId()!=null) {
+			dom.save(ih);
+		}else{
+			dom.insert(ih);
+		}
+		return ih.getId();
+	}
+	@Transactional
+	@Override
+	public Long deleteImageHistory(SingleCarparkImageHistory ih) {
+		DatabaseOperation<SingleCarparkImageHistory> dom = DatabaseOperation.forClass(SingleCarparkImageHistory.class, emprovider.get());
+		dom.remove(ih);
+		return ih.getId();
+	}
+
+	@Override
+	public List<SingleCarparkImageHistory> findImageHistoryBySearch(int first, int max, String plate, String type,Date start,Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createImageHistoryBySearch(plate, type, start, end);
+			c.setFirstResult(first);
+			c.setMaxResults(max);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	/**
+	 * @param plate
+	 * @param type
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public Criteria createImageHistoryBySearch(String plate, String type, Date start, Date end) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkImageHistory.class);
+		if (!StrUtil.isEmpty(plate)) {
+			c.add(Restrictions.like("plateNO", plate, MatchMode.ANYWHERE));
+		}
+		if (!StrUtil.isEmpty(type)) {
+			c.add(Restrictions.eq("type", type));
+		}
+		if (!StrUtil.isEmpty(start)) {
+			c.add(Restrictions.ge("time", start));
+		}
+		if (!StrUtil.isEmpty(end)) {
+			c.add(Restrictions.le("time", end));
+		}
+		return c;
+	}
+
+	@Override
+	public int countImageHistoryBySearch(String plate, String type, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createImageHistoryBySearch(plate, type, start, end);
+			c.setProjection(Projections.rowCount());
+			Long l = (Long) c.getSingleResultOrNull();
+			return l == null ? 0 : l.intValue();
+		} finally {
 			unitOfWork.end();
 		}
 	}

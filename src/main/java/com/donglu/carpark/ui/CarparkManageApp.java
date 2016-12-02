@@ -87,7 +87,7 @@ public class CarparkManageApp extends AbstractApp{
 			long nanoTime = System.nanoTime();
 			Display display = Display.getDefault();
 			shell = new Shell();
-			shell.setSize(957, 621);
+			shell.setSize(1112, 621);
 			init();
 			createContents();
 			shell.open();
@@ -287,6 +287,14 @@ public class CarparkManageApp extends AbstractApp{
 		tabItem_13.setControl(composite_4);
 		composite_4.setLayout(new FillLayout(SWT.HORIZONTAL));
 		presenter.getCarparkOffLineHistoryPresenter().go(composite_4);
+		
+		TabItem tabItem_15 = new TabItem(tabFolder_searchHistory, SWT.NONE);
+		tabItem_15.setText("图片记录");
+		
+		Composite composite_8 = new Composite(tabFolder_searchHistory, SWT.NONE);
+		tabItem_15.setControl(composite_8);
+		composite_8.setLayout(new FillLayout(SWT.HORIZONTAL));
+		presenter.getImageHistoryPresenter().go(composite_8);
 		
 		TabItem tabItem_10 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_10.setText("系统用户");

@@ -500,6 +500,7 @@ public class CarInTask extends AbstractTask {
 			}
 		}
 		String fixCarInMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.固定车进场语音).getContent();
+		logger.info("过期判断");
 		// 过期判断
 		if (date.after(
 				new DateTime(validTo).plusDays(user.getDelayDays() == null ? 0 : user.getDelayDays()).toDate())) {
@@ -531,6 +532,7 @@ public class CarInTask extends AbstractTask {
 			isFixCarverdueCheck = true;
 			return true;
 		}
+		logger.info("车位判断");
 		// 车位判断
 		if (StrUtil.isEmpty(cch.getId())) {
 			Integer slot = 0;

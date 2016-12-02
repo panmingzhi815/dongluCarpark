@@ -11,6 +11,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkFreeTempCar;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkImageHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
@@ -274,4 +275,27 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(SingleCarparkCarpark carpark, String pn, boolean b);
+	/**
+	 * 保存图片记录
+	 * @param ih
+	 * @return
+	 */
+	Long saveImageHistory(SingleCarparkImageHistory ih);
+	/**
+	 * 保存图片记录
+	 * @param ih
+	 * @return
+	 */
+	Long deleteImageHistory(SingleCarparkImageHistory ih);
+	/**
+	 * 查找图片记录
+	 * @param first
+	 * @param max
+	 * @param plate
+	 * @param type
+	 * @return
+	 */
+	List<SingleCarparkImageHistory> findImageHistoryBySearch(int first,int max,String plate,String type,Date start,Date end);
+	int countImageHistoryBySearch(String plate,String type,Date start,Date end);
+	
 }

@@ -18,6 +18,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkFreeTempCar;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkImageHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
@@ -459,5 +460,33 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	public List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(SingleCarparkCarpark carpark, String pn,
 			boolean b) {
 		return carparkInOutService.findInOutHistoryByCarparkAndPlateNO(carpark, pn, b);
+	}
+
+
+
+	@Override
+	public Long saveImageHistory(SingleCarparkImageHistory ih) {
+		return carparkInOutService.saveImageHistory(ih);
+	}
+
+
+
+	@Override
+	public Long deleteImageHistory(SingleCarparkImageHistory ih) {
+		return carparkInOutService.deleteImageHistory(ih);
+	}
+
+
+
+	@Override
+	public List<SingleCarparkImageHistory> findImageHistoryBySearch(int first, int max, String plate, String type, Date start, Date end) {
+		return carparkInOutService.findImageHistoryBySearch(first, max, plate, type, start, end);
+	}
+
+
+
+	@Override
+	public int countImageHistoryBySearch(String plate, String type, Date start, Date end) {
+		return carparkInOutService.countImageHistoryBySearch(plate, type, start, end);
 	}
 }

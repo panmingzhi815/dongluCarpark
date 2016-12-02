@@ -8,6 +8,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -89,6 +92,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice.DeviceInOutTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkFreeTempCar;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkImageHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
@@ -1333,8 +1337,13 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-		mapIpToJNA.get(ip).tigger(ip);
-//		carInOutResultProvider.get().invok(ip, 0, "sBD021W", null, null, 11);
+//		mapIpToJNA.get(ip).tigger(ip);
+		try {
+			byte[] bs = java.nio.file.Files.readAllBytes(Paths.get("D:\\img\\20161122111651128_粤BD021W_big.jpg"));
+			carInOutResultProvider.get().invok(ip, 0, "贵A88G26", bs, null, 11);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -1398,7 +1407,7 @@ public class CarparkMainPresenter {
 		mapIpToDevice = model.getMapIpToDevice();
 		mapSystemSetting = model.getMapSystemSetting();
 		refreshSystemSetting();
-		saveImageTheadPool = Executors.newFixedThreadPool(2,ThreadUtil.createThreadFactory("保存图片任务"));
+		saveImageTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("保存图片任务"));
 		openDoorTheadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
 		checkPlayerPlaying();
 		countTempCarCharge = new CountTempCarChargeImpl();
@@ -1985,7 +1994,7 @@ public class CarparkMainPresenter {
 					smallFile.createNewFile();
 					Files.write(smallImage, smallFile);
 					log.debug("保存小图片到本地：{}", smallFile);
-					ImgCompress.compress(smallFile.getPath());
+//					ImgCompress.compress(smallFile.getPath());
 					String ip = CarparkClientConfig.getInstance().getServerIp();
 					if (true) {
 						long nanoTime = System.nanoTime();
@@ -2000,6 +2009,7 @@ public class CarparkMainPresenter {
 							log.debug("上传图片花费时间：{}", System.nanoTime() - nanoTime);
 						}
 					}
+					saveImageHistory(bigImgFileName);
 				} catch (IOException e) {
 					log.error("上传图片出错", e);
 					if (errorSize<3) {
@@ -2015,6 +2025,25 @@ public class CarparkMainPresenter {
 			}
 		};
 		saveImageTheadPool.submit(runnable);
+	}
+
+	protected void saveImageHistory(String bigImgFileName) {
+		try {
+			int indexOf = bigImgFileName.indexOf("_");
+			String plate=bigImgFileName.substring(indexOf+1, bigImgFileName.lastIndexOf("_"));
+			SingleCarparkImageHistory ih=new SingleCarparkImageHistory();
+			ih.setBigImage(bigImgFileName);
+			ih.setPlateNO(plate);
+			String sTime = bigImgFileName.substring(bigImgFileName.lastIndexOf("/")+1, indexOf);
+			DateFormat df=new SimpleDateFormat("yyyyMMddHHmmssSSS");
+			Date date = df.parse(sTime);
+			ih.setTime(date);
+			ih.setType("原始");
+			sp.getCarparkInOutService().saveImageHistory(ih);
+		} catch (Exception e) {
+			log.error("保存图片记录时发生错误"+e,e);
+		}
+		
 	}
 
 	/**
