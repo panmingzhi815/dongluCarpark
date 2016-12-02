@@ -460,7 +460,7 @@ public class CarInTask extends AbstractTask {
 	 * @return 是否需要退出 true退出
 	 */
 	public boolean fixCarShowToDevice(boolean incheck) throws Exception {
-		logger.info("固定车进场");
+		logger.info("固定车:{} 进场",user);
 		if (incheck) {
 			// 固定车入场确认
 			boolean flag = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认));
@@ -506,13 +506,16 @@ public class CarInTask extends AbstractTask {
 				new DateTime(validTo).plusDays(user.getDelayDays() == null ? 0 : user.getDelayDays()).toDate())) {
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车).equals("true")) {
 				content = "车辆已过期" + content;
+				logger.info("固定车：{} 在{} 到期 直接做临时车计算 ",user,validTo);
 				return tempCarShowToDevice(false);
 			} else {
 				boolean confirm = new ConfimBox(editPlateNo, "车辆在[" + StrUtil.formatDate(validTo) + "]过期\n是否允许车辆按临时车进入停车场:["+carpark.getName()+"]")
 						.open();
+				logger.info("固定车：{} 在{} 到期 等待确认 ",user,validTo);
 				if (confirm) {
 					cch.setIsOverdue(true);
 					cch.setReviseInTime(date);
+					logger.info("固定车：{} 在{} 到期 经确认后做临时车计算 ",user,validTo);
 					return tempCarShowToDevice(false);
 				}
 			}
@@ -556,6 +559,7 @@ public class CarInTask extends AbstractTask {
 							.findInOutHistoryByCarparkAndPlateNO(null, pn);
 					for (SingleCarparkInOutHistory singleCarparkInOutHistory : findHistoryByChildCarparkInOut) {
 						if (singleCarparkInOutHistory.getReviseInTime() != null) {
+							logger.info("车牌：{} 在其他停车场是临时身份进入，直接做临时车计算",editPlateNo);
 							return tempCarShowToDevice(false);
 						}
 					}
@@ -595,7 +599,7 @@ public class CarInTask extends AbstractTask {
 				}
 			}
 		}
-
+		logger.info("车牌：{} 为有效固定车，直接进入",editPlateNo);
 		// int parseInt =
 		// Integer.parseInt(StrUtil.isEmpty(user.getCarparkNo())?"0":user.getCarparkNo());
 		Date date2 = new DateTime(validTo).minusDays(user.getRemindDays() == null ? 0 : user.getRemindDays()).toDate();
