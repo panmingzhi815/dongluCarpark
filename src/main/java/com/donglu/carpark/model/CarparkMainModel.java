@@ -73,9 +73,9 @@ public class CarparkMainModel extends DomainObject {
 	private long lastCarOutTime=0;
 	
 	//卡片关联
-	private Map<String, String> mapPlateToCard=new HashMap<>();
-	private Map<String, String> mapCardEventTime=new HashMap<>();
-	private Map<String, String> mapCardToIp=new HashMap<>();
+	private final Map<String, String> mapPlateToCard=new MyMapCache<>(60000,100);
+	private final Map<String, Date> mapCardEventTime=new MyMapCache<>(60000,100);
+	private final Map<String, CarInTask> mapIpToHistory=new MyMapCache<>(60000,100);
 
 	/**
 	 * 
@@ -881,5 +881,9 @@ public class CarparkMainModel extends DomainObject {
 
 	public Map<String, CTabItem> getMapIpToTabItem() {
 		return mapIpToTabItem;
+	}
+
+	public Map<String, Date> getMapCardEventTime() {
+		return mapCardEventTime;
 	}
 }

@@ -30,9 +30,9 @@ public enum SystemSettingTypeEnum {
 	启用CJLAPP支付("false"),
 	退出时需要密码("false"),
 	访客车进场次数用完不能随便出("false"),
-	固定车车牌匹配字符数("7"),
+	固定车车牌匹配字符数("7"),车牌卡片公用时允许识别间隔("30"),
 	
-	DateBase_version("1.0.0.13"),软件版本("1.0.0.13"),发布时间("2016-10-09 17:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 
+	DateBase_version("1.0.0.13"),软件版本("1.0.0.13"),发布时间("2016-10-09 17:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"),  
 	;
 	
 	private String defaultValue;

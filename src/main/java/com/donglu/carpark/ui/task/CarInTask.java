@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui.task;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -7,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -14,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
@@ -22,6 +25,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.MachTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
@@ -108,7 +112,10 @@ public class CarInTask extends AbstractTask {
 			return;
 		}
 		LOGGER.debug("查找是否为固定车");
-		checkFixCar();
+		boolean checkFixCar = checkFixCar();
+		if (checkFixCar) {
+			return;
+		}
 		showPlateToDevice();
 		List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(editPlateNo, carpark);
 		cch = StrUtil.isEmpty(findByNoOut) ? null : findByNoOut.get(0);
@@ -123,17 +130,19 @@ public class CarInTask extends AbstractTask {
 	 * @return true终止
 	 */
 	public boolean checkFixCar() {
-		user = sp.getCarparkUserService().findUserByPlateNo(plateNO, carpark.getId());
+		CarparkUserService carparkUserService = sp.getCarparkUserService();
+		user = carparkUserService.findUserByPlateNo(plateNO, carpark.getId());
+		List<SingleCarparkUser> listUser=new ArrayList<>();
 		if (user==null) {
 			String plateLikeSize = mapSystemSetting.get(SystemSettingTypeEnum.固定车车牌匹配字符数);
 			if (!plateLikeSize.equals("7")) {
 				int likeSize = Integer.valueOf(plateLikeSize);
-				List<SingleCarparkUser> list = sp.getCarparkUserService().findUserByPlateNoLikeSize(0,1,plateNO,likeSize, carpark.getId(),new Date());
-				if (!StrUtil.isEmpty(list)) {
+				listUser = carparkUserService.findUserByPlateNoLikeSize(0,1,plateNO,likeSize, carpark.getId(),new Date());
+				if (!StrUtil.isEmpty(listUser)) {
 					//获取用户所有车牌
 					Map<String, SingleCarparkUser> map=new HashMap<String, SingleCarparkUser>();
 					Set<String> plates=new HashSet<>();
-					for (SingleCarparkUser singleCarparkUser : list) {
+					for (SingleCarparkUser singleCarparkUser : listUser) {
 						String[] split = singleCarparkUser.getPlateNo().split(",");
 						for (String string : split) {
 							map.put(string, singleCarparkUser);
@@ -149,6 +158,17 @@ public class CarInTask extends AbstractTask {
 		}
 		MachTypeEnum machType = device.getMachType();
 		if (machType.equals(MachTypeEnum.PAC)&&user!=null) {
+//			List<SingleCarparkCard> list=carparkUserService.findCardByUser(listUser);
+//			if (StrUtil.isEmpty(list)) {
+//				return true;
+//			}
+//			for (SingleCarparkCard singleCarparkCard : list) {
+//				Date d = model.getMapCardEventTime().get(singleCarparkCard);
+//				if (d==null||StrUtil.countTime(d, date, TimeUnit.MILLISECONDS)>Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车牌卡片公用时允许识别间隔))) {
+//					
+//					return true;
+//				}
+//			}
 			
 		}
 		return false;
@@ -219,6 +239,26 @@ public class CarInTask extends AbstractTask {
 		LOGGER.debug(date + "==" + ip + "====" + plateNO + "车辆类型：" + carType + "==" + "保存图片：==查找固定用户：==界面操作：");
 		LOGGER.info("把车牌:{}的进场记录保存到数据库", plateNO);
 
+		fillHistory();
+		sp.getCarparkInOutService().updateCarparkStillTime(carpark, device,
+				StrUtil.isEmpty(editPlateNo) ? plateNO : editPlateNo, cch.getBigImg());
+		Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(cch);
+		presenter.plateSubmit(cch, date, device, bigImage);
+		cch.setId(saveInOutHistory);
+		model.addInHistorys(cch);
+		model.setInHistorySelect(cch);
+		LOGGER.info("保存车牌：{}的进场记录到数据库成功", plateNO);
+		model.getMapCameraLastImage().put(ip, cch.getBigImg());
+		presenter.showContentToDevice(device, content, isOpenDoor);
+		presenter.updatePosition(carpark, cch, true);
+		LOGGER.info("对设备{}，发送消息{}，开门信号：{}", device.getName(), content, isOpenDoor);
+	}
+
+	/**
+	 * @return 
+	 * 
+	 */
+	public SingleCarparkInOutHistory fillHistory() {
 		cch.setPlateNo(plateNO);
 		cch.setInPlateNO(plateNO);
 		if (!StrUtil.isEmpty(editPlateNo)) {
@@ -247,18 +287,7 @@ public class CarInTask extends AbstractTask {
 			if (after)
 				cch.setInPhotographType("手动");
 		}
-		sp.getCarparkInOutService().updateCarparkStillTime(carpark, device,
-				StrUtil.isEmpty(editPlateNo) ? plateNO : editPlateNo, cch.getBigImg());
-		Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(cch);
-		presenter.plateSubmit(cch, date, device, bigImage);
-		cch.setId(saveInOutHistory);
-		model.addInHistorys(cch);
-		model.setInHistorySelect(cch);
-		LOGGER.info("保存车牌：{}的进场记录到数据库成功", plateNO);
-		model.getMapCameraLastImage().put(ip, cch.getBigImg());
-		presenter.showContentToDevice(device, content, isOpenDoor);
-		presenter.updatePosition(carpark, cch, true);
-		LOGGER.info("对设备{}，发送消息{}，开门信号：{}", device.getName(), content, isOpenDoor);
+		return cch;
 	}
 
 	/**
