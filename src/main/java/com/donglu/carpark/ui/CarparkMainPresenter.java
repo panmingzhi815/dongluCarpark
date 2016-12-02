@@ -1337,13 +1337,13 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-//		mapIpToJNA.get(ip).tigger(ip);
-		try {
-			byte[] bs = java.nio.file.Files.readAllBytes(Paths.get("D:\\img\\20161122111651128_粤BD021W_big.jpg"));
-			carInOutResultProvider.get().invok(ip, 0, "贵A88G26", bs, null, 11);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		mapIpToJNA.get(ip).tigger(ip);
+//		try {
+//			byte[] bs = java.nio.file.Files.readAllBytes(Paths.get("D:\\img\\20161122111651128_粤BD021W_big.jpg"));
+//			carInOutResultProvider.get().invok(ip, 0, "贵A88G26", bs, null, 11);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	/**

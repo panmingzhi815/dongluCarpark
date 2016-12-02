@@ -518,7 +518,9 @@ public class ImageServerUI {
 	 * 贵州海誉推送服务
 	 */
 	private void checkHaiYunService(){
-		if (Boolean.valueOf(System.getProperty(ConstUtil.PUSH_HAIYU_RECORD) == null ? "false" : "true")) {
+		Boolean valueOf = Boolean.valueOf(System.getProperty(ConstUtil.PUSH_HAIYU_RECORD,"false"));
+		LOGGER.info("贵州海誉云平台服务启动设置为：{}",valueOf);
+		if (valueOf) {
 			serverInjector.getInstance(AsynHaiYuRecordService.class).startAsync();
 		}
 	}
