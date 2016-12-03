@@ -157,19 +157,28 @@ public class CarInTask extends AbstractTask {
 			}
 		}
 		MachTypeEnum machType = device.getMachType();
-		if (machType.equals(MachTypeEnum.PAC)&&user!=null) {
-//			List<SingleCarparkCard> list=carparkUserService.findCardByUser(listUser);
-//			if (StrUtil.isEmpty(list)) {
-//				return true;
-//			}
-//			for (SingleCarparkCard singleCarparkCard : list) {
-//				Date d = model.getMapCardEventTime().get(singleCarparkCard);
-//				if (d==null||StrUtil.countTime(d, date, TimeUnit.MILLISECONDS)>Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车牌卡片公用时允许识别间隔))) {
-//					
-//					return true;
-//				}
-//			}
-			
+		if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用卡片支持))&&machType.equals(MachTypeEnum.PAC)&&user!=null) {
+			logger.info("已启用卡片支持，且需要卡片和车牌同时匹配,判断用户：{} 权限",user);
+			List<SingleCarparkCard> list=carparkUserService.findSingleCarparkCardBySearch(0,Integer.MAX_VALUE,null, listUser);
+			if (StrUtil.isEmpty(list)) {
+				logger.debug("没有找到用户对应卡片，禁止进入");
+				return true;
+			}
+			Date d=null;
+			Map<String, Date> mapCardEventTime = model.getMapCardEventTime();
+			for (SingleCarparkCard singleCarparkCard : list) {
+				d = mapCardEventTime.remove(singleCarparkCard.getSerialNumber());
+				if (d==null||StrUtil.countTime(d, date, TimeUnit.MILLISECONDS)>Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车牌卡片共用时允许识别间隔))*1000) {
+					continue;
+				}
+				cardSerialNumber=singleCarparkCard.getSerialNumber();
+				break;
+			}
+			if (d==null||StrUtil.countTime(d, date, TimeUnit.MILLISECONDS)>Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车牌卡片共用时允许识别间隔))*1000) {
+				logger.info("没有找到用户：{} 卡片：{} 的刷卡记录，等待刷卡",user,cardSerialNumber);
+				model.getMapPlateToInTask().put(editPlateNo, this);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -275,6 +284,7 @@ public class CarInTask extends AbstractTask {
 			cch.setUserName(user.getName());
 			cch.setUserId(user.getId());
 		}
+		cch.setCardSerialNumber(cardSerialNumber);
 		cch.setInDevice(device.getName());
 		cch.setInPhotographType("自动");
 		cch.setChargeTime(null);
@@ -672,7 +682,7 @@ public class CarInTask extends AbstractTask {
 			if (plateNO.length() < 6) {
 				user = null;
 			}
-			initInOutHistory(device);
+			initInOutHistory();
 		}
 	}
 
@@ -681,7 +691,7 @@ public class CarInTask extends AbstractTask {
 	 * 
 	 * @param device
 	 */
-	public void initInOutHistory(SingleCarparkDevice device) {
+	public void initInOutHistory() {
 		List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(editPlateNo,
 				device.getCarpark());
 		cch = StrUtil.isEmpty(findByNoOut) ? null : findByNoOut.get(0);

@@ -75,7 +75,7 @@ public class CarparkMainModel extends DomainObject {
 	//卡片关联
 	private final Map<String, String> mapPlateToCard=new MyMapCache<>(60000,100);
 	private final Map<String, Date> mapCardEventTime=new MyMapCache<>(60000,100);
-	private final Map<String, CarInTask> mapIpToHistory=new MyMapCache<>(60000,100);
+	private final Map<String, CarInTask> mapPlateToInTask=new MyMapCache<>(60000,100);
 
 	/**
 	 * 
@@ -886,4 +886,9 @@ public class CarparkMainModel extends DomainObject {
 	public Map<String, Date> getMapCardEventTime() {
 		return mapCardEventTime;
 	}
+
+	public Map<String, CarInTask> getMapPlateToInTask() {
+		return mapPlateToInTask;
+	}
+
 }

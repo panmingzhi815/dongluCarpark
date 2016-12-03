@@ -425,6 +425,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			unitOfWork.end();
 		}
 	}
+	@Transactional
 	@Override
 	public Long saveSingleCarparkCard(SingleCarparkCard card) {
 		DatabaseOperation<SingleCarparkCard> dom = DatabaseOperation.forClass(SingleCarparkCard.class, emprovider.get());
@@ -433,6 +434,52 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		}else{
 			dom.insert(card);
 		}
+		return card.getId();
+	}
+	@Override
+	public List<SingleCarparkCard> findSingleCarparkCardBySearch(int first, int max, String serialNumber, List<SingleCarparkUser> listUser) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindSingleCarparkCardBySearch(serialNumber, listUser);
+			c.setFirstResult(first);
+			c.setMaxResults(max);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	/**
+	 * @param serialNumber
+	 * @param listUser
+	 * @return
+	 */
+	public Criteria createFindSingleCarparkCardBySearch(String serialNumber, List<SingleCarparkUser> listUser) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCard.class);
+		if (!StrUtil.isEmpty(serialNumber)) {
+			c.add(Restrictions.like(SingleCarparkCard.Property.serialNumber.name(), serialNumber, MatchMode.ANYWHERE));
+		}
+		if (!StrUtil.isEmpty(listUser)) {
+			c.add(Restrictions.in(SingleCarparkCard.Property.user.name(), listUser));
+		}
+		return c;
+	}
+	@Override
+	public Long countSingleCarparkCardBySearch(String serialNumber, List<SingleCarparkUser> listUser) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindSingleCarparkCardBySearch(serialNumber, listUser);
+			c.setProjection(Projections.rowCount());
+			Long l = (Long) c.getSingleResultOrNull();
+			return l==null?0L:l;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	@Transactional
+	@Override
+	public Long deleteSingleCarparkCard(SingleCarparkCard card) {
+		DatabaseOperation<SingleCarparkCard> dom = DatabaseOperation.forClass(SingleCarparkCard.class, emprovider.get());
+		dom.remove(card);
 		return card.getId();
 	}
 }

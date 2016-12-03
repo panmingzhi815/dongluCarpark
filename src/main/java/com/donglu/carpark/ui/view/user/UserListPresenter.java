@@ -414,7 +414,6 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 
 	@Override
 	protected void continue_go() {
-		refresh();
 		expirationReminder();
 	}
 	

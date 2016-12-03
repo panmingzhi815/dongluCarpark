@@ -46,6 +46,7 @@ import com.donglu.carpark.service.PlateSubmitServiceI;
 import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
+import com.donglu.carpark.ui.servlet.CardRecordServlet;
 import com.donglu.carpark.ui.servlet.OpenDoorServlet;
 import com.donglu.carpark.ui.task.CarInOutResult;
 import com.donglu.carpark.ui.task.ConfimBox;
@@ -1333,8 +1334,8 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-		mapIpToJNA.get(ip).tigger(ip);
-//		carInOutResultProvider.get().invok(ip, 0, "sBD021W", null, null, 11);
+//		mapIpToJNA.get(ip).tigger(ip);
+		carInOutResultProvider.get().invok(ip, 0, "贵A88G26", null, null, 11);
 	}
 
 	/**
@@ -1494,6 +1495,9 @@ public class CarparkMainPresenter {
 		
 		if (mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录).equals("true")) {
 			CarparkUtils.startServer(10002, "/*", new OpenDoorServlet(this));
+		}
+		if (mapSystemSetting.get(SystemSettingTypeEnum.启用卡片支持).equals("true")) {
+			CarparkUtils.startServer(10004, "/*", new CardRecordServlet(this));
 		}
 	}
 
@@ -2442,6 +2446,10 @@ public class CarparkMainPresenter {
 			e.printStackTrace();
 			commonui.error("提示", "修改失败！");
 		}
+	}
+
+	public CarparkDatabaseServiceProvider getSp() {
+		return sp;
 	}
 
 }

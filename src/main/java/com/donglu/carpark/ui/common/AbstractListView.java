@@ -38,6 +38,10 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 
 public abstract class AbstractListView<T> extends AbstractView {
 	protected ListPresenter<T> presenter;
@@ -78,6 +82,7 @@ public abstract class AbstractListView<T> extends AbstractView {
 			this.list = list;
 			if (pcs != null)
 				pcs.firePropertyChange("list", null, null);
+			setCountSearch(0);
 		}
 
 		public Integer getCountSearch() {
@@ -104,7 +109,7 @@ public abstract class AbstractListView<T> extends AbstractView {
 			this.list.addAll(list2);
 			if (pcs != null)
 				pcs.firePropertyChange("list", null, null);
-
+			setCountSearch(list.size());
 		}
 
 		public List<T> getSelected() {
@@ -197,6 +202,11 @@ public abstract class AbstractListView<T> extends AbstractView {
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		tableViewer = new TableViewer(composite_1, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
+		tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				presenter.selected(model.getSelected());
+			}
+		});
 		table = tableViewer.getTable();
 		table.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		table.setLinesVisible(true);
@@ -314,6 +324,7 @@ public abstract class AbstractListView<T> extends AbstractView {
 	}
 
 	protected void searchMore() {
+		presenter.searchMore();
 	}
 
 	protected void refresh() {

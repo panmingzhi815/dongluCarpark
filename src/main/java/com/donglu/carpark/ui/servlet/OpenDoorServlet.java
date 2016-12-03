@@ -26,7 +26,7 @@ public class OpenDoorServlet extends HttpServlet {
 	private static final Logger logger = LoggerFactory.getLogger(OpenDoorServlet.class);
 	private CarparkMainPresenter presenter;
 	private CarparkMainModel model;
-	private static Map<String, SingleCarparkDevice> mapControlIpToDevice = new HashMap<String, SingleCarparkDevice>();
+	static Map<String, SingleCarparkDevice> mapControlIpToDevice = new HashMap<String, SingleCarparkDevice>();
 
 	public OpenDoorServlet(CarparkMainPresenter presenter) {
 		this.presenter = presenter;

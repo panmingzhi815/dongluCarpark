@@ -9,6 +9,7 @@ import com.donglu.carpark.ui.list.BlackUserListPresenter;
 import com.donglu.carpark.ui.view.OpenDoorLogPresenter;
 import com.donglu.carpark.ui.view.ReturnAccountPresenter;
 import com.donglu.carpark.ui.view.SystemLogPresenter;
+import com.donglu.carpark.ui.view.card.CardPresenter;
 import com.donglu.carpark.ui.view.carpark.CarparkPresenter;
 import com.donglu.carpark.ui.view.deviceerror.DeviceErrorPresenter;
 import com.donglu.carpark.ui.view.free.TempCarFreePresenter;
@@ -63,6 +64,8 @@ public class CarparkManagePresenter {
 	private CarparkOffLineHistoryPresenter carparkOffLineHistoryPresenter;
 	private TempCarFreePresenter tempCarFreePresenter;
 	private CarPayPresenter carPayPresenter;
+	
+	private CardPresenter cardPresenter;
 
 	public CarparkManageApp getView() {
 		return view;
@@ -96,6 +99,7 @@ public class CarparkManagePresenter {
 		carparkOffLineHistoryPresenter=Login.injector.getInstance(CarparkOffLineHistoryPresenter.class);
 		tempCarFreePresenter=Login.injector.getInstance(TempCarFreePresenter.class);
 		carPayPresenter=Login.injector.getInstance(CarPayPresenter.class);
+		cardPresenter=Login.injector.getInstance(CardPresenter.class);
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.登录登出, "登录了管理界面", System.getProperty(ConstUtil.USER_NAME));
 		refreshSystemSetting();
 	}
@@ -206,6 +210,10 @@ public class CarparkManagePresenter {
 
 	public CarPayPresenter getCarPayPresenter() {
 		return carPayPresenter;
+	}
+
+	public CardPresenter getCardPresenter() {
+		return cardPresenter;
 	}
 
 }
