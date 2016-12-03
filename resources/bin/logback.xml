@@ -70,7 +70,7 @@
     <logger name="com.donglu.carpark.service" level="INFO">
         <appender-ref ref="SERVICES_MESSAGE_DEBUG"/>
     </logger>
-    <logger name="com.donglu.carpark.ui" level="ERROR">
+    <logger name="com.donglu.carpark.ui" level="INFO">
         <appender-ref ref="UI_MESSAGE_DEBUG"/>
     </logger>
      <logger name="com.donglu.carpark.util" level="ERROR">

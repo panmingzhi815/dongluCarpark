@@ -50,8 +50,30 @@ public class ImageHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		model.setCountSearchAll(countByCondition);
 		model.AddList(list);
 		model.setCountSearch(model.getList().size());
+		count(model.getList());
 	}
 
+
+	private void count(List<SingleCarparkImageHistory> list) {
+		int nomal=0;
+		int t=0;
+		int f=0;
+		for (SingleCarparkImageHistory ih : list) {
+			String type = ih.getType();
+			switch (type) {
+			case "原始":
+				nomal++;
+				break;
+			case "正确":
+				t++;
+				break;
+			case "错误":
+				f++;
+				break;
+			}
+		}
+		v.setInfo(nomal, t, f);
+	}
 
 	public void searchMore() {
 		AbstractListView<SingleCarparkImageHistory>.Model model = v.getModel();
@@ -109,5 +131,33 @@ public class ImageHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		}
 		ImageDialog d=new ImageDialog(bigImage);
 		d.open();
+	}
+
+	public void setTrue() {
+		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
+		List<SingleCarparkImageHistory> selected = v.getModel().getSelected();
+		for (SingleCarparkImageHistory singleCarparkImageHistory : selected) {
+			singleCarparkImageHistory.setType("正确");
+			carparkInOutService.saveImageHistory(singleCarparkImageHistory);
+		}
+		refresh();
+	}
+
+	public void setFalse() {
+		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
+		List<SingleCarparkImageHistory> selected = v.getModel().getSelected();
+		for (SingleCarparkImageHistory singleCarparkImageHistory : selected) {
+			singleCarparkImageHistory.setType("错误");
+			carparkInOutService.saveImageHistory(singleCarparkImageHistory);
+		}
+		refresh();
+	}
+	@Override
+	public void delete(List<SingleCarparkImageHistory> list) {
+		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
+		for (SingleCarparkImageHistory singleCarparkImageHistory : list) {
+			carparkInOutService.deleteImageHistory(singleCarparkImageHistory);
+		}
+		refresh();
 	}
 }
