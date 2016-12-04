@@ -76,6 +76,7 @@ public class CarparkMainModel extends DomainObject {
 	private final Map<String, SingleCarparkInOutHistory> mapDeviceToCard=new MyMapCache<>(60000,100);
 	private final Map<String, Date> mapCardEventTime=new MyMapCache<>(60000,100);
 	private final Map<String, CarInTask> mapPlateToInTask=new MyMapCache<>(60000,100);
+	private final Map<String, CarOutTask> mapPlateToOutTask=new MyMapCache<>(60000,100);
 
 	/**
 	 * 
@@ -893,6 +894,10 @@ public class CarparkMainModel extends DomainObject {
 
 	public Map<String, SingleCarparkInOutHistory> getMapDeviceToCard() {
 		return mapDeviceToCard;
+	}
+
+	public Map<String, CarOutTask> getMapPlateToOutTask() {
+		return mapPlateToOutTask;
 	}
 
 }

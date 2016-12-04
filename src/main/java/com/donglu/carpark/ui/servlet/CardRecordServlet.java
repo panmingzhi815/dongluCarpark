@@ -20,6 +20,7 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.task.CarInTask;
+import com.donglu.carpark.ui.task.CarOutTask;
 import com.dongluhitec.card.domain.db.singlecarpark.MachTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -63,7 +64,7 @@ public class CardRecordServlet extends HttpServlet {
 				}
 			}
 		}
-		if (device == null || device.getInOrOut().equals("出口")) {
+		if (device == null) {
 			return;
 		}
 		if (device.getMachType().equals(MachTypeEnum.P)) {
@@ -82,36 +83,81 @@ public class CardRecordServlet extends HttpServlet {
 			SingleCarparkCard card = list.get(0);
 			SingleCarparkUser user = card.getUser();
 			String[] plateNos = user.getPlateNo().split(",");
-			
-			if (device.getMachType().equals(MachTypeEnum.PAC)) {
-				CarInTask carInTask = null;
-				Date date = new Date();
-				String plateNO = null;
-				for (String string : plateNos) {
-					plateNO = string;
-					carInTask = model.getMapPlateToInTask().remove(string);
-					if (carInTask != null
-							&& StrUtil.countTime(carInTask.getDate(), date, TimeUnit.MILLISECONDS) < Integer.valueOf(model.getMapSystemSetting().get(SystemSettingTypeEnum.车牌卡片共用时允许识别间隔)) * 1000) {
-						break;
+			if (device.getInOrOut().equals("进口")) {
+				cardIn(device, serialNumber, user, plateNos);
+			}else{
+				if (device.getMachType().equals(MachTypeEnum.PAC)) {
+					CarOutTask carOutTask = null;
+					Date date = new Date();
+					String plateNO = null;
+					for (String string : plateNos) {
+						plateNO = string;
+						carOutTask = model.getMapPlateToOutTask().remove(string);
+						if (carOutTask != null
+								&& StrUtil.countTime(carOutTask.getDate(), date, TimeUnit.MILLISECONDS) < Integer.valueOf(model.getMapSystemSetting().get(SystemSettingTypeEnum.车牌卡片共用时允许识别间隔)) * 1000) {
+							break;
+						}
+						carOutTask = null;
 					}
-					carInTask = null;
+					if (carOutTask == null) {
+						logger.info("没有找到卡片:{} 对应车牌:{} 的信息，等待车牌识别", serialNumber, plateNO);
+						model.getMapCardEventTime().put(serialNumber, date);
+						return;
+					}
+					logger.info("找到卡片:{} 对应车牌:{}　的识别信息，准备放行",serialNumber,carOutTask.getEditPlateNo());
+					carOutTask.setCardSerialNumber(serialNumber);
+					carOutTask.setUser(user);
+					carOutTask.checkUserAndOut(false);
+				}else if(device.getMachType().equals(MachTypeEnum.POC)||device.getMachType().equals(MachTypeEnum.C)){
+					SingleCarparkInOutHistory cch = new SingleCarparkInOutHistory();
+					cch.setPlateNo(user.getPlateNo());
+					cch.setCardSerialNumber(serialNumber);
+					cch.setUser(user);
+					model.getMapDeviceToCard().put(device.getIp(), cch);
+					presenter.handPhotograph(device.getIp());
 				}
-				if (carInTask == null) {
-					logger.info("没有找到卡片:{} 对应车牌:{} 的信息，等待车牌识别", serialNumber, plateNO);
-					model.getMapCardEventTime().put(serialNumber, date);
-					return;
-				}
-				carInTask.setCardSerialNumber(serialNumber);
-				carInTask.initInOutHistory();
-				carInTask.checkUser(false);
-			}else if(device.getMachType().equals(MachTypeEnum.POC)||device.getMachType().equals(MachTypeEnum.C)){
-				SingleCarparkInOutHistory cch = new SingleCarparkInOutHistory();
-				cch.setCardSerialNumber(serialNumber);
-				cch.setUser(user);
-				presenter.handPhotograph(device.getIp());
 			}
 		} catch (Exception e) {
 			logger.error("处理刷卡记录时发生错误" + e, e);
+		}
+	}
+
+	/**
+	 * 刷卡进入
+	 * @param device
+	 * @param serialNumber
+	 * @param user
+	 * @param plateNos
+	 * @throws Exception
+	 */
+	public void cardIn(SingleCarparkDevice device, String serialNumber, SingleCarparkUser user, String[] plateNos) throws Exception {
+		if (device.getMachType().equals(MachTypeEnum.PAC)) {
+			CarInTask carInTask = null;
+			Date date = new Date();
+			String plateNO = null;
+			for (String string : plateNos) {
+				plateNO = string;
+				carInTask = model.getMapPlateToInTask().remove(string);
+				if (carInTask != null
+						&& StrUtil.countTime(carInTask.getDate(), date, TimeUnit.MILLISECONDS) < Integer.valueOf(model.getMapSystemSetting().get(SystemSettingTypeEnum.车牌卡片共用时允许识别间隔)) * 1000) {
+					break;
+				}
+				carInTask = null;
+			}
+			if (carInTask == null) {
+				logger.info("没有找到卡片:{} 对应车牌:{} 的信息，等待车牌识别", serialNumber, plateNO);
+				model.getMapCardEventTime().put(serialNumber, date);
+				return;
+			}
+			carInTask.setCardSerialNumber(serialNumber);
+			carInTask.initInOutHistory();
+			carInTask.checkUser(false);
+		}else if(device.getMachType().equals(MachTypeEnum.POC)||device.getMachType().equals(MachTypeEnum.C)){
+			SingleCarparkInOutHistory cch = new SingleCarparkInOutHistory();
+			cch.setCardSerialNumber(serialNumber);
+			cch.setUser(user);
+			model.getMapDeviceToCard().put(device.getIp(), cch);
+			presenter.handPhotograph(device.getIp());
 		}
 	}
 

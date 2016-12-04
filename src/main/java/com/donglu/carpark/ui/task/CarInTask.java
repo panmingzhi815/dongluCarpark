@@ -86,7 +86,7 @@ public class CarInTask extends AbstractTask {
 		if (Boolean.valueOf(model.getMapSystemSetting().get(SystemSettingTypeEnum.启用卡片支持))) {
 			if(device.getMachType().equals(MachTypeEnum.POC)||device.getMachType().equals(MachTypeEnum.C)){
 				cch = model.getMapDeviceToCard().remove(ip);
-				if (cch!=null&&StrUtil.isEmpty(cch.getCardSerialNumber())) {
+				if (cch!=null&&!StrUtil.isEmpty(cch.getCardSerialNumber())) {
 					boolean b = presenter.checkPlateNODiscernGap(model.getMapPlateNoDate(), cch.getCardSerialNumber(), date);
 					if (!b) {
 						return;
@@ -95,6 +95,7 @@ public class CarInTask extends AbstractTask {
 					user=cch.getUser();
 					editPlateNo=user.getPlateNo().split(",")[0];
 					initInOutHistory();
+					isOpenDoor=true;
 					saveInHistory();
 					return;
 				}
@@ -177,7 +178,7 @@ public class CarInTask extends AbstractTask {
 		MachTypeEnum machType = device.getMachType();
 		if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用卡片支持))&&machType.equals(MachTypeEnum.PAC)&&user!=null) {
 			logger.info("已启用卡片支持，且需要卡片和车牌同时匹配,判断用户：{} 权限",user);
-			List<SingleCarparkCard> list=carparkUserService.findSingleCarparkCardBySearch(0,Integer.MAX_VALUE,null, listUser);
+			List<SingleCarparkCard> list=carparkUserService.findSingleCarparkCardBySearch(0,Integer.MAX_VALUE,null, Arrays.asList(user));
 			if (StrUtil.isEmpty(list)) {
 				logger.debug("没有找到用户对应卡片，禁止进入");
 				return true;
