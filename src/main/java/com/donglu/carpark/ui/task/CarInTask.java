@@ -620,6 +620,7 @@ public class CarInTask extends AbstractTask {
 			cch.setIsCountSlot(true);
 		}
 		model.setInShowPlateNO(model.getInShowPlateNO()+"-"+user.getName());
+		cch.setReviseInTime(null);
 		return false;
 	}
 

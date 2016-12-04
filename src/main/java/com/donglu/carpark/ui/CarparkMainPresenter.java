@@ -108,6 +108,7 @@ import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.mapper.BeanUtil;
 import com.dongluhitec.card.shanghaiyunpingtai.ShanghaiYunCarparkCfg;
+import com.dongluhitec.card.ui.util.FileUtils;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
@@ -1336,12 +1337,8 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 		mapIpToJNA.get(ip).tigger(ip);
-//		try {
-//			byte[] bs = java.nio.file.Files.readAllBytes(Paths.get("D:\\img\\20161122111651128_粤BD021W_big.jpg"));
-//			carInOutResultProvider.get().invok(ip, 0, "贵A88G26", bs, null, 11);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+//		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+//		carInOutResultProvider.get().invok(ip, 0, "贵A88G26", bs, null, 11);
 	}
 
 	/**
