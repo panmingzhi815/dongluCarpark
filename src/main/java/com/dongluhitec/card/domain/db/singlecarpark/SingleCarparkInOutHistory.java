@@ -9,6 +9,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -93,6 +94,8 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private byte[] remark;
 	@Column(length=32)
 	private String cardSerialNumber;
+	@Transient
+	private SingleCarparkUser user;
 
 	public String getPlateNo() {
 		return plateNo;
@@ -446,6 +449,12 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	}
 	public String getCardSerialNumber() {
 		return cardSerialNumber;
+	}
+	public SingleCarparkUser getUser() {
+		return user;
+	}
+	public void setUser(SingleCarparkUser user) {
+		this.user = user;
 	}
 	
 }

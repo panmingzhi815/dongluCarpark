@@ -82,6 +82,24 @@ public class CarInTask extends AbstractTask {
 			return;
 		}
 		initImgPath();
+		
+		if (Boolean.valueOf(model.getMapSystemSetting().get(SystemSettingTypeEnum.启用卡片支持))) {
+			if(device.getMachType().equals(MachTypeEnum.POC)||device.getMachType().equals(MachTypeEnum.C)){
+				cch = model.getMapDeviceToCard().remove(ip);
+				if (cch!=null&&StrUtil.isEmpty(cch.getCardSerialNumber())) {
+					boolean b = presenter.checkPlateNODiscernGap(model.getMapPlateNoDate(), cch.getCardSerialNumber(), date);
+					if (!b) {
+						return;
+					}
+					cardSerialNumber=cch.getCardSerialNumber();
+					user=cch.getUser();
+					editPlateNo=user.getPlateNo().split(",")[0];
+					initInOutHistory();
+					saveInHistory();
+					return;
+				}
+			}
+		}
 
 		model.setInShowPlateNO(plateNO);
 		model.setInShowTime(dateString);

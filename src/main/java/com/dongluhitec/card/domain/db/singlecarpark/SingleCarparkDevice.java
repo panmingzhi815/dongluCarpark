@@ -217,10 +217,10 @@ public class SingleCarparkDevice extends DomainObject{
 		firePropertyChange("holidayControlTime", null, null);
 	}
 	public MachTypeEnum getMachType() {
-//		if (machType==null) {
-			return MachTypeEnum.PAC;
-//		}
-//		return machType;
+		if (machType==null) {
+			return MachTypeEnum.P;
+		}
+		return machType;
 	}
 	public void setMachType(MachTypeEnum machType) {
 		this.machType = machType;

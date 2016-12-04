@@ -23,9 +23,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,8 +37,6 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 
 public class SettingView extends Composite implements View {
 	private String cLIENT_IMAGE_SAVE_FILE_PATH = "clientImageSaveFilePath";
@@ -56,6 +55,7 @@ public class SettingView extends Composite implements View {
 	private Text text_2;
 	private Group group_childCarparkSetting;
 	private ScrolledComposite scrolledComposite;
+	private Text text_3;
 
 	public SettingView(Composite parent, int style) {
 		super(parent, style);
@@ -743,6 +743,50 @@ public class SettingView extends Composite implements View {
 		combo_1.setLayoutData(gd_combo_1);
 		combo_1.setItems(new String[]{"6","7"});
 		combo_1.setText(mapSystemSetting.get(SystemSettingTypeEnum.固定车车牌匹配字符数));
+		
+		Composite composite_12 = new Composite(group_3, SWT.NONE);
+		composite_12.setLayout(new GridLayout(4, false));
+		composite_12.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Button button_33 = new Button(composite_12, SWT.CHECK);
+		button_33.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				boolean selection = button_33.getSelection();
+				text_3.setEnabled(selection);
+				mapSystemSetting.put(SystemSettingTypeEnum.启用卡片支持, selection+"");
+			}
+		});
+		button_33.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_33.setText("启用固定车卡片支持");
+		button_33.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用卡片支持)));
+		
+		Label label_11 = new Label(composite_12, SWT.NONE);
+		label_11.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_11.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_11.setText("车牌和卡片同时匹配时刷卡间隔：");
+		
+		text_3 = new Text(composite_12, SWT.BORDER);
+		text_3.setToolTipText("识别到车牌后必须在这个时间内刷卡才能放行");
+		text_3.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_3.setText(mapSystemSetting.get(SystemSettingTypeEnum.车牌卡片共用时允许识别间隔));
+		text_3.setEnabled(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用卡片支持)));
+		
+		Label label_12 = new Label(composite_12, SWT.NONE);
+		label_12.setText("秒");
+		text_3.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				try {
+					String text2 = text_3.getText();
+					Integer.valueOf(text2);
+					mapSystemSetting.put(SystemSettingTypeEnum.车牌卡片共用时允许识别间隔, text2);
+				} catch (NumberFormatException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		
 		combo_1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

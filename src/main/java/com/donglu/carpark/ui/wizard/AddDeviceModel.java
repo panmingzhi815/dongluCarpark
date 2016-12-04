@@ -57,6 +57,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		device.setInOrOut(getInOutType().toString());
 		device.setControlTime(getControlTime());
 		device.setHolidayControlTime(getHolidayControlTime());
+		device.setMachType(getMachType());
 		return device;
 	}
 	public String getSerialAddress() {
@@ -100,6 +101,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		setInOutType(DeviceInOutTypeEnum.valueOf(device.getInOrOut()));
 		setControlTime(device.getControlTime());
 		setHolidayControlTime(device.getHolidayControlTime());
+		setMachType(device.getMachType());
 	}
 	public String getVoice() {
 		return voice;
