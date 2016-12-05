@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui.view.card.wizard;
 
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 
 import com.donglu.carpark.ui.Login;
@@ -32,8 +33,7 @@ public class AddCardWizard extends Wizard implements AbstractWizard {
 		UserPresenter userPresenter = Login.injector.getInstance(UserPresenter.class);
 		page2 = new SelectUserWizardPage(model, userPresenter);
 		addPage(page2);
-		getShell().setSize(450, 650);
-		WidgetUtil.center(getShell());
+		getShell().setSize(450, 550);
 		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 	}
 
@@ -51,7 +51,17 @@ public class AddCardWizard extends Wizard implements AbstractWizard {
 		model.setSerialNumber(padStart);
 		return true;
 	}
-	
+	@Override
+	public IWizardPage getNextPage(IWizardPage page) {
+		System.out.println(page.getClass());
+		if (page.getClass().equals(page2.getClass())) {
+			getShell().setSize(1024, 768);
+		}else{
+			getShell().setSize(450, 550);
+		}
+		WidgetUtil.center(getShell());
+		return super.getNextPage(page);
+	}
 	
 	private void setErrorMessage(String string) {
 		page.setErrorMessage(string);
