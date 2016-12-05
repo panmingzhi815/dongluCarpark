@@ -558,7 +558,7 @@ public class CarInTask extends AbstractTask {
 					findHistoryByChildCarparkInOut = sp.getCarparkInOutService()
 							.findInOutHistoryByCarparkAndPlateNO(null, pn);
 					for (SingleCarparkInOutHistory singleCarparkInOutHistory : findHistoryByChildCarparkInOut) {
-						if (singleCarparkInOutHistory.getReviseInTime() != null) {
+						if (singleCarparkInOutHistory.getReviseInTime() != null&&!singleCarparkInOutHistory.getIsOverdue()) {
 							logger.info("车牌：{} 在其他停车场是临时身份进入，直接做临时车计算",editPlateNo);
 							return tempCarShowToDevice(false);
 						}
