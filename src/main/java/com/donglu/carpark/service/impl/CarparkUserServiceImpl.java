@@ -56,6 +56,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 	@Override
 	@Transactional
 	public Long deleteUser(SingleCarparkUser user) {
+		emprovider.get().createNativeQuery("delete SingleCarparkCard where user_id="+user.getId()).executeUpdate();
 		DatabaseOperation<SingleCarparkUser> dom = DatabaseOperation.forClass(SingleCarparkUser.class, emprovider.get());
 		dom.remove(user.getId());
 		return user.getId();
