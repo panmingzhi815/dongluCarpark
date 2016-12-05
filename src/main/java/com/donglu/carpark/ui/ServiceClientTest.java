@@ -12,7 +12,7 @@ public class ServiceClientTest {
 	private static String s="00000000ABCDEF12";
 	public static void main(String[] args) {
 		try {
-			URL url = new URL("http://127.0.0.1:10004/");
+			URL url = new URL("http://192.168.3.71:10004/");
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setDoOutput(true);
 			OutputStream os = con.getOutputStream();

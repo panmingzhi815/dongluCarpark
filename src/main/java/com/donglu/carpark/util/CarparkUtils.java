@@ -678,9 +678,10 @@ public class CarparkUtils {
 			handler.addServletWithMapping(holer, path);
 			server.setHandler(handler);
 			server.start();
+			LOGGER.info("服务{}启动成功",servlet.getClass());
 			return server;
 		} catch (Exception e) {
-			LOGGER.error("启动服务是发生错误");
+			LOGGER.error("启动服务时发生错误"+e,e);
 			return null;
 		}
 	}

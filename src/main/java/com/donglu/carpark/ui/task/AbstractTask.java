@@ -92,7 +92,6 @@ public abstract class AbstractTask implements Runnable {
 	 */
 	public void saveImage() {
 		logger.debug("开始保存车牌：{}的图片", plateNO);
-		mapPlateNoDate.put(plateNO, date);
 		presenter.saveImage(smallImgFileName,bigImgFileName,smallImage, bigImage);
 	}
 

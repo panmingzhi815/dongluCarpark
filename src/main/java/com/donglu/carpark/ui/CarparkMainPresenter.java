@@ -1334,8 +1334,8 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-//		mapIpToJNA.get(ip).tigger(ip);
-		carInOutResultProvider.get().invok(ip, 0, "贵A88G26", null, null, 11);
+		mapIpToJNA.get(ip).tigger(ip);
+//		carInOutResultProvider.get().invok(ip, 0, "贵A88G26", null, null, 11);
 	}
 
 	/**
@@ -1496,7 +1496,9 @@ public class CarparkMainPresenter {
 		if (mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录).equals("true")) {
 			CarparkUtils.startServer(10002, "/*", new OpenDoorServlet(this));
 		}
-		if (mapSystemSetting.get(SystemSettingTypeEnum.启用卡片支持).equals("true")) {
+		String string = mapSystemSetting.get(SystemSettingTypeEnum.启用卡片支持);
+		log.info("启用卡片支持设置为：{}",string);
+		if (string.equals("true")) {
 			CarparkUtils.startServer(10004, "/*", new CardRecordServlet(this));
 		}
 	}
