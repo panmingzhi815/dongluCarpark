@@ -7,7 +7,6 @@ import java.net.SocketTimeoutException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -125,38 +124,53 @@ public class CardRecordSocket extends HttpServlet {
 		}
 		@Override
 		public void run() {
-			String ip = socket.getInetAddress().getHostAddress();
-			logger.info("控制器：{}获得刷卡记录上传", ip);
-			if (!Boolean.valueOf(model.getMapSystemSetting().get(SystemSettingTypeEnum.启用卡片支持))) {
-				logger.info("没有启用卡片支持，不处理：{} 上传的卡片记录",ip);
-				return;
-			}
-			SingleCarparkDevice device = mapControlIpToDevice.get(ip);
-			if (device == null) {
-				for (SingleCarparkDevice singleCarparkDevice : model.getMapIpToDevice().values()) {
-					if (singleCarparkDevice.getLinkAddress().contains(ip)) {
-						device = singleCarparkDevice;
-						mapControlIpToDevice.put(ip, device);
-						break;
-					}
-				}
-			}
-			if (device == null) {
-				return;
-			}
-			if (device.getMachType().equals(MachTypeEnum.P)) {
-				logger.info("设备匹配模式为：{} 不处理刷卡信息",device.getMachType());
-				return;
-			}
 			try {
-				byte[] bs = new byte[17];
-				socket.setSoTimeout(2000);
-				socket.getInputStream().read(bs);
-				String serialNumber = new String(bs).trim();
-				if (serialNumber.length()>16) {
-					serialNumber=serialNumber.substring(1);
+    			String ip = socket.getInetAddress().getHostAddress();
+    			logger.info("控制器：[{}]获得刷卡记录上传", ip);
+    			if (!Boolean.valueOf(model.getMapSystemSetting().get(SystemSettingTypeEnum.启用卡片支持))) {
+    				logger.info("没有启用卡片支持，不处理：{} 上传的卡片记录",ip);
+    				return;
+    			}
+    			SingleCarparkDevice device = mapControlIpToDevice.get(ip);
+    			if (device == null) {
+    				for (SingleCarparkDevice singleCarparkDevice : model.getMapIpToDevice().values()) {
+    					String linkAddress = singleCarparkDevice.getLinkAddress();
+    					if (linkAddress==null) {
+							continue;
+						}
+						if (linkAddress.contains(ip)) {
+    						device = singleCarparkDevice;
+    						mapControlIpToDevice.put(ip, device);
+    						break;
+    					}
+    				}
+    			}
+    			if (device == null) {
+    				logger.info("获取ip：{} 设备为空",ip);
+    				return;
+    			}
+			
+    			byte[] bs = new byte[17];
+    			socket.setSoTimeout(2000);
+    			socket.getInputStream().read(bs);
+    			String serialNumber = new String(bs).trim();
+    			logger.info("读取到卡片：{} 刷卡记录",serialNumber);
+    			if (serialNumber.length()>16) {
+    				serialNumber=serialNumber.substring(1);
+    			}
+    			if (serialNumber.equals("0000000000000000")) {
+    				Boolean isSaveOpenDoor = Boolean.valueOf(model.getMapSystemSetting().get(SystemSettingTypeEnum.保存遥控开闸记录));
+    				logger.info("卡片：{} 为开闸记录，保存遥控开闸记录设置为：{}",serialNumber,isSaveOpenDoor);
+    				if (isSaveOpenDoor) {
+    					model.getMapOpenDoor().put(device.getIp(),true);
+    					presenter.handPhotograph(device.getIp());
+					}
+    				return;
 				}
-				logger.info("获取到卡片{}刷卡",serialNumber);
+    			if (device.getMachType().equals(MachTypeEnum.P)) {
+    				logger.info("设备匹配模式为：{} 不处理刷卡信息",device.getMachType());
+    				return;
+    			}
 				List<SingleCarparkCard> list = sp.getCarparkUserService().findSingleCarparkCardBySearch(0, Integer.MAX_VALUE, serialNumber, null);
 				if (StrUtil.isEmpty(list)) {
 					logger.error("在系统中没有找到卡片[{}]", serialNumber);

@@ -47,6 +47,7 @@ import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.servlet.CardRecordServlet;
+import com.donglu.carpark.ui.servlet.CardRecordSocket;
 import com.donglu.carpark.ui.servlet.OpenDoorServlet;
 import com.donglu.carpark.ui.task.CarInOutResult;
 import com.donglu.carpark.ui.task.ConfimBox;
@@ -1498,8 +1499,9 @@ public class CarparkMainPresenter {
 		}
 		String string = mapSystemSetting.get(SystemSettingTypeEnum.启用卡片支持);
 		log.info("启用卡片支持设置为：{}",string);
-		if (string.equals("true")) {
-			CarparkUtils.startServer(10004, "/*", new CardRecordServlet(this));
+		if (string.equals("true")||mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录).equals("true")) {
+//			CarparkUtils.startServer(10004, "/*", new CardRecordServlet(this));
+			new CardRecordSocket(this).start();
 		}
 	}
 
