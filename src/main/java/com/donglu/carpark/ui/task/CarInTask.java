@@ -512,7 +512,7 @@ public class CarInTask extends AbstractTask {
 						if (singleCarparkInOutHistory.getReviseInTime() != null) {
 							if (singleCarparkInOutHistory.getFixCarInType().equals(FixCarInTypeEnum.固定车车位满变临时车)) {
 								if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆允许场内换车))) {
-									List<SingleCarparkInOutHistory> list = carparkInOutService.findInOutHistoryByCarparkAndPlateNO(carpark, pn, true);
+									List<SingleCarparkInOutHistory> list = carparkInOutService.findInOutHistoryByCarparkAndPlateNO(carpark, platesSet, true);
 									Set<String> plates=new HashSet<>();
 									for (SingleCarparkInOutHistory singleCarparkInOutHistory2 : list) {
 										plates.add(singleCarparkInOutHistory2.getPlateNo());
@@ -520,6 +520,10 @@ public class CarInTask extends AbstractTask {
 									if (plates.size()<slot) {
 										fixCarInShowMsg(validTo, fixCarInMsg);
 										return false;
+									}else{
+										model.setInShowPlateNO(model.getInShowPlateNO()+"-换车场内有车");
+										logger.info("场内换车时停车场：{} 的车辆：{} ,还未出去，禁止进入",carpark,plates);
+										return true;
 									}
 								}
 							}

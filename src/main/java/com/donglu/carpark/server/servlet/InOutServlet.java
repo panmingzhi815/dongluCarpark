@@ -1,4 +1,5 @@
 package com.donglu.carpark.server.servlet;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -467,5 +468,12 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	@Override
 	public List<SingleCarparkInOutHistory> findInOutHistoryByInTime(int i, int totalSlot, Set<String> plates, Date s) {
 		return carparkInOutService.findInOutHistoryByInTime(i, totalSlot, plates, s);
+	}
+
+
+
+	@Override
+	public List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(SingleCarparkCarpark carpark, Collection<String> pns, boolean b) {
+		return carparkInOutService.findInOutHistoryByCarparkAndPlateNO(carpark, pns, b);
 	}
 }

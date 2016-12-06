@@ -1365,6 +1365,32 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			unitOfWork.end();
 		}
 	}
+	@Override
+	public List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(SingleCarparkCarpark carpark, Collection<String> pns, boolean b) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			if (!StrUtil.isEmpty(pns)) {
+				c.add(Restrictions.in(SingleCarparkInOutHistory.Property.plateNo.name(), pns));
+			}
+			if (!StrUtil.isEmpty(carpark)) {
+				carpark = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get()).getEntityWithId(carpark.getId());
+				List<SingleCarparkCarpark> list=new ArrayList<>();
+				list.add(carpark);
+				carpark.getChildCarpark(carpark, list);
+				c.add(Restrictions.in(SingleCarparkInOutHistory.Property.carparkId.name(), StrUtil.getListIdByEntity(list)));
+			}
+			if (b) {
+				c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.reviseInTime.name()));
+			}else{
+				c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.reviseInTime.name()));
+			}
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
 
 	@Override
 	public List<SingleCarparkInOutHistory> findInOutHistoryByInTime(int i, int totalSlot, Set<String> plates, Date s) {
@@ -1382,4 +1408,5 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			unitOfWork.end();
 		}
 	}
+
 }

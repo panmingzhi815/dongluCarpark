@@ -1,5 +1,6 @@
 package com.donglu.carpark.service;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -275,6 +276,14 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(SingleCarparkCarpark carpark, String pn, boolean b);
+	/**
+	 * 查找场内车记录
+	 * @param carpark
+	 * @param pn
+	 * @param b 是否为固定车
+	 * @return
+	 */
+	List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(SingleCarparkCarpark carpark, Collection<String> pns, boolean b);
 	/**
 	 * 根据车牌和进场时间查找未出场记录，默认根据进场时间排序
 	 * @param i

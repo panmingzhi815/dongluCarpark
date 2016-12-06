@@ -401,7 +401,7 @@ public class CarOutTask extends AbstractTask{
 		if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆允许场内换车))) {
 			LOGGER.info("允许场内换车");
 			if (carpark.getParent()==null) {
-				List<SingleCarparkUser> listUsers = sp.getCarparkUserService().findAllUserByPlateNO(editPlateNo, carpark.getId(), date);
+				List<SingleCarparkUser> listUsers = sp.getCarparkUserService().findUserByNameAndCarpark(editPlateNo, carpark, date);
 				Set<String> plates=new HashSet<>();
 				int totalSlot=0;
 				boolean isCheckSlot=false;
@@ -416,10 +416,18 @@ public class CarOutTask extends AbstractTask{
 				}
 				if (isCheckSlot) {
 					Integer integer = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆场内换车时间));
-					Date s = new DateTime(date).plusMinutes(integer).toDate();
-					List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findInOutHistoryByInTime(0,totalSlot,plates,s);
+					Date s = new DateTime(date).minusMinutes(integer).toDate();
+					List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findInOutHistoryByInTime(0,Integer.MAX_VALUE,plates,s);
+					plates.clear();
 					for (SingleCarparkInOutHistory singleCarparkInOutHistory : list) {
+						String p = singleCarparkInOutHistory.getPlateNo();
+						if (plates.size()>=totalSlot&&!plates.contains(p)) {
+							continue;
+						}
 						singleCarparkInOutHistory.setFixCarInType(FixCarInTypeEnum.固定车);
+						singleCarparkInOutHistory.setIsOverdue(null);
+						singleCarparkInOutHistory.setReviseInTime(null);
+						plates.add(p);
 						sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
 					}
 				}

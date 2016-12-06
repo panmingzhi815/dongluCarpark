@@ -1331,7 +1331,9 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 //		mapIpToJNA.get(ip).tigger(ip);
-		carInOutResultProvider.get().invok(ip, 0, "川S69112", null, null, 11);
+//		String plateNO = "川S69112";
+		String plateNO = "粤BD021W";
+		carInOutResultProvider.get().invok(ip, 0, plateNO, null, null, 11);
 	}
 
 	/**
