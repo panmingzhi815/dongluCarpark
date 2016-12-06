@@ -32,10 +32,10 @@ public class BXScreenConfig implements Serializable{
 			out.println("#显示屏类型；1：单基色；2：双基色；3：双基色；注意：该显示屏类型只有BX-4MC支持；同时该型号控制器不支持其它显示屏类型。4：全彩色；注意：该显示屏类型只有BX-5Q系列支持；同时该型号控制器不支持其它显示屏类型。5：双基色灰度；注意：该显示屏类型只有BX-5QS支持；同时该型号控制器不支持其它显示屏类型");
 			out.println(String.format("%s=%s", "nScreenType", getnScreenType()));
 			out.println();
-			out.println("#有效车牌颜色0-255");
+			out.println("#有效车牌颜色 红255 绿65280 黄65535");
 			out.println(String.format("%s=%s", "trueColor", getTrueColor()));
 			out.println();
-			out.println("#无效车牌颜色0-255");
+			out.println("#无效车牌颜色 红255 绿65280 黄65535");
 			out.println(String.format("%s=%s", "falseColor", getFalseColor()));
 			out.println();
 			

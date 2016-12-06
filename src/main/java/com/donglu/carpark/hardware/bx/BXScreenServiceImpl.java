@@ -72,7 +72,7 @@ public class BXScreenServiceImpl implements BXScreenService {
 					mapAreaSize.put(identitifire, areaSize);
 					int size = screenTextList.size();
 					for (int i = 0; i < size; i++) {
-						String string = screenTextList.get(i);
+						String string = screenTextList.get(size-1-i);
 						int deleteScreenProgramAreaBmpTextFile = jna.DeleteScreenProgramAreaBmpTextFile(identitifire, 0, i, 0);
 						System.out.println((System.currentTimeMillis() - currentTimeMillis) + "===deleteScreenProgramAreaBmpTextFile===" + deleteScreenProgramAreaBmpTextFile);
 						

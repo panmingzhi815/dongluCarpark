@@ -1,0 +1,25 @@
+{
+ "QuickScan": [
+  {
+	  "ScanList":[
+		  {  
+		   "Scan": 16,
+		   "Conf_Num": 0,
+		  },{  
+		   "Scan": 4,
+		   "Conf_Num": 0,
+		  },{  
+		   "Scan": 4,
+		   "Conf_Num": 1,
+	  	}
+	  ]
+  },{
+	  "ScanList":[
+	  	{  
+		   "Scan": 4,
+		   "Conf_Num": 0,
+		  },
+	  ]
+  },
+  ],
+}
