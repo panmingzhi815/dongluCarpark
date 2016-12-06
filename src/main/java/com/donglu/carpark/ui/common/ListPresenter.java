@@ -7,4 +7,6 @@ public interface ListPresenter<T> extends Presenter {
 	void delete(List<T> list);
 	void refresh();
 	public void mouseDoubleClick(List<T> list);
+	public void selected(List<T> list);
+	public void searchMore();
 }

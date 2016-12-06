@@ -47,6 +47,8 @@ public abstract class AbstractTask implements Runnable {
 	protected String type = "进场";
 	// 保存车牌最近的处理时间
 	protected final Map<String, Date> mapPlateNoDate;
+	
+	protected String cardSerialNumber;
 
 	public AbstractTask(CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, String ip, String plateNO, byte[] bigImage, byte[] smallImage, Float rightSize) {
 		super();
@@ -90,7 +92,6 @@ public abstract class AbstractTask implements Runnable {
 	 */
 	public void saveImage() {
 		logger.debug("开始保存车牌：{}的图片", plateNO);
-		mapPlateNoDate.put(plateNO, date);
 		presenter.saveImage(smallImgFileName,bigImgFileName,smallImage, bigImage);
 	}
 
@@ -172,5 +173,17 @@ public abstract class AbstractTask implements Runnable {
 
 	public String getBigImgFileName() {
 		return bigImgFileName;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public String getCardSerialNumber() {
+		return cardSerialNumber;
+	}
+
+	public void setCardSerialNumber(String cardSerialNumber) {
+		this.cardSerialNumber = cardSerialNumber;
 	}
 }

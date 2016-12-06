@@ -26,6 +26,7 @@ import org.eclipse.core.databinding.observable.map.IObservableMap;
 
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.MachTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice.DeviceInOutTypeEnum;
@@ -84,6 +85,9 @@ public class AddDeviceBasicPage extends WizardPage {
 	private boolean controlTime=true;
 	private Label label_11;
 	private Text text_6;
+	private Label label_12;
+	private Combo combo_6;
+	private ComboViewer comboViewer_6;
 
 	/**
 	 * Create the wizard.
@@ -298,6 +302,17 @@ public class AddDeviceBasicPage extends WizardPage {
 		combo_3 = comboViewer_3.getCombo();
 		combo_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
+		label_12 = new Label(composite, SWT.NONE);
+		label_12.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_12.setText("匹配类型");
+		
+		comboViewer_6 = new ComboViewer(composite, SWT.READ_ONLY);
+		combo_6 = comboViewer_6.getCombo();
+		combo_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		comboViewer_6.setContentProvider(new ArrayContentProvider());
+		comboViewer_6.setLabelProvider(new LabelProvider());
+		comboViewer_6.setInput(MachTypeEnum.values());
+		
 		lblNewLabel_1 = new Label(composite, SWT.NONE);
 		GridData gd_lblNewLabel_1 = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
 		gd_lblNewLabel_1.exclude = controlTime;
@@ -407,6 +422,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue observeTextText_6ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_6);
 		IObservableValue holidayControlTimeModelObserveValue = BeanProperties.value("holidayControlTime").observe(model);
 		bindingContext.bindValue(observeTextText_6ObserveWidget, holidayControlTimeModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionComboViewer_6 = ViewerProperties.singleSelection().observe(comboViewer_6);
+		IObservableValue machTypeModelObserveValue = BeanProperties.value("machType").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer_6, machTypeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

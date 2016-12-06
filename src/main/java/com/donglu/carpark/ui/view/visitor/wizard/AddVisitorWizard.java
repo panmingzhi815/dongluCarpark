@@ -3,6 +3,7 @@ package com.donglu.carpark.ui.view.visitor.wizard;
 
 import org.eclipse.jface.wizard.Wizard;
 
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -14,9 +15,9 @@ public class AddVisitorWizard extends Wizard implements AbstractWizard {
 	public AddVisitorWizard(AddVisitorModel model) {
 		this.model = model;
 		if (StrUtil.isEmpty(model.getId())) {
-			setWindowTitle("添加访客用户");
+			setWindowTitle("添加"+ConstUtil.getVisitorName());
 		} else {
-			setWindowTitle("修改访客用户");
+			setWindowTitle("修改"+ConstUtil.getVisitorName());
 		}
 	}
 
@@ -32,6 +33,7 @@ public class AddVisitorWizard extends Wizard implements AbstractWizard {
 	@Override
 	public boolean performFinish() {
 		page.setErrorMessage(null);
+		model.setValidTo(page.getValidTo());
 		return true;
 	}
 

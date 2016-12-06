@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractPresenter implements Presenter {
-	static final Logger logger = LoggerFactory.getLogger(AbstractPresenter.class);
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	View view;
 	@Override
 	public void go(Composite c) {

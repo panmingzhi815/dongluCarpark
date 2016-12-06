@@ -37,4 +37,8 @@ public class UserPresenter  implements Presenter{
 		listPresenter.search(userName,plateNo,address,monthlyCharge,parseInt,text2);
 	}
 	
+	public void refresh(){
+		listPresenter.refresh();
+	}
+	
 }

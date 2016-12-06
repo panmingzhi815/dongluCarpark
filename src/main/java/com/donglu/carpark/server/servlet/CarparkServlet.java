@@ -429,4 +429,11 @@ public class CarparkServlet extends HessianServlet implements CarparkService {
 	public SingleCarparkVisitor findVisitorByPlateAndCarpark(String plateNo, SingleCarparkCarpark carpark) {
 		return carparkService.findVisitorByPlateAndCarpark(plateNo, carpark);
 	}
+
+
+
+	@Override
+	public int countVisitorByLike(String userName, String plateNo) {
+		return carparkService.countVisitorByLike(userName, plateNo);
+	}
 }

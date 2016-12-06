@@ -3,6 +3,7 @@ package com.donglu.carpark.service;
 import java.util.Date;
 import java.util.List;
 
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -81,4 +82,9 @@ public interface CarparkUserService {
 	 * @return
 	 */
 	List<SingleCarparkUser> findUserByPlateNoLikeSize(int start, int size, String plateNO, int likeSize, Long carparkId, Date validTo);
+	//卡片处理
+	public Long saveSingleCarparkCard(SingleCarparkCard card);
+	public Long deleteSingleCarparkCard(SingleCarparkCard card);
+	List<SingleCarparkCard> findSingleCarparkCardBySearch(int first,int max,String serialNumber,List<SingleCarparkUser> listUser);
+	Long countSingleCarparkCardBySearch(String serialNumber,List<SingleCarparkUser> listUser);
 }

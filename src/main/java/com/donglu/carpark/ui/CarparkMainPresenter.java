@@ -48,6 +48,8 @@ import com.donglu.carpark.service.PlateSubmitServiceI;
 import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
+import com.donglu.carpark.ui.servlet.CardRecordServlet;
+import com.donglu.carpark.ui.servlet.CardRecordSocket;
 import com.donglu.carpark.ui.servlet.OpenDoorServlet;
 import com.donglu.carpark.ui.task.CarInOutResult;
 import com.donglu.carpark.ui.task.ConfimBox;
@@ -1019,6 +1021,9 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	public boolean showContentToDevice(SingleCarparkDevice device, String content, boolean isOpenDoor) {
+		if (StrUtil.isEmpty(content)) {
+			return true;
+		}
 		if (checkDeviceLinkStatus(device)) {
 			return false;
 		}
@@ -1358,7 +1363,7 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 		mapIpToJNA.get(ip).tigger(ip);
-//		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", null, null, 11);
+//		carInOutResultProvider.get().invok(ip, 0, "贵A88G26", null, null, 11);
 	}
 
 	/**
@@ -1422,7 +1427,7 @@ public class CarparkMainPresenter {
 		mapIpToDevice = model.getMapIpToDevice();
 		mapSystemSetting = model.getMapSystemSetting();
 		refreshSystemSetting();
-		saveImageTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("保存图片任务"));
+		saveImageTheadPool = Executors.newFixedThreadPool(2,ThreadUtil.createThreadFactory("保存图片任务"));
 		openDoorTheadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
 		checkPlayerPlaying();
 		countTempCarCharge = new CountTempCarChargeImpl();
@@ -1518,6 +1523,12 @@ public class CarparkMainPresenter {
 		
 		if (mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录).equals("true")) {
 			CarparkUtils.startServer(10002, "/*", new OpenDoorServlet(this));
+		}
+		String string = mapSystemSetting.get(SystemSettingTypeEnum.启用卡片支持);
+		log.info("启用卡片支持设置为：{}",string);
+		if (string.equals("true")||mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录).equals("true")) {
+//			CarparkUtils.startServer(10004, "/*", new CardRecordServlet(this));
+			new CardRecordSocket(this).start();
 		}
 		initBXScreen();
 	}
@@ -2396,7 +2407,7 @@ public class CarparkMainPresenter {
 
 	private void setDeviceTabItemStatus(String ip, String image, String msg) {
 		CTabItem cTabItem = model.getMapIpToTabItem().get(ip);
-		if (cTabItem==null) {
+		if (cTabItem==null||cTabItem.isDisposed()) {
 			return;
 		}
 		Runnable runnable = new Runnable() {
@@ -2504,6 +2515,10 @@ public class CarparkMainPresenter {
 			bxScreenService = new BXScreenServiceImpl();
 			bxScreenService.init(0);
 		}
+	}
+
+	public CarparkDatabaseServiceProvider getSp() {
+		return sp;
 	}
 
 }

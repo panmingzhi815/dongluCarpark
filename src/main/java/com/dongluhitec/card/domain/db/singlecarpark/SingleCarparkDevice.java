@@ -44,6 +44,8 @@ public class SingleCarparkDevice extends DomainObject{
 	private String controlTime;
 	private String holidayControlTime;
 	
+	private MachTypeEnum machType=MachTypeEnum.P;
+	
 	public String getIdentifire() {
 		return identifire;
 	}
@@ -213,5 +215,15 @@ public class SingleCarparkDevice extends DomainObject{
 	public void setHolidayControlTime(String holidayControlTime) {
 		this.holidayControlTime = holidayControlTime;
 		firePropertyChange("holidayControlTime", null, null);
+	}
+	public MachTypeEnum getMachType() {
+		if (machType==null) {
+			return MachTypeEnum.P;
+		}
+		return machType;
+	}
+	public void setMachType(MachTypeEnum machType) {
+		this.machType = machType;
+		firePropertyChange("machType", null, null);
 	}
 }

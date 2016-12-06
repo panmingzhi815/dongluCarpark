@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkManagePresenter;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
+import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.view.visitor.wizard.AddVisitorModel;
 import com.donglu.carpark.ui.view.visitor.wizard.AddVisitorWizard;
@@ -45,10 +46,11 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 				model.setId(null);
 				model.setInCount(0);
 				model.setOutCount(0);
+				model.setValidTo(StrUtil.getTodayBottomTime(new Date()));
 			}
 			addAndEdit(model);
 		} catch (Exception e) {
-			commonui.error("", "添加访客失败", e);
+			commonui.error("", "添加"+ConstUtil.getVisitorName()+"失败", e);
 		}
 
 	}
@@ -89,10 +91,10 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 		sp.getCarparkService().saveVisitor(visitor);
 		if (model.getId() == null) {
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.访客, "添加访客"+visitor.getPlateNO(), System.getProperty(ConstUtil.USER_NAME));
-			commonui.info("成功", "添加访客成功");
+			commonui.info("成功", "添加"+ConstUtil.getVisitorName()+"成功");
 		} else {
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.访客, "修改访客"+model.getPlateNO()+">"+visitor.getPlateNO(), System.getProperty(ConstUtil.USER_NAME));
-			commonui.info("成功", "修改访客成功");
+			commonui.info("成功", "修改"+ConstUtil.getVisitorName()+"成功");
 		}
 		refresh();
 	}
@@ -103,7 +105,7 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 			if (StrUtil.isEmpty(list)) {
 				return;
 			}
-			boolean confirm = commonui.confirm("提示", "确认删除选中的"+list.size()+"个访客信息吗？");
+			boolean confirm = commonui.confirm("提示", "确认删除选中的"+list.size()+"个"+ConstUtil.getVisitorName()+"信息吗？");
 			if (!confirm) {
 				return;
 			}
@@ -113,14 +115,17 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 			}
 			refresh();
 		} catch (Exception e) {
-			commonui.error("成功", "删除访客成功", e);
+			commonui.error("成功", "删除"+ConstUtil.getVisitorName()+"成功", e);
 		}
 	}
 
 	@Override
 	public void refresh() {
 		List<SingleCarparkVisitor> findVisitorByLike = sp.getCarparkService().findVisitorByLike(0, 500, userName, plateNo);
+		int total=sp.getCarparkService().countVisitorByLike(userName, plateNo);
 		view.getModel().setList(findVisitorByLike);
+		view.getModel().setCountSearch(findVisitorByLike.size());
+		view.getModel().setCountSearchAll(total);
 	}
 
 	public void search(String userName, String plateNo) {
@@ -140,7 +145,7 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 			model.setVisitor(visitor);
 			addAndEdit(model);
 		} catch (Exception e) {
-			commonui.error("", "修改访客失败", e);
+			commonui.error("", "修改"+ConstUtil.getVisitorName()+"失败", e);
 		}
 	}
 
@@ -151,9 +156,22 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 	}
 	@Override
 	protected void continue_go() {
-		view.setTableTitle("固定用户列表");
-		view.setShowMoreBtn(false);
+		view.setTableTitle(ConstUtil.getVisitorName()+"列表");
+		view.setShowMoreBtn(true);
 		refresh();
+	}
+
+	public void searchMore() {
+		AbstractListView<SingleCarparkVisitor>.Model model = view.getModel();
+		if (model.getCountSearch()>=model.getCountSearchAll()) {
+			return;
+		}
+		List<SingleCarparkVisitor> list = model.getList();
+		List<SingleCarparkVisitor> findVisitorByLike = sp.getCarparkService().findVisitorByLike(list.size(), 500, userName, plateNo);
+		int total=sp.getCarparkService().countVisitorByLike(userName, plateNo);
+		view.getModel().AddList(findVisitorByLike);
+		view.getModel().setCountSearch(model.getList().size());
+		view.getModel().setCountSearchAll(total);
 	}
 
 }

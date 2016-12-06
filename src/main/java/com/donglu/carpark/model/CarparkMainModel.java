@@ -71,6 +71,12 @@ public class CarparkMainModel extends DomainObject {
 	//保存待出场信息
 	private final List<CarOutTask> listOutTask=new ArrayList<>();
 	private long lastCarOutTime=0;
+	
+	//卡片关联
+	private final Map<String, SingleCarparkInOutHistory> mapDeviceToCard=new MyMapCache<>(60000,100);
+	private final Map<String, Date> mapCardEventTime=new MyMapCache<>(60000,100);
+	private final Map<String, CarInTask> mapPlateToInTask=new MyMapCache<>(60000,100);
+	private final Map<String, CarOutTask> mapPlateToOutTask=new MyMapCache<>(60000,100);
 
 	/**
 	 * 
@@ -877,4 +883,21 @@ public class CarparkMainModel extends DomainObject {
 	public Map<String, CTabItem> getMapIpToTabItem() {
 		return mapIpToTabItem;
 	}
+
+	public Map<String, Date> getMapCardEventTime() {
+		return mapCardEventTime;
+	}
+
+	public Map<String, CarInTask> getMapPlateToInTask() {
+		return mapPlateToInTask;
+	}
+
+	public Map<String, SingleCarparkInOutHistory> getMapDeviceToCard() {
+		return mapDeviceToCard;
+	}
+
+	public Map<String, CarOutTask> getMapPlateToOutTask() {
+		return mapPlateToOutTask;
+	}
+
 }

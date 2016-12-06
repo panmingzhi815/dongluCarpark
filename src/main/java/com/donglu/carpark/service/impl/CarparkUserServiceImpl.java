@@ -20,6 +20,7 @@ import org.joda.time.DateTime;
 
 import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.util.CarparkUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -55,6 +56,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 	@Override
 	@Transactional
 	public Long deleteUser(SingleCarparkUser user) {
+		emprovider.get().createNativeQuery("delete SingleCarparkCard where user_id="+user.getId()).executeUpdate();
 		DatabaseOperation<SingleCarparkUser> dom = DatabaseOperation.forClass(SingleCarparkUser.class, emprovider.get());
 		dom.remove(user.getId());
 		return user.getId();
@@ -423,5 +425,62 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		}finally{
 			unitOfWork.end();
 		}
+	}
+	@Transactional
+	@Override
+	public Long saveSingleCarparkCard(SingleCarparkCard card) {
+		DatabaseOperation<SingleCarparkCard> dom = DatabaseOperation.forClass(SingleCarparkCard.class, emprovider.get());
+		if (card.getId()!=null) {
+			dom.save(card);
+		}else{
+			dom.insert(card);
+		}
+		return card.getId();
+	}
+	@Override
+	public List<SingleCarparkCard> findSingleCarparkCardBySearch(int first, int max, String serialNumber, List<SingleCarparkUser> listUser) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindSingleCarparkCardBySearch(serialNumber, listUser);
+			c.setFirstResult(first);
+			c.setMaxResults(max);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	/**
+	 * @param serialNumber
+	 * @param listUser
+	 * @return
+	 */
+	public Criteria createFindSingleCarparkCardBySearch(String serialNumber, List<SingleCarparkUser> listUser) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCard.class);
+		if (!StrUtil.isEmpty(serialNumber)) {
+			c.add(Restrictions.like(SingleCarparkCard.Property.serialNumber.name(), serialNumber, MatchMode.ANYWHERE));
+		}
+		if (!StrUtil.isEmpty(listUser)) {
+			c.add(Restrictions.in(SingleCarparkCard.Property.user.name(), listUser));
+		}
+		return c;
+	}
+	@Override
+	public Long countSingleCarparkCardBySearch(String serialNumber, List<SingleCarparkUser> listUser) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindSingleCarparkCardBySearch(serialNumber, listUser);
+			c.setProjection(Projections.rowCount());
+			Long l = (Long) c.getSingleResultOrNull();
+			return l==null?0L:l;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	@Transactional
+	@Override
+	public Long deleteSingleCarparkCard(SingleCarparkCard card) {
+		DatabaseOperation<SingleCarparkCard> dom = DatabaseOperation.forClass(SingleCarparkCard.class, emprovider.get());
+		dom.remove(card);
+		return card.getId();
 	}
 }

@@ -33,7 +33,6 @@ public class SingleCarparkUser extends DomainObject {
 	}
 	
 	private String name;
-	@Column(unique=true)
 	private String plateNo;
 	private String type;
 	private String address;

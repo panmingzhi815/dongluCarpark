@@ -42,7 +42,7 @@ public class SingleCarparkVisitor extends DomainObject {
 		if (validTo==null) {
 			return "";
 		}
-		return StrUtil.formatDate(validTo);
+		return StrUtil.formatDate(validTo,"yyyy-MM-dd HH:mm");
 	}
 	public String getPlateNO() {
 		return plateNO;

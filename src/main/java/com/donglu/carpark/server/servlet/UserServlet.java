@@ -16,6 +16,7 @@ import com.donglu.carpark.service.IpmsServiceI;
 import com.donglu.carpark.service.SettingService;
 import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.donglu.carpark.service.SystemUserServiceI;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -223,6 +224,26 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 	@Override
 	public List<SingleCarparkUser> findUserByPlateNoLikeSize(int start, int size, String plateNO, int likeSize, Long carparkId, Date validTo) {
 		return carparkUserService.findUserByPlateNoLikeSize(start, size, plateNO, likeSize, carparkId, validTo);
+	}
+
+	@Override
+	public Long saveSingleCarparkCard(SingleCarparkCard card) {
+		return carparkUserService.saveSingleCarparkCard(card);
+	}
+
+	@Override
+	public Long deleteSingleCarparkCard(SingleCarparkCard card) {
+		return carparkUserService.deleteSingleCarparkCard(card);
+	}
+
+	@Override
+	public List<SingleCarparkCard> findSingleCarparkCardBySearch(int first, int max, String serialNumber, List<SingleCarparkUser> listUser) {
+		return carparkUserService.findSingleCarparkCardBySearch(first, max, serialNumber, listUser);
+	}
+
+	@Override
+	public Long countSingleCarparkCardBySearch(String serialNumber, List<SingleCarparkUser> listUser) {
+		return carparkUserService.countSingleCarparkCardBySearch(serialNumber, listUser);
 	}
 
 }
