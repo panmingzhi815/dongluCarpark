@@ -30,22 +30,22 @@ public class BXScreenServiceImpl implements BXScreenService {
 	}
 
 	@Override
-	public boolean sendPlateNO(int identitifire, String ip, String plateNO) {
+	public boolean sendPlateNO(int identitifire, String ip, String plateNO,boolean isTrue) {
 		List<String> list = mapScreenInfo.getOrDefault(identitifire, new ArrayList<>());
 		list.add(plateNO);
 		if (list.size()>6) {
 			list.remove(0);
 		}
 		mapScreenInfo.put(identitifire, list);
-		sendInfoToScreen(identitifire,ip);
+		sendInfoToScreen(identitifire,ip,isTrue);
 		return true;
 	}
 
-	private void sendInfoToScreen(int identitifire, String ip) {
-		sendScreenInfo(identitifire,ip);
+	private void sendInfoToScreen(int identitifire, String ip, boolean isTrue) {
+		sendScreenInfo(identitifire,ip,isTrue);
 	}
 	
-	protected void sendScreenInfo(final int identitifire, final String ip) {
+	protected void sendScreenInfo(final int identitifire, final String ip, boolean isTrue) {
 		if (fixedThreadPool==null) {
 			fixedThreadPool = Executors.newFixedThreadPool(1);
 		}
@@ -70,11 +70,19 @@ public class BXScreenServiceImpl implements BXScreenService {
 						addScreenProgramBmpTextArea(identitifire,areaSize);
 					}
 					mapAreaSize.put(identitifire, areaSize);
-					for (int i = 0; i < screenTextList.size(); i++) {
+					int size = screenTextList.size();
+					for (int i = 0; i < size; i++) {
 						String string = screenTextList.get(i);
 						int deleteScreenProgramAreaBmpTextFile = jna.DeleteScreenProgramAreaBmpTextFile(identitifire, 0, i, 0);
 						System.out.println((System.currentTimeMillis() - currentTimeMillis) + "===deleteScreenProgramAreaBmpTextFile===" + deleteScreenProgramAreaBmpTextFile);
-						int result = jna.AddScreenProgramAreaBmpTextText(identitifire, 0, i, string, 1, 0, "微软雅黑", 10, 0, 255, 0x01, 10, 10);
+						
+						int nFontColor = 255;
+						if (isTrue) {
+							nFontColor= BXScreenConfig.getInstance().getTrueColor();
+						}else{
+							nFontColor= BXScreenConfig.getInstance().getFalseColor();
+						}
+						int result = jna.AddScreenProgramAreaBmpTextText(identitifire, 0, i, string, 1, 0, "微软雅黑", 10, 0, nFontColor, 0x01, 10, 10);
 						System.out.println((System.currentTimeMillis() - currentTimeMillis) + "===addScreenProgramAreaBmpTextText===" + result);
 					}
 					int result = jna.SendScreenInfo(identitifire, BXJNA.SEND_CMD_SENDALLPROGRAM, 0);
@@ -103,7 +111,8 @@ public class BXScreenServiceImpl implements BXScreenService {
 
 	protected int addScreen(int identitifire, String ip) {
 		System.out.println("添加屏幕："+identitifire+"--"+ip);
-		int result = jna.AddScreen(0x0274, identitifire, 2, 160, 96, 1, 0, 0, 0, 0, 0, 0, null, 57600, ip, 5005, 0, 0, null, null, null, 0, null, null, null, 0, null, 0, null, System.getProperty("user.dir")+File.separator+"screenConfig.ini");
+		int nScreenType = BXScreenConfig.getInstance().getnScreenType();
+		int result = jna.AddScreen(0x0274, identitifire, 2, 160, 96, nScreenType, 0, 0, 0, 0, 0, 0, null, 57600, ip, 5005, 0, 0, null, null, null, 0, null, null, null, 0, null, 0, null, System.getProperty("user.dir")+File.separator+"screenConfig.ini");
 		
 		addScreenProgram(identitifire);
 		return result;

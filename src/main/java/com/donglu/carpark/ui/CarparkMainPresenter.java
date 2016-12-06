@@ -971,7 +971,7 @@ public class CarparkMainPresenter {
 					Boolean carparkPlate = hardwareService.carparkPlate(d, plateNO);
 					return carparkPlate;
 				}else{
-					showPlateNOToBXScreen(device, plateNO);
+//					showPlateNOToBXScreen(device, plateNO);
 				}
 			}
 			return true;
@@ -1357,8 +1357,8 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-//		mapIpToJNA.get(ip).tigger(ip);
-		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", null, null, 11);
+		mapIpToJNA.get(ip).tigger(ip);
+//		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", null, null, 11);
 	}
 
 	/**
@@ -2483,9 +2483,12 @@ public class CarparkMainPresenter {
 	/**
 	 * 发生车牌内容到BX屏幕
 	 */
-	public void showPlateNOToBXScreen(SingleCarparkDevice device, final String plateNO) {
+	public void showPlateNOToBXScreen(SingleCarparkDevice device, String plateNO,boolean isTrue) {
+		if (!device.getScreenType().equals(ScreenTypeEnum.BX6E2)) {
+			return;
+		}
 		Integer valueOf = Integer.valueOf(device.getIdentifire());
-		bxScreenService.sendPlateNO(valueOf,device.getLinkAddress(), plateNO);
+		bxScreenService.sendPlateNO(valueOf,device.getLinkAddress(), plateNO,isTrue);
 	}
 	
 	public void showPositionToBXScreen(SingleCarparkDevice device,int position){

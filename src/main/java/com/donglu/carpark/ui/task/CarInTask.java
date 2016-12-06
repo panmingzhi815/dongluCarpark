@@ -150,10 +150,12 @@ public class CarInTask extends AbstractTask {
 			if (fixCarShowToDevice(isInCheck)) {
 				return;
 			}
+			presenter.showPlateNOToBXScreen(device, editPlateNo, true);
 		} else {
 			if (tempCarShowToDevice(isInCheck)) {
 				return;
 			}
+			presenter.showPlateNOToBXScreen(device, editPlateNo, false);
 		}
 		saveInHistory();
 	}
