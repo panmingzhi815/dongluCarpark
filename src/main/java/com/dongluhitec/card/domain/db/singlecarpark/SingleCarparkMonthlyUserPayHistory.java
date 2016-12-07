@@ -46,7 +46,11 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	private String monthChargeCode;
 	private String monthChargeName;
 	private String parkingSpace;
+	private Integer carparkSlot;
 	private String remark;
+	
+	private Integer payType=0;
+	private Integer paySize=null;
 	
 
 	public String getUserName() {
@@ -238,6 +242,42 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	public void setRemark(String remark) {
 		this.remark = remark;
 		firePropertyChange("remark", null, null);
+	}
+	/**
+	 * 充值方式，0按月,1按天
+	 * @return
+	 */
+	public Integer getPayType() {
+		if (payType==null) {
+			return 0;
+		}
+		return payType;
+	}
+
+	public void setPayType(Integer payType) {
+		this.payType = payType;
+		firePropertyChange("payType", null, null);
+	}
+
+	public Integer getPaySize() {
+		return paySize;
+	}
+
+	public void setPaySize(Integer paySize) {
+		this.paySize = paySize;
+		firePropertyChange("paySize", null, null);
+	}
+
+	public Integer getCarparkSlot() {
+		if (carparkSlot == null) {
+			return 1;
+		}
+		return carparkSlot;
+	}
+
+	public void setCarparkSlot(Integer carparkSlot) {
+		this.carparkSlot=carparkSlot;
+		firePropertyChange("carparkSlot", null, null);
 	}
 	
 }

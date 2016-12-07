@@ -10,8 +10,6 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -49,6 +47,8 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 	private Text carType;
 	private Combo combo_1;
 	private ComboViewer comboViewer;
+	private Composite composite_1;
+	private Combo combo_2;
 
 	public MonthlyUserPayBasicPage(MonthlyUserPayModel model) {
 		super("WizardPage");
@@ -62,10 +62,10 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 	public void createControl(Composite parent) {
 		container = new Composite(parent, SWT.NULL);
 		setControl(container);
-		container.setLayout(new MigLayout("fill", "[]", "[]"));
+		container.setLayout(new GridLayout(1, false));
 
 		Composite composite = new Composite(container, SWT.BORDER);
-		composite.setLayoutData("align center,w 200");
+		composite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
 		composite.setLayout(new GridLayout(2, false));
 
 		Label label_10 = new Label(composite, SWT.NONE);
@@ -140,20 +140,39 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		Label label_5 = new Label(composite, SWT.NONE);
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_5.setText("缴费期数");
-		cbv_chargesCount = new ComboViewer(composite, SWT.BORDER | SWT.READ_ONLY);
+		
+		composite_1 = new Composite(composite, SWT.NONE);
+		GridLayout gl_composite_1 = new GridLayout(2, false);
+		gl_composite_1.marginWidth = 0;
+		gl_composite_1.marginHeight = 0;
+		composite_1.setLayout(gl_composite_1);
+		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		cbv_chargesCount = new ComboViewer(composite_1, SWT.NONE);
 		cbv_chargesCount.setLabelProvider(new LabelProvider());
 		cbv_chargesCount.setContentProvider(new ArrayContentProvider());
 		cbv_chargesCount.setInput(new Integer[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12});
 		combo = cbv_chargesCount.getCombo();
-		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-
-		combo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
+		GridData gd_combo = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_combo.widthHint = 70;
+		combo.setLayoutData(gd_combo);
+		combo.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				System.out.println("model.getPaySize()===="+model.getPaySize());
 				countMoneyOrTime();
 			}
 		});
+		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		
+		combo_2 = new Combo(composite_1, SWT.READ_ONLY);
+		combo_2.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				countMoneyOrTime();
+			}
+		});
+		combo_2.setItems(new String[] {"月", "天"});
+		combo_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		combo_2.select(0);
+
 		Label label_6 = new Label(composite, SWT.NONE);
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_6.setText("到期时间");
@@ -176,6 +195,49 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 			dateChooserCombo.setValue(model.getOverdueTime());
 		}
 		initDataBindings();
+	}
+
+	private void countMoneyOrTime() {
+		String text = combo.getText();
+		if(StrUtil.isEmpty(text)){
+			return;
+		}
+		Integer chargesCount=null;
+		try {
+			chargesCount = Integer.valueOf(text);
+		} catch (NumberFormatException e) {
+		}
+		if (chargesCount==null) {
+			return;
+		}
+		model.setPaySize(chargesCount);
+		int selectionIndex = combo_2.getSelectionIndex();
+		model.setPayType(selectionIndex);
+		Calendar calendar = Calendar.getInstance();
+		Date date = initOverdueTime == null ? model.getCreateTime() : initOverdueTime;
+		model.setOldOverDueTime(date);
+		calendar.setTime(date);
+		float s=0;
+		if (selectionIndex==0) {
+			calendar.add(Calendar.MONTH, model.getMonthamount() * chargesCount);
+			s = model.getMonthCharge() * chargesCount;
+		}else{
+			calendar.add(Calendar.DATE, chargesCount);
+			s = model.getMonthCharge()*12f/365f * chargesCount;
+			s=Math.round(s*10)/10f;
+		}
+		s=s*model.getCarparkSlot();
+		model.setChargesMoney(s);
+		Date time = calendar.getTime();
+		if (StrUtil.getMonthBottomTime(date).getTime()-date.getTime()<1000*60*60*24&&selectionIndex==0) {
+			time=StrUtil.getMonthBottomTime(time);
+		}
+		Date todayBottomTime = StrUtil.getTodayBottomTime(time);
+		model.setOverdueTime(todayBottomTime);
+		// TODO bind?
+		dateChooserCombo.setValue(todayBottomTime);
+//				
+//				text_chargesMoney.setText(s + "");
 	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
@@ -232,27 +294,14 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		IObservableValue selectedSizeModelObserveValue = BeanProperties.value("selectedSize").observe(model);
 		bindingContext.bindValue(observeEnabledComboObserveWidget, selectedSizeModelObserveValue, null, null);
 		//
+		IObservableValue observeSingleSelectionCbv_chargesCount = ViewerProperties.singleSelection().observe(cbv_chargesCount);
+		IObservableValue paySizeModelObserveValue = BeanProperties.value("paySize").observe(model);
+		bindingContext.bindValue(observeSingleSelectionCbv_chargesCount, paySizeModelObserveValue, null, null);
+		//
+		IObservableValue observeSingleSelectionIndexCombo_2ObserveWidget = WidgetProperties.singleSelectionIndex().observe(combo_2);
+		IObservableValue payTypeModelObserveValue = BeanProperties.value("payType").observe(model);
+		bindingContext.bindValue(observeSingleSelectionIndexCombo_2ObserveWidget, payTypeModelObserveValue, null, null);
+		//
 		return bindingContext;
-	}
-
-	private void countMoneyOrTime() {
-		Integer chargesCount = Integer.parseInt(combo.getText());
-		model.setOldOverDueTime(model.getOverdueTime());
-		Calendar calendar = Calendar.getInstance();
-		Date date = initOverdueTime == null ? model.getCreateTime() : initOverdueTime;
-		calendar.setTime(date);
-		calendar.add(Calendar.MONTH, model.getMonthamount() * chargesCount);
-		float s=model.getMonthCharge()*chargesCount;
-		model.setChargesMoney(s);
-		Date time = calendar.getTime();
-		if (StrUtil.getMonthBottomTime(date).getTime()-date.getTime()<1000*60*60*24) {
-			time=StrUtil.getMonthBottomTime(time);
-		}
-		Date todayBottomTime = StrUtil.getTodayBottomTime(time);
-		model.setOverdueTime(todayBottomTime);
-		// TODO bind?
-		dateChooserCombo.setValue(todayBottomTime);
-//				
-//				text_chargesMoney.setText(s + "");
 	}
 }

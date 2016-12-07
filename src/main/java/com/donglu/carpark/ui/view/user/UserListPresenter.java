@@ -278,6 +278,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			model.setCreateTime(singleCarparkUser.getCreateDate());
 			model.setPlateNO(singleCarparkUser.getPlateNo());
 			model.setAllmonth(sp.getCarparkService().findMonthlyChargeByCarpark(singleCarparkUser.getCarpark()));
+			model.setCarparkSlot(singleCarparkUser.getCarparkSlot());
 			if (singleCarparkUser.getMonthChargeId()!=null) {
 				SingleCarparkMonthlyCharge findMonthlyChargeById = sp.getCarparkService().findMonthlyChargeById(singleCarparkUser.getMonthChargeId());
 				model.setSelectMonth(findMonthlyChargeById);

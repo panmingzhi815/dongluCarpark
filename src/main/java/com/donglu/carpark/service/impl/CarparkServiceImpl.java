@@ -886,5 +886,27 @@ public class CarparkServiceImpl implements CarparkService {
 			unitOfWork.end();
 		}
 	}
+
+	@Override
+	public List<SingleCarparkMonthlyUserPayHistory> findMonthlyUserPayHistoryByValidTo(int i, int maxValue, String userName, String operaName, Date start) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkMonthlyUserPayHistory.class);
+			if (!StrUtil.isEmpty(userName)) {
+				c.add(Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.userName.name(), userName, MatchMode.ANYWHERE));
+			}
+			if (!StrUtil.isEmpty(operaName)) {
+				c.add(Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.operaName.name(), operaName, MatchMode.ANYWHERE));
+			}
+			if (!StrUtil.isEmpty(start)) {
+				c.add(Restrictions.ge(SingleCarparkMonthlyUserPayHistory.Property.overdueTime.name(), start));
+			}
+			c.setFirstResult(i);
+			c.setMaxResults(maxValue);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
 		
 }
