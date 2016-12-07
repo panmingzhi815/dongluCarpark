@@ -45,6 +45,7 @@ public class SingleCarparkDevice extends DomainObject{
 	private String holidayControlTime;
 	
 	private MachTypeEnum machType=MachTypeEnum.P;
+	private String screenIp="192.168.1.110";
 	
 	public String getIdentifire() {
 		return identifire;
@@ -225,5 +226,12 @@ public class SingleCarparkDevice extends DomainObject{
 	public void setMachType(MachTypeEnum machType) {
 		this.machType = machType;
 		firePropertyChange("machType", null, null);
+	}
+	public String getScreenIp() {
+		return screenIp;
+	}
+	public void setScreenIp(String screenIp) {
+		this.screenIp = screenIp;
+		firePropertyChange("screenIp", null, null);
 	}
 }

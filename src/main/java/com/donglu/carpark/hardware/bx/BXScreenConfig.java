@@ -15,6 +15,7 @@ public class BXScreenConfig implements Serializable{
 	
 	private int trueColor=255;
 	private int falseColor=255;
+	private int plateShowTime=15;
 	private BXScreenConfig(){}
 	
 	public static BXScreenConfig getInstance(){
@@ -38,6 +39,9 @@ public class BXScreenConfig implements Serializable{
 			out.println("#无效车牌颜色 红255 绿65280 黄65535");
 			out.println(String.format("%s=%s", "falseColor", getFalseColor()));
 			out.println();
+			out.println("#车牌显示停留时间(秒)");
+			out.println(String.format("%s=%s", "falseColor", getFalseColor()));
+			out.println();
 			
 
 			out.flush();
@@ -51,6 +55,7 @@ public class BXScreenConfig implements Serializable{
 		if(!Files.exists(path)){
 			try {
 				Files.createFile(path);
+				saveConfig();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -62,6 +67,7 @@ public class BXScreenConfig implements Serializable{
             this.nScreenType = Integer.valueOf(preferenceStore.getProperty("nScreenType", "1"));
             this.trueColor = Integer.valueOf(preferenceStore.getProperty("trueColor", "255"));
             this.falseColor = Integer.valueOf(preferenceStore.getProperty("falseColor", "255"));
+            this.plateShowTime = Integer.valueOf(preferenceStore.getProperty("plateShowTime", "15"));
         } catch (IOException e) {
             e.printStackTrace();
         } 
@@ -91,6 +97,15 @@ public class BXScreenConfig implements Serializable{
 
 	public void setFalseColor(int falseColor) {
 		this.falseColor = falseColor;
+		saveConfig();
+	}
+
+	public int getPlateShowTime() {
+		return plateShowTime;
+	}
+
+	public void setPlateShowTime(int plateShowTime) {
+		this.plateShowTime = plateShowTime;
 		saveConfig();
 	}
 }

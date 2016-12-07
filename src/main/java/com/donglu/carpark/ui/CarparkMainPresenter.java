@@ -2495,16 +2495,17 @@ public class CarparkMainPresenter {
 	 * 发生车牌内容到BX屏幕
 	 */
 	public void showPlateNOToBXScreen(SingleCarparkDevice device, String plateNO,boolean isTrue) {
-		if (!device.getScreenType().equals(ScreenTypeEnum.BX6E2)) {
+		String screenIp = device.getScreenIp();
+		if (!device.getScreenType().equals(ScreenTypeEnum.BX6E2)||StrUtil.isEmpty(screenIp)) {
 			return;
 		}
 		Integer valueOf = Integer.valueOf(device.getIdentifire());
-		bxScreenService.sendPlateNO(valueOf,device.getLinkAddress(), plateNO,isTrue);
+		bxScreenService.sendPlateNO(valueOf,device.getScreenIp(), plateNO,isTrue);
 	}
 	
 	public void showPositionToBXScreen(SingleCarparkDevice device,int position){
 //		initBXScreen();
-		bxScreenService.sendPosition(Integer.valueOf(device.getIdentifire()),device.getLinkAddress(), position);
+		bxScreenService.sendPosition(Integer.valueOf(device.getIdentifire()),device.getScreenIp(), position);
 	}
 
 	/**

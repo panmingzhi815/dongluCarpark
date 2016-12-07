@@ -88,6 +88,7 @@ public class AddDeviceBasicPage extends WizardPage {
 	private Label label_12;
 	private Combo combo_6;
 	private ComboViewer comboViewer_6;
+	private Text text_screenType;
 
 	/**
 	 * Create the wizard.
@@ -122,14 +123,17 @@ public class AddDeviceBasicPage extends WizardPage {
 	public void createControl(Composite parent) {
 		container = new Composite(parent, SWT.NULL);
 		setControl(container);
-
-		container.setLayout(new MigLayout("", "[grow]", "[grow]"));
+		GridLayout gl_container = new GridLayout(1, false);
+		gl_container.marginWidth = 0;
+		gl_container.marginHeight = 0;
+		gl_container.horizontalSpacing = 0;
+		container.setLayout(gl_container);
 
 		Composite composite = new Composite(container, SWT.BORDER|SWT.CENTER|SWT.VIRTUAL);
-		GridLayout gridLayout = new GridLayout(2, false);
+		composite.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true, true, 1, 1));
+		GridLayout gridLayout = new GridLayout(3, false);
 		gridLayout.horizontalSpacing = 15;
 		composite.setLayout(gridLayout);
-		composite.setLayoutData("align center");
 		
 		label_1 = new Label(composite, SWT.NONE);
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -139,6 +143,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text.widthHint = 133;
 		text.setLayoutData(gd_text);
+		new Label(composite, SWT.NONE);
 		
 		label_2 = new Label(composite, SWT.NONE);
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -147,6 +152,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		text_1 = new Text(composite, SWT.BORDER);
 		text_1.setText("");
 		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(composite, SWT.NONE);
 		
 		lblip = new Label(composite, SWT.NONE);
 		lblip.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -155,6 +161,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		text_2 = new Text(composite, SWT.BORDER);
 		text_2.setText("192.168.1.139");
 		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(composite, SWT.NONE);
 		
 		label_10 = new Label(composite, SWT.NONE);
 		label_10.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -166,6 +173,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		comboViewer_4.setContentProvider(new ArrayContentProvider());
 		comboViewer_4.setLabelProvider(new LabelProvider());
 		comboViewer_4.setInput(CameraTypeEnum.values());
+		new Label(composite, SWT.NONE);
 		
 		label = new Label(composite, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -203,6 +211,7 @@ public class AddDeviceBasicPage extends WizardPage {
 			}
 		});
 		radio_serial.setText("485");
+		new Label(composite, SWT.NONE);
 		
 		
 		label_4 = new Label(composite, SWT.NONE);
@@ -233,6 +242,7 @@ public class AddDeviceBasicPage extends WizardPage {
 
 		address_stack.topControl = text_tcpip;
 		radio_tcpip.setSelection(true);
+        new Label(composite, SWT.NONE);
         
         label_5 = new Label(composite, SWT.NONE);
         label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -243,6 +253,7 @@ public class AddDeviceBasicPage extends WizardPage {
 			text_3.setEditable(false);
 		}
 		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(composite, SWT.NONE);
 		
 		label_8 = new Label(composite, SWT.NONE);
 		label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -256,6 +267,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		comboViewer_2.setContentProvider(new ArrayContentProvider());
 		comboViewer_2.setLabelProvider(new LabelProvider());
 		comboViewer_2.setInput(new String[]{"0","1","2","3","4","5","6","7","8","9"});
+		new Label(composite, SWT.NONE);
 		label_6 = new Label(composite, SWT.NONE);
 		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_6.setText("通道类型");
@@ -267,6 +279,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(DeviceRoadTypeEnum.values());
 		combo.select(0);
+		new Label(composite, SWT.NONE);
 		
 		lblNewLabel = new Label(composite, SWT.NONE);
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -278,6 +291,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		comboViewer_5.setContentProvider(new ArrayContentProvider());
 		comboViewer_5.setLabelProvider(new LabelProvider());
 		comboViewer_5.setInput(DeviceInOutTypeEnum.values());
+		new Label(composite, SWT.NONE);
 		
 		label_7 = new Label(composite, SWT.NONE);
 		label_7.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -286,6 +300,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		comboViewer_1 = new ComboViewer(composite, SWT.READ_ONLY);
 		combo_1 = comboViewer_1.getCombo();
 		combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(composite, SWT.NONE);
 		
 		label_3 = new Label(composite, SWT.NONE);
 		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -293,6 +308,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		
 		text_4 = new Text(composite, SWT.BORDER);
 		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(composite, SWT.NONE);
 		
 		label_9 = new Label(composite, SWT.NONE);
 		label_9.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -300,7 +316,26 @@ public class AddDeviceBasicPage extends WizardPage {
 		
 		comboViewer_3 = new ComboViewer(composite, SWT.READ_ONLY);
 		combo_3 = comboViewer_3.getCombo();
+		combo_3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String s = combo_3.getText();
+				
+				if (s.contains("BX")) {
+					text_screenType.setVisible(true);
+				}else{
+					text_screenType.setVisible(false);
+				}
+			}
+		});
 		combo_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		text_screenType = new Text(composite, SWT.BORDER);
+		text_screenType.setText("192.168.1.110");
+		GridData gd_text_screenType = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_screenType.widthHint = 100;
+		text_screenType.setLayoutData(gd_text_screenType);
+		text_screenType.setVisible(false);
 		
 		label_12 = new Label(composite, SWT.NONE);
 		label_12.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -312,6 +347,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		comboViewer_6.setContentProvider(new ArrayContentProvider());
 		comboViewer_6.setLabelProvider(new LabelProvider());
 		comboViewer_6.setInput(MachTypeEnum.values());
+		new Label(composite, SWT.NONE);
 		
 		lblNewLabel_1 = new Label(composite, SWT.NONE);
 		GridData gd_lblNewLabel_1 = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
@@ -323,6 +359,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		GridData gd_text_5 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_5.exclude = controlTime;
 		text_5.setLayoutData(gd_text_5);
+		new Label(composite, SWT.NONE);
 		
 		label_11 = new Label(composite, SWT.NONE);
 		GridData layoutData = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
@@ -334,6 +371,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		GridData layoutData2 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		layoutData2.exclude = controlTime;
 		text_6.setLayoutData(layoutData2);
+		new Label(composite, SWT.NONE);
 		comboViewer_3.setContentProvider(new ArrayContentProvider());
 		comboViewer_3.setLabelProvider(new LabelProvider());
 		comboViewer_3.setInput(ScreenTypeEnum.values());
@@ -426,6 +464,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue observeSingleSelectionComboViewer_6 = ViewerProperties.singleSelection().observe(comboViewer_6);
 		IObservableValue machTypeModelObserveValue = BeanProperties.value("machType").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer_6, machTypeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_screenTypeObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_screenType);
+		IObservableValue screenIpModelObserveValue = BeanProperties.value("screenIp").observe(model);
+		bindingContext.bindValue(observeTextText_screenTypeObserveWidget, screenIpModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}
