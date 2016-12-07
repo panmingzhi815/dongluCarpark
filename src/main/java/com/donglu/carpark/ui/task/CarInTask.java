@@ -547,6 +547,7 @@ public class CarInTask extends AbstractTask {
 					setFixCarToTemIn(date, user);
 					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，作临时车进入", isFixCarSlotFullAutoBeTemp,
 							user.getCarparkNo(), fixCarInSize);
+					cch.setRemarkString(inPlates);
 					return tempCarShowToDevice(false);
 				}
 			} else {
@@ -561,6 +562,7 @@ public class CarInTask extends AbstractTask {
 					if (confirm) {
 						cch.setReviseInTime(date);
 						cch.setFixCarInType(FixCarInTypeEnum.固定车车位满变临时车);
+						cch.setRemarkString(inPlates);
 						return tempCarShowToDevice(false);
 					}
 					return true;
@@ -640,5 +642,6 @@ public class CarInTask extends AbstractTask {
 		// StrUtil.DATETIME_PATTERN));
 		// sp.getCarparkUserService().saveUser(user);
 		cch.setReviseInTime(date);
+		cch.setFixCarInType(FixCarInTypeEnum.固定车车位满变临时车);
 	}
 }

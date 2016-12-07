@@ -325,7 +325,11 @@ public class CarOutTask extends AbstractTask{
 				d = cch.getInTime();
 			}
 			if (cch!=null||cch.getReviseInTime()!=null) {
-				tempCarOutProcess(cch.getReviseInTime());
+				boolean confirm = new ConfimBox(editPlateNo, "车辆在[" + StrUtil.formatDate(validTo) + "]过期\n是否允许车辆按临时车计费出场:["+carpark.getName()+"]")
+						.open();
+				if (confirm) {
+					tempCarOutProcess(cch.getReviseInTime());
+				}
 				return true;
 			}
 			if (Boolean.valueOf(getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车))) {
@@ -342,9 +346,13 @@ public class CarOutTask extends AbstractTask{
 		}
 		//车位判断
 		if (cch!=null&&!StrUtil.isEmpty(cch.getReviseInTime())&&!cch.getIsOverdue()) {
-			LOGGER.info("固定车做临时车计费：{}",user.getTempCarTime());
-			tempCarOutProcess(cch.getReviseInTime());
-			model.setUser(user);
+			boolean confirm = new ConfimBox(editPlateNo, "用户车位满进场,进场时车辆" + cch.getRemarkString() + "在场内\n是否作为临时车出场[" + carpark.getName()
+			+ "]").open();
+			if (confirm) {
+				LOGGER.info("固定车做临时车计费：{}",cch.getReviseInTime());
+				tempCarOutProcess(cch.getReviseInTime());
+				model.setUser(user);
+			}
 			return true;
 		}
 		boolean fixCarStillCharge = CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车非所属停车场停留收费).equals("true")&&!device.getCarpark().equals(user.getCarpark());

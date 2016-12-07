@@ -62,7 +62,7 @@ public class CarparkPayHistoryListView extends AbstractListView<SingleCarparkMon
 		
 		label_total = new Label(composite_4, SWT.NONE);
 		GridData gd_label_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_label_1.widthHint = 55;
+		gd_label_1.widthHint = 105;
 		label_total.setLayoutData(gd_label_1);
 		label_total.setText("0");
 	}

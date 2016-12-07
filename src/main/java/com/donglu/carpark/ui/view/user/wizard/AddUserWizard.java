@@ -132,6 +132,9 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 		m.setCreateTime(model.getCreateDate());
 		m.setCreateTimeLabel(m.getCreateTimeLabel());
 		m.setAllmonth(sp.getCarparkService().findMonthlyChargeByCarpark(model.getCarpark()));
+		m.setCarparkSlot(model.getCarparkSlot());
+		m.setChargesMoney(null);
+		
 		if (model.getType().equals("免费")) {
 			m.setFree(false);
 		}else if(model.getType().equals("储值")){
