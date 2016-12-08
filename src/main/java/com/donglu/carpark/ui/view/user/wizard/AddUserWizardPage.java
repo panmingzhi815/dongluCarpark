@@ -124,6 +124,7 @@ public class AddUserWizardPage extends WizardPage {
 		label_1.setText("用户名字");
 		
 		text_1 = new Text(composite, SWT.BORDER);
+		text_1.setTextLimit(30);
 		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_text_1 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_1.widthHint = 150;

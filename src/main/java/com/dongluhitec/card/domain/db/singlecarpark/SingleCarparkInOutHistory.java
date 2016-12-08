@@ -43,7 +43,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	
 	@Column(length=20)
 	private String plateNo;
-	@Column(length=20)
+	@Column
 	private String userName;
 	private Boolean isCountSlot=true;
 	private Long userId;
