@@ -128,9 +128,7 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 			//缓存收费设置
 			Map<Long, SingleCarparkMonthlyCharge> map=new HashMap<Long, SingleCarparkMonthlyCharge>();
 			List<SingleCarparkMonthlyUserPayHistory> newList = new ArrayList<>();
-			int i=1;
 			for (SingleCarparkMonthlyUserPayHistory monthlyUserPayHistory : list) {
-				System.out.println(i+++"=正在处理记录"+monthlyUserPayHistory.getId()+"=="+monthlyUserPayHistory.getUserName());
 				Float chargesMoney = monthlyUserPayHistory.getChargesMoney();
 				if (chargesMoney==null||chargesMoney.floatValue()==0||monthlyUserPayHistory.getPayType()==1) {
 					continue;
@@ -181,12 +179,15 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 				if (overdueTime.after(end)) {
 					month=countMonth(end,overdueTime);
 					float m=mc.getPrice()/mc.getRentingDays()*month;
+					if (chargeMonth-month>12) {
+						m=mc.getPrice()/mc.getRentingDays()*12;
+						monthlyUserPayHistory.setChargesMoney(m);
+					}else
 					monthlyUserPayHistory.setChargesMoney(chargesMoney-m);
 				}
 				monthlyUserPayHistory.setRemark(new DateTime(end).getYear()+"分账");
 				newList.add(monthlyUserPayHistory);
 			}
-			System.out.println("记录处理完成");
 			populate(newList);
 			int size = newList.size();
 			view.getModel().setCountSearch(size);
@@ -204,7 +205,7 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 		int monthOfYear = s.getMonthOfYear();
 		int year2 = e.getYear();
 		int size=0;
-		if (e.getYear()-s.getYear()==1&&s.plusSeconds(1).getYear()==e.getYear()) {
+		if (s.plusSeconds(1).getYear()==s.getYear()+1) {
 			size=1;
 		}
 		return (year2-year-size)*12+e.getMonthOfYear();
