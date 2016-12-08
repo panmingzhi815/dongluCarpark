@@ -1,6 +1,7 @@
 package com.donglu.carpark.ui.task;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.FixCarInTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -324,7 +326,11 @@ public class CarOutTask extends AbstractTask{
 				d = cch.getInTime();
 			}
 			if (cch!=null||cch.getReviseInTime()!=null) {
-				tempCarOutProcess(cch.getReviseInTime());
+				boolean confirm = new ConfimBox(editPlateNo, "车辆在[" + StrUtil.formatDate(validTo) + "]过期\n是否允许车辆按临时车计费出场:["+carpark.getName()+"]")
+						.open();
+				if (confirm) {
+					tempCarOutProcess(cch.getReviseInTime());
+				}
 				return true;
 			}
 			if (Boolean.valueOf(getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车))) {
@@ -341,9 +347,13 @@ public class CarOutTask extends AbstractTask{
 		}
 		//车位判断
 		if (cch!=null&&!StrUtil.isEmpty(cch.getReviseInTime())&&!cch.getIsOverdue()) {
-			LOGGER.info("固定车做临时车计费：{}",user.getTempCarTime());
-			tempCarOutProcess(cch.getReviseInTime());
-			model.setUser(user);
+			boolean confirm = new ConfimBox(editPlateNo, "用户车位满进场,进场时车辆" + cch.getRemarkString() + "在场内\n是否作为临时车出场[" + carpark.getName()
+			+ "]").open();
+			if (confirm) {
+				LOGGER.info("固定车做临时车计费：{}",cch.getReviseInTime());
+				tempCarOutProcess(cch.getReviseInTime());
+				model.setUser(user);
+			}
 			return true;
 		}
 		boolean fixCarStillCharge = CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车非所属停车场停留收费).equals("true")&&!device.getCarpark().equals(user.getCarpark());
@@ -396,6 +406,41 @@ public class CarOutTask extends AbstractTask{
 			LOGGER.info("车辆:{}即将到期", editPlateNo);
 		} else {
 			presenter.showContentToDevice(device, content, true);
+		}
+		if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆允许场内换车))) {
+			LOGGER.info("允许场内换车");
+			if (carpark.getParent()==null) {
+				List<SingleCarparkUser> listUsers = sp.getCarparkUserService().findUserByNameAndCarpark(editPlateNo, carpark, date);
+				Set<String> plates=new HashSet<>();
+				int totalSlot=0;
+				boolean isCheckSlot=false;
+				for (SingleCarparkUser user : listUsers) {
+					String[] split = user.getPlateNo().split(",");
+					plates.addAll(Arrays.asList(split));
+					Integer carparkSlot = user.getCarparkSlot();
+					if (split.length>carparkSlot) {
+						isCheckSlot=true;
+					}
+					totalSlot+=carparkSlot;
+				}
+				if (isCheckSlot) {
+					Integer integer = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆场内换车时间));
+					Date s = new DateTime(date).minusMinutes(integer).toDate();
+					List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findInOutHistoryByInTime(0,Integer.MAX_VALUE,plates,s);
+					plates.clear();
+					for (SingleCarparkInOutHistory singleCarparkInOutHistory : list) {
+						String p = singleCarparkInOutHistory.getPlateNo();
+						if (plates.size()>=totalSlot&&!plates.contains(p)) {
+							continue;
+						}
+						singleCarparkInOutHistory.setFixCarInType(FixCarInTypeEnum.固定车);
+						singleCarparkInOutHistory.setIsOverdue(null);
+						singleCarparkInOutHistory.setReviseInTime(null);
+						plates.add(p);
+						sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
+					}
+				}
+			}
 		}
 		saveOutHistory();
 		sp.getCarparkInOutService().updateCarparkStillTime(device.getCarpark(), device, plateNO, bigImgFileName);

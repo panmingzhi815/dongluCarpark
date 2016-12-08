@@ -89,6 +89,8 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private Boolean isOverdue=false;
 	
 	private String freeReason;
+	
+	private FixCarInTypeEnum fixCarInType;
 	@Lob
 	private byte[] remark;
 
@@ -437,6 +439,26 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	public void setIsOverdue(Boolean isOverdue) {
 		this.isOverdue = isOverdue;
 		firePropertyChange("isOverdue", null, null);
+	}
+	public FixCarInTypeEnum getFixCarInType() {
+		if (fixCarInType==null) {
+			if (reviseInTime==null) {
+				if (getUserId()==null) {
+					return FixCarInTypeEnum.临时车;
+				}
+				return FixCarInTypeEnum.固定车; 
+			}else{
+				if (getIsOverdue()) {
+					return FixCarInTypeEnum.固定车过期变临时车;
+				}
+				return FixCarInTypeEnum.固定车车位满变临时车;
+			}
+		}
+		return fixCarInType;
+	}
+	public void setFixCarInType(FixCarInTypeEnum fixCarInType) {
+		this.fixCarInType = fixCarInType;
+		firePropertyChange("fixCarInType", null, null);
 	}
 	
 }

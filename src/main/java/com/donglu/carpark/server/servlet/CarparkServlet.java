@@ -436,4 +436,7 @@ public class CarparkServlet extends HessianServlet implements CarparkService {
 	public int countVisitorByLike(String userName, String plateNo) {
 		return carparkService.countVisitorByLike(userName, plateNo);
 	}
+	public List<SingleCarparkMonthlyUserPayHistory> findMonthlyUserPayHistoryByValidTo(int i, int maxValue, String userName, String operaName, Date start) {
+		return carparkService.findMonthlyUserPayHistoryByValidTo(i, maxValue, userName, operaName, start);
+	}
 }

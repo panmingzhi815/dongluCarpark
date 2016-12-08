@@ -144,6 +144,9 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			}else{
 				return new ArrayList<>();
 			}
+			if (!StrUtil.isEmpty(validTo)) {
+				c.add(Restrictions.ge(SingleCarparkUser.Property.validTo.name(), validTo));
+			}
 			if (!StrUtil.isEmpty(carparkId)) {
 				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
 				SingleCarparkCarpark entityWithId = dom.getEntityWithId(carparkId);

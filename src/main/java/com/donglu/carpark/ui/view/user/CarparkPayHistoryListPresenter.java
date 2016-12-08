@@ -2,7 +2,9 @@ package com.donglu.carpark.ui.view.user;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.widgets.Composite;
 import org.joda.time.DateTime;
@@ -31,12 +33,15 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
 	
+	boolean isSplit=false;
+	
 
 	
 	@Override
 	public void refresh(){
-		List<SingleCarparkMonthlyUserPayHistory> list =sp.getCarparkService().findMonthlyUserPayHistoryByCondition(0,50,userName,operaName,start,end);
+		List<SingleCarparkMonthlyUserPayHistory> list =sp.getCarparkService().findMonthlyUserPayHistoryByCondition(0,500,userName,operaName,start,end);
 		populate(list);
+		isSplit=false;
 	}
 	private void populate(List<SingleCarparkMonthlyUserPayHistory> list) {
 		AbstractListView<SingleCarparkMonthlyUserPayHistory>.Model model = view.getModel();
@@ -60,11 +65,14 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 		view.setTotalMoney(i);
 	}
 	public void searMore(){
+		if (isSplit) {
+			return;
+		}
 		AbstractListView<SingleCarparkMonthlyUserPayHistory>.Model model = view.getModel();
 		if (model.getCountSearchAll()<=model.getCountSearch()) {
 			return;
 		}
-		List<SingleCarparkMonthlyUserPayHistory> list =sp.getCarparkService().findMonthlyUserPayHistoryByCondition(model.getList().size(),50,userName,operaName,start,end);
+		List<SingleCarparkMonthlyUserPayHistory> list =sp.getCarparkService().findMonthlyUserPayHistoryByCondition(model.getList().size(),500,userName,operaName,start,end);
 		int countSearchAll=sp.getCarparkService().countMonthlyUserPayHistoryByCondition(userName,operaName,start,end);
 		model.AddList(list);
 		model.setCountSearch(model.getList().size());
@@ -114,44 +122,75 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 	}
 	public void split(Date start, Date end) {
 		try {
-			List<SingleCarparkMonthlyUserPayHistory> list = sp.getCarparkService().findMonthlyUserPayHistoryByCondition(0,Integer.MAX_VALUE,userName,operaName,null,end);
+			start=StrUtil.getYearTopTime(end);
+			end=StrUtil.getYearBottomTime(end);
+			List<SingleCarparkMonthlyUserPayHistory> list = sp.getCarparkService().findMonthlyUserPayHistoryByValidTo(0,Integer.MAX_VALUE,userName,operaName,start);
+			//缓存收费设置
+			Map<Long, SingleCarparkMonthlyCharge> map=new HashMap<Long, SingleCarparkMonthlyCharge>();
 			List<SingleCarparkMonthlyUserPayHistory> newList = new ArrayList<>();
+			int i=1;
 			for (SingleCarparkMonthlyUserPayHistory monthlyUserPayHistory : list) {
+				System.out.println(i+++"=正在处理记录"+monthlyUserPayHistory.getId()+"=="+monthlyUserPayHistory.getUserName());
 				Float chargesMoney = monthlyUserPayHistory.getChargesMoney();
-				if (chargesMoney==null||chargesMoney==0) {
+				if (chargesMoney==null||chargesMoney.floatValue()==0||monthlyUserPayHistory.getPayType()==1) {
 					continue;
 				}
-				Date oldOverDueTime = monthlyUserPayHistory.getOldOverDueTime();
-				oldOverDueTime=oldOverDueTime==null?monthlyUserPayHistory.getCreateTime():oldOverDueTime;
+				Long monthChargeId = monthlyUserPayHistory.getMonthChargeId();
+				if (monthChargeId==null) {
+					continue;
+				}
+				SingleCarparkMonthlyCharge mc=map.get(monthChargeId);
+				if (mc==null) {
+					mc = sp.getCarparkService().findMonthlyChargeById(monthChargeId);
+					if (mc == null) {
+						continue;
+					}
+					map.put(monthChargeId, mc);
+				}
 				Date overdueTime = monthlyUserPayHistory.getOverdueTime();
+				if (mc.getPrice()<=0) {
+					if (overdueTime.before(end)) {
+						newList.add(monthlyUserPayHistory);
+					}
+					continue;
+				}
+				int chargeMonth=(int) (chargesMoney/mc.getPrice()*mc.getRentingDays());
+				Date oldOverDueTime=new DateTime(overdueTime).minusMonths(chargeMonth).toDate();
+				long l = oldOverDueTime.getTime()-end.getTime();
+				if (Math.abs(l)<1000||l>1000) {
+					continue;
+				}
+				
+				if (oldOverDueTime!=null&&overdueTime.getTime()-oldOverDueTime.getTime()<1000*60*60&&chargesMoney%mc.getPrice()==0) {
+					monthlyUserPayHistory.setOldOverDueTime(oldOverDueTime);
+					sp.getCarparkService().saveMonthlyUserPayHistory(monthlyUserPayHistory);
+				}
+				if (oldOverDueTime.after(start)&&overdueTime.before(end)) {
+					monthlyUserPayHistory.setRemark(new DateTime(end).getYear()+"分账");
+					newList.add(monthlyUserPayHistory);
+					continue;
+				}
+				
 				int month=0;
-				if (oldOverDueTime!=null&&oldOverDueTime.before(start)&&start.getTime()-oldOverDueTime.getTime()>1000) {
-					month+=countMonth(new DateTime(oldOverDueTime).plusSeconds(1).toDate(),start);
+				if (overdueTime.after(start)&&overdueTime.before(end)) {
+					month=countMonth(start,overdueTime);
 					monthlyUserPayHistory.setOldOverDueTime(start);
+					float m=mc.getPrice()/mc.getRentingDays()*month;
+					monthlyUserPayHistory.setChargesMoney(m);
 				}
 				if (overdueTime.after(end)) {
-					month+=countMonth(end,overdueTime);
-				}
-				if (month>0) {
-					Long monthChargeId = monthlyUserPayHistory.getMonthChargeId();
-					if (monthChargeId==null) {
-						continue;
-					}
-					SingleCarparkMonthlyCharge mc = sp.getCarparkService().findMonthlyChargeById(monthChargeId);
-					if (mc==null) {
-						continue;
-					}
+					month=countMonth(end,overdueTime);
 					float m=mc.getPrice()/mc.getRentingDays()*month;
-					chargesMoney=chargesMoney-m;
-					if (chargesMoney<0) {
-						continue;
-					}
-					monthlyUserPayHistory.setOverdueTime(end);
-					monthlyUserPayHistory.setChargesMoney(chargesMoney);
+					monthlyUserPayHistory.setChargesMoney(chargesMoney-m);
 				}
+				monthlyUserPayHistory.setRemark(new DateTime(end).getYear()+"分账");
 				newList.add(monthlyUserPayHistory);
 			}
+			System.out.println("记录处理完成");
 			populate(newList);
+			int size = newList.size();
+			view.getModel().setCountSearch(size);
+			view.getModel().setCountSearchAll(size);
 		} catch (Exception e) {
 			e.printStackTrace();
 			commonui.error("错误", "操作失败", e);
@@ -164,13 +203,18 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 		int year = s.getYear();
 		int monthOfYear = s.getMonthOfYear();
 		int year2 = e.getYear();
-		int monthOfYear2 = e.getMonthOfYear();
-		while(year!=year2||monthOfYear!=monthOfYear2){
-			month++;
-			s=s.plusMonths(1);
-			year = s.getYear();
-			monthOfYear = s.getMonthOfYear();
+		int size=0;
+		if (e.getYear()-s.getYear()==1&&s.plusSeconds(1).getYear()==e.getYear()) {
+			size=1;
 		}
-		return month;
+		return (year2-year-size)*12+e.getMonthOfYear();
+//		int monthOfYear2 = e.getMonthOfYear();
+//		while(year!=year2||monthOfYear!=monthOfYear2){
+//			month++;
+//			s=s.plusMonths(1);
+//			year = s.getYear();
+//			monthOfYear = s.getMonthOfYear();
+//		}
+//		return month;
 	}
 }

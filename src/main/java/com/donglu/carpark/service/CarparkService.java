@@ -296,4 +296,14 @@ public interface CarparkService {
 	public List<SingleCarparkVisitor> findVisitorByLike(int start, int max, String userName, String plateNo);
 	public int countVisitorByLike(String userName, String plateNo);
 	public SingleCarparkVisitor findVisitorByPlateAndCarpark(String plateNo,SingleCarparkCarpark carpark);
+	/**
+	 * 查询在指定时间后过期机充值记录
+	 * @param i
+	 * @param maxValue
+	 * @param userName
+	 * @param operaName
+	 * @param start
+	 * @return
+	 */
+	public List<SingleCarparkMonthlyUserPayHistory> findMonthlyUserPayHistoryByValidTo(int i, int maxValue, String userName, String operaName, Date start);
 }
