@@ -606,7 +606,8 @@ public class CarparkUtils {
 			return hour.intValue();
 		}
 		if (timeUnit[0].equals(TimeUnit.DAYS)) {
-			day=millis/1000/60/60/24;
+			long daysize=1000*60*60*24;
+			day=millis/daysize;
 			return day.intValue();
 		}
 		return 0;

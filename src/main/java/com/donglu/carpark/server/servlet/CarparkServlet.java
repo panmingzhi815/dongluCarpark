@@ -436,4 +436,39 @@ public class CarparkServlet extends HessianServlet implements CarparkService {
 	public int countVisitorByLike(String userName, String plateNo) {
 		return carparkService.countVisitorByLike(userName, plateNo);
 	}
+
+
+
+	@Override
+	public boolean setPlateControlStatus(boolean status) {
+		return carparkService.setPlateControlStatus(status);
+	}
+
+
+
+	@Override
+	public Map<Boolean, Date> getPlateControlStatus() {
+		return carparkService.getPlateControlStatus();
+	}
+
+
+
+	@Override
+	public boolean addWillInPlate(String plate) {
+		return carparkService.addWillInPlate(plate);
+	}
+
+
+
+	@Override
+	public boolean deleteWillInPlate(String plate) {
+		return carparkService.deleteWillInPlate(plate);
+	}
+
+
+
+	@Override
+	public List<String> getWillInPlate() {
+		return carparkService.getWillInPlate();
+	}
 }

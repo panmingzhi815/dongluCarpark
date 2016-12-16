@@ -29,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.service.CarparkService;
+import com.donglu.carpark.util.CarparkFileUtils;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.domain.db.setting.SNSettingType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
@@ -908,6 +910,65 @@ public class CarparkServiceImpl implements CarparkService {
 		} finally{
 			unitOfWork.end();
 		}
+	}
+
+	@Override
+	public boolean setPlateControlStatus(boolean status) {
+		try {
+			Map<Boolean, Date> map=new HashMap<>();
+			map.put(status, new Date());
+			CarparkFileUtils.writeObjectForException(ConstUtil.DAN_SHUANG_HAO_SHE_ZHI, map);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
+	public Map<Boolean, Date> getPlateControlStatus() {
+		Map<Boolean, Date> map=(Map<Boolean, Date>) CarparkFileUtils.readObject(ConstUtil.DAN_SHUANG_HAO_SHE_ZHI);
+		return map;
+	}
+
+	@Override
+	public boolean addWillInPlate(String plate) {
+		try {
+			List<String> list=(List<String>) CarparkFileUtils.readObject(ConstUtil.WILL_IN_PLATES);
+			if (list==null) {
+				list=new ArrayList<>();
+			}
+			if (!list.contains(plate)) {
+				list.add(plate);
+			}
+			CarparkFileUtils.writeObjectForException(ConstUtil.WILL_IN_PLATES, list);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
+	public boolean deleteWillInPlate(String plate) {
+		try {
+			List<String> list=(List<String>) CarparkFileUtils.readObject(ConstUtil.WILL_IN_PLATES);
+			if (list==null) {
+				list=new ArrayList<>();
+			}
+			list.remove(plate);
+			CarparkFileUtils.writeObjectForException(ConstUtil.WILL_IN_PLATES, list);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
+	public List<String> getWillInPlate() {
+		List<String> list=(List<String>) CarparkFileUtils.readObject(ConstUtil.WILL_IN_PLATES);
+		return list;
 	}
 
 		

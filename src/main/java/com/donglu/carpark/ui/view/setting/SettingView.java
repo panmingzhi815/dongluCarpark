@@ -974,7 +974,7 @@ public class SettingView extends Composite implements View {
 		btncjlapp.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付)));
 
 		Composite composite_8 = new Composite(composite, SWT.NONE);
-		composite_8.setLayout(new GridLayout(4, false));
+		composite_8.setLayout(new GridLayout(5, false));
 
 		Button button_20 = new Button(composite_8, SWT.NONE);
 		button_20.addSelectionListener(new SelectionAdapter() {
@@ -1017,6 +1017,16 @@ public class SettingView extends Composite implements View {
 		button_25.setToolTipText("将固定车的车牌下载到设备");
 		button_25.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_25.setText("车牌下载");
+		
+		Button button_34 = new Button(composite_8, SWT.NONE);
+		button_34.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().plateControlSetting();
+			}
+		});
+		button_34.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		button_34.setText("车牌控制");
 		scrolledComposite.setContent(composite);
 		scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 

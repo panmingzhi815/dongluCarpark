@@ -63,6 +63,8 @@ public class ConstUtil {
 	 * 访客车名称
 	 */
 	public static final String VISITOR_NAME="visitorName";
+	public static final String DAN_SHUANG_HAO_SHE_ZHI = "danshuanghaoshezhi";
+	public static final String WILL_IN_PLATES = "willInPlates";
 	/**
 	 * 获取权限级别
 	 * @return

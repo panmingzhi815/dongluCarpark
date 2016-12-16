@@ -11,9 +11,9 @@ public class BXScreenConfig implements Serializable{
 	
 	public final String configFileName = "BXScreenConfig.properties";
 	public static BXScreenConfig instance;
-	private int nScreenType=1;
+	private int nScreenType=2;
 	
-	private int trueColor=255;
+	private int trueColor=65280;
 	private int falseColor=255;
 	private int plateShowTime=15;
 	private BXScreenConfig(){}

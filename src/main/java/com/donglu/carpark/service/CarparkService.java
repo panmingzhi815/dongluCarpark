@@ -296,4 +296,15 @@ public interface CarparkService {
 	public List<SingleCarparkVisitor> findVisitorByLike(int start, int max, String userName, String plateNo);
 	public int countVisitorByLike(String userName, String plateNo);
 	public SingleCarparkVisitor findVisitorByPlateAndCarpark(String plateNo,SingleCarparkCarpark carpark);
+	
+	/**
+	 * 车牌控制
+	 * @param status
+	 * @return
+	 */
+	public boolean setPlateControlStatus(boolean status);
+	public Map<Boolean, Date> getPlateControlStatus();
+	public boolean addWillInPlate(String plate);
+	public boolean deleteWillInPlate(String plate);
+	public List<String> getWillInPlate();
 }

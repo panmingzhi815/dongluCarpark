@@ -384,7 +384,7 @@ public class CarparkMainApp extends AbstractApp{
 		} finally {
 			log.info("发送车位数间隔SendPositionToDeviceTime为:{}", sendPositionToDeviceTime);
 		}
-		if (StrUtil.isEmpty(System.getProperty(ConstUtil.AUTO_SEND_POSITION_TO_DEVICE))) {
+		if (System.getProperty(ConstUtil.AUTO_SEND_POSITION_TO_DEVICE,"false").equals("true")) {
 			autoSendPositionToDevice();
 		}
 		autoSendTimeToDevice();

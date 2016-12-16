@@ -1072,6 +1072,10 @@ public class CarparkMainPresenter {
 		}
 		try {
 			Device d = getDevice(device);
+			int type = device.getScreenType().getType();
+			if (type>=16) {
+				showPositionToBXScreen(device, position);
+			}
 			if (d != null) {
 				int screenType = device.getScreenType().getType();
 				if (screenType<16) {
@@ -1083,13 +1087,9 @@ public class CarparkMainPresenter {
 					if (inType.equals("进口2")) {
 						inType = "进口";
 					}
-					int type = device.getScreenType().getType();
-					System.out.println(type);
 					return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType), (byte) type);
-				}else{
-					showPositionToBXScreen(device, position);
-					return true;
 				}
+				return true;
 			} else {
 				return true;
 			}
@@ -1363,7 +1363,7 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 		mapIpToJNA.get(ip).tigger(ip);
-//		carInOutResultProvider.get().invok(ip, 0, "贵A88G26", null, null, 11);
+//		carInOutResultProvider.get().invok(ip, 0, "陕G12346", null, null, 11);
 	}
 
 	/**
@@ -2491,6 +2491,7 @@ public class CarparkMainPresenter {
 	}
 	
 	ExecutorService newFixedThreadPool = Executors.newFixedThreadPool(1);
+	private boolean plateControlSetting;
 	/**
 	 * 发生车牌内容到BX屏幕
 	 */
@@ -2515,7 +2516,53 @@ public class CarparkMainPresenter {
 		if (bxScreenService==null) {
 			bxScreenService = new BXScreenServiceImpl();
 			bxScreenService.init(0);
+			Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("自动更新等待进入车辆信息")).scheduleWithFixedDelay(new Runnable() {
+				@Override
+				public void run() {
+					plateControlSetting = getControlSetting();
+					bxScreenService.setPlateControlStatus(plateControlSetting);
+					List<String> willInPlate = sp.getCarparkService().getWillInPlate();
+					bxScreenService.setWillInPlate(willInPlate);
+				}
+			}, 1, 10, TimeUnit.SECONDS);
+			
 		}
+	}
+	/**
+	 * 
+	 */
+	public boolean getControlSetting() {
+		Map<Boolean, Date> map = sp.getCarparkService().getPlateControlStatus();
+		if (map==null) {
+			return true;
+		}else{
+			Date date = map.get(true);
+			Date nowTime = new Date();
+			if (date!=null) {
+				if (StrUtil.formatDate(date).equals(StrUtil.formatDate(nowTime))) {
+					return true;
+				}
+				int day = CarparkUtils.countTime(StrUtil.getTodayTopTime(date), StrUtil.getTodayBottomTime(nowTime), TimeUnit.DAYS);
+				if (day%2>0) {
+					return false;
+				}else{
+					return true;
+				}
+			}
+			date = map.get(false);
+			if (date!=null) {
+				if (StrUtil.formatDate(date).equals(StrUtil.formatDate(nowTime))) {
+					return false;
+				}
+				int day = CarparkUtils.countTime(StrUtil.getTodayTopTime(date), StrUtil.getTodayBottomTime(nowTime), TimeUnit.DAYS);
+				if (day%2>0) {
+					return true;
+				}else{
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	public CarparkDatabaseServiceProvider getSp() {

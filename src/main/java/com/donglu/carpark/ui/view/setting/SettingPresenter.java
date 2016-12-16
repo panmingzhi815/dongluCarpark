@@ -16,6 +16,7 @@ import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.list.BlackUserListPresenter;
 import com.donglu.carpark.ui.view.setting.wizard.DownloadPlateModel;
 import com.donglu.carpark.ui.view.setting.wizard.DownloadPlateWizard;
+import com.donglu.carpark.ui.view.setting.wizard.PlateControlSetting;
 import com.donglu.carpark.ui.wizard.holiday.AddYearHolidayModel;
 import com.donglu.carpark.ui.wizard.holiday.AddYearHolidayWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -222,6 +223,11 @@ public class SettingPresenter implements Presenter {
 		ServiceFileChoser fs=new ServiceFileChoser(view.getShell(), SWT.CLOSE);
 		path=fs.open();
 		return path;
+	}
+
+	public void plateControlSetting() {
+		PlateControlSetting plateControlSetting = new PlateControlSetting(sp, commonui);
+		plateControlSetting.open();
 	}
 
 }

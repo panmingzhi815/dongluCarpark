@@ -335,7 +335,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		GridData gd_text_screenType = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_screenType.widthHint = 100;
 		text_screenType.setLayoutData(gd_text_screenType);
-		text_screenType.setVisible(false);
+		text_screenType.setVisible(model.getScreenType().equals(ScreenTypeEnum.BX6E2));
 		
 		label_12 = new Label(composite, SWT.NONE);
 		label_12.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
