@@ -267,7 +267,7 @@ public class BXScreenServiceImpl implements BXScreenService {
 		totalSize++;
 		long currentTimeMillis = System.currentTimeMillis();
 		int sendScreenInfo = jna.SendScreenInfo(integer, BXJNA.SEND_CMD_SENDALLPROGRAM, 0);
-		System.out.println(totalSize+"===发送花费时间:"+(System.currentTimeMillis()-currentTimeMillis)+"sendScreenInfo==="+sendScreenInfo);
+		logger.info("第{}次发送消息到bx屏幕花费时间：{} 结果为：{} ",totalSize,(System.currentTimeMillis()-currentTimeMillis),sendScreenInfo);
 		return sendScreenInfo;
 	}
 
@@ -282,10 +282,6 @@ public class BXScreenServiceImpl implements BXScreenService {
 
 	@Override
 	public void setWillInPlate(List<String> willInPlate) {
-		if (willInPlate == null) {
-			this.listWaitInPlate = new ArrayList<>();
-		} else {
-			this.listWaitInPlate = willInPlate;
-		}
+		this.listWaitInPlate = willInPlate;
 	}
 }

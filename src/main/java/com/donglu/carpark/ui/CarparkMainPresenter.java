@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -2509,6 +2510,7 @@ public class CarparkMainPresenter {
 		bxScreenService.sendPosition(Integer.valueOf(device.getIdentifire()),device.getScreenIp(), position);
 	}
 
+	private List<String> willInPlate=new ArrayList<>();
 	/**
 	 * 
 	 */
@@ -2517,11 +2519,12 @@ public class CarparkMainPresenter {
 			bxScreenService = new BXScreenServiceImpl();
 			bxScreenService.init(0);
 			Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("自动更新等待进入车辆信息")).scheduleWithFixedDelay(new Runnable() {
+
 				@Override
 				public void run() {
 					plateControlSetting = getControlSetting();
 					bxScreenService.setPlateControlStatus(plateControlSetting);
-					List<String> willInPlate = sp.getCarparkService().getWillInPlate();
+					willInPlate = sp.getCarparkService().getWillInPlate();
 					bxScreenService.setWillInPlate(willInPlate);
 				}
 			}, 1, 10, TimeUnit.SECONDS);
@@ -2534,6 +2537,7 @@ public class CarparkMainPresenter {
 	public boolean getControlSetting() {
 		Map<Boolean, Date> map = sp.getCarparkService().getPlateControlStatus();
 		if (map==null) {
+			sp.getCarparkService().setPlateControlStatus(true);
 			return true;
 		}else{
 			Date date = map.get(true);
@@ -2567,6 +2571,43 @@ public class CarparkMainPresenter {
 
 	public CarparkDatabaseServiceProvider getSp() {
 		return sp;
+	}
+	private List<Character> lisDanInPlateEndNum = Arrays.asList('1','3','5','7','9');
+	private List<Character> lisShuangInPlateEndNum = Arrays.asList('0','2','4','6','8');
+	/**
+	 * 尾数单双号限行
+	 * @param plateNO
+	 * @return true 有限制
+	 */
+	public boolean checkPlateControlIn(String plateNO){
+		if (StrUtil.isEmpty(plateNO)) {
+			return true;
+		}
+		char charLastNum = 0;
+		char[] charArray = plateNO.toCharArray();
+		for (int i = charArray.length; i >0; i--) {
+			char c = charArray[i-1];
+			if (!lisDanInPlateEndNum.contains(c)&&!lisShuangInPlateEndNum.contains(c)) {
+				continue;
+			}
+			charLastNum=c;
+			break;
+		}
+		if (charLastNum==0) {
+			return false;
+		}
+		if (plateControlSetting) {
+			log.debug("今日单号限行，准备检查车牌：{} 尾数是否匹配：{} ",plateNO,lisDanInPlateEndNum);
+			if (lisDanInPlateEndNum.contains(charLastNum)) {
+				return false;
+			}
+		}else{
+			log.debug("今日双号限行，准备检查车牌：{} 尾数是否匹配：{} ",plateNO,lisShuangInPlateEndNum);
+			if (lisShuangInPlateEndNum.contains(charLastNum)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

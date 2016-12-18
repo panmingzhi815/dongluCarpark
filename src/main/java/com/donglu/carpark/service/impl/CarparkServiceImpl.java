@@ -968,6 +968,9 @@ public class CarparkServiceImpl implements CarparkService {
 	@Override
 	public List<String> getWillInPlate() {
 		List<String> list=(List<String>) CarparkFileUtils.readObject(ConstUtil.WILL_IN_PLATES);
+		if (list==null) {
+			return new ArrayList<>();
+		}
 		return list;
 	}
 
