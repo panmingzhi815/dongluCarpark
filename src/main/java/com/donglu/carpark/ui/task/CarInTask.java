@@ -83,6 +83,22 @@ public class CarInTask extends AbstractTask {
 		}
 		initImgPath();
 		
+
+		model.setInShowPlateNO(plateNO);
+		model.setInShowTime(dateString);
+		model.setInShowSmallImg(smallImage);
+		model.setInShowBigImg(bigImage);
+		model.setInBigImageName(bigImgFileName);
+		//限行检查
+		boolean checkPlateControlIn = presenter.checkPlateControlIn(plateNO);
+		if (checkPlateControlIn) {
+			logger.info("车牌：[{}]未通过限行检查",plateNO);
+			model.setInShowPlateNO(editPlateNo+"-限行");
+			presenter.showPlateNOToBXScreen(device, editPlateNo, false);
+			return;
+		}
+		
+		//刷卡记录判断
 		if (Boolean.valueOf(model.getMapSystemSetting().get(SystemSettingTypeEnum.启用卡片支持))) {
 			if(device.getMachType().equals(MachTypeEnum.POC)||device.getMachType().equals(MachTypeEnum.C)){
 				cch = model.getMapDeviceToCard().remove(ip);
@@ -101,13 +117,7 @@ public class CarInTask extends AbstractTask {
 				}
 			}
 		}
-
-		model.setInShowPlateNO(plateNO);
-		model.setInShowTime(dateString);
-		model.setInShowSmallImg(smallImage);
-		model.setInShowBigImg(bigImage);
-		model.setInBigImageName(bigImgFileName);
-
+		
 		// 空车牌处理
 		if (StrUtil.isEmpty(plateNO)) {
 			LOGGER.warn("空的车牌");

@@ -63,8 +63,10 @@ public class BXScreenServiceImpl implements BXScreenService {
 			addScreen(identitifire, ip);
 			mapIpToScreenNo.put(ip, identitifire);
 		}
-		mapIpToLastPlateShowDate.put(ip, new Date());
 		List<String> list = mapScreenInfo.getOrDefault(identitifire, new ArrayList<>());
+		if (list.contains(plateNO)&&System.currentTimeMillis()-mapIpToLastPlateShowDate.getOrDefault(ip, new Date()).getTime()>15000) {
+			return false;
+		}
 		list.add(plateNO);
 		if (list.size()>2) {
 			String remove = list.remove(0);

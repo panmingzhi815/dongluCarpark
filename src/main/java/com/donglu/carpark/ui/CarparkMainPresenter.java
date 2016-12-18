@@ -49,7 +49,6 @@ import com.donglu.carpark.service.PlateSubmitServiceI;
 import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
-import com.donglu.carpark.ui.servlet.CardRecordServlet;
 import com.donglu.carpark.ui.servlet.CardRecordSocket;
 import com.donglu.carpark.ui.servlet.OpenDoorServlet;
 import com.donglu.carpark.ui.task.CarInOutResult;
@@ -2493,6 +2492,7 @@ public class CarparkMainPresenter {
 	
 	ExecutorService newFixedThreadPool = Executors.newFixedThreadPool(1);
 	private boolean plateControlSetting;
+	private List<String> willInPlate=new ArrayList<>();
 	/**
 	 * 发生车牌内容到BX屏幕
 	 */
@@ -2510,16 +2510,14 @@ public class CarparkMainPresenter {
 		bxScreenService.sendPosition(Integer.valueOf(device.getIdentifire()),device.getScreenIp(), position);
 	}
 
-	private List<String> willInPlate=new ArrayList<>();
 	/**
-	 * 
+	 * 初始化bx屏幕
 	 */
 	public void initBXScreen() {
 		if (bxScreenService==null) {
 			bxScreenService = new BXScreenServiceImpl();
 			bxScreenService.init(0);
 			Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("自动更新等待进入车辆信息")).scheduleWithFixedDelay(new Runnable() {
-
 				@Override
 				public void run() {
 					plateControlSetting = getControlSetting();
@@ -2581,7 +2579,7 @@ public class CarparkMainPresenter {
 	 */
 	public boolean checkPlateControlIn(String plateNO){
 		if (StrUtil.isEmpty(plateNO)) {
-			return true;
+			return false;
 		}
 		char charLastNum = 0;
 		char[] charArray = plateNO.toCharArray();

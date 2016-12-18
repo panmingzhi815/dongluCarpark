@@ -60,11 +60,6 @@ public class CarInOutResult implements PlateNOResult {
 
 	@Override
 	public void invok(String ip, int channel, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize) {
-		boolean checkPlateControlIn = presenter.checkPlateControlIn(plateNO);
-		if (checkPlateControlIn) {
-			logger.info("车牌：[{}]未通过限行检查",plateNO);
-			return;
-		}
 		Boolean boolean2 = model.getMapIpToDeviceStatus().get(ip);
 		SingleCarparkDevice device = model.getMapIpToDevice().get(ip);
 		if (boolean2!=null&&!boolean2&&device!=null) {
