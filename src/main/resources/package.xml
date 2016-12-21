@@ -95,6 +95,10 @@
             <directory>resources/</directory>
             <outputDirectory>/</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>lib/</directory>
+            <outputDirectory>bin/jar</outputDirectory>
+        </fileSet>
         
        
         

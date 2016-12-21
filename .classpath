@@ -32,5 +32,14 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/bx05.0.0.2-SNAPSHOT.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/carpark/lib/bx05.0.0.2-SNAPSHOT-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/bx05.message-0.0.2-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/uia.comm-0.2.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/uia.message-0.4.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/uia.utils-0.1.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

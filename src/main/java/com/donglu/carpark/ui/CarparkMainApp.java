@@ -384,7 +384,9 @@ public class CarparkMainApp extends AbstractApp{
 		} finally {
 			log.info("发送车位数间隔SendPositionToDeviceTime为:{}", sendPositionToDeviceTime);
 		}
-		if (System.getProperty(ConstUtil.AUTO_SEND_POSITION_TO_DEVICE,"false").equals("true")) {
+		String sendPositionSeeting = System.getProperty(ConstUtil.AUTO_SEND_POSITION_TO_DEVICE,"false");
+		log.info("发送车位数设置为:{}",sendPositionSeeting);
+		if (sendPositionSeeting.equals("true")) {
 			autoSendPositionToDevice();
 		}
 		autoSendTimeToDevice();
@@ -1171,6 +1173,7 @@ public class CarparkMainApp extends AbstractApp{
 	 * 没隔5秒自动发送车位
 	 */
 	private void autoSendPositionToDevice() {
+		log.info("启动自动发送车位数线程！");
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("没隔5秒发送车位数"));
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
 

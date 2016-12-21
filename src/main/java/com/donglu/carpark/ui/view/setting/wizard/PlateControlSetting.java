@@ -44,8 +44,6 @@ public class PlateControlSetting {
 	private Text txt_plate;
 	private ListViewer listViewer;
 	java.util.List<String> list = Arrays.asList("陕G12345","陕G12345");
-	private Button btn_dan;
-	private Button btn_duo;
 	private CommonUIFacility commonui;
 	
 	public PlateControlSetting(CarparkDatabaseServiceProvider sp,CommonUIFacility commonui) {
@@ -98,7 +96,7 @@ public class PlateControlSetting {
 		group.setText("等待进入车牌");
 		
 		Composite composite_1 = new Composite(group, SWT.NONE);
-		composite_1.setLayout(new GridLayout(4, false));
+		composite_1.setLayout(new GridLayout(3, false));
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		txt_plate = new Text(composite_1, SWT.BORDER);
@@ -143,15 +141,6 @@ public class PlateControlSetting {
 		});
 		button_3.setText("删除");
 		
-		Button button = new Button(composite_1, SWT.NONE);
-		button.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				save();
-			}
-		});
-		button.setText("保存");
-		
 		Composite composite_2 = new Composite(group, SWT.NONE);
 		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
 		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -161,71 +150,13 @@ public class PlateControlSetting {
 		listViewer.setLabelProvider(new LabelProvider());
 		
 		List list = listViewer.getList();
-		
-		Group group_1 = new Group(shell, SWT.NONE);
-		group_1.setLayout(new FillLayout(SWT.HORIZONTAL));
-		group_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		group_1.setText("限行设置");
-		
-		Composite composite = new Composite(group_1, SWT.NONE);
-		composite.setLayout(new GridLayout(2, false));
-		
-		btn_dan = new Button(composite, SWT.RADIO);
-		btn_dan.setText("单号限行");
-		
-		btn_duo = new Button(composite, SWT.RADIO);
-		btn_duo.setText("双号限行");
 		init();
 	}
-
-	protected void save() {
-		sp.getCarparkService().setPlateControlStatus(btn_dan.getSelection()?true:false);
-	}
 	private void init() {
-		// true 为单
-		boolean controlSetting = getControlSetting();
-		btn_dan.setSelection(controlSetting);
-		btn_duo.setSelection(!controlSetting);
 		list=sp.getCarparkService().getWillInPlate();
 		if (list==null) {
 			list=new ArrayList<>();
 		}
 		listViewer.setInput(list);
-	}
-	/**
-	 * 
-	 */
-	public boolean getControlSetting() {
-		Map<Boolean, Date> map = sp.getCarparkService().getPlateControlStatus();
-		if (map==null) {
-			return true;
-		}else{
-			Date date = map.get(true);
-			Date nowTime = new Date();
-			if (date!=null) {
-				if (StrUtil.formatDate(date).equals(StrUtil.formatDate(nowTime))) {
-					return true;
-				}
-				int day = CarparkUtils.countTime(StrUtil.getTodayTopTime(date), StrUtil.getTodayBottomTime(nowTime), TimeUnit.DAYS);
-				if (day%2>0) {
-					return false;
-				}else{
-					return true;
-				}
-			}
-			date = map.get(false);
-			if (date!=null) {
-				if (StrUtil.formatDate(date).equals(StrUtil.formatDate(nowTime))) {
-					return false;
-				}
-				int day = CarparkUtils.countTime(StrUtil.getTodayTopTime(date), StrUtil.getTodayBottomTime(nowTime), TimeUnit.DAYS);
-				if (day%2>0) {
-					return true;
-				}else{
-					return false;
-				}
-			}
-		}
-		return true;
 	}
 }

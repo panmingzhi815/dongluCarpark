@@ -15,6 +15,7 @@
 		<dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
 		<dev.build.version>V1.0.0.14</dev.build.version>
 		<jaxb.version>2.2.11</jaxb.version>
+		<locallibdir>${basedir}/lib</locallibdir>
 	</properties>
 	
 	<dependencies>
@@ -87,10 +88,21 @@
 			<version>3.10-beta2</version>
 		</dependency>
 		<dependency>
-    <groupId>org.apache.axis2</groupId>
-    <artifactId>axis2-kernel</artifactId>
-    <version>1.7.3</version>
-</dependency>
+		    <groupId>org.apache.axis2</groupId>
+		    <artifactId>axis2-kernel</artifactId>
+		    <version>1.7.3</version>
+		</dependency>
+		<dependency>
+		    <groupId>log4j</groupId>
+		    <artifactId>log4j</artifactId>
+		    <version>1.2.14</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.antlr</groupId>
+		    <artifactId>antlr</artifactId>
+		    <version>3.5.1</version>
+		</dependency>
+		
 	</dependencies>
 	<build>
 		<plugins>
@@ -104,6 +116,8 @@
 					<compilerArguments>
                          <verbose />
                          <bootclasspath>${java.home}/lib/rt.jar</bootclasspath>
+                         <verbose />
+                         <extdirs>D:\git\dongluCarpark\lib</extdirs> 
                     </compilerArguments>  
 				</configuration>
 			</plugin>

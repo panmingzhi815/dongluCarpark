@@ -1025,8 +1025,8 @@ public class SettingView extends Composite implements View {
 				getPresenter().plateControlSetting();
 			}
 		});
-		button_34.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
-		button_34.setText("车牌控制");
+		button_34.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_34.setText("车牌预约");
 		scrolledComposite.setContent(composite);
 		scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 

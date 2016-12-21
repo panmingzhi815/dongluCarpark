@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,8 +36,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.donglu.carpark.hardware.bx.AnKangBXScreenServiceImpl;
 import com.donglu.carpark.hardware.bx.BXScreenService;
-import com.donglu.carpark.hardware.bx.BXScreenServiceImpl;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.model.SearchErrorCarModel;
 import com.donglu.carpark.model.ShowInOutHistoryModel;
@@ -2502,6 +2503,9 @@ public class CarparkMainPresenter {
 			return;
 		}
 		Integer valueOf = Integer.valueOf(device.getIdentifire());
+		if (willInPlate.contains(plateNO)) {
+			sp.getCarparkService().deleteWillInPlate(plateNO);
+		}
 		bxScreenService.sendPlateNO(valueOf,device.getScreenIp(), plateNO,isTrue);
 	}
 	
@@ -2515,7 +2519,7 @@ public class CarparkMainPresenter {
 	 */
 	public void initBXScreen() {
 		if (bxScreenService==null) {
-			bxScreenService = new BXScreenServiceImpl();
+			bxScreenService = new AnKangBXScreenServiceImpl();
 			bxScreenService.init(0);
 			Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("自动更新等待进入车辆信息")).scheduleWithFixedDelay(new Runnable() {
 				@Override
@@ -2533,38 +2537,9 @@ public class CarparkMainPresenter {
 	 * 
 	 */
 	public boolean getControlSetting() {
-		Map<Boolean, Date> map = sp.getCarparkService().getPlateControlStatus();
-		if (map==null) {
-			sp.getCarparkService().setPlateControlStatus(true);
-			return true;
-		}else{
-			Date date = map.get(true);
-			Date nowTime = new Date();
-			if (date!=null) {
-				if (StrUtil.formatDate(date).equals(StrUtil.formatDate(nowTime))) {
-					return true;
-				}
-				int day = CarparkUtils.countTime(StrUtil.getTodayTopTime(date), StrUtil.getTodayBottomTime(nowTime), TimeUnit.DAYS);
-				if (day%2>0) {
-					return false;
-				}else{
-					return true;
-				}
-			}
-			date = map.get(false);
-			if (date!=null) {
-				if (StrUtil.formatDate(date).equals(StrUtil.formatDate(nowTime))) {
-					return false;
-				}
-				int day = CarparkUtils.countTime(StrUtil.getTodayTopTime(date), StrUtil.getTodayBottomTime(nowTime), TimeUnit.DAYS);
-				if (day%2>0) {
-					return true;
-				}else{
-					return false;
-				}
-			}
-		}
-		return true;
+		String date = StrUtil.formatDate(new Date());
+		char d = date.charAt(date.length()-1);
+		return lisDanInPlateEndNum.contains(d);
 	}
 
 	public CarparkDatabaseServiceProvider getSp() {
@@ -2594,14 +2569,26 @@ public class CarparkMainPresenter {
 		if (charLastNum==0) {
 			return false;
 		}
+		Integer intNum = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.单双随机限制));
+		Random random = new Random();
 		if (plateControlSetting) {
 			log.debug("今日单号限行，准备检查车牌：{} 尾数是否匹配：{} ",plateNO,lisDanInPlateEndNum);
 			if (lisDanInPlateEndNum.contains(charLastNum)) {
+				if (intNum>0) {
+					if (random.nextInt(intNum)==0) {
+						return true;
+					}
+				}
 				return false;
 			}
 		}else{
 			log.debug("今日双号限行，准备检查车牌：{} 尾数是否匹配：{} ",plateNO,lisShuangInPlateEndNum);
 			if (lisShuangInPlateEndNum.contains(charLastNum)) {
+				if (intNum>0) {
+					if (random.nextInt(intNum)==0) {
+						return true;
+					}
+				}
 				return false;
 			}
 		}
