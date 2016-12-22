@@ -3,6 +3,9 @@ package com.donglu.carpark.hardware.bx;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import java.util.Arrays;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -89,5 +92,7 @@ public class AnKangBXScreenTestApp {
 	private void init() {
 		service = new AnKangBXScreenServiceImpl();
 		service.init(0);
+		service.setPlateControlStatus(false);
+		service.setWillInPlate(Arrays.asList("陕GZ6606","陕GZ6605"));
 	}
 }

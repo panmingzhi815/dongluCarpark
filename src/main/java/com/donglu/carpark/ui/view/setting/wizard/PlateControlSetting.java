@@ -8,7 +8,9 @@ import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.TextUtils;
 import com.dongluhitec.card.blservice.DatabaseServiceProvider;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.ui.util.WidgetUtil;
 
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -86,6 +88,8 @@ public class PlateControlSetting {
 	 */
 	protected void createContents() {
 		shell = new Shell();
+		shell.setImage(JFaceUtil.getImage("carpark_16"));
+		WidgetUtil.center(shell);
 		shell.setSize(543, 440);
 		shell.setText("车牌控制设置");
 		shell.setLayout(new GridLayout(1, false));

@@ -98,6 +98,14 @@ public class CarInTask extends AbstractTask {
 			return;
 		}
 		
+		if (presenter.checkWillInPlate(editPlateNo)) {
+			initInOutHistory();
+			isOpenDoor=true;
+			saveInHistory();
+			presenter.showPlateNOToBXScreen(device, editPlateNo, true);
+			return;
+		}
+		
 		//刷卡记录判断
 		if (Boolean.valueOf(model.getMapSystemSetting().get(SystemSettingTypeEnum.启用卡片支持))) {
 			if(device.getMachType().equals(MachTypeEnum.POC)||device.getMachType().equals(MachTypeEnum.C)){

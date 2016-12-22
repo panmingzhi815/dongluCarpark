@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.util.ThreadUtil;
 
 import onbon.bx05.Bx5GEnv;
@@ -161,12 +164,20 @@ public class AnKangBXScreenServiceImpl implements BXScreenService {
 				}
 			}
 		}, 5, 5, TimeUnit.SECONDS);
+		Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每天更新节目")).scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				logger.info("每天更新节目信息");
+				plateControlSetting=getControlSetting();
+				mapScreen.clear();
+			}
+		}, StrUtil.getTodayBottomTime(new Date()).getTime()-new Date().getTime(), 1000*60*60*24, TimeUnit.MILLISECONDS);
 	}
 
 	protected void showMainInfo(Bx5GScreenClient screen) throws Exception {
 		long currentTimeMillis = System.currentTimeMillis();
-		screen.lockProgram("P000", 65535);
 		screen.deleteAllDynamic();
+		screen.lockProgram("P000", 65535);
 		TextCaptionBxArea area = new TextCaptionBxArea(0, 32, 160, 32, screen.getProfile());
 		area.setFrameShow(false);
 		
@@ -440,6 +451,7 @@ public class AnKangBXScreenServiceImpl implements BXScreenService {
 	@Override
 	public boolean init(int handle) {
 		try {
+			plateControlSetting=getControlSetting();
 			init();
 			return true;
 		} catch (Exception e) {
@@ -455,5 +467,14 @@ public class AnKangBXScreenServiceImpl implements BXScreenService {
 	public void setWillInPlate(List<String> willInPlate) {
 		listWaitInPlate=willInPlate;
 	}
+	public boolean getControlSetting() {
+		String date = StrUtil.formatDate(new Date());
+		char d = date.charAt(date.length()-1);
+		return lisDanInPlateEndNum.contains(d);
+	}
+
+	private List<Character> lisDanInPlateEndNum = Arrays.asList('1','3','5','7','9');
+	
+	
 	
 }

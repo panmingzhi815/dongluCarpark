@@ -62,6 +62,8 @@ public class SingleCarparkUser extends DomainObject {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastEditDate;
 	
+	private Integer inCheckType;
+	
 	
 	@ManyToOne
 	private SingleCarparkCarpark carpark;
@@ -264,6 +266,16 @@ public class SingleCarparkUser extends DomainObject {
 	public void setLastEditDate(Date lastEditDate) {
 		this.lastEditDate = lastEditDate;
 		firePropertyChange("lastEditDate", null, null);
+	}
+	public Integer getInCheckType() {
+		if (inCheckType==null) {
+			return 0;
+		}
+		return inCheckType;
+	}
+	public void setInCheckType(Integer inCheckType) {
+		this.inCheckType = inCheckType;
+		firePropertyChange("inCheckType", null, null);
 	}
 	
 }

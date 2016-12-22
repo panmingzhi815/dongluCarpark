@@ -26,6 +26,7 @@ import com.donglu.carpark.service.SystemUserServiceI;
 import com.donglu.carpark.service.background.ClientCheckSoftDogServiceI;
 import com.donglu.carpark.service.background.DeleteImageServiceI;
 import com.donglu.carpark.ui.common.App;
+import com.donglu.carpark.ui.view.setting.wizard.PlateControlSetting;
 import com.donglu.carpark.util.TestMap;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.ConstUtil;
@@ -306,7 +307,7 @@ public class Login {
 		btn_savePassword.setText("保存密码");
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
-		comboViewer.setInput(new String[] { "监控界面", "管理界面","收费界面" });
+		comboViewer.setInput(new String[] { "监控界面", "管理界面","收费界面","预约界面" });
 		Object readObject = CarparkFileUtils.readObject(selectType);
 		if (StrUtil.isEmpty(readObject)) {
 			combo.select(0);
@@ -428,20 +429,26 @@ public class Login {
 							shell.setVisible(false);
 							String loginApp = combo.getText();
 							if (type.equals("操作员")) {
-								//
-								file = new File(MONITOR_TEMP);
-								if (file.exists()) {
-									commonui.error("错误", "已经打开了监控界面");
-									return;
+								if (loginApp.equals("预约界面")) {
+									PlateControlSetting plateControlSetting = new PlateControlSetting(sp, commonui);
+									plateControlSetting.open();
+								} else {
+									//
+									file = new File(MONITOR_TEMP);
+									if (file.exists()) {
+										commonui.error("错误", "已经打开了监控界面");
+										return;
+									}
+									file.createNewFile();
+									raf = new RandomAccessFile(file, "rw");
+									channel = raf.getChannel();
+									tryLock = channel.tryLock();
+									//
+									app = carparkMainApp;
 								}
-								file.createNewFile();
-								raf = new RandomAccessFile(file, "rw");
-								channel = raf.getChannel();
-								tryLock = channel.tryLock();
-								//
-								app = carparkMainApp;
 							} else {
 								if (loginApp.equals("监控界面")) {
+
 									file = new File(MONITOR_TEMP);
 									if (file.exists()) {
 										commonui.error("错误", "已经打开了监控界面");
@@ -480,9 +487,14 @@ public class Login {
 									tryLock = channel.tryLock();
 
 									app = concentrateApp;
+								}else if (loginApp.equals("预约界面")) {
+									PlateControlSetting plateControlSetting = new PlateControlSetting(sp, commonui);
+									plateControlSetting.open();
 								}
 							}
-							app.openAsyncExec();
+							if (app!=null) {
+								app.openAsyncExec();
+							}
 							LOGGER.info("界面打开花费时间{}", System.nanoTime() - nanoTime);
 						} catch (Exception e) {
 							LOGGER.error("main is error" + "界面出错=======", e);

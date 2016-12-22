@@ -2524,8 +2524,6 @@ public class CarparkMainPresenter {
 			Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("自动更新等待进入车辆信息")).scheduleWithFixedDelay(new Runnable() {
 				@Override
 				public void run() {
-					plateControlSetting = getControlSetting();
-					bxScreenService.setPlateControlStatus(plateControlSetting);
 					willInPlate = sp.getCarparkService().getWillInPlate();
 					bxScreenService.setWillInPlate(willInPlate);
 				}
@@ -2553,7 +2551,8 @@ public class CarparkMainPresenter {
 	 * @return true 有限制
 	 */
 	public boolean checkPlateControlIn(String plateNO){
-		if (StrUtil.isEmpty(plateNO)) {
+		String string = mapSystemSetting.get(SystemSettingTypeEnum.单双号限制);
+		if (StrUtil.isEmpty(plateNO)||string.equals("false")) {
 			return false;
 		}
 		char charLastNum = 0;
@@ -2593,6 +2592,10 @@ public class CarparkMainPresenter {
 			}
 		}
 		return true;
+	}
+
+	public boolean checkWillInPlate(String editPlateNo) {
+		return willInPlate.contains(editPlateNo);
 	}
 
 }
