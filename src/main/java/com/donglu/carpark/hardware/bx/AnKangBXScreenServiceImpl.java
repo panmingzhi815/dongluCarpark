@@ -23,6 +23,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.util.ThreadUtil;
 
 import onbon.bx05.Bx5GEnv;
+import onbon.bx05.Bx5GScreen.Result;
 import onbon.bx05.Bx5GScreenClient;
 import onbon.bx05.area.DateStyle;
 import onbon.bx05.area.DateTimeBxArea;
@@ -32,6 +33,8 @@ import onbon.bx05.area.WeekStyle;
 import onbon.bx05.area.page.TextBxPage;
 import onbon.bx05.cmd.dyn7.DynamicBxAreaRule;
 import onbon.bx05.file.ProgramBxFile;
+import onbon.bx05.message.global.ACK;
+import onbon.bx05.message.led.ReturnPingStatus;
 import onbon.bx05.utils.DisplayStyleFactory;
 import onbon.bx05.utils.TextBinary.Alignment;
 
@@ -44,6 +47,7 @@ public class AnKangBXScreenServiceImpl implements BXScreenService {
 	private static TextCaptionBxArea areaMainInfo;
 	private static TextCaptionBxArea plateInfoFirst;
 	private static TextCaptionBxArea plateInfoSencond;
+	int pageType=99;
 	
 
 	public static void main(String[] args) throws Exception {
@@ -90,120 +94,133 @@ public class AnKangBXScreenServiceImpl implements BXScreenService {
 	private DynamicBxAreaRule dynRule;
 	private DynamicBxAreaRule dynRulePlateInfo1;
 	private DynamicBxAreaRule dynRulePlateInfo2;
-	public void sendPositionToBxDevice(String ip,int position) throws Exception{
-		Bx5GScreenClient screen = mapScreen.get(ip);
-		if (screen==null) {
-			screen = new Bx5GScreenClient("MyScreen");
-			if (!screen.connect("172.16.1.232", 5005)) {
-				System.out.println("connect failed");
-				return;
-			}
-			mapScreen.put(ip, screen);
-			createProgram1(screen);
-			createProgram2(screen);
-		}
-		
-	}
-
-	public void showPlateNO(Bx5GScreenClient screen) throws Exception {
-		screen.lockProgram("P001", 15);
-		// 增加文本頁
-		TextBxPage page1 = new TextBxPage(" 陕G12345  准予通行", new Font(FONT_NAME, Font.PLAIN, 14), Color.green, Color.black);
-		page1.setDisplayStyle(DisplayStyleFactory.getStyle(1));
-		page1.setVerticalAlignment(Alignment.CENTER); // 垂直置中
-		plateInfoFirst.clearPages();
-		plateInfoFirst.addPage(page1);
-
-		// 增加文本頁
-		TextBxPage page2 = new TextBxPage(" 陕G12345  禁止通行", new Font(FONT_NAME, Font.PLAIN, 14), Color.red, Color.black);
-		page2.setDisplayStyle(DisplayStyleFactory.getStyle(1));
-		page2.setVerticalAlignment(Alignment.CENTER); // 垂直置中
-
-		plateInfoSencond.addPage(page2);
-		screen.deleteAllDynamic();
-		screen.writeDynamic(dynRulePlateInfo1, plateInfoFirst);
-		screen.writeDynamic(dynRulePlateInfo2, plateInfoSencond);
-	}
-
+	
 	public void init() throws Exception {
-		Bx5GEnv.initial("log.properties", 15000);
+		Bx5GEnv.initial("log.properties", 5000);
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("发送车位到BX屏幕"));
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
 			private int size=0;
 
 			@Override
 			public void run() {
+				if (dynRule==null) {
+					return;
+				}
+				Set<String> keySet = mapScreen.keySet();
+				if (keySet.isEmpty()) {
+					return;
+				}
 				try {
-					Set<String> keySet = mapScreen.keySet();
-					if (keySet.isEmpty()) {
-						return;
-					}
-					for (String ip : keySet) {
-						Bx5GScreenClient screen = mapScreen.get(ip);
-						if (mapScreen.get(ip)==null) {
-							return;
-						}
-						Date lastPlateShowDate=mapIpToLastPlateShowDate.getOrDefault(ip,initDate);
-						if (System.currentTimeMillis()-lastPlateShowDate.getTime()<15000)  {
-							return;
-						}
-						if (listWaitInPlate.size()>0&&listLastWaitInPlate.toString().equals(listWaitInPlate.toString())&&lastPlateControlSetting==plateControlSetting) {
-							if (size++<listLastWaitInPlate.size()) {
+					synchronized (mapScreen) {
+						for (String ip : keySet) {
+							Bx5GScreenClient screen = mapScreen.get(ip);
+							if (mapScreen.get(ip) == null) {
 								return;
-							}else{
-								size=0;
 							}
-							
+							Date lastPlateShowDate = mapIpToLastPlateShowDate.getOrDefault(ip, initDate);
+							if (System.currentTimeMillis() - lastPlateShowDate.getTime() < 15000) {
+								return;
+							}
+							if (listWaitInPlate.size() > 0 && listLastWaitInPlate.toString().equals(listWaitInPlate.toString()) && lastPlateControlSetting == plateControlSetting) {
+								if (size++ < listLastWaitInPlate.size()) {
+									return;
+								} else {
+									size = 0;
+								}
+
+							}
+							showMainInfo(screen);
+							listLastWaitInPlate = listWaitInPlate;
+							lastPlateControlSetting = plateControlSetting;
 						}
-						showMainInfo(screen);
-						listLastWaitInPlate=listWaitInPlate;
-						lastPlateControlSetting=plateControlSetting;
 					}
 				} catch (Exception e) {
-					logger.info("发送平时屏时发生错误");
+					logger.info("发送平时屏时发生错误",e);
 				}
 			}
 		}, 5, 5, TimeUnit.SECONDS);
 		Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每天更新节目")).scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
-				logger.info("每天更新节目信息");
-				plateControlSetting=getControlSetting();
-				mapScreen.clear();
+				synchronized (mapScreen) {
+					logger.info("每天更新节目信息");
+					plateControlSetting = getControlSetting();
+					pageType = 99;
+				}
 			}
-		}, StrUtil.getTodayBottomTime(new Date()).getTime()-new Date().getTime(), 1000*60*60*24, TimeUnit.MILLISECONDS);
+		}, StrUtil.getTodayBottomTime(new Date()).getTime()-new Date().getTime()+2000, 1000*60*60*24, TimeUnit.MILLISECONDS);
 	}
 
 	protected void showMainInfo(Bx5GScreenClient screen) throws Exception {
+		if (pageType==0&&lastPlateControlSetting==plateControlSetting&&listLastWaitInPlate.toString().equals(listWaitInPlate.toString())) {
+			//通讯状态检测
+			Result<ReturnPingStatus> ping = screen.ping();
+			if (!ping.isOK()) {
+				boolean connect = screen.connect(screen.getAddress(), screen.getPort());
+				if (!connect) {
+					return;
+				}
+			}else{
+				return;
+			}
+		}
+		
 		long currentTimeMillis = System.currentTimeMillis();
 		screen.deleteAllDynamic();
-		screen.lockProgram("P000", 65535);
 		TextCaptionBxArea area = new TextCaptionBxArea(0, 32, 160, 32, screen.getProfile());
 		area.setFrameShow(false);
 		
-		if (listWaitInPlate.isEmpty()) {
-			String string = " 0 2 4 6 8  双号通行";
-			if (plateControlSetting) {
-				string = " 1 3 5 7 9  单号通行";
-			}
-			TextBxPage p = new TextBxPage(string, new Font(FONT_NAME, Font.PLAIN, 14), Color.green, Color.black);
-			p.setDisplayStyle(DisplayStyleFactory.getStyle(1));
-			p.setVerticalAlignment(Alignment.CENTER); // 垂直置中
-			p.setHorizontalAlignment(Alignment.CENTER);
-			area.addPage(p);
-//			return;
+		String s = " 0 2 4 6 8  双号通行";
+		if (plateControlSetting) {
+			s = " 1 3 5 7 9  单号通行";
 		}
+		
+		TextBxPage p = new TextBxPage(s, new Font(FONT_NAME, Font.PLAIN, 14), Color.green, Color.black);
+		p.setDisplayStyle(DisplayStyleFactory.getStyle(2));
+		p.setSpeed(0);
+		p.setStayTime(500);
+		p.setVerticalAlignment(Alignment.CENTER); // 垂直置中
+		p.setHorizontalAlignment(Alignment.CENTER);
+		area.addPage(p);
+		
+
 		for (String string : listWaitInPlate) {
-			TextBxPage page1 = new TextBxPage(" "+string+" 等待通行", new Font(FONT_NAME, Font.PLAIN, 14), Color.green, Color.black);
+			TextBxPage page1 = new TextBxPage(" " + string + " 等待通行", new Font(FONT_NAME, Font.PLAIN, 14), Color.green, Color.black);
 			page1.setDisplayStyle(DisplayStyleFactory.getStyle(5));
 			page1.setSpeed(4);
 			page1.setStayTime(500);
 			page1.setVerticalAlignment(Alignment.CENTER); // 垂直置中
 			area.addPage(page1);
 		}
-		screen.writeDynamic(dynRule, area);
-		listLastWaitInPlate=listWaitInPlate;
-		System.out.println("更新主页信息花费时间===="+(System.currentTimeMillis()-currentTimeMillis));
+		
+		writeDynamic(screen,dynRule, area);
+		Thread.sleep(200);
+		screen.lockProgram("P000", 65535);
+		
+		listLastWaitInPlate = listWaitInPlate;
+		pageType=0;
+		System.out.println("更新主页信息花费时间====" + (System.currentTimeMillis() - currentTimeMillis));
+	}
+
+	/**
+	 * @param screen
+	 * @param dynRule 
+	 * @param area
+	 * @throws Exception 
+	 */
+	public void writeDynamic(Bx5GScreenClient screen, DynamicBxAreaRule dynRule, TextCaptionBxArea area) throws Exception {
+		Result<ACK> writeDynamic = screen.writeDynamic(dynRule, area);
+		boolean timeout = writeDynamic.isTimeout();
+		logger.info("屏幕：{} 发送动态区结果：发送状态：{}，超时状态为：{}",screen.getAddress(),writeDynamic.isOK(),timeout);
+		if (timeout) {
+			String address = screen.getAddress();
+			mapScreen.remove(address);
+			Bx5GScreenClient connectScreen = connectScreen(address);
+			if (connectScreen!=null) {
+				connectScreen.writeDynamic(dynRule, area);
+			}
+			pageType=99;
+		}
 	}
 	
 	/**
@@ -273,7 +290,7 @@ public class AnKangBXScreenServiceImpl implements BXScreenService {
 		program.setProgramTimeSpan(65535);
 		program.addArea(dtArea);
 		program.addArea(dtArea1);
-		program.addArea(areaMainInfo);
+//		program.addArea(areaMainInfo);
 		program.addArea(area);
 		dynRule = new DynamicBxAreaRule(0, (byte)0, (byte)0, 0);
 		dynRule.addProgram("P000");
@@ -356,19 +373,34 @@ public class AnKangBXScreenServiceImpl implements BXScreenService {
 		Bx5GScreenClient screen = mapScreen.get(ip);
 		if (screen == null) {
 			logger.info("初始化屏幕：{}",ip);
-			screen = new Bx5GScreenClient("MyScreen");
-			if (!screen.connect(ip, 5005)) {
-				System.out.println("connect failed");
+			screen = connectScreen(ip);
+			if (screen==null) {
 				return null;
 			}
-			mapScreen.put(ip, screen);
 			screen.deletePrograms();
 			screen.deleteAllDynamic();
 			ProgramBxFile bxFile = createProgram1(screen);
 			bxFile2 = createProgram2(screen);
 			screen.writeProgram(bxFile);
 			screen.writeProgram(bxFile2);
+			screen.lockProgram("P000", 65535);
+			screen.syncTime();
 		}
+		return screen;
+	}
+
+	/**
+	 * @param ip
+	 * @return
+	 */
+	public Bx5GScreenClient connectScreen(String ip) {
+		Bx5GScreenClient screen;
+		screen = new Bx5GScreenClient("MyScreen");
+		if (!screen.connect(ip, 5005)) {
+			logger.error("连接屏幕：{} 失败",ip);
+			return null;
+		}
+		mapScreen.put(ip, screen);
 		return screen;
 	}
 	@Override
@@ -400,43 +432,52 @@ public class AnKangBXScreenServiceImpl implements BXScreenService {
 			Runnable runnable = new Runnable() {
 				public void run() {
 					try {
-						screen.deleteAllDynamic();
-						screen.lockProgram("P001", 25);
-						String firstPlate = list.size() > 1 ? list.get(1) : list.get(0);
-						String s = "准予通行";
-						Color color = Color.green;
-						if (!mapPlateStatus.get(firstPlate)) {
-							s = "禁止通行";
-							color=Color.red;
-						}
-						// 增加文本頁
-						TextBxPage page1 = new TextBxPage(" " + firstPlate + "  " + s, new Font(FONT_NAME, Font.PLAIN, 12), color, Color.black);
-						page1.setDisplayStyle(DisplayStyleFactory.getStyle(1));
-						page1.setVerticalAlignment(Alignment.CENTER); // 垂直置中
-						plateInfoFirst.clearPages();
-						plateInfoFirst.addPage(page1);
-						screen.writeDynamic(dynRulePlateInfo1, plateInfoFirst);
-						firstPlate = list.size() > 1 ? list.get(0) : null;
-						if (firstPlate != null) {
-							s = "准予通行";
-							color = Color.green;
+						synchronized (mapScreen) {
+							screen.deleteAllDynamic();
+							screen.lockProgram("P001", 25);
+							String firstPlate = list.size() > 1 ? list.get(1) : list.get(0);
+							String s = "准予通行";
+							Color color = Color.green;
 							if (!mapPlateStatus.get(firstPlate)) {
 								s = "禁止通行";
-								color=Color.red;
+								color = Color.red;
 							}
 							// 增加文本頁
-							TextBxPage page2 = new TextBxPage(" "+firstPlate+"  "+s, new Font(FONT_NAME, Font.PLAIN, 12), color, Color.black);
-							page2.setDisplayStyle(DisplayStyleFactory.getStyle(1));
-							page2.setVerticalAlignment(Alignment.CENTER); // 垂直置中
-							plateInfoSencond.clearPages();
-							plateInfoSencond.addPage(page2);
-							screen.writeDynamic(dynRulePlateInfo2, plateInfoSencond);
+							TextBxPage page1 = new TextBxPage(" " + firstPlate + "  " + s, new Font(FONT_NAME, Font.PLAIN, 12), color, Color.black);
+							page1.setDisplayStyle(DisplayStyleFactory.getStyle(1));
+							page1.setVerticalAlignment(Alignment.CENTER); // 垂直置中
+							plateInfoFirst.clearPages();
+							plateInfoFirst.addPage(page1);
+							writeDynamic(screen,dynRulePlateInfo1, plateInfoFirst);
+							//发送完成后获取新的屏幕
+							Bx5GScreenClient screenClient = mapScreen.get(screen.getAddress());
+							if (screenClient==null) {
+								return;
+							}
+							firstPlate = list.size() > 1 ? list.get(0) : null;
+							if (firstPlate != null) {
+								s = "准予通行";
+								color = Color.green;
+								if (!mapPlateStatus.get(firstPlate)) {
+									s = "禁止通行";
+									color = Color.red;
+								}
+								// 增加文本頁
+								TextBxPage page2 = new TextBxPage(" " + firstPlate + "  " + s, new Font(FONT_NAME, Font.PLAIN, 12), color, Color.black);
+								page2.setDisplayStyle(DisplayStyleFactory.getStyle(1));
+								page2.setVerticalAlignment(Alignment.CENTER); // 垂直置中
+								plateInfoSencond.clearPages();
+								plateInfoSencond.addPage(page2);
+								writeDynamic(screenClient,dynRulePlateInfo2, plateInfoSencond);
+							}
+							long l = System.currentTimeMillis() - currentTimeMillis;
+							logger.info("发送车牌信息到显示屏花费时间：{}",l);
+							mapIpToLastPlateShowDate.put(ip, new Date());
 						}
-						long l=System.currentTimeMillis()-currentTimeMillis;
-						System.out.println("发送车牌到显示屏花费时间："+l);
-						mapIpToLastPlateShowDate.put(ip, new Date());
 					} catch (Exception e) {
 						logger.error("发送车牌：{} 到：{} 时发生错误",ip,plateNO);
+					}finally{
+						pageType=1;
 					}
 				}
 			};

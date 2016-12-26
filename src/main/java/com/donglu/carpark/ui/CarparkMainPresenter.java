@@ -1031,17 +1031,12 @@ public class CarparkMainPresenter {
 		try {
 			Device d = getDevice(device);
 			if (d != null) {
-				int screenType = device.getScreenType().getType();
-				if (screenType<16) {
-					if (isOpenDoor) {
-						log.info("对设备：ip:{},kip:{} 开闸,发送语音：[{}]", device.getIp(), device.getLinkAddress(), content);
-						Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoorWithDelay(d, content, device.getVolume() == null ? 1 : device.getVolume(), openDoorDelay);
-						return carparkContentVoiceAndOpenDoor;
-					} else {
-						return hardwareService.carparkContentVoice(d, content, device.getVolume() == null ? 1 : device.getVolume());
-					}
-				}else{
-					showContentToBXScreen(device, content);
+				if (isOpenDoor) {
+					log.info("对设备：ip:{},kip:{} 开闸,发送语音：[{}]", device.getIp(), device.getLinkAddress(), content);
+					Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoorWithDelay(d, content, device.getVolume() == null ? 1 : device.getVolume(), openDoorDelay);
+					return carparkContentVoiceAndOpenDoor;
+				} else {
+					return hardwareService.carparkContentVoice(d, content, device.getVolume() == null ? 1 : device.getVolume());
 				}
 			} else {
 				if (isOpenDoor) {
@@ -2025,7 +2020,6 @@ public class CarparkMainPresenter {
 					smallFile.createNewFile();
 					Files.write(smallImage, smallFile);
 					log.debug("保存小图片到本地：{}", smallFile);
-					ImgCompress.compress(smallFile.getPath());
 					String ip = CarparkClientConfig.getInstance().getServerIp();
 					if (true) {
 						long nanoTime = System.nanoTime();

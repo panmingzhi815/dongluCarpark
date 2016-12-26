@@ -27,6 +27,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.MachTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser.CarparkSlotTypeEnum;
@@ -97,10 +98,11 @@ public class CarInTask extends AbstractTask {
 			presenter.showPlateNOToBXScreen(device, editPlateNo, false);
 			return;
 		}
-		
+		//预约车辆检查
 		if (presenter.checkWillInPlate(editPlateNo)) {
 			initInOutHistory();
 			isOpenDoor=true;
+			content=model.getMapVoice().get(DeviceVoiceTypeEnum.预约车辆语音).getContent();
 			saveInHistory();
 			presenter.showPlateNOToBXScreen(device, editPlateNo, true);
 			return;

@@ -16,6 +16,7 @@ public class BXScreenConfig implements Serializable{
 	private int trueColor=65280;
 	private int falseColor=255;
 	private int plateShowTime=15;
+	private int willInPlateStayTime=5;
 	private BXScreenConfig(){}
 	
 	public static BXScreenConfig getInstance(){
@@ -39,8 +40,11 @@ public class BXScreenConfig implements Serializable{
 			out.println("#无效车牌颜色 红255 绿65280 黄65535");
 			out.println(String.format("%s=%s", "falseColor", getFalseColor()));
 			out.println();
-			out.println("#车牌显示停留时间(秒)");
+			out.println("#车牌实时信息显示停留时间(秒)");
 			out.println(String.format("%s=%s", "falseColor", getFalseColor()));
+			out.println();
+			out.println("#等待放行车辆显示停留时间");
+			out.println(String.format("%s=%s", "willInPlateStayTime", getWillInPlateStayTime()));
 			out.println();
 			
 
@@ -68,6 +72,7 @@ public class BXScreenConfig implements Serializable{
             this.trueColor = Integer.valueOf(preferenceStore.getProperty("trueColor", "255"));
             this.falseColor = Integer.valueOf(preferenceStore.getProperty("falseColor", "255"));
             this.plateShowTime = Integer.valueOf(preferenceStore.getProperty("plateShowTime", "15"));
+            this.willInPlateStayTime= Integer.valueOf(preferenceStore.getProperty("willInPlateStayTime", "5"));
         } catch (IOException e) {
             e.printStackTrace();
         } 
@@ -106,6 +111,15 @@ public class BXScreenConfig implements Serializable{
 
 	public void setPlateShowTime(int plateShowTime) {
 		this.plateShowTime = plateShowTime;
+		saveConfig();
+	}
+
+	public int getWillInPlateStayTime() {
+		return willInPlateStayTime;
+	}
+
+	public void setWillInPlateStayTime(int willInPlateStayTime) {
+		this.willInPlateStayTime = willInPlateStayTime;
 		saveConfig();
 	}
 }
