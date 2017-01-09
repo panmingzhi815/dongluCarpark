@@ -90,14 +90,6 @@ public class CarInTask extends AbstractTask {
 		model.setInShowSmallImg(smallImage);
 		model.setInShowBigImg(bigImage);
 		model.setInBigImageName(bigImgFileName);
-		//限行检查
-		boolean checkPlateControlIn = presenter.checkPlateControlIn(plateNO);
-		if (checkPlateControlIn) {
-			logger.info("车牌：[{}]未通过限行检查",plateNO);
-			model.setInShowPlateNO(editPlateNo+"-限行");
-			presenter.showPlateNOToBXScreen(device, editPlateNo, false);
-			return;
-		}
 		//预约车辆检查
 		if (presenter.checkWillInPlate(editPlateNo)) {
 			initInOutHistory();
@@ -162,6 +154,19 @@ public class CarInTask extends AbstractTask {
 			cch = new SingleCarparkInOutHistory();
 		}
 		checkUser(!isEmptyPlateNo);
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public void checkPlateInControlIn() throws Exception {
+		boolean checkPlateControlIn = presenter.checkPlateControlIn(plateNO);
+		if (checkPlateControlIn) {
+			logger.info("车牌：[{}]未通过限行检查",plateNO);
+			model.setInShowPlateNO(editPlateNo+"-限行");
+			presenter.showPlateNOToBXScreen(device, editPlateNo, false);
+			throw new Exception("限行检测失败");
+		}
 	}
 
 	/**
@@ -243,6 +248,10 @@ public class CarInTask extends AbstractTask {
 		}
 		checkFixCar(editPlateNo);
 		if (!StrUtil.isEmpty(user) && !isFixCarverdueCheck) {// 固定车操作
+			if (user.getCarparkSlotType().equals(CarparkSlotTypeEnum.非固定车位)) {
+				//限行检查
+				checkPlateInControlIn();
+			}
 			if (fixCarShowToDevice(isInCheck)) {
 				return;
 			}
@@ -627,67 +636,67 @@ public class CarInTask extends AbstractTask {
 			return true;
 		}
 		// 车位判断
-		if (StrUtil.isEmpty(cch.getId())) {
-			Integer slot = 0;
-			Set<String> platesSet = new HashSet<>();
-			for (SingleCarparkUser singleCarparkUser : listUser) {
-				if (singleCarparkUser.getValidTo().after(date)) {
-					slot += singleCarparkUser.getCarparkSlot();
-					platesSet.addAll(Arrays.asList(singleCarparkUser.getPlateNo().split(",")));
-				}
-			}
-			Boolean isFixCarSlotFullAutoBeTemp = Boolean
-					.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费) == null ? "false"
-							: mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));
-			int fixCarInSize = 0;
-			String inPlates = "";
-			for (String pn : platesSet) {
-				List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut = null;
-				// 如果找到这俩车的记录，判断这辆车是否为临时车进场，临时车进场则永远为临时车
-				if (pn.equals(editPlateNo)) {
-					findHistoryByChildCarparkInOut = sp.getCarparkInOutService()
-							.findInOutHistoryByCarparkAndPlateNO(null, pn);
-					for (SingleCarparkInOutHistory singleCarparkInOutHistory : findHistoryByChildCarparkInOut) {
-						if (singleCarparkInOutHistory.getReviseInTime() != null) {
-							return tempCarShowToDevice(false);
-						}
-					}
-					continue;
-				} else {
-					// 查找场内固定车标示的车辆
-					findHistoryByChildCarparkInOut = sp.getCarparkInOutService()
-							.findInOutHistoryByCarparkAndPlateNO(carpark, pn, true);
-				}
-				if (StrUtil.isEmpty(findHistoryByChildCarparkInOut)) {
-					continue;
-				}
-				fixCarInSize++;
-				inPlates += "[" + pn + "]";
-			}
-			if (isFixCarSlotFullAutoBeTemp) {
-				if (slot <= fixCarInSize) {
-					setFixCarToTemIn(date, user);
-					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，作临时车进入", isFixCarSlotFullAutoBeTemp,
-							user.getCarparkNo(), fixCarInSize);
-					return tempCarShowToDevice(false);
-				}
-			} else {
-				if (slot <= fixCarInSize) {
-					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，不允许进入", isFixCarSlotFullAutoBeTemp,
-							user.getCarparkNo(), fixCarInSize);
-					presenter.showContentToDevice(device,
-							model.getMapVoice().get(DeviceVoiceTypeEnum.固定车车位停满禁止进入语音).getContent(), false);
-					model.setInShowPlateNO(model.getInShowPlateNO() + "-个人车位满");
-					boolean confirm = new ConfimBox(editPlateNo, "用户车位已满,车辆" + inPlates + "已进场\n是否作为临时车进入停车场[" + carpark.getName()
-							+ "]").open();
-					if (confirm) {
-						cch.setReviseInTime(date);
-						return tempCarShowToDevice(false);
-					}
-					return true;
-				}
-			}
-		}
+//		if (StrUtil.isEmpty(cch.getId())) {
+//			Integer slot = 0;
+//			Set<String> platesSet = new HashSet<>();
+//			for (SingleCarparkUser singleCarparkUser : listUser) {
+//				if (singleCarparkUser.getValidTo().after(date)) {
+//					slot += singleCarparkUser.getCarparkSlot();
+//					platesSet.addAll(Arrays.asList(singleCarparkUser.getPlateNo().split(",")));
+//				}
+//			}
+//			Boolean isFixCarSlotFullAutoBeTemp = Boolean
+//					.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费) == null ? "false"
+//							: mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));
+//			int fixCarInSize = 0;
+//			String inPlates = "";
+//			for (String pn : platesSet) {
+//				List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut = null;
+//				// 如果找到这俩车的记录，判断这辆车是否为临时车进场，临时车进场则永远为临时车
+//				if (pn.equals(editPlateNo)) {
+//					findHistoryByChildCarparkInOut = sp.getCarparkInOutService()
+//							.findInOutHistoryByCarparkAndPlateNO(null, pn);
+//					for (SingleCarparkInOutHistory singleCarparkInOutHistory : findHistoryByChildCarparkInOut) {
+//						if (singleCarparkInOutHistory.getReviseInTime() != null) {
+//							return tempCarShowToDevice(false);
+//						}
+//					}
+//					continue;
+//				} else {
+//					// 查找场内固定车标示的车辆
+//					findHistoryByChildCarparkInOut = sp.getCarparkInOutService()
+//							.findInOutHistoryByCarparkAndPlateNO(carpark, pn, true);
+//				}
+//				if (StrUtil.isEmpty(findHistoryByChildCarparkInOut)) {
+//					continue;
+//				}
+//				fixCarInSize++;
+//				inPlates += "[" + pn + "]";
+//			}
+//			if (isFixCarSlotFullAutoBeTemp) {
+//				if (slot <= fixCarInSize) {
+//					setFixCarToTemIn(date, user);
+//					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，作临时车进入", isFixCarSlotFullAutoBeTemp,
+//							user.getCarparkNo(), fixCarInSize);
+//					return tempCarShowToDevice(false);
+//				}
+//			} else {
+//				if (slot <= fixCarInSize) {
+//					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，不允许进入", isFixCarSlotFullAutoBeTemp,
+//							user.getCarparkNo(), fixCarInSize);
+//					presenter.showContentToDevice(device,
+//							model.getMapVoice().get(DeviceVoiceTypeEnum.固定车车位停满禁止进入语音).getContent(), false);
+//					model.setInShowPlateNO(model.getInShowPlateNO() + "-个人车位满");
+//					boolean confirm = new ConfimBox(editPlateNo, "用户车位已满,车辆" + inPlates + "已进场\n是否作为临时车进入停车场[" + carpark.getName()
+//							+ "]").open();
+//					if (confirm) {
+//						cch.setReviseInTime(date);
+//						return tempCarShowToDevice(false);
+//					}
+//					return true;
+//				}
+//			}
+//		}
 
 		// int parseInt =
 		// Integer.parseInt(StrUtil.isEmpty(user.getCarparkNo())?"0":user.getCarparkNo());

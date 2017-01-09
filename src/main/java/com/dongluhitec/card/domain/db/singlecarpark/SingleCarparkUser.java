@@ -209,6 +209,9 @@ public class SingleCarparkUser extends DomainObject {
 			pcs.firePropertyChange("carType", null, null);
 	}
 	public Integer getCarparkSlot() {
+		if (carparkSlot==null) {
+			return 1;
+		}
 		return carparkSlot;
 	}
 	public void setCarparkSlot(Integer carparkSlot) {
