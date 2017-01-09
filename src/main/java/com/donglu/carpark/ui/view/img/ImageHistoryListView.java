@@ -58,7 +58,7 @@ public class ImageHistoryListView extends AbstractListView<SingleCarparkImageHis
 				getPresenter().delete(getModel().getSelected());
 			}
 		});
-		toolItem_delete.setText("添加");
+		toolItem_delete.setText("删除");
 	}
 	@Override
 	protected void searchMore() {
@@ -86,7 +86,7 @@ public class ImageHistoryListView extends AbstractListView<SingleCarparkImageHis
 		GridData gd_label_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_label_1.widthHint = 50;
 		lbl_total.setLayoutData(gd_label_1);
-		lbl_total.setText("999999");
+		lbl_total.setText("0");
 		
 		Label label_2 = new Label(composite_1, SWT.NONE);
 		label_2.setText("正确:");
@@ -95,7 +95,7 @@ public class ImageHistoryListView extends AbstractListView<SingleCarparkImageHis
 		GridData gd_label_3 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_label_3.widthHint = 50;
 		lbl_true.setLayoutData(gd_label_3);
-		lbl_true.setText("999999");
+		lbl_true.setText("0");
 		
 		Label label_4 = new Label(composite_1, SWT.NONE);
 		label_4.setText("错误:");
@@ -104,7 +104,7 @@ public class ImageHistoryListView extends AbstractListView<SingleCarparkImageHis
 		GridData gd_label_5 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_label_5.widthHint = 50;
 		lbl_false.setLayoutData(gd_label_5);
-		lbl_false.setText("999999");
+		lbl_false.setText("0");
 		
 		Label label_6 = new Label(composite_1, SWT.NONE);
 		label_6.setText("正确率:");
@@ -113,7 +113,7 @@ public class ImageHistoryListView extends AbstractListView<SingleCarparkImageHis
 		GridData gd_label_7 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_label_7.widthHint = 35;
 		lbl_trueToTotal.setLayoutData(gd_label_7);
-		lbl_trueToTotal.setText("0.985");
+		lbl_trueToTotal.setText("0");
 	}
 	public void setInfo(int size,int tSize,int fSize){
 		lbl_total.setText(""+size);

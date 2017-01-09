@@ -378,4 +378,7 @@ public abstract class AbstractListView<T> extends AbstractView {
 	public String[] getNameProperties() {
 		return nameProperties;
 	}
+	public TableViewer getTableViewer() {
+		return tableViewer;
+	}
 }

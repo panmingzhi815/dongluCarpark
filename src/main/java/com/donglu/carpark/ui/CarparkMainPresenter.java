@@ -2004,7 +2004,7 @@ public class CarparkMainPresenter {
 							log.debug("上传图片花费时间：{}", System.nanoTime() - nanoTime);
 						}
 					}
-					saveImageHistory(bigImgFileName);
+					saveImageHistory(bigImgFileName,smallImgFileName);
 				} catch (IOException e) {
 					log.error("上传图片出错", e);
 					if (errorSize<3) {
@@ -2022,12 +2022,13 @@ public class CarparkMainPresenter {
 		saveImageTheadPool.submit(runnable);
 	}
 
-	protected void saveImageHistory(String bigImgFileName) {
+	protected void saveImageHistory(String bigImgFileName, String smallImgFileName) {
 		try {
 			int indexOf = bigImgFileName.indexOf("_");
 			String plate=bigImgFileName.substring(indexOf+1, bigImgFileName.lastIndexOf("_"));
 			SingleCarparkImageHistory ih=new SingleCarparkImageHistory();
 			ih.setBigImage(bigImgFileName);
+			ih.setSmallImage(smallImgFileName);
 			ih.setPlateNO(plate);
 			String sTime = bigImgFileName.substring(bigImgFileName.lastIndexOf("/")+1, indexOf);
 			DateFormat df=new SimpleDateFormat("yyyyMMddHHmmssSSS");

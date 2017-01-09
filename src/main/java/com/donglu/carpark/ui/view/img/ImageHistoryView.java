@@ -14,16 +14,27 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
+import com.donglu.carpark.util.ImageUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkImageHistory;
 import com.google.common.util.concurrent.RateLimiter;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.nebula.widgets.cdatetime.CDateTime;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.nebula.widgets.cdatetime.CDT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.custom.SashForm;
 
 
 public class ImageHistoryView extends Composite implements View{
@@ -33,6 +44,8 @@ public class ImageHistoryView extends Composite implements View{
 	private CDateTime dt_end;
 	
 	private RateLimiter rateLimiter = RateLimiter.create(2);
+	private Label lbl_smallImage;
+	private Label lbl_bigimage;
 
 	public ImageHistoryView(Composite parent, int style) {
 		super(parent, style);
@@ -109,9 +122,47 @@ public class ImageHistoryView extends Composite implements View{
 		scrolledComposite.setContent(group);
 		scrolledComposite.setMinSize(group.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		
-		listComposite = new Composite(this, SWT.NONE);
-		listComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		Composite composite = new Composite(this, SWT.NONE);
+		composite.setLayout(new FillLayout(SWT.HORIZONTAL));
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		SashForm sashForm = new SashForm(composite, SWT.NONE);
+		
+		listComposite = new Composite(sashForm, SWT.NONE);
 		listComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
+		Composite composite_2 = new Composite(sashForm, SWT.NONE);
+		GridLayout gl_composite_2 = new GridLayout(1, false);
+		composite_2.setLayout(gl_composite_2);
+		
+		Label label_3 = new Label(composite_2, SWT.NONE);
+		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gridData.heightHint = 35;
+		label_3.setLayoutData(gridData);
+		
+		Composite composite_1 = new Composite(composite_2, SWT.BORDER);
+		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		GridLayout gl_composite_1 = new GridLayout(1, false);
+		gl_composite_1.marginWidth = 0;
+		gl_composite_1.marginHeight = 0;
+		composite_1.setLayout(gl_composite_1);
+		
+		lbl_smallImage = new Label(composite_1, SWT.NONE);
+		lbl_smallImage.setText("小图片");
+		GridData gd_lbl_smallImage = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
+		gd_lbl_smallImage.widthHint = 192;
+		gd_lbl_smallImage.heightHint = 108;
+		lbl_smallImage.setLayoutData(gd_lbl_smallImage);
+		
+		lbl_bigimage = new Label(composite_1, SWT.NONE);
+		lbl_bigimage.setText("大图片");
+		lbl_bigimage.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		Label lblNewLabel = new Label(composite_2, SWT.NONE);
+		GridData gridData_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gridData_1.heightHint = 50;
+		lblNewLabel.setLayoutData(gridData_1);
+		sashForm.setWeights(new int[] {7, 3});
 	}
 	@Override
 	public void setPresenter(Presenter presenter) {
@@ -126,4 +177,41 @@ public class ImageHistoryView extends Composite implements View{
 	public Composite getListComposite() {
 		return listComposite;
 	}
+	
+	void initListener(){
+		TableViewer tableViewer = getPresenter().getListPresenter().getView().getTableViewer();
+		tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				IStructuredSelection selection = (IStructuredSelection) tableViewer.getSelection();
+				SingleCarparkImageHistory ih = (SingleCarparkImageHistory) selection.getFirstElement();
+				if (ih==null) {
+					return;
+				}
+				System.out.println(ih);
+				ImageUtils.setBackgroundImage(ImageUtils.getImageByte(ih.getSmallImage()), lbl_smallImage, lbl_smallImage.getDisplay());
+				ImageUtils.setBackgroundImage(ImageUtils.getImageByte(ih.getBigImage()), lbl_bigimage, ih.getBigImage(), false);
+			}
+		});
+		tableViewer.getTable().addKeyListener(new KeyAdapter(){
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.keyCode==32) {
+					IStructuredSelection selection = (IStructuredSelection) tableViewer.getSelection();
+					SingleCarparkImageHistory ih = (SingleCarparkImageHistory) selection.getFirstElement();
+					if (ih==null) {
+						return;
+					}
+					if (!ih.getType().equals("正确")) {
+						getPresenter().getListPresenter().setTrue();
+					}else{
+						getPresenter().getListPresenter().setFalse();
+					}
+				}
+			}
+			
+		});
+		tableViewer.getTable().setToolTipText("可以按空格键进行正确错误切换");
+	}
+	
 }

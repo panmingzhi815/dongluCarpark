@@ -17,6 +17,7 @@ public class ImageHistoryPresenter  implements Presenter{
 		view=new ImageHistoryView(c, c.getStyle());
 		view.setPresenter(this);
 		listPresenter.go(view.getListComposite());
+		view.initListener();
 	}
 	public ImageHistoryListPresenter getListPresenter() {
 		return listPresenter;

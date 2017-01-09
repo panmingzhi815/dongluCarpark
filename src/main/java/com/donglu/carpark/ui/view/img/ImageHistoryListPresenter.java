@@ -18,7 +18,6 @@ import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
-import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkImageHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
@@ -134,30 +133,50 @@ public class ImageHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	}
 
 	public void setTrue() {
-		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		List<SingleCarparkImageHistory> selected = v.getModel().getSelected();
-		for (SingleCarparkImageHistory singleCarparkImageHistory : selected) {
-			singleCarparkImageHistory.setType("正确");
-			carparkInOutService.saveImageHistory(singleCarparkImageHistory);
+		try {
+			CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
+			List<SingleCarparkImageHistory> selected = v.getModel().getSelected();
+			for (SingleCarparkImageHistory singleCarparkImageHistory : selected) {
+				singleCarparkImageHistory.setType("正确");
+				carparkInOutService.saveImageHistory(singleCarparkImageHistory);
+			}
+			getView().getTableViewer().refresh();
+		} catch (Exception e) {
+			commonui.error("提示", "操作时发生错误",e);
 		}
-		refresh();
 	}
 
 	public void setFalse() {
-		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		List<SingleCarparkImageHistory> selected = v.getModel().getSelected();
-		for (SingleCarparkImageHistory singleCarparkImageHistory : selected) {
-			singleCarparkImageHistory.setType("错误");
-			carparkInOutService.saveImageHistory(singleCarparkImageHistory);
+		try {
+			CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
+			List<SingleCarparkImageHistory> selected = v.getModel().getSelected();
+			for (SingleCarparkImageHistory singleCarparkImageHistory : selected) {
+				singleCarparkImageHistory.setType("错误");
+				carparkInOutService.saveImageHistory(singleCarparkImageHistory);
+			}
+			getView().getTableViewer().refresh();
+		} catch (Exception e) {
+			commonui.error("提示", "操作时发生错误",e);
 		}
-		refresh();
 	}
 	@Override
 	public void delete(List<SingleCarparkImageHistory> list) {
+		if (StrUtil.isEmpty(list)) {
+			return;
+		}
+		boolean confirm = commonui.confirm("提示", "是否删除选中的"+list.size()+"条记录");
+		if (!confirm) {
+			return;
+		}
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		for (SingleCarparkImageHistory singleCarparkImageHistory : list) {
 			carparkInOutService.deleteImageHistory(singleCarparkImageHistory);
 		}
 		refresh();
+	}
+	
+	@Override
+	public ImageHistoryListView getView() {
+		return (ImageHistoryListView) super.getView();
 	}
 }

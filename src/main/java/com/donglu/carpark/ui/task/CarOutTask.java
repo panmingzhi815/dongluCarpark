@@ -103,7 +103,6 @@ public class CarOutTask extends AbstractTask{
 				model.setOutShowPlateNO("-无牌车");
 				return;
 			}
-			presenter.saveImage(smallImgFileName, bigImgFileName, smallImage, bigImage);
 			if(checkCarIsLock()){
 				return;
 			}
@@ -325,7 +324,7 @@ public class CarOutTask extends AbstractTask{
 			} else {
 				d = cch.getInTime();
 			}
-			if (cch!=null||cch.getReviseInTime()!=null) {
+			if (cch!=null&&cch.getReviseInTime()!=null) {
 				boolean confirm = new ConfimBox(editPlateNo, "车辆在[" + StrUtil.formatDate(validTo) + "]过期\n是否允许车辆按临时车计费出场:["+carpark.getName()+"]")
 						.open();
 				if (confirm) {

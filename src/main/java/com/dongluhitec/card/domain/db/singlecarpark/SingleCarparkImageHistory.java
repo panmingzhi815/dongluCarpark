@@ -25,6 +25,7 @@ public class SingleCarparkImageHistory extends DomainObject {
 	private String bigImage;
 	private String type;
 	private Date time;
+	private String smallImage;
 	
 	public String getTimeLabel(){
 		return StrUtil.formatDateTime(time);
@@ -64,5 +65,28 @@ public class SingleCarparkImageHistory extends DomainObject {
 	public void setTime(Date time) {
 		this.time=time;
 		firePropertyChange("time", null, null);
+	}
+
+	public void setSmallImage(String smallImage) {
+		this.smallImage=smallImage;
+		firePropertyChange("smallImage", null, null);
+	}
+
+	public String getSmallImage() {
+		return smallImage;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj!=null) {
+			if (!obj.getClass().equals(getClass())) {
+				return false;
+			}
+			SingleCarparkImageHistory cast = getClass().cast(obj);
+			if (cast.getId()!=null&&getId()!=null) {
+				return getId().equals(cast.getId());
+			}
+		}
+		return super.equals(obj);
 	}
 }
