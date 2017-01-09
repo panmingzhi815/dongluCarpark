@@ -167,6 +167,7 @@ public class AnKangBXScreenServiceImpl implements BXScreenService {
 		
 		long currentTimeMillis = System.currentTimeMillis();
 		screen.deleteAllDynamic();
+		screen.lockProgram("P000", 65535);
 		TextCaptionBxArea area = new TextCaptionBxArea(0, 32, 160, 32, screen.getProfile());
 		area.setFrameShow(false);
 		
@@ -194,8 +195,6 @@ public class AnKangBXScreenServiceImpl implements BXScreenService {
 		}
 		
 		writeDynamic(screen,dynRule, area);
-		Thread.sleep(200);
-		screen.lockProgram("P000", 65535);
 		
 		listLastWaitInPlate = listWaitInPlate;
 		pageType=0;
