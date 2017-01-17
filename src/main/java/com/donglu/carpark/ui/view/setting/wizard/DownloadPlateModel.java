@@ -17,6 +17,7 @@ public class DownloadPlateModel extends DomainObject {
 	private DownloadDeviceInfo info;
 	private CameraTypeEnum type=CameraTypeEnum.信路威;
 	private String ip="192.168.1.233";
+	private String msg="";
 	
 	private List<PlateDownload> listPlate=new ArrayList<>();
 	
@@ -87,6 +88,12 @@ public class DownloadPlateModel extends DomainObject {
 		this.listPlate = listPlate;
 		if (pcs != null)
 			pcs.firePropertyChange("listPlate", null, null);
+	}
+	public String getMsg() {
+		return msg;
+	}
+	public void setMsg(String msg) {
+		this.msg = msg;
 	}
 	
 }

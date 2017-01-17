@@ -41,6 +41,10 @@ public class ClientCheckSoftDogServiceImpl extends AbstractCarparkBackgroundServ
 			}
 			return;
 		}
+		checkSoftDog();
+	}
+	@Override
+	public boolean checkSoftDog() {
 		try {
 			log.info("客户端从数据库获取注册信息");
 			Map<SNSettingType, SingleCarparkSystemSetting> findAllSN = sp.getCarparkService().findAllSN();
@@ -51,16 +55,18 @@ public class ClientCheckSoftDogServiceImpl extends AbstractCarparkBackgroundServ
 				log.info("没有检测到注册码，请检测服务器加密狗");
 				commonui.error("检查失败", "没有检测到注册码，请检测服务器加密狗");
 				System.exit(0);
-				return;
+				return false;
 			}
 			if (new DateTime(validTo).minusDays(30).isBeforeNow()&&(remindTime==null||System.currentTimeMillis()-remindTime.getTime()>3600000)) {
 				log.info("检查注册码成功,有效期至{},即将到期", validTo);
 				commonui.info("注册码", "注册码即将到期，请及时注册！！！");
 			}
 			log.info("检查注册码成功,有效期至{}", validTo);
+			return true;
 		} catch (Exception e) {
 			commonui.error("检查失败", "没有检测到注册码，请检测服务器加密狗");
 			System.exit(0);
 		}
+		return false;
 	}
 }

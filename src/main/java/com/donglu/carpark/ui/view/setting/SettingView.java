@@ -437,7 +437,7 @@ public class SettingView extends Composite implements View {
 				try {
 					String text2 = text_carparkChangeCarTime.getText();
 					Integer.valueOf(text2);
-					mapSystemSetting.put(SystemSettingTypeEnum.绑定车辆允许场内换车, text2);
+					mapSystemSetting.put(SystemSettingTypeEnum.绑定车辆场内换车时间, text2);
 				} catch (NumberFormatException e1) {
 					
 				}

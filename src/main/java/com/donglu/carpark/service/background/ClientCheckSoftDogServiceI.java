@@ -6,5 +6,5 @@ import com.google.inject.ImplementedBy;
 
 @ImplementedBy(ClientCheckSoftDogServiceImpl.class)
 public interface ClientCheckSoftDogServiceI extends Service {
-
+	boolean checkSoftDog();
 }

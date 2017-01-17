@@ -123,6 +123,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 						commonui.info("提示", msg);
 					}
 				};
+				model.setMsg(model.getMsg()+listSelected);
 				getShell().getDisplay().asyncExec(runnable);
 				System.out.println("下载花费时间：" + (System.nanoTime() - nanoTime));
 			}

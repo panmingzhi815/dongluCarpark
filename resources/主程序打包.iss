@@ -5,6 +5,7 @@
 #define MyAppVersion "1.0.0.15"
 #define MyAppPublisher "东陆高新实业有限公司"
 #define MyAppURL "http://www.dongluhitec.com/"
+#define MyDateTimeString GetDateTimeString('_yyyymmddhhnnss', '-', ':')
 
 [Setup]
 ; 注: AppId的值为单独标识该应用程序。
@@ -22,7 +23,7 @@ DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=.
-OutputBaseFilename=停车场车牌识别{#MyAppVersion}
+OutputBaseFilename=停车场车牌识别{#MyAppVersion}{#MyDateTimeString}
 Compression=lzma
 SolidCompression=yes
 

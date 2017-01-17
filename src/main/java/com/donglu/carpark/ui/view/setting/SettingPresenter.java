@@ -207,6 +207,7 @@ public class SettingPresenter implements Presenter {
 		model.setListPlate(list);
 		DownloadPlateWizard w=new DownloadPlateWizard(model,commonui);
 		commonui.showWizard(w);
+		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "打开了车牌下载车牌界面,"+model.getMsg(),OPERANAME);
 	}
 
 	public String setFreeReson() {
