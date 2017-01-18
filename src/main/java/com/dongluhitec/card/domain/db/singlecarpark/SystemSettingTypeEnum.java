@@ -33,7 +33,7 @@ public enum SystemSettingTypeEnum {
 	固定车车牌匹配字符数("7"),
 	启用卡片支持("false"),车牌卡片共用时允许识别间隔("300"),
 	
-	DateBase_version("1.0.0.15"),软件版本("1.0.0.15"),发布时间("2016-01-04 17:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 单双随机限制("0"), 单双号限制("false"),  
+	DateBase_version("1.0.0.16"),软件版本("1.0.0.16"),发布时间("2016-01-19 17:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 单双随机限制("0"), 单双号限制("false"),  
 	;
 	
 	private String defaultValue;

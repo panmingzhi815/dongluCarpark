@@ -204,7 +204,8 @@ public abstract class AbstractListView<T> extends AbstractView {
 		tableViewer = new TableViewer(composite_1, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
 		tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
-				presenter.selected(model.getSelected());
+				StructuredSelection selection = (StructuredSelection) event.getSelection();
+				presenter.selected(selection.toList());
 			}
 		});
 		table = tableViewer.getTable();

@@ -76,7 +76,7 @@ public class SelectUserWizardPage extends WizardPage {
 		userPresenter.getListPresenter().setSelectedRun(new SelectedRun<SingleCarparkUser>() {
 			@Override
 			public void run(List<SingleCarparkUser> list) {
-				System.out.println(getClass()+"=="+list);
+				System.out.println("用户选择界面选择事件="+getClass()+"=="+list);
 				if (StrUtil.isEmpty(list)) {
 					return;
 				}

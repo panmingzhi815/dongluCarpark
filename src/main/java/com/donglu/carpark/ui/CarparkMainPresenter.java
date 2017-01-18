@@ -1432,7 +1432,8 @@ public class CarparkMainPresenter {
 		String userName = System.getProperty("userName");
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.登录登出, "登录了监控界面", userName);
 		model.setUserName(userName);
-		model.setWorkTime(new Date());
+		Date workTime = new Date();
+		model.setWorkTime(workTime);
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
 		model.setHoursSlot(carparkInOutService.findTempSlotIsNow(model.getCarpark()));
 		model.setMonthSlot(carparkInOutService.findFixSlotIsNow(model.getCarpark()));
@@ -1470,9 +1471,9 @@ public class CarparkMainPresenter {
 			}
 		}, 20, 20, TimeUnit.SECONDS);
 		// 车牌自动下载
+		Date todayBottomTime = StrUtil.getTodayBottomTime(workTime);
 		if (mapSystemSetting.get(SystemSettingTypeEnum.自动下载车牌).equals("true")) {
 			autoDownloadPlateNOToDevice = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每天晚上12点下载车牌"));
-			Date todayBottomTime = StrUtil.getTodayBottomTime(new Date());
 			autoDownloadPlateNOToDevice.scheduleWithFixedDelay(new Runnable() {
 				@Override
 				public void run() {
@@ -1490,7 +1491,7 @@ public class CarparkMainPresenter {
 							}
 							PlateDownload pd = new PlateDownload();
 							Date validTo = user.getValidTo();
-							if (validTo == null || validTo.before(new Date())) {
+							if (validTo == null || validTo.before(workTime)) {
 								pd.setUse(false);
 							}
 							pd.setDate(validTo);
@@ -1526,7 +1527,18 @@ public class CarparkMainPresenter {
 //			CarparkUtils.startServer(10004, "/*", new CardRecordServlet(this));
 			new CardRecordSocket(this).start();
 		}
+		//初始化BX扩展屏
 		initBXScreen();
+		//每天自动更新限时设置
+		if (mapSystemSetting.get(SystemSettingTypeEnum.单双号限制).equals("true")) {
+			plateControlSetting=getControlSetting();
+			Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每天自动更新单双号限制设置")).scheduleWithFixedDelay(new Runnable() {
+				@Override
+				public void run() {
+					plateControlSetting=getControlSetting();
+				}
+			}, todayBottomTime.getTime() - System.currentTimeMillis()+10000, 60*60*24*1000, TimeUnit.MILLISECONDS);
+		}
 	}
 
 	/**
@@ -2546,6 +2558,8 @@ public class CarparkMainPresenter {
 	 */
 	public boolean checkPlateControlIn(String plateNO){
 		String string = mapSystemSetting.get(SystemSettingTypeEnum.单双号限制);
+		log.info("单双号限制设置为：{}",string);
+		
 		if (StrUtil.isEmpty(plateNO)||string.equals("false")) {
 			return false;
 		}
@@ -2559,13 +2573,14 @@ public class CarparkMainPresenter {
 			charLastNum=c;
 			break;
 		}
+		log.info("车牌：{} 的尾数是：{}, 进入单双号限制为：{}",plateNO,charLastNum,plateControlSetting?"单号限行":"双号限行");
 		if (charLastNum==0) {
 			return false;
 		}
 		Integer intNum = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.单双随机限制));
 		Random random = new Random();
 		if (plateControlSetting) {
-			log.debug("今日单号限行，准备检查车牌：{} 尾数是否匹配：{} ",plateNO,lisDanInPlateEndNum);
+			log.debug("今日单号限行，准备检查车牌：{} 尾数:{} 是否匹配：{} ",plateNO,charLastNum,lisDanInPlateEndNum);
 			if (lisDanInPlateEndNum.contains(charLastNum)) {
 				if (intNum>0) {
 					if (random.nextInt(intNum)==0) {
@@ -2575,7 +2590,7 @@ public class CarparkMainPresenter {
 				return false;
 			}
 		}else{
-			log.debug("今日双号限行，准备检查车牌：{} 尾数是否匹配：{} ",plateNO,lisShuangInPlateEndNum);
+			log.debug("今日双号限行，准备检查车牌：{} 尾数:{} 是否匹配：{} ",plateNO,charLastNum,lisShuangInPlateEndNum);
 			if (lisShuangInPlateEndNum.contains(charLastNum)) {
 				if (intNum>0) {
 					if (random.nextInt(intNum)==0) {
@@ -2589,7 +2604,8 @@ public class CarparkMainPresenter {
 	}
 
 	public boolean checkWillInPlate(String editPlateNo) {
-		return willInPlate.contains(editPlateNo);
+		boolean contains = willInPlate.contains(editPlateNo);
+		return contains;
 	}
 
 }

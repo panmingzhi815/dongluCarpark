@@ -53,7 +53,6 @@ public class AddCardWizard extends Wizard implements AbstractWizard {
 	}
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
-		System.out.println(page.getClass());
 		if (page.getClass().equals(page2.getClass())) {
 			getShell().setSize(1024, 768);
 		}else{

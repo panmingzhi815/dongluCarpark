@@ -87,4 +87,6 @@ public interface CarparkUserService {
 	public Long deleteSingleCarparkCard(SingleCarparkCard card);
 	List<SingleCarparkCard> findSingleCarparkCardBySearch(int first,int max,String serialNumber,List<SingleCarparkUser> listUser);
 	Long countSingleCarparkCardBySearch(String serialNumber,List<SingleCarparkUser> listUser);
+	List<SingleCarparkCard> findSingleCarparkCardBySearch(int size, int i, String serialNumber, String userName, String plateNo);
+	Long countSingleCarparkCardBySearch(String serialNumber, String userName, String plateNo);
 }

@@ -246,4 +246,14 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 		return carparkUserService.countSingleCarparkCardBySearch(serialNumber, listUser);
 	}
 
+	@Override
+	public List<SingleCarparkCard> findSingleCarparkCardBySearch(int size, int i, String serialNumber, String userName, String plateNo) {
+		return carparkUserService.findSingleCarparkCardBySearch(size, i, serialNumber, userName, plateNo);
+	}
+
+	@Override
+	public Long countSingleCarparkCardBySearch(String serialNumber, String userName, String plateNo) {
+		return carparkUserService.countSingleCarparkCardBySearch(serialNumber, userName, plateNo);
+	}
+
 }

@@ -21,6 +21,8 @@ public class CardListPresenter extends AbstractListPresenter<SingleCarparkCard> 
 	private String serialNumber;
 	private List<SingleCarparkUser> listUser;
 	private CarparkUserService carparkUserService;
+	private String userName;
+	private String plateNo;
 	@Inject
 	public CardListPresenter(CarparkDatabaseServiceProvider sp,CommonUIFacility commonui) {
 		this.sp = sp;
@@ -34,11 +36,11 @@ public class CardListPresenter extends AbstractListPresenter<SingleCarparkCard> 
 	}
 	@Override
 	public List<SingleCarparkCard> getListInput(int size) {
-		return carparkUserService.findSingleCarparkCardBySearch(size, 500, serialNumber, listUser);
+		return carparkUserService.findSingleCarparkCardBySearch(size, 500, serialNumber, userName,plateNo);
 	}
 	@Override
 	public int getTotalSize() {
-		return carparkUserService.countSingleCarparkCardBySearch(serialNumber, listUser).intValue();
+		return carparkUserService.countSingleCarparkCardBySearch(serialNumber, userName,plateNo).intValue();
 	}
 	
 	public void search(String serialNumber,List<SingleCarparkUser> listUser){
@@ -86,5 +88,13 @@ public class CardListPresenter extends AbstractListPresenter<SingleCarparkCard> 
 			e.printStackTrace();
 			commonui.error("失败", "删除时发生错误",e);
 		}
+	}
+
+	public void search(String serialNumber, String userName, String plateNo) {
+		String s="%";
+		this.serialNumber = serialNumber;
+		this.userName = s+userName+s;
+		this.plateNo = s+plateNo+s;
+		refresh();
 	}
 }

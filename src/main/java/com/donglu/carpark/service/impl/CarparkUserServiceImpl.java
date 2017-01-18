@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 
 import org.criteria4jpa.Criteria;
+import org.criteria4jpa.Criteria.JoinType;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.Criterion;
 import org.criteria4jpa.criterion.MatchMode;
@@ -482,5 +483,50 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		DatabaseOperation<SingleCarparkCard> dom = DatabaseOperation.forClass(SingleCarparkCard.class, emprovider.get());
 		dom.remove(card);
 		return card.getId();
+	}
+	@Override
+	public List<SingleCarparkCard> findSingleCarparkCardBySearch(int size, int i, String serialNumber, String userName, String plateNo) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindSingleCarparkCardBySearch(serialNumber, userName, plateNo);
+			c.setFirstResult(size);
+			c.setMaxResults(i);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	@Override
+	public Long countSingleCarparkCardBySearch(String serialNumber, String userName, String plateNo) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindSingleCarparkCardBySearch(serialNumber, userName, plateNo);
+			c.setProjection(Projections.rowCount());
+			Long l = (Long) c.getSingleResultOrNull();
+			return l==null?0L:l;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	/**
+	 * @param serialNumber
+	 * @param listUser
+	 * @return
+	 */
+	public Criteria createFindSingleCarparkCardBySearch(String serialNumber,  String userName, String plateNo) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCard.class);
+		if (!StrUtil.isEmpty(serialNumber)) {
+			c.add(Restrictions.like(SingleCarparkCard.Property.serialNumber.name(), serialNumber, MatchMode.ANYWHERE));
+		}
+		if (!StrUtil.isEmpty(userName)||!StrUtil.isEmpty(plateNo)) {
+			Criteria createCriteria = c.createCriteria("user", JoinType.LEFT_OUTER_JOIN);
+			if (!StrUtil.isEmpty(userName)) {
+				createCriteria.add(Restrictions.like(SingleCarparkUser.Property.name.name(), userName));
+			}
+			if (!StrUtil.isEmpty(plateNo)) {
+				createCriteria.add(Restrictions.like(SingleCarparkUser.Property.plateNo.name(), plateNo));
+			}
+		}
+		return c;
 	}
 }

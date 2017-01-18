@@ -86,6 +86,7 @@ public class CardRecordSocket extends HttpServlet {
 	AtomicBoolean isStart=new AtomicBoolean(true);
 	
 	public void start(){
+		logger.info("启动卡片记录监听服务");
 		new Thread() {
 			public void run() {
 				ServerSocket socket = null;

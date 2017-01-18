@@ -5,6 +5,7 @@
 #define MyAppVersion "1.0.0.16"
 #define MyAppPublisher "东陆高新实业有限公司"
 #define MyAppURL "http://www.dongluhitec.com/"
+#define MyDateTimeString GetDateTimeString('_yyyymmddhhnnss_', '-', ':');
 
 [Setup]
 ; 注: AppId的值为单独标识该应用程序。
@@ -22,7 +23,7 @@ DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=.
-OutputBaseFilename=停车场车牌识别{#MyAppVersion}
+OutputBaseFilename=停车场车牌识别{#MyAppVersion}{#MyDateTimeString}update
 Compression=lzma
 SolidCompression=yes
 
@@ -30,20 +31,10 @@ SolidCompression=yes
 Name: "chinesesimp"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "服务器.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "服务器.ini"; DestDir: "{app}"; Flags: ignoreversion
-Source: "更新方式.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "更新概述.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "客户端.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "客户端.ini"; DestDir: "{app}"; Flags: ignoreversion
-Source: "配置说明.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; 注意: 不要在任何共享系统文件上使用“Flags: ignoreversion”
 
-;删除旧版本文件
-[installDelete]
-Type: filesandordirs; Name:"{app}\bin\jar"
-Type: filesandordirs; Name:"{app}\bin\native"
+
 ;开始菜单快捷方式： 
 [Icons]
 Name: "{group}\停车场服务器"; Filename: "{app}\服务器.exe";WorkingDir: "{app}"

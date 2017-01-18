@@ -7,29 +7,27 @@ import java.util.List;
 import org.eclipse.swt.widgets.Composite;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.ui.common.AbstractPresenter;
 import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 public class CardPresenter  extends AbstractPresenter{
 	private CardView view;
 	private CardListPresenter listPresenter;
-	private CarparkDatabaseServiceProvider sp;
 	
 	
 	@Inject
-	public CardPresenter(CardListPresenter listPresenter, CarparkDatabaseServiceProvider sp) {
+	public CardPresenter(CardListPresenter listPresenter) {
 		this.listPresenter = listPresenter;
-		this.sp = sp;
 	}
 	public CardListPresenter getListPresenter() {
 		return listPresenter;
 	}
 	public void search(String serialNumber,String userName, String plateNo) {
-		sp.getCarparkUserService();
-		List<SingleCarparkUser> listUser = new ArrayList<>();
-		listPresenter.search(serialNumber,listUser);
+		listPresenter.search(serialNumber,userName,plateNo);
 	}
 	@Override
 	protected View createView(Composite c) {
