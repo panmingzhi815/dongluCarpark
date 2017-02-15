@@ -408,7 +408,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 	protected View createView(Composite c) {
 		view=new UserListView(c,c.getStyle());
 		view.setTableTitle("固定用户列表");
-		view.setShowMoreBtn(false);
+		view.setShowMoreBtn(true);
 		return view;
 	}
 

@@ -10,4 +10,6 @@ public interface SettingService {
 	boolean backupDataBase(String filePath);
 	int restoreDataBase(String filePath);
 	
+	public void initCarpark();
+	
 }

@@ -334,7 +334,6 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 					continue;
 				}
 				// 导入用户
-				CardUser cardUser = null;
 				String name,plateNO,address,type,validTo,carparkNo,remark,telephone,parkingSpace,carparkSlotType;
 				plateNO=getCellStringValue(row, 2);
 				if (StrUtil.isEmpty(plateNO)) {
@@ -365,10 +364,10 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 					user.setMonthChargeCode(mc.getChargeCode());
 					user.setMonthChargeName(mc.getChargeName());
 				}
-//				SingleCarparkUser findUserByPlateNo = carparkUserService.findUserByPlateNo(plateNO,map.get(caparkCode).getId());
-//				if (!StrUtil.isEmpty(findUserByPlateNo)) {
-//					throw new Exception("车牌已存在");
-//				}
+				SingleCarparkUser findUserByPlateNo = carparkUserService.findUserByPlateNo(plateNO,map.get(caparkCode).getId());
+				if (!StrUtil.isEmpty(findUserByPlateNo)) {
+					throw new Exception("停车场："+caparkCode+" 下已存在车牌已存在");
+				}
 				name = getCellStringValue(row, 1);
 				address=getCellStringValue(row, 4);
 				type=getCellStringValue(row, 5);

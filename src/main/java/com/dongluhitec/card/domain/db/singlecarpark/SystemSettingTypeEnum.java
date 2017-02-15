@@ -33,7 +33,7 @@ public enum SystemSettingTypeEnum {
 	固定车车牌匹配字符数("7"),
 	绑定车辆允许场内换车("true"),绑定车辆场内换车时间("30"),
 	
-	DateBase_version("1.0.0.15"),软件版本("1.0.0.15"),发布时间("2016-12-09 19:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 
+	DateBase_version("1.0.0.16"),软件版本("1.0.0.16"),发布时间("2017-02-15 19:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 
 	;
 	
 	private String defaultValue;

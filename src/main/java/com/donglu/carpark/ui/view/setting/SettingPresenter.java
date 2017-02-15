@@ -190,6 +190,7 @@ public class SettingPresenter implements Presenter {
 		DownloadPlateModel model = new DownloadPlateModel();
 		List<SingleCarparkUser> findAll = sp.getCarparkUserService().findAll();
 		ArrayList<PlateDownload> list = new ArrayList<>();
+		Map<String, String> map=new HashMap<>();
 		for (SingleCarparkUser user : findAll) {
 			String[] split = user.getPlateNo().split(",");
 			if (split.length>1) {
@@ -200,9 +201,13 @@ public class SettingPresenter implements Presenter {
 			if (validTo==null||validTo.before(new Date())) {
 				pd.setUse(false);
 			}
-			pd.setDate(validTo);
-			pd.setPlate(user.getPlateNo());
-			list.add(pd);
+			String key = user.getPlateNo();
+			if (map.get(key)==null) {
+				pd.setDate(validTo);
+				pd.setPlate(user.getPlateNo());
+				list.add(pd);
+				map.put(key, key);
+			}
 		}
 		model.setListPlate(list);
 		DownloadPlateWizard w=new DownloadPlateWizard(model,commonui);

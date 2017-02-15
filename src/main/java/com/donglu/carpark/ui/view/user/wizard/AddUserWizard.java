@@ -80,8 +80,13 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 				}
 			}
 		}
-		setErrorMessage(null);
 		model.setPlateNo(model.getPlateNo().toUpperCase());
+		SingleCarparkUser user = sp.getCarparkUserService().findUserByPlateNo(model.getPlateNo(),model.getCarpark().getId());
+		if (user!=null&&(model.getId()==null||!model.getId().equals(user.getId()))) {
+			setErrorMessage("停车场：["+model.getCarpark()+"] 下已经存在车牌:["+model.getPlateNo()+"]");
+			return false;
+		}
+		setErrorMessage(null);
 		return true;
 	}
 	

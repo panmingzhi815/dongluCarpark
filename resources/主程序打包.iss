@@ -2,7 +2,7 @@
 ; 有关创建 Inno Setup 脚本文件的详细资料请查阅帮助文档！
 
 #define MyAppName "停车场车牌识别"
-#define MyAppVersion "1.0.0.15"
+#define MyAppVersion "1.0.0.16"
 #define MyAppPublisher "东陆高新实业有限公司"
 #define MyAppURL "http://www.dongluhitec.com/"
 #define MyDateTimeString GetDateTimeString('_yyyymmddhhnnss', '-', ':')
@@ -23,7 +23,7 @@ DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=.
-OutputBaseFilename=停车场车牌识别{#MyAppVersion}{#MyDateTimeString}
+OutputBaseFilename=停车场车牌识别{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 

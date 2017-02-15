@@ -6,13 +6,26 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
+import org.criteria4jpa.Criteria;
+import org.criteria4jpa.CriteriaUtils;
+
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.service.SettingService;
 import com.donglu.carpark.util.CarparkUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.common.io.Files;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.persist.Transactional;
 
 public class SettingServiceImpl implements SettingService {
+	
+	@Inject
+	private Provider<EntityManager> emProvider;
+
 
 	@Override
 	public List<File> getServerChildFiles(String fileName) {
@@ -120,6 +133,16 @@ public class SettingServiceImpl implements SettingService {
 			}
 		}
 		return true;
+	}
+	
+	@Override
+	public void initCarpark() {
+		checkSetting();
+	}
+	@Transactional
+	private void checkSetting() {
+//		Criteria c = CriteriaUtils.createCriteria(emProvider.get(), SingleCarparkSystemSetting.class);
+		
 	}
 
 }
