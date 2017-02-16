@@ -1359,7 +1359,7 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 		mapIpToJNA.get(ip).tigger(ip);
-//		carInOutResultProvider.get().invok(ip, 0, "陕G12346", null, null, 11);
+//		carInOutResultProvider.get().invok(ip, 0, "", null, null, 11);
 	}
 
 	/**

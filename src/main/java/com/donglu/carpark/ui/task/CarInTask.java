@@ -114,6 +114,7 @@ public class CarInTask extends AbstractTask {
 					editPlateNo=user.getPlateNo().split(",")[0];
 					initInOutHistory();
 					isOpenDoor=true;
+					content=model.getMapVoice().get(DeviceVoiceTypeEnum.固定车进场语音).getContent();
 					saveInHistory();
 					return;
 				}
@@ -165,6 +166,8 @@ public class CarInTask extends AbstractTask {
 			logger.info("车牌：[{}]未通过限行检查",plateNO);
 			model.setInShowPlateNO(editPlateNo+"-限行");
 			presenter.showPlateNOToBXScreen(device, editPlateNo, false);
+			String s=presenter.getControlSetting()?"双号车辆":"单号车辆";
+			presenter.showContentToDevice(device, s+",禁止通行", false);
 			throw new Exception("限行检测失败");
 		}
 	}
@@ -219,7 +222,7 @@ public class CarInTask extends AbstractTask {
 				break;
 			}
 			if (d==null||StrUtil.countTime(d, date, TimeUnit.MILLISECONDS)>Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车牌卡片共用时允许识别间隔))*1000) {
-				logger.info("没有找到用户：{} 卡片：{} 的刷卡记录，等待刷卡",user,cardSerialNumber);
+				logger.info("没有找到用户：[{}]-[{}] 卡片：[{}] 的刷卡记录，等待刷卡",user,editPlateNo,cardSerialNumber);
 				model.getMapPlateToInTask().put(editPlateNo, this);
 				return true;
 			}
