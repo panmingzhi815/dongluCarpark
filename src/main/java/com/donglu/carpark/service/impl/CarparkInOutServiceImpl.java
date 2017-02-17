@@ -1213,7 +1213,18 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), DeviceErrorMessage.class);
 			c.add(Restrictions.eq(DeviceErrorMessage.Property.ip.name(), device.getIp()));
 			c.add(Restrictions.isNull(DeviceErrorMessage.Property.nomalTime.name()));
-			return (DeviceErrorMessage) c.getSingleResultOrNull();
+			List<DeviceErrorMessage> list = c.getResultList();
+			if (list.size()>1) {
+				DatabaseOperation<DeviceErrorMessage> dom = DatabaseOperation.forClass(DeviceErrorMessage.class, emprovider.get());
+				for (int i = 0; i < list.size()-1; i++) {
+					DeviceErrorMessage deviceErrorMessage = list.get(i);
+					dom.remove(deviceErrorMessage);
+				}
+				return list.get(list.size()-1);
+			}else if(list.size()==1){
+				return list.get(0);
+			}
+			return null;
 		} finally{
 			unitOfWork.end();
 		}

@@ -329,7 +329,7 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 					}
 					continue;
 				}
-				String status = getCellStringValue(row, 10);
+				String status = getCellStringValue(row, 15);
 				if (status.equals("处理成功")) {
 					continue;
 				}
@@ -350,6 +350,10 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 					}
 				}
 				SingleCarparkUser user=new SingleCarparkUser();
+				SingleCarparkUser findUserByPlateNo = carparkUserService.findUserByPlateNo(plateNO,map.get(caparkCode).getId());
+				if (!StrUtil.isEmpty(findUserByPlateNo)) {
+					user=findUserByPlateNo;
+				}
 				String chargeCode=getCellStringValue(row, 12);
 				if (!StrUtil.isEmpty(chargeCode)) {
 					SingleCarparkMonthlyCharge mc = mapCharge.get(chargeCode);
@@ -363,10 +367,6 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 					user.setMonthChargeId(mc.getId());
 					user.setMonthChargeCode(mc.getChargeCode());
 					user.setMonthChargeName(mc.getChargeName());
-				}
-				SingleCarparkUser findUserByPlateNo = carparkUserService.findUserByPlateNo(plateNO,map.get(caparkCode).getId());
-				if (!StrUtil.isEmpty(findUserByPlateNo)) {
-					throw new Exception("停车场："+caparkCode+" 下已存在车牌已存在");
 				}
 				name = getCellStringValue(row, 1);
 				address=getCellStringValue(row, 4);
@@ -409,11 +409,11 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 					
 				}
 				carparkUserService.saveUser(user);
-				setCellStringvalue(row, 13, "处理成功", cellStyle);
+				setCellStringvalue(row, 15, "处理成功", cellStyle);
 			} catch (Exception e) {
 				failNum++;
 				e.printStackTrace();
-				setCellStringvalue(row, 13, "保存失败" + e.getMessage(), cellStyle);
+				setCellStringvalue(row, 15, "保存失败" + e.getMessage(), cellStyle);
 			} finally {
 				currentRow++;
 				row = sheet.getRow(currentRow);

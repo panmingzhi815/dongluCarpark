@@ -243,7 +243,11 @@ public class CarOutTask extends AbstractTask{
 		sp.getCarparkUserService().saveUser(user);
 		sp.getCarparkInOutService().saveInOutHistory(cch);
 		LOGGER.info("保存储值车出场数据到数据库成功，对设备{}进行语音开闸",device);
-		String s =",扣费"+calculateTempCharge+"元,剩余"+user.getLeftMoney()+"元";
+		String sLeftMoney = "剩余"+user.getLeftMoney()+"元";
+		if (user.getLeftMoney()<0) {
+			sLeftMoney="欠费"+Math.abs(user.getLeftMoney())+"元";
+		}
+		String s =",扣费"+calculateTempCharge+"元,"+sLeftMoney;
 		s = CarparkUtils.getCarStillTime(model.getTotalTime())+CarparkUtils.formatFloatString(s);
 		String content = model.getMapVoice().get(DeviceVoiceTypeEnum.储值车出场语音).getContent();
 		presenter.showContentToDevice(device, s+","+content, true);

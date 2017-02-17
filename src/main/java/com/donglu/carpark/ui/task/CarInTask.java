@@ -377,8 +377,12 @@ public class CarInTask extends AbstractTask {
 		Float leftMoney = user.getLeftMoney();
 		Float prepaidCarInOutLimit = Float
 				.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车进出场限制金额));
+		String sLeftMoney = "剩余" + leftMoney + "元";
+		if (leftMoney<0) {
+			sLeftMoney="欠费"+Math.abs(leftMoney)+"元";
+		}
 		if (leftMoney < prepaidCarInOutLimit) {
-			String formatFloatString = CarparkUtils.formatFloatString("剩余" + leftMoney + "元,余额不足请联系管理员");
+			String formatFloatString = CarparkUtils.formatFloatString(sLeftMoney + ",余额不足请联系管理员");
 			presenter.showContentToDevice(device, formatFloatString, false);
 			return true;
 		}
@@ -387,7 +391,7 @@ public class CarInTask extends AbstractTask {
 				.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.储值车提醒金额));
 		;
 		if (leftMoney < prepaidCarInOutRemind) {
-			content = prepaidCarInMsg + ",剩余" + leftMoney + "元,请及时充值";
+			content = prepaidCarInMsg + ","+sLeftMoney + ",请及时充值";
 			content = CarparkUtils.formatFloatString(content);
 			isOpenDoor = true;
 			// presenter.showContentToDevice(device, content, true);
