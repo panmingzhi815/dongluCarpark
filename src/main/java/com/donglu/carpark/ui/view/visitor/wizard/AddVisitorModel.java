@@ -13,6 +13,8 @@ public class AddVisitorModel extends SingleCarparkVisitor {
 	 */
 	private static final long serialVersionUID = 345704052137142957L;
 	private List<SingleCarparkCarpark> listCarpark=new ArrayList<>();
+	
+	private boolean isPrintDispatchNote=false;
 
 	public List<SingleCarparkCarpark> getListCarpark() {
 		return listCarpark;
@@ -31,6 +33,15 @@ public class AddVisitorModel extends SingleCarparkVisitor {
 		SingleCarparkVisitor singleCarparkVisitor = new SingleCarparkVisitor();
 		BeanUtil.copyProperties(this, singleCarparkVisitor, SingleCarparkVisitor.Property.values());
 		return singleCarparkVisitor;
+	}
+
+	public boolean isPrintDispatchNote() {
+		return isPrintDispatchNote;
+	}
+
+	public void setPrintDispatchNote(boolean isPrintDispatchNote) {
+		this.isPrintDispatchNote = isPrintDispatchNote;
+		firePropertyChange("isPrintDispatchNote", null, null);
 	}
 	
 }

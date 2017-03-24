@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui.view.visitor;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -14,6 +15,8 @@ import com.donglu.carpark.ui.view.visitor.wizard.AddVisitorModel;
 import com.donglu.carpark.ui.view.visitor.wizard.AddVisitorWizard;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
+import com.donglu.carpark.util.ExcelImportExport;
+import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
@@ -33,12 +36,16 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 	private CommonUIFacility commonui;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
-
+	@Inject
+	private ExcelImportExport excelImportExport;
+	boolean isPrintVisitorNote=false;
+	
 
 	@Override
 	public void add() {
 		try {
 			AddVisitorModel model = new AddVisitorModel();
+			model.setPrintDispatchNote(isPrintVisitorNote);
 			List<SingleCarparkVisitor> selected = view.getModel().getSelected();
 			if (!StrUtil.isEmpty(selected)) {
 				SingleCarparkVisitor visitor = selected.get(0);
@@ -49,6 +56,11 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 				model.setValidTo(StrUtil.getTodayBottomTime(new Date()));
 			}
 			addAndEdit(model);
+			isPrintVisitorNote=model.isPrintDispatchNote();
+			System.out.println(isPrintVisitorNote+"===="+model.getId());
+			if (isPrintVisitorNote&&model.getId()!=null) {
+				print(model);
+			}
 		} catch (Exception e) {
 			commonui.error("", "添加"+ConstUtil.getVisitorName()+"失败", e);
 		}
@@ -88,7 +100,10 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 				visitor.setStatus(VisitorStatus.不可用.name());
 			}
 		}
-		sp.getCarparkService().saveVisitor(visitor);
+		if (model.getId() == null) {
+			visitor.setCreateTime(new Date());
+		}
+		Long saveVisitor = sp.getCarparkService().saveVisitor(visitor);
 		if (model.getId() == null) {
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.访客, "添加访客"+visitor.getPlateNO(), System.getProperty(ConstUtil.USER_NAME));
 			commonui.info("成功", "添加"+ConstUtil.getVisitorName()+"成功");
@@ -96,6 +111,7 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.访客, "修改访客"+model.getPlateNO()+">"+visitor.getPlateNO(), System.getProperty(ConstUtil.USER_NAME));
 			commonui.info("成功", "修改"+ConstUtil.getVisitorName()+"成功");
 		}
+		model.setId(saveVisitor);
 		refresh();
 	}
 
@@ -172,6 +188,28 @@ public class VisitorListPresenter extends AbstractListPresenter<SingleCarparkVis
 		view.getModel().AddList(findVisitorByLike);
 		view.getModel().setCountSearch(model.getList().size());
 		view.getModel().setCountSearchAll(total);
+	}
+
+	public void printDispatchNote() {
+		List<SingleCarparkVisitor> list = view.getModel().getSelected();
+		if (StrUtil.isEmpty(list)) {
+			return;
+		}
+		SingleCarparkVisitor visitor = list.get(0);
+		print(visitor);
+	}
+
+	/**
+	 * @param visitor
+	 */
+	public void print(SingleCarparkVisitor visitor) {
+		try {
+			String path=System.getProperty("user.dir")+File.separator+System.currentTimeMillis()+".xls";
+			path = excelImportExport.createVisitorDipatchNoteExcel(path,visitor);
+			excelImportExport.printExcel(path);
+		} catch (Exception e) {
+			commonui.error("打印失败", "打印时发生异常"+e, e);
+		}
 	}
 
 }

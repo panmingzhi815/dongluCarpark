@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
-import com.dongluhitec.card.ui.util.impl.ExcelImportExportImpl;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.google.inject.ImplementedBy;
 
 @ImplementedBy(ExcelImportExportImpl.class)
@@ -15,6 +15,7 @@ public interface ExcelImportExport {
 	 */
 	String UserTemplate = System.getProperty("user.dir") + "/excelTemplete/固定用户导入导出模板.xls";
 	String NomalTemplate = System.getProperty("user.dir") + "/excelTemplete/导出通用模板.xls";
+	String DispatchNoteTemplate = System.getProperty("user.dir") + "/excelTemplete/车辆派遣单模板.xls";
 
     void printExcel(String filePath) throws Exception;
 	/**
@@ -28,4 +29,6 @@ public interface ExcelImportExport {
 	public int importUser(String path,CarparkDatabaseServiceProvider sp) throws Exception ;
 	public void export(String path,String[] names,String[] cloumns,List<? extends Object> list)throws Exception;
 	List<String> importPlateNOByUser(String path) throws Exception;
+	
+	String createVisitorDipatchNoteExcel(String path, SingleCarparkVisitor visitor)throws Exception;
 }

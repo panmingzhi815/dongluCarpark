@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -18,7 +19,7 @@ public class SingleCarparkVisitor extends DomainObject {
 	 */
 	private static final long serialVersionUID = -146910856653100859L;
 	public enum Property{
-		id,plateNO,name,telephone,allIn,inCount,outCount,validTo,remark,carpark,status
+		id,plateNO,name,telephone,allIn,inCount,outCount,validTo,remark,carpark,status,resean,createTime
 	}
 	public enum Label{
 		validToLabel
@@ -33,7 +34,10 @@ public class SingleCarparkVisitor extends DomainObject {
 	private int inCount=0;
 	private Integer outCount=0;
 	@Temporal(TemporalType.TIMESTAMP)
+	private Date createTime;
 	private Date validTo;
+	//原来的备注信息改为原因信息
+	private String resean;
 	private String remark;
 	@ManyToOne
 	private SingleCarparkCarpark carpark;
@@ -44,6 +48,8 @@ public class SingleCarparkVisitor extends DomainObject {
 		}
 		return StrUtil.formatDate(validTo,"yyyy-MM-dd HH:mm");
 	}
+	
+	
 	public String getPlateNO() {
 		return plateNO;
 	}
@@ -118,6 +124,20 @@ public class SingleCarparkVisitor extends DomainObject {
 	public void setOutCount(int outCount) {
 		this.outCount = outCount;
 		firePropertyChange("outCount", null, null);
+	}
+	public String getResean() {
+		return resean;
+	}
+	public void setResean(String resean) {
+		this.resean = resean;
+		firePropertyChange("resean", null, null);
+	}
+	public Date getCreateTime() {
+		return createTime;
+	}
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+		firePropertyChange("createTime", null, null);
 	}
 	
 }

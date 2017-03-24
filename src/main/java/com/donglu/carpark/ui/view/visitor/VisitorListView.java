@@ -23,8 +23,8 @@ public class VisitorListView extends AbstractListView<SingleCarparkVisitor>imple
 						SingleCarparkVisitor.Property.outCount.name(),
 						SingleCarparkVisitor.Property.status.name(),
 						SingleCarparkVisitor.Property.carpark.name(),
-						SingleCarparkVisitor.Property.remark.name() },
-				new String[] { "车牌号", "姓名", "电话", "到期时间", "次数限制", "进场次数","出场次数","状态", "停车场", "备注" }, new int[] { 100, 100, 100, 200, 100, 100, 100, 100, 100, 100, 200, 100 }, null);
+						SingleCarparkVisitor.Property.remark.name(),SingleCarparkVisitor.Property.resean.name(), },
+				new String[] { "车牌号", "姓名", "电话", "到期时间", "次数限制", "进场次数","出场次数","状态", "停车场","原因", "备注" }, new int[] { 100, 100, 100, 200, 100, 100, 100, 100, 100, 100, 200, 100 }, null);
 	}
 
 	@Override
@@ -48,6 +48,15 @@ public class VisitorListView extends AbstractListView<SingleCarparkVisitor>imple
 			}
 		});
 		toolItem_edit.setText("修改");
+		
+		ToolItem toolItem = new ToolItem(toolBar_menu, SWT.NONE);
+		toolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().printDispatchNote();
+			}
+		});
+		toolItem.setText("打印");
 	}
 
 }

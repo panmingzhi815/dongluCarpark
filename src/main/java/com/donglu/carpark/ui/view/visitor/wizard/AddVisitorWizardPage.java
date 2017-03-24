@@ -32,6 +32,7 @@ import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Button;
 
 public class AddVisitorWizardPage extends WizardPage {
 	private Text text;
@@ -43,6 +44,8 @@ public class AddVisitorWizardPage extends WizardPage {
 	private ComboViewer comboViewer;
 	private DateChooserCombo dateChooserCombo;
 	private DateTime dateTime;
+	private Text text_3;
+	private Button button;
 
 	
 	/**
@@ -150,16 +153,30 @@ public class AddVisitorWizardPage extends WizardPage {
 		Combo combo = comboViewer.getCombo();
 		combo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		Label label_6 = new Label(composite, SWT.NONE);
-		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_6.setText("备      注");
+		
+		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_2.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_2.setText("原      因");
 		
 		text_2 = new Text(composite, SWT.BORDER);
 		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		GridData gd_text_2 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_text_2.heightHint = 60;
-		text_2.setLayoutData(gd_text_2);
+		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		Label label_6 = new Label(composite, SWT.NONE);
+		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
+		label_6.setText("备      注");
+		
+		text_3 = new Text(composite, SWT.BORDER);
+		text_3.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_3.setTextLimit(125);
+		GridData gd_text_3 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_3.heightHint = 76;
+		text_3.setLayoutData(gd_text_3);
+		new Label(composite, SWT.NONE);
+		
+		button = new Button(composite, SWT.CHECK);
+		button.setText("打印");
 		initDataBindings();
 		if (model.getValidTo()!=null) {
 			Date validTo = model.getValidTo();
@@ -222,6 +239,14 @@ public class AddVisitorWizardPage extends WizardPage {
 		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
 		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer, carparkModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
+		IObservableValue reseanModelObserveValue = BeanProperties.value("resean").observe(model);
+		bindingContext.bindValue(observeTextText_3ObserveWidget, reseanModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionButtonObserveWidget = WidgetProperties.selection().observe(button);
+		IObservableValue printDispatchNoteModelObserveValue = BeanProperties.value("printDispatchNote").observe(model);
+		bindingContext.bindValue(observeSelectionButtonObserveWidget, printDispatchNoteModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

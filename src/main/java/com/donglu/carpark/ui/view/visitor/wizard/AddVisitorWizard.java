@@ -32,6 +32,14 @@ public class AddVisitorWizard extends Wizard implements AbstractWizard {
 
 	@Override
 	public boolean performFinish() {
+		if (StrUtil.isEmpty(model.getPlateNO())) {
+			page.setErrorMessage("车牌不能为空");
+			return false;
+		}
+		if (StrUtil.isEmpty(model.getName())) {
+			page.setErrorMessage("用户名不能为空");
+			return false;
+		}
 		page.setErrorMessage(null);
 		model.setValidTo(page.getValidTo());
 		return true;

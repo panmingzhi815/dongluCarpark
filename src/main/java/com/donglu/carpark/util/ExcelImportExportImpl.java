@@ -6,8 +6,11 @@ import com.dongluhitec.card.domain.db.CardUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.base.Strings;
+import com.google.inject.Singleton;
+
 import jp.ne.so_net.ga2.no_ji.jcom.ReleaseManager;
 import jp.ne.so_net.ga2.no_ji.jcom.excel8.ExcelApplication;
 import jp.ne.so_net.ga2.no_ji.jcom.excel8.ExcelWorkbook;
@@ -26,6 +29,7 @@ import java.util.*;
 import java.util.List;
 
 @SuppressWarnings("all")
+@Singleton
 public class ExcelImportExportImpl implements ExcelImportExport {
 
 
@@ -508,6 +512,52 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 			}
 		}
 		return list;
+	}
+
+	@Override
+	public String createVisitorDipatchNoteExcel(String path, SingleCarparkVisitor visitor) throws Exception {
+		copyTemplement(DispatchNoteTemplate, path);
+		
+		HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(path));
+		HSSFSheet sheet = wb.getSheetAt(0);
+		Date createTime = visitor.getCreateTime();
+		Date validTo = visitor.getValidTo();
+		String createYear = "    ";
+		String createMonth = "  ";
+		String createDay = "  ";
+		String createHour = "  ";
+		String createMinute = "  ";
+		if (createTime!=null) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(createTime);
+			createYear=c.get(Calendar.YEAR)+"";
+			createMonth = ""+c.get(Calendar.MONTH);
+			createDay = ""+c.get(Calendar.DAY_OF_MONTH);
+			createHour = ""+c.get(Calendar.HOUR_OF_DAY);
+			createMinute = ""+c.get(Calendar.MINUTE);
+		}
+		String validToHour="  ";
+		String validToMinute = "00";
+		if (validTo!=null) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(validTo);
+			validToHour=c.get(Calendar.HOUR_OF_DAY)+"";
+			validToMinute = ""+c.get(Calendar.MINUTE);
+		}
+		sheet.getRow(3).getCell(2).setCellValue("  "+createYear+"  年  "+createMonth+"  月  "+createDay+"  日  "+createHour+"  时  "+createMinute+"  分至  "+validToHour+"  时 "+validToMinute+"  分    ");
+		sheet.getRow(4).getCell(6).setCellValue(visitor.getRemark());
+		sheet.getRow(5).getCell(2).setCellValue(visitor.getPlateNO());
+		sheet.getRow(6).getCell(2).setCellValue(visitor.getResean());
+		sheet.getRow(7).getCell(2).setCellValue(visitor.getName());
+		sheet.getRow(8).getCell(7).setCellValue(visitor.getTelephone());
+		
+		
+		FileOutputStream fileOut = new FileOutputStream(path);
+		wb.write(fileOut);
+		fileOut.flush();
+		fileOut.close();
+		
+		return path;
 	}
 
 }
