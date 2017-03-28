@@ -44,6 +44,8 @@ public class SingleCarparkDevice extends DomainObject{
 	private String controlTime;
 	private String holidayControlTime;
 	
+	private Boolean isOpenCamera=true;
+	
 	public String getIdentifire() {
 		return identifire;
 	}
@@ -213,5 +215,11 @@ public class SingleCarparkDevice extends DomainObject{
 	public void setHolidayControlTime(String holidayControlTime) {
 		this.holidayControlTime = holidayControlTime;
 		firePropertyChange("holidayControlTime", null, null);
+	}
+	public Boolean getIsOpenCamera() {
+		return isOpenCamera==null||isOpenCamera;
+	}
+	public void setIsOpenCamera(Boolean isOpenCamera) {
+		this.isOpenCamera = isOpenCamera;
 	}
 }

@@ -121,6 +121,7 @@ import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
 @Singleton
 public class CarparkMainPresenter {
+	private static final String MAP_IP_TO_DEVICE = "mapIpToDevice";
 	private Logger log = LoggerFactory.getLogger(CarparkMainPresenter.class);
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
@@ -176,7 +177,7 @@ public class CarparkMainPresenter {
 			if (selection != null) {
 				String ip = mapDeviceTabItem.get(selection);
 				mapIpToDevice.remove(ip);
-				CarparkFileUtils.writeObjectForException("mapIpToDevice", mapIpToDevice);
+				CarparkFileUtils.writeObjectForException(MAP_IP_TO_DEVICE, mapIpToDevice);
 				selection.dispose();
 				mapIpToJNA.get(ip).closeEx(ip);
 				mapDeviceTabItem.remove(selection);
@@ -205,7 +206,7 @@ public class CarparkMainPresenter {
 				commonui.info("提示", type + "最多只能添加4个设备");
 				return;
 			}
-			CarparkFileUtils.writeObjectForException("mapIpToDevice", mapIpToDevice);
+			CarparkFileUtils.writeObjectForException(MAP_IP_TO_DEVICE, mapIpToDevice);
 			AddDeviceModel model = new AddDeviceModel();
 			List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
 
@@ -319,7 +320,7 @@ public class CarparkMainPresenter {
 			commonui.error("添加失败", "设备" + ip + "已存在");
 			// return;
 		}
-		CarparkFileUtils.writeObject("mapIpToDevice", mapIpToDevice);
+		CarparkFileUtils.writeObject(MAP_IP_TO_DEVICE, mapIpToDevice);
 		CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
 		tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
 		tabItem.setText(name);
@@ -481,6 +482,8 @@ public class CarparkMainPresenter {
 			public void actionPerformed(ActionEvent e) {
 				mapPlayer.get(url).stop();
 				mapNeedStopPlay.put(url, true);
+				device.setIsOpenCamera(false);
+				saveDevice(device);
 			}
 		});
 		checkDeviceStatusItem.addActionListener(new ActionListener() {
@@ -530,6 +533,8 @@ public class CarparkMainPresenter {
 					MediaPlayer reCreate = webCameraDevice.createPlay(new_Frame1, url);
 					mapPlayer.put(url, reCreate);
 					mapNeedStopPlay.put(url, false);
+					device.setIsOpenCamera(true);
+					saveDevice(device);
 				} catch (Exception e1) {
 					log.info("刷新视频流监控时发生错误",e);
 				}
@@ -582,6 +587,10 @@ public class CarparkMainPresenter {
 				}
 			}
 		});
+		if (!device.getIsOpenCamera()) {
+			mapPlayer.get(url).stop();
+			mapNeedStopPlay.put(url, true);
+		}
 	}
 	/**
 	 * 创建华夏智芯摄像机视频播放
@@ -609,6 +618,8 @@ public class CarparkMainPresenter {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				finalJna.stopPlaying(ip);
+				device.setIsOpenCamera(false);
+				saveDevice(device);
 			}
 		});
 		checkDeviceStatusItem.addActionListener(new ActionListener() {
@@ -655,6 +666,8 @@ public class CarparkMainPresenter {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					finalJna.startPlaying(ip, handle);
+					device.setIsOpenCamera(true);
+					saveDevice(device);
 				} catch (Exception e1) {
 					log.info("刷新视频流监控时发生错误",e);
 				}
@@ -707,6 +720,14 @@ public class CarparkMainPresenter {
 				}
 			}
 		});
+		if (!device.getIsOpenCamera()) {
+			finalJna.stopPlaying(ip);
+		}
+	}
+
+	protected void saveDevice(SingleCarparkDevice device) {
+		mapIpToDevice.put(device.getIp(), device);
+		CarparkFileUtils.writeObject(MAP_IP_TO_DEVICE, mapIpToDevice);
 	}
 
 	protected void refreshSystemSetting() {
@@ -773,7 +794,7 @@ public class CarparkMainPresenter {
 	 */
 	public void editDevice(CTabFolder tabFolder, String type) {
 		try {
-			CarparkFileUtils.writeObjectForException("mapIpToDevice", mapIpToDevice);
+			CarparkFileUtils.writeObjectForException(MAP_IP_TO_DEVICE, mapIpToDevice);
 			CTabItem selection = tabFolder.getSelection();
 			if (StrUtil.isEmpty(selection)) {
 				return;
@@ -801,7 +822,7 @@ public class CarparkMainPresenter {
 			if (ip.equals(oldIp) && showWizard.getCameraType().equals(oldCameraType)) {
 				selection.setText(showWizard.getName());
 				mapIpToDevice.put(ip, device2);
-				CarparkFileUtils.writeObjectForException("mapIpToDevice", mapIpToDevice);
+				CarparkFileUtils.writeObjectForException(MAP_IP_TO_DEVICE, mapIpToDevice);
 				new Thread(new Runnable() {
 					public void run() {
 						setIsTwoChanel();
