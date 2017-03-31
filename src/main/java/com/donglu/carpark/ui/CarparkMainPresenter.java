@@ -1,7 +1,10 @@
 package com.donglu.carpark.ui;
 
 import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Frame;
+import java.awt.Graphics;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
@@ -21,6 +24,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import javax.swing.ImageIcon;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
@@ -339,6 +344,7 @@ public class CarparkMainPresenter {
 		tabFolder.setSelection(tabItem);
 		mapDeviceTabItem.put(tabItem, ip);
 		mapDeviceType.put(ip, type);
+		model.getMapIpToTabItem().put(ip, tabItem);
 	}
 	//保存播放地址对应的视频流播放器
 	private final Map<String, MediaPlayer> mapPlayer = new HashMap<>();
@@ -449,7 +455,8 @@ public class CarparkMainPresenter {
 		PlateNOJNA jna = null;
 		jna = setJNA(ip, cameraType);
 		Frame new_Frame1 = SWT_AWT.new_Frame(northCamera);
-		Canvas canvas1 = new Canvas();
+		MyCanvas canvas1 = new MyCanvas();
+		canvas1.setBackground(Color.WHITE);
 		new_Frame1.add(canvas1);
 		new_Frame1.pack();
 		new_Frame1.setVisible(true);
@@ -477,6 +484,7 @@ public class CarparkMainPresenter {
 		popMenu.add(closePlayItem);
 		popMenu.add(refreshSettingItem);
 		popMenu.add(checkDeviceStatusItem);
+		ImageIcon imageIcon = new ImageIcon(System.getProperty("user.dir")+"\\donglu.png");
 		closePlayItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -484,6 +492,7 @@ public class CarparkMainPresenter {
 				mapNeedStopPlay.put(url, true);
 				device.setIsOpenCamera(false);
 				saveDevice(device);
+				canvas1.setImage(imageIcon.getImage());
 			}
 		});
 		checkDeviceStatusItem.addActionListener(new ActionListener() {
@@ -535,6 +544,7 @@ public class CarparkMainPresenter {
 					mapNeedStopPlay.put(url, false);
 					device.setIsOpenCamera(true);
 					saveDevice(device);
+					setDeviceTabItemStatus(ip, null, null, "");
 				} catch (Exception e1) {
 					log.info("刷新视频流监控时发生错误",e);
 				}
@@ -590,6 +600,7 @@ public class CarparkMainPresenter {
 		if (!device.getIsOpenCamera()) {
 			mapPlayer.get(url).stop();
 			mapNeedStopPlay.put(url, true);
+			canvas1.setImage(imageIcon.getImage());
 		}
 	}
 	/**
@@ -603,7 +614,10 @@ public class CarparkMainPresenter {
 		CameraTypeEnum cameraType = device.getCameraType() == null ? CameraTypeEnum.信路威 : device.getCameraType();
 		jna = setJNA(ip, cameraType);
 		Frame new_Frame1 = SWT_AWT.new_Frame(northCamera);
-		int handle=(int) Native.getComponentID(new_Frame1);
+		new_Frame1.setBackground(Color.WHITE);
+		MyCanvas canvas=new MyCanvas();
+		new_Frame1.add(canvas);
+		int handle=(int) Native.getComponentID(canvas);
 		PopupMenu popMenu = new PopupMenu();
 		MenuItem refreshItem = new MenuItem("重新播放");
 		MenuItem closePlayItem = new MenuItem("关闭播放");
@@ -614,12 +628,14 @@ public class CarparkMainPresenter {
 		popMenu.add(refreshSettingItem);
 		popMenu.add(checkDeviceStatusItem);
 		PlateNOJNA finalJna=jna;
+		ImageIcon imageIcon = new ImageIcon(System.getProperty("user.dir")+"\\donglu.png");
 		closePlayItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				finalJna.stopPlaying(ip);
 				device.setIsOpenCamera(false);
 				saveDevice(device);
+				canvas.setImage(imageIcon.getImage());
 			}
 		});
 		checkDeviceStatusItem.addActionListener(new ActionListener() {
@@ -674,8 +690,8 @@ public class CarparkMainPresenter {
 			}
 		});
 		createAutoMenuItem(popMenu);
-		new_Frame1.add(popMenu);
-		new_Frame1.addMouseListener(new java.awt.event.MouseAdapter() {
+		canvas.add(popMenu);
+		canvas.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent e) {
 				if (e.getClickCount() == 2) {
@@ -693,7 +709,7 @@ public class CarparkMainPresenter {
 				}
 				if (e.getButton() == 3 && e.getClickCount() == 1) {
 					System.out.println("打开右键菜单");
-					popMenu.show(new_Frame1, e.getX(), e.getY());
+					popMenu.show(canvas, e.getX(), e.getY());
 				}
 			}
 
@@ -722,6 +738,7 @@ public class CarparkMainPresenter {
 		});
 		if (!device.getIsOpenCamera()) {
 			finalJna.stopPlaying(ip);
+			canvas.setImage(imageIcon.getImage());
 		}
 	}
 
@@ -2411,8 +2428,10 @@ public class CarparkMainPresenter {
 		}
 		return msg;
 	}
-
 	private void setDeviceTabItemStatus(String ip, String image, String msg) {
+		setDeviceTabItemStatus(ip, image, msg, null);
+	}
+	private void setDeviceTabItemStatus(String ip, String image, String msg,String title) {
 		CTabItem cTabItem = model.getMapIpToTabItem().get(ip);
 		if (cTabItem==null||cTabItem.isDisposed()) {
 			return;
@@ -2420,8 +2439,21 @@ public class CarparkMainPresenter {
 		Runnable runnable = new Runnable() {
 			public void run() {
 				if ( !cTabItem.isDisposed()) {
-					cTabItem.setImage(JFaceUtil.getImage(image));
-					cTabItem.setToolTipText(msg);
+					if (image!=null) {
+						cTabItem.setImage(JFaceUtil.getImage(image));
+					}
+					if (title!=null) {
+						cTabItem.setToolTipText(msg);
+					}
+					String text = cTabItem.getText();
+					if (title!=null) {
+						if (!title.equals("")) {
+							text =text.split("-")[0]+ "-" + title;
+						} else {
+							text = text.split("-")[0];
+						}
+						cTabItem.setText(text);
+					}
 				}
 			}
 		};

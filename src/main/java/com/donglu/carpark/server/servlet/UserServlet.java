@@ -230,4 +230,19 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 		
 	}
 
+	@Override
+	public void login(String userName, String password, String ip) {
+		systemUserService.login(userName, password, ip);		
+	}
+
+	@Override
+	public void loginOut(String userName) {
+		systemUserService.loginOut(userName);
+	}
+
+	@Override
+	public String loginStatus(String userName) {
+		return systemUserService.loginStatus(userName);
+	}
+
 }

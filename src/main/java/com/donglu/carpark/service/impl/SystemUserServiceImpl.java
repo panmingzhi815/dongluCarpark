@@ -112,4 +112,20 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 		}
 	}
 
+	@Override
+	public void login(String userName, String password, String ip) {
+		mapLoginInfo.put(userName, ip);
+		
+	}
+
+	@Override
+	public void loginOut(String userName) {
+		mapLoginInfo.remove(userName);
+	}
+
+	@Override
+	public String loginStatus(String userName) {
+		return mapLoginInfo.get(userName);
+	}
+
 }

@@ -25,6 +25,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.SystemUserServiceI;
 import com.donglu.carpark.service.background.ClientCheckSoftDogServiceI;
 import com.donglu.carpark.service.background.DeleteImageServiceI;
+import com.donglu.carpark.service.background.LoginCheckServiceI;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.util.TestMap;
 import com.donglu.carpark.util.CarparkFileUtils;
@@ -389,7 +390,7 @@ public class Login {
 							startBackGroundServer();
 
 							SystemUserServiceI systemUserService = sp.getSystemUserService();
-							SingleCarparkSystemUser findByNameAndPassword = systemUserService.findByNameAndPassword(cbo_userName.getText(), txt_password.getText());
+							SingleCarparkSystemUser findByNameAndPassword = systemUserService.findByNameAndPassword(userName=cbo_userName.getText(), pwd=txt_password.getText());
 							if (StrUtil.isEmpty(findByNameAndPassword)) {
 								setErrorMessage("用户名或密码错误！");
 								btn_login.setEnabled(true);
@@ -398,6 +399,7 @@ public class Login {
 							userName = findByNameAndPassword.getUserName();
 							pwd = findByNameAndPassword.getPassword();
 							type = findByNameAndPassword.getType();
+							systemUserService.login(userName, pwd, StrUtil.getHostIp());
 							if (!list.contains(userName)) {
 								list.add(userName);
 								CarparkFileUtils.writeObject(USER_NAMES, list);
@@ -414,6 +416,7 @@ public class Login {
 							}else{
 								System.setProperty(ConstUtil.VISITOR_NAME, SystemSettingTypeEnum.访客车名称.getDefaultValue());
 							}
+							startCheckLoginStatusService();
 						} catch (Exception e1) {
 							e1.printStackTrace();
 							lbl_errorMsg.setText(e1.getMessage());
@@ -555,5 +558,9 @@ public class Login {
 	// 自动删除图片
 	private void autoDeletePhoto() {
 		injector.getInstance(DeleteImageServiceI.class).startAsync();
+	}
+	
+	private void startCheckLoginStatusService(){
+		injector.getInstance(LoginCheckServiceI.class).startAsync();
 	}
 }

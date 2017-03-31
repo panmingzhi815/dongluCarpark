@@ -19,13 +19,14 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName=D:\{#MyAppName}
+DefaultDirName=D:\Program Files\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=.
 OutputBaseFilename=停车场车牌识别{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
+
 
 [Languages]
 Name: "chinesesimp"; MessagesFile: "compiler:Default.isl"
@@ -56,4 +57,30 @@ Name: "{userdesktop}\停车场客户端"; Filename: "{app}\客户端.exe"; WorkingDir: "{
 Name: "{group}\{cm:UninstallProgram,停车场车牌识别}"; Filename: "{uninstallexe}"
 
 [Run]Filename: "{app}\服务器.exe"; Description: "{cm:LaunchProgram,停车场服务器}"; Flags: nowait postinstall skipifsilent
-Filename: "{app}\客户端.exe"; Description: "{cm:LaunchProgram,停车场客户端}"; Flags: nowait postinstall skipifsilent   
+Filename: "{app}\客户端.exe"; Description: "{cm:LaunchProgram,停车场客户端}"; Flags: nowait postinstall skipifsilent
+
+[code]
+function NextButtonClick(CurPageID: Integer): Boolean;
+var ResultCode: Integer;
+var IsSetup : Boolean;
+var AppPath:String;
+var Search:String;
+begin
+IsSetup := true ;
+  if CurPageID>1  then
+  begin
+    AppPath:=ExpandConstant('{app}');
+    if Pos('C:',AppPath)>0  then
+    begin
+      MsgBox('安装程序不能装在C盘:'+AppPath,mbInformation,MB_OK);
+      IsSetup := false ;
+    end
+    if Pos('c:',AppPath)>0   then
+    begin
+      MsgBox('安装程序不能装在C盘:'+AppPath,mbInformation,MB_OK);
+      IsSetup := false ;
+    end
+  end
+
+Result := IsSetup;
+end;   

@@ -13,6 +13,7 @@ import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
 
 import com.donglu.carpark.service.SystemOperaLogServiceI;
+import com.donglu.carpark.service.SystemUserServiceI;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemOperaLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
@@ -44,7 +45,12 @@ public class SystemOperaLogServiceImpl implements SystemOperaLogServiceI {
 		log.setOperaName(operaName);
 		log.setOperaDate(new Date());
 		log.setType(type);
-		log.setContent(content);
+		String string = SystemUserServiceI.mapLoginInfo.get(operaName);
+		String s="";
+		if (string!=null) {
+			s="("+string+")";
+		}
+		log.setContent(s+content);
 		saveLogService.submit(()->{
 			save(log);
 		});
