@@ -1,6 +1,8 @@
 package com.donglu.carpark.service.impl;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
@@ -16,7 +18,6 @@ import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.dongluhitec.card.ui.util.ImgUtil;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.io.Files;
 
@@ -33,7 +34,7 @@ public class PlateSubmitServiceImpl implements PlateSubmitServiceI {
 		Runnable runnable = new Runnable() {
 			public void run() {
 				try {
-					logger.info("对车牌{}进行车牌报送",plateNO);
+					logger.info("准备对车牌{}进行车牌报送",plateNO);
 					SingleCarparkCarpark carpark = device.getCarpark();
 					String folder = "D:\\Pic\\" + StrUtil.formatDate(date, "yyyyMMdd");
 					String inOutType = device.getInType().indexOf("进口") > -1 ? "01" : "11";
@@ -44,11 +45,13 @@ public class PlateSubmitServiceImpl implements PlateSubmitServiceI {
 							+ "VALUES ('{}','0','{}','{}','{}','{}','1','{}',{},0);";
 					String inOrOut = inOutType.equals("01") ? "0" : "1";
 					sql = CarparkUtils.formatString(sql, plateNO, StrUtil.formatDateTime(date), carpark.getCode(), inOrOut, device.getIdentifire(), imageId, image.length);
+					logger.info("报送数据插入脚本：{}",sql);
 					boolean executeSQL = CarparkDataBaseUtil.executeSQL(sql, "platepark", CarparkServerConfig.getInstance());
+					logger.info("对车牌{}进行车牌报送,结果：{}",plateNO,executeSQL);
 					if (!executeSQL) {
 						plateSubmitThreadPool.submit(this);
 					}
-				} catch (IOException e) {
+				} catch (Throwable e) {
 					logger.error("车牌报送保存数据时发生错误",e);
 				}
 			}
@@ -65,7 +68,35 @@ public class PlateSubmitServiceImpl implements PlateSubmitServiceI {
 		if (!imgFile.exists()) {
 			imgFile.createNewFile();
 		}
-		ImgUtil.saveImg(imgFile.getPath(), image);
+		saveImg(imgFile.getPath(), image);
 	}
-
+	public void saveImg(String filePath, byte[] data) {
+		try(FileOutputStream fos = new FileOutputStream(filePath);
+			BufferedOutputStream bos = new BufferedOutputStream(fos);){
+			bos.write(data);
+			bos.flush();
+		}catch (Exception e){
+			logger.error("保存图片失败:{}",filePath,e);
+		}
+	}
+	
+	public static void main(String[] args) {
+		ExecutorService service = Executors.newFixedThreadPool(2);
+		for (int j = 0; j < 100; j++) {
+			for (int i = 0; i < 4; i++) {
+				String s=String.format("第%s第%s个",j,i);
+				Runnable runnable = new Runnable() {
+					public void run() {
+						String sql = "INSERT INTO [platepark].[dbo].[plateinfo] ([CPHM] ,[CPLX] ,[TGSJ],[TCCID],[JCKLX],[JCKBH],[TPZS],[TPID1],[CPCD1],[SFBC]) VALUES ('浙A2NM69','0','2017-04-27 11:48:15','101A0582','1','02','1','2017042711481502101A058211',227704,0);";
+						CarparkServerConfig instance = CarparkServerConfig.getInstance();
+						instance.setDbServerPassword("1");
+						boolean executeSQL = CarparkDataBaseUtil.executeSQL(sql, "platepark", instance);
+						System.out.println(Thread.currentThread().getName() + "="+s+"=" + executeSQL);
+					}
+				};
+				service.submit(runnable);
+			}
+			System.out.println("添加数据："+j);
+		}
+	}
 }

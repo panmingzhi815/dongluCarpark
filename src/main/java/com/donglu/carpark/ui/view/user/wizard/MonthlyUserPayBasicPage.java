@@ -1,6 +1,5 @@
 package com.donglu.carpark.ui.view.user.wizard;
 
-import net.miginfocom.swt.MigLayout;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
@@ -215,6 +214,9 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		model.setPayType(selectionIndex);
 		Calendar calendar = Calendar.getInstance();
 		Date date = initOverdueTime == null ? model.getCreateTime() : initOverdueTime;
+		if (date==null) {
+			date=new Date();
+		}
 		model.setOldOverDueTime(date);
 		calendar.setTime(date);
 		float s=0;

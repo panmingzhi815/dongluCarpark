@@ -74,34 +74,47 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 	public List<SingleCarparkUser> findByNameOrPlateNo(String name, String plateNo,String address,SingleCarparkMonthlyCharge monthlyCharge, int willOverdue, String overdue) {
 		unitOfWork.begin();
 		try {
-			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
-			if (!StrUtil.isEmpty(name)) {
-				c.add(Restrictions.like("name", name, MatchMode.ANYWHERE));
-			}
-			if (!StrUtil.isEmpty(plateNo)) {
-				c.add(Restrictions.like("plateNo", plateNo, MatchMode.ANYWHERE));
-			}
-			if (willOverdue>0) {
-				Date date = new DateTime(StrUtil.getTodayBottomTime(new Date())).plusDays(willOverdue).toDate();
-				c.add(Restrictions.le(SingleCarparkUser.Property.validTo.name(), date));
-			}
-			if (!StrUtil.isEmpty(monthlyCharge)) {
-				c.add(Restrictions.eq(SingleCarparkUser.Property.monthChargeId.name(), monthlyCharge.getId()));
-			}
-			if (!StrUtil.isEmpty(address)) {
-				c.add(Restrictions.like("address", address, MatchMode.ANYWHERE));
-			}
-			if (!StrUtil.isEmpty(overdue)) {
-				if (overdue.equals("是")) {
-					c.add(Restrictions.le(SingleCarparkUser.Property.validTo.name(), new Date()));
-				}else{
-					c.add(Restrictions.ge(SingleCarparkUser.Property.validTo.name(), new Date()));
-				}
-			}
+			Criteria c = createFindByNameOrPlateNoCriteria(name, plateNo, address, monthlyCharge, willOverdue, overdue);
 			return c.getResultList();
 		}finally{
 			unitOfWork.end();
 		}
+	}
+	/**
+	 * @param name
+	 * @param plateNo
+	 * @param address
+	 * @param monthlyCharge
+	 * @param willOverdue
+	 * @param overdue
+	 * @return
+	 */
+	public Criteria createFindByNameOrPlateNoCriteria(String name, String plateNo, String address, SingleCarparkMonthlyCharge monthlyCharge, int willOverdue, String overdue) {
+		Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+		if (!StrUtil.isEmpty(name)) {
+			c.add(Restrictions.like("name", name, MatchMode.ANYWHERE));
+		}
+		if (!StrUtil.isEmpty(plateNo)) {
+			c.add(Restrictions.like("plateNo", plateNo, MatchMode.ANYWHERE));
+		}
+		if (willOverdue>0) {
+			Date date = new DateTime(StrUtil.getTodayBottomTime(new Date())).plusDays(willOverdue).toDate();
+			c.add(Restrictions.le(SingleCarparkUser.Property.validTo.name(), date));
+		}
+		if (!StrUtil.isEmpty(monthlyCharge)) {
+			c.add(Restrictions.eq(SingleCarparkUser.Property.monthChargeId.name(), monthlyCharge.getId()));
+		}
+		if (!StrUtil.isEmpty(address)) {
+			c.add(Restrictions.like("address", address, MatchMode.ANYWHERE));
+		}
+		if (!StrUtil.isEmpty(overdue)) {
+			if (overdue.equals("是")) {
+				c.add(Restrictions.le(SingleCarparkUser.Property.validTo.name(), new Date()));
+			}else{
+				c.add(Restrictions.ge(SingleCarparkUser.Property.validTo.name(), new Date()));
+			}
+		}
+		return c;
 	}
 	@Override
 	public SingleCarparkUser findUserByPlateNo(String plateNO,Long carparkId) {
@@ -424,6 +437,30 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			}).collect(Collectors.toList());
 			return resultList;
 		}finally{
+			unitOfWork.end();
+		}
+	}
+	@Override
+	public List<SingleCarparkUser> findByNameOrPlateNo(int start, int max, String name, String plateNo, String address, SingleCarparkMonthlyCharge monthlyCharge, int willOverdue, String overdue) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindByNameOrPlateNoCriteria(name, plateNo, address, monthlyCharge, willOverdue, overdue);
+			c.setFirstResult(start);
+			c.setMaxResults(max);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	@Override
+	public Long countByNameOrPlateNo(String name, String plateNo, String address, SingleCarparkMonthlyCharge monthlyCharge, int willOverdue, String overdue) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindByNameOrPlateNoCriteria(name, plateNo, address, monthlyCharge, willOverdue, overdue);
+			c.setProjection(Projections.rowCount());
+			Long l = (Long) c.getSingleResultOrNull();
+			return l == null ? 0 : l;
+		} finally {
 			unitOfWork.end();
 		}
 	}

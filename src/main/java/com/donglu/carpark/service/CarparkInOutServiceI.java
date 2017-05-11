@@ -128,6 +128,8 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName);
+	List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(int startSize,int size,String operaName, Date start, Date end, String deviceName);
+	Long countOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName);
 	/**
 	 * 查找子停车场的进出场记录
 	 * @param carparkId
@@ -262,6 +264,7 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	List<SingleCarparkFreeTempCar> findTempCarFreeByLike(int start, int maxValue, String plateNo);
+	Long countTempCarFreeByLike(String plateNo);
 	SingleCarparkFreeTempCar findTempCarFreeByPlateNO(String plateNo);
 	Long deleteTempCarFree(SingleCarparkFreeTempCar ft);
 	Long saveTempCarFree(SingleCarparkFreeTempCar ft);

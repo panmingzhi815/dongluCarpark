@@ -145,6 +145,10 @@ public class CarparkServiceImpl implements CarparkService {
 	@Override
 	@Transactional
 	public Long saveMonthlyCharge(SingleCarparkMonthlyCharge monthlyCharge) {
+		if (monthlyCharge.getCarpark()==null&&monthlyCharge.getCarparkId()!=null) {
+			SingleCarparkCarpark carpark = emprovider.get().getReference(SingleCarparkCarpark.class, monthlyCharge.getCarparkId());
+			monthlyCharge.setCarpark(carpark);
+		}
 		DatabaseOperation<SingleCarparkMonthlyCharge> dom = DatabaseOperation.forClass(SingleCarparkMonthlyCharge.class, emprovider.get());
 		if (monthlyCharge.getId() == null) {
 			dom.insert(monthlyCharge);

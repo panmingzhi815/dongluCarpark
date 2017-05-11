@@ -10,6 +10,8 @@ public interface SystemOperaLogServiceI {
 	void saveOperaLog(SystemOperaLogTypeEnum systemOperaLogType,String content, String operaName);
 
 	List<SingleCarparkSystemOperaLog> findBySearch(String operaName, Date start, Date end, SystemOperaLogTypeEnum type);
+	List<SingleCarparkSystemOperaLog> findSystemOperaLogBySearch(int startSize,int size,String operaName, Date start, Date end, SystemOperaLogTypeEnum type);
+	Long countSystemOperaLogBySearch(String operaName, Date start, Date end, SystemOperaLogTypeEnum type);
 
 	void saveOperaLog(SystemOperaLogTypeEnum systemOperaLogType, String content, byte[] bigImage, String operaName,Object... objects);
 }

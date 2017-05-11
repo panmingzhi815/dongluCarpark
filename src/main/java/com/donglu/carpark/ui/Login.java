@@ -416,7 +416,10 @@ public class Login {
 							}else{
 								System.setProperty(ConstUtil.VISITOR_NAME, SystemSettingTypeEnum.访客车名称.getDefaultValue());
 							}
-							startCheckLoginStatusService();
+							SingleCarparkSystemSetting setting = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.同一账号只能在一个地方登录.name());
+							if (setting==null||setting.getBooleanValue()) {
+								startCheckLoginStatusService();
+							}
 						} catch (Exception e1) {
 							e1.printStackTrace();
 							lbl_errorMsg.setText(e1.getMessage());

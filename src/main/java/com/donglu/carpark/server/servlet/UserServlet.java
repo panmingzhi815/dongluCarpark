@@ -245,4 +245,24 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 		return systemUserService.loginStatus(userName);
 	}
 
+	@Override
+	public List<SingleCarparkUser> findByNameOrPlateNo(int start, int max, String name, String plateNo, String address, SingleCarparkMonthlyCharge monthlyCharge, int willOverdue, String overdue) {
+		return carparkUserService.findByNameOrPlateNo(start, max, name, plateNo, address, monthlyCharge, willOverdue, overdue);
+	}
+
+	@Override
+	public Long countByNameOrPlateNo(String name, String plateNo, String address, SingleCarparkMonthlyCharge monthlyCharge, int willOverdue, String overdue) {
+		return carparkUserService.countByNameOrPlateNo(name, plateNo, address, monthlyCharge, willOverdue, overdue);
+	}
+
+	@Override
+	public List<SingleCarparkSystemOperaLog> findSystemOperaLogBySearch(int startSize, int size, String operaName, Date start, Date end, SystemOperaLogTypeEnum type) {
+		return systemOperaLogService.findSystemOperaLogBySearch(startSize, size, operaName, start, end, type);
+	}
+
+	@Override
+	public Long countSystemOperaLogBySearch(String operaName, Date start, Date end, SystemOperaLogTypeEnum type) {
+		return systemOperaLogService.countSystemOperaLogBySearch(operaName, start, end, type);
+	}
+
 }

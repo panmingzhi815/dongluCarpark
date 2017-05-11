@@ -430,6 +430,10 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	public List<SingleCarparkFreeTempCar> findTempCarFreeByLike(int start, int maxValue, String plateNo) {
 		return carparkInOutService.findTempCarFreeByLike(start, maxValue, plateNo);
 	}
+	@Override
+	public Long countTempCarFreeByLike(String plateNo){
+		return carparkInOutService.countTempCarFreeByLike(plateNo);
+	}
 
 
 
@@ -513,5 +517,19 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	@Override
 	public List<SingleCarparkInOutHistory> findInOutHistoryByCarparkAndPlateNO(SingleCarparkCarpark carpark, Collection<String> pns, boolean b) {
 		return carparkInOutService.findInOutHistoryByCarparkAndPlateNO(carpark, pns, b);
+	}
+
+
+
+	@Override
+	public List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(int startSize, int size, String operaName, Date start, Date end, String deviceName) {
+		return carparkInOutService.findOpenDoorLogBySearch(startSize, size, operaName, start, end, deviceName);
+	}
+
+
+
+	@Override
+	public Long countOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName) {
+		return carparkInOutService.countOpenDoorLogBySearch(operaName, start, end, deviceName);
 	}
 }

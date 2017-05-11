@@ -15,6 +15,8 @@ public interface CarparkUserService {
 	
 	List<SingleCarparkUser> findAll();
 	List<SingleCarparkUser> findByNameOrPlateNo(String name,String plateNo, String address, SingleCarparkMonthlyCharge monthlyCharge, int willOverdue, String overdue);
+	List<SingleCarparkUser> findByNameOrPlateNo(int start,int max,String name,String plateNo, String address, SingleCarparkMonthlyCharge monthlyCharge, int willOverdue, String overdue);
+	Long countByNameOrPlateNo(String name,String plateNo, String address, SingleCarparkMonthlyCharge monthlyCharge, int willOverdue, String overdue);
 	/**
 	 * 根据车牌查找单个用户
 	 * @param plateNO

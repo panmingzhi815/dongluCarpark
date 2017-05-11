@@ -636,23 +636,35 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	public List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName) {
 		unitOfWork.begin();
 		try {
-			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkOpenDoorLog.class);
-			if (!StrUtil.isEmpty(operaName)) {
-				c.add(Restrictions.like(SingleCarparkOpenDoorLog.Property.operaName.name(), operaName, MatchMode.ANYWHERE));
-			}
-			if (!StrUtil.isEmpty(start)) {
-				c.add(Restrictions.ge(SingleCarparkOpenDoorLog.Property.operaDate.name(), start));
-			}
-			if (!StrUtil.isEmpty(end)) {
-				c.add(Restrictions.le(SingleCarparkOpenDoorLog.Property.operaDate.name(), end));
-			}
-			if (!StrUtil.isEmpty(deviceName)) {
-				c.add(Restrictions.like(SingleCarparkOpenDoorLog.Property.deviceName.name(), deviceName, MatchMode.ANYWHERE));
-			}
+			Criteria c = createFindOpenDoorLogBySearchCriteria(operaName, start, end, deviceName);
 			return c.getResultList();
 		} finally {
 			unitOfWork.end();
 		}
+	}
+
+	/**
+	 * @param operaName
+	 * @param start
+	 * @param end
+	 * @param deviceName
+	 * @return
+	 */
+	public Criteria createFindOpenDoorLogBySearchCriteria(String operaName, Date start, Date end, String deviceName) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkOpenDoorLog.class);
+		if (!StrUtil.isEmpty(operaName)) {
+			c.add(Restrictions.like(SingleCarparkOpenDoorLog.Property.operaName.name(), operaName, MatchMode.ANYWHERE));
+		}
+		if (!StrUtil.isEmpty(start)) {
+			c.add(Restrictions.ge(SingleCarparkOpenDoorLog.Property.operaDate.name(), start));
+		}
+		if (!StrUtil.isEmpty(end)) {
+			c.add(Restrictions.le(SingleCarparkOpenDoorLog.Property.operaDate.name(), end));
+		}
+		if (!StrUtil.isEmpty(deviceName)) {
+			c.add(Restrictions.like(SingleCarparkOpenDoorLog.Property.deviceName.name(), deviceName, MatchMode.ANYWHERE));
+		}
+		return c;
 	}
 
 	@Override
@@ -1295,8 +1307,25 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			if (!StrUtil.isEmpty(plateNo)) {
 				c.add(Restrictions.like(SingleCarparkFreeTempCar.Property.plateNo.name(), plateNo,MatchMode.ANYWHERE));
 			}
+			c.setFirstResult(start);
+			c.setMaxResults(maxValue);
 			return c.getResultList();
 		} finally{
+			unitOfWork.end();
+		}
+	}
+	@Override
+	public Long countTempCarFreeByLike(String plateNo){
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkFreeTempCar.class);
+			if (!StrUtil.isEmpty(plateNo)) {
+				c.add(Restrictions.like(SingleCarparkFreeTempCar.Property.plateNo.name(), plateNo, MatchMode.ANYWHERE));
+			}
+			c.setProjection(Projections.rowCount());
+			Long l = (Long) c.getSingleResultOrNull();
+			return l == null ? 0 : l;
+		} finally {
 			unitOfWork.end();
 		}
 	}
@@ -1517,6 +1546,32 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			c.setMaxResults(totalSlot);
 			return c.getResultList();
 		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(int startSize, int size, String operaName, Date start, Date end, String deviceName) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindOpenDoorLogBySearchCriteria(operaName, start, end, deviceName);
+			c.setFirstResult(startSize);
+			c.setMaxResults(size);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public Long countOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindOpenDoorLogBySearchCriteria(operaName, start, end, deviceName);
+			c.setProjection(Projections.rowCount());
+			Long l = (Long) c.getSingleResultOrNull();
+			return l == null ? 0 : l;
+		} finally {
 			unitOfWork.end();
 		}
 	}

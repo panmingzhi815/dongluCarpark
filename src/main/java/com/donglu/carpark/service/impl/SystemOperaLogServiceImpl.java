@@ -11,6 +11,7 @@ import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
+import org.criteria4jpa.projection.Projections;
 
 import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.donglu.carpark.service.SystemUserServiceI;
@@ -114,5 +115,29 @@ public class SystemOperaLogServiceImpl implements SystemOperaLogServiceI {
 			save(log);
 		});
 		
+	}
+	@Override
+	public List<SingleCarparkSystemOperaLog> findSystemOperaLogBySearch(int startSize, int size, String operaName, Date start, Date end, SystemOperaLogTypeEnum type) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createSearchCriteria(operaName, start, end, type);
+			c.setFirstResult(startSize);
+			c.setMaxResults(size);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	@Override
+	public Long countSystemOperaLogBySearch(String operaName, Date start, Date end, SystemOperaLogTypeEnum type) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createSearchCriteria(operaName, start, end, type);
+			c.setProjection(Projections.rowCount());
+			Long l = (Long) c.getSingleResultOrNull();
+			return l == null ? 0 : l;
+		} finally {
+			unitOfWork.end();
+		}
 	}
 }
