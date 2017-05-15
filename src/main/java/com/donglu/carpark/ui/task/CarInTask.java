@@ -184,7 +184,7 @@ public class CarInTask extends AbstractTask {
 		String[] split = user.getPlateNo().split(",");
 		boolean isFixCar = false;
 		for (String string : split) {
-			boolean equals = editPlateNo.equals(string);
+			boolean equals = editPlateNo.equals(string.trim());
 			if (equals) {
 				isFixCar = equals;
 				break;

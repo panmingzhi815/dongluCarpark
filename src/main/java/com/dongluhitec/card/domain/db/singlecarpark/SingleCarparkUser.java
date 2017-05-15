@@ -81,6 +81,9 @@ public class SingleCarparkUser extends DomainObject {
 		return plateNo;
 	}
 	public void setPlateNo(String plateNo) {
+		if(plateNo!=null){
+			plateNo=plateNo.trim();
+		}
 		this.plateNo = plateNo;
 		if (pcs != null)
 			pcs.firePropertyChange("plateNo", null, null);

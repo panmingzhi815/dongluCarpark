@@ -10,6 +10,7 @@ import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 public class OpenDoorListPresenter extends AbstractListPresenter<SingleCarparkOpenDoorLog>{
@@ -38,6 +39,9 @@ public class OpenDoorListPresenter extends AbstractListPresenter<SingleCarparkOp
 	}
 	@Override
 	public void mouseDoubleClick(List<SingleCarparkOpenDoorLog> list) {
+		if (StrUtil.isEmpty(list)) {
+			return;
+		}
 		SingleCarparkOpenDoorLog singleCarparkOpenDoorLog = list.get(0);
 		ImageDialog id=new ImageDialog(singleCarparkOpenDoorLog.getImage());
 		id.open();
