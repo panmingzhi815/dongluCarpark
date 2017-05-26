@@ -748,9 +748,11 @@ public class NewCommonChargeBasicPage extends WizardPage {
 		}
 		for (int i = 0; i < listDay.size(); i++) {
 			if (listDay.size() > i) {
-				TableItem item = table.getItem(i);
-				if (item == null) {
-					item = new TableItem(table, 0);
+				TableItem item = null;
+				if (table.getItemCount()<=i) {
+					item=new TableItem(table, 0);
+				}else{
+					item = table.getItem(i);
 				}
 				DurationInfo durationInfo = listDay.get(i);
 				String s = durationInfo.getDayDurationName();
