@@ -1,5 +1,6 @@
 package com.donglu.carpark.service;
 
+import com.donglu.carpark.server.module.TestMethodInterceptor;
 import com.donglu.carpark.service.impl.CarparkInOutServiceImpl;
 import com.donglu.carpark.service.impl.CarparkServiceImpl;
 import com.donglu.carpark.service.impl.CarparkUserServiceImpl;
@@ -11,6 +12,7 @@ import com.donglu.carpark.ui.ClientConfigUI;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.service.MapperConfig;
 import com.google.inject.*;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Named;
 import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
@@ -104,6 +106,8 @@ public class CarparkClientLocalVMServiceProvider extends AbstractCarparkDatabase
             this.bind(CarparkInOutServiceI.class).to(CarparkInOutServiceImpl.class).in(Singleton.class);
             this.bind(SystemOperaLogServiceI.class).to(SystemOperaLogServiceImpl.class).in(Singleton.class);
             this.bind(StoreServiceI.class).to(StoreServiceImpl.class).in(Singleton.class);
+            
+//            this.bindInterceptor(Matchers.any(), Matchers.any(), new TestMethodInterceptor());
         }
     }
 

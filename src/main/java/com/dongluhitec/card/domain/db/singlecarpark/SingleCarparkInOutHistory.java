@@ -10,6 +10,9 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.Index;
+import org.hibernate.annotations.IndexColumn;
+
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -42,6 +45,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private static final long serialVersionUID = -6080299047343306789L;
 	
 	@Column(length=20)
+	@Index(name = "SingleCarparkInOutHistory_plateNo_index")
 	private String plateNo;
 	@Column
 	private String userName;
@@ -50,8 +54,10 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	@Column(length=20)
 	private String carType;
 	@Temporal(TemporalType.TIMESTAMP)
+	@Index(name="SingleCarparkInOutHistory_inTime_index")
 	private Date inTime;
 	@Temporal(TemporalType.TIMESTAMP)
+	@Index(name="SingleCarparkInOutHistory_outTime_index")
 	private Date outTime;
 	@Column(length=40)
 	private String inDevice;
@@ -59,7 +65,9 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private String outDevice;
 	
 	private Float shouldMoney;
+	@Index(name="SingleCarparkInOutHistory_factMoney_index")
 	private Float factMoney;
+	@Index(name="SingleCarparkInOutHistory_freeMoney_index")
 	private Float freeMoney;
 	@Column(length=20)
 	private String operaName;
@@ -78,6 +86,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	@Column(length=20)
 	private String outPhotographType;
 	
+	@Index(name="SingleCarparkInOutHistory_carparkId_index")
 	private Long carparkId;
 	private String carparkName;
 	

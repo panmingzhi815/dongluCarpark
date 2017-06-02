@@ -13,6 +13,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
 
@@ -53,6 +56,8 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.dongluhitec.card.service.impl.SettingServiceImpl;
 import com.google.common.base.Predicate;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -446,18 +451,30 @@ public class CarparkServiceImpl implements CarparkService {
 		return a.getId();
 		
 	}
-
+	static Cache<Object, Object> cache = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
+	
 	@Override
 	public SingleCarparkCarpark findCarparkById(Long id) {
-		unitOfWork.begin();
+		
 		try {
-    		DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation
-    				.forClass(SingleCarparkCarpark.class, emprovider.get());
-    		SingleCarparkCarpark entityWithId = dom.getEntityWithId(id);
-    		return entityWithId;
-		} finally{
-			unitOfWork.end();
+			return (SingleCarparkCarpark) cache.get(""+getClass().getName()+"-findCarparkById-"+id, new Callable<Object>() {
+				@Override
+				public Object call() throws Exception {
+					unitOfWork.begin();
+					try {
+			    		DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation
+			    				.forClass(SingleCarparkCarpark.class, emprovider.get());
+			    		SingleCarparkCarpark entityWithId = dom.getEntityWithId(id);
+			    		return entityWithId;
+					} finally{
+						unitOfWork.end();
+					}
+				}
+			});
+		} catch (Exception e) {
+			throw new DongluServiceException("根据id查找停车场时发生错误", e);
 		}
+		
 	}
 
 	@Override
@@ -571,16 +588,26 @@ public class CarparkServiceImpl implements CarparkService {
 	}
 	@Override
 	public Holiday findHolidayByDate(Date date) {
-		unitOfWork.begin();
 		try {
-			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), Holiday.class);
-			c.add(Restrictions.eq("start", date));
-			return (Holiday) c.getSingleResultOrNull();
-		}catch(Exception e){
-			return null;
-		}finally{
-			unitOfWork.end();
+			return (Holiday) cache.get(getClass().getName()+"-findHolidayByDate-"+StrUtil.formatDate(date), new Callable<Object>() {
+				@Override
+				public Object call() throws Exception {
+					unitOfWork.begin();
+					try {
+						Criteria c=CriteriaUtils.createCriteria(emprovider.get(), Holiday.class);
+						c.add(Restrictions.eq("start", date));
+						return (Holiday) c.getSingleResultOrNull();
+					}catch(Exception e){
+						return null;
+					}finally{
+						unitOfWork.end();
+					}
+				}
+			});
+		} catch (ExecutionException e) {
+			throw new DongluServiceException("获取节假日信息时发生错误", e);
 		}
+		
 	}
 	
 	@Override

@@ -203,8 +203,8 @@ public class CarInTask extends AbstractTask {
 	 * @param nanoTime3
 	 */
 	public void saveInHistory() {
-		LOGGER.debug("车辆类型为：{}==t通道类型为：{}", carType, device.getRoadType());
-		LOGGER.debug(date + "==" + ip + "====" + plateNO + "车辆类型：" + carType + "==" + "保存图片：==查找固定用户：==界面操作：");
+//		LOGGER.debug("车辆类型为：{}==t通道类型为：{}", carType, device.getRoadType());
+//		LOGGER.debug(date + "==" + ip + "====" + plateNO + "车辆类型：" + carType + "==" + "保存图片：==查找固定用户：==界面操作：");
 		LOGGER.info("把车牌:{}的进场记录保存到数据库", plateNO);
 
 		cch.setPlateNo(plateNO);
@@ -235,8 +235,10 @@ public class CarInTask extends AbstractTask {
 			if (after)
 				cch.setInPhotographType("手动");
 		}
-		sp.getCarparkInOutService().updateCarparkStillTime(carpark, device,
-				StrUtil.isEmpty(editPlateNo) ? plateNO : editPlateNo, cch.getBigImg());
+		if (mapSystemSetting.get(SystemSettingTypeEnum.固定车非所属停车场停留收费).equals("true")) {
+			sp.getCarparkInOutService().updateCarparkStillTime(carpark, device,
+					StrUtil.isEmpty(editPlateNo) ? plateNO : editPlateNo, cch.getBigImg());
+		}
 		Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(cch);
 		presenter.plateSubmit(cch, date, device, bigImage);
 		cch.setId(saveInOutHistory);

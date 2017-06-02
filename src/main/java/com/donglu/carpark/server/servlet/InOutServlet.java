@@ -532,4 +532,11 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	public Long countOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName) {
 		return carparkInOutService.countOpenDoorLogBySearch(operaName, start, end, deviceName);
 	}
+
+
+
+	@Override
+	public List<SingleCarparkInOutHistory> searchNotOutHistory(int start, int size, String plateNo, SingleCarparkCarpark carpark) {
+		return carparkInOutService.searchNotOutHistory(start, size, plateNo, carpark);
+	}
 }

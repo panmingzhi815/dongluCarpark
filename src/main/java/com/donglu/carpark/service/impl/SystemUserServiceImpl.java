@@ -15,6 +15,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
+import com.google.common.cache.Cache;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
@@ -51,6 +52,9 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 			}
 			Object singleResultOrNull = c.getSingleResultOrNull();
 			if (singleResultOrNull!=null) {
+				Cache<String, Number> cache = CarparkInOutServiceImpl.numberCache;
+				cache.invalidate("findFactMoneyByName-"+userName);
+				cache.invalidate("findFreeMoneyByName-"+userName);
 				return (SingleCarparkSystemUser) singleResultOrNull;
 			}
 			return null;

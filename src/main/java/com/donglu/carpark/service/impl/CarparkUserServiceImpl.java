@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -20,6 +23,7 @@ import org.joda.time.DateTime;
 
 import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.util.CarparkUtils;
+import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -27,6 +31,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayH
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
@@ -49,6 +55,12 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			dom.insert(user);
 		} else {
 			dom.save(user);
+		}
+		String[] split = user.getPlateNo().split(",");
+		Long id = user.getCarpark().getId();
+		for (String string : split) {
+			userCache.invalidate("findUserByPlateNo-"+string+"-"+id);
+			userCache.invalidate("findUserByNameAndCarpark-"+string+"-"+id);
 		}
 		return user.getId();
 	}
@@ -116,34 +128,68 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		}
 		return c;
 	}
+	
+	static Cache<Object, Object> userCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.DAYS).build();
 	@Override
 	public SingleCarparkUser findUserByPlateNo(String plateNO,Long carparkId) {
-		unitOfWork.begin();
 		try {
-			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
-//			c.add(Restrictions.isNotNull("validTo"));
-			
-			if (!StrUtil.isEmpty(plateNO)) {
-				c.add(Restrictions.like("plateNo", plateNO,MatchMode.ANYWHERE));
-			}else{
-				return null;
-			}
-			if (!StrUtil.isEmpty(carparkId)) {
-				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
-				SingleCarparkCarpark entityWithId = dom.getEntityWithId(carparkId);
-				List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
-				c.add(Restrictions.in("carpark",list));
-			}
-			c.setFirstResult(0);
-			c.setMaxResults(1);
-			SingleCarparkUser user = (SingleCarparkUser) c.getSingleResultOrNull();
-			if (user!=null&&!user.getType().equals("储值")&&StrUtil.isEmpty(user.getValidTo())) {
+			SingleCarparkUser user = (SingleCarparkUser) userCache.get("findUserByPlateNo-"+plateNO+"-"+carparkId, new Callable<SingleCarparkUser>() {
+				@Override
+				public SingleCarparkUser call() throws Exception {
+					unitOfWork.begin();
+					try {
+						Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+//					c.add(Restrictions.isNotNull("validTo"));
+						
+						if (!StrUtil.isEmpty(plateNO)) {
+							c.add(Restrictions.like("plateNo", plateNO,MatchMode.ANYWHERE));
+						}else{
+							return new SingleCarparkUser();
+						}
+						if (!StrUtil.isEmpty(carparkId)) {
+							List<SingleCarparkCarpark> list = getCarparkAndAllChild(carparkId);
+							c.add(Restrictions.in("carpark",list));
+						}
+						c.setFirstResult(0);
+						c.setMaxResults(1);
+						SingleCarparkUser user = (SingleCarparkUser) c.getSingleResultOrNull();
+						if (user==null||(!user.getType().equals("储值")&&StrUtil.isEmpty(user.getValidTo()))) {
+							return new SingleCarparkUser();
+						}
+						return user;
+					}finally{
+						unitOfWork.end();
+					}
+				}
+			});
+			if (user.getId()==null) {
 				return null;
 			}
 			return user;
-		}finally{
-			unitOfWork.end();
+		} catch (ExecutionException e) {
+			throw new DongluServiceException("获取固定用户时发生错误！", e);
 		}
+		
+	}
+	/**
+	 * @param carparkId
+	 * @return
+	 */
+	public List<SingleCarparkCarpark> getCarparkAndAllChild(Long carparkId) {
+		try {
+			return (List<SingleCarparkCarpark>) CarparkServiceImpl.cache.get(getClass().getName()+"-getCarparkAndAllChild-"+carparkId, new Callable<Object>() {
+				@Override
+				public Object call() throws Exception {
+					DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
+					SingleCarparkCarpark entityWithId = dom.getEntityWithId(carparkId);
+					List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+					return list;
+				}
+			});
+		} catch (ExecutionException e) {
+			return new ArrayList<>();
+		}
+		
 	}
 	@Override
 	public List<SingleCarparkUser> findAllUserByPlateNO(String plateNO, Long carparkId, Date validTo) {
@@ -161,9 +207,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 				c.add(Restrictions.ge(SingleCarparkUser.Property.validTo.name(), validTo));
 			}
 			if (!StrUtil.isEmpty(carparkId)) {
-				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
-				SingleCarparkCarpark entityWithId = dom.getEntityWithId(carparkId);
-				List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+				List<SingleCarparkCarpark> list = getCarparkAndAllChild(carparkId);
 				c.add(Restrictions.in("carpark",list));
 			}
 			SingleCarparkUser user = (SingleCarparkUser) c.getSingleResultOrNull();
@@ -188,9 +232,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 				return 0;
 			}
 			if (!StrUtil.isEmpty(carparkId)) {
-				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
-				SingleCarparkCarpark entityWithId = dom.getEntityWithId(carparkId);
-				List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+				List<SingleCarparkCarpark> list = getCarparkAndAllChild(carparkId);
 				c.add(Restrictions.in("carpark",list));
 			}
 			c.setProjection(Projections.sum(SingleCarparkUser.Property.carparkSlot.name()));
@@ -352,36 +394,46 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 	}
 	@Override
 	public List<SingleCarparkUser> findUserByNameAndCarpark(String name, SingleCarparkCarpark carpark, Date validTo) {
-		unitOfWork.begin();
 		try {
-			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
-//			c.add(Restrictions.isNotNull("validTo"));
-			
-			if (!StrUtil.isEmpty(name)) {
-				c.add(Restrictions.like(SingleCarparkUser.Property.plateNo.name(), name,MatchMode.ANYWHERE));
-			}else{
-				return new ArrayList<>();
-			}
-			if (!StrUtil.isEmpty(validTo)) {
-				c.add(Restrictions.ge(SingleCarparkUser.Property.validTo.name(), validTo));
-			}
-			if (!StrUtil.isEmpty(carpark)) {
-				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
-				SingleCarparkCarpark entityWithId = dom.getEntityWithId(carpark.getId());
-				List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
-				c.add(Restrictions.in("carpark",list));
-			}
-			List<SingleCarparkUser> resultList = c.getResultList();
-			resultList=resultList.stream().filter(new Predicate<SingleCarparkUser>() {
+			return (List<SingleCarparkUser>) userCache.get("findUserByNameAndCarpark-"+name+"-"+carpark.getId(), new Callable<Object>() {
 				@Override
-				public boolean test(SingleCarparkUser user) {
-					return !user.getType().equals("储值")&&!StrUtil.isEmpty(user.getValidTo());
+				public Object call() throws Exception {
+					unitOfWork.begin();
+					try {
+						Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+//					c.add(Restrictions.isNotNull("validTo"));
+						
+						if (!StrUtil.isEmpty(name)) {
+							c.add(Restrictions.like(SingleCarparkUser.Property.plateNo.name(), name,MatchMode.ANYWHERE));
+						}else{
+							return new ArrayList<>();
+						}
+						if (!StrUtil.isEmpty(validTo)) {
+							c.add(Restrictions.ge(SingleCarparkUser.Property.validTo.name(), validTo));
+						}
+						if (!StrUtil.isEmpty(carpark)) {
+							DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
+							SingleCarparkCarpark entityWithId = dom.getEntityWithId(carpark.getId());
+							List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+							c.add(Restrictions.in("carpark",list));
+						}
+						List<SingleCarparkUser> resultList = c.getResultList();
+						resultList=resultList.stream().filter(new Predicate<SingleCarparkUser>() {
+							@Override
+							public boolean test(SingleCarparkUser user) {
+								return !user.getType().equals("储值")&&!StrUtil.isEmpty(user.getValidTo());
+							}
+						}).collect(Collectors.toList());
+						return resultList;
+					}finally{
+						unitOfWork.end();
+					}
 				}
-			}).collect(Collectors.toList());
-			return resultList;
-		}finally{
-			unitOfWork.end();
+			});
+		} catch (ExecutionException e) {
+			throw new DongluServiceException("查找车牌所有用户时发生错误！", e);
 		}
+		
 	
 	}
 	@Override
@@ -421,9 +473,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 				c.add(Restrictions.ge(SingleCarparkUser.Property.validTo.name(), validTo));
 			}
 			if (!StrUtil.isEmpty(carparkId)) {
-				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
-				SingleCarparkCarpark entityWithId = dom.getEntityWithId(carparkId);
-				List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+				List<SingleCarparkCarpark> list = getCarparkAndAllChild(carparkId);
 				c.add(Restrictions.in("carpark",list));
 			}
 			c.setFirstResult(start);

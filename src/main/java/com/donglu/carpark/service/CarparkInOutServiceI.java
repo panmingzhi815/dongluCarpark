@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.donglu.carpark.server.module.CacheMethod;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
@@ -51,6 +52,7 @@ public interface CarparkInOutServiceI {
 	 * @param userName
 	 * @return
 	 */
+	@CacheMethod
 	float findFactMoneyByName(String userName);
 	/**
 	 * 查询免费金额
@@ -335,4 +337,13 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	List<SingleCarparkInOutHistory> findInOutHistoryByInTime(int i, int totalSlot, Set<String> plates, Date s);
+	/**
+	 * 查找场内车记录
+	 * @param start
+	 * @param size
+	 * @param plateNo
+	 * @param carpark
+	 * @return
+	 */
+	List<SingleCarparkInOutHistory> searchNotOutHistory(int start, int size, String plateNo, SingleCarparkCarpark carpark);
 }

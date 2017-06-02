@@ -95,6 +95,7 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
             
 
             properties.setProperty("hibernate.hbm2ddl.auto",HBM2DDL);
+//            properties.setProperty("hibernate.show_sql", "true");
             jpaPersistModule.properties(properties);
             this.install(jpaPersistModule);
 

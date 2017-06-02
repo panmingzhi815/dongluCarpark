@@ -1,10 +1,7 @@
 package com.donglu.carpark.ui;
 
-import java.awt.Canvas;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Frame;
-import java.awt.Graphics;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
@@ -113,7 +110,6 @@ import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
 import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.mapper.BeanUtil;
 import com.dongluhitec.card.shanghaiyunpingtai.ShanghaiYunCarparkCfg;
-import com.dongluhitec.card.ui.util.FileUtils;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
@@ -1479,7 +1475,7 @@ public class CarparkMainPresenter {
 				try {
 					log.debug("检测设备状态");
 					for (String ip : mapIpToDevice.keySet()) {
-						checkDeviceStatus(ip);
+//						checkDeviceStatus(ip);
 					}
 				} catch (Exception e) {
 					log.error("检测设备时发生错误",e);

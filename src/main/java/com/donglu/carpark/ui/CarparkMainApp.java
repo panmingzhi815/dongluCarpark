@@ -414,6 +414,7 @@ public class CarparkMainApp extends AbstractApp{
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
+				System.out.println("下载时间");
 				Set<String> keySet = model.getMapIpToDevice().keySet();
 				for (String c : keySet) {
 					presenter.showNowTimeToDevice(model.getMapIpToDevice().get(c));
@@ -1218,9 +1219,15 @@ public class CarparkMainApp extends AbstractApp{
 	public void refreshCarparkBasicInfo(Integer refreshTimeSpeedSecond) {
 		refreshService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每秒刷新停车场全局监控信息"));
 		refreshService.scheduleAtFixedRate(() -> {
+			long currentTimeMillis = System.currentTimeMillis();
 			try {
 				model.setCurrentTime(StrUtil.formatDateTime(new Date()));
 				if (refreshTimes.addAndGet(1) % refreshTimeSpeedSecond != 0) {
+					return;
+				}
+				long l = new Date().getTime()-model.getPlateInTime().getTime();
+				if (l<-25000) {
+					log.info("车辆进出场时间为{}，暂时不更新停车场基本信息", model.getPlateInTime());
 					return;
 				}
 				String userName = System.getProperty("userName");
@@ -1229,6 +1236,7 @@ public class CarparkMainApp extends AbstractApp{
 				model.setTotalSlot(presenter.getSlotOfLeft());
 				model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow(model.getCarpark()));
 				model.setMonthSlot(sp.getCarparkInOutService().findFixSlotIsNow(model.getCarpark()));
+				log.debug("refreshCarparkBasicInfo used : " + (System.currentTimeMillis() - currentTimeMillis));
 			} catch (Exception e) {
 				log.error("刷新停车场出错", e);
 			}

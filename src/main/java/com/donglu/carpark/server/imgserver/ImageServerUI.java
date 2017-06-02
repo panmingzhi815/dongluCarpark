@@ -558,7 +558,7 @@ public class ImageServerUI {
 			public void run() {
 				CarparkUtils.cleanSameInOutHistory();
 			}
-		}, 10, 10, TimeUnit.MINUTES);
+		}, 10, 60, TimeUnit.MINUTES);
 		
 	}
 

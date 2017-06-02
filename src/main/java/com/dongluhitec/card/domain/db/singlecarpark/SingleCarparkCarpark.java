@@ -34,7 +34,7 @@ public class SingleCarparkCarpark extends DomainObject {
 	@JoinColumn(name = "parent", nullable = true, insertable = false, updatable = false)
 	private SingleCarparkCarpark parent;
 	
-	@OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE,fetch=FetchType.EAGER)
+	@OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE,fetch=FetchType.LAZY)
 	private List<SingleCarparkCarpark> childs=new ArrayList<SingleCarparkCarpark>();
 	
 	@Column(name = "parent", nullable = true)

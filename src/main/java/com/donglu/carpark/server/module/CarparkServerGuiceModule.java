@@ -9,6 +9,7 @@ import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.impl.SWTUIFacility;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 
 public class CarparkServerGuiceModule extends AbstractModule {

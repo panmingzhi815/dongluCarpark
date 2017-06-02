@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.swt.custom.CTabItem;
 import org.joda.time.DateTime;
@@ -71,6 +73,8 @@ public class CarparkMainModel extends DomainObject {
 	//保存待出场信息
 	private final List<CarOutTask> listOutTask=new ArrayList<>();
 	private long lastCarOutTime=0;
+	
+	public final Lock inOutLock=new ReentrantLock();
 
 	/**
 	 * 
@@ -876,5 +880,9 @@ public class CarparkMainModel extends DomainObject {
 
 	public Map<String, CTabItem> getMapIpToTabItem() {
 		return mapIpToTabItem;
+	}
+
+	public Lock getInOutLock() {
+		return inOutLock;
 	}
 }

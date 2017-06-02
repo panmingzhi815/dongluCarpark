@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -413,7 +415,12 @@ public class CarOutTask extends AbstractTask{
 		if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆允许场内换车))) {
 			LOGGER.info("允许场内换车");
 			if (carpark.getParent()==null) {
-				List<SingleCarparkUser> listUsers = sp.getCarparkUserService().findUserByNameAndCarpark(editPlateNo, carpark, date);
+				List<SingleCarparkUser> listUsers = findUserByNameAndCarpark.stream().filter(new Predicate<SingleCarparkUser>() {
+					@Override
+					public boolean test(SingleCarparkUser t) {
+						return t.getValidTo()!=null&&t.getValidTo().after(date);
+					}
+				}).collect(Collectors.toList());
 				Set<String> plates=new HashSet<>();
 				int totalSlot=0;
 				boolean isCheckSlot=false;
@@ -446,7 +453,9 @@ public class CarOutTask extends AbstractTask{
 			}
 		}
 		saveOutHistory();
-		sp.getCarparkInOutService().updateCarparkStillTime(device.getCarpark(), device, plateNO, bigImgFileName);
+		if (mapSystemSetting.get(SystemSettingTypeEnum.固定车非所属停车场停留收费).equals("true")) {
+			sp.getCarparkInOutService().updateCarparkStillTime(device.getCarpark(), device, plateNO, bigImgFileName);
+		}
 		model.setBtnClick(false);
 		return false;
 	}
@@ -538,6 +547,7 @@ public class CarOutTask extends AbstractTask{
 		return false;
 	}
 	public void refreshUserAndHistory(boolean isNew) {
+		logger.info("刷新固定用户和进场记录信息");
 		if (isNew||!editPlateNo.equals(plateNO)) {
 			user = sp.getCarparkUserService().findUserByPlateNo(editPlateNo,device.getCarpark().getId());
 			if (user==null) {
@@ -563,9 +573,10 @@ public class CarOutTask extends AbstractTask{
 					}
 				}
 			}
+			LOGGER.info("查找固定用户为{}",user);
 			List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(editPlateNo,carpark);
-			LOGGER.debug("查找固定用户为{}",user);
 			cch = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
+			logger.info("获取到进场记录：{}",cch);
 		}
 	}
 	/**
