@@ -84,5 +84,24 @@ public class CarPayServiceImpl implements CarPayServiceI {
 			unitOfWork.end();
 		}
 	}
+	@Transactional
+	@Override
+	public Long deleteCarPayHistory(Long id) {
+		DatabaseOperation<CarPayHistory> dom = DatabaseOperation.forClass(CarPayHistory.class, emprovider.get());
+		dom.remove(id);
+		return id;
+	}
+
+	@Override
+	public CarPayHistory findCarPayHistoryByPayId(String payId) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), CarPayHistory.class);
+			c.add(Restrictions.like(CarPayHistory.Property.payId.name(), payId));
+			return (CarPayHistory) c.getSingleResultOrNull();
+		} finally {
+			unitOfWork.end();
+		}
+	}
 	
 }

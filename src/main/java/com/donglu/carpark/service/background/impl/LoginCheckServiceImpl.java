@@ -33,6 +33,8 @@ public class LoginCheckServiceImpl extends AbstractCarparkBackgroundService impl
 			commonui.info("登录提示","你的登录凭证已经失效，请重新登录！！！");
 			System.exit(0);
 			return;
+		}else if(loginStatus.equals("不检查")){
+			
 		}else if(!loginStatus.equals(hostIp)){
 			commonui.info("登录提示","你的账户在：["+loginStatus+"]上登录!!!");
 			System.exit(0);

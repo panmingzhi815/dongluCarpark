@@ -314,6 +314,14 @@ public class Login {
 		} else {
 			combo.select((int) readObject);
 		}
+		combo.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.keyCode == 13) {
+					login();
+				}
+			}
+		});
 
 		Composite composite_1 = new Composite(shell, SWT.NONE);
 		composite_1.setLayout(new GridLayout(3, false));
@@ -508,7 +516,9 @@ public class Login {
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
-							System.exit(0);
+							shell.setVisible(true);
+							txt_password.forceFocus();
+							btn_login.setEnabled(true);
 						}
 					}
 					

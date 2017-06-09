@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,7 @@ import com.google.common.base.Strings;
 
 public class ImageServiceImpl implements ImageServiceI {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ImageServiceImpl.class);
+	
 	@Override
 	public String saveImageInServer(byte[] image, String imageName) {
 		Object o=CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY);

@@ -1,5 +1,6 @@
 package com.donglu.carpark.service;
 
+import com.donglu.carpark.model.Result;
 import com.donglu.carpark.service.impl.IpmsServiceImpl;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
@@ -63,4 +64,6 @@ public interface IpmsServiceI {
 	 *     	9999-未找到该停车记录时返回
 	 */
 	public int pay(SingleCarparkInOutHistory inout,float chargeMoney);
+	Result getPayResult(SingleCarparkInOutHistory inout);
+	void updateParkSpace();
 }

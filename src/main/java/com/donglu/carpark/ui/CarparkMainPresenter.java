@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
+import com.donglu.carpark.model.Result;
 import com.donglu.carpark.model.SearchErrorCarModel;
 import com.donglu.carpark.model.ShowInOutHistoryModel;
 import com.donglu.carpark.model.SystemUserModel;
@@ -81,6 +82,8 @@ import com.dongluhitec.card.domain.db.SerialDeviceAddress;
 import com.dongluhitec.card.domain.db.shanghaiyunpingtai.HistoryUseStatus;
 import com.dongluhitec.card.domain.db.shanghaiyunpingtai.YunCarparkCarInOut;
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory.PayTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
@@ -839,7 +842,7 @@ public class CarparkMainPresenter {
 				new Thread(new Runnable() {
 					public void run() {
 						setIsTwoChanel();
-						log.info("发送平时显示类容");
+						log.info("发送平时显示内容");
 						showUsualContentToDevice(device2);
 						showPositionToDevice(device2, CarparkMainPresenter.this.model.getTotalSlot());
 						// sendPositionToAllDevice(true);
@@ -1792,10 +1795,64 @@ public class CarparkMainPresenter {
 		if (StrUtil.isEmpty(data)) {
 			return;
 		}
+		boolean checkIsPay = checkIsPay(data,model.getReal(),true);
+		if (!checkIsPay) {
+			return;
+		}
 		SingleCarparkDevice device = model.getChargeDevice();
 		if (!chargeCarPass(device, data, carOutChargeCheck)) {
 			return;
 		}
+	}
+
+	/**
+	 * @param data
+	 * @param real 
+	 */
+	public boolean checkIsPay(SingleCarparkInOutHistory data,float real, boolean check) {
+		float totalCharge=real+model.getChargedMoney();
+		if (totalCharge<model.getShouldMony()&&model.getMapSystemSetting().getOrDefault(SystemSettingTypeEnum.启用CJLAPP支付, "false").equals("true")) {
+			List<CarPayHistory> list = sp.getCarPayService().findCarPayHistoryByLike(0, Integer.MAX_VALUE, data.getPlateNo(), data.getInTime(), new Date());
+			Double chargeMoney=0d;
+			Double freeMoney=0d;
+			String ctype=PayTypeEnum.现金支付.name();
+			for (CarPayHistory carPayHistory : list) {
+				chargeMoney+=(carPayHistory.getBalanceAmount()+carPayHistory.getCashCost()+carPayHistory.getOnlineCost());
+				freeMoney+=carPayHistory.getCouponValue();
+				ctype=carPayHistory.getPayType().name();
+			}
+			if (chargeMoney+freeMoney<model.getShouldMony()) {
+				Result result = getPayResult(data);
+				if (result!=null) {
+					int code = result.getCode();
+					Map<Object, Object> map = (Map<Object, Object>) result.getObj();
+					if (code==2008) {
+						model.setReal(Float.valueOf(map.get("deptFee").toString()));
+						model.setChargedMoney(Float.valueOf(map.get("payedFee").toString()));
+						if (check) {
+							boolean confirm = commonui.confirm("收费提示", "车辆：[" + data.getPlateNo() + "]" + result.getMsg() + ",是否免费：" + (model.getShouldMony() - totalCharge) + "元出场。");
+							if (!confirm) {
+								return false;
+							} 
+						}else{
+							commonui.info("收费提示", "车辆：["+data.getPlateNo()+"]"+result.getMsg());
+						}
+					}else if(code==2005){
+						model.setChargedMoney(model.getShouldMony());
+						model.setReal(0);
+						data.setChargeOperaName("在线支付");
+					}else{
+						model.setPlateNo(model.getPlateNo()+"-未在线支付");
+					}
+				}
+			}else{
+				model.setChargedMoney(chargeMoney.floatValue());
+				data.setFreeMoney(freeMoney.floatValue());
+				model.setReal(model.getShouldMony()-model.getChargedMoney());
+				data.setChargeOperaName(ctype);
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -1827,80 +1884,76 @@ public class CarparkMainPresenter {
 	 */
 	public boolean chargeCarPass(SingleCarparkDevice device, SingleCarparkInOutHistory singleCarparkInOutHistory, boolean check) {
 		try {
-			
+
 			if (!StrUtil.isEmpty(model.getUser())) {
 				SingleCarparkUser user = model.getUser();
 				user.setTempCarTime(CarparkUtils.removeString(user.getTempCarTime(), model.getInTime()));
 				sp.getCarparkUserService().saveUser(user);
 			}
 			Float shouldMoney = model.getShouldMony();
+			float shouldChargeMoney=model.getShouldMony()-model.getChargedMoney();
 			float factMoney = model.getReal();
-			//手机app支付
-			int appPay=appPay(singleCarparkInOutHistory, shouldMoney);
-			if (appPay==2005||appPay==0) {
-				showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
-			} else {
-				if (factMoney > shouldMoney) {
-					commonui.error("收费提示", "实收不能超过应收" + shouldMoney + "元");
+			
+			if (factMoney > shouldChargeMoney) {
+				commonui.error("收费提示", "实收不能超过应收" + shouldMoney + "元");
+				return false;
+			}
+			if (factMoney < 0) {
+				commonui.error("收费提示", "实收不能小于0");
+				return false;
+			}
+			if (check) {
+				boolean confirm = commonui.confirm("收费确认", "车牌：" + singleCarparkInOutHistory.getPlateNo() + "应收：" + shouldMoney + "实收：" + factMoney);
+				if (!confirm) {
 					return false;
 				}
-				if (factMoney < 0) {
-					commonui.error("收费提示", "实收不能小于0");
+				if (shouldChargeMoney > factMoney) {
+					String reasons = mapSystemSetting.get(SystemSettingTypeEnum.免费原因);
+					FreeReasonDialog d = new FreeReasonDialog(reasons.split(","));
+					String open = d.open();
+					if (open == null) {
+						return false;
+					}
+					singleCarparkInOutHistory.setFreeReason(open);
+				}
+			}
+			log.info("车辆收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", singleCarparkInOutHistory.getPlateNo(), device.getCarpark(), model.getCarTypeEnum(), model.getInTime(), model.getOutTime(),
+					model.getTotalTime(), shouldMoney);
+			boolean isConcentrate = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费));
+			if (isConcentrate) {
+				Float factMoney2 = singleCarparkInOutHistory.getFactMoney() == null ? 0 : singleCarparkInOutHistory.getFactMoney();
+				factMoney = factMoney2 + factMoney;
+				if (factMoney > shouldChargeMoney) {
+					commonui.error("收费提示", "总收费不能超过应收" + shouldMoney + "元");
 					return false;
 				}
-				if (check) {
-					boolean confirm = commonui.confirm("收费确认", "车牌：" + singleCarparkInOutHistory.getPlateNo() + "应收：" + shouldMoney + "实收：" + factMoney);
-					if (!confirm) {
-						return false;
-					}
-					if (shouldMoney > factMoney) {
-						String reasons = mapSystemSetting.get(SystemSettingTypeEnum.免费原因);
-						FreeReasonDialog d=new FreeReasonDialog(reasons.split(","));
-						String open = d.open();
-						if (open ==null) {
-							return false;
-						}
-						singleCarparkInOutHistory.setFreeReason(open);
-					}
-				}
-				log.info("车辆收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", singleCarparkInOutHistory.getPlateNo(), device.getCarpark(), model.getCarTypeEnum(), model.getInTime(),
-						model.getOutTime(), model.getTotalTime(), shouldMoney);
-				boolean isConcentrate = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费));
-				if (isConcentrate) {
-					Float factMoney2 = singleCarparkInOutHistory.getFactMoney() == null ? 0 : singleCarparkInOutHistory.getFactMoney();
-					factMoney = factMoney2 + factMoney;
-					if (factMoney > shouldMoney) {
-						commonui.error("收费提示", "总收费不能超过应收" + shouldMoney + "元");
-						return false;
-					}
-				}
+			}
 
-				float freeMoney = shouldMoney - factMoney;
-				singleCarparkInOutHistory.setShouldMoney(shouldMoney);
-				singleCarparkInOutHistory.setFactMoney(factMoney);
-				singleCarparkInOutHistory.setFreeMoney(freeMoney);
-				singleCarparkInOutHistory.setCarType("临时车");
-				sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
-				Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
-				String carOutMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent();
-				if (tempCarNoChargeIsPass) {
-					if (shouldMoney > 0) {
-						showContentToDevice(device, carOutMsg, true);
-					} else {
-						showContentToDevice(device, CarparkUtils.formatFloatString("请缴费" + shouldMoney + "元") + "," + carOutMsg, true);
-					}
-				} else {
+			float freeMoney = shouldChargeMoney - factMoney;
+			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
+			singleCarparkInOutHistory.setFactMoney(model.getChargedMoney()+factMoney);
+			singleCarparkInOutHistory.setFreeMoney(freeMoney);
+			singleCarparkInOutHistory.setCarType("临时车");
+			sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
+			Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
+			String carOutMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent();
+			if (tempCarNoChargeIsPass) {
+				if (shouldMoney > 0) {
 					showContentToDevice(device, carOutMsg, true);
+				} else {
+					showContentToDevice(device, CarparkUtils.formatFloatString("请缴费" + shouldMoney + "元") + "," + carOutMsg, true);
 				}
-				if (!StrUtil.isEmpty(model.getStroeFrees())) {
-					for (SingleCarparkStoreFreeHistory free : model.getStroeFrees()) {
-						free.setUsed("已使用");
-						sp.getStoreService().saveStoreFree(free);
-					}
+			} else {
+				showContentToDevice(device, carOutMsg, true);
+			}
+			if (!StrUtil.isEmpty(model.getStroeFrees())) {
+				for (SingleCarparkStoreFreeHistory free : model.getStroeFrees()) {
+					free.setUsed("已使用");
+					sp.getStoreService().saveStoreFree(free);
 				}
-				if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车非所属停车场停留收费).equals("true")) {
-					sp.getCarparkInOutService().updateCarparkStillTime(device.getCarpark(), device, singleCarparkInOutHistory.getPlateNo(), singleCarparkInOutHistory.getOutBigImg());
-				}
+			}
+			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车非所属停车场停留收费).equals("true")) {
+				sp.getCarparkInOutService().updateCarparkStillTime(device.getCarpark(), device, singleCarparkInOutHistory.getPlateNo(), singleCarparkInOutHistory.getOutBigImg());
 			}
 			model.setStroeFrees(null);
 			model.setBtnClick(false);
@@ -2261,18 +2314,6 @@ public class CarparkMainPresenter {
 	 */
 	public void updatePosition(SingleCarparkCarpark carpark, final SingleCarparkInOutHistory cch, final boolean inOrOut) {
 		sp.getPositionUpdateService().updatePosion(carpark, cch==null?null:cch.getUserId(), inOrOut);
-		if (mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")) {
-			new Thread(new Runnable() {
-				public void run() {
-					if (inOrOut) {
-						ipmsService.addInOutHistory(cch);
-					} else {
-						ipmsService.updateInOutHistory(cch);
-					}
-				}
-			}).start();
-		}
-		
 		try {
 			if (cch!=null) {
 				boolean start = ShanghaiYunCarparkCfg.getInstance().isStart();
@@ -2470,14 +2511,12 @@ public class CarparkMainPresenter {
 	public int appPay(SingleCarparkInOutHistory cch, float shouldMoney) {
 		int pay=9999;
 		if (mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")) {
-			if (mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")) {
-				pay = ipmsService.pay(cch, shouldMoney);
-				if (pay==2005||pay==0) {
-					
-				}else{
-					String plateNo = model.getPlateNo()==null?"":model.getPlateNo().split("-")[0];
-					model.setPlateNo(plateNo+"-app支付失败("+pay+")");
-				}
+			pay = ipmsService.pay(cch, shouldMoney);
+			if (pay == 2005 || pay == 0) {
+
+			} else {
+				String plateNo = model.getPlateNo() == null ? "" : model.getPlateNo().split("-")[0];
+				model.setPlateNo(plateNo + "-app支付失败(" + pay + ")");
 			}
 			return pay;
 		}
@@ -2516,6 +2555,14 @@ public class CarparkMainPresenter {
 			e.printStackTrace();
 			commonui.error("提示", "修改失败！");
 		}
+	}
+
+	public Result getPayResult(SingleCarparkInOutHistory cch) {
+		Result result =null ;
+		if (mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")) {
+			return ipmsService.getPayResult(cch);
+		}
+		return result;
 	}
 
 }

@@ -69,13 +69,13 @@ public interface CarparkInOutServiceI {
 	 */
 	int findFixSlotIsNow(SingleCarparkCarpark singleCarparkCarpark);
 	/**
-	 * 查询现在的临时车位数
+	 * 查询现在的临时总车位数
 	 * @param singleCarparkCarpark 
 	 * @return
 	 */
 	int findTempSlotIsNow(SingleCarparkCarpark singleCarparkCarpark);
 	/**
-	 * 查询现在的总车位数
+	 * 查询现在的临时车车位数
 	 * @param singleCarparkCarpark 
 	 * @return
 	 */

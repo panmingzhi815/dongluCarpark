@@ -26,6 +26,10 @@ public class CarparkRecordHistory implements Serializable {
     private Float shouldMoney;
     private Float factMoney;
     private String carparkName;
+    private Long hid;
+    private String inImage;
+    private String outImage;
+    private String carType;
 
     @Embedded
     private HistoryDetail historyDetail = new HistoryDetail();
@@ -43,7 +47,28 @@ public class CarparkRecordHistory implements Serializable {
         this.shouldMoney = carparkInOutHistory.getShouldMoney() == null ? 0F : carparkInOutHistory.getShouldMoney();
         this.factMoney = carparkInOutHistory.getFactMoney() == null ? 0F : carparkInOutHistory.getFactMoney();
         this.carparkName = StrUtil.isEmptyToString(carparkInOutHistory.getCarparkName(), "");
+        hid=carparkInOutHistory.getId();
+        inImage=carparkInOutHistory.getBigImg();
+        outImage=carparkInOutHistory.getOutBigImg();
+        carType=carparkInOutHistory.getCarType();
         this.historyDetail.setUpdateState(updateEnum);
+    }
+    public SingleCarparkInOutHistory getHistory(){
+    	SingleCarparkInOutHistory carparkInOutHistory=new SingleCarparkInOutHistory();
+    	carparkInOutHistory.setUserName(userName);
+    	carparkInOutHistory.setPlateNo(plateNO);
+    	carparkInOutHistory.setInTime(StrUtil.parseDateTime(inTime));
+    	carparkInOutHistory.setOutTime(StrUtil.parseDateTime(outTime));
+    	carparkInOutHistory.setInDevice(inDevice);
+    	carparkInOutHistory.setOutDevice(outDevice);
+    	carparkInOutHistory.setShouldMoney(shouldMoney);
+    	carparkInOutHistory.setFactMoney(factMoney);
+    	carparkInOutHistory.setCarparkName(carparkName);
+    	carparkInOutHistory.setId(hid);
+    	carparkInOutHistory.setBigImg(inImage);
+    	carparkInOutHistory.setOutBigImg(outImage);
+    	carparkInOutHistory.setCarType(carType);
+		return carparkInOutHistory;
     }
 
     @PrePersist
@@ -145,4 +170,36 @@ public class CarparkRecordHistory implements Serializable {
     public void setHistoryDetail(HistoryDetail historyDetail) {
         this.historyDetail = historyDetail;
     }
+
+	public Long getHid() {
+		return hid;
+	}
+
+	public void setHid(Long hid) {
+		this.hid = hid;
+	}
+
+	public String getInImage() {
+		return inImage;
+	}
+
+	public void setInImage(String inImage) {
+		this.inImage = inImage;
+	}
+
+	public String getOutImage() {
+		return outImage;
+	}
+
+	public void setOutImage(String outImage) {
+		this.outImage = outImage;
+	}
+
+	public String getCarType() {
+		return carType;
+	}
+
+	public void setCarType(String carType) {
+		this.carType = carType;
+	}
 }

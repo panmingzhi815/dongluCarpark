@@ -28,7 +28,7 @@ public class HistoryDetail implements Serializable {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private ProcessEnum processState;
+    private ProcessEnum processState=ProcessEnum.未处理;
 
     public UpdateEnum getUpdateState() {
         return updateState;

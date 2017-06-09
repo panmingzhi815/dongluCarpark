@@ -13,11 +13,12 @@ public class CarPayListView extends AbstractListView<CarPayHistory>implements Vi
 				new String[] { CarPayHistory.Label.plateNO.name(),
 						 CarPayHistory.Label.payedMoney.name(),
 						 CarPayHistory.Label.payTimeLabel.name(),
+						 CarPayHistory.Label.payType.name(),
 						 CarPayHistory.Label.createDateLabel.name(),
 						 CarPayHistory.Label.operaName.name(),
 						 CarPayHistory.Label.remark.name(),
 				},
-				new String[] { "车牌号", "缴费金额", "时间","创建时间","操作员","备注" }, new int[] { 100, 100, 200,200,100,200}, null);
+				new String[] { "车牌号", "缴费金额", "缴费时间","缴费方式","创建时间","操作员","备注" }, new int[] { 100, 100, 200,100,200,100,200}, null);
 	}
 
 	@Override

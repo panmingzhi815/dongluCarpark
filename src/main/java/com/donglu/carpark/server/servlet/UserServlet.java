@@ -24,6 +24,9 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemOperaLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
 import com.dongluhitec.card.server.util.HibernateSerializerFactory;
 import com.google.inject.Inject;
 
@@ -263,6 +266,16 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 	@Override
 	public Long countSystemOperaLogBySearch(String operaName, Date start, Date end, SystemOperaLogTypeEnum type) {
 		return systemOperaLogService.countSystemOperaLogBySearch(operaName, start, end, type);
+	}
+
+	@Override
+	public List<UserHistory> findUserHistory(UpdateEnum[] updates, ProcessEnum[] processEnums) {
+		return carparkUserService.findUserHistory(updates, processEnums);
+	}
+
+	@Override
+	public Long updateUserHistory(UserHistory history, ProcessEnum process) {
+		return carparkUserService.updateUserHistory(history, process);
 	}
 
 }

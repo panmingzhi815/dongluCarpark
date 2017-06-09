@@ -18,6 +18,7 @@ import org.criteria4jpa.criterion.Criterion;
 import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
 import org.criteria4jpa.criterion.SimpleExpression;
+import org.criteria4jpa.order.Order;
 import org.criteria4jpa.projection.Projections;
 import org.joda.time.DateTime;
 
@@ -29,6 +30,9 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.google.common.cache.Cache;
@@ -53,13 +57,18 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		DatabaseOperation<SingleCarparkUser> dom = DatabaseOperation.forClass(SingleCarparkUser.class, emprovider.get());
 		if (user.getId() == null) {
 			dom.insert(user);
+			emprovider.get().persist(new UserHistory(user,UpdateEnum.新添加));
 		} else {
 			dom.save(user);
+			if (user.isCreateHistory()) {
+				emprovider.get().persist(new UserHistory(user,UpdateEnum.被修改));
+			}
 		}
 		String[] split = user.getPlateNo().split(",");
 		Long id = user.getCarpark().getId();
 		for (String string : split) {
 			userCache.invalidate("findUserByPlateNo-"+string+"-"+id);
+			userCache.invalidate("findUserByPlateNo-"+string+"-null");
 			userCache.invalidate("findUserByNameAndCarpark-"+string+"-"+id);
 		}
 		return user.getId();
@@ -69,6 +78,14 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 	public Long deleteUser(SingleCarparkUser user) {
 		DatabaseOperation<SingleCarparkUser> dom = DatabaseOperation.forClass(SingleCarparkUser.class, emprovider.get());
 		dom.remove(user.getId());
+		emprovider.get().persist(new UserHistory(user,UpdateEnum.被删除));
+		String[] split = user.getPlateNo().split(",");
+		Long id = user.getCarpark().getId();
+		for (String string : split) {
+			userCache.invalidate("findUserByPlateNo-"+string+"-"+id);
+			userCache.invalidate("findUserByPlateNo-"+string+"-null");
+			userCache.invalidate("findUserByNameAndCarpark-"+string+"-"+id);
+		}
 		return user.getId();
 	}
 	
@@ -513,5 +530,26 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		} finally {
 			unitOfWork.end();
 		}
+	}
+	@Override
+	public List<UserHistory> findUserHistory(UpdateEnum[] updates,ProcessEnum[] processEnums) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), UserHistory.class);
+			c.add(Restrictions.in("historyDetail.processState", processEnums));
+			c.add(Restrictions.in("historyDetail.updateState", updates));
+			c.addOrder(Order.asc("id"));
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	@Transactional
+	@Override
+	public Long updateUserHistory(UserHistory history, ProcessEnum process) {
+		UserHistory userHistory = emprovider.get().getReference(UserHistory.class, history.getAuto_id());
+		userHistory.getHistoryDetail().setProcessState(process);
+		userHistory.getHistoryDetail().setProcessTime(new Date());
+		return history.getAuto_id();
 	}
 }

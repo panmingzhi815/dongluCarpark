@@ -141,6 +141,8 @@ public class CarparkServiceImpl implements CarparkService {
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
 			c.add(Restrictions.isNull("parent"));
+			c.setFirstResult(0);
+			c.setMaxResults(1);
 			return (SingleCarparkCarpark) c.getSingleResultOrNull();
 		} finally {
 			unitOfWork.end();
@@ -239,7 +241,7 @@ public class CarparkServiceImpl implements CarparkService {
 		}
 		return h.getId();
 	}
-
+	@Transactional
 	@Override
 	public Long deleteMonthlyUserPayHistory(SingleCarparkMonthlyUserPayHistory h) {
 		DatabaseOperation<SingleCarparkMonthlyUserPayHistory> dom = DatabaseOperation.forClass(SingleCarparkMonthlyUserPayHistory.class, emprovider.get());
@@ -280,10 +282,13 @@ public class CarparkServiceImpl implements CarparkService {
 		c.add(Restrictions.eq("settingKey", h.getSettingKey()));
 		SingleCarparkSystemSetting set = (SingleCarparkSystemSetting) c.getSingleResultOrNull();
 		
-		DatabaseOperation<SingleCarparkSystemSetting> dom = DatabaseOperation.forClass(SingleCarparkSystemSetting.class, emprovider.get());
 		if (set!=null) {
+			if (set.getSettingValue().equals(h.getSettingValue())) {
+				return set.getId();
+			}
 			h.setId(set.getId());
 		}
+		DatabaseOperation<SingleCarparkSystemSetting> dom = DatabaseOperation.forClass(SingleCarparkSystemSetting.class, emprovider.get());
 		if (h.getId() == null) {
 			dom.insert(h);
 		} else {

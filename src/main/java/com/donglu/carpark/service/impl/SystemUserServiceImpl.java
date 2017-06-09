@@ -119,7 +119,6 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 	@Override
 	public void login(String userName, String password, String ip) {
 		mapLoginInfo.put(userName, ip);
-		
 	}
 
 	@Override

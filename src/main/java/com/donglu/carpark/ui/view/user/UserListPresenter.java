@@ -102,7 +102,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 										return;
 									}
 									if (open == 1) {
-										carparkManagePresenter.setSelete(SingleCarparkModuleEnum.固定车);
+										carparkManagePresenter.setSelete(SingleCarparkModuleEnum.固定车设置);
 										view.getModel().setSelected(Arrays.asList(user));
 									} else if (open == 3) {
 										SingleCarparkSystemSetting ss = findSystemSettingByKey;
@@ -208,13 +208,8 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			}
 			String userName="";
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
-			SingleCarparkSystemSetting byKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.启用CJLAPP支付.name());
-			boolean isDelete=byKey!=null&&byKey.getBooleanValue();
 			for (SingleCarparkUser singleCarparkUser : list) {
 				carparkUserService.deleteUser(singleCarparkUser);
-				if (isDelete) {
-					sp.getIpmsService().deleteUser(singleCarparkUser);
-				}
 				userName+="["+singleCarparkUser.getName()+"]";
 			}
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "删除了用户:"+userName,System.getProperty("userName"));
@@ -227,10 +222,14 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 
 	@Override
 	public void refresh() {
-		List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(userName, plateNo,address,monthlyCharge,will, ed);
-		view.getModel().setList(findByNameOrPlateNo);
-		view.getModel().setCountSearch(findByNameOrPlateNo.size());
-		view.getModel().setCountSearchAll(findByNameOrPlateNo.size());
+		new Thread(new Runnable() {
+			public void run() {
+				List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(userName, plateNo, address, monthlyCharge, will, ed);
+				view.getModel().setList(findByNameOrPlateNo);
+				view.getModel().setCountSearch(findByNameOrPlateNo.size());
+				view.getModel().setCountSearchAll(findByNameOrPlateNo.size());
+			}
+		}).start();
 	}
 
 	public void search(String userName, String plateNo, String address, SingleCarparkMonthlyCharge monthlyCharge, int will, String ed) {

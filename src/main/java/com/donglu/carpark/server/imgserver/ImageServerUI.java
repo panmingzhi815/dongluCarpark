@@ -771,7 +771,7 @@ public class ImageServerUI {
 							LOGGER.info("解析从数据库获取注册码信息成功");
 							break;
 						} catch (Exception e) {
-							LOGGER.error("解析从数据库获取注册码信息失败",e);
+							LOGGER.error("解析从数据库获取注册码信息失败,"+e.getMessage());
 						}
 						Thread.sleep(10000);
 					}
@@ -781,7 +781,7 @@ public class ImageServerUI {
 					sp.getCarparkService().saveSystemSetting(vilidTo);
 					LOGGER.info("把解析到的信息保存到数据库");
 				} catch (Exception e) {
-					LOGGER.error("解析注册码信息失败",e);
+					LOGGER.error("解析注册码信息失败,"+e.getMessage());
 				}
 			}
 		}, 30, 60 * 30, TimeUnit.SECONDS);

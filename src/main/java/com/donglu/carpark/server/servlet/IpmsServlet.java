@@ -3,7 +3,7 @@ package com.donglu.carpark.server.servlet;
 import javax.servlet.ServletException;
 
 import com.caucho.hessian.server.HessianServlet;
-import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.model.Result;
 import com.donglu.carpark.service.IpmsServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
@@ -68,6 +68,16 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 	@Override
 	public boolean deleteUser(SingleCarparkUser user) {
 		return ipmsService.deleteUser(user);
+	}
+
+	@Override
+	public Result getPayResult(SingleCarparkInOutHistory inout) {
+		return ipmsService.getPayResult(inout);
+	}
+
+	@Override
+	public void updateParkSpace() {
+		ipmsService.updateParkSpace();		
 	}
 
 }

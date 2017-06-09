@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.DisposeEvent;
@@ -26,20 +24,16 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import com.beust.jcommander.JCommander;
 import com.donglu.carpark.ui.common.AbstractApp;
 import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkModuleEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
-import com.dongluhitec.card.ui.main.DongluUIAppConfigurator;
-import com.dongluhitec.card.ui.main.javafx.DongluJavaFXModule;
 import com.google.common.collect.Maps;
-import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 
 
 
@@ -61,21 +55,7 @@ public class CarparkManageApp extends AbstractApp{
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Display display = Display.getDefault();
-		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
-			@Override
-			public void run() {
-				try {
-					 DongluUIAppConfigurator configurator = new DongluUIAppConfigurator();
-	         new JCommander(configurator, args);
-					Injector createInjector = Guice.createInjector(new DongluJavaFXModule());
-					CarparkManageApp window = createInjector.getInstance(CarparkManageApp.class);
-					window.open();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+
 	}
 
 	/**
@@ -171,6 +151,18 @@ public class CarparkManageApp extends AbstractApp{
 		
 		tabFolder = new TabFolder(shell, SWT.NONE);
 		tabFolder.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		tabFolder.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				System.out.println("widgetSelected=="+tabFolder.getSelectionIndex());
+				
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				System.out.println("widgetDefaultSelected=="+tabFolder.getSelectionIndex());
+			}
+		});
 		
 		TabItem tabItem_9 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_9.setText("停车场管理");
@@ -183,7 +175,6 @@ public class CarparkManageApp extends AbstractApp{
 		
 		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
 		tabItem.setText("固定车设置");
-		mapModuleToItem.put(SingleCarparkModuleEnum.固定车, tabItem);
 		
 		Composite composite_user = new Composite(tabFolder, SWT.NONE);
 		tabItem.setControl(composite_user);
@@ -471,6 +462,7 @@ public class CarparkManageApp extends AbstractApp{
 			
 		});
 		initDataBindings();
+		tabFolder.setSelection(0);
 	}
 
 
@@ -496,7 +488,7 @@ public class CarparkManageApp extends AbstractApp{
 	}
 
 	public void select(SingleCarparkModuleEnum module) {
-		tabFolder.setSelection(mapModuleToItem.get(module));
+		tabFolder.setSelection(module.ordinal());
 		shell.forceFocus();
 	}
 

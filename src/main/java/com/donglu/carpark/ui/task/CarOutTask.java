@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
+import com.donglu.carpark.model.Result;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.util.CarparkUtils;
@@ -722,11 +723,8 @@ public class CarOutTask extends AbstractTask{
 				Boolean valueOf = Boolean.valueOf(property);
 				// 临时车零收费是否自动出场
 				Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
-				int isAppPay=presenter.appPay(cch,shouldMoney);
-				if (isAppPay==2005) {
-					presenter.showContentToDevice(device,model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
-					presenter.updatePosition(carpark, singleCarparkInOutHistory, false);
-					return;
+				if (shouldMoney>0) {
+					presenter.checkIsPay(singleCarparkInOutHistory,0f, false);
 				}
 				model.setBtnClick(true);
 				LOGGER.info("等待收费");

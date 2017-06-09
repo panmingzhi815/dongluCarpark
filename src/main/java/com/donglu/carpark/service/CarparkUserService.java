@@ -8,6 +8,9 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
 
 public interface CarparkUserService {
 	Long saveUser(SingleCarparkUser user);
@@ -83,4 +86,7 @@ public interface CarparkUserService {
 	 * @return
 	 */
 	List<SingleCarparkUser> findUserByPlateNoLikeSize(int start, int size, String plateNO, int likeSize, Long carparkId, Date validTo);
+	
+	List<UserHistory> findUserHistory(UpdateEnum[] updates,ProcessEnum[] processEnums);
+	public Long updateUserHistory(UserHistory history,ProcessEnum process);
 }

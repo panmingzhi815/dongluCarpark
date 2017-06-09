@@ -896,7 +896,9 @@ public class CarparkMainApp extends AbstractApp{
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(listCarType);
-		if (!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费))) {
+		if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费))||Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付))) {
+			gd_composite.exclude = false;
+		}else{
 			gd_composite.exclude = true;
 		}
 		carOutChargeCheck = Boolean
@@ -1398,8 +1400,10 @@ public class CarparkMainApp extends AbstractApp{
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						text_real.setFocus();
-						text_real.selectAll();
+						if (!text_real.isFocusControl()) {
+							text_real.setFocus();
+							text_real.selectAll();
+						}
 					}
 				});
 			}

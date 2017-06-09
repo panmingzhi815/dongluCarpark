@@ -8,6 +8,7 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -66,6 +67,9 @@ public class SingleCarparkUser extends DomainObject {
 	
 	@ManyToOne
 	private SingleCarparkCarpark carpark;
+	
+	@Transient
+	private boolean createHistory=true;
 	
 	public String getValitoLabel(){
 		return StrUtil.formatDate(validTo, "yyyy-MM-dd");
@@ -268,6 +272,12 @@ public class SingleCarparkUser extends DomainObject {
 	public void setLastEditDate(Date lastEditDate) {
 		this.lastEditDate = lastEditDate;
 		firePropertyChange("lastEditDate", null, null);
+	}
+	public boolean isCreateHistory() {
+		return createHistory;
+	}
+	public void setCreateHistory(boolean createHistory) {
+		this.createHistory = createHistory;
 	}
 	
 }
