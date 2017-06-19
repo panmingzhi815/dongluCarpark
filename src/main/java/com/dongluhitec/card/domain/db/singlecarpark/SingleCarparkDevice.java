@@ -30,7 +30,7 @@ public class SingleCarparkDevice extends DomainObject{
 	private String address="1.1";//设备地址
 	private String roadType="混合车通道";//通道类型
 	private Integer volume=1;
-	private String advertise="车牌自动识别，请减速缓行!";
+	private String advertise="车牌自动识别,请减速缓行";
 	private ScreenTypeEnum screenType=ScreenTypeEnum.一二接口显示屏;
 	private CameraTypeEnum cameraType=CameraTypeEnum.信路威;
 	
@@ -45,6 +45,8 @@ public class SingleCarparkDevice extends DomainObject{
 	private String holidayControlTime;
 	
 	private Boolean isOpenCamera=true;
+	
+	private String positionDeviceAddress;
 	
 	public String getIdentifire() {
 		return identifire;
@@ -221,5 +223,12 @@ public class SingleCarparkDevice extends DomainObject{
 	}
 	public void setIsOpenCamera(Boolean isOpenCamera) {
 		this.isOpenCamera = isOpenCamera;
+	}
+	public String getPositionDeviceAddress() {
+		return positionDeviceAddress;
+	}
+	public void setPositionDeviceAddress(String positionDeviceAddress) {
+		this.positionDeviceAddress = positionDeviceAddress;
+		firePropertyChange("positionDeviceAddress", null, null);
 	}
 }

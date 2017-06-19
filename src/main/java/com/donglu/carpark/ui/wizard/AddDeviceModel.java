@@ -24,6 +24,8 @@ public class AddDeviceModel extends SingleCarparkDevice{
 	private DeviceRoadTypeEnum deviceRoadType=DeviceRoadTypeEnum.混合车通道;
 	private DeviceInOutTypeEnum inOutType=DeviceInOutTypeEnum.进口;
 	
+	private String positionAddress;
+	
 	public AddDeviceModel(){
 		SingleCarparkCarpark s=new SingleCarparkCarpark();
 		s.setName("停车场1");
@@ -57,6 +59,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		device.setInOrOut(getInOutType().toString());
 		device.setControlTime(getControlTime());
 		device.setHolidayControlTime(getHolidayControlTime());
+		device.setPositionDeviceAddress(getPositionAddress()==null||getPositionAddress().trim().equals("")?null:(getType().equals("485")?getPositionAddress():getPositionAddress()+":10001"));
 		return device;
 	}
 	public String getSerialAddress() {
@@ -100,6 +103,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		setInOutType(DeviceInOutTypeEnum.valueOf(device.getInOrOut()));
 		setControlTime(device.getControlTime());
 		setHolidayControlTime(device.getHolidayControlTime());
+		setPositionAddress(device.getPositionDeviceAddress()==null?"":device.getPositionDeviceAddress().split(":")[0]);
 	}
 	public String getVoice() {
 		return voice;
@@ -139,6 +143,13 @@ public class AddDeviceModel extends SingleCarparkDevice{
 	public void setInOutType(DeviceInOutTypeEnum inOutType) {
 		this.inOutType = inOutType;
 		firePropertyChange("inOutType", null, null);
+	}
+	public String getPositionAddress() {
+		return positionAddress;
+	}
+	public void setPositionAddress(String positionAddress) {
+		this.positionAddress = positionAddress;
+		firePropertyChange("positionAddress", null, null);
 	}
 	
 }

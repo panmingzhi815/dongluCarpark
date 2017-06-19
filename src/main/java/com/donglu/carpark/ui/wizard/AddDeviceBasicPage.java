@@ -84,6 +84,8 @@ public class AddDeviceBasicPage extends WizardPage {
 	private boolean controlTime=true;
 	private Label label_11;
 	private Text text_6;
+	private Label label_12;
+	private Text text_7;
 
 	/**
 	 * Create the wizard.
@@ -298,6 +300,13 @@ public class AddDeviceBasicPage extends WizardPage {
 		combo_3 = comboViewer_3.getCombo();
 		combo_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
+		label_12 = new Label(composite, SWT.NONE);
+		label_12.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_12.setText("车位显示屏");
+		
+		text_7 = new Text(composite, SWT.BORDER);
+		text_7.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
 		lblNewLabel_1 = new Label(composite, SWT.NONE);
 		GridData gd_lblNewLabel_1 = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
 		gd_lblNewLabel_1.exclude = controlTime;
@@ -407,6 +416,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue observeTextText_6ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_6);
 		IObservableValue holidayControlTimeModelObserveValue = BeanProperties.value("holidayControlTime").observe(model);
 		bindingContext.bindValue(observeTextText_6ObserveWidget, holidayControlTimeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_7ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_7);
+		IObservableValue positionAddressModelObserveValue = BeanProperties.value("positionAddress").observe(model);
+		bindingContext.bindValue(observeTextText_7ObserveWidget, positionAddressModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

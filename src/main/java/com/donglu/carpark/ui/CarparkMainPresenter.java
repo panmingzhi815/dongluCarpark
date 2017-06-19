@@ -229,9 +229,9 @@ public class CarparkMainPresenter {
 			model.setInOutType(DeviceInOutTypeEnum.valueOf(model.getInOrOut()));
 			// model.seti
 			AddDeviceWizard v = new AddDeviceWizard(model);
-			if (type.indexOf("出口") > -1) {
-				model.setAdvertise("欢迎再次光临");
-			}
+//			if (type.indexOf("出口") > -1) {
+//				model.setAdvertise("欢迎再次光临");
+//			}
 			AddDeviceModel showWizard = (AddDeviceModel) commonui.showWizard(v);
 			if (showWizard == null) {
 				return;
@@ -302,6 +302,19 @@ public class CarparkMainPresenter {
 			}
 			if (isreturn) {
 				showPositionToDevice(d, model.getTotalSlot());
+				if(d.getPositionDeviceAddress()!=null){
+					SingleCarparkDevice device = new SingleCarparkDevice();
+					if(!d.getType().equals("485")){
+						device.setLinkAddress(d.getPositionDeviceAddress());
+						device.setAddress(d.getAddress());
+					}else{
+						device.setLinkAddress(d.getLinkAddress());
+						device.setAddress(d.getPositionDeviceAddress());
+					}
+					device.setType(d.getType());
+					device.setInType(d.getInType());
+					showPositionToDevice(device, model.getTotalSlot());
+				}
 			} else {
 				showPositionToDeviceNoReturn(d, model.getTotalSlot());
 			}
@@ -1103,7 +1116,6 @@ public class CarparkMainPresenter {
 					inType = "进口";
 				}
 				int type = device.getScreenType().getType();
-				System.out.println(type);
 				return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType), (byte) type);
 			} else {
 				return true;
@@ -1374,9 +1386,9 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-		mapIpToJNA.get(ip).tigger(ip);
-//		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
-//		carInOutResultProvider.get().invok(ip, 0, "贵ADL045", bs, null, 11);
+//		mapIpToJNA.get(ip).tigger(ip);
+		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
 	}
 
 	/**
