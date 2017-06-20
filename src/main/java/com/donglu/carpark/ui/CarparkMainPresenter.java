@@ -1094,14 +1094,8 @@ public class CarparkMainPresenter {
 		try {
 			Device d = getDevice(device);
 			if (d != null) {
-				String inType = device.getInType();
+				String inType = device.getInOrOut();
 				log.debug("向{}设备{}：{}发送车位数:{}",inType,device.getIp(),device.getLinkInfo(),position);
-				if (inType.indexOf("出口")>-1) {
-					inType = "出口";
-				}
-				if (inType.equals("进口2")) {
-					inType = "进口";
-				}
 				int type = device.getScreenType().getType();
 				System.out.println(type);
 				return hardwareService.carparkPosition(d, position, LPRInOutType.valueOf(inType), (byte) type);
