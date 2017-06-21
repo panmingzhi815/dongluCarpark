@@ -48,6 +48,7 @@ import com.donglu.carpark.ui.view.OutInfoPresenter;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.MyMapCache;
+import com.donglu.carpark.util.TextUtils;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
@@ -102,6 +103,8 @@ import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.PaintListener;
@@ -552,13 +555,14 @@ public class CarparkMainApp extends AbstractApp{
 		gl_group.marginWidth = 0;
 		group.setLayout(gl_group);
 
-		TabFolder tabFolder = new TabFolder(group, SWT.NONE);
+		CTabFolder tabFolder = new CTabFolder(group, SWT.BORDER);
 		GridData gd_tabFolder = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
 		gd_tabFolder.heightHint = 244;
 		gd_tabFolder.widthHint = 272;
 		tabFolder.setLayoutData(gd_tabFolder);
+		
 
-		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
+		CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
 		tabItem.setText("基本信息");
 
 		Composite composite_13 = new Composite(tabFolder, SWT.NONE);
@@ -610,12 +614,19 @@ public class CarparkMainApp extends AbstractApp{
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 
 		txt_userName = new Text(composite_13, SWT.BORDER | SWT.READ_ONLY);
-		setTextEditIco(txt_userName,"edit_16","修改密码",cursor,new MouseAdapter() {
+		TextUtils.setTextEditIco(txt_userName,"edit_16","修改密码",cursor,5,new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				presenter.editUserPassword();
 			}
 		});
+		TextUtils.setTextEditIco(txt_userName,"consumption_setting_16","修改设置",cursor,25,new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				presenter.monitorSetting();
+			}
+		});
+		
 		txt_userName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		txt_userName.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
 		txt_userName.setText("panmingzhi");
@@ -667,13 +678,13 @@ public class CarparkMainApp extends AbstractApp{
 		text_free.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		text_free.setEditable(false);
 
-		TabItem tabItem_1 = new TabItem(tabFolder, SWT.NONE);
+		CTabItem tabItem_1 = new CTabItem(tabFolder, SWT.NONE);
 		tabItem_1.setText("进场记录");
 
 		Composite composite_18 = new Composite(tabFolder, SWT.NONE);
 		tabItem_1.setControl(composite_18);
 		composite_18.setLayout(new GridLayout(1, false));
-
+		tabFolder.setSelection(0);
 		Composite composite_7 = new Composite(composite_18, SWT.NONE);
 		composite_7.setLayout(new GridLayout(3, false));
 		composite_7.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
@@ -1048,67 +1059,7 @@ public class CarparkMainApp extends AbstractApp{
 		initDataBindings();
 		addKeyLisenter(shell);
 	}
-
-	/**
-	 * 在文本框右侧添加图标、事件
-	 */
-	public void setTextEditIco(Text txt,String img,String title,Cursor cursor,MouseListener mouseClick) {
-		if (txt==null||img==null||cursor==null||mouseClick==null) {
-			return;
-		}
-		Image image = JFaceUtil.getImage(img);
-		if (image==null) {
-			log.error("设置文本框事件：{} 时，没有找到文本框图片：{}",title,img);
-			return;
-		}
-		AtomicInteger width=new AtomicInteger(0);
-		txt.addPaintListener(new PaintListener() {
-			public void paintControl(PaintEvent e) {
-				GC gc = e.gc;
-				Rectangle bounds = txt.getBounds();
-				ImageData imageData = image.getImageData();
-				width.set(imageData.width+5);
-				gc.drawImage(image, bounds.width-width.get(), 0);
-			}
-		});
-		txt.addMouseMoveListener(new MouseMoveListener() {
-			@Override
-			public void mouseMove(MouseEvent e) {
-				if (e.x>=txt.getBounds().width-21) {
-					txt.setCursor(cursor);
-					txt.setToolTipText(title);
-				}else{
-					txt.setCursor(null);
-					txt.setToolTipText(null);
-				}
-			}
-		});
-		txt.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDown(MouseEvent e) {
-				txt.redraw();
-				if (e.x<txt.getBounds().width-width.get()) {
-					return;
-				}
-				mouseClick.mouseDown(e);
-			}
-			@Override
-			public void mouseUp(MouseEvent e) {
-				if (e.x<txt.getBounds().width-width.get()) {
-					return;
-				}
-				mouseClick.mouseUp(e);
-			}
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				if (e.x<txt.getBounds().width-width.get()) {
-					return;
-				}
-				mouseClick.mouseDoubleClick(e);
-			}
-		});
-	}
-
+	
 	public void controlToolItem() {
 		int level = SystemUserTypeEnum.getLevel(System.getProperty("userType"));
 		if (level<3) {

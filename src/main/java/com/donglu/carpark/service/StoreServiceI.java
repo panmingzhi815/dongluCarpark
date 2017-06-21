@@ -78,4 +78,5 @@ public interface StoreServiceI {
 	 */
 	public List<SingleCarparkStore> findStoreByCondition(int start, int max, String storeName);
 	public Long countStoreByCondition(String storeName);
+	public SingleCarparkStore findStoreById(Long id);
 }

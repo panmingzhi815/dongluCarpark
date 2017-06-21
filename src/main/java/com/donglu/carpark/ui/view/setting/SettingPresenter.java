@@ -54,7 +54,11 @@ public class SettingPresenter implements Presenter {
 			mapSystemSetting.put(type, type.getDefaultValue());
 		}
 		for (SingleCarparkSystemSetting singleCarparkSystemSetting : findAllSystemSetting) {
-			mapSystemSetting.put(SystemSettingTypeEnum.valueOf(singleCarparkSystemSetting.getSettingKey()), singleCarparkSystemSetting.getSettingValue());
+			try {
+				mapSystemSetting.put(SystemSettingTypeEnum.valueOf(singleCarparkSystemSetting.getSettingKey()), singleCarparkSystemSetting.getSettingValue());
+			} catch (Exception e) {
+				
+			}
 		}
 
 	}

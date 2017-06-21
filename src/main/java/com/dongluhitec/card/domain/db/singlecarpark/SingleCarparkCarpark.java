@@ -5,15 +5,18 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.db.singlecarpark.weixin.WeixinAccount;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity
@@ -61,6 +64,12 @@ public class SingleCarparkCarpark extends DomainObject {
 	
 	private Boolean fixCarOneIn;
 	private Boolean isCharge=true;
+	
+	@Transient
+	private boolean isJson=false;
+	
+	@Embedded
+	private WeixinAccount weixinAccount;
 	
 	public String getCode() {
 		return code;
@@ -199,7 +208,10 @@ public class SingleCarparkCarpark extends DomainObject {
 		if (pcs != null)
 			pcs.firePropertyChange("isCharge", null, null);
 	}
-	public List<SingleCarparkCarpark> getCarparkAndAllChilds() {
+	public List<SingleCarparkCarpark> loadCarparkAndAllChilds() {
+		if(isJson){
+			return null;
+		}
 		List<SingleCarparkCarpark> list=new ArrayList<>();
 		getCarpaek(this, list);
 		return list;
@@ -212,7 +224,7 @@ public class SingleCarparkCarpark extends DomainObject {
 			}
 		}
 	}
-	public void getChildCarpark(SingleCarparkCarpark carpark, List<SingleCarparkCarpark> list) {
+	public void loadChildCarpark(SingleCarparkCarpark carpark, List<SingleCarparkCarpark> list) {
 		if (!StrUtil.isEmpty(carpark.getChilds())) {
 			for (SingleCarparkCarpark singleCarparkCarpark : carpark.getChilds()) {
 				list.add(singleCarparkCarpark);
@@ -253,10 +265,23 @@ public class SingleCarparkCarpark extends DomainObject {
 		this.leftFixNumberOfSlot = leftFixNumberOfSlot;
 		firePropertyChange("leftFixNumberOfSlot", null, null);
 	}
-	public SingleCarparkCarpark getMaxParent() {
+	public SingleCarparkCarpark loadMaxParent() {
 		if (getParent()!=null) {
-			return getParent().getMaxParent();
+			return getParent().loadMaxParent();
 		}
 		return this;
+	}
+	public boolean isJson() {
+		return isJson;
+	}
+	public void setJson(boolean isJson) {
+		this.isJson = isJson;
+	}
+	public WeixinAccount getWeixinAccount() {
+		return weixinAccount;
+	}
+	public void setWeixinAccount(WeixinAccount weixinAccount) {
+		this.weixinAccount = weixinAccount;
+		firePropertyChange("weixinAccount", null, null);
 	}
 }

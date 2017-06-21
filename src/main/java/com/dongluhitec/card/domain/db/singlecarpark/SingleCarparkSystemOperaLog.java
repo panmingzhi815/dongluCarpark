@@ -1,6 +1,5 @@
 package com.dongluhitec.card.domain.db.singlecarpark;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -72,10 +71,13 @@ public class SingleCarparkSystemOperaLog extends DomainObject{
 		firePropertyChange("remark", null, null);
 	}
 	public String getRemarkString() {
+		if(remark==null){
+			return null;
+		}
 		String remark2 = null;
 		try {
 			remark2 = new String(remark,"UTF-8");
-		} catch (UnsupportedEncodingException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return remark2;
@@ -83,7 +85,7 @@ public class SingleCarparkSystemOperaLog extends DomainObject{
 	public void setRemarkString(String remark) {
 		try {
 			this.remark = remark.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		firePropertyChange("remark", null, null);

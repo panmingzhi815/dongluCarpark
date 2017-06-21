@@ -1494,7 +1494,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 				carpark = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get()).getEntityWithId(carpark.getId());
 				List<SingleCarparkCarpark> list=new ArrayList<>();
 				list.add(carpark);
-				carpark.getChildCarpark(carpark, list);
+				carpark.loadChildCarpark(carpark, list);
 				c.add(Restrictions.in(SingleCarparkInOutHistory.Property.carparkId.name(), StrUtil.getListIdByEntity(list)));
 			}
 			if (b) {
@@ -1615,7 +1615,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 				carpark = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get()).getEntityWithId(carpark.getId());
 				List<SingleCarparkCarpark> list=new ArrayList<>();
 				list.add(carpark);
-				carpark.getChildCarpark(carpark, list);
+				carpark.loadChildCarpark(carpark, list);
 				c.add(Restrictions.in(SingleCarparkInOutHistory.Property.carparkId.name(), StrUtil.getListIdByEntity(list)));
 			}
 			if (b) {
@@ -1694,6 +1694,44 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		c.setFirstResult(start);
 		c.setMaxResults(size);
 		return c.getResultList();
+	}
+
+	@Override
+	public List<SingleCarparkImageHistory> findImageHistoryBySearch(int first, int max, String plate, String type, Date start, Date end, String deviceName, String deviceIp) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createImageHistoryBySearch(plate, type, start, end);
+			if (!StrUtil.isEmpty(deviceName)) {
+				c.add(Restrictions.like(SingleCarparkImageHistory.Property.deviceName.name(), deviceName));
+			}
+			if (!StrUtil.isEmpty(deviceIp)) {
+				c.add(Restrictions.like(SingleCarparkImageHistory.Property.deviceIp.name(), deviceIp));
+			}
+			c.setFirstResult(first);
+			c.setMaxResults(max);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public int countImageHistoryBySearch(String plate, String type, Date start, Date end, String deviceName, String deviceIp) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createImageHistoryBySearch(plate, type, start, end);
+			if (!StrUtil.isEmpty(deviceName)) {
+				c.add(Restrictions.like(SingleCarparkImageHistory.Property.deviceName.name(), deviceName));
+			}
+			if (!StrUtil.isEmpty(deviceIp)) {
+				c.add(Restrictions.like(SingleCarparkImageHistory.Property.deviceIp.name(), deviceIp));
+			}
+			c.setProjection(Projections.rowCount());
+			Long l = (Long) c.getSingleResultOrNull();
+			return l == null ? 0 : l.intValue();
+		} finally {
+			unitOfWork.end();
+		}
 	}
 	
 }

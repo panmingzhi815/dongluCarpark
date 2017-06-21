@@ -20,7 +20,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 @NamedQueries({
 	@NamedQuery(name = "SingleCarparkInOutHistory.findModifyPlateNO", query = "select c from SingleCarparkInOutHistory c"
 			+ "  where (c.inPlateNO!=c.plateNo or c.plateNo!=c.outPlateNO) and c.outTime is not null"),
-	@NamedQuery(name="SingleCarparkInOutHistory.deleteWithNotOutByDate",query="delete from SingleCarparkInOutHistory i where i.inTime<? and i.outTime is null")
+	@NamedQuery(name="SingleCarparkInOutHistory.deleteWithNotOutByDate",query="update SingleCarparkInOutHistory i set i.outTime=getdate() where i.inTime<? and i.outTime is null")
 	})
 public class SingleCarparkInOutHistory extends DomainObject{
 	

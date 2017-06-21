@@ -240,4 +240,16 @@ public class StoreServiceImpl implements StoreServiceI {
 			unitOfWork.end();
 		}
 	}
+
+	@Override
+	public SingleCarparkStore findStoreById(Long id) {
+		unitOfWork.begin();
+		try {
+			DatabaseOperation<SingleCarparkStore> dom = DatabaseOperation.forClass(SingleCarparkStore.class, emprovider.get());
+			SingleCarparkStore store = dom.getEntityWithId(id);
+			return store;
+		} finally {
+			unitOfWork.end();
+		}
+	}
 }

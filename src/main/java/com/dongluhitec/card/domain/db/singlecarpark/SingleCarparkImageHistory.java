@@ -14,7 +14,7 @@ public class SingleCarparkImageHistory extends DomainObject {
 	 */
 	private static final long serialVersionUID = 6818506711499205078L;
 	public enum Property{
-		plateNO,factPlateNO,bigImage,type,time
+		plateNO,factPlateNO,bigImage,type,time,deviceName,deviceIp
 	}
 	public enum Label{
 		timeLabel
@@ -26,6 +26,8 @@ public class SingleCarparkImageHistory extends DomainObject {
 	private String type;
 	private Date time;
 	private String smallImage;
+	private String deviceName;
+	private String deviceIp;
 	
 	public String getTimeLabel(){
 		return StrUtil.formatDateTime(time);
@@ -88,5 +90,23 @@ public class SingleCarparkImageHistory extends DomainObject {
 			}
 		}
 		return super.equals(obj);
+	}
+
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
+		firePropertyChange("deviceName", null, null);
+	}
+
+	public String getDeviceIp() {
+		return deviceIp;
+	}
+
+	public void setDeviceIp(String deviceIp) {
+		this.deviceIp = deviceIp;
+		firePropertyChange("deviceIp", null, null);
 	}
 }

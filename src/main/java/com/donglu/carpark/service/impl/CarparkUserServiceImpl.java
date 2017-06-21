@@ -75,6 +75,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		for (String string : split) {
 			removeUserCache(user.getCarpark(), string);
 		}
+		userCache.invalidate("findAllUser");
 		return user.getId();
 	}
 	/**
@@ -89,12 +90,16 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		userCache.invalidate("findUserByPlateNo-"+plateNo+"-"+id);
 		userCache.invalidate("findUserByPlateNo-"+plateNo+"-null");
 		userCache.invalidate("findUserByNameAndCarpark-"+plateNo+"-"+id);
+		userCache.invalidate("findAllUser");
 		removeUserCache(carpark.getParent(), plateNo);
 	}
 	@Override
 	@Transactional
 	public Long deleteUser(SingleCarparkUser user) {
 		DatabaseOperation<SingleCarparkUser> dom = DatabaseOperation.forClass(SingleCarparkUser.class, emprovider.get());
+		if(user.getPlateNo()==null){
+			user=dom.getEntityWithId(user.getId());
+		}
 		dom.remove(user.getId());
 		emprovider.get().persist(new UserHistory(user,UpdateEnum.被删除));
 		String[] split = user.getPlateNo().split(",");
@@ -214,7 +219,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 				public Object call() throws Exception {
 					DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
 					SingleCarparkCarpark entityWithId = dom.getEntityWithId(carparkId);
-					List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+					List<SingleCarparkCarpark> list=entityWithId.loadCarparkAndAllChilds();
 					return list;
 				}
 			});
@@ -446,7 +451,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 						if (!StrUtil.isEmpty(carpark)) {
 							DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
 							SingleCarparkCarpark entityWithId = dom.getEntityWithId(carpark.getId());
-							List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+							List<SingleCarparkCarpark> list=entityWithId.loadCarparkAndAllChilds();
 							c.add(Restrictions.in("carpark",list));
 						}
 						List<SingleCarparkUser> resultList = c.getResultList();

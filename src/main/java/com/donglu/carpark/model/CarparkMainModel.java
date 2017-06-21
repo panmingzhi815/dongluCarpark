@@ -169,6 +169,7 @@ public class CarparkMainModel extends DomainObject {
 
 	// 判断车队是否开启
 	private Boolean isOpenFleet = false;
+	private String clientImageSavePath;
 
 	public String getUserName() {
 		return userName;
@@ -884,5 +885,13 @@ public class CarparkMainModel extends DomainObject {
 
 	public Lock getInOutLock() {
 		return inOutLock;
+	}
+
+	public void setClientImageSavePath(String clientImageSavePath) {
+		this.clientImageSavePath=clientImageSavePath;
+	}
+
+	public String getClientImageSavePath() {
+		return clientImageSavePath;
 	}
 }

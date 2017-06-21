@@ -13,6 +13,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CountTempCarChargeI;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
+import com.dongluhitec.card.domain.exception.DongluAppException;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.collect.Maps;
 public class CountTempCarChargeImpl implements CountTempCarChargeI {
@@ -73,8 +74,7 @@ public class CountTempCarChargeImpl implements CountTempCarChargeI {
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error("计算收费是发生错误", e);
-			return 0;
+			throw new RuntimeException(e);
 		}
 		return (totalCharge - money < 0 ? 0 : totalCharge - money);
 	}

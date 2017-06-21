@@ -55,7 +55,7 @@ public class PositionUpdateServiceImpl implements PositionUpdateServiceI {
 			public void run() {
 				try {
 					SingleCarparkCarpark findCarparkById = sp.getCarparkService().findCarparkById(carpark.getId());
-					SingleCarparkCarpark c = findCarparkById.getMaxParent();
+					SingleCarparkCarpark c = findCarparkById.loadMaxParent();
 					int leftFixNumberOfSlot = c.getTrueLeftFixNumberOfSlot()==null?c.getFixNumberOfSlot():c.getTrueLeftFixNumberOfSlot();
 					int leftTempNumberOfSlot = c.getTrueLeftTempNumberOfSlot()==null?c.getTempNumberOfSlot():c.getTrueLeftTempNumberOfSlot();
 					if (isFixOrTemp) {

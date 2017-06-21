@@ -93,4 +93,12 @@ public class ImageServiceImpl implements ImageServiceI {
         }
     }
 
+	@Override
+	public String getImagePath(String image) {
+		Object o=CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY);
+		LOGGER.info("服务器图片保存位置{}，接收到请求图片：{}",o,image);
+		String filePathFromId = parseFilePathFromId(image,o+"\\img\\");
+		return filePathFromId;
+	}
+
 }

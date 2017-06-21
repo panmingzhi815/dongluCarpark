@@ -20,7 +20,7 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	 * 
 	 */
 	private static final long serialVersionUID = -2691074438161066722L;
-	
+	private Long userId;
 	private String userName;
 	private String userIdCard;
 	private String userType;
@@ -278,6 +278,14 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	public void setCarparkSlot(Integer carparkSlot) {
 		this.carparkSlot=carparkSlot;
 		firePropertyChange("carparkSlot", null, null);
+	}
+	
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 	
 }

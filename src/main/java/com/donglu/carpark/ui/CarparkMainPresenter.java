@@ -51,6 +51,7 @@ import com.donglu.carpark.service.PlateSubmitServiceI;
 import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
+import com.donglu.carpark.ui.monitor.MonitorSettingApp;
 import com.donglu.carpark.ui.servlet.OpenDoorServlet;
 import com.donglu.carpark.ui.task.CarInOutResult;
 import com.donglu.carpark.ui.task.ConfimBox;
@@ -361,6 +362,7 @@ public class CarparkMainPresenter {
 	private long timeOut = 1000L;
 	//长颈鹿app服务
 	private IpmsServiceI ipmsService;
+	private MonitorSettingApp monitorSettingApp;
 	/**
 	 * 自动刷新停车场视频监控
 	 */
@@ -583,14 +585,15 @@ public class CarparkMainPresenter {
 					log.info("{}断网续传,时间：{}，车牌：{}，颜色：{}", ip, time, plateNO, plateColor);
 					CarparkOffLineHistory carparkOffLineHistory = new CarparkOffLineHistory();
 					carparkOffLineHistory.setDeviceIp(ip);
-					carparkOffLineHistory.setDeviceName(mapIpToDevice.get(ip).getName());
+					SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(ip);
+					carparkOffLineHistory.setDeviceName(singleCarparkDevice.getName());
 					carparkOffLineHistory.setInTime(time);
 					carparkOffLineHistory.setPlateNO(plateNO);
 					String bigImagePath = CarparkUtils.FormatImagePath(time, plateNO, true);
 					carparkOffLineHistory.setBigImage(bigImagePath);
 					String smallImagePath = CarparkUtils.FormatImagePath(time, plateNO, false);
 					carparkOffLineHistory.setSmallImage(smallImagePath);
-					saveImage(smallImagePath, bigImagePath, smallImage, bigImage);
+					saveImage(singleCarparkDevice,smallImagePath, bigImagePath, smallImage, bigImage);
 					sp.getCarparkInOutService().saveCarparkOffLineHistory(carparkOffLineHistory);
 				} catch (Exception e) {
 					log.error(ip + "断网续传出错", e);
@@ -722,14 +725,15 @@ public class CarparkMainPresenter {
 					log.info("{}断网续传,时间：{}，车牌：{}，颜色：{}", ip, time, plateNO, plateColor);
 					CarparkOffLineHistory carparkOffLineHistory = new CarparkOffLineHistory();
 					carparkOffLineHistory.setDeviceIp(ip);
-					carparkOffLineHistory.setDeviceName(mapIpToDevice.get(ip).getName());
+					SingleCarparkDevice singleCarparkDevice = mapIpToDevice.get(ip);
+					carparkOffLineHistory.setDeviceName(singleCarparkDevice.getName());
 					carparkOffLineHistory.setInTime(time);
 					carparkOffLineHistory.setPlateNO(plateNO);
 					String bigImagePath = CarparkUtils.FormatImagePath(time, plateNO, true);
 					carparkOffLineHistory.setBigImage(bigImagePath);
 					String smallImagePath = CarparkUtils.FormatImagePath(time, plateNO, false);
 					carparkOffLineHistory.setSmallImage(smallImagePath);
-					saveImage(smallImagePath, bigImagePath, smallImage, bigImage);
+					saveImage(singleCarparkDevice,smallImagePath, bigImagePath, smallImage, bigImage);
 					sp.getCarparkInOutService().saveCarparkOffLineHistory(carparkOffLineHistory);
 				} catch (Exception e) {
 					log.error(ip + "断网续传出错", e);
@@ -1305,6 +1309,7 @@ public class CarparkMainPresenter {
 			charge = charge - freeMoney;
 		} catch (Exception e1) {
 			log.error("计算收费时发生错误", e1);
+			model.setPlateNo(model.getPlateNo()+"-收费脚本错误");
 		}
 
 		return charge;
@@ -1368,9 +1373,9 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-//		mapIpToJNA.get(ip).tigger(ip);
-		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
-		carInOutResultProvider.get().invok(ip, 0, "贵ADL045", bs, null, 11);
+		mapIpToJNA.get(ip).tigger(ip);
+//		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+//		carInOutResultProvider.get().invok(ip, 0, "贵ADL045", bs, null, 11);
 	}
 
 	/**
@@ -1531,6 +1536,26 @@ public class CarparkMainPresenter {
 		if (mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录).equals("true")) {
 			CarparkUtils.startServer(10002, "/*", new OpenDoorServlet(this));
 		}
+		
+		initClientImageSavePath();
+	}
+	/**
+	 * 初始化客户端图片保存位置
+	 */
+	private void initClientImageSavePath() {
+		String clientImageSavePath = "\\img";
+		Object readObject = CarparkFileUtils.readObject(ConstUtil.CLIENT_IMAGE_SAVE_FILE_PATH);
+		if (!StrUtil.isEmpty(readObject)) {
+			clientImageSavePath = readObject + clientImageSavePath;
+		} else {
+			clientImageSavePath = System.getProperty("user.dir") + clientImageSavePath;
+		}
+		clientImageSavePath=clientImageSavePath.replace("\\\\", "\\");
+		File file = new File(clientImageSavePath);
+		if(!file.exists()||!file.isDirectory()){
+			file.mkdirs();
+		}
+		model.setClientImageSavePath(clientImageSavePath);
 	}
 
 	/**
@@ -1811,10 +1836,12 @@ public class CarparkMainPresenter {
 			Double chargeMoney=0d;
 			Double freeMoney=0d;
 			String ctype=PayTypeEnum.现金支付.name();
+			Date payTime=data.getInTime();
 			for (CarPayHistory carPayHistory : list) {
 				chargeMoney+=(carPayHistory.getBalanceAmount()+carPayHistory.getCashCost()+carPayHistory.getOnlineCost());
 				freeMoney+=carPayHistory.getCouponValue();
 				ctype=carPayHistory.getPayType().name();
+				payTime=payTime.before(carPayHistory.getPayTime())?carPayHistory.getPayTime():payTime;
 			}
 			if (chargeMoney+freeMoney<model.getShouldMony()) {
 				Result result = getPayResult(data);
@@ -1825,7 +1852,8 @@ public class CarparkMainPresenter {
 						model.setReal(Float.valueOf(map.get("deptFee").toString()));
 						model.setChargedMoney(Float.valueOf(map.get("payedFee").toString()));
 						if (check) {
-							boolean confirm = commonui.confirm("收费提示", "车辆：[" + data.getPlateNo() + "]" + result.getMsg() + ",是否免费：" + (model.getShouldMony() - totalCharge) + "元出场。");
+//							boolean confirm = commonui.confirm("收费提示", "车辆：[" + data.getPlateNo() + "]" + result.getMsg() + ",是否免费：" + (model.getShouldMony() - totalCharge) + "元出场。");
+							boolean confirm = new ConfimBox(data.getPlateNo(), "车辆：[" + data.getPlateNo() + "]" + result.getMsg() + ",是否免费：" + (model.getShouldMony() - totalCharge) + "元出场。").open();
 							if (!confirm) {
 								return false;
 							} 
@@ -1833,9 +1861,13 @@ public class CarparkMainPresenter {
 							commonui.info("收费提示", "车辆：["+data.getPlateNo()+"]"+result.getMsg());
 						}
 					}else if(code==2005){
-						model.setChargedMoney(model.getShouldMony());
+						model.setChargedMoney(chargeMoney.floatValue());
+						data.setFreeMoney(model.getShouldMony()-model.getChargedMoney());
 						model.setReal(0);
 						data.setChargeOperaName("在线支付");
+						data.setRemarkString("缴费完成，在规定时间内出场！");
+						model.setPlateNo(data.getPlateNo()+"-已在线支付");
+						return true;
 					}else{
 						model.setPlateNo(model.getPlateNo()+"-未在线支付");
 					}
@@ -1847,7 +1879,7 @@ public class CarparkMainPresenter {
 				data.setChargeOperaName(ctype);
 			}
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -2038,7 +2070,7 @@ public class CarparkMainPresenter {
 		}
 	}
 
-	public void saveImage(String smallImgFileName, String bigImgFileName, byte[] smallImage1, byte[] bigImage1) {
+	public void saveImage(SingleCarparkDevice device, String smallImgFileName, String bigImgFileName, byte[] smallImage1, byte[] bigImage1) {
 		Runnable runnable = new Runnable() {
 			private int errorSize=0;
 			@Override
@@ -2046,19 +2078,7 @@ public class CarparkMainPresenter {
 				try {
 					byte[] bigImage = bigImage1 == null ? new byte[0] : bigImage1;
 					byte[] smallImage = smallImage1 == null ? new byte[0] : smallImage1;
-					String fl = "/img";
-					Object readObject = CarparkFileUtils.readObject(ConstUtil.CLIENT_IMAGE_SAVE_FILE_PATH);
-					if (!StrUtil.isEmpty(readObject)) {
-						String string = (String) readObject;
-						fl = string + fl;
-					} else {
-						fl = System.getProperty("user.dir") + fl;
-					}
-					File file = new File(fl);
-					if (!file.exists() && !file.isDirectory()) {
-						Files.createParentDirs(file);
-						file.mkdir();
-					}
+					String fl =model.getClientImageSavePath();
 					String finalBigFileName = fl + "/" + bigImgFileName;
 					String finalSmallFileName = fl + "/" + smallImgFileName;
 
@@ -2086,7 +2106,7 @@ public class CarparkMainPresenter {
 							log.debug("上传图片花费时间：{}", System.nanoTime() - nanoTime);
 						}
 					}
-					saveImageHistory(bigImgFileName,smallImgFileName);
+					saveImageHistory(device,bigImgFileName,smallImgFileName);
 				} catch (IOException e) {
 					log.error("上传图片出错", e);
 					if (errorSize<3) {
@@ -2104,7 +2124,7 @@ public class CarparkMainPresenter {
 		saveImageTheadPool.submit(runnable);
 	}
 
-	protected void saveImageHistory(String bigImgFileName, String smallImgFileName) {
+	protected void saveImageHistory(SingleCarparkDevice device, String bigImgFileName, String smallImgFileName) {
 		try {
 			int indexOf = bigImgFileName.indexOf("_");
 			String plate=bigImgFileName.substring(indexOf+1, bigImgFileName.lastIndexOf("_"));
@@ -2112,6 +2132,8 @@ public class CarparkMainPresenter {
 			ih.setBigImage(bigImgFileName);
 			ih.setSmallImage(smallImgFileName);
 			ih.setPlateNO(plate);
+			ih.setDeviceName(device.getName());
+			ih.setDeviceIp(device.getIp());
 			String sTime = bigImgFileName.substring(bigImgFileName.lastIndexOf("/")+1, indexOf);
 			DateFormat df=new SimpleDateFormat("yyyyMMddHHmmssSSS");
 			Date date = df.parse(sTime);
@@ -2250,7 +2272,7 @@ public class CarparkMainPresenter {
 	private Integer getRealTineSlot(int type) {
 		Integer findTotalSlotIsNow = 0;
 		try {
-			SingleCarparkCarpark carpark = model.getCarpark().getMaxParent();
+			SingleCarparkCarpark carpark = model.getCarpark().loadMaxParent();
 			SingleCarparkCarpark findCarparkById = sp.getCarparkService().findCarparkById(carpark.getId());
 			if (type == 2) {
 				findTotalSlotIsNow = findCarparkById.getLeftFixNumberOfSlot();
@@ -2349,7 +2371,7 @@ public class CarparkMainPresenter {
 	}
 
 	public void editPosition() {
-		SingleCarparkCarpark carpark = model.getCarpark().getMaxParent();
+		SingleCarparkCarpark carpark = model.getCarpark().loadMaxParent();
 		Integer slotShowType = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位数显示方式));
 		if (StrUtil.isEmpty(model.getTotalSlotTooltip()) || slotShowType < 3) {
 			return;
@@ -2558,6 +2580,16 @@ public class CarparkMainPresenter {
 			return ipmsService.getPayResult(cch);
 		}
 		return result;
+	}
+
+	public void monitorSetting() {
+		if(monitorSettingApp!=null){
+			monitorSettingApp.focus();
+			return;
+		}
+		monitorSettingApp = new MonitorSettingApp(model, commonui, sp);
+		monitorSettingApp.open();
+		monitorSettingApp=null;
 	}
 
 }

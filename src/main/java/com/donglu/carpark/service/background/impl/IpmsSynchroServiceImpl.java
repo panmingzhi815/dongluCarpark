@@ -17,6 +17,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
 import com.google.inject.Inject;
 
 public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService implements IpmsSynchroServiceI {
+	
 	private static final String IMPS_USER_SAVE_HISTORY = "impsUserSaveHistory";
 	@Inject
 	private CarparkDatabaseServiceProvider sp;

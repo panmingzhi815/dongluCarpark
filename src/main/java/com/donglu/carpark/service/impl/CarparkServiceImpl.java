@@ -505,8 +505,7 @@ public class CarparkServiceImpl implements CarparkService {
 		
 		unitOfWork.begin();
 		try {
-			Criteria c=
-			createCriteriaBySingleCarparkReturnAccount(userName,operaName,start,end);
+			Criteria c=createCriteriaBySingleCarparkReturnAccount(userName,operaName,start,end);
 			c.setProjection(Projections.rowCount());
 			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
 			return singleResultOrNull.intValue();
@@ -967,6 +966,33 @@ public class CarparkServiceImpl implements CarparkService {
 			c.setFirstResult(i);
 			c.setMaxResults(maxValue);
 			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public CarparkChargeStandard findCarparkChargeStandardById(Long id) {
+		unitOfWork.begin();
+		try {
+			DatabaseOperation<CarparkChargeStandard> dom = DatabaseOperation.forClass(CarparkChargeStandard.class, emprovider.get());
+			CarparkChargeStandard c = dom.getEntityWithId(id);
+			for (CarparkDurationStandard carparkDurationStandard : c.getCarparkDurationStandards()) {
+				carparkDurationStandard.getCarparkDurationPriceList().size();
+			}
+			return c;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public SingleCarparkCarpark findCarparkByUuid(String carparkId) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
+			c.add(Restrictions.eq("uuid", carparkId));
+			return (SingleCarparkCarpark) c.getSingleResultOrNull();
 		} finally {
 			unitOfWork.end();
 		}
