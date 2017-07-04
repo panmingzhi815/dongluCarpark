@@ -73,50 +73,52 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	 */
 	private boolean synchroInOutHistory(String type,SingleCarparkInOutHistory ioh){
 		try {
-			log.info("{}停车场记录",type);
-			String url=httpUrl+"/api/syncParkingRecord.action";
-			String content="{\"operation\":\""+type+"\",\"origin\":\""+name+"\","
-					+ "\"parkingRecord\":{\"carNum\":\"{}\",\"carType\":\"0\",\"id\":\"{}\",\"inTimeStr\":\"{}\",\"outTimeStr\":\"{}\",\"buildingId\":\""+buildindId+"\",\"parkId\":\""+parkId+"\",\"parkName\":\"测试停车场\",\"status\":\"{}\",\"userType\":\"{}\"},\"syncId\":\"{}\",\"deptFee\"={},\"fee\"={}}";
-			String carInfo=null;
-					String plateNo = ioh.getPlateNo();
-					Long id = ioh.getId();
-					String inTime=StrUtil.formatDateTime(ioh.getInTime());
-					int userType = 4;
-					if (!StrUtil.isEmpty(ioh.getUserName())&&ioh.getCarType().equals("固定车")) {
-						userType=1;
-					}
-					int status = 0;
-					String outTime="";
-					if (!StrUtil.isEmpty(ioh.getOutTime())) {
-						status = 2;
-						outTime=StrUtil.formatDateTime(ioh.getOutTime());
-					}
-					int depFree=(int) (ioh.getFactMoney()==null?0:ioh.getFactMoney()*100);
-					int free=(int) (ioh.getShouldMoney()==null?0:ioh.getShouldMoney()*100);
-					content=StrUtil.formatString(content, plateNo,parkId+id,inTime,outTime,status,userType,id,depFree,free);
-					carInfo="data="+URLEncoder.encode("["+content+"]", "UTF-8");
+			log.info("{}停车场记录", type);
+			String url = httpUrl + "/api/syncParkingRecord.action";
+			String content = "{\"operation\":\"" + type + "\",\"origin\":\"" + name + "\","
+					+ "\"parkingRecord\":{\"carNum\":\"{}\",\"carType\":\"0\",\"id\":\"{}\",\"inTimeStr\":\"{}\",\"outTimeStr\":\"{}\",\"buildingId\":\"" + buildindId + "\",\"parkId\":\"" + parkId
+					+ "\",\"parkName\":\""+ioh.getCarparkName()+"\",\"status\":\"{}\",\"userType\":\"{}\",\"deptFee\"={},\"fee\"={}},\"syncId\":\"{}\"}";
+			String carInfo = null;
+			String plateNo = ioh.getPlateNo();
+			Long id = ioh.getId();
+			String inTime = StrUtil.formatDateTime(ioh.getInTime());
+			int userType = 4;
+			if (!StrUtil.isEmpty(ioh.getUserName()) && ioh.getCarType().equals("固定车")) {
+				userType = 1;
+			}
+			int status = 0;
+			String outTime = "";
+			if (!StrUtil.isEmpty(ioh.getOutTime())) {
+				status = 2;
+				outTime = StrUtil.formatDateTime(ioh.getOutTime());
+			}
+			int depFree = (int) (ioh.getFactMoney() == null ? 0 : ioh.getFactMoney() * 100);
+			int free = (int) (ioh.getShouldMoney() == null ? 0 : ioh.getShouldMoney() * 100);
+			content = StrUtil.formatString(content, plateNo, parkId + id, inTime, outTime, status, userType, depFree, free, id);
+			System.out.println(content);
+			carInfo = "data=" + URLEncoder.encode("[" + content + "]", "UTF-8");
 			String httpPostMssage = httpPostMssage(url, carInfo);
-			log.info("{}停车场记录,结果:{}",type,httpPostMssage);
+			log.info("{}停车场记录,结果:{}", type, httpPostMssage);
 			boolean result = JSONObject.parseObject(httpPostMssage).get("ret").toString().equals("0");
-			
-			if (result&&!type.equals("delete")) {
+
+			if (result && !type.equals("delete")) {
 				url = httpUrl + "/api/syncImgData.action?recordId=" + parkId + id + "";
-				Map<String, Object> map=new HashMap<>();
+				Map<String, Object> map = new HashMap<>();
 				if (type.equals("add")) {
 					byte[] image = sp.getImageService().getImage(ioh.getBigImg().substring(ioh.getBigImg().lastIndexOf("/") + 1));
-					if (image!=null) {
+					if (image != null) {
 						map.put("enterImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
 					}
 				}
 				if (type.equals("update")) {
 					byte[] image = sp.getImageService().getImage(ioh.getOutBigImg().substring(ioh.getOutBigImg().lastIndexOf("/") + 1));
-					if (image!=null) {
+					if (image != null) {
 						map.put("exitImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
 					}
 				}
-				if (map.keySet().size()>0) {
+				if (map.keySet().size() > 0) {
 					httpPostMssage = postMssage(url, map);
-					log.info("上传图片，结果：{}",httpPostMssage);
+					log.info("上传图片，结果：{}", httpPostMssage);
 					result = JSONObject.parseObject(httpPostMssage).get("ret").toString().equals("0");
 				}
 			}
@@ -281,13 +283,15 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				return;
 			}
 			data=URLDecoder.decode(data, "UTF-8");
-			log.info("获取更新的用户信息：{}",data);
 			JSONArray parseArray = JSONObject.parseArray(data);
+			log.info("获取更新的用户信息：{}",parseArray.size());
 			for (Object object : parseArray) {
 				JSONObject jo = (JSONObject) object;
 				JSONObject po = JSONObject.parseObject(jo.getString("data"));
 				String status = po.getString("status");
 				if (!status.equals("1")) {
+					String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
+					httpPostMssage(resultUrl, null);
 					continue;
 				}
 				String tpEndTime = po.getString("tpEndTime");
@@ -297,6 +301,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 //				user = sp.getCarparkUserService().findUserById(valueOf);
 				user=sp.getCarparkUserService().findUserByPlateNo(po.getString("carNum"), null);
 				if (user==null) {
+					String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
+					httpPostMssage(resultUrl, null);
 					continue;
 				}
 				user.setValidTo(StrUtil.getTodayBottomTime(StrUtil.parseDateTime(tpEndTime)));
@@ -383,7 +389,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			String jsonString = array.toJSONString();
 			maps.put("data", jsonString);
 			String mssage = postMssage(url, maps);
-			log.info("同步停车场：{} 车位信息:{} 结果为：{}",carpark,jsonString,mssage);
+			log.info("同步停车场：{} 车位信息，结果为：{}",carpark,mssage);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
