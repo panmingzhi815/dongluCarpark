@@ -212,7 +212,13 @@ public class CarparkUtils {
 //			System.out.println(ss);
 //			return ss;
 //		}
-		String ss=s.replace(".0", "");
+		String ss=s;
+		if(s.contains(".0")){
+			ss=s.replace(".0", "");
+		}
+		if(s.contains(".00")){
+			ss=s.replace(".00", "");
+		}
 		System.out.println(ss);
 		return ss;
 	}

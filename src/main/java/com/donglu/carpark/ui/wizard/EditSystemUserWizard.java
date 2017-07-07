@@ -25,13 +25,15 @@ public class EditSystemUserWizard extends Wizard implements AbstractWizard{
 
 	@Override
 	public boolean performFinish() {
-		if (StrUtil.isEmpty(model.getPwd())) {
-			page.setErrorMessage("用户密码不能为空");
-			return false;
-		}
-		if (!model.getPwd().equals(model.getRePwd())) {
-			page.setErrorMessage("两次输入的密码不一致！");
-			return false;
+		if (!StrUtil.isEmpty(model.getPwd())||!StrUtil.isEmpty(model.getRePwd())) {
+			if (StrUtil.isEmpty(model.getPwd())) {
+				page.setErrorMessage("用户密码不能为空");
+				return false;
+			}
+			if (!model.getPwd().equals(model.getRePwd())) {
+				page.setErrorMessage("两次输入的密码不一致！");
+				return false;
+			} 
 		}
 		return true;
 	}

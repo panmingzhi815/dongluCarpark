@@ -368,6 +368,8 @@ public class Login {
 				if (get1!=null&&get1) {
 					txt_password.setText(testMap.get(cbo_userName.getText()));
 					txt_password.setFocus();
+				}else{
+					txt_password.setText("");
 				}
 			}
 		});
@@ -425,7 +427,7 @@ public class Login {
 								System.setProperty(ConstUtil.VISITOR_NAME, SystemSettingTypeEnum.访客车名称.getDefaultValue());
 							}
 							SingleCarparkSystemSetting setting = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.同一账号只能在一个地方登录.name());
-							if (setting==null||setting.getBooleanValue()) {
+							if ((setting==null||setting.getBooleanValue())&&findByNameAndPassword.getSingleLogin()) {
 								startCheckLoginStatusService();
 							}
 						} catch (Exception e1) {

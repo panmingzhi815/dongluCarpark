@@ -7,14 +7,22 @@ import com.donglu.carpark.ui.common.AbstractApp;
 import com.donglu.carpark.ui.common.Presenter;
 
 import org.eclipse.swt.layout.FillLayout;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 
 public class ShowApp extends AbstractApp{
 
 	protected Shell shell;
 	
 	private Presenter presenter;
+	
+	private List<Presenter> listPresenter=new ArrayList<>();
 
 	/**
 	 * Launch the application.
@@ -36,7 +44,6 @@ public class ShowApp extends AbstractApp{
 	public void open() {
 		Display display = Display.getDefault();
 		createContents();
-		shell.setMaximized(true);
 		shell.open();
 		shell.layout();
 		while (!shell.isDisposed()) {
@@ -54,10 +61,19 @@ public class ShowApp extends AbstractApp{
 		shell.setSize(750, 600);
 		shell.setText("浏览历史记录");
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
+		shell.setMaximized(true);
 		
-		Composite composite = new Composite(shell, SWT.NONE);
-		composite.setLayout(new FillLayout(SWT.HORIZONTAL));
-		presenter.go(composite);
+		TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
+		for (Presenter presenter : listPresenter) {
+			TabItem tbtmNewItem = new TabItem(tabFolder, SWT.NONE);
+			tbtmNewItem.setText(presenter.getTitle());
+			
+			Composite composite = new Composite(tabFolder, SWT.NONE);
+			tbtmNewItem.setControl(composite);
+			composite.setLayout(new FillLayout(SWT.HORIZONTAL));
+			presenter.go(composite);
+		}
+		tabFolder.setSelection(0);
 	}
 
 	public Presenter getPresenter() {
@@ -66,6 +82,9 @@ public class ShowApp extends AbstractApp{
 
 	public void setPresenter(Presenter presenter) {
 		this.presenter = presenter;
+		if(!listPresenter.contains(presenter)){
+			listPresenter.add(presenter);
+		}
 	}
 
 	@Override

@@ -966,7 +966,7 @@ public class SettingView extends Composite implements View {
 			}
 		});
 		btncjlapp.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		btncjlapp.setText("启用CJLAPP服务");
+		btncjlapp.setText("启用CJLAPP服务(支持微信支付)");
 		btncjlapp.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付)));
 
 		Composite composite_8 = new Composite(composite, SWT.NONE);

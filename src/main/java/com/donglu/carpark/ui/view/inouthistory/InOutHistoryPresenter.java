@@ -63,4 +63,9 @@ public class InOutHistoryPresenter  implements Presenter{
 	public void exportSearch() {
 		listPresenter.exportSearch();	
 	}
+	
+	@Override
+	public String getTitle() {
+		return "进出记录查询";
+	}
 }

@@ -49,6 +49,7 @@ public class SystemUserListPresenter extends AbstractListPresenter<SingleCarpark
 			systemUser.setRemark(m.getRemark());
 			systemUser.setType(m.getType());
 			systemUser.setUserName(m.getUserName());
+			systemUser.setSingleLogin(m.getSingleLogin());
 			SystemUserServiceI systemUserService = sp.getSystemUserService();
 			systemUserService.saveSystemUser(systemUser);
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "添加了系统用户:" + systemUser.getUserName(),OPERANAME);
@@ -130,15 +131,19 @@ public class SystemUserListPresenter extends AbstractListPresenter<SingleCarpark
 		SystemUserModel model = new SystemUserModel();
 		model.setUserName(singleCarparkSystemUser.getUserName());
 		model.setRemark(singleCarparkSystemUser.getRemark());
+		model.setSingleLogin(singleCarparkSystemUser.getSingleLogin());
 		EditSystemUserWizard wizard = new EditSystemUserWizard(model);
 		SystemUserModel m = (SystemUserModel) commonui.showWizard(wizard);
 		if (m == null) {
 			return;
 		}
-		singleCarparkSystemUser.setPassword(m.getPwd());
+		if (!StrUtil.isEmpty(m.getPwd())) {
+			singleCarparkSystemUser.setPassword(m.getPwd());
+		}
 		singleCarparkSystemUser.setLastEditDate(new Date());
 		singleCarparkSystemUser.setLastEditUser(OPERANAME);
 		singleCarparkSystemUser.setRemark(m.getRemark());
+		singleCarparkSystemUser.setSingleLogin(model.getSingleLogin());
 		try {
 			sp.getSystemUserService().saveSystemUser(singleCarparkSystemUser);
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.系统用户, "修改了系统用户:" + singleCarparkSystemUser.getUserName(),OPERANAME);

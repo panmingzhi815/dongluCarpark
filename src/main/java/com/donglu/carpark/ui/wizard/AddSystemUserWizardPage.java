@@ -20,6 +20,7 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.widgets.Button;
 
 public class AddSystemUserWizardPage extends WizardPage {
 	@SuppressWarnings("unused")
@@ -31,6 +32,7 @@ public class AddSystemUserWizardPage extends WizardPage {
 	private SystemUserModel model;
 	private Combo combo;
 	private ComboViewer comboViewer;
+	private Button button;
 
 	/**
 	 * Create the wizard.
@@ -104,6 +106,11 @@ public class AddSystemUserWizardPage extends WizardPage {
 		text_4 = new Text(composite, SWT.BORDER);
 		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(composite, SWT.NONE);
+		
+		button = new Button(composite, SWT.CHECK);
+		button.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		button.setText("同一时间只能在一个地方登录");
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {
@@ -128,6 +135,10 @@ public class AddSystemUserWizardPage extends WizardPage {
 		IObservableValue observeTextComboObserveWidget = WidgetProperties.text().observe(combo);
 		IObservableValue typeModelObserveValue = BeanProperties.value("type").observe(model);
 		bindingContext.bindValue(observeTextComboObserveWidget, typeModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionButtonObserveWidget = WidgetProperties.selection().observe(button);
+		IObservableValue singleLoginModelObserveValue = BeanProperties.value("singleLogin").observe(model);
+		bindingContext.bindValue(observeSelectionButtonObserveWidget, singleLoginModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

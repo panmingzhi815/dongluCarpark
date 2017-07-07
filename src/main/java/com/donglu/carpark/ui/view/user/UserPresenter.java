@@ -36,5 +36,8 @@ public class UserPresenter  implements Presenter{
 		}
 		listPresenter.search(userName,plateNo,address,monthlyCharge,parseInt,text2);
 	}
-	
+	@Override
+	public String getTitle() {
+		return "固定车查询";
+	}
 }

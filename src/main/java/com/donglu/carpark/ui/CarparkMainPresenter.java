@@ -57,6 +57,7 @@ import com.donglu.carpark.ui.task.ConfimBox;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
 import com.donglu.carpark.ui.view.inouthistory.FreeReasonDialog;
 import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
+import com.donglu.carpark.ui.view.user.UserPresenter;
 import com.donglu.carpark.ui.wizard.AddDeviceModel;
 import com.donglu.carpark.ui.wizard.AddDeviceWizard;
 import com.donglu.carpark.ui.wizard.ChangeUserWizard;
@@ -1366,6 +1367,7 @@ public class CarparkMainPresenter {
 		}
 		ShowApp showApp = new ShowApp();
 		showApp.setPresenter(inOutHistoryPresenter);
+		showApp.setPresenter(Login.injector.getInstance(UserPresenter.class));
 		app = showApp;
 		app.open();
 	}
@@ -1836,14 +1838,25 @@ public class CarparkMainPresenter {
 								return false;
 							} 
 						}else{
-							commonui.info("收费提示", "车辆：["+data.getPlateNo()+"]"+result.getMsg());
+							model.setPlateNo(data.getPlateNo()+"-"+result.getMsg());
+							return false;
 						}
 					}else if(code==2005){
-						model.setChargedMoney(model.getShouldMony());
+						model.setChargedMoney(chargeMoney.floatValue());
+						data.setFreeMoney(model.getShouldMony()-model.getChargedMoney());
 						model.setReal(0);
 						data.setChargeOperaName("在线支付");
+						data.setRemarkString("缴费完成，在规定时间内出场！");
+						model.setPlateNo(data.getPlateNo()+"-已在线支付");
+						return true;
 					}else{
 						model.setPlateNo(model.getPlateNo()+"-未在线支付");
+						if (check) {
+							boolean confirm = commonui.confirm("收费提示", "车辆：[" + data.getPlateNo() + "]未在线支付,是否免费：" + (model.getShouldMony() - totalCharge) + "元出场。");
+							if (!confirm) {
+								return false;
+							} 
+						}
 					}
 				}
 			}else{
@@ -1869,6 +1882,10 @@ public class CarparkMainPresenter {
 			return;
 		}
 		model.setReal(0);
+		boolean checkIsPay = checkIsPay(data,model.getReal(),true);
+		if (!checkIsPay) {
+			return;
+		}
 		if (!chargeCarPass(device, data, carOutChargeCheck)) {
 			model.setReal(model.getShouldMony());
 			return;

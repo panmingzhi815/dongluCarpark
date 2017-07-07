@@ -15,6 +15,7 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.widgets.Button;
 
 public class EditSystemUserWizardPage extends WizardPage {
 	@SuppressWarnings("unused")
@@ -24,6 +25,7 @@ public class EditSystemUserWizardPage extends WizardPage {
 	private Text text_2;
 	private SystemUserModel model;
 	private Text text_3;
+	private Button btnCheckButton;
 
 	/**
 	 * Create the wizard.
@@ -91,6 +93,11 @@ public class EditSystemUserWizardPage extends WizardPage {
 		GridData gd_text_3 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_3.heightHint = 50;
 		text_3.setLayoutData(gd_text_3);
+		new Label(composite, SWT.NONE);
+		
+		btnCheckButton = new Button(composite, SWT.CHECK);
+		btnCheckButton.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		btnCheckButton.setText("同一时间只能在一个地方登录");
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {
@@ -111,6 +118,10 @@ public class EditSystemUserWizardPage extends WizardPage {
 		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
 		IObservableValue remarkModelObserveValue = BeanProperties.value("remark").observe(model);
 		bindingContext.bindValue(observeTextText_3ObserveWidget, remarkModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionBtnCheckButtonObserveWidget = WidgetProperties.selection().observe(btnCheckButton);
+		IObservableValue singleLoginModelObserveValue = BeanProperties.value("singleLogin").observe(model);
+		bindingContext.bindValue(observeSelectionBtnCheckButtonObserveWidget, singleLoginModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}
