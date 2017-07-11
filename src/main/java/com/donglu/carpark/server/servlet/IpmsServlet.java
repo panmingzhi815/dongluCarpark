@@ -72,7 +72,8 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 
 	@Override
 	public Result getPayResult(SingleCarparkInOutHistory inout) {
-		return ipmsService.getPayResult(inout);
+		Result payResult = ipmsService.getPayResult(inout);
+		return payResult;
 	}
 
 	@Override

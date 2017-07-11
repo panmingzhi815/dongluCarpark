@@ -216,12 +216,16 @@ public class CarInOutResult implements PlateNOResult {
 		model.getListOutTask().add(carOutTask);
 	}
 	private void autoCheckCarOut() {
+		boolean flag=Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.收费口无人值守));
 		carOutService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("没50毫秒判断是否有车出场"));
 		carOutService.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					boolean b = !model.isBtnClick()||System.currentTimeMillis()-model.getLastCarOutTime()>120000;
+					boolean b = true;
+					if(!flag){
+						b = !model.isBtnClick()||System.currentTimeMillis()-model.getLastCarOutTime()>120000;
+					}
 					if (b&&!StrUtil.isEmpty(model.getListOutTask())) {
 						CarOutTask remove = model.getListOutTask().remove(0);
 						logger.info("检测到出场任务：{}",remove);

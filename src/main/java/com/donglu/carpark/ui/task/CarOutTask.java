@@ -725,9 +725,9 @@ public class CarOutTask extends AbstractTask{
 				Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
 				if (shouldMoney>0) {
 					presenter.checkIsPay(singleCarparkInOutHistory,0f, false);
-//					if (model.getChargedMoney()>0) {
-//						s += ",已缴费" + CarparkUtils.formatFloatString(model.getChargedMoney() + "") + "元";
-//					}
+					if (model.getChargedMoney()>0&&model.getReal()>0) {
+						s += ",已缴费" + CarparkUtils.formatFloatString(model.getChargedMoney() + "") + "元";
+					}
 				}
 				model.setBtnClick(true);
 				LOGGER.info("等待收费");

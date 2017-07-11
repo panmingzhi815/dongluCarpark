@@ -11,6 +11,8 @@ public class Result implements Serializable {
 	private int code=0;
 	private String msg="";
 	private Object obj;
+	private float deptFee=0;
+	private float payedFee=0;
 	public boolean isSuccess() {
 		return success;
 	}
@@ -34,5 +36,17 @@ public class Result implements Serializable {
 	}
 	public void setObj(Object obj) {
 		this.obj = obj;
+	}
+	public float getDeptFee() {
+		return deptFee;
+	}
+	public void setDeptFee(float deptFee) {
+		this.deptFee = deptFee;
+	}
+	public float getPayedFee() {
+		return payedFee;
+	}
+	public void setPayedFee(float payedFee) {
+		this.payedFee = payedFee;
 	}
 }

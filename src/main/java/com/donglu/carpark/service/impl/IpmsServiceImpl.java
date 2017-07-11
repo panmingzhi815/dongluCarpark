@@ -7,17 +7,23 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import javax.json.JsonArray;
+
+import org.apache.noggit.JSONUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.donglu.carpark.model.Result;
@@ -96,8 +102,10 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			int free = (int) (ioh.getShouldMoney() == null ? 0 : ioh.getShouldMoney() * 100);
 			content = StrUtil.formatString(content, plateNo, parkId + id, inTime, outTime, status, userType, depFree, free, id);
 			System.out.println(content);
-			carInfo = "data=" + URLEncoder.encode("[" + content + "]", "UTF-8");
-			String httpPostMssage = httpPostMssage(url, carInfo);
+			carInfo = "data=" + URLEncoder.encode("["+content+"]", "UTF-8");
+			String actionUrl = url;
+			System.out.println(actionUrl);
+			String httpPostMssage = httpPostMssage(actionUrl, carInfo);
 			log.info("{}停车场记录,结果:{}", type, httpPostMssage);
 			boolean result = JSONObject.parseObject(httpPostMssage).get("ret").toString().equals("0");
 
@@ -110,7 +118,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 						map.put("enterImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
 					}
 				}
-				if (type.equals("update")) {
+				if (type.equals("update")&&ioh.getOutBigImg()!=null) {
 					byte[] image = sp.getImageService().getImage(ioh.getOutBigImg().substring(ioh.getOutBigImg().lastIndexOf("/") + 1));
 					if (image != null) {
 						map.put("exitImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
@@ -204,6 +212,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			JSONObject Object = JSONObject.parseObject(httpPostMssage);
 			String result = Object.getString("result");
 			String data = Object.getString("data");
+			log.info("更新临时车缴费记录,返回结果：{}",result);
 			if (!result.equals("success")||data==null) {
 				return;
 			}
@@ -433,7 +442,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			result.setCode(intValue);
 			result.setMsg(jsonObject.getString("resultMsg"));
 			result.setObj(jsonObject);
-			
+			result.setDeptFee(jsonObject.getFloatValue("deptFee"));
+			result.setPayedFee(jsonObject.getFloatValue("payedFee"));
 			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -447,6 +457,9 @@ public class IpmsServiceImpl implements IpmsServiceI {
 //		String upload = FileuploadSend.upload("http://127.0.0.1:8899/server/", null);
 //		System.out.println(upload);
 		IpmsServiceImpl is = new IpmsServiceImpl();
+		System.out.println(UUID.randomUUID().toString().replace("-", "").length());
+		
+		System.out.println(URLEncoder.encode("http://39.108.92.118/weixin_zr/test/getRecordByCarNum.html?channelId=b3dfc5cf50b34ebbaf4a577402b4ea9b", "UTF-8"));
 //		SingleCarparkInOutHistory ioh = new SingleCarparkInOutHistory();
 //		ioh.setPlateNo("粤BD021W");
 //		ioh.setId(9L);

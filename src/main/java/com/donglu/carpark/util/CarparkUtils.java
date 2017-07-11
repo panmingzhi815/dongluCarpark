@@ -139,7 +139,9 @@ public class CarparkUtils {
 	 * 根据属性名获取属性值
 	 * */
     public static Object getFieldValueByName(String fieldName, Object o) {
-        try {  
+        try {
+//        	Field field = o.getClass().getDeclaredField(fieldName);
+//        	Object value = field.get(o);
             String firstLetter = fieldName.substring(0, 1).toUpperCase();  
             String getter = "get" + firstLetter + fieldName.substring(1);  
             Method method = o.getClass().getMethod(getter, new Class[] {});  
@@ -214,7 +216,12 @@ public class CarparkUtils {
 //		}
 		String ss=s;
 		if(s.contains(".0")){
-			ss=s.replace(".0", "");
+			int indexOf = s.indexOf(".0");
+			try {
+				Integer.valueOf(s.substring(indexOf + 2, indexOf + 3));
+			} catch (Exception e) {
+				ss=s.replace(".0", "");
+			}
 		}
 		if(s.contains(".00")){
 			ss=s.replace(".00", "");
@@ -485,7 +492,7 @@ public class CarparkUtils {
 		try {
 			LOGGER.info("准备清理数据库中的重复进出场记录");
 			CarparkServerConfig cf = CarparkServerConfig.getInstance();
-			String sql="DELETE FROM [carpark].[dbo].[SingleCarparkInOutHistory] WHERE outTime is null and id not in(SELECT MAX(id) FROM [carpark].[dbo].[SingleCarparkInOutHistory] where outTime is null group by plateNo,carparkId)";
+			String sql="update [carpark].[dbo].[SingleCarparkInOutHistory] set outTime=getDate() WHERE outTime is null and id not in(SELECT MAX(id) FROM [carpark].[dbo].[SingleCarparkInOutHistory] where outTime is null group by plateNo,carparkId)";
 			boolean executeSQL = DatabaseUtil.executeSQL(cf.getDbServerIp(), cf.getDbServerPort(), CarparkServerConfig.CARPARK, 
 					cf.getDbServerUsername(), cf.getDbServerPassword(), sql, DatabaseUtil.SQLSERVER2008);
 			LOGGER.info("清理数据库中的重复进出场记录结果：{}",executeSQL);

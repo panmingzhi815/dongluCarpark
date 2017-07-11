@@ -103,6 +103,8 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	@Lob
 	private byte[] remark;
 
+	
+	
 	public String getPlateNo() {
 		return plateNo;
 	}

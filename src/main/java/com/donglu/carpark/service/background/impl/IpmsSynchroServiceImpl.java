@@ -14,6 +14,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.haiyu.CarparkRecordHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService implements IpmsSynchroServiceI {
@@ -55,6 +56,16 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 			for (CarparkRecordHistory carparkRecordHistory : findHaiYuRecordHistory) {
 				SingleCarparkInOutHistory inOutHistory=carparkRecordHistory.getHistory();
 				boolean result=false;
+//				switch (carparkRecordHistory.getHistoryDetail().getUpdateState()) {
+//				case 新添加:
+//					result = ipmsService.addInOutHistory(inOutHistory);;
+//					break;
+//				case 被修改:
+//					result = ipmsService.updateInOutHistory(inOutHistory);
+//					break;
+//				case 被删除:
+//					break;
+//				}
 				if (inOutHistory.getOutTime()==null) {
 					result = ipmsService.addInOutHistory(inOutHistory);
 				}else{

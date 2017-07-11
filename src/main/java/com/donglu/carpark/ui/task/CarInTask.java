@@ -206,7 +206,7 @@ public class CarInTask extends AbstractTask {
 //		LOGGER.debug("车辆类型为：{}==t通道类型为：{}", carType, device.getRoadType());
 //		LOGGER.debug(date + "==" + ip + "====" + plateNO + "车辆类型：" + carType + "==" + "保存图片：==查找固定用户：==界面操作：");
 		LOGGER.info("把车牌:{}的进场记录保存到数据库", plateNO);
-
+//		cch.setId(null);
 		cch.setPlateNo(plateNO);
 		cch.setInPlateNO(plateNO);
 		if (!StrUtil.isEmpty(editPlateNo)) {

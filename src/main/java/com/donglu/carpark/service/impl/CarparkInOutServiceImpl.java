@@ -75,6 +75,10 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	@Transactional
 	public Long saveInOutHistory(SingleCarparkInOutHistory inout) {
 		DatabaseOperation<SingleCarparkInOutHistory> dom = DatabaseOperation.forClass(SingleCarparkInOutHistory.class, emprovider.get());
+//		Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+//		c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), inout.getPlateNo()));
+//		c.add(restrictions)
+		
 		if (inout.getId() == null) {
 			dom.insert(inout);
 			this.emprovider.get().persist(new CarparkRecordHistory(inout,UpdateEnum.新添加));
@@ -105,6 +109,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 				c.add(Restrictions.eq("plateNo", plateNo));
 			}
 			c.add(Restrictions.eq("carparkId", carpark.getId()));
+			c.addOrder(Order.desc("inTime"));
 			c.setFirstResult(0);
 			c.setMaxResults(2);
 			return c.getResultList();

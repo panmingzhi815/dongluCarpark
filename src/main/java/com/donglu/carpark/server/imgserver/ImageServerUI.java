@@ -552,13 +552,13 @@ public class ImageServerUI {
 	}
 
 	private void autoDeleteSameInOutHistory() {
-		ScheduledExecutorService deleteExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每隔一小时清除数据库的重复进出场记录"));
+		ScheduledExecutorService deleteExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每隔10分钟清除数据库的重复进出场记录"));
 		deleteExecutor.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
 				CarparkUtils.cleanSameInOutHistory();
 			}
-		}, 10, 60, TimeUnit.MINUTES);
+		}, 10, 10, TimeUnit.MINUTES);
 		
 	}
 

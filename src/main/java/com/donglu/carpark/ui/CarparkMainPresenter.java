@@ -38,6 +38,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSONObject;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.model.Result;
 import com.donglu.carpark.model.SearchErrorCarModel;
@@ -1057,7 +1058,7 @@ public class CarparkMainPresenter {
 		try {
 			Device d = getDevice(device);
 			if (isOpenDoor) {
-				log.info("对设备：ip:{},kip:{} 开闸,发送语音：[{}]", device.getIp(), device.getLinkAddress(), content);
+				log.info("对设备：ip:{},kip:{} 开闸:{},发送语音：[{}]", device.getIp(), device.getLinkAddress(),isOpenDoor, content);
 				if (d != null) {
 					Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoorWithDelay(d, content, device.getVolume() == null ? 1 : device.getVolume(), openDoorDelay);
 					return carparkContentVoiceAndOpenDoor;
@@ -1720,8 +1721,8 @@ public class CarparkMainPresenter {
 				// } else {
 				// select.setCarType("固定车");
 				// }
+				sp.getCarparkInOutService().saveInOutHistory(select);
 			}
-			sp.getCarparkInOutService().saveInOutHistory(select);
 			carInOutResultProvider.get().invok(model.getIp(), 0, select.getPlateNo(), m.getBigImg(), m.getSmallImg(), 1);
 		} catch (Exception e) {
 			log.error("人工查找时发生错误", e);
@@ -1828,10 +1829,13 @@ public class CarparkMainPresenter {
 				Result result = getPayResult(data);
 				if (result!=null) {
 					int code = result.getCode();
-					Map<Object, Object> map = (Map<Object, Object>) result.getObj();
+					JSONObject map = (JSONObject) result.getObj();
+					log.info("请求 车辆缴费状态结果：{}",map);
+					System.out.println(map);
 					if (code==2008) {
-						model.setReal(Float.valueOf(map.get("deptFee").toString()));
-						model.setChargedMoney(Float.valueOf(map.get("payedFee").toString()));
+						model.setReal(result.getDeptFee());
+						model.setChargedMoney(result.getPayedFee());
+						data.setRemarkString(result.getMsg());
 						if (check) {
 							boolean confirm = commonui.confirm("收费提示", "车辆：[" + data.getPlateNo() + "]" + result.getMsg() + ",是否免费：" + (model.getShouldMony() - totalCharge) + "元出场。");
 							if (!confirm) {
@@ -1864,6 +1868,7 @@ public class CarparkMainPresenter {
 				data.setFreeMoney(freeMoney.floatValue());
 				model.setReal(model.getShouldMony()-model.getChargedMoney());
 				data.setChargeOperaName(ctype);
+				data.setRemarkString(ctype);
 			}
 		}
 		return true;
