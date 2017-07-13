@@ -9,6 +9,8 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.common.View;
+import com.donglu.carpark.util.ExcelImportExportImpl;
+import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
@@ -21,6 +23,8 @@ public class OpenDoorListPresenter extends AbstractListPresenter<SingleCarparkOp
 	private String deviceName;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
+	@Inject
+	private CommonUIFacility commonui;
 	@Override
 	public void refresh() {
 		List<SingleCarparkOpenDoorLog> findByNameOrPlateNo = sp.getCarparkInOutService().findOpenDoorLogBySearch(operaName,start,end,deviceName);
@@ -52,5 +56,19 @@ public class OpenDoorListPresenter extends AbstractListPresenter<SingleCarparkOp
 		view.setPresenter(this);
 		view.setTableTitle("手动抬杆记录");
 		return view;
+	}
+
+
+	public void export() {
+		String path = commonui.selectToSave();
+		if(StrUtil.isEmpty(path)){
+			return;
+		}
+		ExcelImportExportImpl e=new ExcelImportExportImpl();
+		try {
+			e.export(path, view.getNameProperties(), view.getColumnProperties(), view.getModel().getList());
+		} catch (Exception e1) {
+			commonui.error("提示", "导出失败"+e1.getMessage(),e1);
+		}
 	}
 }

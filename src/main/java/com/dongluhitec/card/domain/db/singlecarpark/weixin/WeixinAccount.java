@@ -41,6 +41,10 @@ public class WeixinAccount implements Serializable{
 	 * 微信支付分配的子商户号
 	 */
 	private String subMchId;
+	/**
+	 * 微信支付回调地址
+	 */
+	private String notifyUrl;
 	
 	public String getAppId() {
 		return appId;
@@ -95,5 +99,11 @@ public class WeixinAccount implements Serializable{
 	}
 	public void setSubMchId(String subMchId) {
 		this.subMchId = subMchId;
+	}
+	public String getNotifyUrl() {
+		return notifyUrl;
+	}
+	public void setNotifyUrl(String notifyUrl) {
+		this.notifyUrl = notifyUrl;
 	}
 }

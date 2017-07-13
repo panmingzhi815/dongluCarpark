@@ -193,9 +193,7 @@ public class ImageServerUI {
 	private void autoStartServer() {
 		LOGGER.info("自动启动服务器服务");
 		try {
-			icon.displayMessage("服务器启动", "正在启动停车场服务器\n请稍后。。。。。。", MessageType.INFO);
 			startServer();
-			icon.displayMessage("服务器启动", "停车场服务器启动成功！", MessageType.INFO);
 		} catch (Exception e) {
 			if (e.getMessage().indexOf("服务器")>-1) {
 				icon.displayMessage("服务器启动", "停车场服务器启动失败！", MessageType.ERROR);
@@ -239,7 +237,8 @@ public class ImageServerUI {
 	 */
 	protected void createContents() {
 		shell.setSize(535, 99);
-		shell.setText("服务器");
+		String hostIp = StrUtil.getHostIp();
+		shell.setText("服务器"+(StrUtil.isEmpty(hostIp)?"":"("+hostIp+")"));
 		shell.setLayout(new GridLayout(5, false));
 		shell.addShellListener(new ShellAdapter() {
 			@Override
@@ -308,6 +307,7 @@ public class ImageServerUI {
 					try {
 						btnStart.setText("启动中");
 						btnStart.setEnabled(false);
+						btnStart.setData("type", "starting");
 						startServer();
 						String open = text.getText();
 						CarparkFileUtils.writeObject(ConstUtil.IMAGE_SAVE_DIRECTORY, open);
@@ -316,6 +316,7 @@ public class ImageServerUI {
 						s.setSettingValue(open);
 						sp.getCarparkService().saveSystemSetting(s);
 						btnStart.setEnabled(true);
+						
 						btnStart.setText(btnStartText);
 						btnStart.setData("type", btnStartType);
 					} catch (Exception e1) {
@@ -449,6 +450,7 @@ public class ImageServerUI {
 	 */
 	protected void startServer() throws Exception {
 		try {
+			icon.displayMessage("服务器启动", "正在启动停车场服务器\n请稍后。。。。。。", MessageType.INFO);
 			sp.start();
 			SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.DateBase_version.name());
 			if (StrUtil.isEmpty(findSystemSettingByKey)) {
@@ -482,17 +484,21 @@ public class ImageServerUI {
 			carparkDBServer.startDbServlet(servletHandler);
 		    server.setHandler(servletHandler);
 			server.start();
+			
+			icon.displayMessage("服务器启动", "正在启动停车场网页服务器\n请稍后。。。。。。", MessageType.INFO);
 			CarparkWebStart.main(new String[]{});
 			btnStartText = "退出";
 			btnStartType = "stop";
 			carparkDBServer.startBackgroudService();
+			autoDeleteSameInOutHistory();
+			autoSendInfoToCloud();
+			startBackGroudService();
+			icon.displayMessage("服务器启动", "停车场服务器启动成功！", MessageType.INFO);
 		} catch (Exception e) {
 			LOGGER.error("启动失败", e);
 			throw new Exception("服务器启动失败");
 		}
-		autoDeleteSameInOutHistory();
-		autoSendInfoToCloud();
-		startBackGroudService();
+		
 	}
 
 	private void startBackGroudService() {
