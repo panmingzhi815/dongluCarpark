@@ -188,7 +188,7 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 
 
 	@Override
-	public float findOneDayMaxCharge(CarTypeEnum carType, Long carparkId) {
+	public float findOneDayMaxCharge(Long carType, Long carparkId) {
 		return carparkInOutService.findOneDayMaxCharge(carType, carparkId);
 	}
 

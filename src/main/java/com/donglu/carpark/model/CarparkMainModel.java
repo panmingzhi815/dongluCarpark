@@ -18,6 +18,7 @@ import com.donglu.carpark.util.MyHashMap;
 import com.donglu.carpark.util.MyMapCache;
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -60,7 +61,7 @@ public class CarparkMainModel extends DomainObject {
 	//保存监控口设备信息
 	private final Map<String, List<SingleCarparkDevice>> mapTypeDevices = Maps.newHashMap();
 	// 保存临时收费车辆类型
-	private final Map<String, String> mapTempCharge = Maps.newHashMap();;
+	private final Map<String, CarparkCarType> mapTempCharge = Maps.newHashMap();;
 	// 保存双摄像头处理任务
 	private final Map<String, Timer> mapTwoChanelTimer = new HashMap<>();
 
@@ -144,7 +145,7 @@ public class CarparkMainModel extends DomainObject {
 	Boolean disContinue;
 
 	private SingleCarparkCarpark carpark;
-	private CarTypeEnum carTypeEnum;
+	private String carTypeEnum;
 
 	private List<SingleCarparkStoreFreeHistory> stroeFrees;
 
@@ -549,11 +550,11 @@ public class CarparkMainModel extends DomainObject {
 			pcs.firePropertyChange("comboCarTypeFocos", null, null);
 	}
 
-	public void setCartypeEnum(CarTypeEnum carTypeEnum) {
+	public void setCartypeEnum(String carTypeEnum) {
 		this.carTypeEnum = carTypeEnum;
 	}
 
-	public CarTypeEnum getCarTypeEnum() {
+	public String getCarTypeEnum() {
 		return carTypeEnum;
 	}
 
@@ -823,7 +824,7 @@ public class CarparkMainModel extends DomainObject {
 		return mapTypeDevices;
 	}
 
-	public Map<String, String> getMapTempCharge() {
+	public Map<String, CarparkCarType> getMapTempCharge() {
 		return mapTempCharge;
 	}
 

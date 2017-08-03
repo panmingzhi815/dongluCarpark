@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CountTempCarChargeI;
-import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.collect.Maps;
@@ -24,7 +23,7 @@ public class CountTempCarChargeImpl implements CountTempCarChargeI {
 	Map<String, Date> mapHoliday=Maps.newHashMap();
 
 	@Override
-	public float charge(Long carparkId, CarTypeEnum carType, Date startTime, Date endTime, CarparkDatabaseServiceProvider sp, CarparkMainModel model,boolean reCharge) {
+	public float charge(Long carparkId, Long carType, Date startTime, Date endTime, CarparkDatabaseServiceProvider sp, CarparkMainModel model,boolean reCharge) {
 		
 		float totalCharge = 0;
 		Float money = 0F;// 免费金额
@@ -53,7 +52,7 @@ public class CountTempCarChargeImpl implements CountTempCarChargeI {
 			//获取今天的最大收费
 			float findOneDayMaxCharge = sp.getCarparkInOutService().findOneDayMaxCharge(carType, carparkId);
 			//计算收费
-			float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carparkId, carType.index(), startTime, endTime);
+			float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carparkId, carType, startTime, endTime);
 //			LOGGER.info("今天最大收费{}元，今天缴费了{}元，计算收费{}元",findOneDayMaxCharge,countTodayCharge,calculateTempCharge);
 			if (!reCharge) {
 				//今天收费

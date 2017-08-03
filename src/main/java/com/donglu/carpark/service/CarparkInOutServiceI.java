@@ -107,7 +107,7 @@ public interface CarparkInOutServiceI {
 	 * @param carparkId 
 	 * @return
 	 */
-	float findOneDayMaxCharge(CarTypeEnum carType, Long carparkId);
+	float findOneDayMaxCharge(Long carType, Long carparkId);
 	/**
 	 * 查找车指定日期缴费金额
 	 * @param plateNo

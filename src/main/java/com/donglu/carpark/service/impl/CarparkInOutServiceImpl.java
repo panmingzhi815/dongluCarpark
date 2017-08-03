@@ -585,13 +585,13 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public float findOneDayMaxCharge(CarTypeEnum carType, Long carparkId) {
+	public float findOneDayMaxCharge(Long carType, Long carparkId) {
 		unitOfWork.begin();
 		try {
 			Criteria ccs=CriteriaUtils.createCriteria(emprovider.get(), CarparkChargeStandard.class);
 			
 			DatabaseOperation<CarparkCarType> dom = DatabaseOperation.forClass(CarparkCarType.class, emprovider.get());
-			CarparkCarType type = dom.getEntityWithId(carType.index());
+			CarparkCarType type = dom.getEntityWithId(carType);
 			ccs.add(Restrictions.eq("carparkCarType", type));
 			ccs.add(Restrictions.eq("using", true));
 			List<CarparkChargeStandard> ccsList = ccs.getResultList();

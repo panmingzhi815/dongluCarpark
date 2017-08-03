@@ -1284,7 +1284,7 @@ public class CarparkMainPresenter {
 	 * 
 	 * @return
 	 */
-	public float countShouldMoney(Long carparkId, CarTypeEnum carType, Date startTime, Date endTime) {
+	public float countShouldMoney(Long carparkId, String carType, Date startTime, Date endTime) {
 		float charge = 0;
 		try {
 			int freeMinute = 0;
@@ -1296,7 +1296,7 @@ public class CarparkMainPresenter {
 				freeMoney = findTempCarFreeByPlateNO.getFreeMoney();
 			}
 			startTime = new DateTime(startTime).plusMinutes(freeMinute).toDate();
-			charge = countTempCarCharge.charge(carparkId, carType, startTime, endTime, sp, model, Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场重复计费)));
+			charge = countTempCarCharge.charge(carparkId, model.getMapTempCharge().get(carType).getId(), startTime, endTime, sp, model, Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场重复计费)));
 			String property = System.getProperty(ConstUtil.AN_HOUR_SHOULD_MONEY);
 			if (!StrUtil.isEmpty(property)) {
 				log.info("设置一小时收费{}为:{}", ConstUtil.AN_HOUR_SHOULD_MONEY, property);
@@ -1463,7 +1463,7 @@ public class CarparkMainPresenter {
 		List<CarparkChargeStandard> listTemp = sp.getCarparkService().findAllCarparkChargeStandard(model.getCarpark(), true);
 		for (CarparkChargeStandard carparkChargeStandard : listTemp) {
 			String name = carparkChargeStandard.getCarparkCarType().getName();
-			model.getMapTempCharge().put(name, carparkChargeStandard.getCode());
+			model.getMapTempCharge().put(name, carparkChargeStandard.getCarparkCarType());
 		}
 		try {
 			openDoorDelay = Integer.valueOf(System.getProperty(ConstUtil.OPEN_DOOR_DELAY));

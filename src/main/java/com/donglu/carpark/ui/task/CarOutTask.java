@@ -24,6 +24,7 @@ import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.FixCarInTypeEnum;
@@ -47,7 +48,7 @@ public class CarOutTask extends AbstractTask{
 	// 保存最近的手动拍照时间
 	private final Map<String, Date> mapHandPhotograph;
 	
-	public static Map<String, String> mapTempCharge;
+	public static Map<String, CarparkCarType> mapTempCharge;
 	
 	public CarOutTask(String ip, String plateNO, byte[] bigImage, byte[] smallImage,CarparkMainModel model,
 			CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter,Float rightSize) {
@@ -650,7 +651,7 @@ public class CarOutTask extends AbstractTask{
 				presenter.updatePosition(carpark, null, false);
 				presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			} else {
-				CarTypeEnum carType = CarTypeEnum.SmallCar;
+				String carType = "小车";
 				if (mapTempCharge.keySet().size() > 1) {
 					model.setComboCarTypeEnable(true);
 					model.setSelectCarType(true);
@@ -673,11 +674,11 @@ public class CarOutTask extends AbstractTask{
 							}
 						}
 					}
-					carType = getCarparkCarType(model.getCarparkCarType());
+					carType = model.getCarparkCarType();
 				} else if (mapTempCharge.keySet().size() == 1) {
 					List<String> list = new ArrayList<>();
 					list.addAll(mapTempCharge.keySet());
-					carType = getCarparkCarType(list.get(0));
+					carType = list.get(0);
 				}
 				// model.setComboCarTypeEnable(false);
 				float shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date);

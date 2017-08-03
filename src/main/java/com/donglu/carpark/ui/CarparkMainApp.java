@@ -4,6 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +53,7 @@ import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -157,7 +159,7 @@ public class CarparkMainApp extends AbstractApp{
 	public Map<String, Boolean> mapIsTwoChanel = Maps.newHashMap();
 	public Map<String, List<SingleCarparkDevice>> mapTypeDevices = Maps.newHashMap();
 	//保存临时收费车辆类型
-	public Map<String, String> mapTempCharge=Maps.newHashMap();;
+	public Map<String, CarparkCarType> mapTempCharge=Maps.newHashMap();;
 	// 保存双摄像头处理任务
 	public Map<String, Timer> mapTwoChanelTimer = new HashMap<>();
 
@@ -529,15 +531,25 @@ public class CarparkMainApp extends AbstractApp{
 		Boolean isCarHandIn = Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.进场允许手动入场));
 		List<String> listCarType = new ArrayList<>();
 		listCarType.add("请选择车型");
-		if (!StrUtil.isEmpty(mapTempCharge.get("大车"))) {
-			listCarType.add("大车");
+		ArrayList<CarparkCarType> arrayList = new ArrayList<>(mapTempCharge.values());
+		arrayList.sort(new Comparator<CarparkCarType>() {
+			@Override
+			public int compare(CarparkCarType o1, CarparkCarType o2) {
+				return o1.getId().compareTo(o2.getId());
+			}
+		});
+		for (CarparkCarType carparkCarType : arrayList) {
+			listCarType.add(carparkCarType.getName());
 		}
-		if (!StrUtil.isEmpty(mapTempCharge.get("小车"))) {
-			listCarType.add("小车");
-		}
-		if (!StrUtil.isEmpty(mapTempCharge.get("摩托车"))) {
-			listCarType.add("摩托车");
-		}
+//		if (!StrUtil.isEmpty(mapTempCharge.get("大车"))) {
+//			listCarType.add("大车");
+//		}
+//		if (!StrUtil.isEmpty(mapTempCharge.get("小车"))) {
+//			listCarType.add("小车");
+//		}
+//		if (!StrUtil.isEmpty(mapTempCharge.get("摩托车"))) {
+//			listCarType.add("摩托车");
+//		}
 		model.setCarparkCarType(listCarType.size() > 1 ? listCarType.get(0) : "小车");
 		controlToolItem();
 
@@ -875,10 +887,9 @@ public class CarparkMainApp extends AbstractApp{
 					}
 					Date inTime = h.getInTime();
 					Date outTime = h.getOutTime();
-					CarTypeEnum carparkCarType = getCarparkCarType(carparkCarType2);
-					model.setCartypeEnum(carparkCarType);
-					float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carparkCarType, inTime, outTime);
-					log.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", h.getPlateNo(), device.getCarpark(), model.getCarTypeEnum(), model.getInTime(), model.getOutTime(),
+					model.setCartypeEnum(carparkCarType2);
+					float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carparkCarType2, inTime, outTime);
+					log.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", h.getPlateNo(), device.getCarpark(), carparkCarType2, model.getInTime(), model.getOutTime(),
 							model.getTotalTime(), countShouldMoney);
 					presenter.showContentToDevice(model.getMapIpToDevice().get(model.getIp()), CarparkUtils.getCarStillTime(model.getTotalTime()) + CarparkUtils.formatFloatString("请缴费" + countShouldMoney + "元"),
 							false);
