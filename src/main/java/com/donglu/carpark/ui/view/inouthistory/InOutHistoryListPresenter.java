@@ -72,6 +72,12 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end,outStart,outEnd,
 				operaName, inDevice, outDevice, returnAccount, carpark.getId(),shouldMoney);
 //		List<SingleCarparkInOutHistory> filter = filter(findByCondition, modifyPlateNO);
+//		for (SingleCarparkInOutHistory singleCarparkInOutHistory : findByCondition) {
+//			if(singleCarparkInOutHistory.getPlateNo().equals("粤WZR220")){
+//				System.out.println(singleCarparkInOutHistory.getPlateNo()+"====="+singleCarparkInOutHistory.getInTime());
+//			}
+//		}
+//		System.out.println(findByCondition.size());
 		model.setCountSearchAll(countByCondition.intValue());
 		model.AddList(findByCondition);
 		model.setCountSearch(model.getList().size());

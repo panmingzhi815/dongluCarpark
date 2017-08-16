@@ -143,6 +143,8 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 
 			createCriteriaByCondition(c, plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount,carparkId, shouldMoney);
+			System.out.println(maxResult+"============"+size);
+			c.addOrder(Order.asc("id"));
 			c.setFirstResult(maxResult);
 			c.setMaxResults(size);
 			List<SingleCarparkInOutHistory> resultList = c.getResultList();

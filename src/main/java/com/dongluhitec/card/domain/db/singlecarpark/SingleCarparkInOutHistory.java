@@ -471,5 +471,8 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		this.fixCarInType = fixCarInType;
 		firePropertyChange("fixCarInType", null, null);
 	}
-	
+	@Override
+	public String toString() {
+		return plateNo+"=inTime="+StrUtil.formatDateTime(inTime)+"=outTime="+StrUtil.formatDateTime(outTime);
+	}
 }
