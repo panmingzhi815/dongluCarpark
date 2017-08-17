@@ -26,6 +26,8 @@ public class SingleCarparkImageHistory extends DomainObject {
 	private String type;
 	private Date time;
 	private String smallImage;
+	private String deviceIp;
+	private String deviceName;
 	
 	public String getTimeLabel(){
 		return StrUtil.formatDateTime(time);
@@ -88,5 +90,23 @@ public class SingleCarparkImageHistory extends DomainObject {
 			}
 		}
 		return super.equals(obj);
+	}
+
+	public String getDeviceIp() {
+		return deviceIp;
+	}
+
+	public void setDeviceIp(String deviceIp) {
+		this.deviceIp = deviceIp;
+		firePropertyChange("deviceIp", null, null);
+	}
+
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
+		firePropertyChange("deviceName", null, null);
 	}
 }

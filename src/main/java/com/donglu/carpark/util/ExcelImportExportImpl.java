@@ -406,7 +406,9 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				try {
 					user.setCarparkSlotType(SingleCarparkUser.CarparkSlotTypeEnum.valueOf(carparkSlotType));
 				} catch (Exception e) {
-					
+					if (user.getCarparkSlotType()==null) {
+						user.setCarparkSlotType(SingleCarparkUser.CarparkSlotTypeEnum.非固定车位);
+					}
 				}
 				carparkUserService.saveUser(user);
 				setCellStringvalue(row, 15, "处理成功", cellStyle);

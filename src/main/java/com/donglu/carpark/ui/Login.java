@@ -24,6 +24,7 @@ import com.donglu.carpark.server.module.CarparkClientGuiceModule;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.SystemUserServiceI;
 import com.donglu.carpark.service.background.ClientCheckSoftDogServiceI;
+import com.donglu.carpark.service.background.ClientSynTimeServiceI;
 import com.donglu.carpark.service.background.DeleteImageServiceI;
 import com.donglu.carpark.service.background.LoginCheckServiceI;
 import com.donglu.carpark.ui.common.App;
@@ -397,7 +398,7 @@ public class Login {
 							}
 							sp.start();
 							LOGGER.info("服务启动花费时间{}", System.nanoTime() - nanoTime);
-							startBackGroundServer();
+							
 
 							SystemUserServiceI systemUserService = sp.getSystemUserService();
 							SingleCarparkSystemUser findByNameAndPassword = systemUserService.findByNameAndPassword(userName=cbo_userName.getText(), pwd=txt_password.getText());
@@ -430,6 +431,7 @@ public class Login {
 							if ((setting==null||setting.getBooleanValue())&&findByNameAndPassword.getSingleLogin()) {
 								startCheckLoginStatusService();
 							}
+							startBackGroundServer();
 						} catch (Exception e1) {
 							e1.printStackTrace();
 							lbl_errorMsg.setText(e1.getMessage());
@@ -563,6 +565,11 @@ public class Login {
 		if (Boolean.valueOf(System.getProperty(CHECK_SOFT_DOG) == null ? "true" : "false")) {
 			checkSoftDog();
 		}
+		synchronizedServerTime();
+	}
+
+	private void synchronizedServerTime() {
+		injector.getInstance(ClientSynTimeServiceI.class).startAsync();
 	}
 
 	// 检测加密狗

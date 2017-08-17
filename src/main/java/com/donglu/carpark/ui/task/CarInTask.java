@@ -244,7 +244,7 @@ public class CarInTask extends AbstractTask {
 		cch.setId(saveInOutHistory);
 		model.addInHistorys(cch);
 		model.setInHistorySelect(cch);
-		LOGGER.info("保存车牌：{}的进场记录到数据库成功", plateNO);
+		LOGGER.info("保存车牌：{}的进场记录到数据库成功:{}", plateNO,saveInOutHistory);
 		model.getMapCameraLastImage().put(ip, cch.getBigImg());
 		presenter.showContentToDevice(device, content, isOpenDoor);
 		presenter.updatePosition(carpark, cch, true);
@@ -512,11 +512,14 @@ public class CarInTask extends AbstractTask {
 		// 过期判断
 		if (date.after(
 				new DateTime(validTo).plusDays(user.getDelayDays() == null ? 0 : user.getDelayDays()).toDate())) {
+			boolean isShowContent=false;
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车).equals("true")) {
 				content = "车辆已过期" + content;
 				logger.info("固定车：{} 在{} 到期 直接做临时车计算 ",user,validTo);
 				return tempCarShowToDevice(false);
 			} else {
+				model.setInShowPlateNO(model.getInShowPlateNO() + "-已过期");
+				isShowContent=presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent(), false);
 				boolean confirm = new ConfimBox(editPlateNo, "车辆在[" + StrUtil.formatDate(validTo) + "]过期\n是否允许车辆按临时车进入停车场:["+carpark.getName()+"]")
 						.open();
 				logger.info("固定车：{} 在{} 到期 等待确认 ",user,validTo);
@@ -524,6 +527,7 @@ public class CarInTask extends AbstractTask {
 					cch.setIsOverdue(true);
 					cch.setFixCarInType(FixCarInTypeEnum.固定车过期变临时车);
 					cch.setReviseInTime(date);
+					cch.setRemarkString(editPlateNo+"已过期");
 					logger.info("固定车：{} 在{} 到期 经确认后做临时车计算 ",user,validTo);
 					return tempCarShowToDevice(false);
 				}
@@ -536,9 +540,10 @@ public class CarInTask extends AbstractTask {
 					return false;
 				}
 			}
-			model.setInShowPlateNO(model.getInShowPlateNO() + "-已过期");
-			presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent(),
-					false);
+			if (!isShowContent) {
+				model.setInShowPlateNO(model.getInShowPlateNO() + "-已过期");
+				presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent(), false);
+			}
 			model.getMapInCheck().put(plateNO, this);
 			model.setInCheckClick(true);
 			isFixCarverdueCheck = true;
@@ -605,7 +610,7 @@ public class CarInTask extends AbstractTask {
 					setFixCarToTemIn(date, user);
 					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，作临时车进入", isFixCarSlotFullAutoBeTemp,
 							user.getCarparkNo(), fixCarInSize);
-					cch.setRemarkString(inPlates);
+					cch.setRemarkString(inPlates+"已在场内");
 					return tempCarShowToDevice(false);
 				}
 			} else {
@@ -620,7 +625,7 @@ public class CarInTask extends AbstractTask {
 					if (confirm) {
 						cch.setReviseInTime(date);
 						cch.setFixCarInType(FixCarInTypeEnum.固定车车位满变临时车);
-						cch.setRemarkString(inPlates);
+						cch.setRemarkString(inPlates+"已在场内");
 						return tempCarShowToDevice(false);
 					}
 					return true;

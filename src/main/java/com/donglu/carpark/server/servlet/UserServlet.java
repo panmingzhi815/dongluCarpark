@@ -278,4 +278,9 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 		return carparkUserService.updateUserHistory(history, process);
 	}
 
+	@Override
+	public Date getServerDate() {
+		return settingService.getServerDate();
+	}
+
 }

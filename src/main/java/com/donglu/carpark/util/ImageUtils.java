@@ -315,24 +315,28 @@ public class ImageUtils {
 
 			@Override
 			public void run() {
-				label.setData("imgName", imageName);
-				Listener[] listeners = label.getListeners(SWT.MouseDoubleClick);
-				if (listeners.length==0) {
-					MouseAdapter listener = new MouseAdapter() {
-						@Override
-						public void mouseDoubleClick(MouseEvent e) {
-							String lastImage = (String)label.getData("imgName");
-							if (StrUtil.isEmpty(lastImage)) {
-								return;
+				try {
+					label.setData("imgName", imageName);
+					Listener[] listeners = label.getListeners(SWT.MouseDoubleClick);
+					if (listeners.length==0) {
+						MouseAdapter listener = new MouseAdapter() {
+							@Override
+							public void mouseDoubleClick(MouseEvent e) {
+								String lastImage = (String)label.getData("imgName");
+								if (StrUtil.isEmpty(lastImage)) {
+									return;
+								}
+								ImageDialog imageDialog = new ImageDialog(lastImage);
+								imageDialog.open();
 							}
-							ImageDialog imageDialog = new ImageDialog(lastImage);
-							imageDialog.open();
-						}
-					};
-					label.addMouseListener(listener);
-					label.setData("labelMouseDoubleClick",listener);
+						};
+						label.addMouseListener(listener);
+						label.setData("labelMouseDoubleClick",listener);
+					}
+					setBackgroundImage(bigImage, label, label.getDisplay());
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				setBackgroundImage(bigImage, label, label.getDisplay());
 			}
 		});
 	}

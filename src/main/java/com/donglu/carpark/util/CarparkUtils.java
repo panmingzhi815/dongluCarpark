@@ -655,6 +655,7 @@ public class CarparkUtils {
 				readLine = br.readLine();
 				i++;
 			}
+			exec.destroy();
 			return readLine.indexOf("TTL")>-1;
 		} catch (Exception e) {
 		}

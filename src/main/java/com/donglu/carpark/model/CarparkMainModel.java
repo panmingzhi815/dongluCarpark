@@ -71,6 +71,8 @@ public class CarparkMainModel extends DomainObject {
 	private final Map<DeviceVoiceTypeEnum, SingleCarparkDeviceVoice> mapVoice = new HashMap<>();
 	//保存设备使用状态信息
 	private final Map<String, Boolean> mapIpToDeviceStatus=new HashMap<>();
+	
+	private final Map<String, Integer> mapHCameraPlayHandle=new HashMap<>();
 	//保存待出场信息
 	private final List<CarOutTask> listOutTask=new ArrayList<>();
 	private long lastCarOutTime=0;
@@ -885,5 +887,9 @@ public class CarparkMainModel extends DomainObject {
 
 	public Lock getInOutLock() {
 		return inOutLock;
+	}
+
+	public Map<String, Integer> getMapHCameraPlayHandle() {
+		return mapHCameraPlayHandle;
 	}
 }

@@ -1,6 +1,7 @@
 package com.donglu.carpark.service;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 public interface SettingService {
@@ -11,5 +12,6 @@ public interface SettingService {
 	int restoreDataBase(String filePath);
 	
 	public void initCarpark();
+	Date getServerDate();
 	
 }

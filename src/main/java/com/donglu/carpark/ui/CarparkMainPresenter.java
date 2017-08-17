@@ -86,7 +86,6 @@ import com.dongluhitec.card.domain.db.shanghaiyunpingtai.YunCarparkCarInOut;
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory.PayTypeEnum;
-import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
@@ -592,7 +591,7 @@ public class CarparkMainPresenter {
 					carparkOffLineHistory.setBigImage(bigImagePath);
 					String smallImagePath = CarparkUtils.FormatImagePath(time, plateNO, false);
 					carparkOffLineHistory.setSmallImage(smallImagePath);
-					saveImage(smallImagePath, bigImagePath, smallImage, bigImage);
+					saveImage(mapIpToDevice.get(ip),smallImagePath, bigImagePath, smallImage, bigImage);
 					sp.getCarparkInOutService().saveCarparkOffLineHistory(carparkOffLineHistory);
 				} catch (Exception e) {
 					log.error(ip + "断网续传出错", e);
@@ -717,6 +716,7 @@ public class CarparkMainPresenter {
 
 		});
 		jna.openEx(ip, handle,carInOutResultProvider.get());
+		model.getMapHCameraPlayHandle().put(ip, handle);
 		jna.pastPlate(ip, new PastPlateResult() {
 			@Override
 			public void invok(String ip, Date time, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize, String plateColor) {
@@ -731,7 +731,7 @@ public class CarparkMainPresenter {
 					carparkOffLineHistory.setBigImage(bigImagePath);
 					String smallImagePath = CarparkUtils.FormatImagePath(time, plateNO, false);
 					carparkOffLineHistory.setSmallImage(smallImagePath);
-					saveImage(smallImagePath, bigImagePath, smallImage, bigImage);
+					saveImage(mapIpToDevice.get(ip),smallImagePath, bigImagePath, smallImage, bigImage);
 					sp.getCarparkInOutService().saveCarparkOffLineHistory(carparkOffLineHistory);
 				} catch (Exception e) {
 					log.error(ip + "断网续传出错", e);
@@ -741,6 +741,40 @@ public class CarparkMainPresenter {
 		if (!device.getIsOpenCamera()) {
 			finalJna.stopPlaying(ip);
 			canvas.setImage(imageIcon.getImage());
+		}
+	}
+	
+	public void startPlayingDevice(String ip){
+		SingleCarparkDevice device = mapIpToDevice.get(ip);
+		if(device==null){
+			return;
+		}
+		if (!device.getIsOpenCamera()) {
+			return;
+		}
+		CameraTypeEnum cameraType = device.getCameraType();
+		if(cameraType.equals(CameraTypeEnum.智芯)){
+			PlateNOJNA jna = mapIpToJNA.get(ip);
+			jna.startPlaying(ip, model.getMapHCameraPlayHandle().get(ip));
+		}else{
+			String url = cameraType.getRtspAddress(ip) == null ? device.getIp() : cameraType.getRtspAddress(ip);
+			mapPlayer.get(url).play();
+			mapNeedStopPlay.put(url, false);
+		}
+	}
+	public void stopPlayingDevice(String ip){
+		SingleCarparkDevice device = mapIpToDevice.get(ip);
+		if(device==null){
+			return;
+		}
+		CameraTypeEnum cameraType = device.getCameraType();
+		if(cameraType.equals(CameraTypeEnum.智芯)){
+			PlateNOJNA jna = mapIpToJNA.get(ip);
+			jna.stopPlaying(ip);
+		}else if(cameraType.equals(CameraTypeEnum.信路威)){
+			String url = cameraType.getRtspAddress(ip) == null ? device.getIp() : cameraType.getRtspAddress(ip);
+			mapPlayer.get(url).stop();
+			mapNeedStopPlay.put(url, true);
 		}
 	}
 
@@ -1379,7 +1413,7 @@ public class CarparkMainPresenter {
 	public void handPhotograph(String ip) {
 		mapIpToJNA.get(ip).tigger(ip);
 //		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
-//		carInOutResultProvider.get().invok(ip, 0, "贵ADL045", bs, null, 11);
+//		carInOutResultProvider.get().invok(ip, 0, "贵AU4403", bs, null, 11);
 	}
 
 	/**
@@ -2066,7 +2100,7 @@ public class CarparkMainPresenter {
 		}
 	}
 
-	public void saveImage(String smallImgFileName, String bigImgFileName, byte[] smallImage1, byte[] bigImage1) {
+	public void saveImage(SingleCarparkDevice device,String smallImgFileName, String bigImgFileName, byte[] smallImage1, byte[] bigImage1) {
 		Runnable runnable = new Runnable() {
 			private int errorSize=0;
 			@Override
@@ -2114,7 +2148,7 @@ public class CarparkMainPresenter {
 							log.debug("上传图片花费时间：{}", System.nanoTime() - nanoTime);
 						}
 					}
-					saveImageHistory(bigImgFileName,smallImgFileName);
+					saveImageHistory(device,bigImgFileName,smallImgFileName);
 				} catch (IOException e) {
 					log.error("上传图片出错", e);
 					if (errorSize<3) {
@@ -2132,7 +2166,7 @@ public class CarparkMainPresenter {
 		saveImageTheadPool.submit(runnable);
 	}
 
-	protected void saveImageHistory(String bigImgFileName, String smallImgFileName) {
+	protected void saveImageHistory(SingleCarparkDevice device, String bigImgFileName, String smallImgFileName) {
 		try {
 			int indexOf = bigImgFileName.indexOf("_");
 			String plate=bigImgFileName.substring(indexOf+1, bigImgFileName.lastIndexOf("_"));
@@ -2140,6 +2174,10 @@ public class CarparkMainPresenter {
 			ih.setBigImage(bigImgFileName);
 			ih.setSmallImage(smallImgFileName);
 			ih.setPlateNO(plate);
+			if(device!=null){
+				ih.setDeviceIp(device.getIp());
+				ih.setDeviceName(device.getName());
+			}
 			String sTime = bigImgFileName.substring(bigImgFileName.lastIndexOf("/")+1, indexOf);
 			DateFormat df=new SimpleDateFormat("yyyyMMddHHmmssSSS");
 			Date date = df.parse(sTime);

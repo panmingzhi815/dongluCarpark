@@ -1,6 +1,7 @@
 package com.donglu.carpark.ui.view.user;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -77,6 +78,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 					log.info("今天已经提醒过了，不在提醒");
 					return;
 				}
+				List<UserRemindMessageBox> listMessageBox=new ArrayList<>();
 				List<SingleCarparkUser> list = view.getModel().getList();
 				for (SingleCarparkUser user : list) {
 					Date validTo = user.getValidTo();
@@ -98,13 +100,20 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 									}
 									log.debug("{}即将过期,过期时间：{}", user, user.getValitoLabel());
 									UserRemindMessageBox window = new UserRemindMessageBox(user);
+									listMessageBox.add(window);
 									int open = window.open();
+									listMessageBox.remove(window);
 									if (open==0) {
 										userRemindThreadPool.shutdownNow();
+										for (UserRemindMessageBox userRemindMessageBox : listMessageBox) {
+											userRemindMessageBox.close();
+										}
 										return;
 									}
 									if (open == 1) {
-										carparkManagePresenter.setSelete(SingleCarparkModuleEnum.固定车设置);
+										if (carparkManagePresenter!=null) {
+											carparkManagePresenter.setSelete(SingleCarparkModuleEnum.固定车设置);
+										}
 										view.getModel().setSelected(Arrays.asList(user));
 									} else if (open == 3) {
 										SingleCarparkSystemSetting ss = findSystemSettingByKey;

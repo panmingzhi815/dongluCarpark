@@ -113,4 +113,10 @@ public class UserRemindMessageBox {
 		btnNewButton_1.setText("我知道了");
 
 	}
+	public void close() {
+		result=0;
+		if (!shell.isDisposed()) {
+			shell.dispose();
+		}
+	}
 }

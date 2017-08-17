@@ -4,17 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import org.criteria4jpa.Criteria;
-import org.criteria4jpa.CriteriaUtils;
 
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.service.SettingService;
 import com.donglu.carpark.util.CarparkUtils;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
@@ -143,6 +141,11 @@ public class SettingServiceImpl implements SettingService {
 	private void checkSetting() {
 //		Criteria c = CriteriaUtils.createCriteria(emProvider.get(), SingleCarparkSystemSetting.class);
 		
+	}
+
+	@Override
+	public Date getServerDate() {
+		return new Date();
 	}
 
 }

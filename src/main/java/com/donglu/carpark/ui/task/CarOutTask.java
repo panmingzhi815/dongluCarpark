@@ -373,6 +373,8 @@ public class CarOutTask extends AbstractTask{
 		if (StrUtil.isEmpty(cch)) {
 			logger.warn("为找到固定车{}的入场记录",editPlateNo);
 			cch=new SingleCarparkInOutHistory();
+			cch.setCarparkId(carpark.getId());
+			cch.setCarparkName(carpark.getName());
 			model.setInTime(null);
 			model.setTotalTime("未入场");
 			if (fixCarStillCharge) {
@@ -628,6 +630,7 @@ public class CarOutTask extends AbstractTask{
 			singleCarparkInOutHistory.setOutPhotographType("自动");
 			singleCarparkInOutHistory.setOutBigImg(bigImgFileName);
 			singleCarparkInOutHistory.setOutSmallImg(smallImgFileName);
+			singleCarparkInOutHistory.setOutPlateNO(plateNO);
 			//
 			Date handPhotographDate = mapHandPhotograph.get(ip);
 			if (!StrUtil.isEmpty(handPhotographDate)) {
@@ -766,6 +769,7 @@ public class CarOutTask extends AbstractTask{
 				io.setCarType("临时车");
 				io.setOutDevice(device.getName());
 				io.setOperaName(System.getProperty("userName"));
+				io.setOutPlateNO(plateNO);
 				model.setPlateNo(plateNO);
 				model.setInTime(null);
 				model.setOutTime(date);

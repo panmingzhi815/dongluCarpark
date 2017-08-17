@@ -184,7 +184,9 @@ public class CarparkManagePresenter {
 	}
 
 	public void setSelete(SingleCarparkModuleEnum module) {
-		getView().select(module);
+		if (getView()!=null) {
+			getView().select(module);
+		}
 	}
 
 	public VisitorPresenter getVisitorPresenter() {

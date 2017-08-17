@@ -4,7 +4,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -118,12 +117,16 @@ public class SingleCarparkUser extends DomainObject {
 		}
 		return getCarparkSlot()+"";
 	}
+
 	public void setCarparkNo(String carparkNo) {
 		this.carparkNo = carparkNo;
+		Integer valueOf = 1;
 		try {
-			setCarparkSlot(Integer.valueOf(carparkNo));
+			valueOf = Integer.valueOf(carparkNo);
 		} catch (NumberFormatException e) {
+			e.printStackTrace();
 		}
+		setCarparkSlot(valueOf);
 		if (pcs != null)
 			pcs.firePropertyChange("carparkNo", null, null);
 	}
@@ -215,6 +218,9 @@ public class SingleCarparkUser extends DomainObject {
 			pcs.firePropertyChange("carType", null, null);
 	}
 	public Integer getCarparkSlot() {
+		if(carparkSlot==null){
+			carparkSlot=1;
+		}
 		return carparkSlot;
 	}
 	public void setCarparkSlot(Integer carparkSlot) {
