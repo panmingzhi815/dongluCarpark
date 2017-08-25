@@ -1411,9 +1411,10 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-		mapIpToJNA.get(ip).tigger(ip);
-//		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
-//		carInOutResultProvider.get().invok(ip, 0, "贵AU4403", bs, null, 11);
+//		mapIpToJNA.get(ip).tigger(ip);
+		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+		//贵A56G17贵JRJ927
+		carInOutResultProvider.get().invok(ip, 0, "贵A56G1A", bs, null, 11);
 	}
 
 	/**
@@ -1942,11 +1943,11 @@ public class CarparkMainPresenter {
 	public boolean chargeCarPass(SingleCarparkDevice device, SingleCarparkInOutHistory singleCarparkInOutHistory, boolean check) {
 		try {
 
-			if (!StrUtil.isEmpty(model.getUser())) {
-				SingleCarparkUser user = model.getUser();
-				user.setTempCarTime(CarparkUtils.removeString(user.getTempCarTime(), model.getInTime()));
-				sp.getCarparkUserService().saveUser(user);
-			}
+//			if (!StrUtil.isEmpty(model.getUser())) {
+//				SingleCarparkUser user = model.getUser();
+//				user.setTempCarTime(CarparkUtils.removeString(user.getTempCarTime(), model.getInTime()));
+//				sp.getCarparkUserService().saveUser(user);
+//			}
 			Float shouldMoney = model.getShouldMony();
 			float shouldChargeMoney=model.getShouldMony()-model.getChargedMoney();
 			float factMoney = model.getReal();

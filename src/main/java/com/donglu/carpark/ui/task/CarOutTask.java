@@ -678,6 +678,9 @@ public class CarOutTask extends AbstractTask{
 						}
 					}
 					carType = model.getCarparkCarType();
+					if(carType.contains("请选择")){
+						carType = "小车";
+					}
 				} else if (mapTempCharge.keySet().size() == 1) {
 					List<String> list = new ArrayList<>();
 					list.addAll(mapTempCharge.keySet());

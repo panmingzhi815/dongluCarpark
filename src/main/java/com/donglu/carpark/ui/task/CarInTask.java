@@ -581,7 +581,7 @@ public class CarInTask extends AbstractTask {
 										plates.add(singleCarparkInOutHistory2.getPlateNo());
 									}
 									if (plates.size()<slot) {
-										fixCarInShowMsg(validTo, fixCarInMsg);
+										fixCarInShowMsg(validTo, fixCarInMsg,null);
 										return false;
 									}else{
 										model.setInShowPlateNO(model.getInShowPlateNO()+"-换车场内有车");
@@ -610,7 +610,7 @@ public class CarInTask extends AbstractTask {
 					setFixCarToTemIn(date, user);
 					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，作临时车进入", isFixCarSlotFullAutoBeTemp,
 							user.getCarparkNo(), fixCarInSize);
-					cch.setRemarkString(inPlates+"已在场内");
+					cch.setRemarkString(inPlates);
 					return tempCarShowToDevice(false);
 				}
 			} else {
@@ -620,13 +620,14 @@ public class CarInTask extends AbstractTask {
 					presenter.showContentToDevice(device,
 							model.getMapVoice().get(DeviceVoiceTypeEnum.固定车车位停满禁止进入语音).getContent(), false);
 					model.setInShowPlateNO(model.getInShowPlateNO() + "-个人车位满");
-					boolean confirm = new ConfimBox(editPlateNo, "用户车位已满,车辆" + inPlates + "已进场\n是否作为临时车进入停车场[" + carpark.getName()
-							+ "]").open();
-					if (confirm) {
-						cch.setReviseInTime(date);
-						cch.setFixCarInType(FixCarInTypeEnum.固定车车位满变临时车);
-						cch.setRemarkString(inPlates+"已在场内");
-						return tempCarShowToDevice(false);
+					if (carpark.isTempCarIsIn()) {
+						boolean confirm = new ConfimBox(editPlateNo, "用户车位已满,车辆" + inPlates + "已进场\n是否作为临时车进入停车场[" + carpark.getName() + "]").open();
+						if (confirm) {
+							cch.setReviseInTime(date);
+							cch.setFixCarInType(FixCarInTypeEnum.固定车车位满变临时车);
+							cch.setRemarkString(inPlates + "已在场内");
+							return tempCarShowToDevice(false);
+						} 
 					}
 					return true;
 				}
@@ -635,15 +636,16 @@ public class CarInTask extends AbstractTask {
 		logger.info("车牌：{} 为有效固定车，直接进入",editPlateNo);
 		// int parseInt =
 		// Integer.parseInt(StrUtil.isEmpty(user.getCarparkNo())?"0":user.getCarparkNo());
-		fixCarInShowMsg(validTo, fixCarInMsg);
+		fixCarInShowMsg(validTo, fixCarInMsg,null);
 		return false;
 	}
 
 	/**
 	 * @param validTo
 	 * @param fixCarInMsg
+	 * @param reviseInTime 
 	 */
-	public void fixCarInShowMsg(Date validTo, String fixCarInMsg) {
+	public void fixCarInShowMsg(Date validTo, String fixCarInMsg, Date reviseInTime) {
 		Date date2 = new DateTime(validTo).minusDays(user.getRemindDays() == null ? 0 : user.getRemindDays()).toDate();
 		if (StrUtil.getTodayBottomTime(date2).before(date)) {
 			content = fixCarInMsg + ",剩余" + CarparkUtils.countDayByBetweenTime(date, validTo) + "天";
@@ -662,7 +664,7 @@ public class CarInTask extends AbstractTask {
 			cch.setIsCountSlot(true);
 		}
 		model.setInShowPlateNO(model.getInShowPlateNO()+"-"+user.getName());
-		cch.setReviseInTime(null);
+		cch.setReviseInTime(reviseInTime);
 	}
 
 	/**

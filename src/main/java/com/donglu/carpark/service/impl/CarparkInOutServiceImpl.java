@@ -1498,11 +1498,12 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 				c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plateNO));
 			}
 			if (!StrUtil.isEmpty(carpark)) {
-				carpark = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get()).getEntityWithId(carpark.getId());
-				List<SingleCarparkCarpark> list=new ArrayList<>();
-				list.add(carpark);
-				carpark.getChildCarpark(carpark, list);
-				c.add(Restrictions.in(SingleCarparkInOutHistory.Property.carparkId.name(), StrUtil.getListIdByEntity(list)));
+//				carpark = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get()).getEntityWithId(carpark.getId());
+//				List<SingleCarparkCarpark> list=new ArrayList<>();
+//				list.add(carpark);
+//				carpark.getChildCarpark(carpark, list);
+//				c.add(Restrictions.in(SingleCarparkInOutHistory.Property.carparkId.name(), StrUtil.getListIdByEntity(list)));
+				c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), carpark.getId()));
 			}
 			if (b) {
 				c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.reviseInTime.name()));
