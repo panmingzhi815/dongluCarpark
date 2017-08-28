@@ -26,6 +26,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkStoreFreeHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.collect.Maps;
@@ -172,6 +173,7 @@ public class CarparkMainModel extends DomainObject {
 
 	// 判断车队是否开启
 	private Boolean isOpenFleet = false;
+	private SingleCarparkVisitor visitor;
 
 	public String getUserName() {
 		return userName;
@@ -891,5 +893,13 @@ public class CarparkMainModel extends DomainObject {
 
 	public Map<String, Integer> getMapHCameraPlayHandle() {
 		return mapHCameraPlayHandle;
+	}
+
+	public void setVisitor(SingleCarparkVisitor visitor) {
+		this.visitor=visitor;
+	}
+
+	public SingleCarparkVisitor getVisitor() {
+		return visitor;
 	}
 }

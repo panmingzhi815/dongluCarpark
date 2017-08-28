@@ -18,7 +18,7 @@ public class SingleCarparkVisitor extends DomainObject {
 	 */
 	private static final long serialVersionUID = -146910856653100859L;
 	public enum Property{
-		id,plateNO,name,telephone,allIn,inCount,outCount,validTo,remark,carpark,status
+		id,plateNO,name,telephone,allIn,inCount,outCount,validTo,remark,carpark,status,outNeedCharge
 	}
 	public enum Label{
 		validToLabel
@@ -38,6 +38,8 @@ public class SingleCarparkVisitor extends DomainObject {
 	@ManyToOne
 	private SingleCarparkCarpark carpark;
 	private String status;
+	
+	private Boolean outNeedCharge=false;
 	public String getValidToLabel(){
 		if (validTo==null) {
 			return "";
@@ -118,6 +120,16 @@ public class SingleCarparkVisitor extends DomainObject {
 	public void setOutCount(int outCount) {
 		this.outCount = outCount;
 		firePropertyChange("outCount", null, null);
+	}
+	public Boolean getOutNeedCharge() {
+		if(outNeedCharge==null){
+			return false;
+		}
+		return outNeedCharge;
+	}
+	public void setOutNeedCharge(Boolean outNeedCharge) {
+		this.outNeedCharge = outNeedCharge;
+		firePropertyChange("outNeedCharge", null, null);
 	}
 	
 }

@@ -32,6 +32,7 @@ import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Button;
 
 public class AddVisitorWizardPage extends WizardPage {
 	private Text text;
@@ -43,6 +44,7 @@ public class AddVisitorWizardPage extends WizardPage {
 	private ComboViewer comboViewer;
 	private DateChooserCombo dateChooserCombo;
 	private DateTime dateTime;
+	private Button button;
 
 	
 	/**
@@ -160,6 +162,10 @@ public class AddVisitorWizardPage extends WizardPage {
 		GridData gd_text_2 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text_2.heightHint = 60;
 		text_2.setLayoutData(gd_text_2);
+		new Label(composite, SWT.NONE);
+		
+		button = new Button(composite, SWT.CHECK);
+		button.setText("出场收费");
 		initDataBindings();
 		if (model.getValidTo()!=null) {
 			Date validTo = model.getValidTo();
@@ -222,6 +228,10 @@ public class AddVisitorWizardPage extends WizardPage {
 		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
 		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer, carparkModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionButtonObserveWidget = WidgetProperties.selection().observe(button);
+		IObservableValue outNeedChargeModelObserveValue = BeanProperties.value("outNeedCharge").observe(model);
+		bindingContext.bindValue(observeSelectionButtonObserveWidget, outNeedChargeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

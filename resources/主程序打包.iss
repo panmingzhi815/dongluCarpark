@@ -2,7 +2,7 @@
 ; 有关创建 Inno Setup 脚本文件的详细资料请查阅帮助文档！
 
 #define MyAppName "停车场车牌识别"
-#define MyAppVersion "1.0.0.21"
+#define MyAppVersion "1.0.0.22"
 #define MyAppPublisher "东陆高新实业有限公司"
 #define MyAppURL "http://www.dongluhitec.com/"
 #define MyDateTimeString GetDateTimeString('_yyyymmddhhnnss', '-', ':')
@@ -55,6 +55,10 @@ Name: "{userdesktop}\停车场服务器"; Filename: "{app}\服务器.exe"; WorkingDir: "{
 Name: "{userdesktop}\停车场客户端"; Filename: "{app}\客户端.exe"; WorkingDir: "{app}"  
 ;开始菜单卸载快捷方式： 
 Name: "{group}\{cm:UninstallProgram,停车场车牌识别}"; Filename: "{uninstallexe}"
+
+[registry]
+Root: HKCU; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; ValueType: string; ValueName: "{app}\客户端.exe"; ValueData: "RUNASADMIN"
+Root: HKCU; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; ValueType: string; ValueName: "{app}\服务器.exe"; ValueData: "RUNASADMIN"
 
 [Run]Filename: "{app}\服务器.exe"; Description: "{cm:LaunchProgram,停车场服务器}"; Flags: nowait postinstall skipifsilent
 Filename: "{app}\客户端.exe"; Description: "{cm:LaunchProgram,停车场客户端}"; Flags: nowait postinstall skipifsilent

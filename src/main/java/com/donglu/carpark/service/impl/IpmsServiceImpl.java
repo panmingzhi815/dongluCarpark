@@ -61,8 +61,14 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			httpUrl=instance.getUrl();
 			name=instance.getCompany();
 			log.info("获取信息parkId={}，buildindId={}，httpUrl={}，name={}",parkId,buildindId,httpUrl,name);
+			if(!StrUtil.isEmpty(httpUrl)){
+				int lastIndexOf = httpUrl.lastIndexOf("/");
+				if(lastIndexOf==httpUrl.length()-1){
+					httpUrl=httpUrl.substring(0, httpUrl.length()-1);
+				}
+			}
 		} catch (Exception e) {
-			httpUrl=null;
+			
 		}
 	}
 	public IpmsServiceImpl() {}

@@ -64,6 +64,7 @@ public class CarOutTask extends AbstractTask{
 		try {
 			model.setDisContinue(false);
 			model.setHandSearch(false);
+			model.setVisitor(null);
 			long nanoTime = System.nanoTime();
 			date = new Date();
 			model.setLastCarOutTime(date.getTime());
@@ -333,6 +334,7 @@ public class CarOutTask extends AbstractTask{
 				d = cch.getInTime();
 			}
 			if (cch!=null&&cch.getReviseInTime()!=null) {
+				presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent(), false);
 				boolean confirm = new ConfimBox(editPlateNo, "车辆在[" + StrUtil.formatDate(validTo) + "]过期\n是否允许车辆按临时车计费出场:["+carpark.getName()+"]")
 						.open();
 				if (confirm) {
@@ -472,7 +474,7 @@ public class CarOutTask extends AbstractTask{
 	}
 	private boolean visitorCarOut(){
 		SingleCarparkVisitor visitor = sp.getCarparkService().findVisitorByPlateAndCarpark(plateNO, carpark);
-		if (visitor==null||visitor.getStatus().equals(VisitorStatus.不可用.name())) {
+		if (visitor==null||visitor.getStatus().equals(VisitorStatus.不可用.name())||visitor.getOutNeedCharge()) {
 			return true;
 		}
 		boolean flag=false;
@@ -529,6 +531,10 @@ public class CarOutTask extends AbstractTask{
 		visitor.setOutCount(visitor.getOutCount()+1);
 		if (flag){
 			visitor.setStatus(VisitorStatus.不可用.name());
+		}
+		if(visitor.getOutNeedCharge()){
+			model.setVisitor(visitor);
+			return true;
 		}
 		sp.getCarparkService().saveVisitor(visitor);
 		if (cch==null) {

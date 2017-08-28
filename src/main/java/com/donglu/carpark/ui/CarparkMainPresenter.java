@@ -1411,10 +1411,10 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-//		mapIpToJNA.get(ip).tigger(ip);
-		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+		mapIpToJNA.get(ip).tigger(ip);
+//		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
 		//贵A56G17贵JRJ927
-		carInOutResultProvider.get().invok(ip, 0, "贵A56G1A", bs, null, 11);
+//		carInOutResultProvider.get().invok(ip, 0, "贵A56G1A", bs, null, 11);
 	}
 
 	/**
@@ -2012,6 +2012,9 @@ public class CarparkMainPresenter {
 			}
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车非所属停车场停留收费).equals("true")) {
 				sp.getCarparkInOutService().updateCarparkStillTime(device.getCarpark(), device, singleCarparkInOutHistory.getPlateNo(), singleCarparkInOutHistory.getOutBigImg());
+			}
+			if(model.getVisitor()!=null){
+				sp.getCarparkService().saveVisitor(model.getVisitor());
 			}
 			model.setStroeFrees(null);
 			model.setBtnClick(false);

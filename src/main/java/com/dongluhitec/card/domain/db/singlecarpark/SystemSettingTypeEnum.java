@@ -36,7 +36,7 @@ public enum SystemSettingTypeEnum {
 	收费口无人值守("false"),
 	
 	
-	DateBase_version("1.0.0.21"),软件版本("1.0.0.21"),发布时间("2017-06-13 14:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 
+	DateBase_version("1.0.0.22"),软件版本("1.0.0.22"),发布时间("2017-08-28 14:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 
 	;
 	
 	private String defaultValue;
