@@ -446,14 +446,20 @@ public class CarOutTask extends AbstractTask{
 					plates.clear();
 					for (SingleCarparkInOutHistory singleCarparkInOutHistory : list) {
 						String p = singleCarparkInOutHistory.getPlateNo();
+						if(p.contains(editPlateNo)){
+							continue;
+						}
 						if (plates.size()>=totalSlot&&!plates.contains(p)) {
 							continue;
 						}
-						singleCarparkInOutHistory.setFixCarInType(FixCarInTypeEnum.固定车);
-						singleCarparkInOutHistory.setIsOverdue(null);
-						singleCarparkInOutHistory.setReviseInTime(null);
-						plates.add(p);
-						sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
+						if(singleCarparkInOutHistory.getReviseInTime()!=null||singleCarparkInOutHistory.getFixCarInType().ordinal()>1){
+							singleCarparkInOutHistory.setFixCarInType(FixCarInTypeEnum.固定车);
+							singleCarparkInOutHistory.setIsOverdue(null);
+							singleCarparkInOutHistory.setReviseInTime(null);
+							singleCarparkInOutHistory.setRemarkString(singleCarparkInOutHistory.getRemarkString()+";"+editPlateNo+"出场换车");
+							plates.add(p);
+							sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
+						}
 					}
 				}
 			}

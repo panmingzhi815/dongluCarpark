@@ -626,7 +626,6 @@ public class CarInTask extends AbstractTask {
 					Boolean isFixCarToTempCarConfim = Boolean
 							.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车转临时车弹窗提示));
 					if (isFixCarToTempCarConfim) {
-						if (carpark.isTempCarIsIn()) {
 							boolean confirm = new ConfimBox(editPlateNo, "用户车位已满,车辆" + inPlates + "已进场\n是否作为临时车进入停车场[" + carpark.getName() + "]").open();
 							if (confirm) {
 								cch.setReviseInTime(date);
@@ -634,7 +633,6 @@ public class CarInTask extends AbstractTask {
 								cch.setRemarkString(inPlates + "已在场内");
 								return tempCarShowToDevice(false);
 							}
-						}
 					}
 					return true;
 				}

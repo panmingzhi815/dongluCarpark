@@ -309,7 +309,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 				singleCarparkUser.setMonthChargeId(m.getSelectMonth().getId());
 				singleCarparkUser.setMonthChargeCode(m.getSelectMonth().getChargeCode());
 				singleCarparkUser.setMonthChargeName(m.getSelectMonth().getChargeName());
-				singleCarparkUser.setCarpark(m.getSelectMonth().getCarpark());
+//				singleCarparkUser.setCarpark(m.getSelectMonth().getCarpark());
 			}
 			if (singleCarparkUser.getType().equals("储值")) {
 				Float chargesMoney = m.getChargesMoney();
