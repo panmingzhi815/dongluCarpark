@@ -352,7 +352,10 @@ public class SettingView extends Composite implements View {
 		button_32.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_32.setText("访客车出场次数限制");
 		button_32.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.访客车进场次数用完不能随便出)));
-		new Label(group, SWT.NONE);
+		
+		Button button_33 = new Button(group, SWT.CHECK);
+		button_33.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		button_33.setText("固定车转临时车弹窗提示");
 		new Label(group, SWT.NONE);
 
 		Composite composite_2 = new Composite(group, SWT.NONE);

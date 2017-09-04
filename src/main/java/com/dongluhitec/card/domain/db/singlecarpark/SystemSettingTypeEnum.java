@@ -34,9 +34,10 @@ public enum SystemSettingTypeEnum {
 	绑定车辆允许场内换车("true"),绑定车辆场内换车时间("30"),
 	同一账号只能在一个地方登录("true"),
 	收费口无人值守("false"),
+	固定车转临时车弹窗提示("true"),
 	
 	
-	DateBase_version("1.0.0.22"),软件版本("1.0.0.22"),发布时间("2017-08-28 14:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 
+	DateBase_version("1.0.0.22"),软件版本("1.0.0.22"),发布时间("2017-09-04 14:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 
 	;
 	
 	private String defaultValue;

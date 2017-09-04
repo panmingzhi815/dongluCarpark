@@ -518,18 +518,21 @@ public class CarInTask extends AbstractTask {
 				logger.info("固定车：{} 在{} 到期 直接做临时车计算 ",user,validTo);
 				return tempCarShowToDevice(false);
 			} else {
+				Boolean isFixCarToTempCarConfim = Boolean
+						.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车转临时车弹窗提示));
 				model.setInShowPlateNO(model.getInShowPlateNO() + "-已过期");
 				isShowContent=presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent(), false);
-				boolean confirm = new ConfimBox(editPlateNo, "车辆在[" + StrUtil.formatDate(validTo) + "]过期\n是否允许车辆按临时车进入停车场:["+carpark.getName()+"]")
-						.open();
-				logger.info("固定车：{} 在{} 到期 等待确认 ",user,validTo);
-				if (confirm) {
-					cch.setIsOverdue(true);
-					cch.setFixCarInType(FixCarInTypeEnum.固定车过期变临时车);
-					cch.setReviseInTime(date);
-					cch.setRemarkString(editPlateNo+"已过期");
-					logger.info("固定车：{} 在{} 到期 经确认后做临时车计算 ",user,validTo);
-					return tempCarShowToDevice(false);
+				if (isFixCarToTempCarConfim) {
+					boolean confirm = new ConfimBox(editPlateNo, "车辆在[" + StrUtil.formatDate(validTo) + "]过期\n是否允许车辆按临时车进入停车场:[" + carpark.getName() + "]").open();
+					logger.info("固定车：{} 在{} 到期 等待确认 ", user, validTo);
+					if (confirm) {
+						cch.setIsOverdue(true);
+						cch.setFixCarInType(FixCarInTypeEnum.固定车过期变临时车);
+						cch.setReviseInTime(date);
+						cch.setRemarkString(editPlateNo + "已过期");
+						logger.info("固定车：{} 在{} 到期 经确认后做临时车计算 ", user, validTo);
+						return tempCarShowToDevice(false);
+					} 
 				}
 			}
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期所属停车场限制).equals("true")) {
@@ -620,14 +623,18 @@ public class CarInTask extends AbstractTask {
 					presenter.showContentToDevice(device,
 							model.getMapVoice().get(DeviceVoiceTypeEnum.固定车车位停满禁止进入语音).getContent(), false);
 					model.setInShowPlateNO(model.getInShowPlateNO() + "-个人车位满");
-					if (carpark.isTempCarIsIn()) {
-						boolean confirm = new ConfimBox(editPlateNo, "用户车位已满,车辆" + inPlates + "已进场\n是否作为临时车进入停车场[" + carpark.getName() + "]").open();
-						if (confirm) {
-							cch.setReviseInTime(date);
-							cch.setFixCarInType(FixCarInTypeEnum.固定车车位满变临时车);
-							cch.setRemarkString(inPlates + "已在场内");
-							return tempCarShowToDevice(false);
-						} 
+					Boolean isFixCarToTempCarConfim = Boolean
+							.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车转临时车弹窗提示));
+					if (isFixCarToTempCarConfim) {
+						if (carpark.isTempCarIsIn()) {
+							boolean confirm = new ConfimBox(editPlateNo, "用户车位已满,车辆" + inPlates + "已进场\n是否作为临时车进入停车场[" + carpark.getName() + "]").open();
+							if (confirm) {
+								cch.setReviseInTime(date);
+								cch.setFixCarInType(FixCarInTypeEnum.固定车车位满变临时车);
+								cch.setRemarkString(inPlates + "已在场内");
+								return tempCarShowToDevice(false);
+							}
+						}
 					}
 					return true;
 				}
