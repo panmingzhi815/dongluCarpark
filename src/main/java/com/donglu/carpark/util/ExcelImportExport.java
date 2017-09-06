@@ -3,7 +3,9 @@ package com.donglu.carpark.util;
 import java.util.List;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.ui.util.ProcessBarMonitor;
 import com.dongluhitec.card.ui.util.impl.ExcelImportExportImpl;
 import com.google.inject.ImplementedBy;
 
@@ -28,4 +30,5 @@ public interface ExcelImportExport {
 	public int importUser(String path,CarparkDatabaseServiceProvider sp) throws Exception ;
 	public void export(String path,String[] names,String[] cloumns,List<? extends Object> list)throws Exception;
 	List<String> importPlateNOByUser(String path) throws Exception;
+	void export(String path, String[] nameProperties, String[] columnProperties, List<? extends Object> list, ProcessBarMonitor monitor)throws Exception;
 }

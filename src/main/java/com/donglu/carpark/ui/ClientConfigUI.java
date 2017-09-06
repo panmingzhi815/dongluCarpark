@@ -13,6 +13,8 @@ import org.eclipse.swt.widgets.Text;
 
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
+import com.donglu.carpark.ui.keybord.KeySetting;
+import com.donglu.carpark.ui.keybord.SWTKeySettingApp;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
@@ -39,6 +41,7 @@ public class ClientConfigUI {
 	@Inject
 	private CommonUIFacility commonui;
 	private Button btn_checkDataBase;
+	private Button button;
 
 	/**
 	 * Launch the application.
@@ -72,12 +75,12 @@ public class ClientConfigUI {
 	 */
 	protected void createContents() {
 		shell = new Shell(SWT.CLOSE|SWT.ON_TOP);
-		shell.setSize(309, 88);
+		shell.setSize(408, 96);
 		shell.setText("数据库配置");
 		shell.setLayout(new GridLayout(1, false));
 
 		Composite composite = new Composite(shell, SWT.NONE);
-		composite.setLayout(new GridLayout(3, false));
+		composite.setLayout(new GridLayout(4, false));
 		composite.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true, 1, 1));
 
 		Label label = new Label(composite, SWT.NONE);
@@ -110,6 +113,17 @@ public class ClientConfigUI {
 		});
 		btn_checkDataBase.setText("测试");
 		btn_checkDataBase.setImage(JFaceUtil.getImage("add_small"));
+		
+		button = new Button(composite, SWT.NONE);
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				SWTKeySettingApp app = new SWTKeySettingApp();
+				app.open();
+			}
+		});
+		button.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		button.setText("按键设置");
 
 	}
 

@@ -7,6 +7,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.ui.util.ProcessBarMonitor;
 import com.google.common.base.Strings;
 import jp.ne.so_net.ga2.no_ji.jcom.ReleaseManager;
 import jp.ne.so_net.ga2.no_ji.jcom.excel8.ExcelApplication;
@@ -510,6 +511,60 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 			}
 		}
 		return list;
+	}
+
+	@Override
+	public void export(String path, String[] names, String[] cloumns, List<? extends Object> list, ProcessBarMonitor monitor) throws Exception {
+		copyTemplement(NomalTemplate, path);
+
+		HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(path));
+		HSSFSheet sheet = wb.getSheetAt(0);
+		int currentRow = 0;
+		HSSFRow row = sheet.createRow(currentRow);
+//		row.createCell(0).setCellValue("编号");
+		for (int i = 0; i < names.length; i++) {
+			String string = names[i];
+			HSSFCell createCell = row.createCell(i+1);
+			row.createCell(i).setCellValue(string);
+		}
+		currentRow++;
+		String string;
+		Object fieldValueByName;
+		int size=0;
+		int sheetSize=0;
+		for (int i = 0; i < list.size(); i++) {
+			if(monitor.isDispose()){
+				throw new Exception("导出已终止！");
+			}
+			monitor.showMessage("正在导出第"+(i+1)+"条数据");
+			monitor.dowork(i+1);
+			row = sheet.createRow(currentRow + i-size);
+			Object o = list.get(i);
+			
+//			row.createCell(0).setCellValue(i+1);
+			for (int j = 0; j < cloumns.length; j++) {
+				string = cloumns[j];
+				fieldValueByName = CarparkUtils.getFieldValueByName(string, o);
+//				row.createCell(j+1).setCellValue(fieldValueByName+"");
+				row.createCell(j).setCellValue(fieldValueByName==null?"":fieldValueByName+"");
+			}
+			if(i>0&&i%65530==0){
+				sheetSize=sheetSize+1;
+				try {
+					sheet=wb.getSheetAt(sheetSize);
+					if (sheet==null) {
+						sheet = wb.createSheet();
+					}
+				} catch (Exception e) {
+					sheet = wb.createSheet();
+				}
+				size+=65530;
+			}
+		}
+		FileOutputStream fileOut = new FileOutputStream(path);
+		wb.write(fileOut);
+		fileOut.flush();
+		fileOut.close();
 	}
 
 }

@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
@@ -30,6 +31,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -41,6 +43,8 @@ import org.eclipse.swt.layout.FillLayout;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.AbstractApp;
+import com.donglu.carpark.ui.keybord.KeySetting;
+import com.donglu.carpark.ui.keybord.KeySetting.KeyReleaseTypeEnum;
 import com.donglu.carpark.ui.task.CarInTask;
 import com.donglu.carpark.ui.task.CarOutTask;
 import com.donglu.carpark.ui.view.DevicePresenter;
@@ -82,7 +86,6 @@ import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -1136,27 +1139,44 @@ public class CarparkMainApp extends AbstractApp{
 	}
 
 	void addKeyLisenter(Control control) {
-		control.addKeyListener(new KeyAdapter() {
+		KeySetting keySetting = KeySetting.read();
+		
+		control.getDisplay().addFilter(SWT.KeyUp, new Listener() {
 			@Override
-			public void keyReleased(KeyEvent e) {
-				keyReleasedByControl(carOutChargeCheck, e);
+			public void handleEvent(Event event) {
+				keyReleasedByControl(carOutChargeCheck, new KeyEvent(event),keySetting);
 			}
 		});
-		Control[] children = null;
-		if (control instanceof Shell) {
-			children = ((Shell) control).getChildren();
-		}
-		if (control instanceof Composite) {
-			children = ((Composite) control).getChildren();
-		}
-		if (control instanceof Group) {
-			children = ((Group) control).getChildren();
-		}
-		if (!StrUtil.isEmpty(children)) {
-			for (Control c : children) {
-				addKeyLisenter(c);
+		control.getDisplay().addFilter(SWT.KeyDown, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				boolean contains = keySetting.getMap().values().contains(event.keyCode);
+				if(contains){
+					event.doit=false;
+				}
 			}
-		}
+		});
+//		control.addKeyListener(new KeyAdapter() {
+//			@Override
+//			public void keyReleased(KeyEvent e) {
+//				
+//			}
+//		});
+//		Control[] children = null;
+//		if (control instanceof Shell) {
+//			children = ((Shell) control).getChildren();
+//		}
+//		if (control instanceof Composite) {
+//			children = ((Composite) control).getChildren();
+//		}
+//		if (control instanceof Group) {
+//			children = ((Group) control).getChildren();
+//		}
+//		if (!StrUtil.isEmpty(children)) {
+//			for (Control c : children) {
+//				addKeyLisenter(c);
+//			}
+//		}
 	}
 
 	/**
@@ -1283,11 +1303,13 @@ public class CarparkMainApp extends AbstractApp{
 	/**
 	 * @param carOutChargeCheck
 	 * @param e
+	 * @param keySetting 
 	 */
-	private void keyReleasedByControl(Boolean carOutChargeCheck, KeyEvent e) {
+	private void keyReleasedByControl(Boolean carOutChargeCheck, KeyEvent e, KeySetting keySetting) {
 		if (!rateLimiter.tryAcquire()) {
 			return;
 		}
+		
 		if (e.keyCode == StrUtil.SMAIL_KEY_ENTER || e.keyCode == 13) {
 			if (e.getSource()!=null) {
 				Control c = (Control) e.getSource();
@@ -1299,37 +1321,37 @@ public class CarparkMainApp extends AbstractApp{
 			text_real.selectAll();
 		}
 		// 进口落杆
-		if (e.keyCode == 16777226) {
+		if (e.keyCode == keySetting.getKeyCode(KeyReleaseTypeEnum.进口落杆)) {
 			inDevicePresenter.closeDoor();
 		}
 		// 进口抬杆
-		if (e.keyCode == 16777227) {
+		if (e.keyCode == keySetting.getKeyCode(KeyReleaseTypeEnum.进口抬杆)) {
 			inDevicePresenter.openDoor();
 		}
 		// 出口落杆
-		if (e.keyCode == 16777228) {
+		if (e.keyCode == keySetting.getKeyCode(KeyReleaseTypeEnum.出口落杆)) {
 			outDevicePresenter.closeDoor();
 		}
 		// 出口抬杆
-		if (e.keyCode == 16777229) {
+		if (e.keyCode == keySetting.getKeyCode(KeyReleaseTypeEnum.出口抬杆)) {
 			outDevicePresenter.openDoor();
 		}
 
 		// 收费放行
-		if (e.keyCode == 16777236) {
+		if (e.keyCode == keySetting.getKeyCode(KeyReleaseTypeEnum.收费放行)) {
 			presenter.charge(carOutChargeCheck);
 		}
 		// 免费放行
-		if (e.keyCode == 16777237) {
+		if (e.keyCode == keySetting.getKeyCode(KeyReleaseTypeEnum.免费放行)) {
 			presenter.free(carOutChargeCheck);
 		}
-		if (e.keyCode == 16777232) {
+		if (e.keyCode == keySetting.getKeyCode(KeyReleaseTypeEnum.换班)) {
 			presenter.changeUser();
 		}
-		if (e.keyCode == 16777233) {
+		if (e.keyCode == keySetting.getKeyCode(KeyReleaseTypeEnum.归账)) {
 			presenter.returnAccount();
 		}
-		if (e.keyCode == 16777234) {
+		if (e.keyCode == keySetting.getKeyCode(KeyReleaseTypeEnum.历史记录)) {
 			presenter.showSearchInOutHistory();
 		}
 	}

@@ -21,9 +21,11 @@ import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.common.ui.CommonUIFacility.Progress;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.ui.util.ProcessBarMonitor;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.inject.Inject;
@@ -206,26 +208,66 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	}
 
 	public void exportSearch() {
-		List<SingleCarparkInOutHistory> list = v.getModel().getList();
-		if (StrUtil.isEmpty(list)) {
+		Integer countSearchAll = v.getModel().getCountSearchAll();
+		if (countSearchAll<=0) {
 			return;
+		}
+		boolean exportCurtenRecord=false;
+		boolean confirm = commonui.confirm("提示", "是否导出满足查询条件的"+countSearchAll+"条车辆进出场记录？");
+		if (!confirm) {
+			countSearchAll =v.getModel().getCountSearch();
+			confirm = commonui.confirm("提示", "是否导出界面中"+countSearchAll+"条车辆进出场记录？");
+			if (!confirm) {
+				return;
+			}
+			exportCurtenRecord=true;
 		}
 		String selectToSave = commonui.selectToSave();
 		if (StrUtil.isEmpty(selectToSave)) {
 			return;
 		}
-		String path = StrUtil.checkPath(selectToSave, new String[] { ".xls", ".xlsx" }, ".xls");
-		String[] columnProperties = v.getColumnProperties();
-		String[] nameProperties = v.getNameProperties();
-		ExcelImportExport excelImportExport = new ExcelImportExportImpl();
-		try {
-			excelImportExport.export(path, nameProperties, columnProperties, list);
-			commonui.info("操作成功", "导出成功");
-			LOGGER.info("导出{}条进出场记录成功",list.size());
-		} catch (Exception e) {
-			commonui.info("操作失败", "操作失败"+e.getMessage());
-			LOGGER.info("导出进出场记录失败",e);
-		}
+		Progress showProgressBar = commonui.showProgressBar("导出"+countSearchAll+"条进出记录!", 0, countSearchAll);
+		final ProcessBarMonitor monitor = showProgressBar.getMonitor();
+		boolean exportType=exportCurtenRecord;
+		new Thread(new Runnable() {
+			public void run() {
+				monitor.showMessage("准备从数据库中获取数据！");
+				try {
+					List<SingleCarparkInOutHistory> list=new ArrayList<>();
+					if (!exportType) {
+						CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
+						while (true) {
+							List<SingleCarparkInOutHistory> find = carparkInOutService.findByCondition(list.size(), 500, plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName,
+									inDevice, outDevice, returnAccount, carpark.getId(), shouldMoney);
+							list.addAll(find);
+							monitor.showMessage("已加载" + list.size() + "条数据");
+							if (find.size() < 500) {
+								break;
+							}
+						} 
+					}else{
+						list.addAll(v.getModel().getList());	
+					}
+					String path = StrUtil.checkPath(selectToSave, new String[] { ".xls", ".xlsx" }, ".xls");
+					String[] columnProperties = v.getColumnProperties();
+					String[] nameProperties = v.getNameProperties();
+					ExcelImportExport excelImportExport = new ExcelImportExportImpl();
+					if(monitor.isDispose()){
+						throw new Exception("导出已终止！");
+					}
+					excelImportExport.export(path, nameProperties, columnProperties, list, monitor);
+					commonui.info("操作成功", "导出成功");
+					LOGGER.info("导出{}条进出场记录成功", list.size());
+				} catch (Throwable e) {
+					commonui.info("操作失败", "操作失败" + e.getMessage());
+					LOGGER.info("导出进出场记录失败", e);
+				}finally{
+					if (!monitor.isDispose()) {
+						monitor.finish();
+					}
+				}
+			}
+		}).start();
 	}
 
 	public void flowStatistics() {
