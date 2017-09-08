@@ -89,4 +89,6 @@ public interface CarparkUserService {
 	
 	List<UserHistory> findUserHistory(UpdateEnum[] updates,ProcessEnum[] processEnums);
 	public Long updateUserHistory(UserHistory history,ProcessEnum process);
+	
+	public boolean downPlateToCamera(String ip, String type);
 }

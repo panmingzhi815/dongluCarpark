@@ -1,6 +1,8 @@
 package com.donglu.carpark.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.fieldassist.ContentProposalAdapter;
@@ -9,9 +11,22 @@ import org.eclipse.jface.fieldassist.SimpleContentProposalProvider;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
+
+import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 
 public class TextUtils {
 	static Map<String, String> map=new HashMap<>();
@@ -92,6 +107,118 @@ public class TextUtils {
 		map.put("jin2", "津");
 		map.put("hu", "沪");
 		
+	}
+	
+	
+	static Map<Text,List<Map<String, Rectangle>>> mapTextIco=new HashMap<>();
+	/**
+	 * 在文本框右侧添加图标、事件
+	 * @param right 
+	 */
+	public static Text setTextEditIco(Text txt,String img,String title,Cursor cursor,int right, MouseListener mouseClick) {
+		if (txt==null||img==null||cursor==null||mouseClick==null) {
+			return txt;
+		}
+		Image image = JFaceUtil.getImage(img);
+		if (image==null) {
+//			log.error("设置文本框事件：{} 时，没有找到文本框图片：{}",title,img);
+			return txt;
+		}
+		ImageData imageData = image.getImageData();
+		Rectangle rectangle = new Rectangle(-1, 0, imageData.width, imageData.height);
+//		System.out.println(title+"=="+rectangle);
+		txt.addPaintListener(new PaintListener() {
+			public void paintControl(PaintEvent e) {
+				GC gc = e.gc;
+				if (rectangle.x<0) {
+					Rectangle bounds = txt.getBounds();
+					ImageData imageData = image.getImageData();
+					int width = imageData.width;
+					rectangle.x = bounds.width - width - right;
+//					System.out.println(rectangle);
+					synchronized (mapTextIco) {
+						List<Map<String, Rectangle>> list = mapTextIco.getOrDefault(txt, new ArrayList<>());
+//						System.out.println(list.size());
+						boolean isHave = false;
+						Map<String, Rectangle> m = null;
+						for (Map<String, Rectangle> map : list) {
+							if (isHave = map.keySet().contains(title)) {
+								m = map;
+								break;
+							}
+						}
+						if (!isHave) {
+							m = new HashMap<>();
+							m.put(title, rectangle);
+							list.add(m);
+						} else {
+							m.put(title, rectangle);
+						}
+						mapTextIco.put(txt, list);
+					}
+					
+				}
+				gc.drawImage(image, rectangle.x, 0);
+			}
+		});
+		MouseMoveListener listener= (MouseMoveListener) txt.getData(MouseMoveListener.class.getName());
+		if(listener==null){
+//			System.out.println("添加鼠标移动监听");
+			listener = new MouseMoveListener() {
+				@Override
+				public void mouseMove(MouseEvent e) {
+					boolean isInIco=false;
+					String t="";
+					for (Map<String, Rectangle> map : mapTextIco.getOrDefault(txt, new ArrayList<>())) {
+						for (String string : map.keySet()) {
+							Rectangle r = map.get(string);
+    						if(r.contains(e.x, e.y)){
+    							isInIco=true;
+//    							System.out.println(string+"==="+r);
+    							t=string;
+    							break;
+    						}
+						}
+						
+					}
+//					System.out.println(isInIco+"=="+t);
+					if (isInIco) {
+						txt.setCursor(cursor);
+						txt.setToolTipText(t);
+					}else{
+						txt.setCursor(null);
+						txt.setToolTipText(null);
+					}
+				}
+			};
+			txt.setData(MouseMoveListener.class.getName(),listener);
+			txt.addMouseMoveListener(listener);
+		}
+		txt.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				txt.redraw();
+				if (!rectangle.contains(e.x, e.y)) {
+					return;
+				}
+				mouseClick.mouseDown(e);
+			}
+			@Override
+			public void mouseUp(MouseEvent e) {
+				if (!rectangle.contains(e.x, e.y)) {
+					return;
+				}
+				mouseClick.mouseUp(e);
+			}
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				if (!rectangle.contains(e.x, e.y)) {
+					return;
+				}
+				mouseClick.mouseDoubleClick(e);
+			}
+		});
+		return txt;
 	}
 	
 	

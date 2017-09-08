@@ -307,6 +307,8 @@ public interface CarparkInOutServiceI {
 	 */
 	List<SingleCarparkImageHistory> findImageHistoryBySearch(int first,int max,String plate,String type,Date start,Date end);
 	int countImageHistoryBySearch(String plate,String type,Date start,Date end);
+	List<SingleCarparkImageHistory> findImageHistoryBySearch(int first,int max,String plate,String type,Date start,Date end,String deviceName,String deviceIp);
+	int countImageHistoryBySearch(String plate,String type,Date start,Date end,String deviceName,String deviceIp);
 	
 
 	/**

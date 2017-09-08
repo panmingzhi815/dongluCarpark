@@ -73,6 +73,12 @@ public class SingleCarparkUser extends DomainObject {
 	public String getValitoLabel(){
 		return StrUtil.formatDate(validTo, "yyyy-MM-dd");
 	}
+	public String getCarparkLabel(){
+		return carpark.toString();
+	}
+	public String getCarTypeLabel(){
+		return carType.toString();
+	}
 	public String getName() {
 		return name;
 	}

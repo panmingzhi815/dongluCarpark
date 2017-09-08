@@ -126,4 +126,11 @@ public class StoreServiceServlet extends HessianServlet implements StoreServiceI
 	public Long countStoreByCondition(String storeName) {
 		return storeService.countStoreByCondition(storeName);
 	}
+
+
+
+	@Override
+	public SingleCarparkStore findStoreById(Long id) {
+		return storeService.findStoreById(id);
+	}
 }

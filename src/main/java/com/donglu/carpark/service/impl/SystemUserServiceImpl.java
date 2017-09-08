@@ -132,4 +132,15 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 		return mapLoginInfo.get(userName);
 	}
 
+	@Override
+	public SingleCarparkSystemUser findSystemUserById(Long id) {
+		unitOfWork.begin();
+		try {
+			DatabaseOperation<SingleCarparkSystemUser> dom = DatabaseOperation.forClass(SingleCarparkSystemUser.class, emprovider.get());
+			return dom.getEntityWithId(id);
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
 }

@@ -31,9 +31,11 @@ import org.hibernate.jdbc.ReturningWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.donglu.carpark.server.imgserver.ImageServerUI;
 import com.donglu.carpark.service.CarparkService;
 import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.domain.db.setting.SNSettingType;
+import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkDurationPrice;
@@ -53,6 +55,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor.VisitorStatus;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.hardware.plateDevice.PlateNOJNA;
+import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.dongluhitec.card.service.impl.SettingServiceImpl;
 import com.google.common.base.Predicate;
@@ -501,8 +505,7 @@ public class CarparkServiceImpl implements CarparkService {
 		
 		unitOfWork.begin();
 		try {
-			Criteria c=
-			createCriteriaBySingleCarparkReturnAccount(userName,operaName,start,end);
+			Criteria c=createCriteriaBySingleCarparkReturnAccount(userName,operaName,start,end);
 			c.setProjection(Projections.rowCount());
 			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
 			return singleResultOrNull.intValue();
@@ -967,5 +970,34 @@ public class CarparkServiceImpl implements CarparkService {
 			unitOfWork.end();
 		}
 	}
-		
+
+	@Override
+	public CarparkChargeStandard findCarparkChargeStandardById(Long id) {
+		unitOfWork.begin();
+		try {
+			DatabaseOperation<CarparkChargeStandard> dom = DatabaseOperation.forClass(CarparkChargeStandard.class, emprovider.get());
+			CarparkChargeStandard c = dom.getEntityWithId(id);
+			for (CarparkDurationStandard carparkDurationStandard : c.getCarparkDurationStandards()) {
+				carparkDurationStandard.getCarparkDurationPriceList().size();
+			}
+			return c;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public SingleCarparkCarpark findCarparkByUuid(String carparkId) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
+			c.add(Restrictions.eq("uuid", carparkId));
+			return (SingleCarparkCarpark) c.getSingleResultOrNull();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	
+	
+	
 }

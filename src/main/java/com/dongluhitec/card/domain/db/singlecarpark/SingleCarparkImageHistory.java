@@ -14,7 +14,7 @@ public class SingleCarparkImageHistory extends DomainObject {
 	 */
 	private static final long serialVersionUID = 6818506711499205078L;
 	public enum Property{
-		plateNO,factPlateNO,bigImage,type,time
+		plateNO,factPlateNO,bigImage,type,time,deviceName,deviceIp
 	}
 	public enum Label{
 		timeLabel

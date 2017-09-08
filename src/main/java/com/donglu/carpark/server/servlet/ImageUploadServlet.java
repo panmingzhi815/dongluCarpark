@@ -30,5 +30,9 @@ public class ImageUploadServlet extends HessianServlet implements ImageServiceI 
 	public byte[] getImage(String imageName) {
 		return imageService.getImage(imageName);
 	}
+	@Override
+	public String getImagePath(String image) {
+		return imageService.getImagePath(image);
+	}
 
 }

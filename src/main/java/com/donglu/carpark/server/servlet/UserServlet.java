@@ -282,5 +282,13 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 	public Date getServerDate() {
 		return settingService.getServerDate();
 	}
+	public boolean downPlateToCamera(String ip, String type) {
+		return carparkUserService.downPlateToCamera(ip, type);
+	}
+
+	@Override
+	public SingleCarparkSystemUser findSystemUserById(Long id) {
+		return systemUserService.findSystemUserById(id);
+	}
 
 }

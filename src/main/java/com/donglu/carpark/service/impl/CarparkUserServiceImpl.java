@@ -2,7 +2,9 @@ package com.donglu.carpark.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -22,9 +24,11 @@ import org.criteria4jpa.order.Order;
 import org.criteria4jpa.projection.Projections;
 import org.joda.time.DateTime;
 
+import com.donglu.carpark.server.imgserver.ImageServerUI;
 import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.blservice.DongluServiceException;
+import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -34,6 +38,9 @@ import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.hardware.plateDevice.PlateNOJNA;
+import com.dongluhitec.card.hardware.plateDevice.PlateNOResult;
+import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -68,6 +75,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		for (String string : split) {
 			removeUserCache(user.getCarpark(), string);
 		}
+		userCache.invalidate("findAllUser");
 		return user.getId();
 	}
 	/**
@@ -82,12 +90,16 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		userCache.invalidate("findUserByPlateNo-"+plateNo+"-"+id);
 		userCache.invalidate("findUserByPlateNo-"+plateNo+"-null");
 		userCache.invalidate("findUserByNameAndCarpark-"+plateNo+"-"+id);
+		userCache.invalidate("findAllUser");
 		removeUserCache(carpark.getParent(), plateNo);
 	}
 	@Override
 	@Transactional
 	public Long deleteUser(SingleCarparkUser user) {
 		DatabaseOperation<SingleCarparkUser> dom = DatabaseOperation.forClass(SingleCarparkUser.class, emprovider.get());
+		if(user.getPlateNo()==null){
+			user=dom.getEntityWithId(user.getId());
+		}
 		dom.remove(user.getId());
 		emprovider.get().persist(new UserHistory(user,UpdateEnum.被删除));
 		String[] split = user.getPlateNo().split(",");
@@ -207,7 +219,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 				public Object call() throws Exception {
 					DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
 					SingleCarparkCarpark entityWithId = dom.getEntityWithId(carparkId);
-					List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+					List<SingleCarparkCarpark> list=entityWithId.loadCarparkAndAllChilds();
 					return list;
 				}
 			});
@@ -439,7 +451,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 						if (!StrUtil.isEmpty(carpark)) {
 							DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
 							SingleCarparkCarpark entityWithId = dom.getEntityWithId(carpark.getId());
-							List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+							List<SingleCarparkCarpark> list=entityWithId.loadCarparkAndAllChilds();
 							c.add(Restrictions.in("carpark",list));
 						}
 						List<SingleCarparkUser> resultList = c.getResultList();
@@ -559,5 +571,53 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		userHistory.getHistoryDetail().setProcessState(process);
 		userHistory.getHistoryDetail().setProcessTime(new Date());
 		return history.getAuto_id();
+	}
+	@Override
+	public boolean downPlateToCamera(String ip, String type) {
+		PlateNOJNA plateNOJNA = CameraTypeEnum.get(type).getJNA(ImageServerUI.serverInjector);
+		List<PlateDownload> plateDownloadList = null;
+		try {
+			plateDownloadList = (List<PlateDownload>) userCache.get("findAllUser", new Callable<Object>() {
+				@Override
+				public Object call() throws Exception {
+					List<SingleCarparkUser> findAll = findAll();
+					ArrayList<PlateDownload> list = new ArrayList<>();
+					Map<String, String> map=new HashMap<>();
+					for (SingleCarparkUser user : findAll) {
+						String[] split = user.getPlateNo().split(",");
+						if (split.length>1) {
+							continue;
+						}
+						PlateDownload pd=new PlateDownload();
+						Date validTo = user.getValidTo();
+						if (validTo==null||validTo.before(new Date())) {
+							pd.setUse(false);
+						}
+						String key = user.getPlateNo();
+						if (map.get(key)==null) {
+							pd.setDate(validTo);
+							pd.setPlate(user.getPlateNo());
+							list.add(pd);
+							map.put(key, key);
+						}
+					}
+					return list;
+				}
+			});
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			plateNOJNA.openEx(ip, new PlateNOResult() {
+				@Override
+				public void invok(String ip, int channel, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize) {
+				}
+			});
+			plateNOJNA.plateDownload(plateDownloadList, ip);
+		} finally {
+			plateNOJNA.closeEx(ip);
+		}
+		return true;
 	}
 }

@@ -55,7 +55,9 @@ public class SingleCarparkMonthlyCharge extends DomainObject{
 
 	public void setCarpark(SingleCarparkCarpark carpark) {
 		this.carpark = carpark;
-		this.carparkId=carpark.getId();
+		if (carpark!=null) {
+			this.carparkId = carpark.getId();
+		}
 		if (pcs != null)
 			pcs.firePropertyChange("carpark", null, null);
 	}

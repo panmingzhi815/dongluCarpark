@@ -65,7 +65,7 @@ public class CarparkChargeStandard extends DomainObject{
 	private CarparkAcrossDayTypeEnum carparkAcrossDayTypeEnum;
 	
 	@Column(name="acrossday_charge_enable")
-	private int acrossdayChargeEnable;
+	private int acrossdayChargeEnable; //免费时长收费
 	
 	//起步时长
 	@Min(value=0,message="起步收费时长必须大于等于0")
@@ -173,11 +173,11 @@ public class CarparkChargeStandard extends DomainObject{
 		firePropertyChange(Property.startStepTime.name(), this.startStepTime, this.startStepTime = startStepTime);
 	}
 
-	public float getStartStepPrice() {
+	public Float getStartStepPrice() {
 		return startStepPrice;
 	}
 
-	public void setStartStepPrice(float startStepPrice) {
+	public void setStartStepPrice(Float startStepPrice) {
 		firePropertyChange(Property.startStepPrice.name(), this.startStepPrice, this.startStepPrice = startStepPrice);
 	}
 

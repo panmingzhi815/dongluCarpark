@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.joda.time.DateTime;
 
@@ -61,7 +62,15 @@ public class CarparkDurationStandard extends DomainObject{
 	
 	@OneToMany(mappedBy="carparkDurationStandard",cascade=CascadeType.ALL)
 	private List<CarparkDurationPrice> carparkDurationPriceList = new ArrayList<CarparkDurationPrice>(); 
-
+	@Transient
+	private Object tempObject;
+	
+	public String getStartTimeLabel(){
+		return StrUtil.formatDate(startTime, "HH:mm");
+	}
+	public String getEndTimeLabel(){
+		return StrUtil.formatDate(endTime, "HH:mm");
+	}
 	
 	public CarparkChargeStandard getCarparkChargeStandard() {
 		return carparkChargeStandard;
@@ -216,5 +225,14 @@ public class CarparkDurationStandard extends DomainObject{
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public Object getTempObject() {
+		return tempObject;
+	}
+
+	public void setTempObject(Object tempObject) {
+		this.tempObject = tempObject;
+		firePropertyChange("tempObject", null, null);
 	}
 }

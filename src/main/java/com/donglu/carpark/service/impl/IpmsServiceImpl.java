@@ -7,23 +7,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import javax.json.JsonArray;
 
-import org.apache.noggit.JSONUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.donglu.carpark.model.Result;
@@ -107,10 +102,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			int depFree = (int) (ioh.getFactMoney() == null ? 0 : ioh.getFactMoney() * 100);
 			int free = (int) (ioh.getShouldMoney() == null ? 0 : ioh.getShouldMoney() * 100);
 			content = StrUtil.formatString(content, plateNo, parkId + id, inTime, outTime, status, userType, depFree, free, id);
-			System.out.println(content);
 			carInfo = "data=" + URLEncoder.encode("["+content+"]", "UTF-8");
 			String actionUrl = url;
-			System.out.println(actionUrl);
 			String httpPostMssage = httpPostMssage(actionUrl, carInfo);
 			log.info("{}停车场记录,结果:{}", type, httpPostMssage);
 			boolean result = JSONObject.parseObject(httpPostMssage).get("ret").toString().equals("0");

@@ -42,5 +42,8 @@ public class OpenDoorLogPresenter  implements Presenter{
 		}
 		listPresenter.search(operaName, start, end, deviceName);
 	}
+	public void export() {
+		listPresenter.export();
+	}
 	
 }
