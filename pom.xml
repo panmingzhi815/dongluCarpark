@@ -123,7 +123,7 @@
 				<configuration>
 					<!-- Specifies the configuration file of the assembly plugin -->
 					<appendAssemblyId>false</appendAssemblyId>
-					<finalName>carpark-${dev.build.version}</finalName>
+					<finalName>carpark</finalName>
 					<descriptors>
 						<descriptor>src/main/resources/package.xml</descriptor>
 					</descriptors>
