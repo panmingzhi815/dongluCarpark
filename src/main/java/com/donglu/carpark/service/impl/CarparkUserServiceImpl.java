@@ -65,13 +65,24 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			}
 		}
 		String[] split = user.getPlateNo().split(",");
-		Long id = user.getCarpark().getId();
 		for (String string : split) {
-			userCache.invalidate("findUserByPlateNo-"+string+"-"+id);
-			userCache.invalidate("findUserByPlateNo-"+string+"-null");
-			userCache.invalidate("findUserByNameAndCarpark-"+string+"-"+id);
+			removeUserCache(user.getCarpark(), string);
 		}
 		return user.getId();
+	}
+	/**
+	 * @param user
+	 * @param plateNo
+	 */
+	public void removeUserCache(SingleCarparkCarpark carpark, String plateNo) {
+		if (carpark==null) {
+			return;
+		}
+		Long id = carpark.getId();
+		userCache.invalidate("findUserByPlateNo-"+plateNo+"-"+id);
+		userCache.invalidate("findUserByPlateNo-"+plateNo+"-null");
+		userCache.invalidate("findUserByNameAndCarpark-"+plateNo+"-"+id);
+		removeUserCache(carpark.getParent(), plateNo);
 	}
 	@Override
 	@Transactional
