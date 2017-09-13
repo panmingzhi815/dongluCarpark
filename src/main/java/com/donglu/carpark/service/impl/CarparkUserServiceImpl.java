@@ -91,11 +91,8 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		dom.remove(user.getId());
 		emprovider.get().persist(new UserHistory(user,UpdateEnum.被删除));
 		String[] split = user.getPlateNo().split(",");
-		Long id = user.getCarpark().getId();
 		for (String string : split) {
-			userCache.invalidate("findUserByPlateNo-"+string+"-"+id);
-			userCache.invalidate("findUserByPlateNo-"+string+"-null");
-			userCache.invalidate("findUserByNameAndCarpark-"+string+"-"+id);
+			removeUserCache(user.getCarpark(), string);
 		}
 		return user.getId();
 	}
