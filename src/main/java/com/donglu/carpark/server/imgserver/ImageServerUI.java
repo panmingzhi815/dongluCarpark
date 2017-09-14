@@ -65,6 +65,7 @@ import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.SystemUpdate;
 import com.donglu.carpark.yun.CarparkYunConfig;
+import com.donglu.carparkweb.CarparkWebStart;
 import com.dongluhitec.card.blservice.ShangHaiYunCarParkService;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
@@ -481,6 +482,7 @@ public class ImageServerUI {
 			carparkDBServer.startDbServlet(servletHandler);
 		    server.setHandler(servletHandler);
 			server.start();
+			CarparkWebStart.main(new String[]{});
 			btnStartText = "退出";
 			btnStartType = "stop";
 			carparkDBServer.startBackgroudService();

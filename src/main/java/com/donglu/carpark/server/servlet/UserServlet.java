@@ -278,4 +278,9 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 		return carparkUserService.updateUserHistory(history, process);
 	}
 
+	@Override
+	public boolean downPlateToCamera(String ip, String type) {
+		return carparkUserService.downPlateToCamera(ip, type);
+	}
+
 }

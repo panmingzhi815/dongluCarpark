@@ -45,4 +45,14 @@ public enum CameraTypeEnum {
 			return super.toString();
 		}
 	}
+
+	public static CameraTypeEnum get(String type) {
+		for (CameraTypeEnum cameraTypeEnum : values()) {
+			if(cameraTypeEnum.toString().equals(type)){
+				return cameraTypeEnum;
+			}
+		}
+		
+		return 智芯;
+	}
 }

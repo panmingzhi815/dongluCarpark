@@ -23,6 +23,7 @@
             	<exclude>com.dongluhitec.card:update</exclude>
             	<exclude>com.dongluhitec.card:utility</exclude>
             	<exclude>com.dongluhitec.card:encryption</exclude>
+            	<exclude>com.donglu:carparkweb</exclude>
             </excludes>
             <unpack>false</unpack>
         </dependencySet>
