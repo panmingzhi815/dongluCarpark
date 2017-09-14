@@ -4,17 +4,22 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
+import org.criteria4jpa.criterion.Restrictions;
 
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.service.SettingService;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
+import com.dongluhitec.card.domain.db.singlecarpark.YellowUser;
+import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
@@ -143,6 +148,48 @@ public class SettingServiceImpl implements SettingService {
 	private void checkSetting() {
 //		Criteria c = CriteriaUtils.createCriteria(emProvider.get(), SingleCarparkSystemSetting.class);
 		
+	}
+
+	@Override
+	public YellowUser findYellowUser(String plateNO) {
+		Criteria c = CriteriaUtils.createCriteria(emProvider.get(), YellowUser.class);
+		c.add(Restrictions.eq(YellowUser.Property.plateNo.name(), plateNO));
+		return (YellowUser) c.getSingleResultOrNull();
+	}
+
+	@Override
+	public Long saveYellowUser(YellowUser yu) {
+		DatabaseOperation<YellowUser> dom = DatabaseOperation.forClass(YellowUser.class, emProvider.get());
+		if (yu.getId()==null) {
+			dom.insert(yu);
+		}else{
+			dom.save(yu);
+		}
+		return yu.getId();
+	}
+
+	@Override
+	public Long deleteYellowUser(YellowUser yu) {
+		DatabaseOperation<YellowUser> dom = DatabaseOperation.forClass(YellowUser.class, emProvider.get());
+		dom.remove(yu);
+		return yu.getId();
+	}
+
+	@Override
+	public List<YellowUser> findYellowUser(int s, int max, String plateNO, Date start, Date end) {
+		Criteria c = CriteriaUtils.createCriteria(emProvider.get(), YellowUser.class);
+		if (!StrUtil.isEmpty(plateNO)) {
+			c.add(Restrictions.like(YellowUser.Property.plateNo.name(), plateNO));
+		}
+		if (!StrUtil.isEmpty(start)) {
+			c.add(Restrictions.ge(YellowUser.Property.createTime.name(), start));
+		}
+		if (!StrUtil.isEmpty(end)) {
+			c.add(Restrictions.le(YellowUser.Property.createTime.name(), end));
+		}
+		c.setFirstResult(s);
+		c.setMaxResults(max);
+		return c.getResultList();
 	}
 
 }

@@ -20,6 +20,8 @@ public class SingleCarparkOpenDoorLog extends DomainObject{
 	private Date operaDate;
 	private String deviceName;
 	private String image;
+	private String lastPlateNo;
+	private String lastImage;
 	
 	public String getOperaName() {
 		return operaName;
@@ -56,5 +58,19 @@ public class SingleCarparkOpenDoorLog extends DomainObject{
 		this.image = image;
 		if (pcs != null)
 			pcs.firePropertyChange("image", null, null);
+	}
+	public String getLastPlateNo() {
+		return lastPlateNo;
+	}
+	public void setLastPlateNo(String lastPlateNo) {
+		this.lastPlateNo = lastPlateNo;
+		firePropertyChange("lastPlateNo", null, null);
+	}
+	public String getLastImage() {
+		return lastImage;
+	}
+	public void setLastImage(String lastImage) {
+		this.lastImage = lastImage;
+		firePropertyChange("lastImage", null, null);
 	}
 }

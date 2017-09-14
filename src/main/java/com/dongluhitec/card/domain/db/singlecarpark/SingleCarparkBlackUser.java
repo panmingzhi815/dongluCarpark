@@ -27,6 +27,7 @@ public class SingleCarparkBlackUser extends DomainObject {
 	private Boolean timeIn=false;
 	private Boolean weekDayIn=false;
 	private Boolean holidayIn=false;
+	private Boolean canOut=true;
 	
 	@Transient
 	private String hoursStartLabel;
@@ -204,6 +205,18 @@ public class SingleCarparkBlackUser extends DomainObject {
 		this.holidayIn = holidayIn;
 		if (pcs != null)
 			pcs.firePropertyChange("holidayIn", null, null);
+	}
+
+	public Boolean getCanOut() {
+		if (canOut==null) {
+			return true;
+		}
+		return canOut;
+	}
+
+	public void setCanOut(Boolean canOut) {
+		this.canOut = canOut;
+		firePropertyChange("canOut", null, null);
 	}
 
 }

@@ -1768,6 +1768,8 @@ public class CarparkMainPresenter {
 				openDoor.setOperaDate(date);
 				openDoor.setImage(bigImgFileName);
 				openDoor.setDeviceName(device.getName());
+				openDoor.setLastImage(model.getMapLastBigImage().get(device.getIp()));
+				openDoor.setLastPlateNo(model.getMapLastPlateNo().get(device.getIp()));
 				sp.getCarparkInOutService().saveOpenDoorLog(openDoor);
 				log.info("对设备{}，地址{}-{}开闸", device.getName(), device.getLinkAddress(), device.getAddress());
 				showPlateNOToDevice(device, "");
@@ -2564,6 +2566,10 @@ public class CarparkMainPresenter {
 			return ipmsService.getPayResult(cch);
 		}
 		return result;
+	}
+
+	public void alarm(SingleCarparkDevice device, String plateNO, String string) {
+		
 	}
 
 }

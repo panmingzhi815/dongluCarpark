@@ -36,6 +36,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor.VisitorStatus;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.YellowUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 public class CarOutTask extends AbstractTask{
@@ -151,11 +152,23 @@ public class CarOutTask extends AbstractTask{
 			presenter.plateSubmit(cch, date, device, bigImage);
 			presenter.updatePosition(carpark, cch, false);
 		} else {// 临时车操作
+			
 			tempCarOutProcess(null);
 		}
 		model.getMapCameraLastImage().put(ip, bigImgFileName);
 	}
-
+	private boolean checkYellowUser(){
+		if (mapSystemSetting.get(SystemSettingTypeEnum.启用黄名单).equals("false")) {
+			return false;
+		}
+		
+		YellowUser yu=sp.getSettingService().findYellowUser(plateNO);
+		if (yu!=null) {
+			presenter.alarm(device, plateNO, plateNO+"为黄名单，"+yu.getReason());
+			return true;
+		}
+		return false;
+	}
 	/**
 	 * 
 	 * @return true=已锁

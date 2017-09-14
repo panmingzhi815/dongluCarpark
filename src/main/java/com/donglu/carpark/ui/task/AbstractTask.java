@@ -84,6 +84,8 @@ public abstract class AbstractTask implements Runnable {
 		bigImgFileName=CarparkUtils.FormatImagePath(date,plateNO,true);
 		logger.debug("生成车牌：{}的抓拍图片位置：{}--{}", smallImgFileName,bigImgFileName);
 		saveImage();
+		model.getMapLastPlateNo().put(device.getIp(), plateNO);
+		model.getMapLastBigImage().put(device.getIp(), bigImgFileName);
 	}
 	/**
 	 * 保存图片

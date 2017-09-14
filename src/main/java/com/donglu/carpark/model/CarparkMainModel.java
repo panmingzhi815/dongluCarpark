@@ -72,6 +72,10 @@ public class CarparkMainModel extends DomainObject {
 	private final Map<String, Boolean> mapIpToDeviceStatus=new HashMap<>();
 	//保存待出场信息
 	private final List<CarOutTask> listOutTask=new ArrayList<>();
+	//保存最后的抓拍车牌
+	private final Map<String, String> mapLastPlateNo=new HashMap<>();
+	//保存最后的抓拍大图
+	private final Map<String, String> mapLastBigImage=new HashMap<>();
 	private long lastCarOutTime=0;
 	
 	public final Lock inOutLock=new ReentrantLock();
@@ -884,5 +888,13 @@ public class CarparkMainModel extends DomainObject {
 
 	public Lock getInOutLock() {
 		return inOutLock;
+	}
+
+	public Map<String, String> getMapLastPlateNo() {
+		return mapLastPlateNo;
+	}
+
+	public Map<String, String> getMapLastBigImage() {
+		return mapLastBigImage;
 	}
 }

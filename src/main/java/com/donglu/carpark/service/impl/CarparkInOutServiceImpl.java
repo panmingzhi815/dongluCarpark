@@ -1695,5 +1695,29 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		c.setMaxResults(size);
 		return c.getResultList();
 	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> findByPlateAndCarpark(int i, int maxValue, String plateNo, Long carparkId, Date ins, Date ine, Date outs, Date oute) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+		if (!StrUtil.isEmpty(plateNo)) {
+			c.add(Restrictions.like(SingleCarparkInOutHistory.Property.plateNo.name(), plateNo));
+		}
+		if (!StrUtil.isEmpty(carparkId)) {
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), carparkId));
+		}
+		if (ins!=null) {
+			c.add(Restrictions.ge(SingleCarparkInOutHistory.Property.inTime.name(), ins));
+		}
+		if (ine!=null) {
+			c.add(Restrictions.le(SingleCarparkInOutHistory.Property.inTime.name(), ine));
+		}
+		if (outs!=null) {
+			c.add(Restrictions.ge(SingleCarparkInOutHistory.Property.outTime.name(), outs));
+		}
+		if (oute!=null) {
+			c.add(Restrictions.le(SingleCarparkInOutHistory.Property.outTime.name(), oute));
+		}
+		return c.getResultList();
+	}
 	
 }

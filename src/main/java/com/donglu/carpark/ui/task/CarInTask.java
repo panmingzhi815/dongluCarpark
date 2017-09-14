@@ -30,6 +30,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser.CarparkSlo
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor.VisitorStatus;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.YellowUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 public class CarInTask extends AbstractTask {
@@ -106,8 +107,10 @@ public class CarInTask extends AbstractTask {
 
 
 		if (checkBlackUser(device, date)) {
+			presenter.alarm(device,plateNO,"黑名单");
 			return;
 		}
+		
 		LOGGER.debug("查找是否为固定车");
 		user = sp.getCarparkUserService().findUserByPlateNo(plateNO, carpark.getId());
 		if (user==null) {
@@ -142,6 +145,35 @@ public class CarInTask extends AbstractTask {
 		checkUser(!isEmptyPlateNo);
 	}
 
+	private boolean checkYellowUser() {
+		if (mapSystemSetting.get(SystemSettingTypeEnum.启用黄名单).equals("false")) {
+			return false;
+		}
+		
+		YellowUser yu=sp.getSettingService().findYellowUser(plateNO);
+		if (yu!=null) {
+			presenter.alarm(device, plateNO, plateNO+"为黄名单，"+yu.getReason());
+			return true;
+		}else{
+			Integer time = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.黄名单指定时间));
+			Integer size = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.黄名单指定时间停留次数));
+			if (time<=0||size<=0) {
+				return false;
+			}
+			Date date2 = new DateTime(date).plus(time).toDate();
+			List<SingleCarparkInOutHistory> list=sp.getCarparkInOutService().findByPlateAndCarpark(0,Integer.MAX_VALUE,plateNO,carpark.getId(),date2,date,null,null);
+			if (list.size()>size) {
+				yu = new YellowUser();
+				yu.setPlateNo(plateNO);
+				yu.setReason("在"+time+"小时内进出"+list.size()+"次,超过限制"+size+"次");
+				sp.getSettingService().saveYellowUser(yu);
+				presenter.alarm(device, plateNO, "车辆:["+plateNO+"]"+yu.getReason());
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * 
 	 */
@@ -167,6 +199,7 @@ public class CarInTask extends AbstractTask {
 				return;
 			}
 		} else {
+			checkYellowUser();
 			if (tempCarShowToDevice(isInCheck)) {
 				return;
 			}

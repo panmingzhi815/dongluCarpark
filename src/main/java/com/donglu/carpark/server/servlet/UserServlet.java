@@ -24,6 +24,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemOperaLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.YellowUser;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
@@ -276,6 +277,26 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 	@Override
 	public Long updateUserHistory(UserHistory history, ProcessEnum process) {
 		return carparkUserService.updateUserHistory(history, process);
+	}
+
+	@Override
+	public YellowUser findYellowUser(String plateNO) {
+		return settingService.findYellowUser(plateNO);
+	}
+
+	@Override
+	public Long saveYellowUser(YellowUser yu) {
+		return settingService.saveYellowUser(yu);
+	}
+
+	@Override
+	public Long deleteYellowUser(YellowUser yu) {
+		return settingService.deleteYellowUser(yu);
+	}
+
+	@Override
+	public List<YellowUser> findYellowUser(int s, int max, String plateNO, Date start, Date end) {
+		return settingService.findYellowUser(s, max, plateNO, start, end);
 	}
 
 }

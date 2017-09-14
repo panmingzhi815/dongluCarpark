@@ -346,4 +346,6 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	List<SingleCarparkInOutHistory> searchNotOutHistory(int start, int size, String plateNo, SingleCarparkCarpark carpark);
+	
+	List<SingleCarparkInOutHistory> findByPlateAndCarpark(int i, int maxValue, String plateNo, Long carparkId, Date ins, Date ine, Date outs, Date oute);
 }
