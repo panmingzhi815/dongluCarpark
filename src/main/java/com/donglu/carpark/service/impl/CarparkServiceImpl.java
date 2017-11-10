@@ -83,6 +83,7 @@ public class CarparkServiceImpl implements CarparkService {
 			dom.insert(carpark);
 		} else {
 			dom.save(carpark);
+			cache.invalidateAll();
 		}
 		return carpark.getId();
 	}
@@ -92,6 +93,7 @@ public class CarparkServiceImpl implements CarparkService {
 	public Long deleteCarpark(SingleCarparkCarpark carpark) {
 		DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
 		dom.remove(carpark.getId());
+		cache.invalidateAll();
 		return carpark.getId();
 	}
 
