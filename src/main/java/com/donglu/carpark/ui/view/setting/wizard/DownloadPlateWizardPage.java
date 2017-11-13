@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 
 public class DownloadPlateWizardPage extends WizardPage {
 	@SuppressWarnings("unused")
@@ -44,6 +45,7 @@ public class DownloadPlateWizardPage extends WizardPage {
 	private Text text;
 	private ComboViewer comboViewer;
 	private ListViewer listViewer;
+	private ComboViewer comboViewer_1;
 	/**
 	 * Create the wizard.
 	 * @param model 
@@ -71,7 +73,7 @@ public class DownloadPlateWizardPage extends WizardPage {
 		
 		Group group = new Group(composite, SWT.NONE);
 		group.setText("操作");
-		group.setLayout(new GridLayout(7, false));
+		group.setLayout(new GridLayout(9, false));
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		
 		Label lblNewLabel = new Label(group, SWT.NONE);
@@ -103,6 +105,14 @@ public class DownloadPlateWizardPage extends WizardPage {
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(CameraTypeEnum.values());
 		combo.select(0);
+		
+		Label label = new Label(group, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("停车场");
+		
+		comboViewer_1 = new ComboViewer(group, SWT.READ_ONLY);
+		Combo combo_1 = comboViewer_1.getCombo();
+		combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Button btnNewButton = new Button(group, SWT.NONE);
 		btnNewButton.setToolTipText("添加一个新的设备");
@@ -148,6 +158,22 @@ public class DownloadPlateWizardPage extends WizardPage {
 	public DownloadPlateWizard getWizard() {
 		return (DownloadPlateWizard) super.getWizard();
 	}
+
+	/**
+	 * 
+	 */
+	public void add() {
+		String ip = model.getIp();
+		CameraTypeEnum type = model.getType();
+		if (StrUtil.isEmpty(ip)||StrUtil.isEmpty(type)) {
+			return;
+		}
+		DownloadDeviceInfo d=new DownloadDeviceInfo();
+		d.setIp(ip);
+		d.setType(type);
+		d.setCarpark(model.getCarpark());
+		model.addInfo(d);
+	}
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
@@ -171,21 +197,18 @@ public class DownloadPlateWizardPage extends WizardPage {
 		IObservableList listSelectedModelObserveList = BeanProperties.list("listSelected").observe(model);
 		bindingContext.bindList(observeMultiSelectionListViewer, listSelectedModelObserveList, null, null);
 		//
+		ObservableListContentProvider listContentProvider_1 = new ObservableListContentProvider();
+		IObservableMap observeMap_1 = BeansObservables.observeMap(listContentProvider_1.getKnownElements(), SingleCarparkCarpark.class, "name");
+		comboViewer_1.setLabelProvider(new ObservableMapLabelProvider(observeMap_1));
+		comboViewer_1.setContentProvider(listContentProvider_1);
+		//
+		IObservableList listCarparkModelObserveList = BeanProperties.list("listCarpark").observe(model);
+		comboViewer_1.setInput(listCarparkModelObserveList);
+		//
+		IObservableValue observeSingleSelectionComboViewer_1 = ViewerProperties.singleSelection().observe(comboViewer_1);
+		IObservableValue carparkModelObserveValue = BeanProperties.value("carpark").observe(model);
+		bindingContext.bindValue(observeSingleSelectionComboViewer_1, carparkModelObserveValue, null, null);
+		//
 		return bindingContext;
-	}
-
-	/**
-	 * 
-	 */
-	public void add() {
-		String ip = model.getIp();
-		CameraTypeEnum type = model.getType();
-		if (StrUtil.isEmpty(ip)||StrUtil.isEmpty(type)) {
-			return;
-		}
-		DownloadDeviceInfo d=new DownloadDeviceInfo();
-		d.setIp(ip);
-		d.setType(type);
-		model.addInfo(d);
 	}
 }

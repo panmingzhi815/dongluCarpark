@@ -283,4 +283,9 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 		return settingService.getServerDate();
 	}
 
+	@Override
+	public List<SingleCarparkUser> findUserByNameOrCarpark(String name, SingleCarparkCarpark carpark, Date validTo) {
+		return carparkUserService.findUserByNameOrCarpark(name, carpark, validTo);
+	}
+
 }

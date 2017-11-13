@@ -1,6 +1,7 @@
 package com.dongluhitec.card.domain.db.singlecarpark;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +14,7 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.IndexColumn;
 
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -29,7 +31,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,isCountSlot,freeReason,reviseInTime
 	}
 	public enum Label{
-		inTimeLabel,outTimeLabel,remarkString
+		inTimeLabel,outTimeLabel,remarkString,stillTimeLabel
 	}
 	public enum Query{
 		deleteWithNotOutByDate;
@@ -113,6 +115,10 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	}
 	public String getOutTimeLabel(){
 		return StrUtil.formatDate(outTime, "yyyy-MM-dd HH:mm:ss");
+	}
+	public String getStillTimeLabel(){
+		String carStillTime = CarparkUtils.getCarStillTime(StrUtil.MinusTime2(inTime, new Date()));
+		return carStillTime.substring(2, carStillTime.length()-1);
 	}
 	
 	public void setPlateNo(String plateNo) {

@@ -69,6 +69,7 @@ public interface CarparkUserService {
 	 * @return
 	 */
 	List<SingleCarparkUser> findUserByNameAndCarpark(String name, SingleCarparkCarpark carpark,Date validTo);
+	List<SingleCarparkUser> findUserByNameOrCarpark(String name, SingleCarparkCarpark carpark, Date validTo);
 	/**
 	 * 根据车位查找用户
 	 * @param parkingSpace
@@ -89,4 +90,6 @@ public interface CarparkUserService {
 	
 	List<UserHistory> findUserHistory(UpdateEnum[] updates,ProcessEnum[] processEnums);
 	public Long updateUserHistory(UserHistory history,ProcessEnum process);
+	
+	
 }

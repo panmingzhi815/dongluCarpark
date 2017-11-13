@@ -74,7 +74,7 @@ public class AddCarparkChildWizardPage extends WizardPage {
 		new Label(composite, SWT.NONE);
 		
 		button = new Button(composite, SWT.CHECK);
-		button.setText("是否收费");
+		button.setText("需要收费");
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		m_bindingContext = initDataBindings();
 	}

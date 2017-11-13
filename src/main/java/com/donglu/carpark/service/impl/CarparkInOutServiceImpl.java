@@ -143,7 +143,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 
 			createCriteriaByCondition(c, plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount,carparkId, shouldMoney);
-			System.out.println(maxResult+"============"+size);
 			c.addOrder(Order.asc("id"));
 			c.setFirstResult(maxResult);
 			c.setMaxResults(size);
@@ -1702,6 +1701,32 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		c.setFirstResult(start);
 		c.setMaxResults(size);
 		return c.getResultList();
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> findHistoryByIn(int start, int size, SingleCarparkCarpark carpark, String carType, Date startTime, Date endTime) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			if (!StrUtil.isEmpty(carType)) {
+				c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), carType));
+			}
+			if (!StrUtil.isEmpty(carpark)) {
+				c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), carpark.getId()));
+			}
+			if (!StrUtil.isEmpty(startTime)) {
+				c.add(Restrictions.ge(SingleCarparkInOutHistory.Property.inTime.name(), startTime));
+			}
+			if (!StrUtil.isEmpty(endTime)) {
+				c.add(Restrictions.le(SingleCarparkInOutHistory.Property.inTime.name(), endTime));
+			}
+			c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
+			c.setFirstResult(start);
+			c.setMaxResults(size);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
 	}
 	
 }

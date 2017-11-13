@@ -23,6 +23,8 @@ public class ShowApp extends AbstractApp{
 	private Presenter presenter;
 	
 	private List<Presenter> listPresenter=new ArrayList<>();
+	
+	boolean maximized = true;
 
 	/**
 	 * Launch the application.
@@ -61,7 +63,7 @@ public class ShowApp extends AbstractApp{
 		shell.setSize(750, 600);
 		shell.setText("浏览历史记录");
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
-		shell.setMaximized(true);
+		shell.setMaximized(maximized);
 		
 		TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
 		for (Presenter presenter : listPresenter) {
@@ -90,13 +92,21 @@ public class ShowApp extends AbstractApp{
 	@Override
 	public boolean isOpen() {
 		
-		return !shell.isDisposed();
+		return shell!=null&&!shell.isDisposed();
 	}
 
 	@Override
 	public void focus() {
 		
 		shell.setFocus();
+	}
+
+	public Shell getShell() {
+		return shell;
+	}
+
+	public void setMaximized(boolean maximized) {
+		this.maximized = maximized;
 	}
 
 }

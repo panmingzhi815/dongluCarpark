@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
 
 public class DownloadPlateModel extends DomainObject {
@@ -20,6 +21,9 @@ public class DownloadPlateModel extends DomainObject {
 	private String msg="";
 	
 	private List<PlateDownload> listPlate=new ArrayList<>();
+	
+	private List<SingleCarparkCarpark> listCarpark=new ArrayList<>();
+	private SingleCarparkCarpark carpark;
 	
 	public List<DownloadDeviceInfo> getList() {
 		return list;
@@ -94,6 +98,20 @@ public class DownloadPlateModel extends DomainObject {
 	}
 	public void setMsg(String msg) {
 		this.msg = msg;
+	}
+	public List<SingleCarparkCarpark> getListCarpark() {
+		return listCarpark;
+	}
+	public void setListCarpark(List<SingleCarparkCarpark> listCarpark) {
+		this.listCarpark = listCarpark;
+		firePropertyChange("listCarpark", null, null);
+	}
+	public SingleCarparkCarpark getCarpark() {
+		return carpark;
+	}
+	public void setCarpark(SingleCarparkCarpark carpark) {
+		this.carpark = carpark;
+		firePropertyChange("carpark", null, null);
 	}
 	
 }

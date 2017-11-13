@@ -43,7 +43,7 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 		populate(list);
 		isSplit=false;
 	}
-	private void populate(List<SingleCarparkMonthlyUserPayHistory> list) {
+	public void populate(List<SingleCarparkMonthlyUserPayHistory> list) {
 		AbstractListView<SingleCarparkMonthlyUserPayHistory>.Model model = view.getModel();
 		int countSearchAll=sp.getCarparkService().countMonthlyUserPayHistoryByCondition(userName,operaName,start,end);
 		model.setList(list);

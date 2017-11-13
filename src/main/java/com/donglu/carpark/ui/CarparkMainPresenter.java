@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.ImageIcon;
 
@@ -56,6 +57,7 @@ import com.donglu.carpark.ui.servlet.OpenDoorServlet;
 import com.donglu.carpark.ui.task.CarInOutResult;
 import com.donglu.carpark.ui.task.ConfimBox;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
+import com.donglu.carpark.ui.view.inouthistory.CarInHistoryPresenter;
 import com.donglu.carpark.ui.view.inouthistory.FreeReasonDialog;
 import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
 import com.donglu.carpark.ui.view.user.UserPresenter;
@@ -1533,26 +1535,26 @@ public class CarparkMainPresenter {
 				public void run() {
 					try {
 						log.info("[自动下载车牌]准备下载车牌到所有摄像机");
-						List<SingleCarparkUser> findAll = sp.getCarparkUserService().findAll();
-						if (StrUtil.isEmpty(findAll)) {
-							return;
-						}
-						List<PlateDownload> list = new ArrayList<>();
-						for (SingleCarparkUser user : findAll) {
-							String[] split = user.getPlateNo().split(",");
-							if (split.length > 1) {
+						for (String ip : mapIpToDevice.keySet()) {
+							List<SingleCarparkUser> findAll = sp.getCarparkUserService().findUserByNameOrCarpark(null, mapIpToDevice.get(ip).getCarpark(), null);
+							if (StrUtil.isEmpty(findAll)) {
 								continue;
 							}
-							PlateDownload pd = new PlateDownload();
-							Date validTo = user.getValidTo();
-							if (validTo == null || validTo.before(new Date())) {
-								pd.setUse(false);
+							List<PlateDownload> list = new ArrayList<>();
+							for (SingleCarparkUser user : findAll) {
+								String[] split = user.getPlateNo().split(",");
+								if (split.length > 1) {
+									continue;
+								}
+								PlateDownload pd = new PlateDownload();
+								Date validTo = user.getValidTo();
+								if (validTo == null || validTo.before(new Date())) {
+									pd.setUse(false);
+								}
+								pd.setDate(validTo);
+								pd.setPlate(user.getPlateNo());
+								list.add(pd);
 							}
-							pd.setDate(validTo);
-							pd.setPlate(user.getPlateNo());
-							list.add(pd);
-						}
-						for (String ip : mapIpToDevice.keySet()) {
 							PlateNOJNA plateNOJNA = mapIpToJNA.get(ip);
 							plateNOJNA.plateDownload(list, ip);
 						}
@@ -1574,6 +1576,68 @@ public class CarparkMainPresenter {
 		
 		if (mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录).equals("true")) {
 			CarparkUtils.startServer(10002, "/*", new OpenDoorServlet(this));
+		}
+		
+		startShowInHistoryTask();
+	}
+	/**
+	 * 启动场内车显示服务
+	 */
+	private void startShowInHistoryTask() {
+		if (mapSystemSetting.get(SystemSettingTypeEnum.显示指定停留时间的场内车).equals("true")) {
+			CarInHistoryPresenter presenter = Login.injector.getInstance(CarInHistoryPresenter.class);
+			ShowApp showApp = new ShowApp();
+			showApp.setPresenter(presenter);
+			showApp.setMaximized(false);
+			AtomicBoolean isFirstOpen=new AtomicBoolean(true);
+			ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("场内车停留时间显示任务"));
+			executorService.scheduleWithFixedDelay(new Runnable() {
+				@Override
+				public void run() {
+					if(showApp.isOpen()){
+						return;
+					}
+					int[] setting = presenter.getSetting();
+					String carType=null;
+					switch (setting[0]) {
+					case 0:
+						carType=null;
+						break;
+					case 1:
+						carType="固定车";
+						break;
+					case 2:
+						carType="临时车";
+						break;
+
+					}
+					Date startTime = null;
+					
+					int maxStayMinute=setting[2];
+					if (maxStayMinute > 0) {
+						startTime = new DateTime().minusMinutes(maxStayMinute).toDate();
+					}
+					Date endTime = null;
+					int minStayMinute=setting[1];
+					if (minStayMinute >= 0) {
+						endTime = new DateTime().minusMinutes(minStayMinute).toDate();
+					}
+					List<SingleCarparkInOutHistory> list = sp.getCarparkInOutService().findHistoryByIn(0, 1, null, carType, startTime, endTime);
+					
+					if(StrUtil.isEmpty(list)&&!isFirstOpen.get()){
+						return;
+					}
+					
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							showApp.open();
+						}
+					});
+					isFirstOpen.set(false);
+
+				}
+			}, 5, 5, TimeUnit.SECONDS);
 		}
 	}
 

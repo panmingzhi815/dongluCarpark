@@ -55,6 +55,8 @@ public abstract class AbstractListView<T> extends AbstractView {
 	private Label lbl_allcount;
 	private Composite cmp_bottom;
 	private TableViewerColumn[] tableViewerColumns;
+	private DataBindingContext bindingContext;
+	private Composite composite_tableViewer;
 
 	public class Model extends DomainObject {
 		/**
@@ -126,6 +128,43 @@ public abstract class AbstractListView<T> extends AbstractView {
 		this.nameProperties = nameProperties;
 		this.columnLenths = columnLenths;
 		this.aligns = aligns;
+		
+		bindingContext = initDataBindings();
+		createTable();
+	}
+	public void setTableColumn(String[] columnProperties, String[] nameProperties, int[] columnLenths, int[] aligns){
+		this.columnProperties = columnProperties;
+		this.nameProperties = nameProperties;
+		this.columnLenths = columnLenths;
+		this.aligns = aligns;
+	}
+	/**
+	 *创建表格
+	 */
+	public void createTable() {
+		if(tableViewer!=null){
+			tableViewer.getTable().dispose();
+		}
+		tableViewer = new TableViewer(composite_tableViewer, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
+		table = tableViewer.getTable();
+		table.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		table.setLinesVisible(true);
+		table.setHeaderVisible(true);
+		table.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				presenter.mouseDoubleClick(model.selected);
+			}
+		});
+		table.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.keyCode==127) {
+					presenter.delete(model.getSelected());
+				}
+			}
+		});
 		tableViewerColumns = new TableViewerColumn[columnProperties.length];
 		for (int i = 0; i < columnProperties.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.NONE);
@@ -155,8 +194,7 @@ public abstract class AbstractListView<T> extends AbstractView {
 
 			});
 		}
-		
-		initDataBindings();
+		initTableBind();
 	}
 	public void clearSort(){
 		getDisplay().syncExec(new Runnable() {
@@ -170,7 +208,7 @@ public abstract class AbstractListView<T> extends AbstractView {
 	 * @param style
 	 * @param aligns
 	 */
-	public AbstractListView(Composite parent, int style) {
+	private AbstractListView(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout(1, false));
 
@@ -192,22 +230,10 @@ public abstract class AbstractListView<T> extends AbstractView {
 
 		createRefreshBarToolItem(toolBar_refresh);
 
-		Composite composite_1 = new Composite(this, SWT.NONE);
-		composite_1.setLayout(new FillLayout(SWT.HORIZONTAL));
-		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		composite_tableViewer = new Composite(this, SWT.NONE);
+		composite_tableViewer.setLayout(new FillLayout(SWT.HORIZONTAL));
+		composite_tableViewer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
-		tableViewer = new TableViewer(composite_1, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
-		table = tableViewer.getTable();
-		table.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		table.setLinesVisible(true);
-		table.setHeaderVisible(true);
-		table.addMouseListener(new MouseAdapter() {
-
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				presenter.mouseDoubleClick(model.selected);
-			}
-		});
 		cmp_bottom = new Composite(this, SWT.NONE);
 		cmp_bottom.setLayout(new GridLayout(5, false));
 		cmp_bottom.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
@@ -248,14 +274,6 @@ public abstract class AbstractListView<T> extends AbstractView {
 		});
 		btn_more.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		btn_more.setText("更多");
-		table.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.keyCode==127) {
-					presenter.delete(model.getSelected());
-				}
-			}
-		});
 	}
 
 	public AbstractListView(Composite parent, int style, Class<T> class1, String[] strings, String[] strings2, int[] is) {
@@ -274,6 +292,15 @@ public abstract class AbstractListView<T> extends AbstractView {
 		layoutData2.exclude = !show;
 		cmp_bottom.setLayoutData(layoutData2);
 		cmp_bottom.getParent().layout();
+	}
+	public void setShow(boolean top){
+		Composite parent = lbl_tableTitle.getParent();
+		GridData layoutData2 = (GridData) parent.getLayoutData();
+		layoutData2.exclude = !top;
+		parent.setLayoutData(layoutData2);
+		parent.setVisible(top);
+		parent.getParent().layout();
+		
 	}
 
 	protected void createBottomComposite(Composite parent) {
@@ -348,6 +375,12 @@ public abstract class AbstractListView<T> extends AbstractView {
 		IObservableValue countSearchAllModelObserveValue = BeanProperties.value("countSearchAll").observe(model);
 		bindingContext.bindValue(observeTextLbl_allcountObserveWidget, countSearchAllModelObserveValue, null, null);
 		//
+		return bindingContext;
+	}
+	/**
+	 * @param bindingContext
+	 */
+	public void initTableBind() {
 		IObservableList observeMultiSelectionTableViewer = ViewerProperties.multipleSelection().observe(tableViewer);
 		IObservableList selectedModelObserveList = BeanProperties.list("selected").observe(model);
 		bindingContext.bindList(observeMultiSelectionTableViewer, selectedModelObserveList, null, null);
@@ -359,7 +392,6 @@ public abstract class AbstractListView<T> extends AbstractView {
 		//
 		IObservableList listModelObserveList = BeanProperties.list("list").observe(model);
 		tableViewer.setInput(listModelObserveList);
-		return bindingContext;
 	}
 
 	public Presenter getPresenter() {

@@ -2,6 +2,7 @@ package com.donglu.carpark.ui.view.setting.wizard;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 public class DownloadDeviceInfo extends DomainObject {
@@ -12,6 +13,8 @@ public class DownloadDeviceInfo extends DomainObject {
 	private static final long serialVersionUID = 1L;
 	private String ip;
 	private CameraTypeEnum type;
+	private SingleCarparkCarpark carpark;
+	
 	public String getIp() {
 		return ip;
 	}
@@ -30,7 +33,7 @@ public class DownloadDeviceInfo extends DomainObject {
 	}
 	@Override
 	public String getLabelString() {
-		return ip+"-"+type;
+		return ip+"-"+type+"="+carpark.getName();
 	}
 	@Override
 	public boolean equals(Object obj) {
@@ -42,6 +45,13 @@ public class DownloadDeviceInfo extends DomainObject {
 			return ip.equals(info.getIp());
 		}
 		return super.equals(obj);
+	}
+	public SingleCarparkCarpark getCarpark() {
+		return carpark;
+	}
+	public void setCarpark(SingleCarparkCarpark carpark) {
+		this.carpark = carpark;
+		firePropertyChange("carpark", null, null);
 	}
 	
 	

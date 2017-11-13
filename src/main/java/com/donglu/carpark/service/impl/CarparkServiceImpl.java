@@ -611,8 +611,8 @@ public class CarparkServiceImpl implements CarparkService {
 					}
 				}
 			});
-		} catch (ExecutionException e) {
-			throw new DongluServiceException("获取节假日信息时发生错误", e);
+		} catch (Exception e) {
+			return null;
 		}
 		
 	}

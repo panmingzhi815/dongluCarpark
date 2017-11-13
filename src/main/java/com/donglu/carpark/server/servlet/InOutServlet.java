@@ -539,4 +539,11 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	public List<SingleCarparkInOutHistory> searchNotOutHistory(int start, int size, String plateNo, SingleCarparkCarpark carpark) {
 		return carparkInOutService.searchNotOutHistory(start, size, plateNo, carpark);
 	}
+
+
+
+	@Override
+	public List<SingleCarparkInOutHistory> findHistoryByIn(int start, int size, SingleCarparkCarpark carpark, String carType, Date startTime, Date endTime) {
+		return carparkInOutService.findHistoryByIn(start, size, carpark, carType, startTime, endTime);
+	}
 }

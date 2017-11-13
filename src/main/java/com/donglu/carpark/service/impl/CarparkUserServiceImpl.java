@@ -560,4 +560,34 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		userHistory.getHistoryDetail().setProcessTime(new Date());
 		return history.getAuto_id();
 	}
+	@Override
+	public List<SingleCarparkUser> findUserByNameOrCarpark(String name, SingleCarparkCarpark carpark, Date validTo) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+			
+			if (!StrUtil.isEmpty(name)) {
+				c.add(Restrictions.like(SingleCarparkUser.Property.plateNo.name(), name,MatchMode.ANYWHERE));
+			}
+			if (!StrUtil.isEmpty(validTo)) {
+				c.add(Restrictions.ge(SingleCarparkUser.Property.validTo.name(), validTo));
+			}
+			if (!StrUtil.isEmpty(carpark)) {
+				DatabaseOperation<SingleCarparkCarpark> dom = DatabaseOperation.forClass(SingleCarparkCarpark.class, emprovider.get());
+				SingleCarparkCarpark entityWithId = dom.getEntityWithId(carpark.getId());
+				List<SingleCarparkCarpark> list=entityWithId.getCarparkAndAllChilds();
+				c.add(Restrictions.in("carpark",list));
+			}
+			List<SingleCarparkUser> resultList = c.getResultList();
+			resultList=resultList.stream().filter(new Predicate<SingleCarparkUser>() {
+				@Override
+				public boolean test(SingleCarparkUser user) {
+					return !user.getType().equals("储值")&&!StrUtil.isEmpty(user.getValidTo());
+				}
+			}).collect(Collectors.toList());
+			return resultList;
+		}finally{
+			unitOfWork.end();
+		}
+	}
 }

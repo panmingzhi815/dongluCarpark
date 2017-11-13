@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui.common;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -7,7 +8,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 
 
 public abstract class AbstractListPresenter<T> extends AbstractPresenter implements ListPresenter<T> {
-
+	int current=0;
 	@Override
 	public void add() {
 		
@@ -19,7 +20,27 @@ public abstract class AbstractListPresenter<T> extends AbstractPresenter impleme
 
 	@Override
 	public void refresh() {
-		
+		current=0;
+		getView().getModel().setList(new ArrayList<>());
+		populate();
+	}
+	public void populate(){
+		List<T> findListInput = findListInput();
+		getView().getModel().AddList(findListInput);
+		getView().getModel().setCountSearchAll(getTotalSize());
+		getView().getModel().setCountSearch(getView().getModel().getList().size());
+	}
+	public void populate(List<T> listInput){
+		getView().getModel().setList(listInput);
+		getView().getModel().setCountSearchAll(listInput.size());
+		getView().getModel().setCountSearch(getView().getModel().getList().size());
+	}
+
+	protected List<T> findListInput(){
+		return new ArrayList<>();
+	}
+	protected int getTotalSize(){
+		return 0;
 	}
 
 	@Override
@@ -32,6 +53,11 @@ public abstract class AbstractListPresenter<T> extends AbstractPresenter impleme
 
 	protected void edit(T t) {
 		
+	}
+	
+	@Override
+	public AbstractListView<T> getView() {
+		return (AbstractListView<T>) super.getView();
 	}
 
 }

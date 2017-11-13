@@ -1,6 +1,8 @@
 package com.donglu.carpark.ui.view.setting.wizard;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +10,7 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 
+import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.ConstUtil;
@@ -16,7 +19,9 @@ import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIFacility.Progress;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.plateDevice.PlateNOJNA;
 import com.dongluhitec.card.hardware.plateDevice.PlateNOResult;
@@ -30,6 +35,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 	private DownloadPlateWizardPage page;
 	private CommonUIFacility commonui;
 	protected boolean canClose=true;
+	private CarparkDatabaseServiceProvider sp;
 
 	public DownloadPlateWizard(DownloadPlateModel model, CommonUIFacility commonui) {
 		this.model = model;
@@ -41,7 +47,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 	public void addPages() {
 		page = new DownloadPlateWizardPage(model);
 		addPage(page);
-		getShell().setSize(470, 500);
+		getShell().setSize(560, 500);
 		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 		WidgetUtil.center(getShell());
 		getShell().addShellListener(new ShellAdapter() {
@@ -50,6 +56,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 				e.doit=canClose;
 			}
 		});
+		sp = Login.injector.getInstance(CarparkDatabaseServiceProvider.class);
 	}
 
 	@Override
@@ -74,9 +81,13 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 					long nanoTime = System.nanoTime();
 					ProcessBarMonitor monitor = showProgressBar.getMonitor();
 					int i = 0;
-					List<PlateDownload> listPlate = model.getListPlate();
-					String message = "车牌下载完成,总共有" + listPlate.size() + "个车牌下载";
+					String message = "车牌下载完成。";
 					for (DownloadDeviceInfo downloadDeviceInfo : listSelected) {
+						List<PlateDownload> listPlate = getPlateDownloads(downloadDeviceInfo.getCarpark());
+						System.out.println(listPlate.size());
+						if(StrUtil.isEmpty(listPlate)){
+							continue;
+						}
 						if (showProgressBar.isDisposed()) {
 							break;
 						}
@@ -149,6 +160,31 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 		}).start();
 	}
 
+	protected List<PlateDownload> getPlateDownloads(SingleCarparkCarpark carpark) {
+		List<SingleCarparkUser> findAll = sp.getCarparkUserService().findUserByNameOrCarpark(null, carpark, null);
+		ArrayList<PlateDownload> list = new ArrayList<>();
+		Map<String, String> map=new HashMap<>();
+		for (SingleCarparkUser user : findAll) {
+			String[] split = user.getPlateNo().split(",");
+			if (split.length>1) {
+				continue;
+			}
+			PlateDownload pd=new PlateDownload();
+			Date validTo = user.getValidTo();
+			if (validTo==null||validTo.before(new Date())) {
+				pd.setUse(false);
+			}
+			String key = user.getPlateNo();
+			if (map.get(key)==null) {
+				pd.setDate(validTo);
+				pd.setPlate(user.getPlateNo());
+				list.add(pd);
+				map.put(key, key);
+			}
+		}
+		return list;
+	}
+
 	@SuppressWarnings("unchecked")
 	protected void init() {
 		Object readObject = CarparkFileUtils.readObject(ConstUtil.MAP_IP_TO_DEVICE);
@@ -161,6 +197,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 					DownloadDeviceInfo info = new DownloadDeviceInfo();
 					info.setIp(singleCarparkDevice.getIp());
 					info.setType(singleCarparkDevice.getCameraType());
+					info.setCarpark(singleCarparkDevice.getCarpark());
 					list.add(info);
 				}
 				model.setList(list);
