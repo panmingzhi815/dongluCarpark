@@ -356,6 +356,7 @@ public class CarInTask extends AbstractTask {
 		}
 		model.setInShowPlateNO(model.getInShowPlateNO() + "-"+ConstUtil.getVisitorName());
 		isOpenDoor = true;
+		cch.setRemarkString("访客车");
 		return false;
 	}
 
