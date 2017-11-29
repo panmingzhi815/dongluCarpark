@@ -84,6 +84,8 @@ public class CarparkServiceImpl implements CarparkService {
 		} else {
 			dom.save(carpark);
 			cache.invalidateAll();
+			CarparkInOutServiceImpl.numberCache.invalidateAll();
+			CarparkInOutServiceImpl.carparkCache.invalidateAll();
 		}
 		return carpark.getId();
 	}

@@ -1266,9 +1266,9 @@ public class CarparkMainApp extends AbstractApp{
 				String userName = System.getProperty("userName");
 				model.setTotalCharge(sp.getCarparkInOutService().findFactMoneyByName(userName));
 				model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
-				model.setTotalSlot(presenter.getSlotOfLeft());
 				model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow(model.getCarpark()));
 				model.setMonthSlot(sp.getCarparkInOutService().findFixSlotIsNow(model.getCarpark()));
+				model.setTotalSlot(presenter.getSlotOfLeft());
 				log.debug("refreshCarparkBasicInfo used : " + (System.currentTimeMillis() - currentTimeMillis));
 			} catch (Exception e) {
 				log.error("刷新停车场出错", e);
