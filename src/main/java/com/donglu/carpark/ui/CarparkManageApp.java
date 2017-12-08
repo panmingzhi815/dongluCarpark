@@ -60,6 +60,7 @@ public class CarparkManageApp extends AbstractApp{
 
 	/**
 	 * Open the window.
+	 * @wbp.parser.entryPoint
 	 */
 	@Override
 	public void open() {
@@ -294,6 +295,14 @@ public class CarparkManageApp extends AbstractApp{
 		tabItem_10.setControl(composite);
 		composite.setLayout(new FillLayout(SWT.HORIZONTAL));
 		presenter.getSystemUserListPresenter().go(composite);
+		
+		TabItem tabItem_16 = new TabItem(tabFolder, SWT.NONE);
+		tabItem_16.setText("卡片管理");
+		
+		Composite composite_9 = new Composite(tabFolder, SWT.NONE);
+		tabItem_16.setControl(composite_9);
+		composite_9.setLayout(new FillLayout(SWT.HORIZONTAL));
+		presenter.getCardPresenter().go(composite_9);
 		TabItem tabItem_5 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_5.setText("商铺优惠");
 		

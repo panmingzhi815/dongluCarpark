@@ -15,6 +15,7 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 	private SettingService settingService;
 	private IpmsServiceI ipmsService;
 	private CarPayServiceI carPayService;
+	private CardService cardService;
 	
 	private ShangHaiYunCarParkService yunCarparkService;
 	
@@ -164,6 +165,15 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 
 	public void setYunCarparkService(ShangHaiYunCarParkService yunCarparkService) {
 		this.yunCarparkService = yunCarparkService;
+	}
+
+	public CardService getCardService() {
+		checkState();
+		return cardService;
+	}
+
+	public void setCardService(CardService cardService) {
+		this.cardService = cardService;
 	}
 
 }

@@ -10,12 +10,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.caucho.hessian.server.HessianServlet;
+import com.donglu.carpark.service.CardService;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.service.IpmsServiceI;
 import com.donglu.carpark.service.SettingService;
 import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.donglu.carpark.service.SystemUserServiceI;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -30,7 +32,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
 import com.dongluhitec.card.server.util.HibernateSerializerFactory;
 import com.google.inject.Inject;
 
-public class UserServlet extends HessianServlet implements CarparkUserService, SystemUserServiceI,SystemOperaLogServiceI,SettingService{
+public class UserServlet extends HessianServlet implements CarparkUserService, SystemUserServiceI,SystemOperaLogServiceI,SettingService,CardService{
 	/**
 	 * 
 	 */
@@ -45,6 +47,7 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 	private SystemUserServiceI systemUserService;
 	private SystemOperaLogServiceI systemOperaLogService;
 	private SettingService settingService;
+	private CardService cardService;
 
 
     @Override
@@ -60,6 +63,7 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
         this.systemUserService = sp.getSystemUserService();
         this.systemOperaLogService = sp.getSystemOperaLogService();
         settingService=sp.getSettingService();
+        cardService=sp.getCardService();
     }
 	
 	@Override
@@ -289,6 +293,31 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 	@Override
 	public SingleCarparkSystemUser findSystemUserById(Long id) {
 		return systemUserService.findSystemUserById(id);
+	}
+
+	@Override
+	public Long saveCard(List<SingleCarparkCard> list) {
+		return cardService.saveCard(list);
+	}
+
+	@Override
+	public Long deleteCard(List<SingleCarparkCard> list) {
+		return cardService.deleteCard(list);
+	}
+
+	@Override
+	public List<SingleCarparkCard> findCard(int start, int size, String identifier, String serialNumber) {
+		return cardService.findCard(start, size, identifier, serialNumber);
+	}
+
+	@Override
+	public SingleCarparkCard findCard(String identifier, String serialNumber) {
+		return cardService.findCard(identifier, serialNumber);
+	}
+
+	@Override
+	public SingleCarparkCard findLastCard() {
+		return cardService.findLastCard();
 	}
 
 }
