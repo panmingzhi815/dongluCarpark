@@ -7,6 +7,7 @@ import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -39,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
+import com.donglu.carpark.hardware.eq2013.BigScreenPrinterRunner;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.model.Result;
 import com.donglu.carpark.model.SearchErrorCarModel;
@@ -117,6 +119,7 @@ import com.dongluhitec.card.mapper.BeanUtil;
 import com.dongluhitec.card.shanghaiyunpingtai.ShanghaiYunCarparkCfg;
 import com.dongluhitec.card.ui.util.FileUtils;
 import com.dongluhitec.card.util.ThreadUtil;
+import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -1576,7 +1579,41 @@ public class CarparkMainPresenter {
 		}
 		
 		initClientImageSavePath();
+		
+		initExtendScreenSendService();
 	}
+	private void initExtendScreenSendService() {
+		File f=new File("screen");
+		if(!f.exists()||!f.isDirectory()){
+			return;
+		}
+		BigScreenPrinterRunner bigScreenPrinterRunner = new BigScreenPrinterRunner();
+		ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("大屏发送服务"));
+		executorService.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				Map<String, String> map=new HashMap<>();
+				map.put("车位", getSlotOfLeft()+"");
+				log.info("发送消息到大屏：{}",map);
+				
+				File[] listFiles = f.listFiles(new FileFilter() {
+					@Override
+					public boolean accept(File pathname) {
+						String[] split = pathname.getName().split("-");
+						return pathname.isDirectory()&&split.length==2&&split[0].matches(com.donglu.carparkweb.util.StrUtil.IP_REG);
+					}
+				});
+				for (File file : listFiles) {
+					if(!file.isDirectory()){
+						return;
+					}
+					bigScreenPrinterRunner.updateBigScreen(file.getName(), map);
+				}
+				
+			}
+		}, 2, 2, TimeUnit.SECONDS);
+	}
+
 	/**
 	 * 初始化客户端图片保存位置
 	 */
@@ -1928,7 +1965,7 @@ public class CarparkMainPresenter {
 				data.setRemarkString(ctype);
 			}
 		}
-		return false;
+		return true;
 	}
 
 	/**
@@ -2356,7 +2393,6 @@ public class CarparkMainPresenter {
 	private Integer getTotalSlotWithChange() {
 		try {
 			int findTotalCarIn = sp.getCarparkInOutService().findTotalCarIn(model.getCarpark());
-
 			int i = model.getHoursSlot() + model.getMonthSlot() - findTotalCarIn;
 			return i < 0 ? 0 : i;
 		} catch (Exception e) {
@@ -2648,6 +2684,10 @@ public class CarparkMainPresenter {
 		monitorSettingApp = new MonitorSettingApp(model, commonui, sp);
 		monitorSettingApp.open();
 		monitorSettingApp=null;
+	}
+
+	public void addExtendScreen() {
+		
 	}
 
 }

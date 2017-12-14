@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
 
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 
 public class TextUtils {
 	static Map<String, String> map=new HashMap<>();
@@ -111,12 +112,20 @@ public class TextUtils {
 	
 	
 	static Map<Text,List<Map<String, Rectangle>>> mapTextIco=new HashMap<>();
+	
+	public static Text setTextEditIco(Text txt,String img,String title,Cursor cursor,int right, MouseListener mouseClick) {
+		return setTextEditIco(txt, img, title, cursor, right, 0, mouseClick);
+	}
 	/**
 	 * 在文本框右侧添加图标、事件
 	 * @param right 
 	 */
-	public static Text setTextEditIco(Text txt,String img,String title,Cursor cursor,int right, MouseListener mouseClick) {
+	public static Text setTextEditIco(Text txt,String img,String title,Cursor cursor,int right,int privilege, MouseListener mouseClick) {
 		if (txt==null||img==null||cursor==null||mouseClick==null) {
+			return txt;
+		}
+		int level = SystemUserTypeEnum.getLevel(System.getProperty("userType"));
+		if (level<privilege) {
 			return txt;
 		}
 		Image image = JFaceUtil.getImage(img);

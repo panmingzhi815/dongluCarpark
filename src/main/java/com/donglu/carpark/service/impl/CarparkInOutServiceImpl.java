@@ -96,6 +96,8 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			numberCache.invalidate("findFixSlotIsNow-"+inout.getCarparkId());
 		}
 		numberCache.invalidate("findTotalSlotIsNow-"+inout.getCarparkId());
+		numberCache.invalidate("findTotalCarIn-"+inout.getCarparkId());
+		
 		return inout.getId();
 	}
 
@@ -872,7 +874,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	@Override
 	public int findTotalCarIn(SingleCarparkCarpark carpark) {
 		try {
-			return numberCache.get("findTotalCarIn-"+carpark, new Callable<Number>() {
+			return numberCache.get("findTotalCarIn-"+(carpark==null?null:carpark.getId()), new Callable<Number>() {
 				@Override
 				public Number call() throws Exception {
 					if (carpark==null) {

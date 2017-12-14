@@ -635,7 +635,7 @@ public class CarparkMainApp extends AbstractApp{
 				presenter.editUserPassword();
 			}
 		});
-		TextUtils.setTextEditIco(txt_userName,"consumption_setting_16","修改设置",cursor,25,new MouseAdapter() {
+		TextUtils.setTextEditIco(txt_userName,"consumption_setting_16","修改设置",cursor,25,3,new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				presenter.monitorSetting();

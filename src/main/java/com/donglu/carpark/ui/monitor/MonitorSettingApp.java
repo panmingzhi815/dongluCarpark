@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
@@ -26,6 +27,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Combo;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -33,8 +35,6 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.swt.widgets.ExpandBar;
-import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 public class MonitorSettingApp {
@@ -173,8 +173,16 @@ public class MonitorSettingApp {
 			}
 		});
 		button.setText("保存语音");
+		
+		initScreen();
 	}
-
+	
+	private void initScreen(){
+		Map<String, String> mapMonitorConfig=(Map<String, String>) CarparkFileUtils.readObject("mapMonitorConfig");
+		if(mapMonitorConfig==null){
+			return;
+		}
+	}
 
 
 
