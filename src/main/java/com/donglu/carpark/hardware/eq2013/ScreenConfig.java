@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.awt.Color;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +34,8 @@ public class ScreenConfig implements Serializable {
     public Integer iVAlignerStyle=0; // 上下对齐方式
     
     public Boolean bFontBold=false;//字体是否加粗
+    
+    public int colorFont=0;
     
     public int width=288;
     public int height=32;
@@ -97,9 +99,22 @@ public class ScreenConfig implements Serializable {
         fontInfo.iAlignStyle=getiAlignStyle();
         fontInfo.iVAlignerStyle=getiVAlignerStyle();
         fontInfo.bFontBold=getbFontBold();
+        fontInfo.colorFont=getFontColor();
     }
 
-    public static ScreenConfig createOrRead() {
+    private int getFontColor() {
+    	switch (colorFont) {
+		case 0:
+			return 0x0000FF;
+		case 1:
+			return 0x00FF00;
+		case 2:
+			return 0x00FFFF;
+		}
+		return colorFont;
+	}
+
+	public static ScreenConfig createOrRead() {
         return createOrRead(SCREEN_PATH);
     }
     public static ScreenConfig createOrRead(String fileName) {
@@ -153,5 +168,13 @@ public class ScreenConfig implements Serializable {
 			configfilename=path.toFile().getName();
 		}
 		return createOrRead(configfilename);
+	}
+
+	public int getColorFont() {
+		return colorFont;
+	}
+
+	public void setColorFont(int colorFont) {
+		this.colorFont = colorFont;
 	}
 }
