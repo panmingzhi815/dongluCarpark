@@ -69,7 +69,11 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 				if (inOutHistory.getOutTime()==null) {
 					result = ipmsService.addInOutHistory(inOutHistory);
 				}else{
-					result = ipmsService.updateInOutHistory(inOutHistory);
+					if(inOutHistory.getInTime()!=null){
+						result = ipmsService.updateInOutHistory(inOutHistory);
+					}else{
+						result=true;
+					}
 				}
 				if (result) {
 					sp.getCarparkInOutService().updateHaiYuRecordHistory(Arrays.asList(carparkRecordHistory.getId()), ProcessEnum.己处理);

@@ -119,15 +119,19 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				url = httpUrl + "/api/syncImgData.action?recordId=" + parkId + id + "";
 				Map<String, Object> map = new HashMap<>();
 				if (type.equals("add")) {
-					byte[] image = sp.getImageService().getImage(ioh.getBigImg().substring(ioh.getBigImg().lastIndexOf("/") + 1));
-					if (image != null) {
-						map.put("enterImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
+					if (ioh.getBigImg()!=null) {
+						byte[] image = sp.getImageService().getImage(ioh.getBigImg().substring(ioh.getBigImg().lastIndexOf("/") + 1));
+						if (image != null) {
+							map.put("enterImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
+						} 
 					}
 				}
 				if (type.equals("update")&&ioh.getOutBigImg()!=null) {
-					byte[] image = sp.getImageService().getImage(ioh.getOutBigImg().substring(ioh.getOutBigImg().lastIndexOf("/") + 1));
-					if (image != null) {
-						map.put("exitImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
+					if (ioh.getOutBigImg()!=null) {
+						byte[] image = sp.getImageService().getImage(ioh.getOutBigImg().substring(ioh.getOutBigImg().lastIndexOf("/") + 1));
+						if (image != null) {
+							map.put("exitImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
+						} 
 					}
 				}
 				if (map.keySet().size() > 0) {
@@ -465,7 +469,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		IpmsServiceImpl is = new IpmsServiceImpl();
 		System.out.println(UUID.randomUUID().toString().replace("-", "").length());
 		
-		System.out.println(URLEncoder.encode("http://39.108.92.118/weixin_zr/test/getRecordByCarNum.html?channelId=b3dfc5cf50b34ebbaf4a577402b4ea9b", "UTF-8"));
+		System.out.println(URLEncoder.encode("http://www.dongluhitec.net/weixin_zr/test/getRecordByCarNum.html?channelId=7e257819d2764bb6aa5c1fd43baf2f71", "UTF-8"));
 //		SingleCarparkInOutHistory ioh = new SingleCarparkInOutHistory();
 //		ioh.setPlateNo("粤BD021W");
 //		ioh.setId(9L);
