@@ -54,17 +54,19 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 	@Override
 	@Transactional
 	public Long saveUser(SingleCarparkUser user) {
+		String[] split=new String[]{};
 		DatabaseOperation<SingleCarparkUser> dom = DatabaseOperation.forClass(SingleCarparkUser.class, emprovider.get());
 		if (user.getId() == null) {
 			dom.insert(user);
 			emprovider.get().persist(new UserHistory(user,UpdateEnum.新添加));
 		} else {
+			SingleCarparkUser reference = emprovider.get().getReference(SingleCarparkUser.class, user.getId());
+			split=reference.getPlateNo().split(",");
 			dom.save(user);
 			if (user.isCreateHistory()) {
 				emprovider.get().persist(new UserHistory(user,UpdateEnum.被修改));
 			}
 		}
-		String[] split = user.getPlateNo().split(",");
 		for (String string : split) {
 			removeUserCache(user.getCarpark(), string);
 		}

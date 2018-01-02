@@ -78,6 +78,7 @@ public class CarInTask extends AbstractTask {
 			LOGGER.error("没有找到id:" + device.getCarpark().getId() + "的停车场");
 			return;
 		}
+		device.setCarpark(carpark);
 		initImgPath();
 
 		model.setInShowPlateNO(plateNO);
@@ -89,6 +90,10 @@ public class CarInTask extends AbstractTask {
 		// 空车牌处理
 		if (StrUtil.isEmpty(plateNO)) {
 			LOGGER.warn("空的车牌");
+			if(mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")){
+				presenter.emptyPlateQrCodeInOut(plateNO,device,true);
+				return;
+			}
 			Boolean valueOf = Boolean
 					.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.是否允许无牌车进));
 			if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认))
@@ -246,7 +251,7 @@ public class CarInTask extends AbstractTask {
 		model.setInHistorySelect(cch);
 		LOGGER.info("保存车牌：{}的进场记录到数据库成功:{}", plateNO,saveInOutHistory);
 		model.getMapCameraLastImage().put(ip, cch.getBigImg());
-		presenter.showContentToDevice(device, content, isOpenDoor);
+		presenter.showContentToDevice(editPlateNo,device, content, isOpenDoor);
 		presenter.updatePosition(carpark, cch, true);
 		LOGGER.info("对设备{}，发送消息{}，开门信号：{}", device.getName(), content, isOpenDoor);
 	}

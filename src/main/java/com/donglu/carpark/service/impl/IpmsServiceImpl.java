@@ -222,7 +222,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			JSONObject Object = JSONObject.parseObject(httpPostMssage);
 			String result = Object.getString("result");
 			String data = Object.getString("data");
-			log.info("更新临时车缴费记录,返回结果：{}",result);
+			log.debug("更新临时车缴费记录,返回结果：{}",result);
 			if (!result.equals("success")||data==null) {
 				return;
 			}

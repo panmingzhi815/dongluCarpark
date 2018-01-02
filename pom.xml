@@ -16,7 +16,7 @@
 		<dev.build.version>V1.0.0.17</dev.build.version>
 		<jaxb.version>2.2.11</jaxb.version>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>com.dongluhitec.card</groupId>

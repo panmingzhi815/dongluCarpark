@@ -62,6 +62,8 @@ public class SingleCarparkCarpark extends DomainObject {
 	private Boolean fixCarOneIn;
 	private Boolean isCharge=true;
 	
+	private String yunIdentifier;
+	
 	public String getCode() {
 		return code;
 	}
@@ -258,5 +260,12 @@ public class SingleCarparkCarpark extends DomainObject {
 			return getParent().getMaxParent();
 		}
 		return this;
+	}
+	public String getYunIdentifier() {
+		return yunIdentifier;
+	}
+	public void setYunIdentifier(String yunIdentifier) {
+		this.yunIdentifier = yunIdentifier;
+		firePropertyChange("yunIdentifier", null, null);
 	}
 }

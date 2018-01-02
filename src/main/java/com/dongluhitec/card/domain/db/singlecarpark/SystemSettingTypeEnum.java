@@ -36,6 +36,7 @@ public enum SystemSettingTypeEnum {
 	收费口无人值守("false"),
 	固定车转临时车弹窗提示("true"),
 	显示指定停留时间的场内车("false"),
+	无车牌时使用二维码进出场("true"),
 	
 	DateBase_version("1.0.0.22"),软件版本("1.0.0.22"),发布时间("2017-09-13 17:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 
 	;

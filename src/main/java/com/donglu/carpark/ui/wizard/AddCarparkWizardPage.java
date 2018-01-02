@@ -27,6 +27,8 @@ public class AddCarparkWizardPage extends WizardPage {
 	private Text text_2;
 	private Text text_4;
 	private Button button;
+	private Label label_3;
+	private Text text_3;
 	/**
 	 * Create the wizard.
 	 * @param model 
@@ -87,6 +89,15 @@ public class AddCarparkWizardPage extends WizardPage {
 		text_4 = new Text(composite, SWT.BORDER);
 		text_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		label_3 = new Label(composite, SWT.NONE);
+		label_3.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_3.setText("云平台编号");
+		
+		text_3 = new Text(composite, SWT.BORDER);
+		text_3.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(composite, SWT.NONE);
 		
 		btnBu = new Button(composite, SWT.CHECK);
@@ -126,6 +137,10 @@ public class AddCarparkWizardPage extends WizardPage {
 		IObservableValue observeSelectionButtonObserveWidget_1 = WidgetProperties.selection().observe(button);
 		IObservableValue isChargeModelObserveValue = BeanProperties.value("isCharge").observe(model);
 		bindingContext.bindValue(observeSelectionButtonObserveWidget_1, isChargeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_3ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_3);
+		IObservableValue yunIdentifierModelObserveValue = BeanProperties.value("yunIdentifier").observe(model);
+		bindingContext.bindValue(observeTextText_3ObserveWidget, yunIdentifierModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

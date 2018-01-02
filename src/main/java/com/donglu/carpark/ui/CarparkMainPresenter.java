@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,6 +43,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
+import com.donglu.carpark.hardware.CarparkScreenService;
+import com.donglu.carpark.hardware.CarparkScreenServiceImpl;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.model.Result;
 import com.donglu.carpark.model.SearchErrorCarModel;
@@ -47,9 +52,11 @@ import com.donglu.carpark.model.ShowInOutHistoryModel;
 import com.donglu.carpark.model.SystemUserModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
+import com.donglu.carpark.service.CarparkQrCodeInOutService;
 import com.donglu.carpark.service.CountTempCarChargeI;
 import com.donglu.carpark.service.IpmsServiceI;
 import com.donglu.carpark.service.PlateSubmitServiceI;
+import com.donglu.carpark.service.impl.CarparkQrCodeInOutServiceImpl;
 import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
@@ -94,6 +101,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
+import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice.DeviceInOutTypeEnum;
@@ -142,6 +150,8 @@ public class CarparkMainPresenter {
 	private WebCameraDevice webCameraDevice;
 	@Inject
 	private BasicHardwareService hardwareService;
+	private CarparkScreenService carparkScreenService=new CarparkScreenServiceImpl();
+	private CarparkQrCodeInOutService carparkQrCodeInOutService=new CarparkQrCodeInOutServiceImpl();
 
 	@Inject
 	private InOutHistoryPresenter inOutHistoryPresenter;
@@ -1038,6 +1048,9 @@ public class CarparkMainPresenter {
 			return false;
 		}
 		try {
+			if(device.getScreenType().equals(ScreenTypeEnum.一体机)){
+				return true;
+			}
 			Device d = getDevice(device);
 			Boolean carparkPlate = hardwareService.carparkPlate(d, plateNO);
 			return carparkPlate;
@@ -1074,7 +1087,13 @@ public class CarparkMainPresenter {
 			mapDeviceFailInfo.put(key, num++);
 		}
 	}
-
+	
+	public boolean showContentToAllInOneDevice(String plate,SingleCarparkDevice device, String content, boolean isOpenDoor){
+		return carparkScreenService.carIn(getDevice(device), plate, content, isOpenDoor);
+	}
+	public boolean showContentToDevice(SingleCarparkDevice device, String content, boolean isOpenDoor){
+		return showContentToDevice("", device, content, isOpenDoor);
+	}
 	/**
 	 * 发送语音
 	 * 
@@ -1084,7 +1103,7 @@ public class CarparkMainPresenter {
 	 * @param opDoor是否需要开门
 	 * @return
 	 */
-	public boolean showContentToDevice(SingleCarparkDevice device, String content, boolean isOpenDoor) {
+	public boolean showContentToDevice(String plate,SingleCarparkDevice device, String content, boolean isOpenDoor) {
 		if (StrUtil.isEmpty(content)) {
 			return true;
 		}
@@ -1092,6 +1111,9 @@ public class CarparkMainPresenter {
 			return false;
 		}
 		try {
+			if(device.getScreenType().equals(ScreenTypeEnum.一体机)){
+				return showContentToAllInOneDevice(plate, device, content, isOpenDoor);
+			}
 			Device d = getDevice(device);
 			if (isOpenDoor) {
 				log.info("对设备：ip:{},kip:{} 开闸:{},发送语音：[{}]", device.getIp(), device.getLinkAddress(),isOpenDoor, content);
@@ -1132,6 +1154,9 @@ public class CarparkMainPresenter {
 		try {
 			Device d = getDevice(device);
 			if (d != null) {
+				if(device.getScreenType().equals(ScreenTypeEnum.一体机)){
+					return carparkScreenService.showCarparkPosition(d, position);
+				}
 				String inType = device.getInType();
 				log.debug("向{}设备{}：{}发送车位数:{}",inType,device.getIp(),device.getLinkInfo(),position);
 				if (inType.indexOf("出口")>-1) {
@@ -1301,6 +1326,9 @@ public class CarparkMainPresenter {
 			Boolean carparkUsualContent = true;
 
 			if (d != null) {
+				if(device.getScreenType().equals(ScreenTypeEnum.一体机)){
+					return carparkScreenService.showCarparkUsualContent(d, device.getAdvertise());
+				}
 				carparkUsualContent = hardwareService.carparkUsualContent(d, device.getAdvertise());
 			}
 			return carparkUsualContent;
@@ -1579,7 +1607,57 @@ public class CarparkMainPresenter {
 		}
 		
 		startShowInHistoryTask();
+		startQrCodeInOutService();
 	}
+	private void startQrCodeInOutService() {
+		if(!mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")||!mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")){
+			return;
+		}
+		try {
+			SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			carparkQrCodeInOutService.initService(new CarparkQrCodeInOutService.CarparkQrCodeInOutCallback() {
+				@Override
+				public void call(String info) {
+					try {
+						JSONObject jsonObject = JSONObject.parseObject(info);
+						String type = jsonObject.getString("type");
+						JSONObject jsonObject2 = jsonObject.getJSONObject("data");
+						SingleCarparkDevice device = mapIpToDevice.get(jsonObject2.getString("deviceId"));
+						String plate = jsonObject2.getString("carNum");
+						if(type.equals("inQRCode")){//进场
+							SingleCarparkInOutHistory inOutHistory = new SingleCarparkInOutHistory();
+							inOutHistory.setInDevice(device.getName());
+							inOutHistory.setCarparkId(device.getCarpark().getId());
+							inOutHistory.setCarparkName(device.getCarpark().getName());
+							inOutHistory.setPlateNo(plate);
+							inOutHistory.setInPlateNO(plate);
+							inOutHistory.setInTime(sdf.parse(jsonObject2.getString("inTime")));
+							inOutHistory.setOperaName(ConstUtil.getUserName());
+							sp.getCarparkInOutService().saveInOutHistory(inOutHistory);
+						}else if(type.equals("outQRCode")){//出场
+							List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plate,device.getCarpark());
+							SingleCarparkInOutHistory inOutHistory = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
+							inOutHistory.setOutTime(sdf.parse(jsonObject2.getString("outTime")));
+							inOutHistory.setCarparkId(device.getCarpark().getId());
+							inOutHistory.setCarparkName(device.getCarpark().getName());
+							inOutHistory.setPlateNo(plate);
+							float shouldMoney = Float.valueOf(jsonObject2.getString("free"))/100f;
+							inOutHistory.setShouldMoney(shouldMoney);
+							inOutHistory.setFactMoney(shouldMoney);
+							inOutHistory.setFreeMoney(0f);
+							sp.getCarparkInOutService().saveInOutHistory(inOutHistory);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
+		} catch (Exception e) {
+			log.error("启动二维码进出场服务失败！",e);
+			commonui.error("错误", "启动二维码进出场服务失败！");
+		}
+	}
+
 	/**
 	 * 启动场内车显示服务
 	 */
@@ -1884,6 +1962,9 @@ public class CarparkMainPresenter {
 	}
 
 	public Boolean showNowTimeToDevice(SingleCarparkDevice singleCarparkDevice) {
+		if(singleCarparkDevice.getScreenType().equals(ScreenTypeEnum.一体机)){
+			return carparkScreenService.setDeviceDateTime(getDevice(singleCarparkDevice), new Date());
+		}
 		return hardwareService.setCarparkDate(getDevice(singleCarparkDevice), new Date());
 	}
 
@@ -1914,7 +1995,7 @@ public class CarparkMainPresenter {
 	 */
 	public boolean checkIsPay(SingleCarparkInOutHistory data,float real, boolean check) {
 		float totalCharge=real+model.getChargedMoney();
-		if (totalCharge<model.getShouldMony()&&model.getMapSystemSetting().getOrDefault(SystemSettingTypeEnum.启用CJLAPP支付, "false").equals("true")) {
+		if (totalCharge<model.getShouldMony()&&model.getMapSystemSetting().get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")) {
 			List<CarPayHistory> list = sp.getCarPayService().findCarPayHistoryByLike(0, Integer.MAX_VALUE, data.getPlateNo(), data.getInTime(), new Date());
 			Double chargeMoney=0d;
 			Double freeMoney=0d;
@@ -1960,6 +2041,25 @@ public class CarparkMainPresenter {
 								return false;
 							} 
 						}
+//						Timer timer = new Timer();
+//						timer.schedule(new TimerTask() {
+//							@Override
+//							public void run() {
+//								if (!model.isBtnClick()) {
+//									timer.cancel();
+//								}
+//								Result result = getPayResult(data);
+//								if (result!=null) {
+//									int code = result.getCode();
+//									if (code == 2005) {
+//										model.setReal(0);
+//										model.setChargedMoney(model.getShouldMony());
+//										timer.cancel();
+//										charge(false);
+//									} 
+//								}
+//							}
+//						}, 3000, 1000);
 					}
 				}
 			}else{
@@ -2050,7 +2150,7 @@ public class CarparkMainPresenter {
 					return false;
 				}
 			}
-
+			String plateNo = singleCarparkInOutHistory.getPlateNo();
 			float freeMoney = shouldChargeMoney - factMoney;
 			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
 			singleCarparkInOutHistory.setFactMoney(model.getChargedMoney()+factMoney);
@@ -2061,12 +2161,12 @@ public class CarparkMainPresenter {
 			String carOutMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent();
 			if (tempCarNoChargeIsPass) {
 				if (shouldMoney > 0) {
-					showContentToDevice(device, carOutMsg, true);
+					showContentToDevice(plateNo,device, carOutMsg, true);
 				} else {
-					showContentToDevice(device, CarparkUtils.formatFloatString("请缴费" + shouldMoney + "元") + "," + carOutMsg, true);
+					showContentToDevice(plateNo,device, CarparkUtils.formatFloatString("请缴费" + shouldMoney + "元") + "," + carOutMsg, true);
 				}
 			} else {
-				showContentToDevice(device, carOutMsg, true);
+				showContentToDevice(plateNo,device, carOutMsg, true);
 			}
 			if (!StrUtil.isEmpty(model.getStroeFrees())) {
 				for (SingleCarparkStoreFreeHistory free : model.getStroeFrees()) {
@@ -2692,6 +2792,34 @@ public class CarparkMainPresenter {
 			return ipmsService.getPayResult(cch);
 		}
 		return result;
+	}
+	/**
+	 * 无牌车二维码进出场
+	 * @param plate
+	 * @param device
+	 * @param inOrOut
+	 */
+	public void emptyPlateQrCodeInOut(String plate,SingleCarparkDevice device,boolean inOrOut) {
+		if(!device.getScreenType().equals(ScreenTypeEnum.一体机)){
+			return;
+		}
+		String yunIdentifier = device.getCarpark().getYunIdentifier();
+		if(yunIdentifier==null){
+			return;
+		}
+		int type=0;
+		if(inOrOut){
+			type=2;
+		}else{
+			if(StrUtil.isEmpty(plate)){
+				type=0;
+			}else{
+				type=1;
+			}
+		}
+		String qrCodeUrl = carparkQrCodeInOutService.getQrCodeUrl(yunIdentifier, "1", inOrOut?0:1);
+		log.info("获取到二维码：{}",qrCodeUrl);
+		carparkScreenService.showCarparkQrCode(getDevice(device), type, qrCodeUrl);
 	}
 
 }

@@ -894,7 +894,7 @@ public class CarparkMainApp extends AbstractApp{
 					float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carparkCarType2, inTime, outTime);
 					log.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", h.getPlateNo(), device.getCarpark(), carparkCarType2, model.getInTime(), model.getOutTime(),
 							model.getTotalTime(), countShouldMoney);
-					presenter.showContentToDevice(model.getMapIpToDevice().get(model.getIp()), CarparkUtils.getCarStillTime(model.getTotalTime()) + CarparkUtils.formatFloatString("请缴费" + countShouldMoney + "元"),
+					presenter.showContentToDevice(h.getPlateNo(),model.getMapIpToDevice().get(model.getIp()), CarparkUtils.getCarStillTime(model.getTotalTime()) + CarparkUtils.formatFloatString("请缴费" + countShouldMoney + "元"),
 							false);
 					model.setShouldMony(countShouldMoney);
 					model.setReal(countShouldMoney);
