@@ -64,6 +64,9 @@ public class SingleCarparkCarpark extends DomainObject {
 	
 	private String yunIdentifier;
 	
+	private String yunBuildIdentifier;
+	private String yunBuildName;
+	
 	public String getCode() {
 		return code;
 	}
@@ -267,5 +270,19 @@ public class SingleCarparkCarpark extends DomainObject {
 	public void setYunIdentifier(String yunIdentifier) {
 		this.yunIdentifier = yunIdentifier;
 		firePropertyChange("yunIdentifier", null, null);
+	}
+	public String getYunBuildIdentifier() {
+		return yunBuildIdentifier;
+	}
+	public void setYunBuildIdentifier(String yunBuildIdentifier) {
+		this.yunBuildIdentifier = yunBuildIdentifier;
+		firePropertyChange("yunBuildIdentifier", null, null);
+	}
+	public String getYunBuildName() {
+		return yunBuildName;
+	}
+	public void setYunBuildName(String yunBuildName) {
+		this.yunBuildName = yunBuildName;
+		firePropertyChange("yunBuildName", null, null);
 	}
 }

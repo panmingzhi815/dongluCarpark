@@ -29,6 +29,10 @@ public class AddCarparkWizardPage extends WizardPage {
 	private Button button;
 	private Label label_3;
 	private Text text_3;
+	private Label label_4;
+	private Label label_5;
+	private Text text_5;
+	private Text text_6;
 	/**
 	 * Create the wizard.
 	 * @param model 
@@ -98,6 +102,24 @@ public class AddCarparkWizardPage extends WizardPage {
 		text_3 = new Text(composite, SWT.BORDER);
 		text_3.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		label_4 = new Label(composite, SWT.NONE);
+		label_4.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_4.setText("云项目编号");
+		
+		text_5 = new Text(composite, SWT.BORDER);
+		text_5.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		label_5 = new Label(composite, SWT.NONE);
+		label_5.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_5.setText("云项目名称");
+		
+		text_6 = new Text(composite, SWT.BORDER);
+		text_6.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(composite, SWT.NONE);
 		
 		btnBu = new Button(composite, SWT.CHECK);

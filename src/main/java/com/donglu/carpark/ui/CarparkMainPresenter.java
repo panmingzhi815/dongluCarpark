@@ -374,6 +374,7 @@ public class CarparkMainPresenter {
 	private long timeOut = 1000L;
 	//长颈鹿app服务
 	private IpmsServiceI ipmsService;
+	private Timer checkIsPayTimer;
 	/**
 	 * 自动刷新停车场视频监控
 	 */
@@ -1615,7 +1616,7 @@ public class CarparkMainPresenter {
 		}
 		try {
 			SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			carparkQrCodeInOutService.initService(new CarparkQrCodeInOutService.CarparkQrCodeInOutCallback() {
+			carparkQrCodeInOutService.initService("7e257819d2764bb6aa5c1fd43baf2f71",new CarparkQrCodeInOutService.CarparkQrCodeInOutCallback() {
 				@Override
 				public void call(String info) {
 					try {
@@ -2041,25 +2042,32 @@ public class CarparkMainPresenter {
 								return false;
 							} 
 						}
-//						Timer timer = new Timer();
-//						timer.schedule(new TimerTask() {
-//							@Override
-//							public void run() {
-//								if (!model.isBtnClick()) {
-//									timer.cancel();
-//								}
-//								Result result = getPayResult(data);
-//								if (result!=null) {
-//									int code = result.getCode();
-//									if (code == 2005) {
-//										model.setReal(0);
-//										model.setChargedMoney(model.getShouldMony());
-//										timer.cancel();
-//										charge(false);
-//									} 
-//								}
-//							}
-//						}, 3000, 1000);
+						if(checkIsPayTimer!=null){
+							checkIsPayTimer.cancel();
+						}
+						checkIsPayTimer = new Timer();
+						int delay = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场时检测云平台缴费间隔))*1000;
+						int timeOut = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场时等待云平台缴费超时时长))*1000;
+						checkIsPayTimer.schedule(new TimerTask() {
+							long startTime=System.currentTimeMillis();
+							@Override
+							public void run() {
+								if (System.currentTimeMillis()-startTime>timeOut||!model.isBtnClick()) {
+									checkIsPayTimer.cancel();
+//									checkIsPayTimer=null;
+								}
+								Result result = getPayResult(data);
+								if (result!=null) {
+									int code = result.getCode();
+									if (code == 2005) {
+										model.setReal(0);
+										model.setChargedMoney(model.getShouldMony());
+										checkIsPayTimer.cancel();
+										charge(false);
+									} 
+								}
+							}
+						}, delay, delay);
 					}
 				}
 			}else{

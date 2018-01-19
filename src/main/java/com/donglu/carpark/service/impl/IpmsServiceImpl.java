@@ -263,7 +263,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 						pay.setOperaName("在线缴费");
 						String parkingRecordId = jData.getString("parkingRecordId");
 						if (parkingRecordId.contains(parkId)) {
-							parkingRecordId=parkingRecordId.substring(parkingRecordId.indexOf(parkId)+parkId.length()+1);
+							parkingRecordId=parkingRecordId.replaceAll(parkId, "");
 						}
 						pay.setHistoryId(Long.valueOf(parkingRecordId));
 						saveCarPayHistory = sp.getCarPayService().saveCarPayHistory(pay);
@@ -408,7 +408,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			String jsonString = array.toJSONString();
 			maps.put("data", jsonString);
 			String mssage = postMssage(url, maps);
-			log.info("同步停车场：{} 车位信息，结果为：{}",carpark,mssage);
+			log.debug("同步停车场：{} 车位信息，结果为：{}",carpark,mssage);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

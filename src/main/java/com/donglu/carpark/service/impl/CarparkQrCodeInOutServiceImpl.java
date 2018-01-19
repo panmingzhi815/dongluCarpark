@@ -22,7 +22,7 @@ import com.google.common.base.Strings;
 public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService {
 	Logger LOGGER = LoggerFactory.getLogger(CarparkQrCodeInOutServiceImpl.class);
 
-	private String host="192.168.2.189";
+	private String host="www.dongluhitec.net";
 	private int port=8991;
 	private Socket s;
 	private String parkId="9e7b56480c9f454c87339b0633b913eb";
@@ -30,24 +30,33 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 	String secret_key = "123qwer";
 
 	@Override
-	public void initService(CarparkQrCodeInOutCallback callback) throws Exception {
-		
-		
+	public void initService(String buildId,CarparkQrCodeInOutCallback callback) throws Exception {
 		s = new Socket(host, port);
 //		s.setSoTimeout(5000);
 		InputStream is = s.getInputStream();
 		byte[] b = new byte[1024];
 		is.read(b);
-		LOGGER.info("连接云平台：{}",new String(b));
-		OutputStream os = s.getOutputStream();
-		JSONObject jo=new JSONObject();
-		jo.put("buildingId", "7e257819d2764bb6aa5c1fd43baf2f71");
-		jo.put("type", "PING_MSG");
-		os.write(jo.toJSONString().getBytes());
-		os.flush();
-		LOGGER.info("发送消息：{} 成功",jo.toJSONString());
-		is.read(b);
-		LOGGER.info("连接云平台：{}",new String(b));
+		String result = new String(b).trim();
+		LOGGER.info("连接云平台：{}",result);
+		JSONObject jsonObject = JSONObject.parseObject(result);
+		if(jsonObject.getString("type").equals("connectSuccess")){
+			OutputStream os = s.getOutputStream();
+			JSONObject jo=new JSONObject();
+			jo.put("buildingId", buildId);
+			jo.put("type", "PING_MSG");
+			os.write((jo.toJSONString()+"\n").getBytes());
+			os.flush();
+			LOGGER.info("发送消息：{} 成功",jo.toJSONString());
+			is.read(b);
+			result = new String(b).trim();
+			jsonObject = JSONObject.parseObject(result);
+			if(!jsonObject.getString("type").equals("PONG_MSG")){
+				throw new Exception("建立长连接失败");
+			}
+			LOGGER.info("连接云平台：{}",result);
+		}else{
+			throw new Exception("连接失败");
+		}
 		
 		s.setSoTimeout(0);
 		new Thread(new Runnable() {
