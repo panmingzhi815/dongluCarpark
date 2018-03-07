@@ -957,7 +957,7 @@ public class SettingView extends Composite implements View {
 		
 		Group grpApp = new Group(composite, SWT.NONE);
 		grpApp.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
-		grpApp.setLayout(new GridLayout(1, false));
+		grpApp.setLayout(new GridLayout(2, false));
 		grpApp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 		grpApp.setText("APP服务");
 		
@@ -971,6 +971,17 @@ public class SettingView extends Composite implements View {
 		btncjlapp.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btncjlapp.setText("启用CJLAPP服务(支持微信支付)");
 		btncjlapp.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付)));
+		
+		Button button_34 = new Button(grpApp, SWT.CHECK);
+		button_34.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.无车牌时使用二维码进出场, button_34.getSelection()+"");
+			}
+		});
+		button_34.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		button_34.setText("允许实时扫码进出场(需要一体机)");
+		button_34.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场)));
 
 		Composite composite_8 = new Composite(composite, SWT.NONE);
 		composite_8.setLayout(new GridLayout(4, false));

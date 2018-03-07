@@ -1511,7 +1511,7 @@ public class CarparkMainPresenter {
 		refreshSystemSetting();
 		saveImageTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("保存图片任务"));
 		openDoorTheadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
-		checkPlayerPlaying();
+//		checkPlayerPlaying();
 		countTempCarCharge = new CountTempCarChargeImpl();
 		autoCheckDeviceLinkInfo();
 		setIsTwoChanel();
@@ -1655,7 +1655,7 @@ public class CarparkMainPresenter {
 			});
 		} catch (Exception e) {
 			log.error("启动二维码进出场服务失败！",e);
-			commonui.error("错误", "启动二维码进出场服务失败！");
+			commonui.error("错误", "启动二维码实时进出场服务失败！请检查网络");
 		}
 	}
 
@@ -1995,6 +1995,9 @@ public class CarparkMainPresenter {
 	 * @param real 
 	 */
 	public boolean checkIsPay(SingleCarparkInOutHistory data,float real, boolean check) {
+		if(checkIsPayTimer!=null){
+			checkIsPayTimer.cancel();
+		}
 		float totalCharge=real+model.getChargedMoney();
 		if (totalCharge<model.getShouldMony()&&model.getMapSystemSetting().get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")) {
 			List<CarPayHistory> list = sp.getCarPayService().findCarPayHistoryByLike(0, Integer.MAX_VALUE, data.getPlateNo(), data.getInTime(), new Date());
@@ -2010,9 +2013,9 @@ public class CarparkMainPresenter {
 				Result result = getPayResult(data);
 				if (result!=null) {
 					int code = result.getCode();
-					JSONObject map = (JSONObject) result.getObj();
-					log.info("请求 车辆缴费状态结果：{}",map);
-					System.out.println(map);
+//					JSONObject map = (JSONObject.parseObject(result.getObj()+"")) ;
+					log.info("请求 车辆缴费状态结果：{}",result.getObj());
+//					System.out.println(map);
 					if (code==2008) {
 						model.setReal(result.getDeptFee());
 						model.setChargedMoney(result.getPayedFee());
@@ -2031,7 +2034,7 @@ public class CarparkMainPresenter {
 						data.setFreeMoney(model.getShouldMony()-model.getChargedMoney());
 						model.setReal(0);
 						data.setChargeOperaName("在线支付");
-						data.setRemarkString("缴费完成，在规定时间内出场！");
+						data.setRemarkString("在线缴费完成，在规定时间内出场！");
 						model.setPlateNo(data.getPlateNo()+"-已在线支付");
 						return true;
 					}else{
@@ -2041,9 +2044,6 @@ public class CarparkMainPresenter {
 							if (!confirm) {
 								return false;
 							} 
-						}
-						if(checkIsPayTimer!=null){
-							checkIsPayTimer.cancel();
 						}
 						checkIsPayTimer = new Timer();
 						int delay = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场时检测云平台缴费间隔))*1000;
@@ -2061,8 +2061,10 @@ public class CarparkMainPresenter {
 									int code = result.getCode();
 									if (code == 2005) {
 										model.setReal(0);
-										model.setChargedMoney(model.getShouldMony());
+										model.setChargedMoney(result.getPayedFee());
 										checkIsPayTimer.cancel();
+										data.setRemarkString("在线缴费完成，在规定时间内出场！");
+										model.setPlateNo(data.getPlateNo()+"-已在线支付");
 										charge(false);
 									} 
 								}
@@ -2075,7 +2077,7 @@ public class CarparkMainPresenter {
 				data.setFreeMoney(freeMoney.floatValue());
 				model.setReal(model.getShouldMony()-model.getChargedMoney());
 				data.setChargeOperaName(ctype);
-				data.setRemarkString(ctype);
+				data.setRemarkString(ctype+chargeMoney+"元");
 			}
 		}
 		return true;
@@ -2372,7 +2374,7 @@ public class CarparkMainPresenter {
 	public void systemExit() {
 		openDoorTheadPool.shutdownNow();
 		saveImageTheadPool.shutdownNow();
-		checkCameraPlayStatus.shutdownNow();
+//		checkCameraPlayStatus.shutdownNow();
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.登录登出, "退出了监控界面", System.getProperty(ConstUtil.USER_NAME));
 	}
 
@@ -2797,7 +2799,15 @@ public class CarparkMainPresenter {
 	public Result getPayResult(SingleCarparkInOutHistory cch) {
 		Result result =null ;
 		if (mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")) {
-			return ipmsService.getPayResult(cch);
+			result = ipmsService.getPayResult(cch);
+			if(result.getObj()==null){
+				for (int i = 0; i < 5; i++) {
+					result = ipmsService.getPayResult(cch);
+					if(result.getObj()!=null)
+						break;
+				}
+			}
+			return result;
 		}
 		return result;
 	}

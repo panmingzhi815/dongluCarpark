@@ -107,10 +107,10 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			int depFree = (int) (ioh.getFactMoney() == null ? 0 : ioh.getFactMoney() * 100);
 			int free = (int) (ioh.getShouldMoney() == null ? 0 : ioh.getShouldMoney() * 100);
 			content = StrUtil.formatString(content, plateNo, parkId + id, inTime, outTime, status, userType, depFree, free, id);
-			System.out.println(content);
+//			System.out.println(content);
 			carInfo = "data=" + URLEncoder.encode("["+content+"]", "UTF-8");
 			String actionUrl = url;
-			System.out.println(actionUrl);
+//			System.out.println(actionUrl);
 			String httpPostMssage = httpPostMssage(actionUrl, carInfo);
 			log.info("{}停车场记录,结果:{}", type, httpPostMssage);
 			boolean result = JSONObject.parseObject(httpPostMssage).get("ret").toString().equals("0");
@@ -232,7 +232,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			for (Object object2 : parseArray) {
 				JSONObject jo=(JSONObject) object2;
 				String idLabel=jo.getString("id");
-				System.out.println(jo);
+//				System.out.println(jo);
 				Long saveCarPayHistory =0l;
 				JSONObject jData = JSONObject.parseObject(jo.getString("data"));
 				int paymentStatus = jData.getIntValue("paymentStatus");
@@ -410,7 +410,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			String mssage = postMssage(url, maps);
 			log.debug("同步停车场：{} 车位信息，结果为：{}",carpark,mssage);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("同步停车场车位信息时发生错误！");
 		}
 		
 	}
@@ -439,24 +439,25 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	@Override
 	public Result getPayResult(SingleCarparkInOutHistory inout){
 		Result result = new Result();
+		String plateNo = inout.getPlateNo();
 		try {
-			log.info("车辆:{}出场,请求查看扣费结果",inout.getPlateNo());
+			log.info("车辆:{}出场,请求查看扣费结果",plateNo);
 			String recordId=parkId+inout.getId();
-			String plateNO=URLEncoder.encode(inout.getPlateNo(), "UTF-8");
+			String plateNO=URLEncoder.encode(plateNo, "UTF-8");
 			String url=httpUrl+"/api/getPayedResult.action?carNum={}&recordId={}&parkId={}";
 			url = StrUtil.formatString(url, plateNO,recordId,parkId);
 			String httpPostMssage = httpPostMssage(url, null);
-			log.info("车辆:{}出场,请求查看扣费结果:{}",inout.getPlateNo(),httpPostMssage);
+			log.info("车辆:{}出场,请求查看扣费结果:{}",plateNo,httpPostMssage);
 			JSONObject jsonObject = JSONObject.parseObject(httpPostMssage);
 			int intValue = jsonObject.getIntValue("resultCode");
 			result.setCode(intValue);
 			result.setMsg(jsonObject.getString("resultMsg"));
-			result.setObj(jsonObject);
+			result.setObj(httpPostMssage);
 			result.setDeptFee(jsonObject.getFloatValue("deptFee"));
 			result.setPayedFee(jsonObject.getFloatValue("payedFee"));
 			return result;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("{}请求查看扣费时发生错误：{}",plateNo,e);
 		}
 		result.setCode(2009);
 		result.setMsg("未在线支付");
@@ -542,6 +543,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		log.debug("准备对地址：["+actionUrl+"]发送消息:"+parameters);
 		URL url = new URL(actionUrl);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setReadTimeout(5000);
+		connection.setConnectTimeout(3000);
 		connection.setDoInput(true);
 		connection.setDoOutput(true);
 		connection.setRequestMethod("POST");

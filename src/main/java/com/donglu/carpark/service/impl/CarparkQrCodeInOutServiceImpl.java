@@ -32,7 +32,7 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 	@Override
 	public void initService(String buildId,CarparkQrCodeInOutCallback callback) throws Exception {
 		s = new Socket(host, port);
-//		s.setSoTimeout(5000);
+		s.setSoTimeout(5000);
 		InputStream is = s.getInputStream();
 		byte[] b = new byte[1024];
 		is.read(b);
