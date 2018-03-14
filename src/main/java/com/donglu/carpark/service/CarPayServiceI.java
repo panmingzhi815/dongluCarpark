@@ -16,5 +16,7 @@ public interface CarPayServiceI {
 	Long deleteCarPayHistory(Long id);
 	
 	CarPayHistory findCarPayHistoryByPayId(String payId);
+
+	List<CarPayHistory> getCarPayHistoryWithNew();
 	
 }

@@ -67,6 +67,7 @@ import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
 import com.donglu.carpark.ui.view.inouthistory.CarInHistoryPresenter;
 import com.donglu.carpark.ui.view.inouthistory.FreeReasonDialog;
 import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
+import com.donglu.carpark.ui.view.message.MessageUtil;
 import com.donglu.carpark.ui.view.user.UserPresenter;
 import com.donglu.carpark.ui.wizard.AddDeviceModel;
 import com.donglu.carpark.ui.wizard.AddDeviceWizard;
@@ -80,6 +81,7 @@ import com.donglu.carpark.ui.wizard.model.ReturnAccountModel;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
+import com.donglu.carpark.util.ExecutorsUtils;
 import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
@@ -182,8 +184,6 @@ public class CarparkMainPresenter {
 	private ExecutorService openDoorTheadPool;
 
 	private int openDoorDelay = 500;
-	// 自动下载车牌到设备
-	private ScheduledExecutorService autoDownloadPlateNOToDevice;
 
 	/**
 	 * 删除一个设备tab页
@@ -1105,6 +1105,13 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	public boolean showContentToDevice(String plate,SingleCarparkDevice device, String content, boolean isOpenDoor) {
+		boolean b = showContentToDeviceOnce(plate, device, content, isOpenDoor);
+		if (!b) {
+			b = showContentToDeviceOnce(plate, device, content, isOpenDoor);
+		}
+		return b;
+	}
+	public boolean showContentToDeviceOnce(String plate,SingleCarparkDevice device, String content, boolean isOpenDoor){
 		if (StrUtil.isEmpty(content)) {
 			return true;
 		}
@@ -1138,6 +1145,7 @@ public class CarparkMainPresenter {
 				openDoorToPhotograph(device.getIp());
 			}
 		}
+	
 	}
 
 	/**
@@ -1239,6 +1247,9 @@ public class CarparkMainPresenter {
 			Device d = getDevice(device);
 			boolean carparkOpenDoor = true;
 			if (d != null) {
+				if (device.getScreenType().equals(ScreenTypeEnum.一体机)) {
+					return carparkScreenService.screenOpenDoor(d, 0);
+				}
 				carparkOpenDoor = hardwareService.carparkOpenDoor(d);
 				// carparkOpenDoor = hardwareService.carparkControlDoor(getDevice(device), 0, -1, -1, -1);
 			}
@@ -1263,6 +1274,9 @@ public class CarparkMainPresenter {
 			Device d = getDevice(device);
 			Boolean carparkOpenDoor = true;
 			if (d != null) {
+				if (device.getScreenType().equals(ScreenTypeEnum.一体机)) {
+					return carparkScreenService.screenOpenDoor(d, 1);
+				}
 				carparkOpenDoor = hardwareService.carparkControlDoor(d, -1, 0, -1, -1);
 			}
 			return carparkOpenDoor;
@@ -1349,7 +1363,30 @@ public class CarparkMainPresenter {
 	 * 
 	 * @return
 	 */
-	public float countShouldMoney(Long carparkId, String carType, Date startTime, Date endTime) {
+	public float countShouldMoney(Long carparkId, String carType, Date startTime, Date endTime,SingleCarparkInOutHistory data) {
+		if(data!=null&&Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.优先使用云平台计费))){
+			Result result = getPayResult(data);
+			if (result!=null&&result.getObj()!=null) {
+				model.setChargedMoney(result.getPayedFee());
+				model.setShouldMony(result.getDeptFee()+result.getPayedFee());
+				data.setShouldMoney(result.getDeptFee()+result.getPayedFee());
+				model.setReal(result.getDeptFee());
+				model.setOutTime(result.getOutTime());
+				data.setOutTime(result.getOutTime());
+				if(result.getCode()==2005){
+					model.setReal(0);
+					model.setChargedMoney(result.getPayedFee());
+					model.setShouldMony(result.getPayedFee());
+					data.setFreeMoney(0);
+					data.setShouldMoney(result.getPayedFee());
+					data.setFactMoney(result.getPayedFee());
+					data.setChargeOperaName("在线支付");
+					data.setRemarkString("在线缴费完成，在规定时间内出场！");
+					model.setPlateNo(data.getPlateNo()+"-已在线支付");
+				}
+				return result.getDeptFee()+result.getPayedFee();
+			}
+		}
 		float charge = 0;
 		try {
 			int freeMinute = 0;
@@ -1541,8 +1578,7 @@ public class CarparkMainPresenter {
 		} catch (Exception e) {
 		}
 		log.debug("超时时间timeOut为：", timeOut);
-		ScheduledExecutorService autoCheckDeviceStatus = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("自动检测设备连接状态"));
-		autoCheckDeviceStatus.scheduleWithFixedDelay(new Runnable() {
+		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -1554,12 +1590,34 @@ public class CarparkMainPresenter {
 					log.error("检测设备时发生错误",e);
 				}
 			}
-		}, 20, 20, TimeUnit.SECONDS);
+		}, 20, 20, TimeUnit.SECONDS,"自动检测设备连接状态");
 		// 车牌自动下载
+		startAutoDownloadPlatesService();
+		if (mapSystemSetting.get(SystemSettingTypeEnum.允许设备限时).equals("true")) {
+			ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
+				@Override
+				public void run() {
+					checkAllDeviceControlTimeStatus();
+				}
+			}, 60 - DateTime.now().getSecondOfMinute(), 60, TimeUnit.SECONDS,"检查设备是否限时");
+		}
+		
+		if (mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录).equals("true")) {
+			CarparkUtils.startServer(10002, "/*", new OpenDoorServlet(this));
+		}
+		
+		startShowInHistoryTask();
+		startQrCodeInOutService();
+//		startPlatePayRemindService();
+	}
+
+	/**
+	 * 
+	 */
+	public void startAutoDownloadPlatesService() {
 		if (mapSystemSetting.get(SystemSettingTypeEnum.自动下载车牌).equals("true")) {
-			autoDownloadPlateNOToDevice = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每天晚上12点下载车牌"));
 			Date todayBottomTime = StrUtil.getTodayBottomTime(new Date());
-			autoDownloadPlateNOToDevice.scheduleWithFixedDelay(new Runnable() {
+			ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -1591,63 +1649,131 @@ public class CarparkMainPresenter {
 						log.error("自动下载车牌时发生错误", e);
 					}
 				}
-			}, todayBottomTime.getTime() - System.currentTimeMillis(), 1000 * 60 * 60 * 24, TimeUnit.MILLISECONDS);
+			}, todayBottomTime.getTime() - System.currentTimeMillis(), 1000 * 60 * 60 * 24, TimeUnit.MILLISECONDS,"每天晚上12点下载车牌");
 		}
-		if (mapSystemSetting.get(SystemSettingTypeEnum.允许设备限时).equals("true")) {
-			ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("检查设备是否限时"));
-			newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
-				@Override
-				public void run() {
-					checkAllDeviceControlTimeStatus();
-				}
-			}, 60 - DateTime.now().getSecondOfMinute(), 60, TimeUnit.SECONDS);
-		}
-		
-		if (mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录).equals("true")) {
-			CarparkUtils.startServer(10002, "/*", new OpenDoorServlet(this));
-		}
-		
-		startShowInHistoryTask();
-		startQrCodeInOutService();
 	}
+	/**
+	 * 车辆缴费提示服务。车辆缴费后会在客户端提醒
+	 */
+	private void startPlatePayRemindService() {
+		if(!mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")||!mapSystemSetting.get(SystemSettingTypeEnum.监控界面提示网络故障).equals("true")){
+			return;
+		}
+		ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("云平台缴费记录推送服务"));
+		scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				List<CarPayHistory> list=sp.getCarPayService().getCarPayHistoryWithNew();
+				for (CarPayHistory carPayHistory : list) {
+					String msg = carPayHistory.getPlateNO()+carPayHistory.getPayType()+carPayHistory.getPayedMoney()+"元";
+					MessageUtil.info("车辆缴费提示",msg,10000,null);
+				}
+			}
+		}, 1, 1, TimeUnit.SECONDS);
+	}
+
+	/**
+	 * 二维码进出服务
+	 */
 	private void startQrCodeInOutService() {
 		if(!mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")||!mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")){
 			return;
 		}
 		try {
+			SingleCarparkCarpark carpark = model.getCarpark().getMaxParent();
 			SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			carparkQrCodeInOutService.initService("7e257819d2764bb6aa5c1fd43baf2f71",new CarparkQrCodeInOutService.CarparkQrCodeInOutCallback() {
+			String buildId = carpark.getYunBuildIdentifier();
+			if (StrUtil.isEmpty(buildId)||StrUtil.isEmpty(carpark.getYunIdentifier())) {
+				log.info("停车场云项目编号为：[{}]，不启动二维码进出服务",buildId);
+				MessageUtil.info("停车场云平台编号或项目编号为空,不启动二维码进出场服务！");
+				return;
+			}
+			carparkQrCodeInOutService.initService(buildId,new CarparkQrCodeInOutService.CarparkQrCodeInOutCallback() {
 				@Override
 				public void call(String info) {
 					try {
+						info=info.trim();
 						JSONObject jsonObject = JSONObject.parseObject(info);
 						String type = jsonObject.getString("type");
+						if (type.equals("PONG_MSG")) {
+							return;
+						}
+						log.info("云平台推送消息：[{}]",info);
 						JSONObject jsonObject2 = jsonObject.getJSONObject("data");
 						SingleCarparkDevice device = mapIpToDevice.get(jsonObject2.getString("deviceId"));
 						String plate = jsonObject2.getString("carNum");
 						if(type.equals("inQRCode")){//进场
-							SingleCarparkInOutHistory inOutHistory = new SingleCarparkInOutHistory();
+							List<SingleCarparkInOutHistory> list = sp.getCarparkInOutService().findByNoOut(plate, device.getCarpark());
+							if (!StrUtil.isEmpty(list)) {
+								log.info("车牌{}未出场,入场终止",plate);
+								MessageUtil.info("入场提示","车牌"+plate+"未出场,入场终止");
+								return;
+							}
+							SingleCarparkInOutHistory inOutHistory = model.getMapWaitInOutHistory().get(device.getIp());
 							inOutHistory.setInDevice(device.getName());
 							inOutHistory.setCarparkId(device.getCarpark().getId());
 							inOutHistory.setCarparkName(device.getCarpark().getName());
 							inOutHistory.setPlateNo(plate);
 							inOutHistory.setInPlateNO(plate);
-							inOutHistory.setInTime(sdf.parse(jsonObject2.getString("inTime")));
+							inOutHistory.setCarType("临时车");
+							Date parse=new Date();
+							try {
+								parse = sdf.parse(jsonObject2.getString("inTime"));
+							} catch (Exception e) {
+								
+							}
+							inOutHistory.setInTime(parse);
 							inOutHistory.setOperaName(ConstUtil.getUserName());
-							sp.getCarparkInOutService().saveInOutHistory(inOutHistory);
-						}else if(type.equals("outQRCode")){//出场
-							List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plate,device.getCarpark());
-							SingleCarparkInOutHistory inOutHistory = StrUtil.isEmpty(findByNoOut)?null:findByNoOut.get(0);
-							inOutHistory.setOutTime(sdf.parse(jsonObject2.getString("outTime")));
-							inOutHistory.setCarparkId(device.getCarpark().getId());
-							inOutHistory.setCarparkName(device.getCarpark().getName());
+							inOutHistory.setCarpark(device.getCarpark());
+							Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(inOutHistory);
+							inOutHistory.setId(saveInOutHistory);
+							model.addInHistorys(inOutHistory);
+							showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车进场语音).getContent(), true);
+						}else if(type.contains("outQRCode")){//出场
+							SingleCarparkInOutHistory inOutHistory=null;
+							if (device!=null) {
+								List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plate,device.getCarpark());
+								inOutHistory = StrUtil.isEmpty(findByNoOut)?new SingleCarparkInOutHistory():findByNoOut.get(0);
+							}else{
+								for (String ip : model.getMapWaitInOutHistory().keySet()) {
+									SingleCarparkInOutHistory singleCarparkInOutHistory = model.getMapWaitInOutHistory().get(ip);
+									if (singleCarparkInOutHistory.getPlateNo().equals(plate)) {
+										inOutHistory=singleCarparkInOutHistory;
+										device=mapIpToDevice.get(ip);
+									}
+								}
+							}
+							Date outTime=new Date();
+							try {
+								outTime = sdf.parse(jsonObject2.getString("outTime"));
+							} catch (Exception e) {
+								
+							}
+							inOutHistory.setOutTime(outTime);
+							if (device!=null) {
+								inOutHistory.setCarparkId(device.getCarpark().getId());
+								inOutHistory.setCarparkName(device.getCarpark().getName());
+								inOutHistory.setOutDevice(device.getName());
+								inOutHistory.setOutDeviceIp(device.getIp());
+								SingleCarparkInOutHistory history = model.getMapWaitInOutHistory().get(device.getIp());
+								if (history!=null) {
+									inOutHistory.setOutBigImg(history.getOutBigImg());
+									inOutHistory.setOutSmallImg(history.getOutSmallImg());
+								}
+							}
 							inOutHistory.setPlateNo(plate);
-							float shouldMoney = Float.valueOf(jsonObject2.getString("free"))/100f;
+							float shouldMoney = Float.valueOf(jsonObject2.getString("fee"))/100f;
 							inOutHistory.setShouldMoney(shouldMoney);
 							inOutHistory.setFactMoney(shouldMoney);
 							inOutHistory.setFreeMoney(0f);
+							inOutHistory.setRemarkString("扫码缴费出场");
 							sp.getCarparkInOutService().saveInOutHistory(inOutHistory);
+							if (plate.length()>8) {
+								plate="";
+							}
+							showContentToDevice(plate,device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 						}
+						model.getMapWaitInOutHistory().remove(device.getIp());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -1655,7 +1781,7 @@ public class CarparkMainPresenter {
 			});
 		} catch (Exception e) {
 			log.error("启动二维码进出场服务失败！",e);
-			commonui.error("错误", "启动二维码实时进出场服务失败！请检查网络");
+			MessageUtil.info("启动二维码实时进出场服务失败！请检查停车场云编号是否正确或检查网络");
 		}
 	}
 
@@ -1669,8 +1795,7 @@ public class CarparkMainPresenter {
 			showApp.setPresenter(presenter);
 			showApp.setMaximized(false);
 			AtomicBoolean isFirstOpen=new AtomicBoolean(true);
-			ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("场内车停留时间显示任务"));
-			executorService.scheduleWithFixedDelay(new Runnable() {
+			ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
 				@Override
 				public void run() {
 					if(showApp.isOpen()){
@@ -1716,7 +1841,7 @@ public class CarparkMainPresenter {
 					isFirstOpen.set(false);
 
 				}
-			}, 5, 5, TimeUnit.SECONDS);
+			}, 5, 5, TimeUnit.SECONDS,"场内车停留时间显示任务");
 		}
 	}
 
@@ -1843,9 +1968,7 @@ public class CarparkMainPresenter {
 		for (SingleCarparkDevice d : mapIpToDevice.values()) {
 			map.put(d.getLinkInfo(), d);
 		}
-
-		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("自动检测设备的连接状态"));
-		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
 				for (String l : mapDeviceFailInfo.keySet()) {
@@ -1859,7 +1982,7 @@ public class CarparkMainPresenter {
 					}
 				}
 			}
-		}, 10, 10, TimeUnit.SECONDS);
+		}, 10, 10, TimeUnit.SECONDS,"自动检测设备的连接状态");
 	}
 
 	/**
@@ -1953,9 +2076,9 @@ public class CarparkMainPresenter {
 				log.info("对设备{}，地址{}-{}开闸", device.getName(), device.getLinkAddress(), device.getAddress());
 				showPlateNOToDevice(device, "");
 				if (inOrOut) {
-					showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.进口开闸语音).getContent(), false);
+					showContentToDevice("手动开闸",device, model.getMapVoice().get(DeviceVoiceTypeEnum.进口开闸语音).getContent(), false);
 				} else {
-					showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.出口开闸语音).getContent(), false);
+					showContentToDevice("手动开闸",device, model.getMapVoice().get(DeviceVoiceTypeEnum.出口开闸语音).getContent(), false);
 				}
 			}
 		};
@@ -2030,9 +2153,12 @@ public class CarparkMainPresenter {
 							return false;
 						}
 					}else if(code==2005){
-						model.setChargedMoney(chargeMoney.floatValue());
-						data.setFreeMoney(model.getShouldMony()-model.getChargedMoney());
 						model.setReal(0);
+						model.setChargedMoney(result.getPayedFee());
+						model.setShouldMony(result.getPayedFee());
+						data.setFreeMoney(0);
+						data.setShouldMoney(result.getPayedFee());
+						data.setFactMoney(result.getPayedFee());
 						data.setChargeOperaName("在线支付");
 						data.setRemarkString("在线缴费完成，在规定时间内出场！");
 						model.setPlateNo(data.getPlateNo()+"-已在线支付");
@@ -2062,11 +2188,27 @@ public class CarparkMainPresenter {
 									if (code == 2005) {
 										model.setReal(0);
 										model.setChargedMoney(result.getPayedFee());
-										checkIsPayTimer.cancel();
+										model.setShouldMony(result.getPayedFee());
+										data.setFreeMoney(0);
+										data.setShouldMoney(result.getPayedFee());
+										data.setFactMoney(result.getPayedFee());
+										data.setChargeOperaName("在线支付");
 										data.setRemarkString("在线缴费完成，在规定时间内出场！");
 										model.setPlateNo(data.getPlateNo()+"-已在线支付");
 										charge(false);
-									} 
+									}else{
+										float totelFee = result.getPayedFee()+result.getDeptFee();
+										if (totelFee>model.getShouldMony()&&data.getOutDeviceIp()!=null&&mapIpToDevice.get(data.getOutDeviceIp())!=null) {
+											model.setShouldMony(totelFee);
+											data.setShouldMoney(totelFee);
+											model.setChargedMoney(result.getPayedFee());
+											model.setReal(result.getDeptFee());
+											Date outTime = new Date();
+											data.setOutTime(outTime);
+											model.setOutTime(outTime);
+											showContentToDevice(data.getPlateNo(), mapIpToDevice.get(data.getOutDeviceIp()), "请缴费"+CarparkUtils.formatFloatString(result.getDeptFee()+"")+"元", false);
+										}
+									}
 								}
 							}
 						}, delay, delay);
@@ -2163,7 +2305,7 @@ public class CarparkMainPresenter {
 			String plateNo = singleCarparkInOutHistory.getPlateNo();
 			float freeMoney = shouldChargeMoney - factMoney;
 			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
-			singleCarparkInOutHistory.setFactMoney(model.getChargedMoney()+factMoney);
+			singleCarparkInOutHistory.setFactMoney(model.getChargedMoney()+factMoney-singleCarparkInOutHistory.getOnlineMoney());
 			singleCarparkInOutHistory.setFreeMoney(freeMoney);
 			singleCarparkInOutHistory.setCarType("临时车");
 			sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
@@ -2372,6 +2514,9 @@ public class CarparkMainPresenter {
 	 * 释放资源
 	 */
 	public void systemExit() {
+		if (app!=null) {
+			app.close();
+		}
 		openDoorTheadPool.shutdownNow();
 		saveImageTheadPool.shutdownNow();
 //		checkCameraPlayStatus.shutdownNow();
@@ -2803,13 +2948,20 @@ public class CarparkMainPresenter {
 			if(result.getObj()==null){
 				for (int i = 0; i < 5; i++) {
 					result = ipmsService.getPayResult(cch);
-					if(result.getObj()!=null)
+					if(result.getObj()!=null){
 						break;
+					}
 				}
+			}
+			if (result.getObj()==null&&mapSystemSetting.get(SystemSettingTypeEnum.监控界面提示网络故障).equals("true")) {
+				MessageUtil.info("网络故障", "网络故障！请检查网络");
 			}
 			return result;
 		}
 		return result;
+	}
+	public void qrCodeInOut(String plate,SingleCarparkDevice device,boolean inOrOut) {
+		qrCodeInOut(plate, device, inOrOut, null);
 	}
 	/**
 	 * 无牌车二维码进出场
@@ -2817,7 +2969,7 @@ public class CarparkMainPresenter {
 	 * @param device
 	 * @param inOrOut
 	 */
-	public void emptyPlateQrCodeInOut(String plate,SingleCarparkDevice device,boolean inOrOut) {
+	public void qrCodeInOut(String plate,SingleCarparkDevice device,boolean inOrOut,SingleCarparkInOutHistory data) {
 		if(!device.getScreenType().equals(ScreenTypeEnum.一体机)){
 			return;
 		}
@@ -2825,6 +2977,7 @@ public class CarparkMainPresenter {
 		if(yunIdentifier==null){
 			return;
 		}
+		String qrCodeUrl = carparkQrCodeInOutService.getQrCodeUrl(yunIdentifier,plate, device.getIp(), inOrOut?0:1);
 		int type=0;
 		if(inOrOut){
 			type=2;
@@ -2833,9 +2986,12 @@ public class CarparkMainPresenter {
 				type=0;
 			}else{
 				type=1;
+				if (data!=null&&data.getId()!=null) {
+					//
+					qrCodeUrl=qrCodeUrl+yunIdentifier+data.getId();
+				}
 			}
 		}
-		String qrCodeUrl = carparkQrCodeInOutService.getQrCodeUrl(yunIdentifier, "1", inOrOut?0:1);
 		log.info("获取到二维码：{}",qrCodeUrl);
 		carparkScreenService.showCarparkQrCode(getDevice(device), type, qrCodeUrl);
 	}

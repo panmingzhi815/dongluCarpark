@@ -23,6 +23,7 @@ public class CarPayServlet extends HessianServlet implements CarPayServiceI {
 	@Override
 	public void init() throws ServletException {
 		carPayService = sp.getCarPayService();
+		getCarPayHistoryWithNew();
 	}
 
 	@Override
@@ -48,6 +49,11 @@ public class CarPayServlet extends HessianServlet implements CarPayServiceI {
 	@Override
 	public CarPayHistory findCarPayHistoryByPayId(String payId) {
 		return carPayService.findCarPayHistoryByPayId(payId);
+	}
+
+	@Override
+	public List<CarPayHistory> getCarPayHistoryWithNew() {
+		return carPayService.getCarPayHistoryWithNew();
 	}
 
 }

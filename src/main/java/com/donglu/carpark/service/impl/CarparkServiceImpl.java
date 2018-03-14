@@ -404,7 +404,7 @@ public class CarparkServiceImpl implements CarparkService {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkMonthlyUserPayHistory.class);
-			createCriteriaBySingleCarparkMonthlyUserPayHistory(c,userName,operaName,start,end);
+			createCriteriaBySingleCarparkMonthlyUserPayHistory(c,userName,null,null,operaName,start,end);
 			c.setFirstResult(maxResult);
 			c.setMaxResults(size);
 			return c.getResultList();
@@ -413,10 +413,16 @@ public class CarparkServiceImpl implements CarparkService {
 		}
 	}
 
-	private void createCriteriaBySingleCarparkMonthlyUserPayHistory(Criteria c, String userName, String operaName, Date start, Date end) {
+	private void createCriteriaBySingleCarparkMonthlyUserPayHistory(Criteria c, String userName,String plate, String address, String operaName, Date start, Date end) {
 		if (!StrUtil.isEmpty(userName)) {
 			c.add(Restrictions.or(Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.userName.name(), userName,MatchMode.START),
 					Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.userName.name(), userName,MatchMode.END)));
+		}
+		if (!StrUtil.isEmpty(plate)) {
+			c.add(Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.plateNO.name(), plate,MatchMode.ANYWHERE));
+		}
+		if (!StrUtil.isEmpty(address)) {
+			c.add(Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.userAddress.name(), address,MatchMode.ANYWHERE));
 		}
 		if (!StrUtil.isEmpty(operaName)) {
 			c.add(Restrictions.or(Restrictions.like(SingleCarparkMonthlyUserPayHistory.Property.operaName.name(), operaName,MatchMode.START),
@@ -438,7 +444,7 @@ public class CarparkServiceImpl implements CarparkService {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkMonthlyUserPayHistory.class);
-			createCriteriaBySingleCarparkMonthlyUserPayHistory(c,userName,operaName,start,end);
+			createCriteriaBySingleCarparkMonthlyUserPayHistory(c,userName,null,null,operaName,start,end);
 			c.setProjection(Projections.rowCount());
 			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
 			return singleResultOrNull.intValue();
@@ -968,6 +974,35 @@ public class CarparkServiceImpl implements CarparkService {
 			c.setMaxResults(maxValue);
 			return c.getResultList();
 		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkMonthlyUserPayHistory> findMonthlyUserPayHistoryByCondition(int maxResult, int size, String userName, String plate, String address, String operaName, Date start,
+			Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkMonthlyUserPayHistory.class);
+			createCriteriaBySingleCarparkMonthlyUserPayHistory(c,userName,plate,address,operaName,start,end);
+			c.setFirstResult(maxResult);
+			c.setMaxResults(size);
+			return c.getResultList();
+		} finally{
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public int countMonthlyUserPayHistoryByCondition(String userName, String plate, String address, String operaName, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkMonthlyUserPayHistory.class);
+			createCriteriaBySingleCarparkMonthlyUserPayHistory(c,userName,plate,address, operaName, start,end);
+			c.setProjection(Projections.rowCount());
+			Long singleResultOrNull = (Long) c.getSingleResultOrNull();
+			return singleResultOrNull.intValue();
+		} finally{
 			unitOfWork.end();
 		}
 	}

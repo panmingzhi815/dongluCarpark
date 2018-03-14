@@ -17,7 +17,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +59,7 @@ import com.donglu.carpark.service.background.haiyu.AsynHaiYuRecordService;
 import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.wizard.sn.ImportSNModel;
 import com.donglu.carpark.ui.wizard.sn.ImportSNWizard;
+import com.donglu.carpark.util.CarparkDataBaseUtil;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
@@ -85,12 +85,10 @@ import com.dongluhitec.core.crypto.appauth.AppVerifier;
 import com.dongluhitec.core.crypto.appauth.AppVerifierImpl;
 import com.dongluhitec.core.crypto.softdog.SoftDogWin;
 import com.google.inject.AbstractModule;
-import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import com.google.inject.persist.jpa.JpaPersistModule;
 
 public class ImageServerUI {
 
@@ -468,6 +466,9 @@ public class ImageServerUI {
 			if (Boolean.valueOf(System.getProperty(Login.CHECK_SOFT_DOG) == null ? "true" : "false")) {
 				autoCheckSoftDog();
 			}
+			CarparkServerConfig instance = CarparkServerConfig.getInstance();
+			String sql="alter table SingleCarparkInOutHistory alter column plateNo varchar(30)";
+			CarparkDataBaseUtil.executeSQL(instance.getDbServerIp(), instance.getDbServerPort(), "carpark", instance.getDbServerUsername(), instance.getDbServerPassword(), sql, instance.getDbServerType());
 			
 			int port = 8899;
 			String property = System.getProperty("ServerPort");
@@ -486,7 +487,7 @@ public class ImageServerUI {
 			carparkDBServer.startBackgroudService();
 		} catch (Exception e) {
 			LOGGER.error("启动失败", e);
-			throw new Exception("服务器启动失败");
+			throw new Exception("服务器启动失败"+e);
 		}
 		autoDeleteSameInOutHistory();
 		autoSendInfoToCloud();

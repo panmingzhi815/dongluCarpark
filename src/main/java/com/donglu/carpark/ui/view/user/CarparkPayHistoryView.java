@@ -33,16 +33,18 @@ public class CarparkPayHistoryView extends Composite implements View {
 	private Composite listComposite;
 	private Presenter presenter;
 	private ComboViewer comboViewer;
+	private Text txt_plate;
+	private Text txt_address;
 
 	public CarparkPayHistoryView(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout(1, false));
 
 		Group group = new Group(this, SWT.NONE);
-		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		group.setText("查询");
-		group.setLayout(new GridLayout(11, false));
+		group.setLayout(new GridLayout(15, false));
 
 		Label label = new Label(group, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -52,6 +54,24 @@ public class CarparkPayHistoryView extends Composite implements View {
 		text_pay_userName = new Text(group, SWT.BORDER);
 		text_pay_userName.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_pay_userName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_4 = new Label(group, SWT.NONE);
+		label_4.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_4.setText("车牌");
+		
+		txt_plate = new Text(group, SWT.BORDER);
+		txt_plate.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		txt_plate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_5 = new Label(group, SWT.NONE);
+		label_5.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_5.setText("住址");
+		
+		txt_address = new Text(group, SWT.BORDER);
+		txt_address.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		txt_address.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
 		Label label_1 = new Label(group, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -93,7 +113,7 @@ public class CarparkPayHistoryView extends Composite implements View {
 					if (text.equals("全部")) {
 						text = null;
 					}
-					getPresenter().searchCharge(text_pay_userName.getText(), text, dateChooserCombo.getValue(), dateChooserCombo_1.getValue());
+					getPresenter().searchCharge(text_pay_userName.getText(),txt_plate.getText(),txt_address.getText(), text, dateChooserCombo.getValue(), dateChooserCombo_1.getValue());
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}

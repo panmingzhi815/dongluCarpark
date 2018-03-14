@@ -34,18 +34,20 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 	private CarparkDatabaseServiceProvider sp;
 	
 	boolean isSplit=false;
+	private String plate;
+	private String address;
 	
 
 	
 	@Override
 	public void refresh(){
-		List<SingleCarparkMonthlyUserPayHistory> list =sp.getCarparkService().findMonthlyUserPayHistoryByCondition(0,500,userName,operaName,start,end);
+		List<SingleCarparkMonthlyUserPayHistory> list =sp.getCarparkService().findMonthlyUserPayHistoryByCondition(0,500,userName,plate,address,operaName,start,end);
 		populate(list);
 		isSplit=false;
 	}
 	public void populate(List<SingleCarparkMonthlyUserPayHistory> list) {
 		AbstractListView<SingleCarparkMonthlyUserPayHistory>.Model model = view.getModel();
-		int countSearchAll=sp.getCarparkService().countMonthlyUserPayHistoryByCondition(userName,operaName,start,end);
+		int countSearchAll=sp.getCarparkService().countMonthlyUserPayHistoryByCondition(userName,plate,address,operaName,start,end);
 		model.setList(list);
 		model.setCountSearch(list.size());
 		model.setCountSearchAll(countSearchAll);
@@ -72,15 +74,17 @@ public class CarparkPayHistoryListPresenter  extends AbstractListPresenter<Singl
 		if (model.getCountSearchAll()<=model.getCountSearch()) {
 			return;
 		}
-		List<SingleCarparkMonthlyUserPayHistory> list =sp.getCarparkService().findMonthlyUserPayHistoryByCondition(model.getList().size(),500,userName,operaName,start,end);
-		int countSearchAll=sp.getCarparkService().countMonthlyUserPayHistoryByCondition(userName,operaName,start,end);
+		List<SingleCarparkMonthlyUserPayHistory> list =sp.getCarparkService().findMonthlyUserPayHistoryByCondition(model.getList().size(),500,userName,plate,address,operaName,start,end);
+		int countSearchAll=sp.getCarparkService().countMonthlyUserPayHistoryByCondition(userName,operaName,plate,address,start,end);
 		model.AddList(list);
 		model.setCountSearch(model.getList().size());
 		model.setCountSearchAll(countSearchAll);
 		setTotalMoney(model.getList());
 	}
-	public void searchCharge(String userName, String operaName, Date start, Date end) {
+	public void searchCharge(String userName,String plate,String address, String operaName, Date start, Date end) {
 		this.userName=userName;
+		this.plate = plate;
+		this.address = address;
 		this.operaName=operaName;
 		this.start=start;
 		this.end=end;

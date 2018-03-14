@@ -458,6 +458,7 @@ public class CarparkMainApp extends AbstractApp{
 					int[] image = sashForm_image.getWeights();
 					int[][] is=new int[][]{main,play,image};
 					CarparkFileUtils.writeObject(MAIN_APP_SASH_FORM_LAYOUT, is);
+					presenter.systemExit();
 				}
 			}
 		});
@@ -891,7 +892,7 @@ public class CarparkMainApp extends AbstractApp{
 					Date inTime = h.getInTime();
 					Date outTime = h.getOutTime();
 					model.setCartypeEnum(carparkCarType2);
-					float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carparkCarType2, inTime, outTime);
+					float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carparkCarType2, inTime, outTime,h);
 					log.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", h.getPlateNo(), device.getCarpark(), carparkCarType2, model.getInTime(), model.getOutTime(),
 							model.getTotalTime(), countShouldMoney);
 					presenter.showContentToDevice(h.getPlateNo(),model.getMapIpToDevice().get(model.getIp()), CarparkUtils.getCarStillTime(model.getTotalTime()) + CarparkUtils.formatFloatString("请缴费" + countShouldMoney + "元"),
@@ -1271,7 +1272,7 @@ public class CarparkMainApp extends AbstractApp{
 				model.setTotalSlot(presenter.getSlotOfLeft());
 				log.debug("refreshCarparkBasicInfo used : " + (System.currentTimeMillis() - currentTimeMillis));
 			} catch (Exception e) {
-				log.error("刷新停车场出错", e);
+				log.error("刷新停车场出错"+e);
 			}
 		} , 3000, 1000, TimeUnit.MILLISECONDS);
 	}

@@ -2,7 +2,7 @@ package com.donglu.carpark.ui.common;
 
 import org.eclipse.swt.widgets.Shell;
 
-public class AbstractApp implements App {
+public abstract class AbstractApp implements App {
 
 	@Override
 	public void open() {

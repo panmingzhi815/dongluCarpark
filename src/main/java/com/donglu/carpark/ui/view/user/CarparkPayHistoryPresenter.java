@@ -40,12 +40,12 @@ public class CarparkPayHistoryPresenter  implements Presenter{
 		view.setComboValue(findAll);
 	}
 	
-	public void searchCharge(String userName, String operaName, Date start, Date end) {
+	public void searchCharge(String userName,String plate,String address, String operaName, Date start, Date end) {
 		this.userName=userName;
 		this.operaName=operaName;
 		this.start=start;
 		this.end=end;
-		carparkPayHistoryListPresenter.searchCharge(userName, operaName, start, end);
+		carparkPayHistoryListPresenter.searchCharge(userName,plate,address, operaName, start, end);
 	}
 
 	public void export() {

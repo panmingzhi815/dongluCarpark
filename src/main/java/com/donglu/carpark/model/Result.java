@@ -1,6 +1,7 @@
 package com.donglu.carpark.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class Result implements Serializable {
 	/**
@@ -13,6 +14,8 @@ public class Result implements Serializable {
 	private Object obj;
 	private float deptFee=0;
 	private float payedFee=0;
+	private Date outTime;
+	
 	public boolean isSuccess() {
 		return success;
 	}
@@ -49,4 +52,12 @@ public class Result implements Serializable {
 	public void setPayedFee(float payedFee) {
 		this.payedFee = payedFee;
 	}
+	public Date getOutTime() {
+		return outTime;
+	}
+	public void setOutTime(Date outTime) {
+		this.outTime = outTime;
+		//firePropertyChange("outTime", null, null);
+	}
+	
 }

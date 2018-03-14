@@ -7,9 +7,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.dongluhitec.card.domain.db.Device;
 
 public class CarparkScreenServiceImpl implements CarparkScreenService {
+	private final Logger LOGGER = LoggerFactory.getLogger(CarparkScreenServiceImpl.class);
 	private CarparkScreenServiceLog log;
 
 	public boolean showCarparkQrCode(Device device, int type, String content) {
@@ -56,7 +60,8 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 			}
 			return b;
 		}catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("对设备{}发送消息是发生错误",device);
+			LOGGER.error("",e);
 			println("发生错误:"+e);
 			return null;
 //			throw new RuntimeException(e);
@@ -73,9 +78,8 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 			bs[bs.length-1]=(byte) (isOpen?1:0);
 			return sendMessage(device, (byte) 0x51, bs, 51);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e.getMessage());
 		}
-		return false;
 	}
 
 	public boolean carOut(Device device, String plate, int times, String shouldMoney, String leftMoney)  {
@@ -93,7 +97,7 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 			System.arraycopy(bytes, 0, bs, 18, bytes.length);
 			return sendMessage(device, (byte) 0x52, bs, 25);
 		} catch (Exception e) {
-			return false;
+			throw new RuntimeException(e.getMessage());
 		}
 	}
 

@@ -10,7 +10,7 @@ import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 public class SearchHistoryByHandWizard extends Wizard implements AbstractWizard{
 	private SearchErrorCarPresenter searchErrorCarPresenter;
 	public SearchHistoryByHandWizard(SearchErrorCarPresenter searchErrorCarPresenter) {
-		setWindowTitle("添加黑名单");
+		setWindowTitle("人工查找");
 		this.searchErrorCarPresenter=searchErrorCarPresenter;
 	}
 

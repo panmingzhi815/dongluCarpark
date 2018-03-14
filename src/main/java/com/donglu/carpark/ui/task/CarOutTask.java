@@ -28,6 +28,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.FixCarInTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -107,7 +108,11 @@ public class CarOutTask extends AbstractTask{
 				model.setOutPlateNOEditable(true);
 				model.setOutShowPlateNO("-无牌车");
 				if(mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")){
-					presenter.emptyPlateQrCodeInOut(plateNO, device, false);
+					SingleCarparkInOutHistory value = new SingleCarparkInOutHistory();
+					value.setOutSmallImg(smallImgFileName);
+					value.setOutBigImg(bigImgFileName);
+					model.getMapWaitInOutHistory().put(device.getIp(), value);
+					presenter.qrCodeInOut(plateNO, device, false);
 				}
 				return;
 			}
@@ -636,6 +641,7 @@ public class CarOutTask extends AbstractTask{
 		if (!visitorCarOut()) {
 			return;
 		}
+		
 		model.setOutShowPlateNO(model.getOutShowPlateNO()+"-临时车");
 		model.setPlateInTime(date, 30);
 		if (!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制))) {
@@ -654,6 +660,7 @@ public class CarOutTask extends AbstractTask{
 			singleCarparkInOutHistory.setOutTime(date);
 			singleCarparkInOutHistory.setOperaName(model.getUserName());
 			singleCarparkInOutHistory.setOutDevice(device.getName());
+			singleCarparkInOutHistory.setOutDeviceIp(device.getIp());
 			singleCarparkInOutHistory.setOutPhotographType("自动");
 			singleCarparkInOutHistory.setOutBigImg(bigImgFileName);
 			singleCarparkInOutHistory.setOutSmallImg(smallImgFileName);
@@ -666,6 +673,12 @@ public class CarOutTask extends AbstractTask{
 				if (after)
 					singleCarparkInOutHistory.setOutPhotographType("手动");
 			}
+			if (device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")) {
+				model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
+				presenter.qrCodeInOut(editPlateNo, device, false, singleCarparkInOutHistory);
+				return;
+			}
+			
 			Date inTime = singleCarparkInOutHistory.getReviseInTime();
 			// 临时车操作
 			model.setPlateNo(editPlateNo);
@@ -714,7 +727,8 @@ public class CarOutTask extends AbstractTask{
 					carType = list.get(0);
 				}
 				// model.setComboCarTypeEnable(false);
-				float shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date);
+				float shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date,cch);
+				model.setTotalTime(StrUtil.MinusTime2(inTime, singleCarparkInOutHistory.getOutTime()));
 				
 				//集中收费
 				Boolean idConcentrate=Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费));
@@ -746,7 +760,7 @@ public class CarOutTask extends AbstractTask{
 				}else{
 					model.setShouldMony(shouldMoney);
 					singleCarparkInOutHistory.setShouldMoney(shouldMoney);
-					model.setReal(shouldMoney);
+					model.setReal(model.getShouldMony()-model.getChargedMoney());
 				}
 				model.setCartypeEnum(carType);
 				LOGGER.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", plateNO, device.getCarpark(), carType, model.getInTime(), model.getOutTime(), model.getTotalTime(), shouldMoney);
@@ -756,13 +770,13 @@ public class CarOutTask extends AbstractTask{
 				String property = System.getProperty(ConstUtil.TEMP_CAR_AUTO_PASS);
 				Boolean valueOf = Boolean.valueOf(property);
 				// 临时车零收费是否自动出场
-				Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
 				if (shouldMoney>0) {
-					presenter.checkIsPay(singleCarparkInOutHistory,0f, false);
-					if (model.getChargedMoney()>0&&model.getReal()>0) {
+					presenter.checkIsPay(singleCarparkInOutHistory, 0f, false);
+					if (model.getChargedMoney() > 0 && model.getReal() > 0) {
 						s += ",已缴费" + CarparkUtils.formatFloatString(model.getChargedMoney() + "") + "元";
-					}
+					} 
 				}
+				Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
 				model.setBtnClick(true);
 				LOGGER.info("等待收费");
 				if (tempCarNoChargeIsPass) {

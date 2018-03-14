@@ -1,30 +1,45 @@
 package com.donglu.carpark.ui.view.user;
 
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
 public class UserRemindMessageBox {
 
 	protected Shell shell;
-	private SingleCarparkUser user;
 	int result=0;
+	private String msg;
+	private String title;
+	private int stayTime=0;
+	private Timer timer;
+	private String[] buttons=new String[]{"查看","稍后提醒","我知道了"};
 	
-	public UserRemindMessageBox(SingleCarparkUser user) {
-		this.user=user;
+	public UserRemindMessageBox(String msg) {
+		this.msg = msg;
+		this.title ="提示";
+	}
+	public UserRemindMessageBox(String title,String msg,int stayTime,String[] buttons) {
+		this.title = title;
+		this.msg = msg;
+		this.stayTime = stayTime;
+		this.buttons = buttons;
 	}
 	/**
 	 * Launch the application.
@@ -62,7 +77,7 @@ public class UserRemindMessageBox {
 		shell = new Shell(SWT.CLOSE|SWT.ON_TOP);
 		shell.setImage(JFaceUtil.getImage("attendanceplan_72"));
 		shell.setSize(360, 235);
-		shell.setText("用户到期提醒");
+		shell.setText(title);
 		shell.setLayout(new GridLayout(1, false));
 		Rectangle clientArea = shell.getDisplay().getClientArea();
 		int down=clientArea.width-360;
@@ -70,12 +85,12 @@ public class UserRemindMessageBox {
 		shell.setLocation(down, left);
 		Composite composite = new Composite(shell, SWT.NONE);
 		composite.setLayout(new FillLayout(SWT.HORIZONTAL));
-		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
 		
-		CLabel lblNewLabel = new CLabel(composite, SWT.NONE);
+		Label lblNewLabel = new Label(composite, SWT.WRAP);
 		lblNewLabel.setAlignment(SWT.CENTER);
-		if (user!=null) {
-			lblNewLabel.setText("用户"+user+"即将过期");
+		if (msg!=null) {
+			lblNewLabel.setText(msg);
 		}
 		
 		Composite composite_1 = new Composite(shell, SWT.NONE);
@@ -111,7 +126,26 @@ public class UserRemindMessageBox {
 			}
 		});
 		btnNewButton_1.setText("我知道了");
-
+		if (stayTime>0) {
+			timer = new Timer();
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					if (shell.isDisposed()) {
+						return;
+					}
+					
+				}
+			}, stayTime);
+		}
+		shell.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				if (timer!=null) {
+					timer.cancel();
+				}
+			}
+		});
 	}
 	public void close() {
 		result=0;

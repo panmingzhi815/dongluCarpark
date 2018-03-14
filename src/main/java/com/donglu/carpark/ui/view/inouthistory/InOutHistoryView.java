@@ -110,7 +110,7 @@ public class InOutHistoryView extends Composite implements View{
 		
 		DateChooserCombo dateChooserCombo_instart = new DateChooserCombo(composite, SWT.BORDER);
 		dateChooserCombo_instart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
+		dateChooserCombo_instart.setValue(new Date());
 		DateTime dateTime_instart = new DateTime(composite, SWT.BORDER | SWT.TIME | SWT.SHORT);
 		dateTime_instart.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		dateTime_instart.setHours(0);

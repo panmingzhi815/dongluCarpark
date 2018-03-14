@@ -99,7 +99,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 										return;
 									}
 									log.debug("{}即将过期,过期时间：{}", user, user.getValitoLabel());
-									UserRemindMessageBox window = new UserRemindMessageBox(user);
+									UserRemindMessageBox window = new UserRemindMessageBox("用户"+user+"即将过期");
 									listMessageBox.add(window);
 									int open = window.open();
 									listMessageBox.remove(window);
@@ -172,6 +172,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			mm.setOperaName(operaName);
 			SingleCarparkMonthlyUserPayHistory singleCarparkMonthlyUserPayHistory = mm.getSingleCarparkMonthlyUserPayHistory();
 			singleCarparkMonthlyUserPayHistory.setParkingSpace(user.getParkingSpace());
+			singleCarparkMonthlyUserPayHistory.setUserAddress(user.getAddress());
 			if (user.getType().equals("普通")) {
 				SingleCarparkMonthlyCharge selectMonth = mm.getSelectMonth();
 				if (!StrUtil.isEmpty(selectMonth)) {
@@ -289,6 +290,9 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			model.setPlateNO(singleCarparkUser.getPlateNo());
 			model.setAllmonth(sp.getCarparkService().findMonthlyChargeByCarpark(singleCarparkUser.getCarpark()));
 			model.setCarparkSlot(singleCarparkUser.getCarparkSlot());
+			model.setOldOverDueTime(singleCarparkUser.getValidTo()==null?singleCarparkUser.getCreateDate():singleCarparkUser.getValidTo());
+			model.setUserId(singleCarparkUser.getId());
+			model.setUserAddress(singleCarparkUser.getAddress());
 			if (singleCarparkUser.getMonthChargeId()!=null) {
 				SingleCarparkMonthlyCharge findMonthlyChargeById = sp.getCarparkService().findMonthlyChargeById(singleCarparkUser.getMonthChargeId());
 				model.setSelectMonth(findMonthlyChargeById);

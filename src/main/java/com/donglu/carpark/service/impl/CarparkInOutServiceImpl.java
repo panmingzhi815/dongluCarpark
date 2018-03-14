@@ -951,7 +951,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
     		DatabaseOperation<SingleCarparkInOutHistory> dom = DatabaseOperation.forClass(SingleCarparkInOutHistory.class, emprovider.get());
     		SingleCarparkInOutHistory entityWithId = dom.getEntityWithId(id);
     		return entityWithId;
-		} finally{
+		}catch(Exception e){
+			return null;
+		}finally{
 			unitOfWork.end();
 		}
 	}
@@ -1727,6 +1729,14 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		} finally {
 			unitOfWork.end();
 		}
+	}
+
+	@Override
+	public boolean exeUpdateSql(String sql) {
+		Query query = emprovider.get().createNativeQuery(sql);
+		int executeUpdate = query.executeUpdate();
+		System.out.println("executeUpdate==="+executeUpdate);
+		return true;
 	}
 	
 }

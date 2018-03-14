@@ -164,6 +164,14 @@ public class AddCarparkWizardPage extends WizardPage {
 		IObservableValue yunIdentifierModelObserveValue = BeanProperties.value("yunIdentifier").observe(model);
 		bindingContext.bindValue(observeTextText_3ObserveWidget, yunIdentifierModelObserveValue, null, null);
 		//
+		IObservableValue observeTextText_5ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_5);
+		IObservableValue yunBuildIdentifierModelObserveValue = BeanProperties.value("yunBuildIdentifier").observe(model);
+		bindingContext.bindValue(observeTextText_5ObserveWidget, yunBuildIdentifierModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_6ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_6);
+		IObservableValue yunBuildNameModelObserveValue = BeanProperties.value("yunBuildName").observe(model);
+		bindingContext.bindValue(observeTextText_6ObserveWidget, yunBuildNameModelObserveValue, null, null);
+		//
 		return bindingContext;
 	}
 }

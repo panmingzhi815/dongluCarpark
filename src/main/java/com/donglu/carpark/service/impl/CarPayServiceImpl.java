@@ -1,20 +1,28 @@
 package com.donglu.carpark.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
 
+import org.apache.derby.vti.Restriction;
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
+import org.criteria4jpa.order.Order;
 import org.criteria4jpa.projection.Projections;
 
 import com.donglu.carpark.service.CarPayServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
@@ -23,6 +31,7 @@ import com.google.inject.persist.UnitOfWork;
 public class CarPayServiceImpl implements CarPayServiceI {
 	@Inject
 	private Provider<EntityManager> emprovider;
+	private static Long maxId=0l;
 
 	@Inject
 	private UnitOfWork unitOfWork;
@@ -44,6 +53,7 @@ public class CarPayServiceImpl implements CarPayServiceI {
 		unitOfWork.begin();
 		try {
 			Criteria c = createFindCarPayHistoryByLikeCriteria(plateNo, start, end);
+			c.addOrder(Order.desc(CarPayHistory.Property.payTime.name()));
 			c.setFirstResult(i);
 			c.setMaxResults(maxValue);
 			return c.getResultList();
@@ -101,6 +111,42 @@ public class CarPayServiceImpl implements CarPayServiceI {
 			return (CarPayHistory) c.getSingleResultOrNull();
 		} finally {
 			unitOfWork.end();
+		}
+	}
+	private static Cache<String, List<CarPayHistory>> build = CacheBuilder.newBuilder().expireAfterWrite(800, TimeUnit.MILLISECONDS).build();
+	@Override
+	public List<CarPayHistory> getCarPayHistoryWithNew() {
+		try {
+			return build.get("getCarPayHistoryWithNew", new Callable<List<CarPayHistory>>() {
+				@Override
+				public List<CarPayHistory> call() throws Exception {
+					unitOfWork.begin();
+					try {
+						Criteria c = CriteriaUtils.createCriteria(emprovider.get(), CarPayHistory.class);
+						if (maxId == 0) {
+							c.setProjection(Projections.max("id"));
+							Object singleResultOrNull = c.getSingleResultOrNull();
+							if (singleResultOrNull != null) {
+								maxId = (Long) singleResultOrNull;
+							}
+							return new ArrayList<>();
+						}
+						c.add(Restrictions.gt("id", maxId));
+						List<CarPayHistory> list = c.getResultList();
+						for (CarPayHistory carPayHistory : list) {
+							if (carPayHistory.getId()>maxId) {
+								maxId=carPayHistory.getId();
+							}
+						}
+						return list;
+					} finally {
+						unitOfWork.end();
+					}
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ArrayList<>();
 		}
 	}
 	

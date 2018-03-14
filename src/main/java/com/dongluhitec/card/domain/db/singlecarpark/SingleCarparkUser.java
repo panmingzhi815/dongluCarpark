@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
@@ -69,6 +70,11 @@ public class SingleCarparkUser extends DomainObject {
 	
 	@Transient
 	private boolean createHistory=true;
+	
+	@PrePersist
+	public void initCreateDate(){
+		createDate=new Date();
+	}
 	
 	public String getValitoLabel(){
 		return StrUtil.formatDate(validTo, "yyyy-MM-dd");

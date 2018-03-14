@@ -173,6 +173,27 @@ public interface CarparkService {
 	 * @return
 	 */
 	public int countMonthlyUserPayHistoryByCondition(String userName, String operaName, Date start, Date end);
+	
+	/**
+	 * 查找充值记录
+	 * @param size 
+	 * @param maxResult 
+	 * @param userName
+	 * @param operaName
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public List<SingleCarparkMonthlyUserPayHistory> findMonthlyUserPayHistoryByCondition(int maxResult, int size, String userName,String plate,String address, String operaName, Date start, Date end);
+	/**
+	 * 统计所有充值记录数量
+	 * @param userName
+	 * @param operaName
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public int countMonthlyUserPayHistoryByCondition(String userName,String plate,String address, String operaName, Date start, Date end);
 	/**
 	 * 
 	 * @param a

@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -17,9 +19,12 @@ import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.blservice.DongluServiceException;
 import com.google.common.base.Strings;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 public class ImageServiceImpl implements ImageServiceI {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ImageServiceImpl.class);
+	private static final Cache<String, byte[]> imageCache = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.SECONDS).maximumSize(200).build();
 	
 	@Override
 	public String saveImageInServer(byte[] image, String imageName) {
@@ -42,13 +47,19 @@ public class ImageServiceImpl implements ImageServiceI {
 
 	@Override
 	public byte[] getImage(String imageName) {
+		
 		try {
-			Object o=CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY);
-			LOGGER.info("服务器图片保存位置{}，接收到请求图片：{}",o,imageName);
-			String filePathFromId = parseFilePathFromId(imageName,o+"\\img\\");
-			LOGGER.info("服务器图片位置：{}",filePathFromId);
-			byte[] bytes = getBytes(filePathFromId);
-			return bytes;
+			return imageCache.get(imageName, new Callable<byte[]>() {
+				@Override
+				public byte[] call() throws Exception {
+					Object o=CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY)==null?System.getProperty("user.dir"):CarparkFileUtils.readObject(ConstUtil.IMAGE_SAVE_DIRECTORY);
+					LOGGER.info("服务器图片保存位置{}，接收到请求图片：{}",o,imageName);
+					String filePathFromId = parseFilePathFromId(imageName,o+"\\img\\");
+					LOGGER.info("服务器图片位置：{}",filePathFromId);
+					byte[] bytes = getBytes(filePathFromId);
+					return bytes;
+				}
+			});
 		} catch (Exception e) {
 			LOGGER.info("获取图片失败",e);
 		}

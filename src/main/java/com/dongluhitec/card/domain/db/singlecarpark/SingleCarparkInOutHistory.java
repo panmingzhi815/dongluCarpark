@@ -28,7 +28,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	
 	public enum Property{
 		plateNo,userName,carType,inTime,outTime,inDevice,outDevice,operaName,returnAccount,shouldMoney,factMoney,freeMoney
-		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,isCountSlot,freeReason,reviseInTime
+		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,isCountSlot,freeReason,reviseInTime,onlineMoney
 	}
 	public enum Label{
 		inTimeLabel,outTimeLabel,remarkString,stillTimeLabel
@@ -65,6 +65,8 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private String inDevice;
 	@Column(length=40)
 	private String outDevice;
+	@Column(length=20)
+	private String outDeviceIp;
 	
 	private Float shouldMoney;
 	@Index(name="SingleCarparkInOutHistory_factMoney_index")
@@ -105,7 +107,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	@Lob
 	private byte[] remark;
 
-	
+	private Float onlineMoney;
 	
 	public String getPlateNo() {
 		return plateNo;
@@ -480,5 +482,22 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	@Override
 	public String toString() {
 		return plateNo+"=inTime="+StrUtil.formatDateTime(inTime)+"=outTime="+StrUtil.formatDateTime(outTime);
+	}
+	public void setCarpark(SingleCarparkCarpark carpark) {
+		setCarparkId(carpark.getId());
+		setCarparkName(carpark.getName());
+	}
+	public Float getOnlineMoney() {
+		return onlineMoney==null?0:onlineMoney;
+	}
+	public void setOnlineMoney(Float onlineMoney) {
+		this.onlineMoney = onlineMoney;
+		firePropertyChange("onlineMoney", null, null);
+	}
+	public String getOutDeviceIp() {
+		return outDeviceIp;
+	}
+	public void setOutDeviceIp(String outDeviceIp) {
+		this.outDeviceIp = outDeviceIp;
 	}
 }

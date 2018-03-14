@@ -11,7 +11,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
 public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	public enum Property{
-		userName,userType,plateNO,chargesMoney,operaName,overdueTime,createTime,parkingSpace,monthChargeName
+		userName,userType,plateNO,chargesMoney,operaName,overdueTime,createTime,parkingSpace,monthChargeName,userAddress
 	}
 	public enum Label{
 		createTimeLabel,overdueTimeLabel,startTimeLabel
@@ -24,6 +24,7 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	private String userName;
 	private String userIdCard;
 	private String userType;
+	private String userAddress;
 	private String plateNO;
 	private Date createTime;
 	private String rentType;
@@ -278,6 +279,15 @@ public class SingleCarparkMonthlyUserPayHistory extends DomainObject{
 	public void setCarparkSlot(Integer carparkSlot) {
 		this.carparkSlot=carparkSlot;
 		firePropertyChange("carparkSlot", null, null);
+	}
+
+	public String getUserAddress() {
+		return userAddress;
+	}
+
+	public void setUserAddress(String userAddress) {
+		this.userAddress = userAddress;
+		firePropertyChange("userAddress", null, null);
 	}
 	
 }

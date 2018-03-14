@@ -19,7 +19,10 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
+
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
@@ -28,6 +31,8 @@ import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 
 public class MonthlyUserPayBasicPage extends WizardPage {
 
@@ -48,6 +53,8 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 	private ComboViewer comboViewer;
 	private Composite composite_1;
 	private Combo combo_2;
+	private Label label_1;
+	private DateChooserCombo dateChooserCombo_start;
 
 	public MonthlyUserPayBasicPage(MonthlyUserPayModel model) {
 		super("WizardPage");
@@ -135,6 +142,23 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		text_monthMoney = new Text(composite, SWT.BORDER | SWT.READ_ONLY);
 		text_monthMoney.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_monthMoney.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		label_1 = new Label(composite, SWT.NONE);
+		label_1.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_1.setText("起始时间");
+		
+		dateChooserCombo_start = new DateChooserCombo(composite, SWT.BORDER);
+		dateChooserCombo_start.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				model.setOldOverDueTime(dateChooserCombo_start.getValue());
+				countMoneyOrTime();
+			}
+		});
+		dateChooserCombo_start.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		dateChooserCombo_start.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		dateChooserCombo_start.setValue(model.getOldOverDueTime());
+		dateChooserCombo_start.setEnabled((ConstUtil.checkPrivilege(SystemUserTypeEnum.普通管理员)&&model.getUserId()==null));
 
 		Label label_5 = new Label(composite, SWT.NONE);
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -168,7 +192,7 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 				countMoneyOrTime();
 			}
 		});
-		combo_2.setItems(new String[] {"月", "天"});
+		combo_2.setItems(new String[] {"期", "天"});
 		combo_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		combo_2.select(0);
 
@@ -213,7 +237,10 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		int selectionIndex = combo_2.getSelectionIndex();
 		model.setPayType(selectionIndex);
 		Calendar calendar = Calendar.getInstance();
-		Date date = initOverdueTime == null ? model.getCreateTime() : initOverdueTime;
+		Date date = model.getOldOverDueTime();
+		if (date==null) {
+			date = initOverdueTime == null ? model.getCreateTime() : initOverdueTime;
+		}
 		if (date==null) {
 			date=new Date();
 		}

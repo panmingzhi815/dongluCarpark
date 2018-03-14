@@ -23,6 +23,9 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 	private boolean isSelectedSize=true;
 	private boolean payMoney=false;
 	private boolean payDate=true;
+	
+	private Long userId;
+	
 	public int getCount() {
 		return count;
 	}
@@ -76,6 +79,7 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 		s.setId(id);
 		s.setOperaName(getOperaName());
 		s.setUserType(getUserType());
+		s.setUserAddress(getUserAddress());
 		if (selectMonth!=null) {
 			s.setMonthChargeId(selectMonth.getId());
 			s.setMonthChargeCode(selectMonth.getChargeCode());
@@ -133,5 +137,13 @@ public class MonthlyUserPayModel extends SingleCarparkMonthlyUserPayHistory {
 	public void setSelectedSize(boolean isSelectedSize) {
 		this.isSelectedSize = isSelectedSize;
 		firePropertyChange("isSelectedSize", null, null);
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 }

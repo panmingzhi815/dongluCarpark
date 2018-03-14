@@ -348,4 +348,6 @@ public interface CarparkInOutServiceI {
 	List<SingleCarparkInOutHistory> searchNotOutHistory(int start, int size, String plateNo, SingleCarparkCarpark carpark);
 
 	List<SingleCarparkInOutHistory> findHistoryByIn(int start, int size, SingleCarparkCarpark carpark, String carType, Date startTime, Date endTime);
+	
+	boolean exeUpdateSql(String sql);
 }

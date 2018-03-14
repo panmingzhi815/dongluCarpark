@@ -401,7 +401,6 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				user.setValidTo(parse);
 				user.setCarparkNo(carparkNo);
 				user.setRemark(remark);
-				user.setCreateDate(new Date());
 				user.setCarpark(map.get(caparkCode));
 				user.setParkingSpace(parkingSpace);
 				try {

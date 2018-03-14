@@ -108,5 +108,10 @@ public class ShowApp extends AbstractApp{
 	public void setMaximized(boolean maximized) {
 		this.maximized = maximized;
 	}
-
+	@Override
+	public void close() {
+		if (!shell.isDisposed()) {
+			shell.close();
+		}
+	}
 }

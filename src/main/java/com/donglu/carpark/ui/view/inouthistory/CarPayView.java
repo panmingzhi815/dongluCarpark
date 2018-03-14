@@ -1,6 +1,7 @@
 package com.donglu.carpark.ui.view.inouthistory;
 
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Group;
 
@@ -18,6 +19,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.internal.win32.OS;
 import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
 
 public class CarPayView extends Composite implements View{
@@ -37,7 +40,7 @@ public class CarPayView extends Composite implements View{
 		Group group = new Group(this, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		GridLayout gl_group = new GridLayout(7, false);
+		GridLayout gl_group = new GridLayout(8, false);
 		gl_group.marginHeight = 0;
 		group.setLayout(gl_group);
 		
@@ -52,7 +55,7 @@ public class CarPayView extends Composite implements View{
 		
 		Label label = new Label(group, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label.setText("时间");
+		label.setText("缴费时间");
 		
 		DateChooserCombo dateChooserCombo = new DateChooserCombo(group, SWT.BORDER);
 		dateChooserCombo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -78,6 +81,16 @@ public class CarPayView extends Composite implements View{
 		button.setText("查询");
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
+		Button button_1 = new Button(group, SWT.CHECK);
+		button_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().startAutoRefresh(button_1.getSelection());
+			}
+		});
+		button_1.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		button_1.setText("保持刷新");
+		
 		listComposite = new Composite(this, SWT.NONE);
 		listComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		listComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -95,5 +108,30 @@ public class CarPayView extends Composite implements View{
 
 	public Composite getListComposite() {
 		return listComposite;
+	}
+
+	public void setShellFocus() {
+		listComposite.getDisplay().syncExec(new Runnable() {
+			public void run() {
+				int hWnd=getShell().handle;
+				Rectangle r = getShell().getBounds();
+				System.out.println(getShell().getBounds());
+				int hForeWnd = OS.GetForegroundWindow();
+				int dwForeID = OS.GetWindowThreadProcessId(hForeWnd, null);
+				int dwCurID = OS.GetCurrentThreadId();
+				OS.AttachThreadInput(dwCurID, dwForeID, true);
+				int SW_SHOWNORMAL=1;
+				OS.ShowWindow(hWnd, SW_SHOWNORMAL);
+				int x = 0;
+				int y = 0;
+				int cx = 0;
+				int cy = 0;
+				OS.SetWindowPos(hWnd, OS.HWND_TOPMOST, x, y, cx, cy, OS.SWP_NOSIZE|OS.SWP_NOMOVE);
+				OS.SetWindowPos(hWnd, OS.HWND_NOTOPMOST, x, y, cx, cy, OS.SWP_NOSIZE|OS.SWP_NOMOVE);
+				OS.SetForegroundWindow(hWnd);
+				OS.AttachThreadInput(dwCurID, dwForeID, false);
+				getShell().setMaximized(getShell().getMaximized());
+			}
+		});
 	}
 }

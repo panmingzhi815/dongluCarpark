@@ -39,7 +39,7 @@ public class CarPayHistory extends DomainObject{
 		plateNO,payTime,createDate,payedMoney,remark,operaName,payId
 	}
 	public enum Label{
-		plateNO,payTimeLabel,createDateLabel,payedMoney,remark,operaName,payType
+		plateNO,payTimeLabel,createDateLabel,payedMoney,remark,operaName,payType,inTimeLabel
 	}
 	/**
 	 * 
@@ -65,6 +65,14 @@ public class CarPayHistory extends DomainObject{
 	private Integer couponTime=0;//优惠时长（）
 	private Long historyId;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date inTime;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date outTime;
+	
+	public String getInTimeLabel(){
+		return StrUtil.formatDateTime(inTime);
+	}
 	public String getPayTimeLabel(){
 		return StrUtil.formatDateTime(payTime);
 	}
@@ -187,5 +195,17 @@ public class CarPayHistory extends DomainObject{
 	public void setCouponTime(Integer couponTime) {
 		this.couponTime = couponTime;
 		firePropertyChange("couponTime", null, null);
+	}
+	public Date getInTime() {
+		return inTime;
+	}
+	public void setInTime(Date inTime) {
+		this.inTime = inTime;
+	}
+	public Date getOutTime() {
+		return outTime;
+	}
+	public void setOutTime(Date outTime) {
+		this.outTime = outTime;
 	}
 }

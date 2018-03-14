@@ -8,4 +8,5 @@ public interface App {
 	boolean isOpen();
 	public void focus();
 	public Shell getShell();
+	public default void close(){};
 }

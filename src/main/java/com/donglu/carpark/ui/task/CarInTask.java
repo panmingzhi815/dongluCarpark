@@ -22,6 +22,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.FixCarInTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
+import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -90,8 +91,12 @@ public class CarInTask extends AbstractTask {
 		// 空车牌处理
 		if (StrUtil.isEmpty(plateNO)) {
 			LOGGER.warn("空的车牌");
-			if(mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")){
-				presenter.emptyPlateQrCodeInOut(plateNO,device,true);
+			if(mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")&&device.getScreenType().equals(ScreenTypeEnum.一体机)){
+				presenter.qrCodeInOut(plateNO,device,true);
+				SingleCarparkInOutHistory inOutHistory = new SingleCarparkInOutHistory();
+				inOutHistory.setBigImg(bigImgFileName);
+				inOutHistory.setSmallImg(smallImgFileName);
+				model.getMapWaitInOutHistory().put(device.getIp(), inOutHistory);
 				return;
 			}
 			Boolean valueOf = Boolean
@@ -430,7 +435,7 @@ public class CarInTask extends AbstractTask {
 			if (!isEmptyPlateNo) {
 				if (flag) {
 					model.setInCheckClick(true);
-					presenter.showContentToDevice(device, "临时车等待确认", false);
+					presenter.showContentToDevice(editPlateNo,device, "临时车等待确认", false);
 					model.getMapInCheck().put(plateNO, this);
 					return true;
 				}

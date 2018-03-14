@@ -439,4 +439,19 @@ public class CarparkServlet extends HessianServlet implements CarparkService {
 	public List<SingleCarparkMonthlyUserPayHistory> findMonthlyUserPayHistoryByValidTo(int i, int maxValue, String userName, String operaName, Date start) {
 		return carparkService.findMonthlyUserPayHistoryByValidTo(i, maxValue, userName, operaName, start);
 	}
+
+
+
+	@Override
+	public List<SingleCarparkMonthlyUserPayHistory> findMonthlyUserPayHistoryByCondition(int maxResult, int size, String userName, String plate, String address, String operaName, Date start,
+			Date end) {
+		return carparkService.findMonthlyUserPayHistoryByCondition(maxResult, size, userName, plate, address, operaName, start, end);
+	}
+
+
+
+	@Override
+	public int countMonthlyUserPayHistoryByCondition(String userName, String plate, String address, String operaName, Date start, Date end) {
+		return carparkService.countMonthlyUserPayHistoryByCondition(userName, plate, address, operaName, start, end);
+	}
 }

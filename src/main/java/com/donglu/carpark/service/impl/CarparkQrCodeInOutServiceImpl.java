@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -17,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 import com.donglu.carpark.service.CarparkQrCodeInOutService;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.base.Strings;
 
 public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService {
@@ -26,11 +29,56 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 	private int port=8991;
 	private Socket s;
 	private String parkId="9e7b56480c9f454c87339b0633b913eb";
+	//String app_id =1
 	String app_id = "1";
+	//String secret_key =123qwer
 	String secret_key = "123qwer";
 
 	@Override
 	public void initService(String buildId,CarparkQrCodeInOutCallback callback) throws Exception {
+		byte[] b = new byte[1024];
+		createLongConnect(buildId);
+		new Thread(new Runnable() {
+			public void run() {
+					while (!s.isClosed()) {
+						try {
+							s.setSoTimeout(10000);
+							InputStream is = s.getInputStream();
+							int read = is.read(b);
+							String trim = new String(b,0,read,"UTF-8").trim();
+							callback.call(trim);
+						} catch (Exception e) {
+							try {
+								if (e instanceof SocketTimeoutException) {
+									OutputStream os = s.getOutputStream();
+									JSONObject jo=new JSONObject();
+									jo.put("buildingId", buildId);
+									jo.put("type", "PING_MSG");
+									os.write((jo.toJSONString()+"\n").getBytes());
+									os.flush();
+								}else{
+									e.printStackTrace();
+									createLongConnect(buildId);
+								}
+							}catch (Exception e1) {
+								LOGGER.error("二维码进出服务发生错误"+e1,e1);
+							}
+						}
+					}
+				
+			}
+		}).start();
+	}
+
+	/**
+	 * @param buildId
+	 * @return
+	 * @throws SocketException
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public void createLongConnect(String buildId) throws Exception {
+//		buildId="cb0dcb84a37e451c9c3825ebb04e5d3b";
 		s = new Socket(host, port);
 		s.setSoTimeout(5000);
 		InputStream is = s.getInputStream();
@@ -57,25 +105,14 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 		}else{
 			throw new Exception("连接失败");
 		}
-		
 		s.setSoTimeout(0);
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					while (!s.isClosed()) {
-						InputStream is = s.getInputStream();
-						is.read(b);
-						callback.call(new String(b,"UTF-8"));
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
 	}
 
 	@Override
-	public String getQrCodeUrl(String parkId,String ip, int type) {
+	public String getQrCodeUrl(String parkId,String plate,String ip, int type) {
+		if (!StrUtil.isEmpty(plate)) {
+			return "http://"+host+"/weixin_parkingRecord/test/parking_detail.html?recordId=";
+		}
 		return getUrl(host, parkId, app_id, secret_key, ip, type);
 	}
 	
