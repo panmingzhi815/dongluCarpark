@@ -216,7 +216,19 @@ public class CarInTask extends AbstractTask {
 //		LOGGER.debug("车辆类型为：{}==t通道类型为：{}", carType, device.getRoadType());
 //		LOGGER.debug(date + "==" + ip + "====" + plateNO + "车辆类型：" + carType + "==" + "保存图片：==查找固定用户：==界面操作：");
 		LOGGER.info("把车牌:{}的进场记录保存到数据库", plateNO);
-//		cch.setId(null);
+		if (cch.getId()!=null) {
+			cch.setOutTime(cch.getInTime());
+			cch.setRemarkString("车辆未正常出场时再进场,自动更新出场时间");
+			cch.setFactMoney(0);
+			cch.setShouldMoney(0);
+			cch.setFreeMoney(0);
+			cch.setOutPlateNO(editPlateNo);
+			sp.getCarparkInOutService().saveInOutHistory(cch);
+			cch.setId(null);
+			cch.setOutTime(null);
+			cch.setRemark(null);
+			cch.setOutPlateNO(null);
+		}
 		cch.setPlateNo(plateNO);
 		cch.setInPlateNO(plateNO);
 		if (!StrUtil.isEmpty(editPlateNo)) {
@@ -277,16 +289,17 @@ public class CarInTask extends AbstractTask {
 		// 黑名单判断
 		if (!StrUtil.isEmpty(blackUser)) {
 			Holiday findHolidayByDate = sp.getCarparkService().findHolidayByDate(new Date());
+			String blackInContent = model.getMapVoice().get(DeviceVoiceTypeEnum.黑名单入场语音).getContent();
 			if (!StrUtil.isEmpty(findHolidayByDate) && !StrUtil.isEmpty(blackUser.getHolidayIn())
 					&& blackUser.getHolidayIn()) {
 				model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单");
-				presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
+				presenter.showContentToDevice(device, blackInContent, false);
 				return true;
 			}
 			if (StrUtil.isEmpty(findHolidayByDate) && !StrUtil.isEmpty(blackUser.getWeekDayIn())
 					&& blackUser.getWeekDayIn()) {
 				model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单");
-				presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
+				presenter.showContentToDevice(device, blackInContent, false);
 				return true;
 			}
 
@@ -303,7 +316,7 @@ public class CarInTask extends AbstractTask {
 				LOGGER.info("黑名单车牌：{}允许进入的时间为{}点到{}点", plateNO, hoursStart, hoursEnd);
 				if (now.isBefore(dt.getMillis()) || now.isAfter(de.getMillis())) {
 					model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单");
-					presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
+					presenter.showContentToDevice(device, blackInContent, false);
 					return true;
 				}
 
@@ -313,7 +326,7 @@ public class CarInTask extends AbstractTask {
 					LOGGER.error("车牌：{}为黑名单,现在时间为{}，在{}点到{}点之间", plateNO, now.toString("HH:mm:ss"), hoursStart,
 							hoursEnd);
 					model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单");
-					presenter.showContentToDevice(device, "管制车辆，请联系管理员", false);
+					presenter.showContentToDevice(device, blackInContent, false);
 					return true;
 				}
 			}
@@ -435,7 +448,7 @@ public class CarInTask extends AbstractTask {
 			if (!isEmptyPlateNo) {
 				if (flag) {
 					model.setInCheckClick(true);
-					presenter.showContentToDevice(editPlateNo,device, "临时车等待确认", false);
+					presenter.showContentToDevice(editPlateNo,device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车入场确认语音).getContent(), false);
 					model.getMapInCheck().put(plateNO, this);
 					return true;
 				}

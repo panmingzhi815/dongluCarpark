@@ -1248,10 +1248,11 @@ public class CarparkMainPresenter {
 			boolean carparkOpenDoor = true;
 			if (d != null) {
 				if (device.getScreenType().equals(ScreenTypeEnum.一体机)) {
-					return carparkScreenService.screenOpenDoor(d, 0);
+					carparkOpenDoor = carparkScreenService.screenOpenDoor(d, 0);
+				}else{
+    				carparkOpenDoor = hardwareService.carparkOpenDoor(d);
+    				// carparkOpenDoor = hardwareService.carparkControlDoor(getDevice(device), 0, -1, -1, -1);
 				}
-				carparkOpenDoor = hardwareService.carparkOpenDoor(d);
-				// carparkOpenDoor = hardwareService.carparkControlDoor(getDevice(device), 0, -1, -1, -1);
 			}
 			openDoorToPhotograph(device.getIp());
 			return carparkOpenDoor;
@@ -1371,8 +1372,10 @@ public class CarparkMainPresenter {
 				model.setShouldMony(result.getDeptFee()+result.getPayedFee());
 				data.setShouldMoney(result.getDeptFee()+result.getPayedFee());
 				model.setReal(result.getDeptFee());
-				model.setOutTime(result.getOutTime());
-				data.setOutTime(result.getOutTime());
+				if (result.getOutTime()!=null) {
+					model.setOutTime(result.getOutTime());
+					data.setOutTime(result.getOutTime());
+				}
 				if(result.getCode()==2005){
 					model.setReal(0);
 					model.setChargedMoney(result.getPayedFee());
@@ -2183,6 +2186,7 @@ public class CarparkMainPresenter {
 //									checkIsPayTimer=null;
 								}
 								Result result = getPayResult(data);
+								log.info("车辆先抓拍在缴费，自动查询车辆缴费信息，结果：{}",result.getObj());
 								if (result!=null) {
 									int code = result.getCode();
 									if (code == 2005) {

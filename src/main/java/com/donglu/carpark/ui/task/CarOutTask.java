@@ -673,11 +673,6 @@ public class CarOutTask extends AbstractTask{
 				if (after)
 					singleCarparkInOutHistory.setOutPhotographType("手动");
 			}
-			if (device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")) {
-				model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
-				presenter.qrCodeInOut(editPlateNo, device, false, singleCarparkInOutHistory);
-				return;
-			}
 			
 			Date inTime = singleCarparkInOutHistory.getReviseInTime();
 			// 临时车操作
@@ -729,6 +724,12 @@ public class CarOutTask extends AbstractTask{
 				// model.setComboCarTypeEnable(false);
 				float shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date,cch);
 				model.setTotalTime(StrUtil.MinusTime2(inTime, singleCarparkInOutHistory.getOutTime()));
+				
+				if (shouldMoney-model.getChargedMoney()>0&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")) {
+					model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
+					presenter.qrCodeInOut(editPlateNo, device, false, singleCarparkInOutHistory);
+					return;
+				}
 				
 				//集中收费
 				Boolean idConcentrate=Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费));

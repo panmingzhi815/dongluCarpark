@@ -13,5 +13,6 @@ public interface SettingService {
 	
 	public void initCarpark();
 	Date getServerDate();
+	void initData();
 	
 }

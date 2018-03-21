@@ -161,4 +161,14 @@ public class MessageBoxUI {
 		}
 
 	}
+
+	public void close() {
+		shell.getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				if (!shell.isDisposed()) {
+					shell.close();
+				} 
+			}
+		});
+	}
 }

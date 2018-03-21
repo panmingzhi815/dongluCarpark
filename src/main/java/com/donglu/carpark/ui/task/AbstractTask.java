@@ -1,5 +1,8 @@
 package com.donglu.carpark.ui.task;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+
+import java.net.ConnectException;
 import java.util.Date;
 import java.util.Map;
 
@@ -9,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainPresenter;
+import com.donglu.carpark.ui.view.message.MessageUtil;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -69,6 +73,9 @@ public abstract class AbstractTask implements Runnable {
 			start();
 		} catch (Exception e) {
 			logger.error("车辆"+type+"时发生错误",e);
+			if (e.getCause() instanceof ConnectException) {
+				MessageUtil.info("网络故障","服务器连接失败,请检查网络！",30000);
+			}
 		}
 
 	}

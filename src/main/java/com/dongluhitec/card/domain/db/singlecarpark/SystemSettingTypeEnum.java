@@ -41,7 +41,7 @@ public enum SystemSettingTypeEnum {
 	出场时等待云平台缴费超时时长("120"),
 	优先使用云平台计费("false"),
 	监控界面提示网络故障("true"),
-	DateBase_version("1.0.0.22"),软件版本("1.0.0.22"),发布时间("2018-03-18 10:30:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 
+	DateBase_version("1.0.0.23"),软件版本("1.0.0.23"),发布时间("2018-03-29 15:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 
 	;
 	
 	private String defaultValue;

@@ -5,6 +5,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -28,7 +30,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	
 	public enum Property{
 		plateNo,userName,carType,inTime,outTime,inDevice,outDevice,operaName,returnAccount,shouldMoney,factMoney,freeMoney
-		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,isCountSlot,freeReason,reviseInTime,onlineMoney
+		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,isCountSlot,freeReason,reviseInTime,onlineMoney,carRecordStatus
 	}
 	public enum Label{
 		inTimeLabel,outTimeLabel,remarkString,stillTimeLabel
@@ -40,6 +42,10 @@ public class SingleCarparkInOutHistory extends DomainObject{
 			return SingleCarparkInOutHistory.class.getSimpleName()+"."+name();
 		}
 		
+	}
+	
+	public enum CarRecordStatus{
+		在场内,已出场
 	}
 	/**
 	 * 
@@ -109,6 +115,10 @@ public class SingleCarparkInOutHistory extends DomainObject{
 
 	private Float onlineMoney;
 	
+	@Column(length=10)
+	@Enumerated(EnumType.STRING)
+	private CarRecordStatus carRecordStatus=CarRecordStatus.在场内;
+	
 	public String getPlateNo() {
 		return plateNo;
 	}
@@ -164,6 +174,9 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	}
 
 	public void setOutTime(Date outTime) {
+		if (outTime!=null) {
+			carRecordStatus=CarRecordStatus.在场内;
+		}
 		this.outTime = outTime;
 		if (pcs != null)
 			pcs.firePropertyChange("outTime", null, null);
@@ -499,5 +512,12 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	}
 	public void setOutDeviceIp(String outDeviceIp) {
 		this.outDeviceIp = outDeviceIp;
+	}
+	public CarRecordStatus getCarRecordStatus() {
+		return carRecordStatus;
+	}
+	public void setCarRecordStatus(CarRecordStatus carRecordStatus) {
+		this.carRecordStatus = carRecordStatus;
+		//firePropertyChange("carRecordStatus", null, null);
 	}
 }

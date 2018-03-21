@@ -454,21 +454,17 @@ public class ImageServerUI {
 				findSystemSettingByKey.setSettingValue(SystemSettingTypeEnum.DateBase_version.getDefaultValue());
 				sp.getCarparkService().saveSystemSetting(findSystemSettingByKey);
 			}
+			updateSql(findSystemSettingByKey.getSettingValue());
 			if (!findSystemSettingByKey.getSettingValue().equals(SystemSettingTypeEnum.软件版本.getDefaultValue())) {
 				SystemUpdate update = new SystemUpdate();
-				try {
-					update.systemUpdate(findSystemSettingByKey.getSettingValue(), SystemSettingTypeEnum.软件版本.getDefaultValue());
-					updateDatabase(findSystemSettingByKey);
-				} catch (Exception e) {
-					LOGGER.error("数据库更新时发生错误",e);
-				}
+				update.systemUpdate(findSystemSettingByKey.getSettingValue(), SystemSettingTypeEnum.软件版本.getDefaultValue());
+				updateDatabase(findSystemSettingByKey);
+				findSystemSettingByKey.setSettingValue(SystemSettingTypeEnum.DateBase_version.getDefaultValue());
+				sp.getCarparkService().saveSystemSetting(findSystemSettingByKey);
 			}
 			if (Boolean.valueOf(System.getProperty(Login.CHECK_SOFT_DOG) == null ? "true" : "false")) {
 				autoCheckSoftDog();
 			}
-			CarparkServerConfig instance = CarparkServerConfig.getInstance();
-			String sql="alter table SingleCarparkInOutHistory alter column plateNo varchar(30)";
-			CarparkDataBaseUtil.executeSQL(instance.getDbServerIp(), instance.getDbServerPort(), "carpark", instance.getDbServerUsername(), instance.getDbServerPassword(), sql, instance.getDbServerType());
 			
 			int port = 8899;
 			String property = System.getProperty("ServerPort");
@@ -492,6 +488,28 @@ public class ImageServerUI {
 		autoDeleteSameInOutHistory();
 		autoSendInfoToCloud();
 		startBackGroudService();
+	}
+
+	private void updateSql(String databaseVersion) {
+		CarparkServerConfig instance = CarparkServerConfig.getInstance();
+		List<String> list=new ArrayList<>();
+		if (checkVercionIsLess(databaseVersion,"1.0.0.23")) {
+			String sql="alter table SingleCarparkInOutHistory alter column plateNo varchar(30)";
+			list.add(sql);
+		}
+		if (checkVercionIsLess(databaseVersion,"1.0.0.24")) {
+//			list.add("update SingleCarparkInOutHistory set carRecordStatus='在场内' where outTime is null and carRecordStatus is null");
+//			list.add("update SingleCarparkInOutHistory set carRecordStatus='已出场' where outTime is not null and carRecordStatus is null");
+		}
+		for (String sql : list) {
+			CarparkDataBaseUtil.executeSQL(instance.getDbServerIp(), instance.getDbServerPort(), "carpark", instance.getDbServerUsername(), instance.getDbServerPassword(), sql, instance.getDbServerType());
+		}
+	}
+
+	private boolean checkVercionIsLess(String databaseVersion, String updateVersion) {
+		Integer now = Integer.valueOf(databaseVersion.replaceAll("\\.", ""));
+		Integer c=Integer.valueOf(updateVersion.replaceAll("\\.", ""));
+		return now<c;
 	}
 
 	private void startBackGroudService() {

@@ -3,16 +3,24 @@ package com.donglu.carpark.service.impl;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.criteria4jpa.Criteria;
+import org.criteria4jpa.CriteriaUtils;
 
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.service.SettingService;
 import com.donglu.carpark.util.CarparkUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
+import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
@@ -135,17 +143,63 @@ public class SettingServiceImpl implements SettingService {
 	
 	@Override
 	public void initCarpark() {
-		checkSetting();
-	}
-	@Transactional
-	private void checkSetting() {
-//		Criteria c = CriteriaUtils.createCriteria(emProvider.get(), SingleCarparkSystemSetting.class);
 		
+	}
+	private void checkSetting() {
+		Criteria c = CriteriaUtils.createCriteria(emProvider.get(), SingleCarparkSystemSetting.class);
+		List<SingleCarparkSystemSetting> resultList = c.getResultList();
+		List<SystemSettingTypeEnum> list = new ArrayList<>();
+		for (SystemSettingTypeEnum systemSettingTypeEnum2 : SystemSettingTypeEnum.values()) {
+			list.add(systemSettingTypeEnum2);
+		}
+		for (SingleCarparkSystemSetting singleCarparkSystemSetting : resultList) {
+			try {
+				SystemSettingTypeEnum valueOf = SystemSettingTypeEnum.valueOf(singleCarparkSystemSetting.getSettingKey());
+				list.remove(list.indexOf(valueOf));
+			} catch (Exception e) {
+				
+			}
+		}
+		DatabaseOperation<SingleCarparkSystemSetting> dom = DatabaseOperation.forClass(SingleCarparkSystemSetting.class, emProvider.get());
+		
+		for (SystemSettingTypeEnum systemSettingTypeEnum : list) {
+			SingleCarparkSystemSetting ss=new SingleCarparkSystemSetting();
+			ss.setSettingKey(systemSettingTypeEnum.name());
+			ss.setSettingValue(systemSettingTypeEnum.getDefaultValue());
+			dom.insert(ss);
+		}
 	}
 
 	@Override
 	public Date getServerDate() {
 		return new Date();
+	}
+
+	@Transactional
+	@Override
+	public void initData() {
+		checkSetting();
+		checkVoice();	
+	}
+
+	private void checkVoice() {
+		Criteria c = CriteriaUtils.createCriteria(emProvider.get(), SingleCarparkDeviceVoice.class);
+		List<SingleCarparkDeviceVoice> resultList = c.getResultList();
+		List<DeviceVoiceTypeEnum> list = new ArrayList<>();
+		for (DeviceVoiceTypeEnum deviceVoiceTypeEnum2 : DeviceVoiceTypeEnum.values()) {
+			list.add(deviceVoiceTypeEnum2);
+		}
+		for (SingleCarparkDeviceVoice singleCarparkDeviceVoice : resultList) {
+			list.remove(singleCarparkDeviceVoice.getType());
+		}
+		DatabaseOperation<SingleCarparkDeviceVoice> dom = DatabaseOperation.forClass(SingleCarparkDeviceVoice.class, emProvider.get());
+		for (DeviceVoiceTypeEnum deviceVoiceTypeEnum : list) {
+			SingleCarparkDeviceVoice dv=new SingleCarparkDeviceVoice();
+			dv.setType(deviceVoiceTypeEnum);
+			dv.setContent(deviceVoiceTypeEnum.getContent());
+			dv.setVolume(deviceVoiceTypeEnum.getVolume());
+			dom.insert(dv);
+		}
 	}
 
 }

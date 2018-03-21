@@ -60,6 +60,7 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
         this.systemUserService = sp.getSystemUserService();
         this.systemOperaLogService = sp.getSystemOperaLogService();
         settingService=sp.getSettingService();
+        settingService.initData();
     }
 	
 	@Override
@@ -286,6 +287,11 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 	@Override
 	public List<SingleCarparkUser> findUserByNameOrCarpark(String name, SingleCarparkCarpark carpark, Date validTo) {
 		return carparkUserService.findUserByNameOrCarpark(name, carpark, validTo);
+	}
+
+	@Override
+	public void initData() {
+		settingService.initData();
 	}
 
 }

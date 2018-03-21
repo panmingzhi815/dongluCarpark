@@ -96,7 +96,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			String url = httpUrl + "/api/syncParkingRecord.action";
 			String content = "{\"operation\":\"" + type + "\",\"origin\":\"" + name + "\","
 					+ "\"parkingRecord\":{\"carNum\":\"{}\",\"carType\":\"0\",\"id\":\"{}\",\"inTimeStr\":\"{}\",\"outTimeStr\":\"{}\",\"buildingId\":\"" + buildindId + "\",\"parkId\":\"" + parkId
-					+ "\",\"parkName\":\""+ioh.getCarparkName()+"\",\"status\":\"{}\",\"userType\":\"{}\",\"deptFee\"={},\"fee\"={}},\"syncId\":\"{}\"}";
+					+ "\",\"parkName\":\""+ioh.getCarparkName()+"\",\"status\":\"{}\",\"userType\":\"{}\",\"deptFee\"={},\"fee\"={},\"couponValue\"={}},\"syncId\":\"{}\"}";
 			String carInfo = null;
 			String plateNo = ioh.getPlateNo();
 			Long id = ioh.getId();
@@ -112,8 +112,9 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				outTime = StrUtil.formatDateTime(ioh.getOutTime());
 			}
 			int depFree = (int) (ioh.getFactMoney() == null ? 0 : ioh.getFactMoney() * 100);
-			int free = (int) (ioh.getShouldMoney() == null ? 0 : ioh.getShouldMoney() * 100);
-			content = StrUtil.formatString(content, plateNo, parkId + id, inTime, outTime, status, userType, depFree, free, id);
+			int fee = (int) (ioh.getShouldMoney() == null ? 0 : ioh.getShouldMoney() * 100);
+			int couponValue = fee-depFree;
+			content = StrUtil.formatString(content, plateNo, parkId + id, inTime, outTime, status, userType, depFree, fee,couponValue, id);
 //			System.out.println(content);
 			carInfo = "data=" + URLEncoder.encode("["+content+"]", "UTF-8");
 			String actionUrl = url;
@@ -180,6 +181,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		try {
 			String userInfo="";
 			Long id = user.getId();
+			String rid = parkId+id;
 			if (!type.equals("delete")) {
 				userInfo=",\"userMonthCard\":"
 						+ "{\"carNum\":\"{}\",\"carType\":\"{}\",\"cardType\":\"1\",\"id\":\"{}\",\"buildingId\":\""+buildindId+"\","
@@ -207,10 +209,10 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				}
 				String address = user.getAddress()==null?"":user.getAddress();
 				String telephone = user.getTelephone()==null?"":user.getTelephone();
-				userInfo=StrUtil.formatString(userInfo, plateNo,carTypeIndex,parkId+id,userStatus,StrUtil.formatDateTime(validTo),tpStartTime,address,name,telephone);
+				userInfo=StrUtil.formatString(userInfo, plateNo,carTypeIndex,rid,userStatus,StrUtil.formatDateTime(validTo),tpStartTime,address,name,telephone);
 			}
 			String parameters="[{\"dataId\":\"{}\",\"operation\":\""+type+"\",\"origin\":\"东陆高新\",\"syncId\":\"{}\""+userInfo+"}]";
-			parameters=StrUtil.formatString(parameters, parkId+id,id);
+			parameters=StrUtil.formatString(parameters, rid,id);
 			parameters="data="+URLEncoder.encode(parameters, "UTF-8");
 			String httpPostMssage = httpPostMssage(url, parameters);
 			JSONObject parseObject = JSONObject.parseObject(httpPostMssage);
@@ -521,7 +523,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			String plateNO=URLEncoder.encode(plateNo, "UTF-8");
 			String url=httpUrl+"/api/getPayedResult.action?carNum={}&recordId={}&parkId={}";
 			url = StrUtil.formatString(url, plateNO,recordId,parkId);
-			String httpPostMssage = httpPostMssage(url, null);
+			String httpPostMssage = httpPostMssage(url, null,5000);
 			log.info("车辆:{}出场,请求查看扣费结果:{}",plateNo,httpPostMssage);
 			JSONObject jsonObject = JSONObject.parseObject(httpPostMssage);
 			int intValue = jsonObject.getIntValue("resultCode");
@@ -616,10 +618,13 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		return httpPostMssage(actionUrl, parameters);
 	}
 	private String httpPostMssage(String actionUrl, String parameters) throws Exception {
+		return httpPostMssage(actionUrl, parameters,10);
+	}
+	private String httpPostMssage(String actionUrl, String parameters,int readTimeOut) throws Exception {
 		log.debug("准备对地址：["+actionUrl+"]发送消息:"+parameters);
 		URL url = new URL(actionUrl);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setReadTimeout(5000);
+		connection.setReadTimeout(readTimeOut);
 		connection.setConnectTimeout(3000);
 		connection.setDoInput(true);
 		connection.setDoOutput(true);
