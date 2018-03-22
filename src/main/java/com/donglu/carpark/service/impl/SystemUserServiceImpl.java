@@ -108,6 +108,7 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 		dom1.insert(t);
 		
 		DatabaseOperation<SingleCarparkDeviceVoice> voiceDom = DatabaseOperation.forClass(SingleCarparkDeviceVoice.class, emprovider.get());
+		
 		for (DeviceVoiceTypeEnum vt : DeviceVoiceTypeEnum.values()) {
 			SingleCarparkDeviceVoice dv=new SingleCarparkDeviceVoice();
 			dv.setContent(vt.getContent());

@@ -57,6 +57,8 @@ public class SettingView extends Composite implements View {
 	private Group group_childCarparkSetting;
 	private ScrolledComposite scrolledComposite;
 	private Text text_carparkChangeCarTime;
+	private Text text_inCheckTime;
+	private Text text_4;
 
 	public SettingView(Composite parent, int style) {
 		super(parent, style);
@@ -767,6 +769,7 @@ public class SettingView extends Composite implements View {
 		btnNewButton_1.setText("删除");
 		
 		Group group_3 = new Group(composite, SWT.NONE);
+		group_3.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.BOLD));
 		group_3.setLayout(new GridLayout(1, false));
 		group_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		group_3.setText("固定车设置");
@@ -1006,6 +1009,70 @@ public class SettingView extends Composite implements View {
 		button_36.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.监控界面提示网络故障)));
 		new Label(grpApp, SWT.NONE);
 		new Label(grpApp, SWT.NONE);
+		
+		Group group_4 = new Group(composite, SWT.NONE);
+		group_4.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.BOLD));
+		group_4.setLayout(new GridLayout(1, false));
+		group_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		group_4.setText("扫描车辆限制");
+		
+		Composite composite_12 = new Composite(group_4, SWT.NONE);
+		composite_12.setLayout(new GridLayout(3, false));
+		composite_12.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label label_11 = new Label(composite_12, SWT.NONE);
+		label_11.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_11.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_11.setText("车辆扫描后");
+		
+		text_inCheckTime = new Text(composite_12, SWT.BORDER);
+		text_inCheckTime.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				try {
+					String text2 = text_inCheckTime.getText();
+					Integer valueOf = Integer.valueOf(text2);
+					mapSystemSetting.put(SystemSettingTypeEnum.扫描后进场限制时间, valueOf+"");
+				} catch (NumberFormatException e1) {
+					
+				}
+			}
+		});
+		text_inCheckTime.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_inCheckTime.setText(mapSystemSetting.get(SystemSettingTypeEnum.扫描后进场限制时间));
+		GridData gd_text_inCheckTime = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_text_inCheckTime.widthHint = 50;
+		text_inCheckTime.setLayoutData(gd_text_inCheckTime);
+		
+		Label label_12 = new Label(composite_12, SWT.NONE);
+		label_12.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_12.setText("分钟内可以进入(为0不限制)");
+		
+		Label label_13 = new Label(composite_12, SWT.NONE);
+		label_13.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_13.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_13.setText("车辆进场后");
+		
+		text_4 = new Text(composite_12, SWT.BORDER);
+		text_4.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				try {
+					String text2 = text_4.getText();
+					Integer valueOf = Integer.valueOf(text2);
+					mapSystemSetting.put(SystemSettingTypeEnum.停车场停留时间限制, valueOf+"");
+				} catch (NumberFormatException e1) {
+					
+				}
+			}
+		});
+		text_4.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_4.setText(mapSystemSetting.get(SystemSettingTypeEnum.停车场停留时间限制));
+		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_14 = new Label(composite_12, SWT.NONE);
+		label_14.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_14.setText("分钟内可以出场(为0不限制)");
 
 		Composite composite_8 = new Composite(composite, SWT.NONE);
 		composite_8.setLayout(new GridLayout(4, false));

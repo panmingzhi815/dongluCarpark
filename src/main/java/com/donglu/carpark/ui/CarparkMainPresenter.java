@@ -45,6 +45,8 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONObject;
 import com.donglu.carpark.hardware.CarparkScreenService;
 import com.donglu.carpark.hardware.CarparkScreenServiceImpl;
+import com.donglu.carpark.hardware.lintong.LintongService;
+import com.donglu.carpark.hardware.lintong.LintongServiceImpl;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.model.Result;
 import com.donglu.carpark.model.SearchErrorCarModel;
@@ -375,6 +377,7 @@ public class CarparkMainPresenter {
 	//长颈鹿app服务
 	private IpmsServiceI ipmsService;
 	private Timer checkIsPayTimer;
+	private LintongService lintongService;
 	/**
 	 * 自动刷新停车场视频监控
 	 */
@@ -2994,6 +2997,33 @@ public class CarparkMainPresenter {
 		}
 		log.info("获取到二维码：{}",qrCodeUrl);
 		carparkScreenService.showCarparkQrCode(getDevice(device), type, qrCodeUrl);
+	}
+
+	public int checkPlateScan(String plate,Date time,boolean inOrOut) {
+		if (lintongService==null) {
+			lintongService = new LintongServiceImpl();
+		}
+		log.info("检测车辆：{} 是否允许{}",plate,inOrOut?"进场":"出场");
+		if (inOrOut) {
+			Date date = lintongService.getInDateByPlate(plate);
+//			Date date =StrUtil.parse("2018-03-27 10:10:00", "yyyy-MM-dd HH:mm:ss");
+			if (date==null) {
+				return 2;
+			}
+			Integer canInTimeSize = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.扫描后进场限制时间));
+			if (canInTimeSize>0) {
+				boolean after = new DateTime(date).plusMinutes(canInTimeSize).toDate().after(time);
+				log.info("车辆：{} ,扫描时间：{} ，进场时间：{} 结果：{}",plate,StrUtil.formatDateTime(date),StrUtil.formatDateTime(time),after);
+				return after?0:1;
+			}
+		}else{
+			Integer canInTimeSize = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场停留时间限制));
+			if (canInTimeSize>0) {
+				log.info("车辆：{} ,进场：{} 出场：{} ，出场有效时间在：{} 前",plate,StrUtil.formatDateTime(time),StrUtil.formatDateTime(new Date()),new DateTime(time).plusMinutes(canInTimeSize).toString("yyyy-MM-dd HH:mm:ss"));
+				return new DateTime(time).plusMinutes(canInTimeSize).isAfter(new Date().getTime())?0:1;
+			}
+		}
+		return 0;
 	}
 
 }

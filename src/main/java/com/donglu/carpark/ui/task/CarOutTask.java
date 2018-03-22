@@ -689,6 +689,10 @@ public class CarOutTask extends AbstractTask{
 			model.setShouldMony(0);
 			model.setReal(0);
 			model.setChargedMoney(0F);
+			if (presenter.checkPlateScan(editPlateNo, cch.getInTime(), false)>0) {
+				presenter.showContentToDevice(editPlateNo, device, model.getMapVoice().get(DeviceVoiceTypeEnum.扫描车辆停留超时语音).getContent(), false);
+				return;
+			}
 			if (StrUtil.isEmpty(isCharge) || !isCharge) {
 				sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
 				presenter.updatePosition(carpark, null, false);
@@ -799,7 +803,7 @@ public class CarOutTask extends AbstractTask{
 			}
 		}else{
 			LOGGER.info("车辆{}未入场且停车场是否收费设置为{}",plateNO,isCharge);
-			if (!isCharge) {
+			if (!isCharge||Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场停留时间限制))==0) {
 				SingleCarparkInOutHistory io=new SingleCarparkInOutHistory();
 				io.setPlateNo(plateNO);
 				io.setOutBigImg(bigImgFileName);

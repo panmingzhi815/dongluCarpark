@@ -113,7 +113,17 @@ public class CarInTask extends AbstractTask {
 				}
 			}
 		}
-
+		
+		int checkPlateScan = presenter.checkPlateScan(editPlateNo,date,true);
+		if (checkPlateScan>0) {
+			LOGGER.info("检测车辆：{} 扫描信息不通过",plateNO);
+			if (checkPlateScan==1) {
+				presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.扫描车辆进场超时语音).getContent(), false);
+			}else{
+				presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.车辆进场无扫描信息语音).getContent(), false);
+			}
+			return;
+		}
 
 		if (checkBlackUser(device, date)) {
 			return;
