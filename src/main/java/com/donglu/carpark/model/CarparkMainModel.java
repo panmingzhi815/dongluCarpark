@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -29,6 +30,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
 import com.google.inject.Singleton;
 
@@ -177,7 +180,8 @@ public class CarparkMainModel extends DomainObject {
 	
 	
 	private final Map<String, SingleCarparkInOutHistory> mapWaitInOutHistory=new HashMap<>();
-
+	private final Cache<String, String> plateColorCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS).build();
+	
 	public String getUserName() {
 		return userName;
 	}
@@ -908,5 +912,9 @@ public class CarparkMainModel extends DomainObject {
 
 	public Map<String, SingleCarparkInOutHistory> getMapWaitInOutHistory() {
 		return mapWaitInOutHistory;
+	}
+
+	public Cache<String, String> getPlateColorCache() {
+		return plateColorCache;
 	}
 }

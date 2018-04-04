@@ -91,7 +91,7 @@ public class CarInOutResult implements PlateNOResult {
 			presenter.saveOpenDoor(device, bigImage, plateNO, inOrOut);
 			return;
 		}
-
+		
 		boolean equals = (mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔))
 				.equals(SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue());
 		String linkAddress = device.getLinkInfo();
@@ -200,6 +200,9 @@ public class CarInOutResult implements PlateNOResult {
 	@Override
 	public void invok(String ip, int channel, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize, String plateColor) {
 		try {
+			if (!StrUtil.isEmpty(plateNO)) {
+				model.getPlateColorCache().put(plateNO, plateColor);
+			}
 			model.setOutPlateNOColor(plateColor);
 			invok(ip, channel, plateNO, bigImage, smallImage, rightSize);
 		} catch (Exception e) {

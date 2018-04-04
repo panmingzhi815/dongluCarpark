@@ -22,7 +22,7 @@ public class SingleCarparkUser extends DomainObject {
 	public enum Property{
 		id,plateNo,name,type,carType,address,carparkNo,leftMoney,createDate,validTo,remark
 		,telephone,parkingSpace,carpark,
-		carparkSlot,carparkSlotType,monthChargeId,monthChargeName
+		carparkSlot,carparkSlotType,monthChargeId,monthChargeName,lastEditDate
 	}
 	public enum Label{
 	valitoLabel

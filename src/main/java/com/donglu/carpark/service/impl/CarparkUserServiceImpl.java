@@ -592,4 +592,23 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			unitOfWork.end();
 		}
 	}
+	@Override
+	public List<SingleCarparkUser> findOverdueUserByLastEditTime(int start, int max, Date startTime, Date endTime) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+			c.add(Restrictions.lt(SingleCarparkUser.Property.validTo.name(), new Date()));
+			if (!StrUtil.isEmpty(startTime)) {
+				c.add(Restrictions.ge(SingleCarparkUser.Property.lastEditDate.name(), startTime));
+			}
+			if (endTime!=null) {
+				c.add(Restrictions.le(SingleCarparkUser.Property.lastEditDate.name(), endTime));
+			}
+			c.setFirstResult(0);
+			c.setMaxResults(max);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
 }

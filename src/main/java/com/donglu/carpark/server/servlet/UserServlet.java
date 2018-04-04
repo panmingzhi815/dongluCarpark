@@ -294,4 +294,9 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 		settingService.initData();
 	}
 
+	@Override
+	public List<SingleCarparkUser> findOverdueUserByLastEditTime(int start, int max, Date startTime, Date endTime) {
+		return carparkUserService.findOverdueUserByLastEditTime(start, max, startTime, endTime);
+	}
+
 }

@@ -61,11 +61,11 @@ public class CarInTask extends AbstractTask {
 
 	@Override
 	public void start() throws Exception {
-		model.setInCheckClick(false);
 		boolean checkPlateNODiscernGap = presenter.checkPlateNODiscernGap(mapPlateNoDate, plateNO, date);
 		if (!checkPlateNODiscernGap) {
 			return;
 		}
+		model.setInCheckClick(false);
 		String dateString = StrUtil.formatDate(date, "yyyy-MM-dd HH:mm:ss");
 		model.setInShowPlateNO(plateNO);
 		model.setInShowTime(dateString);
@@ -233,6 +233,12 @@ public class CarInTask extends AbstractTask {
 		cch.setInPlateNO(plateNO);
 		if (!StrUtil.isEmpty(editPlateNo)) {
 			cch.setPlateNo(editPlateNo);
+		}
+		String plateColor = model.getPlateColorCache().asMap().getOrDefault(plateNO, "蓝色");
+		if (plateColor.contains("蓝")) {
+			cch.setUserType("小车");
+		}else{
+			cch.setUserType("大车");
 		}
 		cch.setInTime(date);
 		cch.setOperaName(System.getProperty("userName"));

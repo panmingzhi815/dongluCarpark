@@ -119,6 +119,8 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	@Enumerated(EnumType.STRING)
 	private CarRecordStatus carRecordStatus=CarRecordStatus.在场内;
 	
+	private String userType="小车";
+	
 	public String getPlateNo() {
 		return plateNo;
 	}
@@ -519,5 +521,14 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	public void setCarRecordStatus(CarRecordStatus carRecordStatus) {
 		this.carRecordStatus = carRecordStatus;
 		//firePropertyChange("carRecordStatus", null, null);
+	}
+	public String getUserType() {
+		if (userType==null) {
+			return "小车";
+		}
+		return userType;
+	}
+	public void setUserType(String userType) {
+		this.userType = userType;
 	}
 }

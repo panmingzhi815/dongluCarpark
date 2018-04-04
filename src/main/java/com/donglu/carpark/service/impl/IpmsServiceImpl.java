@@ -95,15 +95,23 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			log.info("{}停车场记录", type);
 			String url = httpUrl + "/api/syncParkingRecord.action";
 			String content = "{\"operation\":\"" + type + "\",\"origin\":\"" + name + "\","
-					+ "\"parkingRecord\":{\"carNum\":\"{}\",\"carType\":\"0\",\"id\":\"{}\",\"inTimeStr\":\"{}\",\"outTimeStr\":\"{}\",\"buildingId\":\"" + buildindId + "\",\"parkId\":\"" + parkId
+					+ "\"parkingRecord\":{\"carNum\":\"{}\",\"carType\":\"{}\",\"id\":\"{}\",\"inTimeStr\":\"{}\",\"outTimeStr\":\"{}\",\"buildingId\":\"" + buildindId + "\",\"parkId\":\"" + parkId
 					+ "\",\"parkName\":\""+ioh.getCarparkName()+"\",\"status\":\"{}\",\"userType\":\"{}\",\"deptFee\"={},\"fee\"={},\"couponValue\"={}},\"syncId\":\"{}\"}";
 			String carInfo = null;
 			String plateNo = ioh.getPlateNo();
 			Long id = ioh.getId();
 			String inTime = StrUtil.formatDateTime(ioh.getInTime());
 			int userType = 4;
-			if (!StrUtil.isEmpty(ioh.getUserName()) && ioh.getCarType().equals("固定车")) {
+			if (!StrUtil.isEmpty(ioh.getUserName()) && (ioh.getCarType()==null||ioh.getCarType().equals("固定车"))) {
 				userType = 1;
+			}
+			int carType=0;
+			if (ioh.getUserType().contains("大车")) {
+				carType=1;
+			}else if (ioh.getUserType().contains("超大车")) {
+				carType=2;
+			}else if (ioh.getUserType().contains("摩托车")) {
+				carType=3;
 			}
 			int status = 0;
 			String outTime = "";
@@ -114,8 +122,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			int depFree = (int) (ioh.getFactMoney() == null ? 0 : ioh.getFactMoney() * 100);
 			int fee = (int) (ioh.getShouldMoney() == null ? 0 : ioh.getShouldMoney() * 100);
 			int couponValue = fee-depFree;
-			content = StrUtil.formatString(content, plateNo, parkId + id, inTime, outTime, status, userType, depFree, fee,couponValue, id);
-//			System.out.println(content);
+			content = StrUtil.formatString(content, plateNo,carType, parkId + id, inTime, outTime, status, userType, depFree, fee,couponValue, id);
+			System.out.println(content);
 			carInfo = "data=" + URLEncoder.encode("["+content+"]", "UTF-8");
 			String actionUrl = url;
 //			System.out.println(actionUrl);
@@ -523,6 +531,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			String plateNO=URLEncoder.encode(plateNo, "UTF-8");
 			String url=httpUrl+"/api/getPayedResult.action?carNum={}&recordId={}&parkId={}";
 			url = StrUtil.formatString(url, plateNO,recordId,parkId);
+			System.out.println(url);
 			String httpPostMssage = httpPostMssage(url, null,5000);
 			log.info("车辆:{}出场,请求查看扣费结果:{}",plateNo,httpPostMssage);
 			JSONObject jsonObject = JSONObject.parseObject(httpPostMssage);
@@ -618,7 +627,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		return httpPostMssage(actionUrl, parameters);
 	}
 	private String httpPostMssage(String actionUrl, String parameters) throws Exception {
-		return httpPostMssage(actionUrl, parameters,10);
+		return httpPostMssage(actionUrl, parameters,10000);
 	}
 	private String httpPostMssage(String actionUrl, String parameters,int readTimeOut) throws Exception {
 		log.debug("准备对地址：["+actionUrl+"]发送消息:"+parameters);

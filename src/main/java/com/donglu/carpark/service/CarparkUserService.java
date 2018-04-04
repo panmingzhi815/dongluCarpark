@@ -91,5 +91,7 @@ public interface CarparkUserService {
 	List<UserHistory> findUserHistory(UpdateEnum[] updates,ProcessEnum[] processEnums);
 	public Long updateUserHistory(UserHistory history,ProcessEnum process);
 	
+	List<SingleCarparkUser> findOverdueUserByLastEditTime(int start, int max, Date startTime, Date endTime);
+	
 	
 }

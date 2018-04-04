@@ -1,7 +1,10 @@
 package com.donglu.carpark.service.background.impl;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
@@ -10,6 +13,7 @@ import com.donglu.carpark.service.IpmsServiceI;
 import com.donglu.carpark.service.background.AbstractCarparkBackgroundService;
 import com.donglu.carpark.service.background.IpmsSynchroServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.CarparkRecordHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
@@ -86,8 +90,17 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 			ipmsService.updateUserInfo();
 			ipmsService.updateTempCarChargeHistory();
 			ipmsService.updateParkSpace();
+			checkUserValidTo();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void checkUserValidTo() {
+		List<SingleCarparkUser> list = sp.getCarparkUserService().findOverdueUserByLastEditTime(0,50,null,StrUtil.getTodayTopTime(new Date()));
+		for (SingleCarparkUser user : list) {
+			user.setLastEditDate(new Date());
+			sp.getCarparkUserService().saveUser(user);
 		}
 	}
 

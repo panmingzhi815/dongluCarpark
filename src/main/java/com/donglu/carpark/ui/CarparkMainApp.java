@@ -898,7 +898,7 @@ public class CarparkMainApp extends AbstractApp{
 					presenter.showContentToDevice(h.getPlateNo(),model.getMapIpToDevice().get(model.getIp()), CarparkUtils.getCarStillTime(model.getTotalTime()) + CarparkUtils.formatFloatString("请缴费" + countShouldMoney + "元"),
 							false);
 					model.setShouldMony(countShouldMoney);
-					model.setReal(countShouldMoney);
+					model.setReal(countShouldMoney-model.getChargedMoney());
 				} else {
 					if (StrUtil.isEmpty(carparkCarType2)) {
 						return;
