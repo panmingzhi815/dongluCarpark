@@ -92,12 +92,13 @@ public class CarInTask extends AbstractTask {
 		if (StrUtil.isEmpty(plateNO)) {
 			LOGGER.warn("空的车牌");
 			if(mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")&&device.getScreenType().equals(ScreenTypeEnum.一体机)){
-				presenter.qrCodeInOut(plateNO,device,true);
-				SingleCarparkInOutHistory inOutHistory = new SingleCarparkInOutHistory();
-				inOutHistory.setBigImg(bigImgFileName);
-				inOutHistory.setSmallImg(smallImgFileName);
-				model.getMapWaitInOutHistory().put(device.getIp(), inOutHistory);
-				return;
+				if(tempCarCheckPass()){
+    				presenter.qrCodeInOut(plateNO,device,true);
+    				SingleCarparkInOutHistory inOutHistory = new SingleCarparkInOutHistory();
+    				inOutHistory.setBigImg(bigImgFileName);
+    				inOutHistory.setSmallImg(smallImgFileName);
+    				model.getMapWaitInOutHistory().put(device.getIp(), inOutHistory);
+				}
 			}
 			Boolean valueOf = Boolean
 					.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.是否允许无牌车进));
@@ -150,6 +151,21 @@ public class CarInTask extends AbstractTask {
 			cch = new SingleCarparkInOutHistory();
 		}
 		checkUser(!isEmptyPlateNo);
+	}
+	/**
+	 * 检测通道类型
+	 * @return true 通过
+	 */
+	private boolean tempCarCheckPass() {
+		Boolean valueOf2 = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制));
+		if (!valueOf2) {
+			if (CarparkUtils.checkRoadType(device, model, presenter, DeviceRoadTypeEnum.固定车通道,
+					DeviceRoadTypeEnum.储值车通道)) {
+				logger.info("车辆[{}]类型为[{}]无法进入停车场[{}]通道[{}]", editPlateNo, carType, carpark, device.getRoadType());
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**

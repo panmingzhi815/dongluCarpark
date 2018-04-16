@@ -52,9 +52,9 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	
 	private CarparkDatabaseServiceProvider sp;
 	//b57c0ebcd45846d996eabc962f54766d
-	private String buildindId="b57c0ebcd45846d996eabc962f54766d";
-	private String parkId="a65f0db0519c4bb1ba879eb6544fc489";
-	private String httpUrl="http://120.24.173.242/ipms";
+	private String buildindId="";
+	private String parkId="";
+	private String httpUrl="";
 	
 	public Map<Long, Integer> mapImageUploadErrorSize=new HashMap<>();
 	
@@ -92,6 +92,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	 */
 	private boolean synchroInOutHistory(String type,SingleCarparkInOutHistory ioh){
 		try {
+//			initCarpark(ioh.getCarparkId(),ioh.getId());
 			log.info("{}停车场记录", type);
 			String url = httpUrl + "/api/syncParkingRecord.action";
 			String content = "{\"operation\":\"" + type + "\",\"origin\":\"" + name + "\","
@@ -172,6 +173,14 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			log.error(type+"停车场记录时发生错误",e);
 		}
 		return false;
+	}
+	private void initCarpark(Long carparkId,Long hid) {
+		if (carparkId==null) {
+			carparkId=sp.getCarparkInOutService().findInOutById(hid).getCarparkId();
+		}
+		SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkById(carparkId);
+		parkId=carpark.getYunIdentifier();
+		buildindId=carpark.getYunBuildIdentifier();
 	}
 	@Override
 	public boolean updateInOutHistory(SingleCarparkInOutHistory ioh) {
@@ -630,6 +639,9 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		return httpPostMssage(actionUrl, parameters,10000);
 	}
 	private String httpPostMssage(String actionUrl, String parameters,int readTimeOut) throws Exception {
+		if (StrUtil.isEmpty(actionUrl)) {
+			return null;
+		}
 		log.debug("准备对地址：["+actionUrl+"]发送消息:"+parameters);
 		URL url = new URL(actionUrl);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();

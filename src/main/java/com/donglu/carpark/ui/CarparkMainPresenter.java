@@ -83,6 +83,7 @@ import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ExecutorsUtils;
 import com.donglu.carpark.util.ImageUtils;
+import com.donglu.carpark.util.ShortURLUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.LPRInOutType;
@@ -101,6 +102,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
@@ -1485,7 +1487,7 @@ public class CarparkMainPresenter {
 		mapIpToJNA.get(ip).tigger(ip);
 //		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
 //		//贵A56G17贵JRJ927
-//		carInOutResultProvider.get().invok(ip, 0, "贵JRJ927", bs, null, 11);
+//		carInOutResultProvider.get().invok(ip, 0, "", bs, null, 11);
 	}
 
 	/**
@@ -2209,6 +2211,10 @@ public class CarparkMainPresenter {
 											model.setReal(result.getDeptFee());
 											Date outTime = new Date();
 											data.setOutTime(outTime);
+											if (result.getOutTime()!=null) {
+												model.setOutTime(result.getOutTime());
+												data.setOutTime(result.getOutTime());
+											}
 											model.setOutTime(outTime);
 											showContentToDevice(data.getPlateNo(), mapIpToDevice.get(data.getOutDeviceIp()), "请缴费"+CarparkUtils.formatFloatString(result.getDeptFee()+"")+"元", false);
 										}
@@ -2412,15 +2418,17 @@ public class CarparkMainPresenter {
 			h.setCarparkId(model.getCarpark().getId());
 			h.setCarparkName(model.getCarpark().getName());
 			h.setInTime(new Date());
+			h.setCarType("临时车");
+			h.setRemarkString("手动入场");
+			h.setOperaName(ConstUtil.getUserName());
 			Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(h);
 			h.setId(saveInOutHistory);
-			h.setOperaName(System.getProperty("userName"));
 			model.addInHistorys(h);
 			model.setInHistorySelect(h);
 			model.setHandPlateNO(null);
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, "车辆手动入场："+h.getInTimeLabel()+"进的车辆"+handPlateNO, ConstUtil.getUserName());
 		} catch (Exception e) {
-			log.info("车辆手动入场");
+			log.info("车辆手动入场失败：{}",e);
 		}
 	}
 
@@ -2996,8 +3004,9 @@ public class CarparkMainPresenter {
 				}
 			}
 		}
-		log.info("获取到二维码：{}",qrCodeUrl);
-		carparkScreenService.showCarparkQrCode(getDevice(device), type, qrCodeUrl);
+		String shortUrl=ShortURLUtils.longToShort(qrCodeUrl);
+		log.info("获取到二维码：{} 短连接：{}",qrCodeUrl,shortUrl);
+		carparkScreenService.showCarparkQrCode(getDevice(device), type, shortUrl);
 	}
 
 }

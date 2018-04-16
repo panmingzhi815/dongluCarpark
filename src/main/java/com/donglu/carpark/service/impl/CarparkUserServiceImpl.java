@@ -57,6 +57,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		String[] split=new String[]{};
 		DatabaseOperation<SingleCarparkUser> dom = DatabaseOperation.forClass(SingleCarparkUser.class, emprovider.get());
 		if (user.getId() == null) {
+			split=user.getPlateNo().split(",");
 			dom.insert(user);
 			emprovider.get().persist(new UserHistory(user,UpdateEnum.新添加));
 		} else {
@@ -156,7 +157,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		return c;
 	}
 	
-	static Cache<Object, Object> userCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.DAYS).build();
+	static Cache<Object, Object> userCache = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).build();
 	@Override
 	public SingleCarparkUser findUserByPlateNo(String plateNO,Long carparkId) {
 		try {

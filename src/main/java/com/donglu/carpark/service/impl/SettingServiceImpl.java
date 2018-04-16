@@ -12,6 +12,7 @@ import javax.persistence.EntityManager;
 
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
+import org.criteria4jpa.criterion.Restrictions;
 
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.service.SettingService;
@@ -184,6 +185,7 @@ public class SettingServiceImpl implements SettingService {
 
 	private void checkVoice() {
 		Criteria c = CriteriaUtils.createCriteria(emProvider.get(), SingleCarparkDeviceVoice.class);
+		c.add(Restrictions.in(SingleCarparkDeviceVoice.Property.type.name(), DeviceVoiceTypeEnum.values()));
 		List<SingleCarparkDeviceVoice> resultList = c.getResultList();
 		List<DeviceVoiceTypeEnum> list = new ArrayList<>();
 		for (DeviceVoiceTypeEnum deviceVoiceTypeEnum2 : DeviceVoiceTypeEnum.values()) {

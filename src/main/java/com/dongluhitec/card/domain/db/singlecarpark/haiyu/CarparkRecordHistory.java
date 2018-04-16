@@ -32,6 +32,7 @@ public class CarparkRecordHistory implements Serializable {
     private String carType;
     
     private String userType;
+    private Long carparkId;
 
     @Embedded
     private HistoryDetail historyDetail = new HistoryDetail();
@@ -54,6 +55,7 @@ public class CarparkRecordHistory implements Serializable {
         outImage=carparkInOutHistory.getOutBigImg();
         carType=carparkInOutHistory.getCarType();
         userType=carparkInOutHistory.getUserType();
+        carparkId=carparkInOutHistory.getCarparkId();
         this.historyDetail.setUpdateState(updateEnum);
     }
     public SingleCarparkInOutHistory getHistory(){
@@ -72,6 +74,7 @@ public class CarparkRecordHistory implements Serializable {
     	carparkInOutHistory.setOutBigImg(outImage);
     	carparkInOutHistory.setCarType(carType);
     	carparkInOutHistory.setUserType(userType);
+    	carparkInOutHistory.setCarparkId(carparkId);
 		return carparkInOutHistory;
     }
 
@@ -216,5 +219,13 @@ public class CarparkRecordHistory implements Serializable {
 
 	public void setUserType(String userType) {
 		this.userType = userType;
+	}
+
+	public Long getCarparkId() {
+		return carparkId;
+	}
+
+	public void setCarparkId(Long carparkId) {
+		this.carparkId = carparkId;
 	}
 }

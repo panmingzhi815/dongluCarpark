@@ -8,7 +8,11 @@ import javax.persistence.Enumerated;
 import com.dongluhitec.card.domain.db.DomainObject;
 @Entity
 public class SingleCarparkDeviceVoice extends DomainObject {
-
+	
+	
+	public enum Property{
+		type
+	}
 	/**
 	 * 
 	 */

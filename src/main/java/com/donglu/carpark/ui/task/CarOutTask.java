@@ -703,9 +703,10 @@ public class CarOutTask extends AbstractTask{
 					}
 					//自动识别大车小车
 					if (autoSelectCarType) {
-						if (!StrUtil.isEmpty(model.getOutPlateNOColor())) {
+						String s = model.getPlateColorCache().asMap().get(editPlateNo);
+						if (!StrUtil.isEmpty(s)) {
 							boolean b = !StrUtil.isEmpty(mapTempCharge.get("大车"));
-							if (model.getOutPlateNOColor().equals("黄")&&b) {
+							if (s.contains("黄")&&b) {
 								model.setCarparkCarType("大车");
 							}else{
 								model.setCarparkCarType("小车");
