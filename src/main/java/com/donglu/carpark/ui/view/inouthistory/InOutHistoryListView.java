@@ -20,6 +20,7 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 	private Label lbl_shouldMoney;
 	private Label lbl_factMoney;
 	private Label lbl_freeMoney;
+	private Label lbl_onlineMoney;
 	public InOutHistoryListView(Composite parent, int style) {
 		super(parent, style, SingleCarparkInOutHistory.class,
 				new String[]{SingleCarparkInOutHistory.Property.plateNo.name(),
@@ -91,7 +92,7 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		
 		Composite composite = new Composite(composite_4, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, true, true, 1, 1));
-		composite.setLayout(new GridLayout(6, false));
+		composite.setLayout(new GridLayout(8, false));
 		
 		Label label = new Label(composite, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -107,13 +108,23 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		Label label_2 = new Label(composite, SWT.NONE);
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_2.setText("实收:");
+		label_2.setText("现金:");
 		
 		lbl_factMoney = new Label(composite, SWT.NONE);
 		lbl_factMoney.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_lbl_factMoney = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lbl_factMoney.widthHint = 70;
 		lbl_factMoney.setLayoutData(gd_lbl_factMoney);
+		
+		Label label_3 = new Label(composite, SWT.NONE);
+		label_3.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_3.setText("网上:");
+		
+		lbl_onlineMoney = new Label(composite, SWT.NONE);
+		lbl_onlineMoney.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		GridData gd_lbl_onlineMoney = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lbl_onlineMoney.widthHint = 70;
+		lbl_onlineMoney.setLayoutData(gd_lbl_onlineMoney);
 		
 		Label label_1 = new Label(composite, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -126,9 +137,10 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		gd_lbl_freeMoney.widthHint = 70;
 		lbl_freeMoney.setLayoutData(gd_lbl_freeMoney);
 	}
-	public void setMoney(String shouldMoney,String factMoney,String freeMoney){
+	public void setMoney(String shouldMoney,String factMoney,String freeMoney,String onlineMoney){
 		lbl_shouldMoney.setText(shouldMoney);
 		lbl_factMoney.setText(factMoney);
 		lbl_freeMoney.setText(freeMoney);
+		lbl_onlineMoney.setText(onlineMoney);
 	}
 }

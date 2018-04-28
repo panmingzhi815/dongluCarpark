@@ -162,15 +162,21 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		float should = 0;
 		float fact = 0;
 		float free = 0;
+		float online=0;
 		for (SingleCarparkInOutHistory singleCarparkInOutHistory : list) {
+			String remarkString = singleCarparkInOutHistory.getRemarkString();
 			float i = singleCarparkInOutHistory.getShouldMoney() == null ? 0 : singleCarparkInOutHistory.getShouldMoney().floatValue();
 			float j = singleCarparkInOutHistory.getFactMoney() == null ? 0 : singleCarparkInOutHistory.getFactMoney().floatValue();
 			float k = singleCarparkInOutHistory.getFreeMoney() == null ? 0 : singleCarparkInOutHistory.getFreeMoney().floatValue();
 			should += i;
-			fact += j;
+			if (remarkString!=null&&(remarkString.contains("缴费完成")||remarkString.contains("扫码缴费出场"))) {
+				online+=j;
+			}else{
+				fact += j;
+			}
 			free += k;
 		}
-		v.setMoney(should + "", fact + "", free + "");
+		v.setMoney(should + "", fact + "", free + "",online+"");
 		return new float[] { should, fact };
 	}
 

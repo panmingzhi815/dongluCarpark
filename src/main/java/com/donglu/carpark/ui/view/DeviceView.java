@@ -3,6 +3,7 @@ package com.donglu.carpark.ui.view;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.util.concurrent.RateLimiter;
 
@@ -51,11 +53,23 @@ public class DeviceView extends Composite implements View{
 		tabFolder.addSelectionListener(new SelectionAdapter() {
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent e) {
 				System.out.println(tabFolder.getSelection());
+				if (getPresenter().getPresenter().getModel().getMapSystemSetting().get(SystemSettingTypeEnum.自动关闭未选中的监控视频).equals("false")) {
+					return;
+				}
 //				model.setSelectTabSelect(tabFolder.getSelection());
+				getPresenter().getPresenter().startPlayingDevice(((SingleCarparkDevice) tabFolder.getSelection().getData("device")).getIp());
+				for (CTabItem cTabItem : tabFolder.getItems()) {
+					SingleCarparkDevice device = (SingleCarparkDevice) cTabItem.getData("device");
+					if (cTabItem.equals(tabFolder.getSelection())) {
+						continue;
+					}
+					getPresenter().getPresenter().stopPlayingDevice(device.getIp());
+					
+				}
+				
 			}
-			
 		});
 		Composite control3 = new Composite(tabFolder, SWT.NONE);
 		GridLayout layout3 = new GridLayout(2,false);
@@ -211,8 +225,16 @@ public class DeviceView extends Composite implements View{
 		if (StrUtil.isEmpty(listDevice)) {
 			return;
 		}
+		listDevice.sort(new Comparator<SingleCarparkDevice>() {
+
+			@Override
+			public int compare(SingleCarparkDevice o1, SingleCarparkDevice o2) {
+				return o1.getIsOpenCamera().compareTo(o2.getIsOpenCamera());
+			}
+		});
 		Date date=new Date();
-		for (SingleCarparkDevice d : listDevice) {
+		for (int i = 0; i < listDevice.size(); i++) {
+			SingleCarparkDevice d = listDevice.get(i);
 			CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
 			tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
 			String name = d.getName() == null ? d.getIp() : d.getName();
@@ -220,11 +242,17 @@ public class DeviceView extends Composite implements View{
 			final Composite composite = new Composite(tabFolder,SWT.EMBEDDED);
 			tabItem.setControl(composite);
 			composite.setLayout(new FillLayout());
+			int j=i;
 			getDisplay().asyncExec(new Runnable() {
 				
 				@Override
 				public void run() {
 					getPresenter().createRightCamera(d.getIp(), composite);
+					if (getPresenter().getPresenter().getModel().getMapSystemSetting().get(SystemSettingTypeEnum.自动关闭未选中的监控视频).equals("true")) {
+    					if (j>0) {
+    						getPresenter().getPresenter().stopPlayingDevice(d.getIp());
+    					}
+					}
 				}
 			});
 			getPresenter().getModel().getMapDeviceTabItem().put(tabItem, d.getIp());
@@ -238,6 +266,7 @@ public class DeviceView extends Composite implements View{
 			});
 			tabItem.setImage(JFaceUtil.getImage("deviceStatus_16"));
 			tabItem.setToolTipText("正在使用");
+			tabItem.setData("device", d);
 			getPresenter().getPresenter().checkDeviceControlTimeStatus(date,d);
 		}
 		tabFolder.setSelection(0);

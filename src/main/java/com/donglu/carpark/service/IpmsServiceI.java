@@ -1,5 +1,8 @@
 package com.donglu.carpark.service;
 
+import java.util.Collection;
+import java.util.Set;
+
 import com.donglu.carpark.model.Result;
 import com.donglu.carpark.service.impl.IpmsServiceImpl;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -66,4 +69,8 @@ public interface IpmsServiceI {
 	public int pay(SingleCarparkInOutHistory inout,float chargeMoney);
 	Result getPayResult(SingleCarparkInOutHistory inout);
 	void updateParkSpace();
+	
+	default String long2ShortUrl(String qrCodeUrl){return "";};
+	default String getQrCodeInOutInfo(Collection<String> deviceIps, Collection<String> waitPlates){return null;};
+	default boolean startQrCodeInOutService(String buildId){return false;};
 }

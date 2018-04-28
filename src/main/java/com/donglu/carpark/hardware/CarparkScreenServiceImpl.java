@@ -103,8 +103,8 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 
 	public boolean showCarparkPosition(Device device, int position) {
 		byte[] bs=new byte[2];
-		bs[0]=(byte) (position%0xff);
-		bs[1]=(byte) (position/0xff);
+		bs[0]=(byte) (position%256);
+		bs[1]=(byte) (position/256);
 		return sendMessage(device, (byte) 0x53, bs, 2);
 	}
 

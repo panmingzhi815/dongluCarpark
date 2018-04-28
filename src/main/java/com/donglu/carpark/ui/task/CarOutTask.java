@@ -827,7 +827,15 @@ public class CarOutTask extends AbstractTask{
 				presenter.updatePosition(carpark, io, false);
 				presenter.showContentToDevice(editPlateNo,device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			}else{
-				notFindInHistory();
+				if(device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")){
+					SingleCarparkInOutHistory value = new SingleCarparkInOutHistory();
+					value.setOutSmallImg(smallImgFileName);
+					value.setOutBigImg(bigImgFileName);
+					model.getMapWaitInOutHistory().put(device.getIp(), value);
+					presenter.qrCodeInOut(plateNO, device, false);
+				}else{
+					notFindInHistory();
+				}
 			}
 		}
 	}

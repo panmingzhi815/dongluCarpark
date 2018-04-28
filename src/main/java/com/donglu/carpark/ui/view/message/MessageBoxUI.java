@@ -149,12 +149,20 @@ public class MessageBoxUI {
 				@Override
 				public void run() {
 					result=-1;
-					if (!shell.isDisposed()) {
-						shell.getDisplay().asyncExec(new Runnable() {
-							public void run() {
-								shell.close();
-							}
-						});
+					try {
+						if (!shell.isDisposed()) {
+							shell.getDisplay().asyncExec(new Runnable() {
+								public void run() {
+									try {
+										shell.close();
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
+							});
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				}
 			}, stayTime);
@@ -163,12 +171,23 @@ public class MessageBoxUI {
 	}
 
 	public void close() {
-		shell.getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				if (!shell.isDisposed()) {
-					shell.close();
-				} 
+		try {
+			if (shell.isDisposed()) {
+				return;
 			}
-		});
+			shell.getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					try {
+						if (!shell.isDisposed()) {
+							shell.close();
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					} 
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

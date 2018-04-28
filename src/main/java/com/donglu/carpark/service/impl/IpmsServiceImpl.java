@@ -124,7 +124,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			int fee = (int) (ioh.getShouldMoney() == null ? 0 : ioh.getShouldMoney() * 100);
 			int couponValue = fee-depFree;
 			content = StrUtil.formatString(content, plateNo,carType, parkId + id, inTime, outTime, status, userType, depFree, fee,couponValue, id);
-			System.out.println(content);
+//			System.out.println(content);
 			carInfo = "data=" + URLEncoder.encode("["+content+"]", "UTF-8");
 			String actionUrl = url;
 //			System.out.println(actionUrl);
@@ -236,7 +236,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			Object object = parseObject.get("ret");
 			log.info("{}用户信息,结果：{}",type,httpPostMssage);
 			boolean result = object.toString().equals("0");
-			if (type.equals("add")&&!result&&parseObject.getString("retInfo").contains("停车场已存在相同车牌")) {
+			if (type.equals("add")&&!result&&parseObject.getString("retInfo").contains("已存在相同车")) {
 				JSONObject users = getUsers(user.getPlateNo());
 				parameters="[{\"dataId\":\"{}\",\"operation\":\"delete\",\"origin\":\"东陆高新\",\"syncId\":\"{}\""+userInfo+"}]";
 				parameters=StrUtil.formatString(parameters, users.getString("id"),id);

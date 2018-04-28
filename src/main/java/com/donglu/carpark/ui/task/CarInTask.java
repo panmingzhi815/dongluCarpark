@@ -91,15 +91,7 @@ public class CarInTask extends AbstractTask {
 		// 空车牌处理
 		if (StrUtil.isEmpty(plateNO)) {
 			LOGGER.warn("空的车牌");
-			if(mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")&&device.getScreenType().equals(ScreenTypeEnum.一体机)){
-				if(tempCarCheckPass()){
-    				presenter.qrCodeInOut(plateNO,device,true);
-    				SingleCarparkInOutHistory inOutHistory = new SingleCarparkInOutHistory();
-    				inOutHistory.setBigImg(bigImgFileName);
-    				inOutHistory.setSmallImg(smallImgFileName);
-    				model.getMapWaitInOutHistory().put(device.getIp(), inOutHistory);
-				}
-			}
+			emptyPlateShowQrCodeIn();
 			Boolean valueOf = Boolean
 					.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.是否允许无牌车进));
 			if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认))
@@ -151,6 +143,21 @@ public class CarInTask extends AbstractTask {
 			cch = new SingleCarparkInOutHistory();
 		}
 		checkUser(!isEmptyPlateNo);
+	}
+
+	/**
+	 * 
+	 */
+	public void emptyPlateShowQrCodeIn() {
+		if(mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")&&device.getScreenType().equals(ScreenTypeEnum.一体机)){
+			if(tempCarCheckPass()){
+				presenter.qrCodeInOut(plateNO,device,true);
+				SingleCarparkInOutHistory inOutHistory = new SingleCarparkInOutHistory();
+				inOutHistory.setBigImg(bigImgFileName);
+				inOutHistory.setSmallImg(smallImgFileName);
+				model.getMapWaitInOutHistory().put(device.getIp(), inOutHistory);
+			}
+		}
 	}
 	/**
 	 * 检测通道类型

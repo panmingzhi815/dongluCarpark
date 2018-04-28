@@ -217,7 +217,7 @@ public class SettingView extends Composite implements View {
 		button_7.setToolTipText("选中后，固定车出场场需要确认放行");
 		button_7.setText("固定车出场是否需要确认");
 		button_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_7.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.左下监控)));
+		button_7.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认)));
 
 		Button button_8 = new Button(group, SWT.CHECK);
 		button_8.addSelectionListener(new SelectionAdapter() {
