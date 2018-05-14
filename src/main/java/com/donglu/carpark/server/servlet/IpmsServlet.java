@@ -37,12 +37,6 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 	private IpmsServiceI ipmsService;
 	@Override
 	public void init() throws ServletException {
-		try {
-			Cache<String, String> build = CacheBuilder.newBuilder().expireAfterWrite(10000, TimeUnit.SECONDS).build();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 	
 	@Override
@@ -165,7 +159,16 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 	}
 	@Override
 	public String long2ShortUrl(String qrCodeUrl) {
-		return ShortURLUtils.longToShort(qrCodeUrl);
+		String longToShort = ShortURLUtils.longToShort(qrCodeUrl);
+		if (longToShort==null) {
+			for (int i = 0; i < 2; i++) {
+				longToShort = ShortURLUtils.longToShort(qrCodeUrl);
+				if (longToShort!=null) {
+					break;
+				}
+			}
+		}
+		return longToShort;
 	}
 
 }

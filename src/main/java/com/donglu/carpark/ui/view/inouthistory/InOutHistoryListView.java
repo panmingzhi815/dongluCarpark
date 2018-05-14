@@ -106,21 +106,25 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		lbl_shouldMoney.setLayoutData(gd_lbl_shouldMoney);
 		
 		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setVisible(false);
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_2.setText("现金:");
 		
 		lbl_factMoney = new Label(composite, SWT.NONE);
+		lbl_factMoney.setVisible(false);
 		lbl_factMoney.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_lbl_factMoney = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lbl_factMoney.widthHint = 70;
 		lbl_factMoney.setLayoutData(gd_lbl_factMoney);
 		
 		Label label_3 = new Label(composite, SWT.NONE);
+		label_3.setVisible(false);
 		label_3.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		label_3.setText("网上:");
 		
 		lbl_onlineMoney = new Label(composite, SWT.NONE);
+		lbl_onlineMoney.setVisible(false);
 		lbl_onlineMoney.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		GridData gd_lbl_onlineMoney = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lbl_onlineMoney.widthHint = 70;

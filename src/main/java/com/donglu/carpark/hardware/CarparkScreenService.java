@@ -21,4 +21,7 @@ public interface CarparkScreenService {
 	public boolean setDeviceDateTime(Device device, Date value);
 	public Date readDeviceDateTime(Device device);
 	void setLog(CarparkScreenServiceLog log);
+	public boolean setQrCodeColor(Device device,int type);
+	public boolean setQrCodeTime(Device device,int seconds);
+	public boolean showCarparkQrCode(Device device, int type, String shortUrl, String content);
 }

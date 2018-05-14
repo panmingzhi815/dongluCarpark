@@ -27,6 +27,9 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 
 public class MessageBoxUI {
+	public interface MessageBoxBtnCallback{
+		public int call(int result);
+	}
 
 	protected Shell shell;
 	private String title;
@@ -38,14 +41,16 @@ public class MessageBoxUI {
 	private boolean waitReturn;
 	private Timer timer;
 	private Point location;
+	private MessageBoxBtnCallback callback;
 	
-	public MessageBoxUI(String title,String msg,String[] buttons,int stayTime,boolean waitReturn,Point location) {
+	public MessageBoxUI(String title,String msg,String[] buttons,int stayTime,boolean waitReturn,Point location, MessageBoxBtnCallback callback) {
 		this.title = title;
 		this.msg = msg;
 		this.buttons = buttons;
 		this.stayTime = stayTime;
 		this.waitReturn = waitReturn;
 		this.location = location;
+		this.callback = callback;
 	}
 
 	public MessageBoxUI() {
@@ -137,6 +142,13 @@ public class MessageBoxUI {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
 						result = size;
+						if (callback!=null) {
+							int call = callback.call(size);
+							if (call==0) {
+								close();
+								return;
+							}
+						}
 					}
 				});
 				button.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));

@@ -34,7 +34,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 public class CarInTask extends AbstractTask {
-	private static final String SLOT_IS_FULL = "车位已满";
+	private static final String SLOT_IS_FULL = "车位已满,请停其它停车场";
 	private static Logger LOGGER = LoggerFactory.getLogger(CarInTask.class);
 	private static final String CAR_IN_MSG = "欢迎光临,请入场停车";
 
@@ -150,12 +150,16 @@ public class CarInTask extends AbstractTask {
 	 */
 	public void emptyPlateShowQrCodeIn() {
 		if(mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")&&device.getScreenType().equals(ScreenTypeEnum.一体机)){
-			if(tempCarCheckPass()){
-				presenter.qrCodeInOut(plateNO,device,true);
-				SingleCarparkInOutHistory inOutHistory = new SingleCarparkInOutHistory();
-				inOutHistory.setBigImg(bigImgFileName);
-				inOutHistory.setSmallImg(smallImgFileName);
-				model.getMapWaitInOutHistory().put(device.getIp(), inOutHistory);
+			if (model.getTotalSlot()>0) {
+				if (tempCarCheckPass()) {
+					presenter.qrCodeInOut(plateNO, device, true);
+					SingleCarparkInOutHistory inOutHistory = new SingleCarparkInOutHistory();
+					inOutHistory.setBigImg(bigImgFileName);
+					inOutHistory.setSmallImg(smallImgFileName);
+					model.getMapWaitInOutHistory().put(device.getIp(), inOutHistory);
+				} 
+			}else{
+				presenter.showContentToDevice(editPlateNo, device, SLOT_IS_FULL, false);
 			}
 		}
 	}
@@ -258,10 +262,10 @@ public class CarInTask extends AbstractTask {
 			cch.setPlateNo(editPlateNo);
 		}
 		String plateColor = model.getPlateColorCache().asMap().getOrDefault(plateNO, "蓝色");
-		if (plateColor.contains("蓝")) {
-			cch.setUserType("小车");
-		}else{
+		if (plateColor.contains("黄")) {
 			cch.setUserType("大车");
+		}else{
+			cch.setUserType("小车");
 		}
 		cch.setInTime(date);
 		cch.setOperaName(System.getProperty("userName"));
@@ -471,6 +475,7 @@ public class CarInTask extends AbstractTask {
 		if (!visitorCarIn()) {
 			return false;
 		}
+		LOGGER.info("临时车:{} 进场",editPlateNo);
 		if (incheck) {
 			// 临时车是否确认
 			boolean flag = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认));
@@ -502,7 +507,7 @@ public class CarInTask extends AbstractTask {
 		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许临时车入场));
 		if (!valueOf) {
 			if (model.getTotalSlot() <= 0) {
-				presenter.showContentToDevice(device, SLOT_IS_FULL, false);
+				presenter.showContentToDevice(editPlateNo,device, SLOT_IS_FULL, false);
 				LOGGER.error("车位已满,不允许临时车进入");
 				return true;
 			}
@@ -566,7 +571,12 @@ public class CarInTask extends AbstractTask {
 				new DateTime(validTo).plusDays(user.getDelayDays() == null ? 0 : user.getDelayDays()).toDate())) {
 			boolean isShowContent=false;
 			if (CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.固定车到期变临时车).equals("true")) {
-				content = "车辆已过期" + content;
+				String sss=mapSystemSetting.get(SystemSettingTypeEnum.固定车到期变临时车收费自动记费出场);
+				if (!StrUtil.isEmpty(sss)&&Arrays.asList(sss.split(",")).contains(user.getName())) {
+					
+				}else{
+					content = "车辆已过期" + content;
+				}
 				logger.info("固定车：{} 在{} 到期 直接做临时车计算 ",user,validTo);
 				return tempCarShowToDevice(false);
 			} else {
@@ -705,7 +715,10 @@ public class CarInTask extends AbstractTask {
 	public void fixCarInShowMsg(Date validTo, String fixCarInMsg, Date reviseInTime) {
 		Date date2 = new DateTime(validTo).minusDays(user.getRemindDays() == null ? 0 : user.getRemindDays()).toDate();
 		if (StrUtil.getTodayBottomTime(date2).before(date)) {
-			content = fixCarInMsg + ",剩余" + CarparkUtils.countDayByBetweenTime(date, validTo) + "天";
+			int countDayByBetweenTime = CarparkUtils.countDayByBetweenTime(date, validTo);
+			if (countDayByBetweenTime>0) {
+				content = fixCarInMsg + ",剩余" + countDayByBetweenTime + "天";
+			}
 			isOpenDoor = true;
 			LOGGER.debug("固定车：{}，{}", plateNO, content);
 		} else {

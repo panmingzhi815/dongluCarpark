@@ -93,7 +93,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	private boolean synchroInOutHistory(String type,SingleCarparkInOutHistory ioh){
 		try {
 //			initCarpark(ioh.getCarparkId(),ioh.getId());
-			log.info("{}停车场记录", type);
+			log.info("{}停车场记录,车牌：{}", type,ioh.getPlateNo());
 			String url = httpUrl + "/api/syncParkingRecord.action";
 			String content = "{\"operation\":\"" + type + "\",\"origin\":\"" + name + "\","
 					+ "\"parkingRecord\":{\"carNum\":\"{}\",\"carType\":\"{}\",\"id\":\"{}\",\"inTimeStr\":\"{}\",\"outTimeStr\":\"{}\",\"buildingId\":\"" + buildindId + "\",\"parkId\":\"" + parkId
@@ -138,7 +138,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				if (type.equals("add")) {
 					if (ioh.getBigImg()!=null) {
 						byte[] image = sp.getImageService().getImage(ioh.getBigImg().substring(ioh.getBigImg().lastIndexOf("/") + 1));
-						if (image != null) {
+						if (!StrUtil.isEmpty(image)) {
 							map.put("enterImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
 						} 
 					}
@@ -146,7 +146,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				if (type.equals("update")&&ioh.getOutBigImg()!=null) {
 					if (ioh.getOutBigImg()!=null) {
 						byte[] image = sp.getImageService().getImage(ioh.getOutBigImg().substring(ioh.getOutBigImg().lastIndexOf("/") + 1));
-						if (image != null) {
+						if (!StrUtil.isEmpty(image)) {
 							map.put("exitImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
 						} 
 					}
@@ -165,6 +165,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 						}
 					}else{
 						mapImageUploadErrorSize.remove(id);
+						Thread.sleep(1000);
 					}
 				}
 			}
@@ -361,7 +362,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				}
 			}
 		} catch (Exception e) {
-			log.error("更新临时车缴费记录时发生错误",e);
+			log.error("更新临时车缴费记录时发生错误"+e);
 		}
 	}
 	private Long getIdByRecordId(String parkId, String parkingRecordId) {
@@ -425,7 +426,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				httpPostMssage(resultUrl, null);
 			}
 		} catch (Exception e) {
-			log.error("更新固定用户信息时发生错误",e);
+			log.error("更新固定用户信息时发生错误"+e);
 		}
 	}
 	@Override
@@ -477,7 +478,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				httpPostMssage(resultUrl, null);
 			}
 		} catch (Exception e) {
-			log.error("更新固定用户充值记录时发生错误",e);
+			log.error("更新固定用户充值记录时发生错误"+e);
 		}
 		
 	}

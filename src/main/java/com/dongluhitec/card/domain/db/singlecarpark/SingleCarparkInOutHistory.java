@@ -12,6 +12,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.IndexColumn;
@@ -120,6 +121,12 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private CarRecordStatus carRecordStatus=CarRecordStatus.在场内;
 	
 	private String userType="小车";
+	
+	@Transient
+	private boolean savePayHistory=false;
+	
+	@Transient
+	private boolean saveHistory=true;
 	
 	public String getPlateNo() {
 		return plateNo;
@@ -530,5 +537,17 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	}
 	public void setUserType(String userType) {
 		this.userType = userType;
+	}
+	public boolean isSavePayHistory() {
+		return savePayHistory;
+	}
+	public void setSavePayHistory(boolean savePayHistory) {
+		this.savePayHistory = savePayHistory;
+	}
+	public boolean isSaveHistory() {
+		return saveHistory;
+	}
+	public void setSaveHistory(boolean saveHistory) {
+		this.saveHistory = saveHistory;
 	}
 }

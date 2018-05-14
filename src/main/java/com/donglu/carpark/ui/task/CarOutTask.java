@@ -20,6 +20,8 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.model.Result;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainPresenter;
+import com.donglu.carpark.ui.view.message.MessageBoxUI.MessageBoxBtnCallback;
+import com.donglu.carpark.ui.view.message.MessageUtil;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ImageUtils;
@@ -101,11 +103,7 @@ public class CarOutTask extends AbstractTask{
 			//
 			if (StrUtil.isEmpty(plateNO)) {
 				LOGGER.error("空的车牌");
-				model.setSearchPlateNo(plateNO);
-				model.setSearchBigImage(bigImgFileName);
-				model.setSearchSmallImage(smallImgFileName);
-				model.setHandSearch(true);
-				model.setOutPlateNOEditable(true);
+				handSearch();
 				model.setOutShowPlateNO("-无牌车");
 				if(mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")){
 					SingleCarparkInOutHistory value = new SingleCarparkInOutHistory();
@@ -141,6 +139,17 @@ public class CarOutTask extends AbstractTask{
 			LOGGER.error("车辆出场时发生错误",e);
 		}
 	
+	}
+
+	/**
+	 * 
+	 */
+	public void handSearch() {
+		model.setSearchPlateNo(plateNO);
+		model.setSearchBigImage(bigImgFileName);
+		model.setSearchSmallImage(smallImgFileName);
+		model.setHandSearch(true);
+		model.setOutPlateNOEditable(true);
 	}
 
 	/**
@@ -275,13 +284,9 @@ public class CarOutTask extends AbstractTask{
 	private void notFindInHistory() {
 		LOGGER.info("没有找到车牌{}的入场记录", plateNO);
 		presenter.showPlateNOToDevice(device, plateNO);
-		presenter.showContentToDevice(editPlateNo,device, "此车未入场", false);
+		presenter.showContentToDevice(editPlateNo,device, model.getMapVoice().get(DeviceVoiceTypeEnum.无进场记录语音).getContent(), false);
 		model.setOutShowPlateNO(model.getOutShowPlateNO()+"-未入场");
-		model.setSearchPlateNo(plateNO);
-		model.setSearchBigImage(bigImgFileName);
-		model.setSearchSmallImage(smallImgFileName);
-		model.setHandSearch(true);
-		model.setOutPlateNOEditable(true);
+		handSearch();
 		model.setSearchCarpark(device.getCarpark());
 	}
 	
@@ -387,6 +392,7 @@ public class CarOutTask extends AbstractTask{
 		model.setOutTime(date);
 		model.setShouldMony(0);
 		model.setReal(0);
+		model.setChargedMoney(0f);
 		// 未找到入场记录
 		if (StrUtil.isEmpty(cch)) {
 			logger.warn("为找到固定车{}的入场记录",editPlateNo);
@@ -429,10 +435,10 @@ public class CarOutTask extends AbstractTask{
 		String content = model.getMapVoice().get(DeviceVoiceTypeEnum.固定车出场语音).getContent();
 		
 		if (StrUtil.getTodayBottomTime(time).before(date)) {
-			presenter.showContentToDevice(device, content + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天", true);
+			presenter.showContentToDevice(editPlateNo,device, content + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天", true);
 			LOGGER.info("车辆:{}即将到期", editPlateNo);
 		} else {
-			presenter.showContentToDevice(device, content, true);
+			presenter.showContentToDevice(editPlateNo,device, content, true);
 		}
 		if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆允许场内换车))) {
 			LOGGER.info("允许场内换车");
@@ -489,6 +495,9 @@ public class CarOutTask extends AbstractTask{
 	}
 
 	private void showContentToDevice(SingleCarparkDevice device, String content, boolean isOpenDoor) {
+		if (cch.getShouldMoney()!=null&&cch.getShouldMoney()>0&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&device.getIsHandCharge()) {
+			return;
+		}
 		presenter.showContentToDevice(editPlateNo, device, content, isOpenDoor);
 	}
 
@@ -641,7 +650,7 @@ public class CarOutTask extends AbstractTask{
 		if (!visitorCarOut()) {
 			return;
 		}
-		
+		logger.info("临时车：{} 计费出场",editPlateNo);
 		model.setOutShowPlateNO(model.getOutShowPlateNO()+"-临时车");
 		model.setPlateInTime(date, 30);
 		if (!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制))) {
@@ -675,6 +684,39 @@ public class CarOutTask extends AbstractTask{
 			}
 			
 			Date inTime = singleCarparkInOutHistory.getReviseInTime();
+			if (model.isBtnClick()&&device.getScreenType().equals(ScreenTypeEnum.一体机)) {
+				carType=model.getPlateColorCache().asMap().getOrDefault(plateNO, "蓝色").contains("黄")?"大车":"小车";
+				float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date,cch);
+				if(countShouldMoney-cch.getFactMoney()>0){
+					singleCarparkInOutHistory.setShouldMoney(countShouldMoney);
+					if (fixCarExpireAutoChargeOut(countShouldMoney,0,countShouldMoney,false)) {
+						return;
+					}
+					if (mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")) {
+						model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
+						presenter.qrCodeInOut(editPlateNo, device, false, singleCarparkInOutHistory,"缴费"+CarparkUtils.formatFloatString(countShouldMoney+"")+"元,请在黄线外扫码付费");
+//						return;
+						MessageUtil.info(plateNO, "车牌："+plateNO+"\t\n进场时间："+cch.getInTimeLabel()+"\t\n出场时间："+cch.getOutTimeLabel()
+						+"\t\n停留时间："+StrUtil.MinusTime2(inTime, cch.getOutTime())+"\t\n应缴费用："+countShouldMoney,new String[]{"收费放行","免费放行"}, 120000,new MessageBoxBtnCallback() {
+							@Override
+							public int call(int result) {
+								if (result==0) {
+									return presenter.chargeCarPass(device, singleCarparkInOutHistory, true, countShouldMoney, 0, countShouldMoney, false)?0:1;
+								}else if (result==1){
+									return presenter.chargeCarPass(device, singleCarparkInOutHistory, true, countShouldMoney, 0, 0, false)?0:1;
+								}
+								return 1;
+							}
+						});
+					}
+				}else{
+					sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
+					presenter.updatePosition(carpark, null, false);
+					showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
+				}
+				return;
+			}
+			logger.info("显示车辆：{} 信息",editPlateNo);
 			// 临时车操作
 			model.setPlateNo(editPlateNo);
 			model.setCarType("临时车");
@@ -689,48 +731,34 @@ public class CarOutTask extends AbstractTask{
 				presenter.updatePosition(carpark, null, false);
 				showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			} else {
-				String carType = "小车";
-				if (mapTempCharge.keySet().size() > 1) {
-					model.setComboCarTypeEnable(true);
-					model.setSelectCarType(true);
-					model.setCarparkCarType("请选择车型");
-					Boolean autoSelectCarType = Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.自动识别出场车辆类型));
-					if (!autoSelectCarType&&!model.isBtnClick()) {
-						model.setChargeDevice(device);
-						model.setChargeHistory(singleCarparkInOutHistory);
-						model.setBtnClick(true);
-						return;
-					}
-					//自动识别大车小车
-					if (autoSelectCarType) {
-						String s = model.getPlateColorCache().asMap().get(editPlateNo);
-						if (!StrUtil.isEmpty(s)) {
-							boolean b = !StrUtil.isEmpty(mapTempCharge.get("大车"));
-							if (s.contains("黄")&&b) {
-								model.setCarparkCarType("大车");
-							}else{
-								model.setCarparkCarType("小车");
-							}
+				float shouldMoney = 0;
+				if (device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")) {
+					if (!device.getIsHandCharge()) {
+						carType=model.getPlateColorCache().asMap().getOrDefault(plateNO, "蓝色").contains("黄")?"大车":"小车";
+						shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date,cch);
+						model.setTotalTime(StrUtil.MinusTime2(inTime, singleCarparkInOutHistory.getOutTime()));
+						singleCarparkInOutHistory.setShouldMoney(shouldMoney);
+						model.setShouldMony(shouldMoney);
+						singleCarparkInOutHistory.setShouldMoney(shouldMoney);
+						model.setReal(model.getShouldMony()-model.getChargedMoney());
+						if (fixCarExpireAutoChargeOut(shouldMoney,0,shouldMoney,false)) {
+							return;
+						}
+						if (shouldMoney-model.getChargedMoney()>0) {
+							model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
+							presenter.qrCodeInOut(editPlateNo, device, false, singleCarparkInOutHistory,"缴费"+CarparkUtils.formatFloatString(shouldMoney+"")+"元,请在黄线外扫码付费");
+							return;
 						}
 					}
-					carType = model.getCarparkCarType();
-					if(carType.contains("请选择")){
-						carType = "小车";
-					}
-				} else if (mapTempCharge.keySet().size() == 1) {
-					List<String> list = new ArrayList<>();
-					list.addAll(mapTempCharge.keySet());
-					carType = list.get(0);
 				}
-				// model.setComboCarTypeEnable(false);
-				float shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date,cch);
-				model.setTotalTime(StrUtil.MinusTime2(inTime, singleCarparkInOutHistory.getOutTime()));
-				
-				if (shouldMoney-model.getChargedMoney()>0&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")) {
-					model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
-					presenter.qrCodeInOut(editPlateNo, device, false, singleCarparkInOutHistory);
+				String carType = getCarType(singleCarparkInOutHistory);
+				if (carType==null) {
 					return;
 				}
+				shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date,cch);
+				model.setTotalTime(StrUtil.MinusTime2(inTime, singleCarparkInOutHistory.getOutTime()));
+				singleCarparkInOutHistory.setShouldMoney(shouldMoney);
+				// model.setComboCarTypeEnable(false);
 				
 				//集中收费
 				Boolean idConcentrate=Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费));
@@ -783,20 +811,34 @@ public class CarOutTask extends AbstractTask{
 				LOGGER.info("等待收费");
 				if (tempCarNoChargeIsPass) {
 					if (model.getReal() > 0) {
-						presenter.showContentToDevice(editPlateNo,device, s, false);
+						showContentToDevice(device, s, false);
 						model.setChargeDevice(device);
 						model.setChargeHistory(singleCarparkInOutHistory);
+						if (fixCarExpireAutoChargeOut(model.getShouldMony(),model.getChargedMoney(),model.getReal(),true)) {
+							return;
+						}
 					} else {
 						presenter.chargeCarPass(device, singleCarparkInOutHistory, false);
 					}
 				} else {
-					presenter.showContentToDevice(editPlateNo,device, s, false);
+					showContentToDevice(device, s, false);
 					model.setChargeDevice(device);
 					model.setChargeHistory(singleCarparkInOutHistory);
+					if (fixCarExpireAutoChargeOut(model.getShouldMony(),model.getChargedMoney(),model.getReal(),true)) {
+						return;
+					}
 				}
+				handSearch();
 				if (valueOf) {
 					singleCarparkInOutHistory.setFactMoney(shouldMoney);
 					presenter.chargeCarPass(device, singleCarparkInOutHistory, false);
+				}
+				if (shouldMoney-model.getChargedMoney()>0&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")) {
+					if (device.getIsHandCharge()) {
+    					model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
+    					presenter.qrCodeInOut(editPlateNo, device, false, singleCarparkInOutHistory,"缴费"+CarparkUtils.formatFloatString(shouldMoney+"")+"元,请在黄线外扫码付费");
+						return;
+					}
 				}
 			}
 		}else{
@@ -827,17 +869,75 @@ public class CarOutTask extends AbstractTask{
 				presenter.updatePosition(carpark, io, false);
 				presenter.showContentToDevice(editPlateNo,device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			}else{
-				if(device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")){
-					SingleCarparkInOutHistory value = new SingleCarparkInOutHistory();
-					value.setOutSmallImg(smallImgFileName);
-					value.setOutBigImg(bigImgFileName);
-					model.getMapWaitInOutHistory().put(device.getIp(), value);
-					presenter.qrCodeInOut(plateNO, device, false);
-				}else{
-					notFindInHistory();
-				}
+				notFindInHistory();
+//				if(device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")){
+//					SingleCarparkInOutHistory value = new SingleCarparkInOutHistory();
+//					value.setOutSmallImg(smallImgFileName);
+//					value.setOutBigImg(bigImgFileName);
+//					model.getMapWaitInOutHistory().put(device.getIp(), value);
+//					presenter.qrCodeInOut("", device, false);
+//				}
 			}
 		}
+	}
+
+	/**
+	 * @param factMoney 
+	 * @param chargedMoney 
+	 * @param shouldMoney 
+	 * @param updateui 
+	 * 
+	 */
+	public boolean fixCarExpireAutoChargeOut(float shouldMoney, float chargedMoney, float factMoney, boolean updateui) {
+		String string = mapSystemSetting.get(SystemSettingTypeEnum.固定车到期变临时车收费自动记费出场);
+		if (cch.getUserName() != null && !StrUtil.isEmpty(string)) {
+			List<String> list = Arrays.asList(string.split(","));
+			if (list.contains(cch.getUserName())) {
+				return presenter.chargeCarPass(device, cch, false, shouldMoney, 0, 0, updateui);
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param singleCarparkInOutHistory
+	 * @return
+	 */
+	public String getCarType(SingleCarparkInOutHistory singleCarparkInOutHistory) {
+		String carType = "小车";
+		if (mapTempCharge.keySet().size() > 1) {
+			model.setComboCarTypeEnable(true);
+			model.setSelectCarType(true);
+			model.setCarparkCarType("请选择车型");
+			Boolean autoSelectCarType = Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.自动识别出场车辆类型));
+			if (!autoSelectCarType&&!model.isBtnClick()) {
+				model.setChargeDevice(device);
+				model.setChargeHistory(singleCarparkInOutHistory);
+				model.setBtnClick(true);
+				return null;
+			}
+			//自动识别大车小车
+			if (autoSelectCarType) {
+				String s = model.getPlateColorCache().asMap().get(editPlateNo);
+				if (!StrUtil.isEmpty(s)) {
+					boolean b = !StrUtil.isEmpty(mapTempCharge.get("大车"));
+					if (s.contains("黄")&&b) {
+						model.setCarparkCarType("大车");
+					}else{
+						model.setCarparkCarType("小车");
+					}
+				}
+			}
+			carType = model.getCarparkCarType();
+			if(carType.contains("请选择")){
+				carType = "小车";
+			}
+		} else if (mapTempCharge.keySet().size() == 1) {
+			List<String> list = new ArrayList<>();
+			list.addAll(mapTempCharge.keySet());
+			carType = list.get(0);
+		}
+		return carType;
 	}
 	
 	private CarTypeEnum getCarparkCarType(String carparkCarType) {

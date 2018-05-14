@@ -1,13 +1,19 @@
 package com.donglu.carpark.ui.view.message;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 
+import com.donglu.carpark.ui.view.message.MessageBoxUI.MessageBoxBtnCallback;
+
 public class MessageUtil {
 	private static List<MessageBoxUI> listUi=new ArrayList<>();
+	private static Map<String, MessageBoxUI> mapTitle2Ui=new HashMap<>();
 	static{
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			@Override
@@ -29,13 +35,26 @@ public class MessageUtil {
 		info(title, msg, stayTime, null);
 	}
 	public static void info(String title,String msg,int stayTime,Point location){
+		info(title, msg, null, stayTime, location, null);
+	}
+	public static void info(String title,String msg,String[] btns,int stayTime,Point location,MessageBoxBtnCallback callback){
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				MessageBoxUI ui = new MessageBoxUI(title, msg, null, stayTime,false,location);
+				MessageBoxUI ui = new MessageBoxUI(title, msg, btns, stayTime,false,location,callback);
 				listUi.add(ui);
+				mapTitle2Ui.put(title, ui);
 				ui.open();
 			}
 		});
+	}
+	public static void info(String title, String msg, String[] btns, int stayTime,MessageBoxBtnCallback callback) {
+		info(title, msg,btns, stayTime,null, callback);
+	}
+	public static void close(String title){
+		MessageBoxUI ui = mapTitle2Ui.get(title);
+		if (ui!=null) {
+			ui.close();
+		}
 	}
 }

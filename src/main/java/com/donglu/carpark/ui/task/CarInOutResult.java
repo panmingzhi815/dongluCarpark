@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainPresenter;
+import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -216,6 +217,10 @@ public class CarInOutResult implements PlateNOResult {
 	 * @param carOutTask
 	 */
 	public void outTaskSubmit(final String ip, final String plateNO, String linkAddress, CarOutTask carOutTask) {
+		if (carOutTask.getDevice().getScreenType().equals(ScreenTypeEnum.一体机)&&model.isBtnClick()&&(model.getChargeDevice()==null||!model.getChargeDevice().getIp().equals(carOutTask.getDevice().getIp()))) {
+			inThreadPool.submit(carOutTask);
+			return;
+		}
 		model.getListOutTask().add(carOutTask);
 	}
 	private void autoCheckCarOut() {

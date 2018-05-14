@@ -59,6 +59,7 @@ import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
@@ -899,6 +900,14 @@ public class CarparkMainApp extends AbstractApp{
 							false);
 					model.setShouldMony(countShouldMoney);
 					model.setReal(countShouldMoney-model.getChargedMoney());
+					h.setShouldMoney(countShouldMoney);
+					if (countShouldMoney-model.getChargedMoney()>0&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")) {
+						if (device.getIsHandCharge()) {
+	    					model.getMapWaitInOutHistory().put(device.getIp(), h);
+	    					presenter.qrCodeInOut(h.getPlateNo(), device, false, h,"缴费"+countShouldMoney+"元,请在黄线外扫码付费");
+							return;
+						}
+					}
 				} else {
 					if (StrUtil.isEmpty(carparkCarType2)) {
 						return;

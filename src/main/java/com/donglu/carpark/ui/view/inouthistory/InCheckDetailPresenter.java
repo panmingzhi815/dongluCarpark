@@ -3,12 +3,15 @@ package com.donglu.carpark.ui.view.inouthistory;
 
 
 import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.task.CarInTask;
 
 public class InCheckDetailPresenter implements Presenter{
+	Logger LOGGER = LoggerFactory.getLogger(InCheckDetailPresenter.class);
 	private InCheckDetailView view;
 	private CarparkMainModel model;
 	@Override
@@ -28,6 +31,7 @@ public class InCheckDetailPresenter implements Presenter{
 		return view;
 	}
 	public boolean carIn(CarInTask carInTask, boolean check,String plateNO) {
+		LOGGER.info("车辆：{}入场确认",plateNO);
 		if (check) {
 			model.setInCheckIsClick(false);
 			carInTask.setEditPlateNo(plateNO);

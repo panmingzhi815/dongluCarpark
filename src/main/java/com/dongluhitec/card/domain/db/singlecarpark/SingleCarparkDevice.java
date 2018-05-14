@@ -44,7 +44,10 @@ public class SingleCarparkDevice extends DomainObject{
 	private String controlTime;
 	private String holidayControlTime;
 	
+	
 	private Boolean isOpenCamera=true;
+	
+	private Boolean isHandCharge=false;
 	
 	public String getIdentifire() {
 		return identifire;
@@ -221,5 +224,12 @@ public class SingleCarparkDevice extends DomainObject{
 	}
 	public void setIsOpenCamera(Boolean isOpenCamera) {
 		this.isOpenCamera = isOpenCamera;
+	}
+	public Boolean getIsHandCharge() {
+		return isHandCharge==null?false:isHandCharge;
+	}
+	public void setIsHandCharge(Boolean isHandCharge) {
+		this.isHandCharge = isHandCharge;
+		firePropertyChange("isHandCharge", null, null);
 	}
 }

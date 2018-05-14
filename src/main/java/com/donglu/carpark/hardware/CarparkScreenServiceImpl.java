@@ -5,7 +5,11 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +19,12 @@ import com.dongluhitec.card.domain.db.Device;
 public class CarparkScreenServiceImpl implements CarparkScreenService {
 	private final Logger LOGGER = LoggerFactory.getLogger(CarparkScreenServiceImpl.class);
 	private CarparkScreenServiceLog log;
-
+	Map<String, Lock> mapDeviceLocks=new HashMap<>();
+	
 	public boolean showCarparkQrCode(Device device, int type, String content) {
+		if (device==null) {
+			return true;
+		}
 		String address = device.getLink().getAddress();
 		System.out.println(address);
 		byte[] bs=new byte[194];
@@ -40,32 +48,38 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 		}
 		bytes[bytes.length-2]=0x03;
 		bytes[bytes.length-1]=BCC(bytes, 0, bytes.length-1);
-		try(Socket s = new Socket(split[0],Integer.valueOf(split[1]))) {
-			println(bytes.length+"==向设备发送消息："+byteArrayToHexString(bytes));
-			s.setSoTimeout(2000);
-			OutputStream os = s.getOutputStream();
-			os.write(bytes);
-			os.flush();
-			InputStream is = s.getInputStream();
-			byte[] b=null;
-			if (retuenDataLength>=0) {
-				b = new byte[10 + retuenDataLength];
-				is.read(b);
-				println("收到设备返回消息：" + byteArrayToHexString(b));
-				if (retuenDataLength>0) {
-					byte[] data = new byte[retuenDataLength];
-					System.arraycopy(b, head.length, data, 0, retuenDataLength);
-					return data;
+//		Lock lock = mapDeviceLocks.getOrDefault(address, new ReentrantLock());
+//		try {
+//			lock.lock();
+			try (Socket s = new Socket(split[0], Integer.valueOf(split[1]))) {
+				println(bytes.length + "==向设备发送消息：" + byteArrayToHexString(bytes));
+				s.setSoTimeout(2000);
+				OutputStream os = s.getOutputStream();
+				os.write(bytes);
+				os.flush();
+				InputStream is = s.getInputStream();
+				byte[] b = null;
+				if (retuenDataLength >= 0) {
+					b = new byte[10 + retuenDataLength];
+					is.read(b);
+					println("收到设备返回消息：" + byteArrayToHexString(b));
+					if (retuenDataLength > 0) {
+						byte[] data = new byte[retuenDataLength];
+						System.arraycopy(b, head.length, data, 0, retuenDataLength);
+						return data;
+					}
 				}
-			}
-			return b;
-		}catch (Exception e) {
-			LOGGER.error("对设备{}发送消息是发生错误",device);
-			LOGGER.error("",e);
-			println("发生错误:"+e);
-			return null;
-//			throw new RuntimeException(e);
-		}
+				return b;
+			} catch (Exception e) {
+				LOGGER.error("对设备{}发送消息是发生错误", device);
+				LOGGER.error("", e);
+				println("发生错误:" + e);
+				return null;
+				//			throw new RuntimeException(e);
+			} 
+//		} finally {
+//			lock.unlock();
+//		}
 	}
 
 	public boolean carIn(Device device, String plate, String content, boolean isOpen) {
@@ -160,7 +174,7 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 
 	@Override
 	public boolean screenOpenDoor(Device device,int type) {
-		
+		LOGGER.info("对一体机进行开闸：{},{}",device,type);
 		return sendMessage(device, 0x55, new byte[]{(byte) type}, 1);
 	}
 
@@ -223,5 +237,34 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 	@Override
 	public void setLog(CarparkScreenServiceLog log) {
 		this.log = log;
+	}
+	@Override
+	public boolean setQrCodeColor(Device device,int type) {
+		return sendMessage(device, 0x60, new byte[]{(byte) type}, 1);
+	}
+	@Override
+	public boolean setQrCodeTime(Device device,int seconds) {
+		byte[] bs=new byte[2];
+		bs[0]=(byte) (seconds%256);
+		bs[1]=(byte) (seconds/256);
+		return sendMessage(device, 0x61, bs, 2);
+	}
+	@Override
+	public boolean showCarparkQrCode(Device device, int type, String qrCode, String voice) {
+		if (device==null) {
+			return true;
+		}
+		if (voice==null||voice.trim().isEmpty()) {
+			return showCarparkQrCode(device, type, qrCode);
+		}
+		String address = device.getLink().getAddress();
+		System.out.println(address);
+		byte[] bs=new byte[194];
+		bs[0]=(byte) type;
+		byte[] bytes = qrCode.getBytes();
+		System.arraycopy(bytes, 0, bs, 1, bytes.length);
+		byte[] bytes2 = voice.getBytes();
+		System.arraycopy(bytes2, 0, bs, 101, bytes2.length);
+		return sendMessage(device,(byte) 0x62,bs,194);
 	}
 }

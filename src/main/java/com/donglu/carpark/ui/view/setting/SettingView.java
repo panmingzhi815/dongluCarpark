@@ -356,7 +356,17 @@ public class SettingView extends Composite implements View {
 		Button button_33 = new Button(group, SWT.CHECK);
 		button_33.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		button_33.setText("固定车转临时车弹窗提示");
-		new Label(group, SWT.NONE);
+		
+		Button button_37 = new Button(group, SWT.CHECK);
+		button_37.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.出场免费确认放行, button_37.getSelection() + "");
+			}
+		});
+		button_37.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		button_37.setText("出场免费时是否需要确认");
+		button_37.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场免费确认放行)));
 
 		Composite composite_2 = new Composite(group, SWT.NONE);
 		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
@@ -703,7 +713,7 @@ public class SettingView extends Composite implements View {
 		combo_slot.setLayoutData(gd_combo_slot);
 		comboViewer_slot.setContentProvider(new ArrayContentProvider());
 		comboViewer_slot.setLabelProvider(new LabelProvider());
-		comboViewer_slot.setInput(new String[] { "显示临时车剩余车位", "显示固定车剩余车位", "显示总剩余车位", "实时临时车位", "实时固定车位", "实时总车位数" });
+		comboViewer_slot.setInput(new String[] { "显示临时车剩余车位", "显示固定车剩余车位", "显示总剩余车位", "实时临时车位", "实时固定车位", "实时总车位数","本地实时车位" });
 		combo_slot.select(Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位数显示方式)));
 
 		Composite composite_9 = new Composite(group, SWT.NONE);

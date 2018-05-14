@@ -76,7 +76,7 @@ public class SearchErrorCarPresenter implements Presenter{
 		List<SingleCarparkInOutHistory> listNoPlate = new ArrayList<>();
 		for (SingleCarparkInOutHistory inout : findByNoOut) {
 			String s = inout.getPlateNo();
-			if (StrUtil.isEmpty(s)) {
+			if (StrUtil.isEmpty(s)||s.startsWith("WPC")) {
 				listNoPlate.add(inout);
 			}
 		}

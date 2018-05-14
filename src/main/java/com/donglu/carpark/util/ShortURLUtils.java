@@ -4,7 +4,11 @@ package com.donglu.carpark.util;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSON;
+import com.donglu.carpark.server.ServerUI;
 
 /**
  * 
@@ -15,6 +19,7 @@ import com.alibaba.fastjson.JSON;
 * @version V1.2  
  */
 public class ShortURLUtils {
+	private static final Logger LOGGER=LoggerFactory.getLogger(ServerUI.class);
 	/**
 	 * 应用的appkey
 	 */
@@ -37,10 +42,10 @@ public class ShortURLUtils {
 			String result = HttpRequestUtil.get(strURL);
 			//请求返回内容为：[{"url_short":"http://t.cn/RQAZBUE","url_long":"http://www.g-tingche.com/third_api/QRCode_parking.action?parkId=ddae5d58a1ef4ca3a51e1d8e4aafec83","type":0}]
 			//json转map集合
-			
+			LOGGER.info("长连接转短连接返回数据：{}",result);
 			return JSON.parseObject(result.substring(1, result.length() -1)).getString("url_short");
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("长连接转短连接时发生错误！",e);
 		}
 		return null;
 	}

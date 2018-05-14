@@ -17,6 +17,7 @@ public interface ExcelImportExport {
 	 */
 	String UserTemplate = System.getProperty("user.dir") + "/excelTemplete/固定用户导入导出模板.xls";
 	String NomalTemplate = System.getProperty("user.dir") + "/excelTemplete/导出通用模板.xls";
+	String OperaChargeTemplate = System.getProperty("user.dir") + "/excelTemplete/收费报表模板.xls";
 
     void printExcel(String filePath) throws Exception;
 	/**

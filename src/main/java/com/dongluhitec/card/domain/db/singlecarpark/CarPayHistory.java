@@ -1,6 +1,7 @@
 package com.dongluhitec.card.domain.db.singlecarpark;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -69,7 +70,21 @@ public class CarPayHistory extends DomainObject{
 	private Date inTime;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date outTime;
-	
+	public CarPayHistory(){
+		
+	}
+	public CarPayHistory(SingleCarparkInOutHistory inout) {
+		plateNO=inout.getPlateNo();
+		inTime=inout.getInTime();
+		outTime=inout.getOutTime();
+		payTime=inout.getOutTime();
+		historyId=inout.getId();
+		cashCost=inout.getFactMoney().doubleValue();
+		operaName=inout.getOperaName();
+		createDate=new Date();
+		payedMoney=inout.getShouldMoney();
+		payId=UUID.randomUUID().toString().replace("-", "");
+	}
 	public String getInTimeLabel(){
 		return StrUtil.formatDateTime(inTime);
 	}

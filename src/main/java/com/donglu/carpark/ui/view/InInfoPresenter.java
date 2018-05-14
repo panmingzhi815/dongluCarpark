@@ -4,6 +4,8 @@ package com.donglu.carpark.ui.view;
 
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.common.Presenter;
@@ -14,7 +16,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 
 
 public class InInfoPresenter  implements Presenter{
-	
+	private static final Logger LOGGER = LoggerFactory.getLogger(InInfoPresenter.class);
 	private InInfoView view;
 	private CarparkMainModel model;
 	
@@ -37,12 +39,12 @@ public class InInfoPresenter  implements Presenter{
 	}
 
 	public void check(String editPlateNO) {
+		LOGGER.info("车辆：{} 入场确认",editPlateNO);
 		if (StrUtil.isEmpty(model.getMapInCheck().keySet())||(editPlateNO.length()<2)) {
 			return;
 		}
 		if (!StrUtil.isEmpty(editPlateNO)&&model.getMapInCheck().keySet().size()==1) {
 			for (String plateNO : model.getMapInCheck().keySet()) {
-				
 				CarInTask in=model.getMapInCheck().get(plateNO);
 				in.setEditPlateNo(editPlateNO.split("-")[0]);
 				in.refreshUserAndHistory();
@@ -52,6 +54,7 @@ public class InInfoPresenter  implements Presenter{
 					model.setInCheckClick(false);
 				} catch (Exception e) {
 					e.printStackTrace();
+					LOGGER.error("{}入场确认时发生错误{}",editPlateNO,e);
 				}
 			}
 		}else{

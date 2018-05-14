@@ -4,6 +4,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkUserService;
 import com.dongluhitec.card.domain.db.CardUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -560,6 +561,57 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				size+=65530;
 			}
 		}
+		FileOutputStream fileOut = new FileOutputStream(path);
+		wb.write(fileOut);
+		fileOut.flush();
+		fileOut.close();
+	}
+
+	public void exportOperaCharge(String path,String title, List<SingleCarparkInOutHistory> list) throws Exception {
+		copyTemplement(OperaChargeTemplate, path);
+
+		HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(path));
+		HSSFSheet sheet = wb.getSheetAt(0);
+		int currentRow = 1;
+		HSSFRow row =row = sheet.getRow(0);
+		row.getCell(0).setCellValue(title);
+		currentRow++;
+		float freeMoneyTotal=0;
+		float factMoneyTotal=0;
+		float shouldMoneyTotal=0;
+		for (int i = 0; i < list.size(); i++) {
+			row = sheet.createRow(currentRow);
+			SingleCarparkInOutHistory o = list.get(i);
+			int j=0;
+			row.createCell(j++).setCellValue(i+1);
+			row.createCell(j++).setCellValue(o.getPlateNo());
+			row.createCell(j++).setCellValue(o.getInDevice());
+			row.createCell(j++).setCellValue(o.getInTimeLabel());
+			row.createCell(j++).setCellValue(o.getOutDevice());
+			row.createCell(j++).setCellValue(o.getOutTimeLabel());
+			float shouldMoney = o.getShouldMoney()==null?0:o.getShouldMoney();
+			shouldMoneyTotal+=shouldMoney;
+			row.createCell(j++).setCellValue(shouldMoney);
+			float factMoney = o.getFactMoney()==null?0:o.getFactMoney();
+			factMoneyTotal+=factMoney;
+			row.createCell(j++).setCellValue(factMoney);
+			float freeMoney = o.getFreeMoney()==null?0:o.getFreeMoney();
+			freeMoneyTotal+=freeMoney;
+			row.createCell(j++).setCellValue(freeMoney);
+			row.createCell(j++).setCellValue(o.getFreeReason());
+			currentRow++;
+		}
+		row = sheet.createRow(currentRow);
+		int j=0;
+		row.createCell(j++).setCellValue("");
+		row.createCell(j++).setCellValue("");
+		row.createCell(j++).setCellValue("");
+		row.createCell(j++).setCellValue("");
+		row.createCell(j++).setCellValue("");
+		row.createCell(j++).setCellValue("合计:");
+		row.createCell(j++).setCellValue(shouldMoneyTotal);
+		row.createCell(j++).setCellValue(factMoneyTotal);
+		row.createCell(j++).setCellValue(freeMoneyTotal);
 		FileOutputStream fileOut = new FileOutputStream(path);
 		wb.write(fileOut);
 		fileOut.flush();

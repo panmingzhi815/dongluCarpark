@@ -30,6 +30,7 @@ import org.joda.time.DateTime;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.blservice.DongluServiceException;
+import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
@@ -83,8 +84,11 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			dom.insert(inout);
 			this.emprovider.get().persist(new CarparkRecordHistory(inout,UpdateEnum.新添加));
 		} else {
+			if (inout.isSavePayHistory()&&inout.getFactMoney()!=null&&inout.getFactMoney()>0) {
+				savePayHistory(inout);
+			}
 			dom.save(inout);
-			this.emprovider.get().merge(new CarparkRecordHistory(inout,UpdateEnum.被修改));
+			this.emprovider.get().merge(new CarparkRecordHistory(inout, UpdateEnum.被修改));
 		}
 		if (inout.getCarType().equals("临时车")) {
 			numberCache.invalidate("findFactMoneyByName-"+inout.getOperaName());
@@ -97,6 +101,14 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}
 		numberCache.invalidate("findTotalSlotIsNow-"+inout.getCarparkId());
 		return inout.getId();
+	}
+
+	private void savePayHistory(SingleCarparkInOutHistory inout) {
+		if (!(inout.isSavePayHistory()&&inout.getFactMoney()!=null&&inout.getFactMoney()>0)) {
+			return;
+		}
+		CarPayHistory carPayHistory = new CarPayHistory(inout);
+		this.emprovider.get().persist(carPayHistory);
 	}
 
 	@Override

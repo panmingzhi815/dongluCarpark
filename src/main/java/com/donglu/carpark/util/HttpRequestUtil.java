@@ -37,9 +37,8 @@ public class HttpRequestUtil {
 			connection.disconnect();
 			return msg;
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
-		return null;
 	}
 
 }

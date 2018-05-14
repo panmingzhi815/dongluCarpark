@@ -80,7 +80,7 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 	public void createLongConnect(String buildId) throws Exception {
 //		buildId="cb0dcb84a37e451c9c3825ebb04e5d3b";
 		s = new Socket(host, port);
-		s.setSoTimeout(5000);
+		s.setSoTimeout(10000);
 		InputStream is = s.getInputStream();
 		byte[] b = new byte[1024];
 		is.read(b);
