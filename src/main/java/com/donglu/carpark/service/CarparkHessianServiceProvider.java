@@ -38,6 +38,8 @@ public class CarparkHessianServiceProvider extends AbstractCarparkDatabaseServic
              setIpmsService(injector.getInstance(IpmsServiceI.class));
              setCarPayService(injector.getInstance(CarPayServiceI.class));
              
+             setCarparkDeviceService(injector.getInstance(CarparkDeviceService.class));
+             
              setYunCarparkService(injector.getInstance(ShangHaiYunCarParkService.class));
         }catch(Exception e){
         	e.printStackTrace();
@@ -79,6 +81,7 @@ public class CarparkHessianServiceProvider extends AbstractCarparkDatabaseServic
 				this.bind(ImageServiceI.class).toInstance((ImageServiceI) factory.create(ImageServiceI.class, url+"carparkImage/"));
 				this.bind(IpmsServiceI.class).toInstance((IpmsServiceI) factory.create(IpmsServiceI.class, url+"ipms/"));
 				this.bind(CarPayServiceI.class).toInstance((CarPayServiceI) factory.create(CarPayServiceI.class, url+"carPay/"));
+				this.bind(CarparkDeviceService.class).toInstance((CarparkDeviceService) factory.create(CarparkDeviceService.class, url+"carparkDeviceService/"));
 				
 				this.bind(ShangHaiYunCarParkService.class).toInstance((ShangHaiYunCarParkService) factory.create(ShangHaiYunCarParkService.class, url+"shanghaiYunCarpark/"));
 			} catch (MalformedURLException e) {

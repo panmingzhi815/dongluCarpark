@@ -465,7 +465,10 @@ public class ImageServerUI {
 			if (Boolean.valueOf(System.getProperty(Login.CHECK_SOFT_DOG) == null ? "true" : "false")) {
 				autoCheckSoftDog();
 			}
-			
+			SingleCarparkSystemSetting findSystemSettingByKey2 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.启动HTTP对外服务.name());
+			if (findSystemSettingByKey2!=null) {
+				System.setProperty("startHttpService", findSystemSettingByKey2.getSettingValue());
+			}
 			int port = 8899;
 			String property = System.getProperty("ServerPort");
 			if (property!=null) {

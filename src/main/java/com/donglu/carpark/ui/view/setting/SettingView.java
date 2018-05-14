@@ -367,6 +367,19 @@ public class SettingView extends Composite implements View {
 		button_37.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		button_37.setText("出场免费时是否需要确认");
 		button_37.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场免费确认放行)));
+		
+		Button btnhttp = new Button(group, SWT.CHECK);
+		btnhttp.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.启动HTTP对外服务, btnhttp.getSelection() + "");
+			}
+		});
+		btnhttp.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		btnhttp.setText("启用HTTP对外服务");
+		btnhttp.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启动HTTP对外服务)));
+		new Label(group, SWT.NONE);
+		new Label(group, SWT.NONE);
 
 		Composite composite_2 = new Composite(group, SWT.NONE);
 		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
@@ -990,7 +1003,7 @@ public class SettingView extends Composite implements View {
 			}
 		});
 		button_34.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
-		button_34.setText("允许实时扫码进出场(需要一体机)");
+		button_34.setText("无牌车扫码进出场(需要一体机)");
 		button_34.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场)));
 		
 		Button button_35 = new Button(grpApp, SWT.CHECK);
@@ -1014,7 +1027,17 @@ public class SettingView extends Composite implements View {
 		button_36.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		button_36.setText("监控端提示网络情况");
 		button_36.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.监控界面提示网络故障)));
-		new Label(grpApp, SWT.NONE);
+		
+		Button button_38 = new Button(grpApp, SWT.CHECK);
+		button_38.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.使用二维码缴费, button_38.getSelection()+"");
+			}
+		});
+		button_38.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		button_38.setText("使用二维码缴费(需要一体机)");
+		button_38.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费)));
 		new Label(grpApp, SWT.NONE);
 
 		Composite composite_8 = new Composite(composite, SWT.NONE);

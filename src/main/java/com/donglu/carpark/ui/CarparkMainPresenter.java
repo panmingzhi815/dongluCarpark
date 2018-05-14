@@ -1632,8 +1632,29 @@ public class CarparkMainPresenter {
 		startQrCodeInOutService();
 //		startPlatePayRemindService();
 		startUpdateScreenQrCodeColorServie();
+		startHttpOpenDoorService();
+	}
+	private void startHttpOpenDoorService() {
+		if (mapSystemSetting.get(SystemSettingTypeEnum.启动HTTP对外服务).equals("false")) {
+			return;
+		}
+		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				String ip = sp.getCarparkDeviceService().getOpenDoorDevice(mapIpToDevice.keySet());
+				if (ip==null||mapIpToDevice.get(ip)==null) {
+					return;
+				}
+				log.info("检测到http请求{}开闸",ip);
+				SingleCarparkDevice device = mapIpToDevice.get(ip);
+				openDoor(device);
+			}
+		}, 1000, 1000, TimeUnit.MILLISECONDS, "检测http请求开闸");
 	}
 
+	/**
+	 * 自动设置一体机二维码颜色
+	 */
 	private void startUpdateScreenQrCodeColorServie() {
 		long delay=60*1000*60;
 		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
@@ -1717,7 +1738,7 @@ public class CarparkMainPresenter {
 	 * 二维码进出服务
 	 */
 	private void startQrCodeInOutService() {
-		if(!mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")||!mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")){
+		if(!mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")||(!mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")&&!mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true"))){
 			return;
 		}
 		try {

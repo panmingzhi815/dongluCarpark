@@ -18,6 +18,8 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 	
 	private ShangHaiYunCarParkService yunCarparkService;
 	
+	private CarparkDeviceService carparkDeviceService;
+	
 	private boolean started=false;
 
 	@Override
@@ -164,6 +166,15 @@ public abstract class AbstractCarparkDatabaseServiceProvider implements CarparkD
 
 	public void setYunCarparkService(ShangHaiYunCarParkService yunCarparkService) {
 		this.yunCarparkService = yunCarparkService;
+	}
+
+	public CarparkDeviceService getCarparkDeviceService() {
+		checkState();
+		return carparkDeviceService;
+	}
+
+	public void setCarparkDeviceService(CarparkDeviceService carparkDeviceService) {
+		this.carparkDeviceService = carparkDeviceService;
 	}
 
 }

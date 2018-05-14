@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.caucho.hessian.server.HessianServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
+import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
@@ -552,5 +553,19 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	@Override
 	public boolean exeUpdateSql(String sql) {
 		return carparkInOutService.exeUpdateSql(sql);
+	}
+
+
+
+	@Override
+	public List<SingleCarparkInOutHistory> findHistoryThanId(Long id, int start, int size) {
+		return carparkInOutService.findHistoryThanId(id, start, size);
+	}
+
+
+
+	@Override
+	public List<CarPayHistory> findCarPayHistoryThanId(Long id, int start, int size) {
+		return carparkInOutService.findCarPayHistoryThanId(id, start, size);
 	}
 }

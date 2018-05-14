@@ -2,6 +2,7 @@ package com.donglu.carpark.service;
 
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.service.impl.CarPayServiceImpl;
+import com.donglu.carpark.service.impl.CarparkDeviceServiceImpl;
 import com.donglu.carpark.service.impl.CarparkInOutServiceImpl;
 import com.donglu.carpark.service.impl.CarparkServiceImpl;
 import com.donglu.carpark.service.impl.CarparkUserServiceImpl;
@@ -58,6 +59,8 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
             setCarPayService(injector.getInstance(CarPayServiceI.class));
             
             setYunCarparkService(injector.getInstance(ShangHaiYunCarParkService.class));
+            
+            setCarparkDeviceService(injector.getInstance(CarparkDeviceService.class));
     }
 
     @Override
@@ -115,6 +118,8 @@ public class CarparkLocalVMServiceProvider extends AbstractCarparkDatabaseServic
             this.bind(CarPayServiceI.class).to(CarPayServiceImpl.class).in(Singleton.class);
             
             this.bind(ShangHaiYunCarParkService.class).to(ShangHaiYunCarParkServiceImpl.class).in(Singleton.class);
+            
+            this.bind(CarparkDeviceService.class).to(CarparkDeviceServiceImpl.class).in(Singleton.class);
         }
     }
 

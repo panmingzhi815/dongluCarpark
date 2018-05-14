@@ -45,7 +45,7 @@ public class SingleCarparkUser extends DomainObject {
 	private Date createDate;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date validTo;
-	private Integer remindDays=0;
+	private Integer remindDays=5;
 	private Integer delayDays=0;
 	private Long monthChargeId;//月租编号
 	private String monthChargeCode;

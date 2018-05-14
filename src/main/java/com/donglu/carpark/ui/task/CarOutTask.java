@@ -692,7 +692,7 @@ public class CarOutTask extends AbstractTask{
 					if (fixCarExpireAutoChargeOut(countShouldMoney,0,countShouldMoney,false)) {
 						return;
 					}
-					if (mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")) {
+					if (mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true")) {
 						model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
 						presenter.qrCodeInOut(editPlateNo, device, false, singleCarparkInOutHistory,"缴费"+CarparkUtils.formatFloatString(countShouldMoney+"")+"元,请在黄线外扫码付费");
 //						return;
@@ -732,7 +732,7 @@ public class CarOutTask extends AbstractTask{
 				showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			} else {
 				float shouldMoney = 0;
-				if (device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")) {
+				if (device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true")) {
 					if (!device.getIsHandCharge()) {
 						carType=model.getPlateColorCache().asMap().getOrDefault(plateNO, "蓝色").contains("黄")?"大车":"小车";
 						shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date,cch);
@@ -833,7 +833,7 @@ public class CarOutTask extends AbstractTask{
 					singleCarparkInOutHistory.setFactMoney(shouldMoney);
 					presenter.chargeCarPass(device, singleCarparkInOutHistory, false);
 				}
-				if (shouldMoney-model.getChargedMoney()>0&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")) {
+				if (shouldMoney-model.getChargedMoney()>0&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true")) {
 					if (device.getIsHandCharge()) {
     					model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
     					presenter.qrCodeInOut(editPlateNo, device, false, singleCarparkInOutHistory,"缴费"+CarparkUtils.formatFloatString(shouldMoney+"")+"元,请在黄线外扫码付费");

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.donglu.carpark.server.module.CacheMethod;
+import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
@@ -350,4 +351,8 @@ public interface CarparkInOutServiceI {
 	List<SingleCarparkInOutHistory> findHistoryByIn(int start, int size, SingleCarparkCarpark carpark, String carType, Date startTime, Date endTime);
 	
 	boolean exeUpdateSql(String sql);
+
+	List<SingleCarparkInOutHistory> findHistoryThanId(Long id, int start, int size);
+
+	List<CarPayHistory> findCarPayHistoryThanId(Long id, int start, int size);
 }

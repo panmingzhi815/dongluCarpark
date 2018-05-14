@@ -1745,10 +1745,43 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 
 	@Override
 	public boolean exeUpdateSql(String sql) {
-		Query query = emprovider.get().createNativeQuery(sql);
-		int executeUpdate = query.executeUpdate();
-		System.out.println("executeUpdate==="+executeUpdate);
-		return true;
+		unitOfWork.begin();
+		try {
+			Query query = emprovider.get().createNativeQuery(sql);
+			int executeUpdate = query.executeUpdate();
+			System.out.println("executeUpdate===" + executeUpdate);
+			return true;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> findHistoryThanId(Long id, int start, int size) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.gt("id", id));
+			c.setFirstResult(start);
+			c.setMaxResults(size);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	
+	@Override
+	public List<CarPayHistory> findCarPayHistoryThanId(Long id, int start, int size) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), CarPayHistory.class);
+			c.add(Restrictions.gt("id", id));
+			c.setFirstResult(start);
+			c.setMaxResults(size);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
 	}
 	
 }

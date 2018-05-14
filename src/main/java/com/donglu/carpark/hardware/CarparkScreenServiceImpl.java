@@ -263,8 +263,12 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 		bs[0]=(byte) type;
 		byte[] bytes = qrCode.getBytes();
 		System.arraycopy(bytes, 0, bs, 1, bytes.length);
-		byte[] bytes2 = voice.getBytes();
-		System.arraycopy(bytes2, 0, bs, 101, bytes2.length);
+		try {
+			byte[] bytes2 = voice.getBytes("GBK");
+			System.arraycopy(bytes2, 0, bs, 101, bytes2.length);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return sendMessage(device,(byte) 0x62,bs,194);
 	}
 }

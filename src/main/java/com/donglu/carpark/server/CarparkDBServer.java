@@ -3,6 +3,8 @@ package com.donglu.carpark.server;
 import org.eclipse.jetty.servlet.ServletHandler;
 
 import com.donglu.carpark.server.servlet.CarPayServlet;
+import com.donglu.carpark.server.servlet.CarparkDeviceServlet;
+import com.donglu.carpark.server.servlet.CarparkHttpServiceServlet;
 import com.donglu.carpark.server.servlet.CarparkServlet;
 import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.server.servlet.InOutServlet;
@@ -50,6 +52,11 @@ public class CarparkDBServer {
 	@Inject
 	private Provider<ShanghaiYunCarparkServlet> shanghaiYunCarparkServletProvider;
 	
+	@Inject
+	private Provider<CarparkHttpServiceServlet> carparkHttpServiceServletProvider;
+	@Inject
+	private Provider<CarparkDeviceServlet> carparkDeviceServletProvider;
+	
 	public void startDbServlet(ServletHandler handler){
 		ServerUtil.startServlet("/user/*", handler, userServlerProvider);
 		ServerUtil.startServlet("/carpark/*", handler, carparkServletProvider);
@@ -64,6 +71,12 @@ public class CarparkDBServer {
 		ServerUtil.startServlet("/ipms/*", handler, ipmsServletProvider);
 		ServerUtil.startServlet("/carPay/*", handler, carPayServletProvider);
 		ServerUtil.startServlet("/shanghaiYunCarpark/*", handler, shanghaiYunCarparkServletProvider);
+		ServerUtil.startServlet("/carparkDeviceService/*", handler, carparkDeviceServletProvider);
+		
+		if (System.getProperty("startHttpService", "false").equals("true")) {
+			ServerUtil.startServlet("/carparkHttpService/*", handler, carparkHttpServiceServletProvider);
+		}
+    		
 	}
 	
 	public void startBackgroudService(){

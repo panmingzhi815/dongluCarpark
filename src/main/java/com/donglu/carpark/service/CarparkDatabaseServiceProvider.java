@@ -40,5 +40,7 @@ public interface CarparkDatabaseServiceProvider {
 	CarPayServiceI getCarPayService();
 	
 	ShangHaiYunCarParkService getYunCarparkService();
+	
+	CarparkDeviceService getCarparkDeviceService();
 }
 
