@@ -1261,6 +1261,7 @@ public class CarparkMainPresenter {
 			return false;
 		}
 		try {
+			log.info("对设备：{} 的控制器：{} 进行开闸",device.getIp(),device.getLinkAddress());
 			Device d = getDevice(device);
 			boolean carparkOpenDoor = true;
 			if (d != null) {
@@ -1599,7 +1600,7 @@ public class CarparkMainPresenter {
 			timeOut = Long.valueOf(property);
 		} catch (Exception e) {
 		}
-		log.debug("超时时间timeOut为：", timeOut);
+		log.debug("超时时间timeOut为：{}", timeOut);
 		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
@@ -1634,6 +1635,10 @@ public class CarparkMainPresenter {
 		startUpdateScreenQrCodeColorServie();
 		startHttpOpenDoorService();
 	}
+	
+	/**
+	 * 提供http开闸服务器
+	 */
 	private void startHttpOpenDoorService() {
 		if (mapSystemSetting.get(SystemSettingTypeEnum.启动HTTP对外服务).equals("false")) {
 			return;

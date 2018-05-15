@@ -149,7 +149,11 @@ public class CarInTask extends AbstractTask {
 	 * 
 	 */
 	public void emptyPlateShowQrCodeIn() {
-		if(mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")&&device.getScreenType().equals(ScreenTypeEnum.一体机)){
+		if(device.getScreenType().equals(ScreenTypeEnum.一体机)){
+			if (!mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")) {
+				presenter.showContentToDevice(editPlateNo, device, model.getMapVoice().get(DeviceVoiceTypeEnum.无牌车禁止扫码入场语音).getContent(), false);
+				return;
+			}
 			if (model.getTotalSlot()>0) {
 				if (tempCarCheckPass()) {
 					presenter.qrCodeInOut(plateNO, device, true);

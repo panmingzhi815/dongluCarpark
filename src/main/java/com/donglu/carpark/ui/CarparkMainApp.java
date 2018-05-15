@@ -407,9 +407,13 @@ public class CarparkMainApp extends AbstractApp{
 			model.getMapVoice().put(vt, value);
 		}
 		
-		List<SingleCarparkDeviceVoice> findAllVoiceInfo = sp.getCarparkService().findAllVoiceInfo();
-		for (SingleCarparkDeviceVoice dv : findAllVoiceInfo) {
-			model.getMapVoice().put(dv.getType(), dv);
+		try {
+			List<SingleCarparkDeviceVoice> findAllVoiceInfo = sp.getCarparkService().findAllVoiceInfo();
+			for (SingleCarparkDeviceVoice dv : findAllVoiceInfo) {
+				model.getMapVoice().put(dv.getType(), dv);
+			}
+		} catch (Exception e) {
+			log.error("初始化语音时发生错误",e);
 		}
 	}
 	/**

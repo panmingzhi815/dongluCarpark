@@ -53,7 +53,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	 */
 	private static final long serialVersionUID = -6080299047343306789L;
 	
-	@Column(length=20)
+	@Column(length=50)
 	@Index(name = "SingleCarparkInOutHistory_plateNo_index")
 	private String plateNo;
 	@Column

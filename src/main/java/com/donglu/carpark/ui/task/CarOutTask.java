@@ -105,12 +105,16 @@ public class CarOutTask extends AbstractTask{
 				LOGGER.error("空的车牌");
 				handSearch();
 				model.setOutShowPlateNO("-无牌车");
-				if(mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")){
-					SingleCarparkInOutHistory value = new SingleCarparkInOutHistory();
-					value.setOutSmallImg(smallImgFileName);
-					value.setOutBigImg(bigImgFileName);
-					model.getMapWaitInOutHistory().put(device.getIp(), value);
-					presenter.qrCodeInOut(plateNO, device, false);
+				if (device.getScreenType().equals(ScreenTypeEnum.一体机)) {
+					if (mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")) {
+						SingleCarparkInOutHistory value = new SingleCarparkInOutHistory();
+						value.setOutSmallImg(smallImgFileName);
+						value.setOutBigImg(bigImgFileName);
+						model.getMapWaitInOutHistory().put(device.getIp(), value);
+						presenter.qrCodeInOut(plateNO, device, false);
+					} else {
+						presenter.showContentToDevice(editPlateNo, device, model.getMapVoice().get(DeviceVoiceTypeEnum.无牌车禁止扫码出场语音).getContent(), false);
+					} 
 				}
 				return;
 			}
@@ -291,17 +295,7 @@ public class CarOutTask extends AbstractTask{
 	}
 	
 	/**
-	 * 
-	 * @param ip
-	 * @param plateNO
-	 * @param date
-	 * @param device
-	 * @param user
 	 * @param check 
-	 * @param roadType
-	 * @param equals
-	 * @param bigImg
-	 * @param smallImg
 	 * @return 返回true终止操作
 	 */
 	private boolean fixCarOutProcess(boolean check) throws Exception {
@@ -674,6 +668,7 @@ public class CarOutTask extends AbstractTask{
 			singleCarparkInOutHistory.setOutBigImg(bigImgFileName);
 			singleCarparkInOutHistory.setOutSmallImg(smallImgFileName);
 			singleCarparkInOutHistory.setOutPlateNO(plateNO);
+			
 			//
 			Date handPhotographDate = mapHandPhotograph.get(ip);
 			if (!StrUtil.isEmpty(handPhotographDate)) {
