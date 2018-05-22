@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.ui.view.message.MessageBoxUI.MessageBoxBtnCallback;
 
 public class MessageUtil {
+	private static final Logger LOGGER=LoggerFactory.getLogger(MessageUtil.class);
 	private static List<MessageBoxUI> listUi=new ArrayList<>();
 	private static Map<String, MessageBoxUI> mapTitle2Ui=new HashMap<>();
 	static{
@@ -38,6 +40,7 @@ public class MessageUtil {
 		info(title, msg, null, stayTime, location, null);
 	}
 	public static void info(String title,String msg,String[] btns,int stayTime,Point location,MessageBoxBtnCallback callback){
+		LOGGER.info("消息提示：{}:{}",title,msg);
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,7 @@ import com.google.inject.Inject;
 
 public class DeleteImageServiceImpl extends AbstractCarparkBackgroundService implements DeleteImageServiceI {
 	public DeleteImageServiceImpl() {
-		super(Scheduler.newFixedDelaySchedule(5, 60 * 24, TimeUnit.MINUTES), "自动删除图片");
+		super(Scheduler.newFixedDelaySchedule(5, 60 * 24, TimeUnit.SECONDS), "自动删除图片");
 	}
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
@@ -46,39 +47,22 @@ public class DeleteImageServiceImpl extends AbstractCarparkBackgroundService imp
 			serverDeleteImage();
 		}
 	}
-	Map<String, FileLock> mapFileImgToLock=new HashMap<>();
-	Map<String, RandomAccessFile> mapFileRaf=new HashMap<>();
+	List<File> listNotDeleteFiles=new ArrayList<>();
 	/**
 	 * 锁定进场
 	 */
-	private void lockInHistoryImage() {
-		List<SingleCarparkInOutHistory> findByCondition = sp.getCarparkInOutService().findCarInHistorys(Integer.MAX_VALUE);
-		for (SingleCarparkInOutHistory inOut : findByCondition) {
-			String imaFileName =clientImageSavePath+inOut.getBigImg();
-			try {
-				RandomAccessFile raf = new RandomAccessFile(new File(imaFileName), "rw");
-				FileChannel channel = raf.getChannel();
-				FileLock tryLock = channel.tryLock();
-				mapFileImgToLock.put(imaFileName, tryLock);
-				mapFileRaf.put(imaFileName, raf);
-			} catch (Exception e) {
-				log.debug("锁定进场车辆图片时发生错误:{}"+e,imaFileName);
-			}
+	private void loadInHistoryImage() {
+		try {
+    		List<SingleCarparkInOutHistory> findByCondition = sp.getCarparkInOutService().findCarInHistorys(Integer.MAX_VALUE);
+    		for (SingleCarparkInOutHistory inOut : findByCondition) {
+    			String imaFileName =clientImageSavePath+inOut.getBigImg();
+				File file = new File(imaFileName);
+				listNotDeleteFiles.add(file);
+    		}
+		} catch (Exception e) {
+			log.debug("锁定进场车辆图片时发生错误:{}"+e);
 		}
 		
-	}
-	private void unLockInHistoryImage(){
-		for (String imgName : mapFileImgToLock.keySet()) {
-			try {
-				FileLock fileLock = mapFileImgToLock.get(imgName);
-				fileLock.release();
-				mapFileRaf.get(imgName).close();
-			} catch (IOException e) {
-				log.debug("解锁进场车辆图片时发生错误:{}"+e,imgName);
-			}
-		}
-		mapFileImgToLock.clear();
-		mapFileRaf.clear();
 	}
 
 	/**
@@ -100,7 +84,6 @@ public class DeleteImageServiceImpl extends AbstractCarparkBackgroundService imp
 	 * 删除图片
 	 */
 	private void clientDeleteImage() {
-		lockInHistoryImage();
 		SingleCarparkSystemSetting ss2 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.图片保存多少天.name());
 		int saveMonth = Integer.valueOf(ss2 == null ? SystemSettingTypeEnum.图片保存多少天.getDefaultValue() : ss2.getSettingValue());
 		log.info("图片保存多少天设置为{}", saveMonth);
@@ -110,61 +93,80 @@ public class DeleteImageServiceImpl extends AbstractCarparkBackgroundService imp
 		}
 		Date d = new Date();
 		DateTime deleteTime = new DateTime(d).minusDays(saveMonth + 1);
-		String nowMonth=deleteTime.toString("MM");
-		String day = deleteTime.toString("dd");
-		String month = deleteTime.toString("MM");
-		int year = deleteTime.getYear();
-		int nowYear=deleteTime.getYear();
-		File file;
-		while (true) {
-			String pathname = clientImageSavePath + year + "/" + month;
-			log.debug("检测文件夹{}是否存在", pathname);
-			file = new File(pathname);
-			if (file.isDirectory()) {
-				log.debug("文件夹{}存在,准备删除文件夹", pathname);
-				if (month.equals(nowMonth)) {
-					for (File f : file.listFiles()) {
-						try {
-							if (Integer.valueOf(f.getName())<=Integer.valueOf(day)) {
-								CarparkUtils.deleteDir(f);
-							}
-						} catch (NumberFormatException e) {
+		File file=new File(clientImageSavePath);
+		List<File> listWaitDeleteFile=new ArrayList<>();
+		for (File file2 : file.listFiles()) {
+			if (!file2.isDirectory()) {
+				continue;
+			}
+			for (File file3 : file2.listFiles()) {
+				if (!file3.isDirectory()) {
+					continue;
+				}
+				File[] listFiles = file3.listFiles();
+				for (File file4 : listFiles) {
+					String s=file2.getName()+file3.getName()+file4.getName();
+//					System.out.println(s+"==="+file4);
+					try {
+						if (Integer.valueOf(s)>Integer.valueOf(deleteTime.toString("yyyyMMdd"))) {
 							continue;
 						}
+						listWaitDeleteFile.addAll(getDirFiles(file4));
+					} catch (Exception e) {
+						
 					}
-				}else{
-					CarparkUtils.deleteDir(file);
 				}
-			} else {
-				while (true) {
-					String pathname1 = clientImageSavePath + (year);
-					log.debug("检测文件夹{}是否存在", pathname1);
-					file = new File(pathname1);
-					if (file.isDirectory()) {
-						log.debug("文件夹{}存在,准备删除文件夹", pathname1);
-						if (year==nowYear) {
-							for (File f : file.listFiles()) {
-								try {
-									if (Integer.valueOf(f.getName())<=Integer.valueOf(month)) {
-										CarparkUtils.deleteDir(f);
-									}
-								} catch (NumberFormatException e) {
-									continue;
-								}
-							}
-						}else{
-							CarparkUtils.deleteDir(file);
-						}
-					}else{
-						log.debug("文件夹{}不存在,退出任务", pathname1);
-						break;
-					}
-					year-=1;
-				}
+			}
+		}
+		System.out.println(listWaitDeleteFile.size());
+		if (listWaitDeleteFile.size()<=0) {
+			return;
+		}
+		loadInHistoryImage();
+		for (int i = 0;true; i++){
+			List<SingleCarparkInOutHistory> list = sp.getCarparkInOutService().findHistoryByIn(i*50, 50, null, null, null, null);
+			for (SingleCarparkInOutHistory inOut : list) {
+    			String imaFileName =clientImageSavePath+inOut.getBigImg();
+				File f = new File(imaFileName);
+				listWaitDeleteFile.remove(f);
+    		}
+			if (list.size()<50) {
 				break;
 			}
-			month=deleteTime.minusMonths(1).toString("MM");
 		}
-		unLockInHistoryImage();
+		for (File f : listWaitDeleteFile) {
+			f.delete();
+		}
+	}
+	
+	public static void main(String[] args) {
+		File file = new File("D:\\img\\2018\\04\\23");
+		List<File> list = getDirFiles(file);
+		System.out.println(list.size());
+	}
+	
+	/**
+	 * @param file
+	 * @return 
+	 */
+	public static List<File> getDirFiles(File file) {
+		List<File> list = new ArrayList<>();
+		getDirFiles(list,file);
+		return list;
+	}
+	/**
+	 * @param list 
+	 * @param file
+	 * @return
+	 */
+	public static void getDirFiles(List<File> list, File file) {
+		for (File f : file.listFiles()) {
+			if (f.isDirectory()) {
+				getDirFiles(list, f);
+			}else{
+				System.out.println(f.getName());
+				list.add(f);
+			}
+		}
 	}
 }

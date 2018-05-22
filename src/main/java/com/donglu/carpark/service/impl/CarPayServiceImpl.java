@@ -71,12 +71,12 @@ public class CarPayServiceImpl implements CarPayServiceI {
 	public Criteria createFindCarPayHistoryByLikeCriteria(String plateNo, Date start, Date end) {
 		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), CarPayHistory.class);
 		if (!StrUtil.isEmpty(plateNo)) {
-			c.add(Restrictions.like(CarPayHistory.Property.plateNO.name(), plateNo, MatchMode.ANYWHERE));
+			c.add(Restrictions.like(CarPayHistory.Property.plateNO.name(), plateNo));
 		}
-		if (!StrUtil.isEmpty(plateNo)) {
+		if (!StrUtil.isEmpty(start)) {
 			c.add(Restrictions.ge(CarPayHistory.Property.payTime.name(), start));
 		}
-		if (!StrUtil.isEmpty(plateNo)) {
+		if (!StrUtil.isEmpty(end)) {
 			c.add(Restrictions.le(CarPayHistory.Property.payTime.name(), end));
 		}
 		return c;

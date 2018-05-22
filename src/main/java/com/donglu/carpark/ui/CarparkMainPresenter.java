@@ -1502,10 +1502,10 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-		mapIpToJNA.get(ip).tigger(ip);
-//		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
-//		//贵A56G17贵JRJ927
-//		carInOutResultProvider.get().invok(ip, 0, "贵JRJ927", bs, null, 11);
+//		mapIpToJNA.get(ip).tigger(ip);
+		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+		//贵A56G17贵JRJ927
+		carInOutResultProvider.get().invok(ip, 0, "贵JRJ927", bs, null, 11);
 	}
 
 	/**
@@ -1754,11 +1754,11 @@ public class CarparkMainPresenter {
 				MessageUtil.info("停车场云平台编号或项目编号为空,不启动二维码进出场服务！");
 				return;
 			}
-			ipmsService.startQrCodeInOutService(buildId);
 			ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
 				@Override
 				public void run() {
 					try {
+						ipmsService.startQrCodeInOutService(buildId);
 						List<String> arrayList = new ArrayList<>();
 						Set<String> keySet = model.getMapWaitInOutHistory().keySet();
 						for (String string : keySet) {
@@ -1786,7 +1786,7 @@ public class CarparkMainPresenter {
 						log.error("二维码进出场时发生错误！",e);
 					}
 				}
-			}, 5000, 500, TimeUnit.MILLISECONDS,"获取二维码进出场信息服务");
+			}, 1000, 500, TimeUnit.MILLISECONDS,"获取二维码进出场信息服务");
 //			carparkQrCodeInOutService.initService(buildId,new CarparkQrCodeInOutService.CarparkQrCodeInOutCallback() {
 //				@Override
 //				public void call(String info) {
@@ -2200,7 +2200,8 @@ public class CarparkMainPresenter {
 //								return false;
 //							} 
 						}
-						if (mapIpToDevice.get(data.getOutDeviceIp())!=null&&!mapIpToDevice.get(data.getOutDeviceIp()).getScreenType().equals(ScreenTypeEnum.一体机)) {
+						if (mapIpToDevice.get(data.getOutDeviceIp())!=null&&
+								(!mapIpToDevice.get(data.getOutDeviceIp()).getScreenType().equals(ScreenTypeEnum.一体机)||!mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true"))) {
     						checkIsPayTimer = new Timer();
     						int delay = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场时检测云平台缴费间隔))*1000;
     						int timeOut = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场时等待云平台缴费超时时长))*1000;
@@ -2232,6 +2233,7 @@ public class CarparkMainPresenter {
 											data.setRemarkString("在线缴费完成，在规定时间内出场！");
 											model.setPlateNo(data.getPlateNo() + "-已在线支付");
 											charge(false);
+											checkIsPayTimer.cancel();
 										} else if (code == 3004) {
 											checkIsPayTimer.cancel();
 										} else {
@@ -3246,6 +3248,15 @@ public class CarparkMainPresenter {
 			}
 		}
 		return result;
+	}
+
+	public float countChargedMoney(SingleCarparkInOutHistory cch) {
+		List<CarPayHistory> list = sp.getCarPayService().findCarPayHistoryByLike(0, 100, cch.getPlateNo(), cch.getInTime(), new Date());
+		float chargedMoney=0;
+		for (CarPayHistory carPayHistory : list) {
+			chargedMoney+=carPayHistory.getPayedMoney();
+		}
+		return chargedMoney;
 	}
 
 }

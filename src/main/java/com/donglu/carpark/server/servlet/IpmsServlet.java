@@ -42,10 +42,11 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 	@Override
 	public boolean startQrCodeInOutService(String buildId){
 		try {
-			LOGGER.info("启动二维码进出场服务 建筑:{}",buildId);
+			LOGGER.debug("检测是否启动了进出场服务，建筑：{}",buildId);
 			if (mapStartedServices.get(buildId)!=null) {
 				return true;
 			}
+			LOGGER.info("启动二维码进出场服务 建筑:{}",buildId);
 			CarparkQrCodeInOutService carparkQrCodeInOutService=new CarparkQrCodeInOutServiceImpl();
 			carparkQrCodeInOutService.initService(buildId,new CarparkQrCodeInOutService.CarparkQrCodeInOutCallback() {
 				@Override

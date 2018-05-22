@@ -237,14 +237,22 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			Object object = parseObject.get("ret");
 			log.info("{}用户信息,结果：{}",type,httpPostMssage);
 			boolean result = object.toString().equals("0");
-			if (type.equals("add")&&!result&&parseObject.getString("retInfo").contains("已存在相同车")) {
-				JSONObject users = getUsers(user.getPlateNo());
-				parameters="[{\"dataId\":\"{}\",\"operation\":\"delete\",\"origin\":\"东陆高新\",\"syncId\":\"{}\""+userInfo+"}]";
-				parameters=StrUtil.formatString(parameters, users.getString("id"),id);
-				parameters="data="+URLEncoder.encode(parameters, "UTF-8");
-				httpPostMssage = httpPostMssage(url, parameters);
-				System.out.println(httpPostMssage);
-//				return synchroUser("update", user);
+			if (type.equals("add")&&!result) {
+				if (parseObject.getString("retInfo").contains("id已存在")) {
+					parameters="[{\"dataId\":\"{}\",\"operation\":\"delete\",\"origin\":\"东陆高新\",\"syncId\":\"{}\""+userInfo+"}]";
+					parameters=StrUtil.formatString(parameters, rid,id);
+					parameters="data="+URLEncoder.encode(parameters, "UTF-8");
+					httpPostMssage = httpPostMssage(url, parameters);
+				}
+				if (parseObject.getString("retInfo").contains("已存在相同车")) {
+					JSONObject users = getUsers(user.getPlateNo());
+					parameters = "[{\"dataId\":\"{}\",\"operation\":\"delete\",\"origin\":\"东陆高新\",\"syncId\":\"{}\"" + userInfo + "}]";
+					parameters = StrUtil.formatString(parameters, users.getString("id"), id);
+					parameters = "data=" + URLEncoder.encode(parameters, "UTF-8");
+					httpPostMssage = httpPostMssage(url, parameters);
+					System.out.println(httpPostMssage);
+					//				return synchroUser("update", user);
+				}
 				
 			}
 			return result;
@@ -294,7 +302,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		try {
 			log.debug("更新临时车缴费记录");
 			String url=httpUrl+"/api/pullPaymentRecord.action?buildingId="+buildindId;
-			String httpPostMssage = httpPostMssage(url, null);
+			String httpPostMssage = httpPostMssage(url, null,30000);
 			JSONObject Object = JSONObject.parseObject(httpPostMssage);
 			String result = Object.getString("result");
 			String data = Object.getString("data");
@@ -386,7 +394,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			
 //			System.out.println(URLDecoder.decode(httpPostMssage(httpUrl+"/api/queryCreatMonthCardData.action?parkId="+parkId+"&type=1&carNum="+URLEncoder.encode("粤BD021W", "UTF-8"), null), "UTF-8"));
 			
-			String httpPostMssage = httpPostMssage(url, null);
+			String httpPostMssage = httpPostMssage(url, null,30000);
 			JSONObject parseObject = JSONObject.parseObject(httpPostMssage);
 			String result = (String) parseObject.get("result");
 			if (!result.equals("success")) {
@@ -434,7 +442,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		try {
 			log.debug("更新固定车充值记录");
 			String url=httpUrl+"/api/pullMonthCardRecharge.action?buildingId="+buildindId;
-			String httpPostMssage = httpPostMssage(url, null);
+			String httpPostMssage = httpPostMssage(url, null,30000);
 			JSONObject parseObject = JSONObject.parseObject(httpPostMssage);
 			String result = parseObject.getString("result");
 			if (!result.equals("success")) {

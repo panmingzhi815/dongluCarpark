@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
@@ -12,6 +13,7 @@ import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.service.IpmsServiceI;
 import com.donglu.carpark.service.background.AbstractCarparkBackgroundService;
 import com.donglu.carpark.service.background.IpmsSynchroServiceI;
+import com.donglu.carpark.util.ExecutorsUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.CarparkRecordHistory;
@@ -23,43 +25,43 @@ import com.google.inject.Inject;
 
 public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService implements IpmsSynchroServiceI {
 	private static final String IMPS_USER_SAVE_HISTORY = "impsUserSaveHistory";
-	@Inject
 	private CarparkDatabaseServiceProvider sp;
-	@Inject
 	private IpmsServiceI ipmsService;
+	private ScheduledExecutorService uploadHistoryExecutorService;
 
-	public IpmsSynchroServiceImpl() {
+	@Inject
+	public IpmsSynchroServiceImpl(IpmsServiceI ipmsService,CarparkDatabaseServiceProvider sp) {
 		super(Scheduler.newFixedDelaySchedule(5, 3, TimeUnit.SECONDS), "ipms信息同步服务");
-	}
-
-	@Override
-	protected void run() {
-		try {
-			//同步用户信息
-			CarparkUserService carparkUserService = sp.getCarparkUserService();
-			List<UserHistory> findUserHistory = carparkUserService.findUserHistory(UpdateEnum.values(), new ProcessEnum[] { ProcessEnum.未处理, ProcessEnum.处理失败 });
-			for (UserHistory userHistory : findUserHistory) {
-				UpdateEnum updateState = userHistory.getHistoryDetail().getUpdateState();
-				boolean result=false;
-				switch (updateState) {
-				case 新添加:
-					result=ipmsService.addUser(userHistory.getUser());
-					break;
-				case 被修改:
-					result=ipmsService.updateUser(userHistory.getUser());
-					break;
-				case 被删除:
-					result=ipmsService.deleteUser(userHistory.getUser());
-					break;
+		this.ipmsService = ipmsService;
+		this.sp = sp;
+		uploadHistoryExecutorService = ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				//同步用户信息
+				CarparkUserService carparkUserService = sp.getCarparkUserService();
+				List<UserHistory> findUserHistory = carparkUserService.findUserHistory(UpdateEnum.values(), new ProcessEnum[] { ProcessEnum.未处理, ProcessEnum.处理失败 });
+				for (UserHistory userHistory : findUserHistory) {
+					UpdateEnum updateState = userHistory.getHistoryDetail().getUpdateState();
+					boolean result=false;
+					switch (updateState) {
+					case 新添加:
+						result=ipmsService.addUser(userHistory.getUser());
+						break;
+					case 被修改:
+						result=ipmsService.updateUser(userHistory.getUser());
+						break;
+					case 被删除:
+						result=ipmsService.deleteUser(userHistory.getUser());
+						break;
+					}
+					if (result) {
+						carparkUserService.updateUserHistory(userHistory, ProcessEnum.己处理);
+					}
 				}
-				if (result) {
-					carparkUserService.updateUserHistory(userHistory, ProcessEnum.己处理);
-				}
-			}
-			List<CarparkRecordHistory> findHaiYuRecordHistory = sp.getCarparkInOutService().findHaiYuRecordHistory(0, 1000, UpdateEnum.values(), new ProcessEnum[]{ProcessEnum.未处理,ProcessEnum.处理失败});
-			for (CarparkRecordHistory carparkRecordHistory : findHaiYuRecordHistory) {
-				SingleCarparkInOutHistory inOutHistory=carparkRecordHistory.getHistory();
-				boolean result=false;
+				List<CarparkRecordHistory> findHaiYuRecordHistory = sp.getCarparkInOutService().findHaiYuRecordHistory(0, 1000, UpdateEnum.values(), new ProcessEnum[]{ProcessEnum.未处理,ProcessEnum.处理失败});
+				for (CarparkRecordHistory carparkRecordHistory : findHaiYuRecordHistory) {
+					SingleCarparkInOutHistory inOutHistory=carparkRecordHistory.getHistory();
+					boolean result=false;
 //				switch (carparkRecordHistory.getHistoryDetail().getUpdateState()) {
 //				case 新添加:
 //					result = ipmsService.addInOutHistory(inOutHistory);;
@@ -70,29 +72,43 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 //				case 被删除:
 //					break;
 //				}
-				if (inOutHistory.getOutTime()==null) {
-					result = ipmsService.addInOutHistory(inOutHistory);
-				}else{
-					if(inOutHistory.getInTime()!=null){
-						result = ipmsService.updateInOutHistory(inOutHistory);
+					if (inOutHistory.getOutTime()==null) {
+						result = ipmsService.addInOutHistory(inOutHistory);
 					}else{
-						result=true;
+						if(inOutHistory.getInTime()!=null){
+							result = ipmsService.updateInOutHistory(inOutHistory);
+						}else{
+							result=true;
+						}
+					}
+					if (result) {
+						sp.getCarparkInOutService().updateHaiYuRecordHistory(Arrays.asList(carparkRecordHistory.getId()), ProcessEnum.己处理);
 					}
 				}
-				if (result) {
-					sp.getCarparkInOutService().updateHaiYuRecordHistory(Arrays.asList(carparkRecordHistory.getId()), ProcessEnum.己处理);
+				if (!findUserHistory.isEmpty()||!findHaiYuRecordHistory.isEmpty()) {
+					return;
 				}
 			}
-			if (!findUserHistory.isEmpty()||!findHaiYuRecordHistory.isEmpty()) {
-				return;
-			}
+		}, 5, 3, TimeUnit.SECONDS, "ipms记录上传服务");
+	}
+
+	@Override
+	protected void run() {
+		try {
+			ipmsService.updateTempCarChargeHistory();
 			ipmsService.updateFixCarChargeHistory();
 			ipmsService.updateUserInfo();
-			ipmsService.updateTempCarChargeHistory();
 			ipmsService.updateParkSpace();
 			checkUserValidTo();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	@Override
+	protected void shutDown() throws Exception {
+		super.shutDown();
+		if (uploadHistoryExecutorService!=null) {
+			uploadHistoryExecutorService.shutdown();
 		}
 	}
 

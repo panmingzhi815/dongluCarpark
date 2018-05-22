@@ -60,6 +60,7 @@ public class CarparkManageApp extends AbstractApp{
 
 	/**
 	 * Open the window.
+	 * @wbp.parser.entryPoint
 	 */
 	@Override
 	public void open() {

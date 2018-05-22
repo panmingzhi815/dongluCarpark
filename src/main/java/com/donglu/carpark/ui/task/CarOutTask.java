@@ -489,7 +489,7 @@ public class CarOutTask extends AbstractTask{
 	}
 
 	private void showContentToDevice(SingleCarparkDevice device, String content, boolean isOpenDoor) {
-		if (cch.getShouldMoney()!=null&&cch.getShouldMoney()>0&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&device.getIsHandCharge()) {
+		if (cch.getShouldMoney()!=null&&cch.getShouldMoney()>0&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&(device.getIsHandCharge()&&mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true"))) {
 			return;
 		}
 		presenter.showContentToDevice(editPlateNo, device, content, isOpenDoor);
@@ -679,7 +679,7 @@ public class CarOutTask extends AbstractTask{
 			}
 			
 			Date inTime = singleCarparkInOutHistory.getReviseInTime();
-			if (model.isBtnClick()&&device.getScreenType().equals(ScreenTypeEnum.一体机)) {
+			if (model.isBtnClick()&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true")) {
 				carType=model.getPlateColorCache().asMap().getOrDefault(plateNO, "蓝色").contains("黄")?"大车":"小车";
 				float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date,cch);
 				if(countShouldMoney-cch.getFactMoney()>0){
@@ -731,9 +731,11 @@ public class CarOutTask extends AbstractTask{
 					if (!device.getIsHandCharge()) {
 						carType=model.getPlateColorCache().asMap().getOrDefault(plateNO, "蓝色").contains("黄")?"大车":"小车";
 						shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date,cch);
-						model.setTotalTime(StrUtil.MinusTime2(inTime, singleCarparkInOutHistory.getOutTime()));
-						singleCarparkInOutHistory.setShouldMoney(shouldMoney);
 						model.setShouldMony(shouldMoney);
+						float chargedMoney=presenter.countChargedMoney(cch);
+						model.setChargedMoney(chargedMoney>shouldMoney?shouldMoney:chargedMoney);
+						
+						model.setTotalTime(StrUtil.MinusTime2(inTime, singleCarparkInOutHistory.getOutTime()));
 						singleCarparkInOutHistory.setShouldMoney(shouldMoney);
 						model.setReal(model.getShouldMony()-model.getChargedMoney());
 						if (fixCarExpireAutoChargeOut(shouldMoney,0,shouldMoney,false)) {
@@ -828,7 +830,7 @@ public class CarOutTask extends AbstractTask{
 					singleCarparkInOutHistory.setFactMoney(shouldMoney);
 					presenter.chargeCarPass(device, singleCarparkInOutHistory, false);
 				}
-				if (shouldMoney-model.getChargedMoney()>0&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true")) {
+				if (model.getReal()>0&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true")) {
 					if (device.getIsHandCharge()) {
     					model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
     					presenter.qrCodeInOut(editPlateNo, device, false, singleCarparkInOutHistory,"缴费"+CarparkUtils.formatFloatString(shouldMoney+"")+"元,请在黄线外扫码付费");
