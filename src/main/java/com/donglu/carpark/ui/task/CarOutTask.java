@@ -679,7 +679,7 @@ public class CarOutTask extends AbstractTask{
 			}
 			
 			Date inTime = singleCarparkInOutHistory.getReviseInTime();
-			if (model.isBtnClick()&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true")) {
+			if (model.isBtnClick()&&device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true")&&!device.getIsHandCharge()) {
 				carType=model.getPlateColorCache().asMap().getOrDefault(plateNO, "蓝色").contains("黄")?"大车":"小车";
 				float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date,cch);
 				if(countShouldMoney-cch.getFactMoney()>0){
@@ -740,6 +740,24 @@ public class CarOutTask extends AbstractTask{
 						model.setReal(model.getShouldMony()-model.getChargedMoney());
 						if (fixCarExpireAutoChargeOut(shouldMoney,0,shouldMoney,false)) {
 							return;
+						}
+						if (mapSystemSetting.get(SystemSettingTypeEnum.优先使用云平台计费).equals("false")) {
+							Result result = presenter.getPayResult(singleCarparkInOutHistory);
+							if (result!=null&&result.getCode() == 2005) {
+								model.setReal(0);
+								model.setChargedMoney(result.getPayedFee());
+								model.setShouldMony(result.getPayedFee());
+								singleCarparkInOutHistory.setFreeMoney(0);
+								singleCarparkInOutHistory.setShouldMoney(result.getPayedFee());
+								singleCarparkInOutHistory.setFactMoney(result.getPayedFee());
+								singleCarparkInOutHistory.setChargeOperaName("在线支付");
+								singleCarparkInOutHistory.setRemarkString("在线缴费完成，在规定时间内出场！");
+								model.setPlateNo(singleCarparkInOutHistory.getPlateNo() + "-已在线支付");
+								model.setChargeHistory(singleCarparkInOutHistory);
+								model.setChargeDevice(device);
+								presenter.charge(false);
+								return;
+							} 
 						}
 						if (shouldMoney-model.getChargedMoney()>0) {
 							model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);

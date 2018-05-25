@@ -1502,10 +1502,10 @@ public class CarparkMainPresenter {
 	 * 手动抓拍
 	 */
 	public void handPhotograph(String ip) {
-//		mapIpToJNA.get(ip).tigger(ip);
-		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
-		//贵A56G17贵JRJ927
-		carInOutResultProvider.get().invok(ip, 0, "贵JRJ927", bs, null, 11);
+		mapIpToJNA.get(ip).tigger(ip);
+//		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+//		//贵A56G17贵JRJ927
+//		carInOutResultProvider.get().invok(ip, 0, "贵JRJ927", bs, null, 11);
 	}
 
 	/**
@@ -1754,7 +1754,14 @@ public class CarparkMainPresenter {
 				MessageUtil.info("停车场云平台编号或项目编号为空,不启动二维码进出场服务！");
 				return;
 			}
+			try {
+				ipmsService.startQrCodeInOutService(buildId);
+				MessageUtil.info("提示", "二维码进出场服务启动成功！", 5000);
+			} catch (Exception e2) {
+				MessageUtil.info("启动二维码实时进出场服务失败！请检查停车场云编号是否正确或检查网络!软件将在后台重连！");
+			}
 			ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
+				String lastPlateInfo="";
 				@Override
 				public void run() {
 					try {
@@ -1765,6 +1772,10 @@ public class CarparkMainPresenter {
 							SingleCarparkInOutHistory history = model.getMapWaitInOutHistory().get(string);
 							arrayList.add(history.getPlateNo());
 						}
+						if (arrayList.size()>0&&!lastPlateInfo.equals(arrayList.toString())) {
+							log.info("准备获取车牌:{} 的缴费记录",arrayList);
+							lastPlateInfo=arrayList.toString();
+						}
 						String qrCodeInOutInfo = ipmsService.getQrCodeInOutInfo(mapIpToDevice.keySet(),arrayList);
 						if (qrCodeInOutInfo==null) {
 							return;
@@ -1774,16 +1785,16 @@ public class CarparkMainPresenter {
 							checkIsPayTimer.cancel();
 						}
 					} catch (Exception e) {
+						log.error("二维码进出场时发生错误！",e);
 						if (e instanceof HessianRuntimeException) {
 							try {
 								ipmsService.startQrCodeInOutService(buildId);
-								System.out.println("二维码进出服务重连成功！");
+								log.info("二维码进出服务重连成功！");
 							} catch (Exception e1) {
 								
 							}
 							return;
 						}
-						log.error("二维码进出场时发生错误！",e);
 					}
 				}
 			}, 1000, 500, TimeUnit.MILLISECONDS,"获取二维码进出场信息服务");
@@ -1803,10 +1814,8 @@ public class CarparkMainPresenter {
 //					}
 //				}
 //			});
-			MessageUtil.info("提示", "二维码进出场服务启动成功！", 5000);
 		} catch (Exception e) {
 			log.error("启动二维码进出场服务失败！",e);
-			MessageUtil.info("启动二维码实时进出场服务失败！请检查停车场云编号是否正确或检查网络");
 		}
 	}
 
@@ -2362,7 +2371,6 @@ public class CarparkMainPresenter {
 			singleCarparkInOutHistory.setFactMoney(chargedMoney+factMoney-singleCarparkInOutHistory.getOnlineMoney());
 			singleCarparkInOutHistory.setFreeMoney(freeMoney);
 			singleCarparkInOutHistory.setCarType("临时车");
-			singleCarparkInOutHistory.setSavePayHistory(true);
 			sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
 			Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
 			String carOutMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent();
@@ -3079,7 +3087,9 @@ public class CarparkMainPresenter {
 			return;
 		}
 		String yunIdentifier = device.getCarpark().getYunIdentifier();
-		if(yunIdentifier==null){
+		String buildId = device.getCarpark().getYunBuildIdentifier();
+		if(yunIdentifier==null||buildId==null){
+			MessageUtil.info("停车场信息不完整，获取二维码失败！",5000);
 			return;
 		}
 		String qrCodeUrl = carparkQrCodeInOutService.getQrCodeUrl(yunIdentifier,plate, device.getIp(), inOrOut?0:1);
@@ -3094,7 +3104,7 @@ public class CarparkMainPresenter {
 				if (data!=null&&data.getId()!=null) {
 					//
 					int f = (int) (data.getShouldMoney()*100);
-					qrCodeUrl=qrCodeUrl+yunIdentifier+data.getId()+"&fee="+f;
+					qrCodeUrl=qrCodeUrl+yunIdentifier+data.getId()+"&fee="+f+"&channelId="+buildId;
 				}
 			}
 		}

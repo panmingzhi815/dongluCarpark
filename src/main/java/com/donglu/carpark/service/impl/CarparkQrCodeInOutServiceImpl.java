@@ -111,7 +111,7 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 	@Override
 	public String getQrCodeUrl(String parkId,String plate,String ip, int type) {
 		if (!StrUtil.isEmpty(plate)) {
-			return "http://"+host+"/weixin_parkingRecord/test/parking_detail.html?recordId=";
+			return "http://"+host+"/weixin_parkingRecord/test/ScanCode.jsp?recordId=";
 		}
 		return getUrl(host, parkId, app_id, secret_key, ip, type);
 	}
