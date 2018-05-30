@@ -7,6 +7,7 @@ import java.util.Map;
 import com.dongluhitec.card.domain.db.setting.SNSettingType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -300,7 +301,7 @@ public interface CarparkService {
 	 * 获取所有的语音信息
 	 * @return
 	 */
-	public List<SingleCarparkDeviceVoice> findAllVoiceInfo();
+	public List<SingleCarparkDeviceVoice> findAllVoiceInfo(DeviceVoiceTypeEnum... voiceTypes);
 	/**
 	 * 保存语音信息
 	 * @param list

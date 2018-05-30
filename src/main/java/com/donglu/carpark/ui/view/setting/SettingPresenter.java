@@ -76,7 +76,7 @@ public class SettingPresenter implements Presenter {
 			carparkService.saveSystemSetting(h);
 		}
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "保存了设置信息",OPERANAME);
-		commonui.info("成功", "保存设置成功，请重启监控界面！");
+		commonui.info("成功", "保存设置成功，请重启监控界面或等待监控界面5分钟后自动刷新！");
 
 	}
 

@@ -39,6 +39,7 @@ public class UserListView extends AbstractListView<SingleCarparkUser> {
 
 	@Override
 	protected void searchMore() {
+		getPresenter().populate();
 	}
 
 	@Override

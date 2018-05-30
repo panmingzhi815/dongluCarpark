@@ -1,6 +1,7 @@
 package com.donglu.carpark.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -15,6 +16,7 @@ import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
 import org.criteria4jpa.order.Order;
+import org.criteria4jpa.projection.ProjectionList;
 import org.criteria4jpa.projection.Projections;
 
 import com.donglu.carpark.service.CarPayServiceI;
@@ -147,6 +149,29 @@ public class CarPayServiceImpl implements CarPayServiceI {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ArrayList<>();
+		}
+	}
+
+	@Override
+	public List<Double> countCarPayHistoryMoney(String plateNo, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createFindCarPayHistoryByLikeCriteria(plateNo, start, end);
+			ProjectionList projectionList = Projections.projectionList();
+			projectionList.add(Projections.sum("payedMoney"));
+			projectionList.add(Projections.sum("cashCost"));
+			projectionList.add(Projections.sum("onlineCost"));
+			projectionList.add(Projections.sum("couponValue"));
+			c.setProjection(projectionList);
+			Object[] singleResult = (Object[])c.getSingleResult();
+			List<Double> asList = new ArrayList<>();
+			for (int i = 0; i < singleResult.length; i++) {
+				Object object = singleResult[i];
+				asList.add((Double) object);
+			}
+			return asList;
+		} finally{
+			unitOfWork.end();
 		}
 	}
 	

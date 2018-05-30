@@ -26,6 +26,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.hardware.plateDevice.PlateNOJNA;
 import com.dongluhitec.card.hardware.plateDevice.PlateNOResult;
 import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
+import com.dongluhitec.card.ui.util.FileUtils;
 import com.dongluhitec.card.ui.util.ProcessBarMonitor;
 import com.dongluhitec.card.ui.util.WidgetUtil;
 
@@ -47,7 +48,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 	public void addPages() {
 		page = new DownloadPlateWizardPage(model);
 		addPage(page);
-		getShell().setSize(560, 500);
+		getShell().setSize(550, 500);
 		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 		WidgetUtil.center(getShell());
 		getShell().addShellListener(new ShellAdapter() {
@@ -72,6 +73,9 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 
 	protected void downloadPlate() {
 		final java.util.List<DownloadDeviceInfo> listSelected = model.getListSelected();
+		if (StrUtil.isEmpty(listSelected)) {
+			return;
+		}
 		final java.util.List<DownloadDeviceInfo> errorListInfo = new ArrayList<>();
 		Progress showProgressBar = commonui.showProgressBar("下载车牌数据到设备", 0, listSelected.size() + 1);
 		new Thread(new Runnable() {
@@ -125,17 +129,24 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 						monitor.showMessage("正在下载车牌信息到:" + ip);
 						PlateNOJNA plateNOJNA = type.getJNA(Login.injector);
 						try {
-							plateNOJNA.openEx(ip, new PlateNOResult() {
+							boolean openEx = plateNOJNA.openEx(ip,0, new PlateNOResult() {
 								@Override
 								public void invok(String ip, int channel, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize) {
 
 								}
 							});
+							if (!openEx) {
+								throw new Exception("摄像机："+ip+"连接失败");
+							}
 							if (!StrUtil.isEmpty(plateNOJNA)) {
-								plateNOJNA.plateDownload(listPlate, ip);
+								int errorSize=plateNOJNA.plateDownload(listPlate, ip);
+								if (errorSize>0) {
+									message += ip + "成功：" + (listPlate.size() - errorSize)+"，失败:"+errorSize+"\t\n";
+								}
 							}
 						} catch (Exception e) {
 							errorListInfo.add(downloadDeviceInfo);
+							message+=e.getMessage();
 							continue;
 						} finally {
 							plateNOJNA.closeEx(ip);
@@ -203,7 +214,12 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 				model.setList(list);
 			}
 		}
-
+		List<DownloadDeviceInfo> readObject2 = (List<DownloadDeviceInfo>) FileUtils.readObject(DownloadPlateModel.DOWNLOAD_PLATE_DEVICES);
+		if (readObject2!=null) {
+			for (DownloadDeviceInfo downloadDeviceInfo : readObject2) {
+				model.addInfo(downloadDeviceInfo);
+			}
+		}
 	}
 
 }

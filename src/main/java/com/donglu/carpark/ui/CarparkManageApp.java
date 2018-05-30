@@ -249,7 +249,7 @@ public class CarparkManageApp extends AbstractApp{
 		composite_23.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		TabItem tabItem_14 = new TabItem(tabFolder_searchHistory, SWT.NONE);
-		tabItem_14.setText("第三方缴费记录");
+		tabItem_14.setText("缴费记录");
 		
 		Composite composite_7 = new Composite(tabFolder_searchHistory, SWT.NONE);
 		tabItem_14.setControl(composite_7);

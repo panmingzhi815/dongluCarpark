@@ -57,6 +57,8 @@ public class SettingView extends Composite implements View {
 	private Group group_childCarparkSetting;
 	private ScrolledComposite scrolledComposite;
 	private Text text_carparkChangeCarTime;
+	private Text text_3;
+	private Text text_4;
 
 	public SettingView(Composite parent, int style) {
 		super(parent, style);
@@ -92,7 +94,7 @@ public class SettingView extends Composite implements View {
 
 		Button btn_save = new Button(composite_10, SWT.NONE);
 		btn_save.setBackground(SWTResourceManager.getColor(SWT.COLOR_YELLOW));
-		btn_save.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		btn_save.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.BOLD));
 		btn_save.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1039,6 +1041,76 @@ public class SettingView extends Composite implements View {
 		button_38.setText("使用二维码缴费(需要一体机)");
 		button_38.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费)));
 		new Label(grpApp, SWT.NONE);
+		
+		Composite composite_12 = new Composite(grpApp, SWT.NONE);
+		GridLayout gl_composite_12 = new GridLayout(3, false);
+		gl_composite_12.marginHeight = 0;
+		gl_composite_12.marginWidth = 0;
+		composite_12.setLayout(gl_composite_12);
+		composite_12.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_11 = new Label(composite_12, SWT.NONE);
+		label_11.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_11.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_11.setText("自动检测缴费间隔");
+		
+		text_3 = new Text(composite_12, SWT.BORDER);
+		text_3.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				String text2 = text_3.getText();
+				try {
+					Integer.valueOf(text2);
+					mapSystemSetting.put(SystemSettingTypeEnum.出场时检测云平台缴费间隔, text2);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		text_3.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_3.setText(mapSystemSetting.get(SystemSettingTypeEnum.出场时检测云平台缴费间隔));
+		GridData gd_text_31 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_31.widthHint = 36;
+		text_3.setLayoutData(gd_text_31);
+		
+		Label label_12 = new Label(composite_12, SWT.NONE);
+		label_12.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_12.setText("秒");
+		
+		Composite composite_13 = new Composite(grpApp, SWT.NONE);
+		GridLayout gl_composite_13 = new GridLayout(3, false);
+		gl_composite_13.marginWidth = 0;
+		gl_composite_13.marginHeight = 0;
+		composite_13.setLayout(gl_composite_13);
+		composite_13.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_13 = new Label(composite_13, SWT.NONE);
+		label_13.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_13.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_13.setText("自动检测缴费时长");
+		
+		text_4 = new Text(composite_13, SWT.BORDER);
+		text_4.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_4.setText("120");
+		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_4.addKeyListener(new KeyAdapter(){
+			@Override
+			public void keyReleased(KeyEvent e) {
+				String text2 = text_4.getText();
+				try {
+					Integer.valueOf(text2);
+					mapSystemSetting.put(SystemSettingTypeEnum.出场时等待云平台缴费超时时长, text2);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		text_4.setText(mapSystemSetting.get(SystemSettingTypeEnum.出场时等待云平台缴费超时时长));
+		
+		Label label_14 = new Label(composite_13, SWT.NONE);
+		label_14.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_14.setText("秒");
+		new Label(grpApp, SWT.NONE);
 
 		Composite composite_8 = new Composite(composite, SWT.NONE);
 		composite_8.setLayout(new GridLayout(4, false));
@@ -1090,6 +1162,7 @@ public class SettingView extends Composite implements View {
 		listComposite = new Composite(sashForm, SWT.NONE);
 		listComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
 		sashForm.setWeights(new int[] { 447, 164 });
+		scrolledComposite.getVerticalBar().setIncrement(20);
 	}
 
 	public SettingView(Composite c, int style, Map<SystemSettingTypeEnum, String> mapSystemSetting) {

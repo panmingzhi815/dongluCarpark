@@ -172,9 +172,7 @@ public class CarparkMainApp extends AbstractApp{
 
 	private RateLimiter rateLimiter = RateLimiter.create(1);
 
-	private ExecutorService outTheadPool;
 
-	private ExecutorService inThreadPool;
 
 	private ScheduledExecutorService refreshService;
 
@@ -339,9 +337,7 @@ public class CarparkMainApp extends AbstractApp{
 	 */
 	public void systemExit() {
 		try {
-			outTheadPool.shutdownNow();
 
-			inThreadPool.shutdownNow();
 
 			refreshService.shutdownNow();
 			presenter.systemExit();
@@ -376,10 +372,7 @@ public class CarparkMainApp extends AbstractApp{
 		presenter.setView(this);
 		readDevices();
 		presenter.init();
-		initVioce();
 
-		outTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("出场任务"));
-		inThreadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("进场任务"));
 
 		model.setInHistorys(sp.getCarparkInOutService().findCarInHistorys(50));
 
@@ -395,26 +388,6 @@ public class CarparkMainApp extends AbstractApp{
 		}
 		autoSendTimeToDevice();
 		refreshCarparkBasicInfo(refreshTimeSpeedSecond);
-	}
-	/**
-	 * 初始化语音信息
-	 */
-	private void initVioce() {
-		for (DeviceVoiceTypeEnum vt : DeviceVoiceTypeEnum.values()) {
-			SingleCarparkDeviceVoice value = new SingleCarparkDeviceVoice();
-			value.setContent(vt.getContent());
-			value.setVolume(vt.getVolume());
-			model.getMapVoice().put(vt, value);
-		}
-		
-		try {
-			List<SingleCarparkDeviceVoice> findAllVoiceInfo = sp.getCarparkService().findAllVoiceInfo();
-			for (SingleCarparkDeviceVoice dv : findAllVoiceInfo) {
-				model.getMapVoice().put(dv.getType(), dv);
-			}
-		} catch (Exception e) {
-			log.error("初始化语音时发生错误",e);
-		}
 	}
 	/**
 	 * 自动下发时间
@@ -958,7 +931,7 @@ public class CarparkMainApp extends AbstractApp{
 			@Override
 			public void mouseUp(MouseEvent e) {
 				setBoundsY(lbl_charge, -2);
-				presenter.charge(carOutChargeCheck);
+				presenter.charge(carOutChargeCheck,true);
 			}
 
 			@Override
@@ -1353,7 +1326,7 @@ public class CarparkMainApp extends AbstractApp{
 
 		// 收费放行
 		if (e.keyCode == keySetting.getKeyCode(KeyReleaseTypeEnum.收费放行)) {
-			presenter.charge(carOutChargeCheck);
+			presenter.charge(carOutChargeCheck,true);
 		}
 		// 免费放行
 		if (e.keyCode == keySetting.getKeyCode(KeyReleaseTypeEnum.免费放行)) {

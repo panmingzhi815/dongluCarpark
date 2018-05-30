@@ -111,6 +111,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice.DeviceInOutTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkFreeTempCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkImageHistory;
@@ -190,6 +191,7 @@ public class CarparkMainPresenter {
 
 	private int openDoorDelay = 500;
 
+	private Map<String, Timer> mapCheckChargeTimer=new HashMap<>();
 	/**
 	 * 删除一个设备tab页
 	 * 
@@ -1569,6 +1571,7 @@ public class CarparkMainPresenter {
 		mapIpToDevice = model.getMapIpToDevice();
 		mapSystemSetting = model.getMapSystemSetting();
 		refreshSystemSetting();
+		initVioce();
 		saveImageTheadPool = Executors.newSingleThreadExecutor(ThreadUtil.createThreadFactory("保存图片任务"));
 		openDoorTheadPool = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("开门任务"));
 //		checkPlayerPlaying();
@@ -1634,8 +1637,40 @@ public class CarparkMainPresenter {
 //		startPlatePayRemindService();
 		startUpdateScreenQrCodeColorServie();
 		startHttpOpenDoorService();
+		startRefreshSettingService();
 	}
-	
+	private void startRefreshSettingService() {
+		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
+			
+			@Override
+			public void run() {
+				log.info("自动更新停车场设置");
+				refreshSystemSetting();
+				initVioce();
+			}
+		}, 5, 5, TimeUnit.MINUTES, "自动更新设置");
+	}
+
+	/**
+	 * 初始化语音信息
+	 */
+	private void initVioce() {
+		for (DeviceVoiceTypeEnum vt : DeviceVoiceTypeEnum.values()) {
+			SingleCarparkDeviceVoice value = new SingleCarparkDeviceVoice();
+			value.setContent(vt.getContent());
+			value.setVolume(vt.getVolume());
+			model.getMapVoice().put(vt, value);
+		}
+		
+		try {
+			List<SingleCarparkDeviceVoice> findAllVoiceInfo = sp.getCarparkService().findAllVoiceInfo(DeviceVoiceTypeEnum.values());
+			for (SingleCarparkDeviceVoice dv : findAllVoiceInfo) {
+				model.getMapVoice().put(dv.getType(), dv);
+			}
+		} catch (Exception e) {
+			log.error("初始化语音时发生错误",e);
+		}
+	}
 	/**
 	 * 提供http开闸服务器
 	 */
@@ -1785,7 +1820,7 @@ public class CarparkMainPresenter {
 							checkIsPayTimer.cancel();
 						}
 					} catch (Exception e) {
-						log.error("二维码进出场时发生错误！",e);
+						log.error("二维码进出场时发生错误！"+e);
 						if (e instanceof HessianRuntimeException) {
 							try {
 								ipmsService.startQrCodeInOutService(buildId);
@@ -2128,18 +2163,22 @@ public class CarparkMainPresenter {
 		}
 		return hardwareService.setCarparkDate(getDevice(singleCarparkDevice), new Date());
 	}
-
+	
+	public void charge(Boolean carOutChargeCheck) {
+		charge(carOutChargeCheck, false);
+	}
 	/**
 	 * 进行收费
 	 * 
 	 * @param carOutChargeCheck
 	 *            是否需要确认
 	 */
-	public void charge(Boolean carOutChargeCheck) {
+	public void charge(Boolean carOutChargeCheck,boolean savePay) {
 		SingleCarparkInOutHistory data = model.getChargeHistory();
 		if (StrUtil.isEmpty(data)) {
 			return;
 		}
+		data.setSavePayHistory(savePay);
 //		boolean checkIsPay = checkIsPay(data,model.getReal(),true);
 //		if (!checkIsPay) {
 //			return;
@@ -2210,10 +2249,13 @@ public class CarparkMainPresenter {
 //							} 
 						}
 						if (mapIpToDevice.get(data.getOutDeviceIp())!=null&&
-								(!mapIpToDevice.get(data.getOutDeviceIp()).getScreenType().equals(ScreenTypeEnum.一体机)||!mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true"))) {
+								(!mapIpToDevice.get(data.getOutDeviceIp()).getScreenType().equals(ScreenTypeEnum.一体机)||mapIpToDevice.get(data.getOutDeviceIp()).getIsHandCharge()||!mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true"))) {
     						checkIsPayTimer = new Timer();
     						int delay = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场时检测云平台缴费间隔))*1000;
     						int timeOut = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场时等待云平台缴费超时时长))*1000;
+    						if (delay<=0||timeOut<=0) {
+    							return true;
+    						}
 							checkIsPayTimer.schedule(new TimerTask() {
 								long startTime = System.currentTimeMillis();
 
@@ -2287,12 +2329,16 @@ public class CarparkMainPresenter {
 	 *            是否需要确认
 	 */
 	public void free(Boolean carOutChargeCheck) {
+		free(carOutChargeCheck, false);
+	}
+	public void free(Boolean carOutChargeCheck,boolean savePay) {
 		carOutChargeCheck=mapSystemSetting.get(SystemSettingTypeEnum.出场免费确认放行).equals("true");
 		SingleCarparkInOutHistory data = model.getChargeHistory();
 		SingleCarparkDevice device = model.getChargeDevice();
 		if (StrUtil.isEmpty(data) || StrUtil.isEmpty(device)) {
 			return;
 		}
+		data.setSavePayHistory(savePay);
 		model.setReal(0);
 		boolean checkIsPay = checkIsPay(data,model.getReal(),true);
 		if (!checkIsPay) {
@@ -2407,6 +2453,7 @@ public class CarparkMainPresenter {
 			}
 			plateSubmit(singleCarparkInOutHistory, singleCarparkInOutHistory.getOutTime(), device, ImageUtils.getImageByte(singleCarparkInOutHistory.getOutBigImg()));
 			updatePosition(device.getCarpark(), singleCarparkInOutHistory, false);
+			cancelCheckChargeTimer(device);
 			return true;
 		} catch (Exception e) {
 			log.error("收费时发生错误", e);
@@ -3068,6 +3115,7 @@ public class CarparkMainPresenter {
 			}
 			if (result.getObj()==null&&mapSystemSetting.get(SystemSettingTypeEnum.监控界面提示网络故障).equals("true")) {
 				MessageUtil.info("网络故障", "网络故障！请检查网络");
+				
 			}
 			return result;
 		}
@@ -3232,11 +3280,19 @@ public class CarparkMainPresenter {
 			MessageUtil.close(plate);
 			showContentToDevice(plate,device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			updatePosition(device.getCarpark(), inOutHistory, false);
+			cancelCheckChargeTimer(device);
 			if (model.getChargeDevice()!=null&&model.getChargeDevice().getIp().equals(device.getIp())) {
 				model.setBtnClick(false);
 			}
 		}
 		model.getMapWaitInOutHistory().remove(device.getIp());
+	}
+
+	private void cancelCheckChargeTimer(SingleCarparkDevice device) {
+		Timer timer = mapCheckChargeTimer.get(device.getIp());
+		if (timer != null) {
+			timer.cancel();
+		}
 	}
 
 	/**
@@ -3267,6 +3323,58 @@ public class CarparkMainPresenter {
 			chargedMoney+=carPayHistory.getPayedMoney();
 		}
 		return chargedMoney;
+	}
+
+	public void checkCharge(SingleCarparkDevice device, SingleCarparkInOutHistory data) {
+		if (mapCheckChargeTimer.get(device.getIp()) != null) {
+			mapCheckChargeTimer.get(device.getIp()).cancel();
+		}
+		Timer timer=new Timer();
+		mapCheckChargeTimer.put(device.getIp(), timer);
+		int delay = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场时检测云平台缴费间隔))*1000;
+		int timeOut = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场时等待云平台缴费超时时长))*1000;
+		if (delay<=0||timeOut<=0) {
+			return;
+		}
+		timer.schedule(new TimerTask() {
+			long startTime = System.currentTimeMillis();
+			@Override
+			public void run() {
+				if (System.currentTimeMillis() - startTime > timeOut) {
+					timer.cancel();
+					return;
+				}
+				Result result = getPayResult(data);
+				log.info("车辆先抓拍在缴费，自动查询车辆缴费信息，结果：{}", result.getObj());
+				if (model.getMapWaitInOutHistory().get(device.getIp())!=null&&!model.getMapWaitInOutHistory().get(device.getIp()).getPlateNo().equals(data.getPlateNo())) {
+					timer.cancel();
+					return;
+				}
+				if (result != null) {
+					int code = result.getCode();
+					if (code == 2005) {
+						data.setFreeMoney(0);
+						data.setShouldMoney(result.getPayedFee());
+						data.setFactMoney(result.getPayedFee());
+						data.setChargeOperaName("在线支付");
+						data.setRemarkString("在线缴费完成，在规定时间内出场！");
+						if (model.getPlateNo().contains(data.getPlateNo())) {
+							model.setPlateNo(data.getPlateNo() + "-已在线支付");
+							model.setReal(0);
+							model.setChargedMoney(result.getPayedFee());
+							model.setShouldMony(result.getPayedFee());
+						}
+						chargeCarPass(device, data, false, result.getPayedFee(), result.getPayedFee(), 0, false);
+						
+						timer.cancel();
+					} else if (code == 3004) {
+						timer.cancel();
+					} else {
+						
+					}
+				}
+			}
+		}, delay, delay);
 	}
 
 }

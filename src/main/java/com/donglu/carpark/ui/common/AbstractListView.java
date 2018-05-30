@@ -9,7 +9,9 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.ToolItem;
 
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Table;
@@ -17,6 +19,13 @@ import org.eclipse.swt.widgets.Table;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -34,12 +43,22 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 
 public abstract class AbstractListView<T> extends AbstractView {
+	private class TableLabelProvider extends LabelProvider implements ITableLabelProvider {
+		public Image getColumnImage(Object element, int columnIndex) {
+			return null;
+		}
+		public String getColumnText(Object element, int columnIndex) {
+			Object fieldValueByName = CarparkUtils.getFieldValueByName(columnProperties[columnIndex], element);
+			return fieldValueByName==null?"":fieldValueByName.toString();
+		}
+	}
 	protected ListPresenter<T> presenter;
 	private Table table;
 	private Model model = new Model();
@@ -74,12 +93,10 @@ public abstract class AbstractListView<T> extends AbstractView {
 
 		public void setList(List<T> list) {
 			clearSort();
-			selected.clear();
-			if (pcs != null)
-				pcs.firePropertyChange("selected", null, null);
-			this.list = list;
-			if (pcs != null)
-				pcs.firePropertyChange("list", null, null);
+			this.list.clear();
+			this.list.addAll(list);
+			setCountSearch(this.list.size());
+			fillTable();
 		}
 
 		public Integer getCountSearch() {
@@ -104,8 +121,7 @@ public abstract class AbstractListView<T> extends AbstractView {
 
 		public void AddList(List<T> list2) {
 			this.list.addAll(list2);
-			if (pcs != null)
-				pcs.firePropertyChange("list", null, null);
+			fillTable();
 
 		}
 
@@ -115,8 +131,6 @@ public abstract class AbstractListView<T> extends AbstractView {
 
 		public void setSelected(List<T> selected) {
 			this.selected = selected;
-			if (pcs != null)
-				pcs.firePropertyChange("selected", null, null);
 		}
 	}
 	
@@ -132,6 +146,15 @@ public abstract class AbstractListView<T> extends AbstractView {
 		bindingContext = initDataBindings();
 		createTable();
 	}
+	public void fillTable() {
+		getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				tableViewer.setInput(model.list);
+				tableViewer.setSelection(new StructuredSelection(model.selected));
+			}
+		});
+		
+	}
 	public void setTableColumn(String[] columnProperties, String[] nameProperties, int[] columnLenths, int[] aligns){
 		this.columnProperties = columnProperties;
 		this.nameProperties = nameProperties;
@@ -146,6 +169,22 @@ public abstract class AbstractListView<T> extends AbstractView {
 			tableViewer.getTable().dispose();
 		}
 		tableViewer = new TableViewer(composite_tableViewer, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
+		tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent arg0) {
+				try {
+					IStructuredSelection selection = (IStructuredSelection) arg0.getSelection();
+					if (selection.isEmpty()) {
+						return;
+					}
+					List list = selection.toList();
+					model.setSelected(list);
+//					getPresenter().selected(list);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		
 		table = tableViewer.getTable();
 		table.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		table.setLinesVisible(true);
@@ -194,7 +233,9 @@ public abstract class AbstractListView<T> extends AbstractView {
 
 			});
 		}
-		initTableBind();
+		tableViewer.setLabelProvider(new TableLabelProvider());
+		tableViewer.setContentProvider(new ArrayContentProvider());
+//		initTableBind();
 	}
 	public void clearSort(){
 		getDisplay().syncExec(new Runnable() {
@@ -381,17 +422,17 @@ public abstract class AbstractListView<T> extends AbstractView {
 	 * @param bindingContext
 	 */
 	public void initTableBind() {
-		IObservableList observeMultiSelectionTableViewer = ViewerProperties.multipleSelection().observe(tableViewer);
-		IObservableList selectedModelObserveList = BeanProperties.list("selected").observe(model);
-		bindingContext.bindList(observeMultiSelectionTableViewer, selectedModelObserveList, null, null);
-		//
-		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
-		IObservableMap[] observeMap = BeansObservables.observeMaps(listContentProvider.getKnownElements(), tClass, columnProperties);
-		tableViewer.setLabelProvider(new ObservableMapLabelProvider(observeMap));
-		tableViewer.setContentProvider(listContentProvider);
-		//
-		IObservableList listModelObserveList = BeanProperties.list("list").observe(model);
-		tableViewer.setInput(listModelObserveList);
+//		IObservableList observeMultiSelectionTableViewer = ViewerProperties.multipleSelection().observe(tableViewer);
+//		IObservableList selectedModelObserveList = BeanProperties.list("selected").observe(model);
+//		bindingContext.bindList(observeMultiSelectionTableViewer, selectedModelObserveList, null, null);
+//		//
+//		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
+//		IObservableMap[] observeMap = BeansObservables.observeMaps(listContentProvider.getKnownElements(), tClass, columnProperties);
+//		tableViewer.setLabelProvider(new ObservableMapLabelProvider(observeMap));
+//		tableViewer.setContentProvider(listContentProvider);
+//		//
+//		IObservableList listModelObserveList = BeanProperties.list("list").observe(model);
+//		tableViewer.setInput(listModelObserveList);
 	}
 
 	public Presenter getPresenter() {

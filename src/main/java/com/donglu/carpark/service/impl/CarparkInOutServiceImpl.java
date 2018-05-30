@@ -171,7 +171,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 				c.add(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()));
 			} else if (inout.equals("否")) {
 				c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.outTime.name()));
-				return;
+//				return;
 			}
 		}
 

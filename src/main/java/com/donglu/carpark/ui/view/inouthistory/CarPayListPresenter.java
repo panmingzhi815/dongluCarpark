@@ -30,11 +30,17 @@ public class CarPayListPresenter extends AbstractListPresenter<CarPayHistory> {
 	 * 
 	 */
 	public void popule() {
-		List<CarPayHistory> findVisitorByLike = sp.getCarPayService().findCarPayHistoryByLike(view.getModel().getList().size(), 500,"%"+plateNo+"%",start,end);
+		String plateNo2 = "%"+plateNo+"%";
+		if (plateNo==null) {
+			plateNo2=null;
+		}
+		List<CarPayHistory> findVisitorByLike = sp.getCarPayService().findCarPayHistoryByLike(view.getModel().getList().size(), 500,plateNo2,start,end);
 		int count=sp.getCarPayService().countCarPayHistoryByLike(plateNo,start,end);
 		view.getModel().AddList(findVisitorByLike);
 		view.getModel().setCountSearch(view.getModel().getList().size());
 		view.getModel().setCountSearchAll(count);
+		List<Double> historyMoney = sp.getCarPayService().countCarPayHistoryMoney(plateNo2, start, end);
+		view.setLabelText(historyMoney);
 	}
 
 	public void search(String plateNo, Date start, Date end) {
@@ -53,7 +59,6 @@ public class CarPayListPresenter extends AbstractListPresenter<CarPayHistory> {
 	protected void continue_go() {
 		view.setTableTitle("临时车缴费记录");
 		view.setShowMoreBtn(true);
-		refresh();
 	}
 
 	public void loadMore() {

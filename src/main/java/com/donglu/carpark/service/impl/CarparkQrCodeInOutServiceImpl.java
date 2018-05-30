@@ -61,7 +61,7 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 									createLongConnect(buildId);
 								}
 							}catch (Exception e1) {
-								LOGGER.error("二维码进出服务发生错误"+e1,e1);
+								LOGGER.error("二维码进出服务发生错误"+e1);
 							}
 						}
 					}
@@ -135,7 +135,7 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 			String sign="parkId="+parkId+"&deviceId="+URLEncoder.encode(ip,"UTF-8")+"&status="+type;
 			System.out.println("加密的数据："+sign+secret_key);
 			sign = s +sign+ "&app_id=" + app_id + "&sign=" + md5(sign+secret_key);
-			System.out.println(sign.length());
+			System.out.println(sign.length()+"=="+sign);
 			return sign;
 		} catch (Exception e) {
 			e.printStackTrace();

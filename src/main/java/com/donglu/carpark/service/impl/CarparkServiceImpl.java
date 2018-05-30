@@ -852,11 +852,15 @@ public class CarparkServiceImpl implements CarparkService {
 	}
 
 	@Override
-	public List<SingleCarparkDeviceVoice> findAllVoiceInfo() {
+	public List<SingleCarparkDeviceVoice> findAllVoiceInfo(DeviceVoiceTypeEnum... voiceTypes) {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkDeviceVoice.class);
-			c.add(Restrictions.in("type", DeviceVoiceTypeEnum.values()));
+			if (StrUtil.isEmpty(voiceTypes)) {
+				c.add(Restrictions.in("type", DeviceVoiceTypeEnum.values()));
+			}else{
+				c.add(Restrictions.in("type", voiceTypes));
+			}
 			return c.getResultList();
 		} finally{
 			unitOfWork.end();

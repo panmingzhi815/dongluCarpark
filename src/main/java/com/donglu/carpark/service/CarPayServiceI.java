@@ -12,6 +12,8 @@ public interface CarPayServiceI {
 	List<CarPayHistory> findCarPayHistoryByLike(int i, int maxValue, String plateNo, Date start, Date end);
 
 	int countCarPayHistoryByLike(String plateNo, Date start, Date end);
+	
+	List<Double> countCarPayHistoryMoney(String plateNo, Date start, Date end);
 
 	Long deleteCarPayHistory(Long id);
 	

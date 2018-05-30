@@ -8,7 +8,11 @@ import com.dongluhitec.card.domain.util.StrUtil;
 
 
 public abstract class AbstractListPresenter<T> extends AbstractPresenter implements ListPresenter<T> {
-	int current=0;
+	protected int current=0;
+	protected int pageSize=500;
+	public AbstractListPresenter() {
+		pageSize=Integer.valueOf(System.getProperty("pageSize","500"));
+	}
 	@Override
 	public void add() {
 		
@@ -21,19 +25,22 @@ public abstract class AbstractListPresenter<T> extends AbstractPresenter impleme
 	@Override
 	public void refresh() {
 		current=0;
-		getView().getModel().setList(new ArrayList<>());
-		populate();
+		getView().getModel().setSelected(new ArrayList<>());
+		List<T> findListInput = findListInput();
+		getView().getModel().setList(findListInput);
+		getView().getModel().setCountSearchAll(getTotalSize());
+		getView().getModel().setCountSearch(current=findListInput.size());
 	}
 	public void populate(){
 		List<T> findListInput = findListInput();
 		getView().getModel().AddList(findListInput);
 		getView().getModel().setCountSearchAll(getTotalSize());
-		getView().getModel().setCountSearch(getView().getModel().getList().size());
+		getView().getModel().setCountSearch(current=getView().getModel().getList().size());
 	}
 	public void populate(List<T> listInput){
 		getView().getModel().setList(listInput);
 		getView().getModel().setCountSearchAll(listInput.size());
-		getView().getModel().setCountSearch(getView().getModel().getList().size());
+		getView().getModel().setCountSearch(current=getView().getModel().getList().size());
 	}
 
 	protected List<T> findListInput(){

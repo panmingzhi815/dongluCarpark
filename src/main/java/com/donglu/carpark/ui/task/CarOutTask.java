@@ -703,6 +703,7 @@ public class CarOutTask extends AbstractTask{
 								return 1;
 							}
 						});
+						presenter.checkCharge(device, singleCarparkInOutHistory);
 					}
 				}else{
 					sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
@@ -762,6 +763,7 @@ public class CarOutTask extends AbstractTask{
 						if (shouldMoney-model.getChargedMoney()>0) {
 							model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
 							presenter.qrCodeInOut(editPlateNo, device, false, singleCarparkInOutHistory,"缴费"+CarparkUtils.formatFloatString(shouldMoney+"")+"元,请在黄线外扫码付费");
+							presenter.checkCharge(device,singleCarparkInOutHistory);
 							return;
 						}
 					}

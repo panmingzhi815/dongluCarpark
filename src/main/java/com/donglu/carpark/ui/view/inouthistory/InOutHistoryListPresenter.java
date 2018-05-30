@@ -177,8 +177,32 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 			free += k;
 		}
 		v.setMoney(should + "", fact + "", free + "",online+"");
-		return new float[] { should, fact };
+		return new float[] { should, fact ,free,online};
 	}
+	public float[] countMoney(List<SingleCarparkInOutHistory> list) {
+		if (StrUtil.isEmpty(list)) {
+			return null;
+		}
+		float should = 0;
+		float fact = 0;
+		float free = 0;
+		float online=0;
+		for (SingleCarparkInOutHistory singleCarparkInOutHistory : list) {
+			String remarkString = singleCarparkInOutHistory.getRemarkString();
+			float i = singleCarparkInOutHistory.getShouldMoney() == null ? 0 : singleCarparkInOutHistory.getShouldMoney().floatValue();
+			float j = singleCarparkInOutHistory.getFactMoney() == null ? 0 : singleCarparkInOutHistory.getFactMoney().floatValue();
+			float k = singleCarparkInOutHistory.getFreeMoney() == null ? 0 : singleCarparkInOutHistory.getFreeMoney().floatValue();
+			should += i;
+			if (remarkString!=null&&(remarkString.contains("缴费完成")||remarkString.contains("扫码缴费出场"))) {
+				online+=j;
+			}else{
+				fact += j;
+			}
+			free += k;
+		}
+		return new float[] { should, fact ,online,free };
+	}
+	
 
 	public void lookDetail() {
 		try {
@@ -253,6 +277,19 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 						} 
 					}else{
 						list.addAll(v.getModel().getList());	
+					}
+					if (list.isEmpty()) {
+						return;
+					}
+					float[] countMoney = countMoney(list);
+					if (countMoney!=null&&countMoney.length>=4) {
+						SingleCarparkInOutHistory history = new SingleCarparkInOutHistory();
+						history.setOperaName("总计:");
+						history.setShouldMoney(countMoney[0]);
+						history.setFactMoney(countMoney[1]+countMoney[2]);
+						history.setFreeMoney(countMoney[3]);
+						history.setFreeReason("现金:"+countMoney[1]+"网上:"+countMoney[2]);
+						list.add(history);
 					}
 					String path = StrUtil.checkPath(selectToSave, new String[] { ".xls", ".xlsx" }, ".xls");
 					String[] columnProperties = v.getColumnProperties();

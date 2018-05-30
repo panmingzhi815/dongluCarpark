@@ -233,15 +233,12 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 	}
 
 	@Override
-	public void refresh() {
-		new Thread(new Runnable() {
-			public void run() {
-				List<SingleCarparkUser> findByNameOrPlateNo = sp.getCarparkUserService().findByNameOrPlateNo(userName, plateNo, address, monthlyCharge, will, ed);
-				view.getModel().setList(findByNameOrPlateNo);
-				view.getModel().setCountSearch(findByNameOrPlateNo.size());
-				view.getModel().setCountSearchAll(findByNameOrPlateNo.size());
-			}
-		}).start();
+	protected List<SingleCarparkUser> findListInput() {
+		return sp.getCarparkUserService().findByNameOrPlateNo(current,pageSize,userName, plateNo, address, monthlyCharge, will, ed);
+	}
+	@Override
+	protected int getTotalSize() {
+		return sp.getCarparkUserService().countByNameOrPlateNo(userName, plateNo, address, monthlyCharge, will, ed).intValue();
 	}
 
 	public void search(String userName, String plateNo, String address, SingleCarparkMonthlyCharge monthlyCharge, int will, String ed) {

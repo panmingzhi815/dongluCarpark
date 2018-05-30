@@ -40,7 +40,7 @@ public class CarPayHistory extends DomainObject{
 		plateNO,payTime,createDate,payedMoney,remark,operaName,payId
 	}
 	public enum Label{
-		plateNO,payTimeLabel,createDateLabel,payedMoney,remark,operaName,payType,inTimeLabel
+		plateNO,payTimeLabel,createDateLabel,payedMoney,remark,operaName,payType,inTimeLabel,cashCost,onlineCost,couponValue
 	}
 	/**
 	 * 
@@ -83,6 +83,8 @@ public class CarPayHistory extends DomainObject{
 		operaName=inout.getOperaName();
 		createDate=new Date();
 		payedMoney=inout.getShouldMoney();
+		cashCost=inout.getFactMoney().doubleValue();
+		couponValue=inout.getFreeMoney().doubleValue();
 		payId=UUID.randomUUID().toString().replace("-", "");
 	}
 	public String getInTimeLabel(){

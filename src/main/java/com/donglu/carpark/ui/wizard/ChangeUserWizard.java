@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jface.wizard.Wizard;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.ui.view.message.MessageUtil;
 import com.donglu.carpark.ui.wizard.model.ChangeUserModel;
 import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ExcelImportExportImpl;
@@ -66,7 +67,7 @@ public class ChangeUserWizard extends Wizard implements AbstractWizard{
 	}
 
 	public void printHistory(Date start, Date end) {
-		List<SingleCarparkInOutHistory> list = sp.getCarparkInOutService().findByCondition(0, Integer.MAX_VALUE, null, null, "临时车", null, null, null, start, end, ConstUtil.getUserName()	, null, null,null, null, 0);
+		List<SingleCarparkInOutHistory> list = sp.getCarparkInOutService().findByCondition(0, Integer.MAX_VALUE, null, null, "临时车", null, null, null, start, end, ConstUtil.getUserName()	, null, null,null, null, 0.01f);
 		list = list.stream().filter(new Predicate<SingleCarparkInOutHistory>() {
 			@Override
 			public boolean test(SingleCarparkInOutHistory t) {
@@ -80,8 +81,9 @@ public class ChangeUserWizard extends Wizard implements AbstractWizard{
 			String path = System.getProperty("user.dir")+"\\收费报表.xls";
 			excelImportExport.exportOperaCharge(path,title, list);
 			excelImportExport.printExcel(path);
+			MessageUtil.info("打印完成",5000);
 		} catch (Exception e) {
-			e.printStackTrace();
+			MessageUtil.info("打印失败,"+e.getMessage(),5000);
 		}
 	}
 

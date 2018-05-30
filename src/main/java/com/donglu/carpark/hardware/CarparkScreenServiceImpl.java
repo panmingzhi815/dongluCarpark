@@ -38,6 +38,7 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 		return sendMessage!=null;
 	}
 	private byte[] sendMessage(Device device,int code, byte[] bs,int contentLength, int retuenDataLength) {
+		
 		String address = device.getLink().getAddress();
 		byte[] head=new byte[]{0x01,0x57,0x00,0x01,0x00,0x01,(byte) code,0x02};
 		String[] split = address.split(":");
@@ -48,9 +49,9 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 		}
 		bytes[bytes.length-2]=0x03;
 		bytes[bytes.length-1]=BCC(bytes, 0, bytes.length-1);
-//		Lock lock = mapDeviceLocks.getOrDefault(address, new ReentrantLock());
-//		try {
-//			lock.lock();
+		Lock lock = getLock(address);
+		try {
+			lock.lock();
 			try (Socket s = new Socket(split[0], Integer.valueOf(split[1]))) {
 				println(bytes.length + "==向设备发送消息：" + byteArrayToHexString(bytes));
 				s.setSoTimeout(2000);
@@ -77,9 +78,18 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 				return null;
 				//			throw new RuntimeException(e);
 			} 
-//		} finally {
-//			lock.unlock();
-//		}
+		} finally {
+			lock.unlock();
+		}
+	}
+	/**
+	 * @param address
+	 * @return
+	 */
+	public Lock getLock(String address) {
+		Lock lock = mapDeviceLocks.getOrDefault(address, new ReentrantLock());
+		mapDeviceLocks.put(address, lock);
+		return lock;
 	}
 
 	public boolean carIn(Device device, String plate, String content, boolean isOpen) {

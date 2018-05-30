@@ -7,8 +7,10 @@ import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
+import com.dongluhitec.card.ui.util.FileUtils;
 
 public class DownloadPlateModel extends DomainObject {
+	public static final String DOWNLOAD_PLATE_DEVICES = "downloadPlateDevices";
 	/**
 	 * 
 	 */
@@ -16,7 +18,7 @@ public class DownloadPlateModel extends DomainObject {
 	private List<DownloadDeviceInfo> list=new ArrayList<>();
 	private List<DownloadDeviceInfo> listSelected=new ArrayList<>();
 	private DownloadDeviceInfo info;
-	private CameraTypeEnum type=CameraTypeEnum.信路威;
+	private CameraTypeEnum type=CameraTypeEnum.智芯;
 	private String ip="192.168.1.233";
 	private String msg="";
 	
@@ -67,6 +69,7 @@ public class DownloadPlateModel extends DomainObject {
 				if (pcs != null)
 					pcs.firePropertyChange("listSelected", null, null);
 			}
+			FileUtils.writeObject(DOWNLOAD_PLATE_DEVICES, list);
 		}
 		
 	}
@@ -84,6 +87,7 @@ public class DownloadPlateModel extends DomainObject {
 		}
 		if (pcs != null)
 			pcs.firePropertyChange("list", null, null);
+		FileUtils.writeObject(DOWNLOAD_PLATE_DEVICES, list);
 	}
 	public List<PlateDownload> getListPlate() {
 		return listPlate;

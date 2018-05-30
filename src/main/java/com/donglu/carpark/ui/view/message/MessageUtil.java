@@ -1,8 +1,6 @@
 package com.donglu.carpark.ui.view.message;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.Point;
@@ -14,13 +12,12 @@ import com.donglu.carpark.ui.view.message.MessageBoxUI.MessageBoxBtnCallback;
 
 public class MessageUtil {
 	private static final Logger LOGGER=LoggerFactory.getLogger(MessageUtil.class);
-	private static List<MessageBoxUI> listUi=new ArrayList<>();
 	private static Map<String, MessageBoxUI> mapTitle2Ui=new HashMap<>();
 	static{
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			@Override
 			public void run() {
-				for (MessageBoxUI messageBoxUI : listUi) {
+				for (MessageBoxUI messageBoxUI : mapTitle2Ui.values()) {
 					messageBoxUI.close();
 				}
 			}
@@ -28,7 +25,7 @@ public class MessageUtil {
 	}
 	
 	public static void info(String msg){
-		info("提示", msg, 0, null);
+		info("提示", msg, 600000, null);
 	}
 	public static void info(String msg,int stayTime){
 		info("提示", msg, stayTime, null);
@@ -44,11 +41,11 @@ public class MessageUtil {
 	}
 	public static void info(String title,String msg,String[] btns,int stayTime,Point location,MessageBoxBtnCallback callback){
 		LOGGER.info("消息提示：{}:{}",title,msg);
+		close(title);
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				MessageBoxUI ui = new MessageBoxUI(title, msg, btns, stayTime,false,location,callback);
-				listUi.add(ui);
 				mapTitle2Ui.put(title, ui);
 				ui.open();
 			}
