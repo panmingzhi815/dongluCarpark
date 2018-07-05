@@ -55,7 +55,7 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	private SingleCarparkCarpark carpark = new SingleCarparkCarpark();
 	@SuppressWarnings("unused")
 	private String modifyPlateNO;
-	private float shouldMoney;
+	private float[] shouldMoney;
 	private Date outStart;
 	private Date outEnd;
 
@@ -131,7 +131,7 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	}
 
 	public void search(String plateNo, String userName, Date start, Date end, Date outStart, Date outEnd, String operaName, String carType, String inout, String inDevice, String outDevice, String returnAccount,
-			SingleCarparkCarpark carpark, float shouldMoney) {
+			SingleCarparkCarpark carpark, float... shouldMoney) {
 		this.plateNo = plateNo;
 		this.userName = userName;
 		this.start = start;

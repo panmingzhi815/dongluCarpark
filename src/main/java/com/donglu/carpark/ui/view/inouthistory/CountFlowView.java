@@ -19,6 +19,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -96,7 +98,7 @@ public class CountFlowView extends Composite implements View{
 		Combo combo = comboViewer.getCombo();
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
-		comboViewer.setInput(new String[]{"天流量","月流量"});
+		comboViewer.setInput(new String[]{"天流量","月流量","小时流量"});
 		combo.select(0);
 		
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
@@ -120,6 +122,12 @@ public class CountFlowView extends Composite implements View{
 		btnNewButton_1.setText("保存");
 		
 		Button button = new Button(group, SWT.NONE);
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setImage();
+			}
+		});
 		button.setText("刷新");
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -170,6 +178,33 @@ public class CountFlowView extends Composite implements View{
 		
 		lbl_three = new CLabel(composite_3, SWT.NONE);
 		lbl_three.setText("");
+		lbl_one.addPaintListener(new PaintListener() {
+			@Override
+			public void paintControl(PaintEvent e) {
+				if (image!=null&&!image.isDisposed()) {
+					Rectangle bounds = lbl_one.getBounds();
+					e.gc.drawImage(image, 0, 0, image.getImageData().width, image.getImageData().height, 0, 0, bounds.width, bounds.height);
+				}
+			}
+		});
+		lbl_two.addPaintListener(new PaintListener() {
+			@Override
+			public void paintControl(PaintEvent e) {
+				if (image1!=null&&!image1.isDisposed()) {
+					Rectangle bounds = lbl_one.getBounds();
+					e.gc.drawImage(image1, 0, 0, image1.getImageData().width, image1.getImageData().height, 0, 0, bounds.width, bounds.height);
+				}
+			}
+		});
+		lbl_three.addPaintListener(new PaintListener() {
+			@Override
+			public void paintControl(PaintEvent e) {
+				if (image2!=null&&!image2.isDisposed()) {
+					Rectangle bounds = lbl_one.getBounds();
+					e.gc.drawImage(image2, 0, 0, image2.getImageData().width, image2.getImageData().height, 0, 0, bounds.width, bounds.height);
+				}
+			}
+		});
 	}
 
 
@@ -187,9 +222,9 @@ public class CountFlowView extends Composite implements View{
 		image = new Image(getDisplay(), TEMP_TEMP_PNG);
 		image1 = new Image(getDisplay(), TEMP_TEMP1_PNG);
 		image2 = new Image(getDisplay(), TEMP_TEMP2_PNG);
-		lbl_one.setBackgroundImage(image);
-		lbl_two.setBackground(image1);
-		lbl_three.setBackground(image2);
+		lbl_one.redraw();
+		lbl_two.redraw();
+		lbl_three.redraw();
 		
 	}
 

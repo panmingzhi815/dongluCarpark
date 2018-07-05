@@ -58,6 +58,7 @@ public class InOutHistoryView extends Composite implements View{
 	private DateChooserCombo dateChooserCombo_outend;
 	private DateTime dateTime_outstart;
 	private DateTime dateTime_outend;
+	private Text txt_shouldMoneyEnd;
 
 	public InOutHistoryView(Composite parent, int style) {
 		super(parent, style);
@@ -173,6 +174,11 @@ public class InOutHistoryView extends Composite implements View{
 					shouldMoney=Float.valueOf(text_1.getText());
 				} catch (NumberFormatException e2) {
 				}
+				float shouldMoneyEnd=0;
+				try {
+					shouldMoneyEnd=Float.valueOf(txt_shouldMoneyEnd.getText());
+				} catch (NumberFormatException e2) {
+				}
 				try {
 					if (!rateLimiter.tryAcquire()) {
 						return;
@@ -237,7 +243,7 @@ public class InOutHistoryView extends Composite implements View{
 					}
 					getPresenter().search(text_plateNO.getText(),text_userName.getText(),inStart,inEnd,outStart,outEnd,
 							text,combo_carType.getText(),combo_inorout.getText(),text_inDevice.getText(),
-							text_outDevice.getText(),text_returnAccount.getText(),singleCarparkCarpark,shouldMoney);
+							text_outDevice.getText(),text_returnAccount.getText(),singleCarparkCarpark,shouldMoney,shouldMoneyEnd);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -328,10 +334,30 @@ public class InOutHistoryView extends Composite implements View{
 		label_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_8.setText("应收金额");
 		
-		text_1 = new Text(group, SWT.BORDER);
+		Composite composite_2 = new Composite(group, SWT.NONE);
+		GridLayout gl_composite_2 = new GridLayout(3, false);
+		gl_composite_2.marginWidth = 0;
+		gl_composite_2.marginHeight = 0;
+		gl_composite_2.horizontalSpacing = 0;
+		composite_2.setLayout(gl_composite_2);
+		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		text_1 = new Text(composite_2, SWT.BORDER);
+		GridData gd_text_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_text_1.widthHint = 40;
+		text_1.setLayoutData(gd_text_1);
 		text_1.setToolTipText("查询大于或等于输入金额的数据");
 		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_11 = new Label(composite_2, SWT.NONE);
+		label_11.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_11.setText("-");
+		
+		txt_shouldMoneyEnd = new Text(composite_2, SWT.BORDER);
+		txt_shouldMoneyEnd.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		GridData gd_txt_shouldMoneyEnd = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_txt_shouldMoneyEnd.widthHint = 40;
+		txt_shouldMoneyEnd.setLayoutData(gd_txt_shouldMoneyEnd);
 		Button button_2 = new Button(group, SWT.NONE);
 		button_2.addSelectionListener(new SelectionAdapter() {
 			@Override

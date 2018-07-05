@@ -138,8 +138,23 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		return StrUtil.formatDate(outTime, "yyyy-MM-dd HH:mm:ss");
 	}
 	public String getStillTimeLabel(){
-		String carStillTime = CarparkUtils.getCarStillTime(StrUtil.MinusTime2(inTime, new Date()));
-		return carStillTime.substring(2, carStillTime.length()-1);
+		if (inTime==null) {
+			return 0+"";
+		}
+		Date date=outTime;
+		if (outTime==null) {
+			date = new Date();
+		}
+		int countTime = StrUtil.countTime(inTime, date, TimeUnit.SECONDS);
+		
+		String s = (countTime%60)+"秒";
+		if (countTime/60>0) {
+			s=countTime/60%60+"分"+s;
+		}
+		if (countTime/3600>0) {
+			s=countTime/3600+"时"+s;
+		}
+		return s;
 	}
 	
 	public void setPlateNo(String plateNo) {
@@ -549,5 +564,16 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	}
 	public void setSaveHistory(boolean saveHistory) {
 		this.saveHistory = saveHistory;
+	}
+	public Long getStillTimeCount() {
+		if (inTime==null) {
+			return 0l;
+		}
+		Date date=outTime;
+		if (outTime==null) {
+			date = new Date();
+		}
+		long countTime = StrUtil.countTime(inTime, date, TimeUnit.SECONDS);
+		return countTime;
 	}
 }

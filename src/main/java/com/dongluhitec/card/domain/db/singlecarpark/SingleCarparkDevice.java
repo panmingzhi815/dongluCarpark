@@ -11,7 +11,9 @@ import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity
 public class SingleCarparkDevice extends DomainObject{
-	
+	public enum Property{
+		identifire,name,ip,inOrOut,cameraType,screenType,carpark,linkAddress
+	}
 	public enum DeviceInOutTypeEnum{
 		进口,出口
 	}

@@ -42,6 +42,8 @@ public enum SystemSettingTypeEnum {
 	优先使用云平台计费("false"),
 	监控界面提示网络故障("true"),
 	
+	抬杆自动收费放行("true"),
+	
 	自动关闭未选中的监控视频("false"),
 	固定车到期变临时车收费自动记费出场("贵州演艺集团"),
 	

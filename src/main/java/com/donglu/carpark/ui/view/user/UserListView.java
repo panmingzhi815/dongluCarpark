@@ -1,5 +1,7 @@
 package com.donglu.carpark.ui.view.user;
 
+import java.util.Comparator;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -8,6 +10,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import com.donglu.carpark.ui.common.AbstractListView;
+import com.donglu.carpark.ui.common.TableSort;
 import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
@@ -30,6 +33,20 @@ public class UserListView extends AbstractListView<SingleCarparkUser> {
 				SingleCarparkUser.Property.parkingSpace.name(),
 				SingleCarparkUser.Property.remark.name()}, new String[]{"车牌号","姓名","住址","电话","用户类型","车辆类型","账号余额","有效期","停车场","收费标准","车位数量","车位号","备注"},
 				new int[]{100,100,100,100,100,100,100,120,100,100,100,100,100}, null);
+		TableSort.mapComparator.put(SingleCarparkUser.Property.parkingSpace.name(), new Comparator<Object>() {
+			@Override
+			public int compare(Object o1, Object o2) {
+				if (o1!=null&&o2!=null) {
+					try {
+						Long l1 = Long.valueOf(o1.toString());
+						Long l2 = Long.valueOf(o2.toString());
+						return l1.compareTo(l2);
+					} catch (Exception e) {
+					}
+				}
+				return (o1+"").compareTo(o2+"");
+			}
+		});
 	}
 
 	@Override

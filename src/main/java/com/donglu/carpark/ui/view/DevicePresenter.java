@@ -14,7 +14,10 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.common.Presenter;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
@@ -95,7 +98,15 @@ public class DevicePresenter  implements Presenter{
 				log.info("设备已停用");
 				return;
 			}
-			presenter.openDoor(model.getMapIpToDevice().get(ip));
+			SingleCarparkDevice device = model.getMapIpToDevice().get(ip);
+//			presenter.openDoor(device);
+//			presenter.showContentToDevice("手动开闸", device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
+			if (model.equalsSetting(SystemSettingTypeEnum.抬杆自动收费放行,"true")&&model.getMapWaitInOutHistory().get(ip)!=null) {
+				SingleCarparkInOutHistory data = model.getMapWaitInOutHistory().get(ip);
+				presenter.charge(false, true, data, device);
+			}else{
+				presenter.showContentToDevice("手动开闸", device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
+			}
 			model.getMapOpenDoor().put(ip, true);
 			handPhotograph(ip);
 		} catch (Exception e) {

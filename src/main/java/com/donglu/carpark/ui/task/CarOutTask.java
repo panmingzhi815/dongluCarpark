@@ -845,7 +845,7 @@ public class CarOutTask extends AbstractTask{
 						return;
 					}
 				}
-				handSearch();
+//				handSearch();
 				if (valueOf) {
 					singleCarparkInOutHistory.setFactMoney(shouldMoney);
 					presenter.chargeCarPass(device, singleCarparkInOutHistory, false);

@@ -1,5 +1,7 @@
 package com.donglu.carpark.ui.view.inouthistory;
 
+import java.util.Comparator;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -9,6 +11,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import com.donglu.carpark.ui.common.AbstractListView;
+import com.donglu.carpark.ui.common.TableSort;
 import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import org.eclipse.swt.widgets.Label;
@@ -30,6 +33,7 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 						SingleCarparkInOutHistory.Label.inTimeLabel.name(),
 						SingleCarparkInOutHistory.Property.outDevice.name(),
 						SingleCarparkInOutHistory.Label.outTimeLabel.name(),
+						SingleCarparkInOutHistory.Label.stillTimeLabel.name(),
 						SingleCarparkInOutHistory.Property.operaName.name(),
 						SingleCarparkInOutHistory.Property.shouldMoney.name(),
 						SingleCarparkInOutHistory.Property.factMoney.name(),
@@ -39,10 +43,18 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 						SingleCarparkInOutHistory.Label.remarkString.name(),
 						SingleCarparkInOutHistory.Property.inPlateNO.name(),
 						SingleCarparkInOutHistory.Property.outPlateNO.name(),},
-				new String[]{"车牌号","车辆类型","用户名","进场设备","进场时间","出场设备","出场时间","操作员","应收金额","实收金额","免费金额","免费原因","归账编号","备注","进场车牌","出场场车牌"},
-				new int[]{100,100,100,100,200,100,200,100,90,90,90,90,90,90,0,0},new int[]{0,0,0,0,0,0,0,0,SWT.RIGHT,SWT.RIGHT,SWT.RIGHT,0,0,0,0,0});
+				new String[]{"车牌号","车辆类型","用户名","进场设备","进场时间","出场设备","出场时间","停留时间","操作员","应收金额","实收金额","免费金额","免费原因","归账编号","备注","进场车牌","出场场车牌"},
+				new int[]{100,100,100,100,200,100,200,200,100,90,90,90,90,90,90,0,0},new int[]{0,0,0,0,0,0,0,0,0,SWT.RIGHT,SWT.RIGHT,SWT.RIGHT,0,0,0,0,0});
 		this.setTableTitle("进出记录表");
-		
+		TableSort.mapComparator.put(SingleCarparkInOutHistory.Label.stillTimeLabel.name(), new Comparator<Object>() {
+			@Override
+			public int compare(Object o1, Object o2) {
+				SingleCarparkInOutHistory cch1=(SingleCarparkInOutHistory) o1;
+				SingleCarparkInOutHistory cch2=(SingleCarparkInOutHistory) o2;
+				Long l=cch1.getStillTimeCount();
+				return l.compareTo(cch2.getStillTimeCount());
+			}
+		});
 	}
 
 	@Override

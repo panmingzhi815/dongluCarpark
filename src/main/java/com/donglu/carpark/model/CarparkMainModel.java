@@ -917,4 +917,8 @@ public class CarparkMainModel extends DomainObject {
 	public Cache<String, String> getPlateColorCache() {
 		return plateColorCache;
 	}
+
+	public boolean equalsSetting(SystemSettingTypeEnum systemSettingTypeEnum, String string) {
+		return mapSystemSetting.get(systemSettingTypeEnum).equals(string);
+	}
 }

@@ -531,9 +531,9 @@ public class JfreeChartUtil {
         lineandshaperenderer.setBaseLinesVisible(true); // series 点（即数据点）间有连线可见
 
         // 显示折点数据
-        // lineandshaperenderer.setBaseItemLabelGenerator(new
-        // StandardCategoryItemLabelGenerator());
-        // lineandshaperenderer.setBaseItemLabelsVisible(true);
+         lineandshaperenderer.setBaseItemLabelGenerator(new
+         StandardCategoryItemLabelGenerator());
+         lineandshaperenderer.setBaseItemLabelsVisible(true);
 
         FileOutputStream fos_jpg = null;
         try {
@@ -542,7 +542,7 @@ public class JfreeChartUtil {
             fos_jpg = new FileOutputStream(chartName);
 
             // 将报表保存为png文件
-            ChartUtilities.writeChartAsPNG(fos_jpg, chart, width, heigth);
+            ChartUtilities.writeChartAsJPEG(fos_jpg, chart, width, heigth);
 
             return chartName;
         } catch (Exception e) {

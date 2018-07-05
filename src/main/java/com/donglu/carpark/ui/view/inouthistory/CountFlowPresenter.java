@@ -16,6 +16,7 @@ import org.joda.time.DateTime;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.AbstractPresenter;
+import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.JfreeChartUtil;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -53,6 +54,11 @@ public class CountFlowPresenter  extends AbstractPresenter{
 			pattern="yyyy/MM";
 			timeType=Calendar.MONTH;
 			break;
+		case "小时流量":
+			j=1;
+			pattern="yyyy/MM/dd HH";
+			timeType=Calendar.HOUR_OF_DAY;
+			break;
 		}
 		DefaultKeyedValues2DDataset data = new DefaultKeyedValues2DDataset();
 		DefaultKeyedValues2DDataset inOutData = new DefaultKeyedValues2DDataset();
@@ -88,9 +94,11 @@ public class CountFlowPresenter  extends AbstractPresenter{
 			totalData.addValue(inFlows+outFlows, "总数", formatDate);
 		}
 		
-		JfreeChartUtil.createTimeXYChar("设备进出流量", "日期", "车辆进出数量", data, "temp.png",getView().getImageSize().width,getView().getImageSize().height);
-		JfreeChartUtil.createTimeXYChar("进出口流量", "日期", "车辆进出数量", inOutData, "temp1.png",getView().getImageSize().width,getView().getImageSize().height);
-		JfreeChartUtil.createTimeXYChar("总流量", "日期", "车辆进出数量", totalData, "temp2.png",getView().getImageSize().width,getView().getImageSize().height);
+		int width = 1920;
+		int height = 1080;
+		JfreeChartUtil.createTimeXYChar("设备进出流量", "日期", "车辆进出数量", data, "temp.png",width,height);
+		JfreeChartUtil.createTimeXYChar("进出口流量", "日期", "车辆进出数量", inOutData, "temp1.png",width,height);
+		JfreeChartUtil.createTimeXYChar("总流量", "日期", "车辆进出数量", totalData, "temp2.png",width,height);
 	}
 
 	/**
@@ -131,6 +139,11 @@ public class CountFlowPresenter  extends AbstractPresenter{
 					start=StrUtil.getMonthBottomTime(start);
 				}else
 				start=dateTime.plusMonths(1).toDate();
+			}else{
+				if (i==0) {
+					start=CarparkUtils.getHourBottomTime(start);
+				}else
+				start=dateTime.plusHours(1).toDate();
 			}
 			if (start.before(end)) {
 				list.add(start);

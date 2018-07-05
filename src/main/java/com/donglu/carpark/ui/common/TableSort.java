@@ -3,7 +3,9 @@ package com.donglu.carpark.ui.common;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
@@ -11,6 +13,7 @@ import org.eclipse.jface.viewers.ViewerSorter;
 import com.donglu.carpark.util.CarparkUtils;
 
 public class TableSort extends ViewerSorter {
+	public static final Map<String,Comparator<Object>> mapComparator=new HashMap<>();
 	
 	private boolean sort;
 	private String sortProperty;
@@ -20,6 +23,13 @@ public class TableSort extends ViewerSorter {
 	}
 	@Override
 	public int compare(Viewer viewer, Object e1, Object e2) {
+		if (mapComparator.get(sortProperty)!=null) {
+			if (sort) {
+				return mapComparator.get(sortProperty).compare(e1, e2);
+			}else{
+				return mapComparator.get(sortProperty).compare(e2, e1);
+			}
+		}
 		int compareTo = 0;
 		try {
 			Object object = CarparkUtils.getFieldValueByName(sortProperty, e1);

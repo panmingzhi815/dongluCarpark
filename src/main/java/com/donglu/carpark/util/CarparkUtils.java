@@ -200,6 +200,7 @@ public class CarparkUtils {
 	
 	public static void main(String[] args) {
 		splitString("粤BD021W", 5);
+		System.out.println(StrUtil.formatDateTime(getHourBottomTime(new Date())));
 	}
 	/**
 	 * 0.0返回0
@@ -765,4 +766,16 @@ public class CarparkUtils {
 		}
 		return size;
 	}
+	
+	public static Date getHourBottomTime(Date d){
+		 if (d == null) return null;
+	        Calendar instance = Calendar.getInstance();
+	        instance.setTime(d);
+	        instance.set(Calendar.MINUTE, 59);
+	        instance.set(Calendar.SECOND, 59);
+	        instance.set(Calendar.MILLISECOND, 999);
+	        
+	        return instance.getTime();
+	}
+	
 }

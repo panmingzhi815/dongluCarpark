@@ -40,6 +40,10 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 	private byte[] sendMessage(Device device,int code, byte[] bs,int contentLength, int retuenDataLength) {
 		
 		String address = device.getLink().getAddress();
+		Long timeOut = device.getLink().getTimeOut();
+		if (timeOut==null) {
+			timeOut=2000l;
+		}
 		byte[] head=new byte[]{0x01,0x57,0x00,0x01,0x00,0x01,(byte) code,0x02};
 		String[] split = address.split(":");
 		byte bytes[]=new byte[head.length+contentLength+2];
@@ -54,7 +58,7 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 			lock.lock();
 			try (Socket s = new Socket(split[0], Integer.valueOf(split[1]))) {
 				println(bytes.length + "==向设备发送消息：" + byteArrayToHexString(bytes));
-				s.setSoTimeout(2000);
+				s.setSoTimeout(timeOut.intValue());
 				OutputStream os = s.getOutputStream();
 				os.write(bytes);
 				os.flush();
