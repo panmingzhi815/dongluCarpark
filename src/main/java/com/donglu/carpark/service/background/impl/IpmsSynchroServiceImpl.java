@@ -31,7 +31,7 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 
 	@Inject
 	public IpmsSynchroServiceImpl(IpmsServiceI ipmsService,CarparkDatabaseServiceProvider sp) {
-		super(Scheduler.newFixedDelaySchedule(5, 3, TimeUnit.SECONDS), "ipms信息同步服务");
+		super(Scheduler.newFixedDelaySchedule(3, 3, TimeUnit.MINUTES), "ipms信息同步服务");
 		this.ipmsService = ipmsService;
 		this.sp = sp;
 		uploadHistoryExecutorService = ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {

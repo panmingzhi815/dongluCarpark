@@ -48,7 +48,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 	public void addPages() {
 		page = new DownloadPlateWizardPage(model);
 		addPage(page);
-		getShell().setSize(550, 500);
+		getShell().setSize(560, 500);
 		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 		WidgetUtil.center(getShell());
 		getShell().addShellListener(new ShellAdapter() {
@@ -85,11 +85,14 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 					long nanoTime = System.nanoTime();
 					ProcessBarMonitor monitor = showProgressBar.getMonitor();
 					int i = 0;
-					String message = "车牌下载完成。";
+//					String message = "车牌下载完成。";
+					StringBuffer message = new StringBuffer("车牌下载完成。");
 					for (DownloadDeviceInfo downloadDeviceInfo : listSelected) {
 						List<PlateDownload> listPlate = getPlateDownloads(downloadDeviceInfo.getCarpark());
 						System.out.println(listPlate.size());
 						if(StrUtil.isEmpty(listPlate)){
+							message.append(downloadDeviceInfo.getIp());
+							message.append("无下载车牌");
 							continue;
 						}
 						if (showProgressBar.isDisposed()) {
@@ -108,21 +111,21 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 							if (listPlate.size() > 6000) {
 								int j = listPlate.size() - 6000;
 								listPlate = listPlate.subList(0, 6000);
-								message += "\n设备" + downloadDeviceInfo.getIp() + "下满6000条,有" + j + "条下载失败";
+								message.append("\n设备" + downloadDeviceInfo.getIp() + "下满6000条,有" + j + "条下载失败");
 							}
 						}
 						if (type.equals(CameraTypeEnum.信路威)) {
 							if (listPlate.size() > 6000) {
 								int j = listPlate.size() - 6000;
 								listPlate = listPlate.subList(0, 6000);
-								message += "\n设备" + downloadDeviceInfo.getIp() + "下满6000条,有" + j + "条下载失败";
+								message.append( "\n设备" + downloadDeviceInfo.getIp() + "下满6000条,有" + j + "条下载失败");
 							}
 						}
 						if (type.equals(CameraTypeEnum.臻识)) {
 							if (listPlate.size() > 5000) {
 								int j = listPlate.size() - 5000;
 								listPlate = listPlate.subList(0, 5000);
-								message += "\n设备" + downloadDeviceInfo.getIp() + "下满5000条,有" + j + "条下载失败";
+								message.append( "\n设备" + downloadDeviceInfo.getIp() + "下满5000条,有" + j + "条下载失败");
 							}
 						}
 						String ip = downloadDeviceInfo.getIp();
@@ -141,12 +144,12 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 							if (!StrUtil.isEmpty(plateNOJNA)) {
 								int errorSize=plateNOJNA.plateDownload(listPlate, ip);
 								if (errorSize>0) {
-									message += ip + "成功：" + (listPlate.size() - errorSize)+"，失败:"+errorSize+"\t\n";
+									message.append( ip + "成功：" + (listPlate.size() - errorSize)+"，失败:"+errorSize+"\t\n");
 								}
 							}
 						} catch (Exception e) {
 							errorListInfo.add(downloadDeviceInfo);
-							message+=e.getMessage();
+							message.append(e.getMessage());
 							continue;
 						} finally {
 							plateNOJNA.closeEx(ip);
@@ -155,7 +158,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 					if (!showProgressBar.isDisposed()) {
 						showProgressBar.finish();
 					}
-					String msg = message;
+					String msg = message.toString();
 					Runnable runnable = new Runnable() {
 						public void run() {
 							commonui.info("提示", msg);

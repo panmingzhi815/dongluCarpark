@@ -158,7 +158,7 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		dateChooserCombo_start.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		dateChooserCombo_start.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		dateChooserCombo_start.setValue(model.getOldOverDueTime());
-		dateChooserCombo_start.setEnabled((ConstUtil.checkPrivilege(SystemUserTypeEnum.普通管理员)&&model.getUserId()==null));
+		dateChooserCombo_start.setEnabled((ConstUtil.checkPrivilege(SystemUserTypeEnum.超级管理员)||model.getUserId()==null));
 
 		Label label_5 = new Label(composite, SWT.NONE);
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

@@ -127,7 +127,7 @@ public class YunConfigUI {
 		text_area.setText(cf.getArea());
 		Button btnCheckButton = new Button(composite, SWT.CHECK);
 		btnCheckButton.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		btnCheckButton.setText("启动云上传服务");
+		btnCheckButton.setText("启动云上传服务(连云平台不要点)");
 		new Label(composite, SWT.NONE);
 		btnCheckButton.setSelection(cf.getAutoStartServer());
 		Button button = new Button(composite, SWT.NONE);

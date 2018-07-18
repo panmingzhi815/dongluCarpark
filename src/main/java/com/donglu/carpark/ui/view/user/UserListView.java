@@ -37,11 +37,22 @@ public class UserListView extends AbstractListView<SingleCarparkUser> {
 			@Override
 			public int compare(Object o1, Object o2) {
 				if (o1!=null&&o2!=null) {
+					Long l1=0l;
+					String parkingSpace = SingleCarparkUser.class.cast(o1).getParkingSpace();
 					try {
-						Long l1 = Long.valueOf(o1.toString());
-						Long l2 = Long.valueOf(o2.toString());
-						return l1.compareTo(l2);
+						l1 = Long.valueOf(parkingSpace);
 					} catch (Exception e) {
+					}
+					Long l2=0l;
+					String parkingSpace2 = SingleCarparkUser.class.cast(o2).getParkingSpace();
+					try {
+						l2 = Long.valueOf(parkingSpace2);
+					} catch (Exception e) {
+					}
+					if (l1>0||l2>0) {
+						return l1.compareTo(l2);
+					}else{
+						return parkingSpace.compareTo(parkingSpace2);
 					}
 				}
 				return (o1+"").compareTo(o2+"");

@@ -103,6 +103,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		setHolidayControlTime(device.getHolidayControlTime());
 		
 		setIsHandCharge(device.getIsHandCharge());
+		setDeviceVersion(device.getDeviceVersion());
 	}
 	public String getVoice() {
 		return voice;

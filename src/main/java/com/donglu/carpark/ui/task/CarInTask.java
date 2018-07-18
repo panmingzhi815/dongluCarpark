@@ -587,8 +587,8 @@ public class CarInTask extends AbstractTask {
 				Boolean isFixCarToTempCarConfim = Boolean
 						.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车转临时车弹窗提示));
 				model.setInShowPlateNO(model.getInShowPlateNO() + "-已过期");
-				isShowContent=presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent(), false);
 				if (isFixCarToTempCarConfim) {
+					isShowContent=presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent(), false);
 					boolean confirm = new ConfimBox(editPlateNo, "车辆在[" + StrUtil.formatDate(validTo) + "]过期\n是否允许车辆按临时车进入停车场:[" + carpark.getName() + "]").open();
 					logger.info("固定车：{} 在{} 到期 等待确认 ", user, validTo);
 					if (confirm) {
@@ -611,7 +611,9 @@ public class CarInTask extends AbstractTask {
 			}
 			if (!isShowContent) {
 				model.setInShowPlateNO(model.getInShowPlateNO() + "-已过期");
-				presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent(), false);
+				content =  model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent();
+				isOpenDoor = true;
+//				presenter.showContentToDevice(device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent(), false);
 			}
 			model.getMapInCheck().put(plateNO, this);
 			model.setInCheckClick(true);

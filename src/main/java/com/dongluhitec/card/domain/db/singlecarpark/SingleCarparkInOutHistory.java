@@ -115,6 +115,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private byte[] remark;
 
 	private Float onlineMoney;
+	private String chargedType;
 	
 	@Column(length=10)
 	@Enumerated(EnumType.STRING)
@@ -575,5 +576,12 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		}
 		long countTime = StrUtil.countTime(inTime, date, TimeUnit.SECONDS);
 		return countTime;
+	}
+	public String getChargedType() {
+		return chargedType;
+	}
+	public void setChargedType(String chargedType) {
+		this.chargedType = chargedType;
+		//firePropertyChange("chargedType", null, null);
 	}
 }

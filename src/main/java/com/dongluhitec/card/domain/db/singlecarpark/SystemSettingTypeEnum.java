@@ -17,6 +17,7 @@ public enum SystemSettingTypeEnum {
 	固定车到期变临时车("true"),固定车到期所属停车场限制("false"),
 	固定车非所属停车场停留收费("false"), 固定车非所属停车场停留时间("15"),固定车到期提醒("false"),
 	双摄像头识别间隔("0"),
+	双摄像头忽略间隔("3000"),
 	左下监控("false"),
 	右下监控("false"),
 	固定车车位满作临时车计费("false"),自动识别出场车辆类型("false"),进场允许修改车牌("false"),
@@ -42,14 +43,14 @@ public enum SystemSettingTypeEnum {
 	优先使用云平台计费("false"),
 	监控界面提示网络故障("true"),
 	
-	抬杆自动收费放行("true"),
+	抬杆自动收费放行("false"),
 	
 	自动关闭未选中的监控视频("false"),
 	固定车到期变临时车收费自动记费出场("贵州演艺集团"),
 	
 	启动HTTP对外服务("false"),
 	
-	DateBase_version("1.0.0.23"),软件版本("1.0.0.23"),发布时间("2018-06-01 14:10:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 
+	DateBase_version("1.0.0.23"),软件版本("1.0.0.23"),发布时间("2018-07-13 11:10:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), 
 	;
 	
 	private String defaultValue;

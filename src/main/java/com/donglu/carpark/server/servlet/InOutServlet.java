@@ -568,4 +568,18 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	public List<CarPayHistory> findCarPayHistoryThanId(Long id, int start, int size) {
 		return carparkInOutService.findCarPayHistoryThanId(id, start, size);
 	}
+
+
+
+	@Override
+	public List<Double> countReturnMoney(String userName) {
+		return carparkInOutService.countReturnMoney(userName);
+	}
+
+
+
+	@Override
+	public Long updateRecount(Long maxId, Long returnAccountId, boolean free) {
+		return carparkInOutService.updateRecount(maxId, returnAccountId, free);
+	}
 }

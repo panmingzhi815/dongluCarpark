@@ -18,8 +18,11 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
@@ -30,6 +33,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice.DeviceInOutTypeEnum;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -89,6 +93,7 @@ public class AddDeviceBasicPage extends WizardPage {
 	private Label label_11;
 	private Text text_6;
 	private Button btn_handcharge;
+	private Text text_7;
 
 	/**
 	 * Create the wizard.
@@ -250,7 +255,20 @@ public class AddDeviceBasicPage extends WizardPage {
 			text_3.setEditable(false);
 		}
 		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		new Label(composite, SWT.NONE);
+		
+		text_7 = new Text(composite, SWT.BORDER);
+		text_7.setEditable(false);
+		text_7.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_7.addPaintListener(new PaintListener() {
+			@Override
+			public void paintControl(PaintEvent e) {
+				String s = text_7.getText();
+				if (StrUtil.isEmpty(s)) {
+					GC gc = e.gc;
+					gc.drawText("控制器版本", 1, 1);
+				}
+			}
+		});
 		
 		label_8 = new Label(composite, SWT.NONE);
 		label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -439,6 +457,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue observeSelectionBtn_handchargeObserveWidget = WidgetProperties.selection().observe(btn_handcharge);
 		IObservableValue isHandChargeModelObserveValue = BeanProperties.value("isHandCharge").observe(model);
 		bindingContext.bindValue(observeSelectionBtn_handchargeObserveWidget, isHandChargeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_7ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_7);
+		IObservableValue deviceVersionModelObserveValue = BeanProperties.value("deviceVersion").observe(model);
+		bindingContext.bindValue(observeTextText_7ObserveWidget, deviceVersionModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

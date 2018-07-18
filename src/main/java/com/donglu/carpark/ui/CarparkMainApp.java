@@ -395,13 +395,22 @@ public class CarparkMainApp extends AbstractApp{
 	private void autoSendTimeToDevice() {
 		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("发送时间任务"));
 		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+			int size=0;
 			@Override
 			public void run() {
 				System.out.println("下载时间");
 				Set<String> keySet = model.getMapIpToDevice().keySet();
 				for (String c : keySet) {
-					presenter.showNowTimeToDevice(model.getMapIpToDevice().get(c));
+					SingleCarparkDevice singleCarparkDevice = model.getMapIpToDevice().get(c);
+					if (size==0&&StrUtil.isEmpty(singleCarparkDevice.getDeviceVersion())) {
+						String deviceVersion = presenter.getDeviceVersion(singleCarparkDevice);
+						System.out.println(deviceVersion);
+						singleCarparkDevice.setDeviceVersion(deviceVersion);
+						presenter.saveDevice(singleCarparkDevice);
+					}
+					presenter.showNowTimeToDevice(singleCarparkDevice);
 				}
+				size++;
 			}
 		}, 1, 60 * 60, TimeUnit.SECONDS);
 
@@ -931,6 +940,7 @@ public class CarparkMainApp extends AbstractApp{
 			@Override
 			public void mouseUp(MouseEvent e) {
 				setBoundsY(lbl_charge, -2);
+				log.info("点击收费放行");
 				presenter.charge(carOutChargeCheck,true);
 			}
 
@@ -949,6 +959,7 @@ public class CarparkMainApp extends AbstractApp{
 		lbl_free.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
+				log.info("点击免费放行");
 				presenter.free(carOutChargeCheck);
 				setBoundsY(lbl_free, -2);
 			}
@@ -1177,16 +1188,6 @@ public class CarparkMainApp extends AbstractApp{
 		lbl_charge.setBounds(bounds);
 	}
 
-	/**
-	 * 手动抓拍
-	 * 
-	 * @param ip
-	 */
-	protected void handPhotograph(String ip) {
-		log.info("对设备{}进行手动拍照", ip);
-		presenter.handPhotograph(ip);
-		mapHandPhotograph.put(ip, new Date());
-	}
 
 	/**
 	 * 没隔5秒自动发送车位
@@ -1296,7 +1297,7 @@ public class CarparkMainApp extends AbstractApp{
 		if (!rateLimiter.tryAcquire()) {
 			return;
 		}
-		
+		log.info("检测到按键：{}:{}",e.keyCode,e.character);
 		if (e.keyCode == StrUtil.SMAIL_KEY_ENTER || e.keyCode == 13) {
 			if (e.getSource()!=null) {
 				Control c = (Control) e.getSource();

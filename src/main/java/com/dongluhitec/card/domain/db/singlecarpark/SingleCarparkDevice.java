@@ -51,6 +51,9 @@ public class SingleCarparkDevice extends DomainObject{
 	
 	private Boolean isHandCharge=false;
 	
+	private String deviceVersion;
+	private String cameraVersion;
+	
 	public String getIdentifire() {
 		return identifire;
 	}
@@ -233,5 +236,19 @@ public class SingleCarparkDevice extends DomainObject{
 	public void setIsHandCharge(Boolean isHandCharge) {
 		this.isHandCharge = isHandCharge;
 		firePropertyChange("isHandCharge", null, null);
+	}
+	public String getDeviceVersion() {
+		return deviceVersion;
+	}
+	public void setDeviceVersion(String deviceVersion) {
+		this.deviceVersion = deviceVersion;
+		firePropertyChange("deviceVersion", null, null);
+	}
+	public String getCameraVersion() {
+		return cameraVersion;
+	}
+	public void setCameraVersion(String cameraVersion) {
+		this.cameraVersion = cameraVersion;
+		//firePropertyChange("cameraVersion", null, null);
 	}
 }

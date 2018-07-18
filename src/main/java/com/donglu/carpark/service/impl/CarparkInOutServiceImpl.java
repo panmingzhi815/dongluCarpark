@@ -24,6 +24,7 @@ import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
 import org.criteria4jpa.criterion.SimpleExpression;
 import org.criteria4jpa.order.Order;
+import org.criteria4jpa.projection.ProjectionList;
 import org.criteria4jpa.projection.Projections;
 import org.joda.time.DateTime;
 
@@ -1716,7 +1717,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		if (!StrUtil.isEmpty(carpark)) {
 			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), carpark.getId()));
 		}
-		
+		c.addOrder(Order.desc("id"));
 		c.setFirstResult(start);
 		c.setMaxResults(size);
 		return c.getResultList();
@@ -1787,6 +1788,53 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		} finally {
 			unitOfWork.end();
 		}
+	}
+
+	@Override
+	public List<Double> countReturnMoney(String userName) {
+		unitOfWork.begin();
+		try {
+			
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			c.add(Restrictions.eq("operaName", userName));
+			c.add(Restrictions.isNull("returnAccount"));
+			ProjectionList projectionList = Projections.projectionList();
+			projectionList.add(Projections.max("id"));
+			projectionList.add(Projections.sum("shouldMoney"));
+			projectionList.add(Projections.sum("factMoney"));
+			projectionList.add(Projections.sum("freeMoney"));
+			c.setProjection(projectionList);
+//			Query query = emprovider.get()
+//					.createNativeQuery("select max(id) as 1,sum(shouldMoney) as 2,sum(factMoney) as 3,sum(freeMoney) as 4  from SingleCarparkInOutHistory where operaName='" + userName + "' and returnAccount is null");
+//			Object singleResult = query.getSingleResult();
+//			System.out.println(singleResult);
+			Object[] resultList = (Object[]) c.getSingleResultOrNull();
+			List<Double> arrayList = new ArrayList<>();
+			for (Object object : resultList) {
+				if (object instanceof Long) {
+					arrayList.add(Long.class.cast(object).doubleValue());
+					continue;
+				}
+				if (object instanceof Double) {
+					arrayList.add((Double) object);
+				}
+			}
+			return arrayList;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Transactional
+	@Override
+	public Long updateRecount(Long maxId, Long returnAccountId, boolean free) {
+		Query query = emprovider.get().createNativeQuery("update SingleCarparkInOutHistory set returnAccount="+returnAccountId+" where returnAccount is null and outTime is not null and id<="+maxId);
+		int executeUpdate = query.executeUpdate();
+		if (free) {
+			query = emprovider.get().createNativeQuery("update SingleCarparkInOutHistory set freeReturnAccount="+returnAccountId+" where freeReturnAccount is null and outTime is not null and id<="+maxId);
+			executeUpdate += query.executeUpdate();
+		}
+		return executeUpdate*1l;
 	}
 	
 }

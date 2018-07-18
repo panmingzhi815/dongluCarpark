@@ -921,4 +921,8 @@ public class CarparkMainModel extends DomainObject {
 	public boolean equalsSetting(SystemSettingTypeEnum systemSettingTypeEnum, String string) {
 		return mapSystemSetting.get(systemSettingTypeEnum).equals(string);
 	}
+
+	public boolean booleanSetting(SystemSettingTypeEnum systemSettingTypeEnum) {
+		return Boolean.valueOf(mapSystemSetting.get(systemSettingTypeEnum));
+	}
 }

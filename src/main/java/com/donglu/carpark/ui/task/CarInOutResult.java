@@ -1,6 +1,7 @@
 package com.donglu.carpark.ui.task;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainPresenter;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
@@ -24,6 +26,8 @@ import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import ch.qos.logback.core.joran.conditional.IfAction;
 
 @Singleton
 public class CarInOutResult implements PlateNOResult {
@@ -41,6 +45,9 @@ public class CarInOutResult implements PlateNOResult {
 	private ExecutorService outTheadPool;
 	private ExecutorService inThreadPool;
 	private ScheduledExecutorService carOutService;
+	
+	private Map<String, String> mapControlDevice2Plate=new HashMap<String, String>();
+	private Map<String,Long> mapControlDeviceLastInOut=new HashMap<>();
 	
 	
 	@Inject
@@ -93,7 +100,7 @@ public class CarInOutResult implements PlateNOResult {
 			return;
 		}
 		
-		boolean equals = (mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔))
+		boolean equals = (mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔))
 				.equals(SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue());
 		String linkAddress = device.getLinkInfo();
 
@@ -120,8 +127,18 @@ public class CarInOutResult implements PlateNOResult {
 					}
 					return;
 				} else {
-					Integer two = Integer.valueOf(
-							mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
+					Long last = mapControlDeviceLastInOut.getOrDefault(linkAddress, 0l);
+					if (new Date().getTime()-last<Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.双摄像头忽略间隔))) {
+						int checkAlikeSize = CarparkUtils.checkAlikeSize(plateNO, mapControlDevice2Plate.get(linkAddress));
+						if (checkAlikeSize<5) {
+							logger.info("车牌：{}在双摄像头:{}忽略间隔内，忽略车牌", plateNO, linkAddress);
+							return;
+						}
+					}else{
+						mapControlDeviceLastInOut.put(linkAddress, new Date().getTime());
+						mapControlDevice2Plate.put(linkAddress, plateNO);
+					}
+					Integer two = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
 					Timer t = new Timer();
 					long nanoTime = System.nanoTime();
 					t.schedule(new TimerTask() {
@@ -132,7 +149,7 @@ public class CarInOutResult implements PlateNOResult {
 							mapOutTwoCameraTask.remove(linkAddress);
 							Timer timer = mapTwoChanelTimer.get(linkAddress);
 							if (timer != null) {
-								timer.cancel();
+								t.cancel();
 								mapTwoChanelTimer.remove(linkAddress);
 							}
 						}
@@ -170,8 +187,18 @@ public class CarInOutResult implements PlateNOResult {
 					}
 					return;
 				} else {
-					Integer two = Integer.valueOf(
-							mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔) == null ? SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
+					Long last = mapControlDeviceLastInOut.getOrDefault(linkAddress, 0l);
+					if (new Date().getTime()-last<Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.双摄像头忽略间隔))) {
+						int checkAlikeSize = CarparkUtils.checkAlikeSize(plateNO, mapControlDevice2Plate.get(linkAddress));
+						if (checkAlikeSize<5) {
+							logger.info("车牌：{}在双摄像头:{}忽略间隔内，忽略车牌", plateNO, linkAddress);
+							return;
+						}
+					}else{
+						mapControlDeviceLastInOut.put(linkAddress, new Date().getTime());
+						mapControlDevice2Plate.put(linkAddress, plateNO);
+					}
+					Integer two = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔));
 					Timer t = new Timer();
 					t.schedule(new TimerTask() {
 						public void run() {
@@ -237,7 +264,9 @@ public class CarInOutResult implements PlateNOResult {
 					if (b&&!StrUtil.isEmpty(model.getListOutTask())) {
 						CarOutTask remove = model.getListOutTask().remove(0);
 						logger.info("检测到出场任务：{}",remove);
-						outTheadPool.submit(remove);
+//						outTheadPool.submit(remove);
+						new Thread(remove,remove.getPlateNO()+"-出场任务").start();
+						
 					}
 				} catch (Exception e) {
 					logger.error("车辆出场服务发生异常",e);

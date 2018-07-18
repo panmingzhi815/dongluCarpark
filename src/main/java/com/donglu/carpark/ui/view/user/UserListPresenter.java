@@ -293,6 +293,9 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			if (singleCarparkUser.getMonthChargeId()!=null) {
 				SingleCarparkMonthlyCharge findMonthlyChargeById = sp.getCarparkService().findMonthlyChargeById(singleCarparkUser.getMonthChargeId());
 				model.setSelectMonth(findMonthlyChargeById);
+				if (findMonthlyChargeById==null) {
+					model.setFree(true);
+				}
 			}
 			model.setOverdueTime(singleCarparkUser.getValidTo());
 			MonthlyUserPayWizard wizard = new MonthlyUserPayWizard(model);

@@ -16,6 +16,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.caucho.hessian.client.HessianRuntimeException;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.model.Result;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
@@ -65,6 +66,7 @@ public class CarOutTask extends AbstractTask{
 	@Override
 	public void start(){
 		try {
+			LOGGER.info("处理车辆：{} 的出场纪录",plateNO);
 			model.setDisContinue(false);
 			model.setHandSearch(false);
 			model.setVisitor(null);
@@ -141,6 +143,7 @@ public class CarOutTask extends AbstractTask{
 			checkUserAndOut(true);
 		} catch (Exception e) {
 			LOGGER.error("车辆出场时发生错误",e);
+			throw new RuntimeException(e.getCause());
 		}
 	
 	}

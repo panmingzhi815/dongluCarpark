@@ -355,4 +355,8 @@ public interface CarparkInOutServiceI {
 	List<SingleCarparkInOutHistory> findHistoryThanId(Long id, int start, int size);
 
 	List<CarPayHistory> findCarPayHistoryThanId(Long id, int start, int size);
+
+	List<Double> countReturnMoney(String userName);
+
+	Long updateRecount(Long maxId, Long returnAccountId, boolean free);
 }
