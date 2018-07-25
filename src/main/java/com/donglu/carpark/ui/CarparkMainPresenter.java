@@ -737,6 +737,11 @@ public class CarparkMainPresenter {
 
 		});
 		jna.openEx(ip, handle,carInOutResultProvider.get());
+		if (StrUtil.isEmpty(device.getCameraVersion())) {
+			String version = jna.getVersion(ip);
+			device.setCameraVersion(version);
+			saveDevice(device);
+		}
 		model.getMapHCameraPlayHandle().put(ip, handle);
 		jna.pastPlate(ip, new PastPlateResult() {
 			@Override
@@ -1058,6 +1063,7 @@ public class CarparkMainPresenter {
 			commonui.info("成功", "归账成功");
 		} catch (Exception e) {
 			log.error("归账时发生错误", e);
+			commonui.error("失败", "归账是发生错误！"+e);
 		}
 	}
 
@@ -2277,7 +2283,7 @@ public class CarparkMainPresenter {
 											data.setFactMoney(result.getPayedFee());
 											data.setChargeOperaName("在线支付");
 											data.setRemarkString("在线缴费完成，在规定时间内出场！");
-											data.setChargedType("网上支付");
+											data.setChargedType(1);
 											model.setPlateNo(data.getPlateNo() + "-已在线支付");
 											charge(false);
 											checkIsPayTimer.cancel();
@@ -2294,12 +2300,12 @@ public class CarparkMainPresenter {
 												model.setChargedMoney(result.getPayedFee());
 												model.setReal(result.getDeptFee());
 												Date outTime = new Date();
-												data.setOutTime(outTime);
 												if (result.getOutTime() != null) {
-													model.setOutTime(result.getOutTime());
-													data.setOutTime(result.getOutTime());
+													outTime=result.getOutTime();
 												}
+												data.setOutTime(outTime);
 												model.setOutTime(outTime);
+												model.setTotalTime(StrUtil.MinusTime2(data.getInTime(), outTime));
 												showContentToDevice(data.getPlateNo(), mapIpToDevice.get(data.getOutDeviceIp()), "请缴费" + CarparkUtils.formatFloatString(result.getDeptFee() + "") + "元",
 														false);
 											}
@@ -2466,8 +2472,7 @@ public class CarparkMainPresenter {
 			if (h == null) {
 				return;
 			}
-			Boolean valueOf = Boolean
-					.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.进场允许修改车牌) == null ? SystemSettingTypeEnum.进场允许修改车牌.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.进场允许修改车牌));
+			Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.进场允许修改车牌));
 			log.info("系统设置：[进场允许修改车牌]为:[{}]", valueOf);
 			ShowInOutHistoryModel model = new ShowInOutHistoryModel();
 			model.setInfo(h);
@@ -3134,6 +3139,7 @@ public class CarparkMainPresenter {
 		if(!device.getScreenType().equals(ScreenTypeEnum.一体机)){
 			return;
 		}
+		log.info("向设备发送二维码和");
 		String yunIdentifier = device.getCarpark().getYunIdentifier();
 		String buildId = device.getCarpark().getYunBuildIdentifier();
 		if(yunIdentifier==null||buildId==null){
@@ -3273,6 +3279,7 @@ public class CarparkMainPresenter {
 			inOutHistory.setFactMoney(shouldMoney);
 			inOutHistory.setFreeMoney(0f);
 			inOutHistory.setRemarkString("扫码缴费出场");
+			inOutHistory.setChargedType(1);
 			sp.getCarparkInOutService().saveInOutHistory(inOutHistory);
 			if (plate.length()>8) {
 				plate="";
@@ -3283,6 +3290,7 @@ public class CarparkMainPresenter {
 			cancelCheckChargeTimer(device);
 			if (model.getChargeDevice()!=null&&model.getChargeDevice().getIp().equals(device.getIp())) {
 				model.setBtnClick(false);
+				model.setComboCarTypeEnable(false);
 			}
 		}
 		model.getMapWaitInOutHistory().remove(device.getIp());
@@ -3352,7 +3360,7 @@ public class CarparkMainPresenter {
 				}
 				if (result != null) {
 					int code = result.getCode();
-					if (code == 2005) {
+					if (result.getPayedFee()>=data.getShouldMoney()) {
 						data.setFreeMoney(0);
 						data.setShouldMoney(result.getPayedFee());
 						data.setFactMoney(result.getPayedFee());

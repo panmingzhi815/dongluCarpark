@@ -130,7 +130,7 @@ public class CarInOutResult implements PlateNOResult {
 					Long last = mapControlDeviceLastInOut.getOrDefault(linkAddress, 0l);
 					if (new Date().getTime()-last<Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.双摄像头忽略间隔))) {
 						int checkAlikeSize = CarparkUtils.checkAlikeSize(plateNO, mapControlDevice2Plate.get(linkAddress));
-						if (checkAlikeSize<5) {
+						if (checkAlikeSize>=4) {
 							logger.info("车牌：{}在双摄像头:{}忽略间隔内，忽略车牌", plateNO, linkAddress);
 							return;
 						}
@@ -190,7 +190,7 @@ public class CarInOutResult implements PlateNOResult {
 					Long last = mapControlDeviceLastInOut.getOrDefault(linkAddress, 0l);
 					if (new Date().getTime()-last<Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.双摄像头忽略间隔))) {
 						int checkAlikeSize = CarparkUtils.checkAlikeSize(plateNO, mapControlDevice2Plate.get(linkAddress));
-						if (checkAlikeSize<5) {
+						if (checkAlikeSize>=4) {
 							logger.info("车牌：{}在双摄像头:{}忽略间隔内，忽略车牌", plateNO, linkAddress);
 							return;
 						}

@@ -671,6 +671,7 @@ public class CarOutTask extends AbstractTask{
 			singleCarparkInOutHistory.setOutBigImg(bigImgFileName);
 			singleCarparkInOutHistory.setOutSmallImg(smallImgFileName);
 			singleCarparkInOutHistory.setOutPlateNO(plateNO);
+			singleCarparkInOutHistory.setChargedType(0);
 			
 			//
 			Date handPhotographDate = mapHandPhotograph.get(ip);
@@ -745,27 +746,27 @@ public class CarOutTask extends AbstractTask{
 						if (fixCarExpireAutoChargeOut(shouldMoney,0,shouldMoney,false)) {
 							return;
 						}
-						if (mapSystemSetting.get(SystemSettingTypeEnum.优先使用云平台计费).equals("false")) {
-							Result result = presenter.getPayResult(singleCarparkInOutHistory);
-							if (result!=null&&result.getCode() == 2005) {
-								model.setReal(0);
-								model.setChargedMoney(result.getPayedFee());
-								model.setShouldMony(result.getPayedFee());
-								singleCarparkInOutHistory.setFreeMoney(0);
-								singleCarparkInOutHistory.setShouldMoney(result.getPayedFee());
-								singleCarparkInOutHistory.setFactMoney(result.getPayedFee());
-								singleCarparkInOutHistory.setChargeOperaName("在线支付");
-								singleCarparkInOutHistory.setRemarkString("在线缴费完成，在规定时间内出场！");
-								model.setPlateNo(singleCarparkInOutHistory.getPlateNo() + "-已在线支付");
-								model.setChargeHistory(singleCarparkInOutHistory);
-								model.setChargeDevice(device);
-								presenter.charge(false);
-								return;
-							} 
-						}
 						if (shouldMoney-model.getChargedMoney()>0) {
 							model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
 							presenter.qrCodeInOut(editPlateNo, device, false, singleCarparkInOutHistory,"缴费"+CarparkUtils.formatFloatString(shouldMoney+"")+"元,请在黄线外扫码付费");
+							if (mapSystemSetting.get(SystemSettingTypeEnum.优先使用云平台计费).equals("false")) {
+								Result result = presenter.getPayResult(singleCarparkInOutHistory);
+								if (result!=null&&result.getPayedFee() == shouldMoney-model.getChargedMoney()) {
+									model.setReal(0);
+									model.setChargedMoney(result.getPayedFee());
+									model.setShouldMony(result.getPayedFee());
+									singleCarparkInOutHistory.setFreeMoney(0);
+									singleCarparkInOutHistory.setShouldMoney(result.getPayedFee());
+									singleCarparkInOutHistory.setFactMoney(result.getPayedFee());
+									singleCarparkInOutHistory.setChargeOperaName("在线支付");
+									singleCarparkInOutHistory.setRemarkString("在线缴费完成，在规定时间内出场！");
+									model.setPlateNo(singleCarparkInOutHistory.getPlateNo() + "-已在线支付");
+									model.setChargeHistory(singleCarparkInOutHistory);
+									model.setChargeDevice(device);
+									presenter.charge(false);
+									return;
+								} 
+							}
 							presenter.checkCharge(device,singleCarparkInOutHistory);
 							return;
 						}
@@ -942,9 +943,9 @@ public class CarOutTask extends AbstractTask{
 				if (!StrUtil.isEmpty(s)) {
 					boolean b = !StrUtil.isEmpty(mapTempCharge.get("大车"));
 					if (s.contains("黄")&&b) {
-						model.setCarparkCarType("大车");
+						model.setCarparkCarType(mapTempCharge.get("大车").getDisplayName());
 					}else{
-						model.setCarparkCarType("小车");
+						model.setCarparkCarType(mapTempCharge.get("小车").getDisplayName());
 					}
 				}
 			}

@@ -20,6 +20,8 @@ public class CarparkCarType extends DomainObject{
 	
 	@OneToMany(mappedBy="carparkCarType")
 	private List<CarparkChargeStandard> carparkChargeStandardList;
+	private Long tid;
+	private String displayName;
 
 	public String getName() {
 		return name;
@@ -59,4 +61,24 @@ public class CarparkCarType extends DomainObject{
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
     }
+
+	public Long getTid() {
+		return tid;
+	}
+
+	public void setTid(Long tid) {
+		this.tid = tid;
+	}
+
+	public String getDisplayName() {
+		if (displayName==null) {
+			return name;
+		}
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+		firePropertyChange("displayName", null, null);
+	}
 }

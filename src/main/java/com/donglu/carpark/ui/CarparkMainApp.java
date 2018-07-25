@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -50,19 +49,19 @@ import com.donglu.carpark.ui.task.CarOutTask;
 import com.donglu.carpark.ui.view.DevicePresenter;
 import com.donglu.carpark.ui.view.InInfoPresenter;
 import com.donglu.carpark.ui.view.OutInfoPresenter;
+import com.donglu.carpark.ui.view.message.MessageUtil;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
+import com.donglu.carpark.util.ExecutorsUtils;
 import com.donglu.carpark.util.MyMapCache;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
-import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
@@ -174,7 +173,6 @@ public class CarparkMainApp extends AbstractApp{
 
 
 
-	private ScheduledExecutorService refreshService;
 
 	private Combo carTypeSelectCombo;
 	private Text text_1;
@@ -337,9 +335,6 @@ public class CarparkMainApp extends AbstractApp{
 	 */
 	public void systemExit() {
 		try {
-
-
-			refreshService.shutdownNow();
 			presenter.systemExit();
 		} catch (Exception e) {
 			log.error("关闭时发生错误",e);
@@ -530,7 +525,7 @@ public class CarparkMainApp extends AbstractApp{
 			}
 		});
 		for (CarparkCarType carparkCarType : arrayList) {
-			listCarType.add(carparkCarType.getName());
+			listCarType.add(carparkCarType.getDisplayName());
 		}
 //		if (!StrUtil.isEmpty(mapTempCharge.get("大车"))) {
 //			listCarType.add("大车");
@@ -1193,8 +1188,7 @@ public class CarparkMainApp extends AbstractApp{
 	 * 没隔5秒自动发送车位
 	 */
 	private void autoSendPositionToDevice() {
-		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("没隔5秒发送车位数"));
-		newSingleThreadScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
 
 			@Override
 			public void run() {
@@ -1208,7 +1202,7 @@ public class CarparkMainApp extends AbstractApp{
 					log.info("发送车位时发生错误",e);
 				}
 			}
-		}, sendPositionToDeviceTime, sendPositionToDeviceTime, TimeUnit.SECONDS);
+		}, sendPositionToDeviceTime, sendPositionToDeviceTime, TimeUnit.SECONDS,"没隔5秒发送车位数");
 	}
 	/**
 	 * 获取车辆类型
@@ -1238,7 +1232,7 @@ public class CarparkMainApp extends AbstractApp{
 	 * @param refreshTimeSpeedSecond
 	 */
 	public void refreshCarparkBasicInfo(Integer refreshTimeSpeedSecond) {
-		refreshService = Executors.newSingleThreadScheduledExecutor(ThreadUtil.createThreadFactory("每秒刷新停车场全局监控信息"));
+		ScheduledExecutorService refreshService = ExecutorsUtils.newSingleThreadScheduledExecutor("每秒刷新停车场全局监控信息");
 		refreshService.scheduleAtFixedRate(() -> {
 			long currentTimeMillis = System.currentTimeMillis();
 			try {
@@ -1260,6 +1254,9 @@ public class CarparkMainApp extends AbstractApp{
 				log.debug("refreshCarparkBasicInfo used : " + (System.currentTimeMillis() - currentTimeMillis));
 			} catch (Exception e) {
 				log.error("刷新停车场出错"+e);
+				if (e.getCause() instanceof java.net.ConnectException) {
+					 MessageUtil.info("服务器连接故障","服务器连接失败,请检查网络！", 10000);
+				}
 			}
 		} , 3000, 1000, TimeUnit.MILLISECONDS);
 	}

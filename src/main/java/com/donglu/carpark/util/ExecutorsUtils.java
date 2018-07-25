@@ -42,12 +42,18 @@ public class ExecutorsUtils {
 		return executorService;
 	}
 	
+	
 	public static ScheduledExecutorService scheduleWithFixedDelay(Runnable command,long initialDelay,long delay,TimeUnit unit){
 		return scheduleWithFixedDelay(command, initialDelay, delay, unit, null);
 	}
 	
 	public static ExecutorService newSingleThreadExecutor(String threadName){
 		return newSingleThreadExecutor(createThreadFactory(threadName));
+	}
+	public static ScheduledExecutorService newSingleThreadScheduledExecutor(String threadName){
+		ScheduledExecutorService newSingleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor(createThreadFactory(threadName));
+		listExecutorService.add(newSingleThreadScheduledExecutor);
+		return newSingleThreadScheduledExecutor;
 	}
 	/**
 	 * 单例线程池
@@ -57,7 +63,7 @@ public class ExecutorsUtils {
     public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactory){
     	return Executors.newSingleThreadExecutor(threadFactory);
     }
-	private static ThreadFactory createThreadFactory(String title) {
+	public static ThreadFactory createThreadFactory(String title) {
 		ThreadFactory threadFactory = new ThreadFactory() {
 			@Override
 			public Thread newThread(Runnable r) {

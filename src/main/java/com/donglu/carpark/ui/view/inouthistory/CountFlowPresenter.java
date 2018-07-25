@@ -58,6 +58,7 @@ public class CountFlowPresenter  extends AbstractPresenter{
 			j=1;
 			pattern="yyyy/MM/dd HH";
 			timeType=Calendar.HOUR_OF_DAY;
+			end=StrUtil.getTodayBottomTime(start);
 			break;
 		}
 		DefaultKeyedValues2DDataset data = new DefaultKeyedValues2DDataset();
@@ -70,7 +71,7 @@ public class CountFlowPresenter  extends AbstractPresenter{
 			Long outFlows=0L;
 			Map<String, Long> deviceFlows = sp.getCarparkInOutService().getDeviceFlows(true, listDate.get(i), listDate.get(i+1));
 			String formatDate = StrUtil.formatDate(listDate.get(i+1), pattern);
-			System.out.println(formatDate+"========"+deviceFlows);
+//			System.out.println(formatDate+"========"+deviceFlows);
 			for (String device : mapInDeviceToCount.keySet()) {
 				Long long1 = deviceFlows.get(device);
 				if (long1==null) {
@@ -81,7 +82,7 @@ public class CountFlowPresenter  extends AbstractPresenter{
 			}
 			inOutData.addValue(inFlows, "进口", formatDate);
 			deviceFlows = sp.getCarparkInOutService().getDeviceFlows(false, listDate.get(i), listDate.get(i+1));
-			System.out.println(formatDate+"========"+deviceFlows);
+//			System.out.println(formatDate+"========"+deviceFlows);
 			for (String device : mapOutDeviceToCount.keySet()) {
 				Long long1 = deviceFlows.get(device);
 				if (long1==null) {
@@ -94,8 +95,8 @@ public class CountFlowPresenter  extends AbstractPresenter{
 			totalData.addValue(inFlows+outFlows, "总数", formatDate);
 		}
 		
-		int width = 1920;
-		int height = 1080;
+		int width = 1280;
+		int height = 720;
 		JfreeChartUtil.createTimeXYChar("设备进出流量", "日期", "车辆进出数量", data, "temp.png",width,height);
 		JfreeChartUtil.createTimeXYChar("进出口流量", "日期", "车辆进出数量", inOutData, "temp1.png",width,height);
 		JfreeChartUtil.createTimeXYChar("总流量", "日期", "车辆进出数量", totalData, "temp2.png",width,height);

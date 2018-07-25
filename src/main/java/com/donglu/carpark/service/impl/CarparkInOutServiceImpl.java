@@ -299,6 +299,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 						c.add(Restrictions.or(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()),Restrictions.isNotNull(SingleCarparkInOutHistory.Property.chargeTime.name())));
 						c.add(Restrictions.or(Restrictions.eq(SingleCarparkInOutHistory.Property.operaName.name(), userName),Restrictions.eq(SingleCarparkInOutHistory.Property.chargeOperaName.name(), userName)));
 						c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
+						c.add(Restrictions.or(Restrictions.isNull(SingleCarparkInOutHistory.Property.chargedType.name()),Restrictions.eq(SingleCarparkInOutHistory.Property.chargedType.name(), 0)));
 						c.setProjection(Projections.sum(SingleCarparkInOutHistory.Property.factMoney.name()));
 						Double singleResult = (Double) c.getSingleResult();
 						return singleResult == null ? 0 : singleResult.floatValue();

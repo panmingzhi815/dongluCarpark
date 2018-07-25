@@ -36,6 +36,7 @@ import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 
 
 public class CountFlowView extends Composite implements View{
@@ -154,8 +155,33 @@ public class CountFlowView extends Composite implements View{
 		tabItem.setControl(composite);
 		composite.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
-		lbl_one = new CLabel(composite, SWT.NONE);
+		ScrolledComposite scrolledComposite = new ScrolledComposite(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+		
+		Composite composite_4 = new Composite(scrolledComposite, SWT.NONE);
+		GridLayout gl_composite_4 = new GridLayout(1, false);
+		gl_composite_4.marginHeight = 0;
+		gl_composite_4.marginWidth = 0;
+		composite_4.setLayout(gl_composite_4);
+		
+		lbl_one = new CLabel(composite_4, SWT.NONE);
+		GridData gd_lbl_one = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lbl_one.heightHint = 720;
+		gd_lbl_one.widthHint = 1280;
+		lbl_one.setLayoutData(gd_lbl_one);
 		lbl_one.setText("");
+		lbl_one.addPaintListener(new PaintListener() {
+			@Override
+			public void paintControl(PaintEvent e) {
+				if (image!=null&&!image.isDisposed()) {
+					Rectangle bounds = lbl_one.getBounds();
+					e.gc.drawImage(image, 0, 0, image.getImageData().width, image.getImageData().height, 0, 0, bounds.width, bounds.height);
+				}
+			}
+		});
+		scrolledComposite.setContent(composite_4);
+		scrolledComposite.setMinSize(composite_4.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		
 		TabItem tabItem_1 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_1.setText("进出口流量");
@@ -178,15 +204,6 @@ public class CountFlowView extends Composite implements View{
 		
 		lbl_three = new CLabel(composite_3, SWT.NONE);
 		lbl_three.setText("");
-		lbl_one.addPaintListener(new PaintListener() {
-			@Override
-			public void paintControl(PaintEvent e) {
-				if (image!=null&&!image.isDisposed()) {
-					Rectangle bounds = lbl_one.getBounds();
-					e.gc.drawImage(image, 0, 0, image.getImageData().width, image.getImageData().height, 0, 0, bounds.width, bounds.height);
-				}
-			}
-		});
 		lbl_two.addPaintListener(new PaintListener() {
 			@Override
 			public void paintControl(PaintEvent e) {

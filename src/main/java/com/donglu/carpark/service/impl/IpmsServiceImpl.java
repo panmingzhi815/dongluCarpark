@@ -238,7 +238,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			log.info("{}用户信息,结果：{}",type,httpPostMssage);
 			boolean result = object.toString().equals("0");
 			if (type.equals("add")&&!result) {
-				if (parseObject.getString("retInfo").contains("id已存在")) {
+				if (parseObject.getString("retInfo").contains("id已存")) {
 					parameters="[{\"dataId\":\"{}\",\"operation\":\"delete\",\"origin\":\"东陆高新\",\"syncId\":\"{}\""+userInfo+"}]";
 					parameters=StrUtil.formatString(parameters, rid,id);
 					parameters="data="+URLEncoder.encode(parameters, "UTF-8");

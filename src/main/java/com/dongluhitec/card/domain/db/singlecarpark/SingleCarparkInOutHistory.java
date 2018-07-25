@@ -31,7 +31,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	
 	public enum Property{
 		plateNo,userName,carType,inTime,outTime,inDevice,outDevice,operaName,returnAccount,shouldMoney,factMoney,freeMoney
-		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,isCountSlot,freeReason,reviseInTime,onlineMoney,carRecordStatus
+		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,isCountSlot,freeReason,reviseInTime,onlineMoney,carRecordStatus,chargedType
 	}
 	public enum Label{
 		inTimeLabel,outTimeLabel,remarkString,stillTimeLabel
@@ -115,7 +115,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private byte[] remark;
 
 	private Float onlineMoney;
-	private String chargedType;
+	private Integer chargedType=0;//0 现金 1 网上
 	
 	@Column(length=10)
 	@Enumerated(EnumType.STRING)
@@ -577,10 +577,10 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		long countTime = StrUtil.countTime(inTime, date, TimeUnit.SECONDS);
 		return countTime;
 	}
-	public String getChargedType() {
+	public Integer getChargedType() {
 		return chargedType;
 	}
-	public void setChargedType(String chargedType) {
+	public void setChargedType(Integer chargedType) {
 		this.chargedType = chargedType;
 		//firePropertyChange("chargedType", null, null);
 	}

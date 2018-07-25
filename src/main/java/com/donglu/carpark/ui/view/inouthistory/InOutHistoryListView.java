@@ -44,7 +44,7 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 						SingleCarparkInOutHistory.Property.inPlateNO.name(),
 						SingleCarparkInOutHistory.Property.outPlateNO.name(),},
 				new String[]{"车牌号","车辆类型","用户名","进场设备","进场时间","出场设备","出场时间","停留时间","操作员","应收金额","实收金额","免费金额","免费原因","归账编号","备注","进场车牌","出场场车牌"},
-				new int[]{100,100,100,100,200,100,200,200,100,90,90,90,90,90,90,0,0},new int[]{0,0,0,0,0,0,0,0,0,SWT.RIGHT,SWT.RIGHT,SWT.RIGHT,0,0,0,0,0});
+				new int[]{100,100,100,100,200,100,200,130,100,90,90,90,90,90,90,0,0},new int[]{0,0,0,0,0,0,0,0,0,SWT.RIGHT,SWT.RIGHT,SWT.RIGHT,0,0,0,0,0});
 		this.setTableTitle("进出记录表");
 		TableSort.mapComparator.put(SingleCarparkInOutHistory.Label.stillTimeLabel.name(), new Comparator<Object>() {
 			@Override
@@ -90,6 +90,15 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		    }
 		});
 		countItem.setToolTipText("流量统计");
+		ToolItem setTypeItem = new ToolItem(mainToolbar, SWT.NONE);
+		setTypeItem.setText("统计");
+		setTypeItem.addSelectionListener(new SelectionAdapter() {
+		    @Override
+		    public void widgetSelected(SelectionEvent e) {
+		    	getPresenter().flowStatistics();
+		    }
+		});
+		setTypeItem.setToolTipText("设置车类型");
 	}
 
 	@Override

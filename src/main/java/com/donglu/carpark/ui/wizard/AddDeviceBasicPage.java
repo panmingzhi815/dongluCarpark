@@ -39,6 +39,7 @@ import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class AddDeviceBasicPage extends WizardPage {
 
@@ -94,6 +95,7 @@ public class AddDeviceBasicPage extends WizardPage {
 	private Text text_6;
 	private Button btn_handcharge;
 	private Text text_7;
+	private Text text_8;
 
 	/**
 	 * Create the wizard.
@@ -163,7 +165,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		text_2 = new Text(composite, SWT.BORDER);
 		text_2.setText("192.168.1.139");
 		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		new Label(composite, SWT.NONE);
+		
+		text_8 = new Text(composite, SWT.NONE);
+		text_8.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		text_8.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		label_10 = new Label(composite, SWT.NONE);
 		label_10.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -244,7 +249,10 @@ public class AddDeviceBasicPage extends WizardPage {
 
 		address_stack.topControl = text_tcpip;
 		radio_tcpip.setSelection(true);
-        new Label(composite, SWT.NONE);
+        
+        text_7 = new Text(composite, SWT.NONE);
+        text_7.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+        text_7.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         
         label_5 = new Label(composite, SWT.NONE);
         label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -255,20 +263,7 @@ public class AddDeviceBasicPage extends WizardPage {
 			text_3.setEditable(false);
 		}
 		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
-		text_7 = new Text(composite, SWT.BORDER);
-		text_7.setEditable(false);
-		text_7.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		text_7.addPaintListener(new PaintListener() {
-			@Override
-			public void paintControl(PaintEvent e) {
-				String s = text_7.getText();
-				if (StrUtil.isEmpty(s)) {
-					GC gc = e.gc;
-					gc.drawText("控制器版本", 1, 1);
-				}
-			}
-		});
+		new Label(composite, SWT.NONE);
 		
 		label_8 = new Label(composite, SWT.NONE);
 		label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -461,6 +456,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue observeTextText_7ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_7);
 		IObservableValue deviceVersionModelObserveValue = BeanProperties.value("deviceVersion").observe(model);
 		bindingContext.bindValue(observeTextText_7ObserveWidget, deviceVersionModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_8ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_8);
+		IObservableValue cameraVersionModelObserveValue = BeanProperties.value("cameraVersion").observe(model);
+		bindingContext.bindValue(observeTextText_8ObserveWidget, cameraVersionModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}
