@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainPresenter;
+import com.donglu.carpark.util.SystemUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -99,6 +100,8 @@ public class CarInOutResult implements PlateNOResult {
 		Boolean isTwoChanel = mapIsTwoChanel.get(linkAddress);
 		String inOrOut = device.getInOrOut();
 		if (inOrOut.indexOf("出口")>-1) {
+			Date serverDate = sp.getSettingService().getServerDate();
+			SystemUtils.setLocalTime(serverDate);
 			// 是否是双摄像头
 			if (!equals && isTwoChanel) {
 				CarOutTask carOutTask = mapOutTwoCameraTask.get(linkAddress);

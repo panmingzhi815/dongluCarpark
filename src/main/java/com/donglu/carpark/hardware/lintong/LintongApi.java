@@ -12,5 +12,7 @@ public interface LintongApi extends Library {
             	ERR_NORECORD,		// 没有记录
             	ERR_EXCUTE		// 执行错误
 	 */
-	int GetCarTimesFunc(byte[] szPlate, byte[] nTime);
+	int GetCarTimesFunc(String szPlate, byte[] nTime);
+	
+	int DelCarInfoFunc(String szPlate);
 }

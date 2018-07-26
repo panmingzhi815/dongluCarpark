@@ -4,4 +4,6 @@ import java.util.Date;
 
 public interface LintongService {
 	public Date getInDateByPlate(String plate);
+
+	void deletePlate(String plate);
 }

@@ -11,6 +11,8 @@ import com.sun.jna.NativeLibrary;
 
 public class LintongServiceImpl implements LintongService {
 	
+	public static String charsetName = "GBK";
+	public static int LINTONG_RETURN_SIZE = 20;
 	private LintongApi api;
 
 	public LintongServiceImpl() {
@@ -20,17 +22,33 @@ public class LintongServiceImpl implements LintongService {
 
 	@Override
 	public Date getInDateByPlate(String plate) {
-		byte[] bs=new byte[32];
+		byte[] bs=new byte[LINTONG_RETURN_SIZE];
 		try {
-			int getCarTimesFunc = api.GetCarTimesFunc(plate.getBytes("GBK"), bs);
+			int getCarTimesFunc = api.GetCarTimesFunc(plate, bs);
 			if (getCarTimesFunc>0) {
-				MessageUtil.info("获取车牌：" + plate + " 的扫描时间是发生错误，错误码：" + getCarTimesFunc);
+				String msg="接口运行错误";
+				switch (getCarTimesFunc) {
+				case 1:
+					msg="连接失败";
+					break;
+				case 2:
+					msg="没有记录";
+					break;
+				default:
+					break;
+				}
+				MessageUtil.info("获取车牌：" + plate + " 的扫描时间是发生错误，错误码：" + getCarTimesFunc+"-"+msg,60000);
 			}
 			return StrUtil.parseDateTime(new String(bs).trim());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	@Override
+	public void deletePlate(String plate){
+		api.DelCarInfoFunc(plate);
 	}
 	
 	public static void main(String[] args) throws Exception {

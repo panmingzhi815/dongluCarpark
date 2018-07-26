@@ -3010,6 +3010,7 @@ public class CarparkMainPresenter {
 			if (date==null) {
 				return 2;
 			}
+			lintongService.deletePlate(plate);
 			Integer canInTimeSize = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.扫描后进场限制时间));
 			if (canInTimeSize>0) {
 				boolean after = new DateTime(date).plusMinutes(canInTimeSize).toDate().after(time);
@@ -3022,8 +3023,13 @@ public class CarparkMainPresenter {
 				log.info("车辆：{} ,进场：{} 出场：{} ，出场有效时间在：{} 前",plate,StrUtil.formatDateTime(time),StrUtil.formatDateTime(new Date()),new DateTime(time).plusMinutes(canInTimeSize).toString("yyyy-MM-dd HH:mm:ss"));
 				return new DateTime(time).plusMinutes(canInTimeSize).isAfter(new Date().getTime())?0:1;
 			}
+			lintongService.deletePlate(plate);
 		}
 		return 0;
+	}
+
+	public void deletePlateScanInfo(String plateNO) {
+		lintongService.deletePlate(plateNO);
 	}
 
 }
