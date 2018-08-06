@@ -5,6 +5,9 @@ import org.eclipse.swt.widgets.Composite;
 public abstract class AbstractView extends Composite implements View{
 
 	private Presenter presenter;
+	public AbstractView(Composite parent) {
+		this(parent,parent.getStyle());
+	}
 	public AbstractView(Composite parent, int style) {
 		super(parent, style);
 	}

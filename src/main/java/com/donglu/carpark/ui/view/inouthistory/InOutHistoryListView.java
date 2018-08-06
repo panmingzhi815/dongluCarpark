@@ -91,11 +91,11 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		});
 		countItem.setToolTipText("流量统计");
 		ToolItem setTypeItem = new ToolItem(mainToolbar, SWT.NONE);
-		setTypeItem.setText("统计");
+		setTypeItem.setText("设置车类型");
 		setTypeItem.addSelectionListener(new SelectionAdapter() {
 		    @Override
 		    public void widgetSelected(SelectionEvent e) {
-		    	getPresenter().flowStatistics();
+		    	getPresenter().setCarType();
 		    }
 		});
 		setTypeItem.setToolTipText("设置车类型");

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
@@ -13,15 +14,21 @@ import com.donglu.carpark.model.ShowInOutHistoryModel;
 import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
+import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.ShowDialog;
 import com.donglu.carpark.ui.common.View;
+import com.donglu.carpark.ui.view.inouthistory.wizard.SetCarTypeModel;
+import com.donglu.carpark.ui.view.inouthistory.wizard.SetCarTypeWizard;
 import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIFacility.Progress;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkPlateCarType;
+import com.dongluhitec.card.domain.db.singlecarpark.QueryParameter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -325,5 +332,52 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	protected View createView(Composite c) {
 		v = new InOutHistoryListView(c, c.getStyle());
 		return v;
+	}
+
+	public void setCarType() {
+		List<SingleCarparkInOutHistory> list = v.getModel().getSelected();
+		if (StrUtil.isEmpty(list)) {
+			return;
+		}
+		
+		try {
+			List<CarparkCarType> carparkCarTypeList = sp.getCarparkService().getCarparkCarTypeList();
+			SingleCarparkInOutHistory history = list.get(0);
+			CarparkUserService carparkUserService = sp.getCarparkUserService();
+			List<CarparkPlateCarType> find = carparkUserService.find(CarparkPlateCarType.class, QueryParameter.eq(CarparkPlateCarType.Property.plate.name(), history.getPlateNo()));
+			CarparkCarType carType=carparkCarTypeList.get(0);
+			if (!StrUtil.isEmpty(find)) {
+				CarparkPlateCarType carparkPlateCarType = find.get(0);
+				for (CarparkCarType carparkCarType : carparkCarTypeList) {
+					if (carparkPlateCarType.getCarType().equals(carparkCarType.getName())) {
+						carType=carparkCarType;
+						break;
+					}
+				}
+			}
+			SetCarTypeModel model = new SetCarTypeModel();
+			model.setSelected(carType);
+			model.setList(carparkCarTypeList);
+			SetCarTypeWizard setCarTypeWizard = new SetCarTypeWizard(model);
+			Object showWizard = commonui.showWizard(setCarTypeWizard);
+			if (showWizard==null) {
+				return;
+			}
+			for (String plateNo : list.stream().map(t->t.getPlateNo()).collect(Collectors.toSet())) {
+				List<CarparkPlateCarType> find2 = carparkUserService.find(CarparkPlateCarType.class, QueryParameter.eq(CarparkPlateCarType.Property.plate.name(), plateNo));
+				CarparkPlateCarType c=new CarparkPlateCarType();
+				if (!StrUtil.isEmpty(find2)) {
+					c=find2.get(0);
+				}
+				c.setPlate(plateNo);
+				c.setCarType(model.getSelected().getName());
+				c.setTid(model.getSelected().getTid());
+				carparkUserService.save(c);
+			}
+			commonui.info("提示","设置成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			commonui.error("提示","设置失败"+e);
+		}
 	}
 }

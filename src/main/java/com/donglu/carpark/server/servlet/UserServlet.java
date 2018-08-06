@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
+import org.criteria4jpa.CriteriaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +17,10 @@ import com.donglu.carpark.service.IpmsServiceI;
 import com.donglu.carpark.service.SettingService;
 import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.donglu.carpark.service.SystemUserServiceI;
+import com.dongluhitec.card.domain.WithID;
+import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkAccountCar;
+import com.dongluhitec.card.domain.db.singlecarpark.QueryParameter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -30,7 +35,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
 import com.dongluhitec.card.server.util.HibernateSerializerFactory;
 import com.google.inject.Inject;
 
-public class UserServlet extends HessianServlet implements CarparkUserService, SystemUserServiceI,SystemOperaLogServiceI,SettingService{
+public class UserServlet extends BaseDaoServlet implements CarparkUserService, SystemUserServiceI,SystemOperaLogServiceI,SettingService{
 	/**
 	 * 
 	 */
@@ -38,8 +43,6 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 	private Logger LOGGER = LoggerFactory.getLogger(UserServlet.class);
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
-	@Inject
-	private IpmsServiceI ipmsService;
 
 	private CarparkUserService carparkUserService;
 	private SystemUserServiceI systemUserService;
@@ -61,6 +64,8 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
         this.systemOperaLogService = sp.getSystemOperaLogService();
         settingService=sp.getSettingService();
         settingService.initData();
+        baseDaoService=carparkUserService;
+        
     }
 	
 	@Override
@@ -299,4 +304,18 @@ public class UserServlet extends HessianServlet implements CarparkUserService, S
 		return carparkUserService.findOverdueUserByLastEditTime(start, max, startTime, endTime);
 	}
 
+	@Override
+	public List<CarparkAccountCar> findAccountCard(List<QueryParameter> parameters) {
+		return carparkUserService.findAccountCard(parameters);
+	}
+
+	@Override
+	public int countAccountCar(List<QueryParameter> parameters) {
+		return carparkUserService.countAccountCar(parameters);
+	}
+
+	@Override
+	public List<String> findPrivilegeByName(String userName,String password) {
+		return systemUserService.findPrivilegeByName(userName,password);
+	}
 }

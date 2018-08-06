@@ -1,5 +1,7 @@
 package com.donglu.carpark.util;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -140,6 +142,10 @@ public class CarparkUtils {
 	 * */
     public static Object getFieldValueByName(String fieldName, Object o) {
         try {
+        	if (o instanceof Map) {
+				Map m=(Map) o;
+				return m.get(fieldName);
+			}
 //        	Field field = o.getClass().getDeclaredField(fieldName);
 //        	Object value = field.get(o);
             String firstLetter = fieldName.substring(0, 1).toUpperCase();  

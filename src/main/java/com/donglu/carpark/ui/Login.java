@@ -31,6 +31,7 @@ import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.util.TestMap;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.ConstUtil;
+import com.donglu.carpark.util.InjectorUtil;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
@@ -127,7 +128,7 @@ public class Login {
 					DongluUIAppConfigurator configurator = new DongluUIAppConfigurator();
 					new JCommander(configurator, args);
 					long nanoTime = System.nanoTime();
-					injector = Guice.createInjector(new CarparkClientGuiceModule());
+					injector = InjectorUtil.startsyn(new CarparkClientGuiceModule());
 					System.out.println("依赖注入用时==="+(System.nanoTime()-nanoTime));
 					Login window = injector.getInstance(Login.class);
 					System.out.println("窗口打开==="+(System.nanoTime()-nanoTime));

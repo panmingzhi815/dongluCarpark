@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -54,14 +55,22 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	//b57c0ebcd45846d996eabc962f54766d
 	private String buildindId="";
 	private String parkId="";
-	private String httpUrl="";
+	private String httpUrl="http://www.dongluhitec.net";
 	
 	public Map<Long, Integer> mapImageUploadErrorSize=new HashMap<>();
+	private Map<Long, SingleCarparkCarpark> mapCarparks=new HashMap<>();
 	
 	@Inject
 	public IpmsServiceImpl(CarparkDatabaseServiceProvider sp) {
 		this.sp = sp;
 		try {
+			List<SingleCarparkCarpark> carpark = sp.getCarparkService().findAllCarpark();
+			for (SingleCarparkCarpark c : carpark) {
+				if (StrUtil.isEmpty(c.getYunBuildIdentifier())||StrUtil.isEmpty(c.getYunIdentifier())) {
+					continue;
+				}
+				mapCarparks.put(c.getId(), c);
+			}
 			CarparkYunConfig instance =(CarparkYunConfig) CarparkFileUtils.readObject(YunConfigUI.CARPARK_YUN_CONFIG);
 			parkId=instance.getAreaCode();
 			buildindId=instance.getCompanyCode();
@@ -95,6 +104,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 //			initCarpark(ioh.getCarparkId(),ioh.getId());
 			log.info("{}停车场记录,车牌：{}", type,ioh.getPlateNo());
 			String url = httpUrl + "/api/syncParkingRecord.action";
+//			String buildindId=getBuildId(ioh.getCarparkId());
+//			String parkId=getParkId(ioh.getCarparkId());
 			String content = "{\"operation\":\"" + type + "\",\"origin\":\"" + name + "\","
 					+ "\"parkingRecord\":{\"carNum\":\"{}\",\"carType\":\"{}\",\"id\":\"{}\",\"inTimeStr\":\"{}\",\"outTimeStr\":\"{}\",\"buildingId\":\"" + buildindId + "\",\"parkId\":\"" + parkId
 					+ "\",\"parkName\":\""+ioh.getCarparkName()+"\",\"status\":\"{}\",\"userType\":\"{}\",\"deptFee\"={},\"fee\"={},\"couponValue\"={}},\"syncId\":\"{}\"}";
@@ -175,14 +186,6 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		}
 		return false;
 	}
-	private void initCarpark(Long carparkId,Long hid) {
-		if (carparkId==null) {
-			carparkId=sp.getCarparkInOutService().findInOutById(hid).getCarparkId();
-		}
-		SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkById(carparkId);
-		parkId=carpark.getYunIdentifier();
-		buildindId=carpark.getYunBuildIdentifier();
-	}
 	@Override
 	public boolean updateInOutHistory(SingleCarparkInOutHistory ioh) {
 		return synchroInOutHistory("update", ioh);
@@ -199,6 +202,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		try {
 			String userInfo="";
 			Long id = user.getId();
+//			String parkId=getParkId(user.getCarpark().getId());
+//			String buildindId=getBuildId(user.getCarpark().getId());
 			String rid = parkId+id;
 			if (!type.equals("delete")) {
 				userInfo=",\"userMonthCard\":"
@@ -245,7 +250,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 					httpPostMssage = httpPostMssage(url, parameters);
 				}
 				if (parseObject.getString("retInfo").contains("已存在相同车")) {
-					JSONObject users = getUsers(user.getPlateNo());
+					JSONObject users = getUsers(user.getPlateNo(),parkId);
 					parameters = "[{\"dataId\":\"{}\",\"operation\":\"delete\",\"origin\":\"东陆高新\",\"syncId\":\"{}\"" + userInfo + "}]";
 					parameters = StrUtil.formatString(parameters, users.getString("id"), id);
 					parameters = "data=" + URLEncoder.encode(parameters, "UTF-8");
@@ -262,7 +267,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		return false;
 	}
 
-	private JSONObject getUsers(String plate) {
+	private JSONObject getUsers(String plate,String parkId) {
 		String url=httpUrl+"/api/queryCreatMonthCardData.action";
 		HashMap<String, Object> map = new HashMap<>();
 //		map.put("parkId", parkId);
@@ -299,6 +304,11 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	}
 	@Override
 	public void updateTempCarChargeHistory() {
+//		for (String s : mapCarparks.values().stream().map(t -> t.getYunBuildIdentifier()+"-"+t.getYunIdentifier()).collect(Collectors.toSet())) {
+//			String[] split = s.split("-");
+//			String buildindId=split[0];
+//			String parkId=split[1];
+//		}
 		try {
 			log.debug("更新临时车缴费记录");
 			String url=httpUrl+"/api/pullPaymentRecord.action?buildingId="+buildindId;
@@ -346,17 +356,19 @@ public class IpmsServiceImpl implements IpmsServiceI {
 						pay.setCouponValue(couponValue);
 						pay.setOperaName("在线缴费");
 						String parkingRecordId = jData.getString("parkingRecordId");
-						if (parkingRecordId.contains(parkId)) {
-							parkingRecordId=parkingRecordId.replaceAll(parkId, "");
-							getIdByRecordId(parkId,parkingRecordId);
+						if (jData.getIntValue("paymentType")!=3) {
+							if (parkingRecordId.contains(parkId)) {
+								parkingRecordId = parkingRecordId.replaceAll(parkId, "");
+								getIdByRecordId(parkId, parkingRecordId);
+							}
+							pay.setHistoryId(Long.valueOf(parkingRecordId));
+							SingleCarparkInOutHistory inOutHistory = sp.getCarparkInOutService().findInOutById(Long.valueOf(parkingRecordId));
+							if (inOutHistory != null) {
+								pay.setInTime(inOutHistory.getInTime());
+								pay.setOutTime(inOutHistory.getOutTime());
+							}
+							saveCarPayHistory = sp.getCarPayService().saveCarPayHistory(pay);
 						}
-						pay.setHistoryId(Long.valueOf(parkingRecordId));
-						SingleCarparkInOutHistory inOutHistory = sp.getCarparkInOutService().findInOutById(Long.valueOf(parkingRecordId));
-						if (inOutHistory!=null) {
-							pay.setInTime(inOutHistory.getInTime());
-							pay.setOutTime(inOutHistory.getOutTime());
-						}
-						saveCarPayHistory = sp.getCarPayService().saveCarPayHistory(pay);
 					}
 				}
 				try {
@@ -370,7 +382,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				}
 			}
 		} catch (Exception e) {
-			log.error("更新临时车缴费记录时发生错误"+e);
+			log.error("更新临时车缴费记录时发生错误",e);
 		}
 	}
 	private Long getIdByRecordId(String parkId, String parkingRecordId) {
@@ -464,6 +476,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				float money=Float.valueOf(jData.getString("rechargeAmount"))/100;
 				SingleCarparkUser user = sp.getCarparkUserService().findUserById(id);
 				if (user==null) {
+					String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
+					httpPostMssage(resultUrl, null);
 					continue;
 				}
 				if (user.getType().equals("储值")) {
@@ -524,6 +538,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			if (chargeMoney==0) {
 				return 2005;
 			}
+//			String parkId=getParkId(inout.getCarparkId());
+//			String buildindId=getBuildId(inout.getCarparkId());
 			int fenMoney=(int) (chargeMoney*100);
 			String recordId=parkId+inout.getId();
 			String plateNO=URLEncoder.encode(inout.getPlateNo(), "UTF-8");
@@ -544,6 +560,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		Result result = new Result();
 		String plateNo = inout.getPlateNo();
 		try {
+//			String parkId=getParkId(inout.getCarparkId());
 			log.info("车辆:{}出场,请求查看扣费结果",plateNo);
 			String recordId=parkId+inout.getId();
 			String plateNO=URLEncoder.encode(plateNo, "UTF-8");
@@ -567,6 +584,20 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		result.setCode(2009);
 		result.setMsg("未在线支付");
 		return result;
+	}
+	public String getParkId(Long id){
+		SingleCarparkCarpark carpark = mapCarparks.get(id);
+		if (carpark==null) {
+			throw new RuntimeException("停车场："+id+" 的云同步编号未设置");
+		}
+		return carpark.getYunIdentifier();
+	}
+	public String getBuildId(Long id){
+		SingleCarparkCarpark carpark = mapCarparks.get(id);
+		if (carpark==null) {
+			throw new RuntimeException("停车场："+id+" 的云同步建筑编号未设置");
+		}
+		return carpark.getYunBuildIdentifier();
 	}
 	
 	public static void main(String[] args) throws Exception {

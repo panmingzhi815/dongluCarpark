@@ -27,10 +27,12 @@ import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkAccountCar;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.FixCarInTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.QueryParameter;
 import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -143,6 +145,9 @@ public class CarOutTask extends AbstractTask{
 			checkUserAndOut(true);
 		} catch (Exception e) {
 			LOGGER.error("车辆出场时发生错误",e);
+			if (e instanceof RuntimeException) {
+				throw (RuntimeException)e;
+			}
 			throw new RuntimeException(e.getCause());
 		}
 	
@@ -251,7 +256,7 @@ public class CarOutTask extends AbstractTask{
 		cch.setOutTime(date);
 		cch.setFactMoney(calculateTempCharge);
 		cch.setFreeMoney(0);
-		cch.setOutDevice(device.getName());
+		cch.setOutDevice(device);
 		cch.setOutSmallImg(smallImg);
 		cch.setOutBigImg(bigImg);
 		cch.setOutPlateNO(plateNO);
@@ -629,7 +634,7 @@ public class CarOutTask extends AbstractTask{
 		cch.setOutPlateNO(plateNO);
 		cch.setOutTime(date);
 		cch.setOperaName(model.getUserName());
-		cch.setOutDevice(device.getName());
+		cch.setOutDevice(device);
 		cch.setOutPhotographType("自动");
 		cch.setOutBigImg(bigImgFileName);
 		cch.setOutSmallImg(smallImgFileName);
@@ -665,7 +670,7 @@ public class CarOutTask extends AbstractTask{
 			}
 			singleCarparkInOutHistory.setOutTime(date);
 			singleCarparkInOutHistory.setOperaName(model.getUserName());
-			singleCarparkInOutHistory.setOutDevice(device.getName());
+			singleCarparkInOutHistory.setOutDevice(device);
 			singleCarparkInOutHistory.setOutDeviceIp(device.getIp());
 			singleCarparkInOutHistory.setOutPhotographType("自动");
 			singleCarparkInOutHistory.setOutBigImg(bigImgFileName);
@@ -749,24 +754,6 @@ public class CarOutTask extends AbstractTask{
 						if (shouldMoney-model.getChargedMoney()>0) {
 							model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
 							presenter.qrCodeInOut(editPlateNo, device, false, singleCarparkInOutHistory,"缴费"+CarparkUtils.formatFloatString(shouldMoney+"")+"元,请在黄线外扫码付费");
-							if (mapSystemSetting.get(SystemSettingTypeEnum.优先使用云平台计费).equals("false")) {
-								Result result = presenter.getPayResult(singleCarparkInOutHistory);
-								if (result!=null&&result.getPayedFee() == shouldMoney-model.getChargedMoney()) {
-									model.setReal(0);
-									model.setChargedMoney(result.getPayedFee());
-									model.setShouldMony(result.getPayedFee());
-									singleCarparkInOutHistory.setFreeMoney(0);
-									singleCarparkInOutHistory.setShouldMoney(result.getPayedFee());
-									singleCarparkInOutHistory.setFactMoney(result.getPayedFee());
-									singleCarparkInOutHistory.setChargeOperaName("在线支付");
-									singleCarparkInOutHistory.setRemarkString("在线缴费完成，在规定时间内出场！");
-									model.setPlateNo(singleCarparkInOutHistory.getPlateNo() + "-已在线支付");
-									model.setChargeHistory(singleCarparkInOutHistory);
-									model.setChargeDevice(device);
-									presenter.charge(false);
-									return;
-								} 
-							}
 							presenter.checkCharge(device,singleCarparkInOutHistory);
 							return;
 						}
@@ -914,8 +901,17 @@ public class CarOutTask extends AbstractTask{
 		if (cch.getUserName() != null && !StrUtil.isEmpty(string)) {
 			List<String> list = Arrays.asList(string.split(","));
 			if (list.contains(cch.getUserName())) {
+				cch.setChargedType(2);
 				return presenter.chargeCarPass(device, cch, false, shouldMoney, 0, 0, updateui);
 			}
+		}
+		List<CarparkAccountCar> list = sp.getCarparkUserService().findAccountCard(Arrays.asList(QueryParameter.eq("plateNo", editPlateNo)));
+		if (!StrUtil.isEmpty(list)) {
+			String name = list.get(0).getName();
+			model.setOutShowPlateNO(editPlateNo+"-"+name);
+			cch.setChargedType(2);
+			cch.setUserName(name);
+			return presenter.chargeCarPass(device, cch, false, shouldMoney, 0, 0, updateui);
 		}
 		return false;
 	}

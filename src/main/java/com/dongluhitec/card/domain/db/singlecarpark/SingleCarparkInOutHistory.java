@@ -57,6 +57,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	@Index(name = "SingleCarparkInOutHistory_plateNo_index")
 	private String plateNo;
 	@Column
+	@Index(name="SingleCarparkInOutHistory_userName_index")
 	private String userName;
 	private Boolean isCountSlot=true;
 	private Long userId;
@@ -74,7 +75,10 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private String outDevice;
 	@Column(length=20)
 	private String outDeviceIp;
+	private String inDeviceId;
+	private String outDeviceId;
 	
+	@Index(name="SingleCarparkInOutHistory_shouldMoney_index")
 	private Float shouldMoney;
 	@Index(name="SingleCarparkInOutHistory_factMoney_index")
 	private Float factMoney;
@@ -115,7 +119,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private byte[] remark;
 
 	private Float onlineMoney;
-	private Integer chargedType=0;//0 现金 1 网上
+	private Integer chargedType=0;//0 现金 1 网上2 记账
 	
 	@Column(length=10)
 	@Enumerated(EnumType.STRING)
@@ -583,5 +587,29 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	public void setChargedType(Integer chargedType) {
 		this.chargedType = chargedType;
 		//firePropertyChange("chargedType", null, null);
+	}
+	public String getInDeviceId() {
+		return inDeviceId;
+	}
+	public void setInDeviceId(String inDeviceId) {
+		this.inDeviceId = inDeviceId;
+		//firePropertyChange("inDeviceId", null, null);
+	}
+	public String getOutDeviceId() {
+		return outDeviceId;
+	}
+	public void setOutDeviceId(String outDeviceId) {
+		this.outDeviceId = outDeviceId;
+		//firePropertyChange("outDeviceId", null, null);
+	}
+
+	public void setInDevice(SingleCarparkDevice device) {
+		inDeviceId = device.getIdentifire();
+		inDevice = device.getName();
+	}
+	public void setOutDevice(SingleCarparkDevice device) {
+		outDeviceId = device.getIdentifire();
+		outDevice=device.getName();
+		outDeviceIp=device.getIp();
 	}
 }

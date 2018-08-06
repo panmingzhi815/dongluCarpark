@@ -26,6 +26,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
 import java.util.List;
+import java.util.function.Function;
 
 @SuppressWarnings("all")
 public class ExcelImportExportImpl implements ExcelImportExport {
@@ -522,10 +523,12 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		int currentRow = 0;
 		HSSFRow row = sheet.createRow(currentRow);
 //		row.createCell(0).setCellValue("编号");
+		int columnWidth[]=new int[cloumns.length];
 		for (int i = 0; i < names.length; i++) {
 			String string = names[i];
 			HSSFCell createCell = row.createCell(i+1);
 			row.createCell(i).setCellValue(string);
+			columnWidth[i]=string.getBytes("GBK").length;
 		}
 		currentRow++;
 		String string;
@@ -546,7 +549,11 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				string = cloumns[j];
 				fieldValueByName = CarparkUtils.getFieldValueByName(string, o);
 //				row.createCell(j+1).setCellValue(fieldValueByName+"");
-				row.createCell(j).setCellValue(fieldValueByName==null?"":fieldValueByName+"");
+				if (!StrUtil.isEmpty(fieldValueByName)) {
+					columnWidth[j]=Math.max(fieldValueByName.toString().getBytes().length, columnWidth[j]/256)*256;
+				}
+				HSSFCell createCell = row.createCell(j);
+				createCell.setCellValue(fieldValueByName==null?"":fieldValueByName+"");
 			}
 			if(i>0&&i%65530==0){
 				sheetSize=sheetSize+1;
@@ -560,6 +567,13 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				}
 				size+=65530;
 			}
+		}
+		for (int j = 0; j < columnWidth.length; j++) {
+			int i = columnWidth[j];
+			if (i<=0) {
+				continue;
+			}
+			sheet.setColumnWidth(j, i);
 		}
 		FileOutputStream fileOut = new FileOutputStream(path);
 		wb.write(fileOut);
@@ -616,6 +630,61 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		wb.write(fileOut);
 		fileOut.flush();
 		fileOut.close();
+	}
+	
+	public int importExcel(String path, int[] is, Function<String[], String> function) throws Exception {
+		int failNum = 0;
+		HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(path));
+		HSSFSheet sheet = wb.getSheetAt(0);
+		int currentRow = 0;
+		HSSFRow row = sheet.getRow(currentRow);
+		CellStyle cellStyle = wb.createCellStyle();
+		cellStyle.setBorderBottom((short) 1);
+		cellStyle.setBorderLeft((short) 1);
+		cellStyle.setBorderRight((short) 1);
+		cellStyle.setBorderTop((short) 1);
+		boolean isContent=false;
+		while (row != null) {
+			try {
+				if (!isContent) {
+					String cellStringValue = getCellStringValue(row, 0);
+					if (cellStringValue!=null&&cellStringValue.equals("编号")) {
+						isContent=true;
+					}else{
+						if (currentRow>=1) {
+							isContent=true;
+						}
+					}
+					continue;
+				}
+				String status = getCellStringValue(row, 15);
+				if (status.equals("处理成功")) {
+					continue;
+				}
+				// 导入用户
+				String name;
+				name = getCellStringValue(row, 1);
+				String[] ss=new String[is.length];
+				for (int j = 0; j < is.length; j++) {
+					int i = is[j];
+					ss[j]=getCellStringValue(row, i);
+				}
+				function.apply(ss);
+				setCellStringvalue(row, 15, "处理成功", cellStyle);
+			} catch (Exception e) {
+				failNum++;
+				e.printStackTrace();
+				setCellStringvalue(row, 15, "保存失败" + e.getMessage(), cellStyle);
+			} finally {
+				currentRow++;
+				row = sheet.getRow(currentRow);
+			}
+		}
+		FileOutputStream fileOut = new FileOutputStream(path);
+		wb.write(fileOut);
+		fileOut.flush();
+		fileOut.close();
+		return failNum;
 	}
 
 }

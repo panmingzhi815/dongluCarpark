@@ -282,7 +282,7 @@ public class CarInTask extends AbstractTask {
 			cch.setUserName(user.getName());
 			cch.setUserId(user.getId());
 		}
-		cch.setInDevice(device.getName());
+		cch.setInDevice(device);
 		cch.setInPhotographType("自动");
 		cch.setChargeTime(null);
 		cch.setChargeOperaName(null);

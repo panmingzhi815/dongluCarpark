@@ -36,10 +36,10 @@ public class AddBlackUserWizard extends Wizard implements AbstractWizard{
 			page.setErrorMessage("车牌不能为空");
 			return false;
 		}
-		if (!model.getPlateNO().matches(CarparkUtils.PLATENO_REGEX)) {
-			page.setErrorMessage("车牌格式不正确");
-			return false;
-		}
+//		if (!model.getPlateNO().matches(CarparkUtils.PLATENO_REGEX)) {
+//			page.setErrorMessage("车牌格式不正确");
+//			return false;
+//		}
 		String hoursStartLabel = model.getHoursStartLabel();
 		String hoursEndLabel = model.getHoursEndLabel();
 		String minuteStartLabel = model.getMinuteStartLabel();

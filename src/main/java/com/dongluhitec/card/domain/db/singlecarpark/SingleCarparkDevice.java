@@ -49,7 +49,7 @@ public class SingleCarparkDevice extends DomainObject{
 	
 	private Boolean isOpenCamera=true;
 	
-	private Boolean isHandCharge=false;
+	private Boolean isHandCharge=true;
 	
 	private String deviceVersion;
 	private String cameraVersion;

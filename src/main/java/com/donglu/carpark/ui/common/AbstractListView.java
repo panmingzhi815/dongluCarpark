@@ -317,8 +317,8 @@ public abstract class AbstractListView<T> extends AbstractView {
 		btn_more.setText("更多");
 	}
 
-	public AbstractListView(Composite parent, int style, Class<T> class1, String[] strings, String[] strings2, int[] is) {
-		this(parent, style, class1, strings, strings2, is, null);
+	public AbstractListView(Composite parent, int style, Class<T> class1, String[] columns, String[] strings2, int[] is) {
+		this(parent, style, class1, columns, strings2, is, null);
 	}
 
 	public void setColumnWidth(int[] widths) {
@@ -382,6 +382,7 @@ public abstract class AbstractListView<T> extends AbstractView {
 	}
 
 	protected void searchMore() {
+		getPresenter().loadMore();
 	}
 
 	protected void refresh() {
@@ -404,7 +405,7 @@ public abstract class AbstractListView<T> extends AbstractView {
 	public void sss() {
 
 	}
-
+	
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
@@ -435,8 +436,8 @@ public abstract class AbstractListView<T> extends AbstractView {
 //		tableViewer.setInput(listModelObserveList);
 	}
 
-	public Presenter getPresenter() {
-		return presenter;
+	public AbstractListPresenter<T> getPresenter() {
+		return (AbstractListPresenter<T>) presenter;
 	}
 
 	@SuppressWarnings("unchecked")

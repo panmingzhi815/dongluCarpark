@@ -66,5 +66,8 @@ public abstract class AbstractListPresenter<T> extends AbstractPresenter impleme
 	public AbstractListView<T> getView() {
 		return (AbstractListView<T>) super.getView();
 	}
+	public void loadMore() {
+		populate();
+	}
 
 }

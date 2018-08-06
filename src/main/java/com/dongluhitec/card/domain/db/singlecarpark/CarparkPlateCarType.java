@@ -11,6 +11,10 @@ public class CarparkPlateCarType extends DomainObject {
 	 */
 	private static final long serialVersionUID = -904849382534461516L;
 	
+	public enum Property{
+		plate,carType
+	}
+	
 	private String plate;
 	private String carType;
 	private Long tid;

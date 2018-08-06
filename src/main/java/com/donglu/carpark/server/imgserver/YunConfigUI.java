@@ -68,7 +68,7 @@ public class YunConfigUI {
 		composite.setLayout(new GridLayout(2, false));
 		GridData gd_composite = new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1);
 		gd_composite.heightHint = 227;
-		gd_composite.widthHint = 319;
+		gd_composite.widthHint = 362;
 		composite.setLayoutData(gd_composite);
 		CarparkYunConfig cf = (CarparkYunConfig) CarparkFileUtils.readObject(CARPARK_YUN_CONFIG);
 		if (cf==null) {

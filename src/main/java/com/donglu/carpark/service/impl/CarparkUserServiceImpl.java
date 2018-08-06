@@ -1,6 +1,7 @@
 package com.donglu.carpark.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,10 @@ import org.joda.time.DateTime;
 import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.blservice.DongluServiceException;
+import com.dongluhitec.card.domain.WithID;
+import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkAccountCar;
+import com.dongluhitec.card.domain.db.singlecarpark.QueryParameter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -42,13 +47,12 @@ import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
 import com.google.inject.persist.UnitOfWork;
 @SuppressWarnings("unchecked")
-public class CarparkUserServiceImpl implements CarparkUserService {
-
+public class CarparkUserServiceImpl extends BaseDaoServiceImpl implements CarparkUserService {
+	
 	@Inject
-	private Provider<EntityManager> emprovider;
-
-	@Inject
-	private UnitOfWork unitOfWork;
+	public CarparkUserServiceImpl(UnitOfWork unitOfWork, Provider<EntityManager> emprovider) {
+		super(unitOfWork, emprovider);
+	}
 
 	
 	@Override
@@ -62,7 +66,7 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 			emprovider.get().persist(new UserHistory(user,UpdateEnum.新添加));
 		} else {
 			SingleCarparkUser reference = emprovider.get().getReference(SingleCarparkUser.class, user.getId());
-			split=reference.getPlateNo().split(",");
+			split=(reference.getPlateNo()+","+user.getPlateNo()).split(",");
 			dom.save(user);
 			if (user.isCreateHistory()) {
 				emprovider.get().persist(new UserHistory(user,UpdateEnum.被修改));
@@ -611,5 +615,13 @@ public class CarparkUserServiceImpl implements CarparkUserService {
 		} finally {
 			unitOfWork.end();
 		}
+	}
+	@Override
+	public List<CarparkAccountCar> findAccountCard(List<QueryParameter> parameters) {
+		return find(CarparkAccountCar.class, parameters.toArray(new QueryParameter[parameters.size()]));
+	}
+	@Override
+	public int countAccountCar(List<QueryParameter> parameters) {
+		return count(CarparkAccountCar.class, parameters.toArray(new QueryParameter[parameters.size()])).intValue();
 	}
 }

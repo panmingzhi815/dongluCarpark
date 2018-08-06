@@ -1,5 +1,10 @@
 package com.dongluhitec.card.domain.db.singlecarpark;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public enum SystemUserTypeEnum {
 	超级管理员(99),
 	系统管理员(3),
@@ -36,5 +41,9 @@ public enum SystemUserTypeEnum {
 			return "维护管理员";
 		}
 		return super.toString();
+	}
+	public List<String> getDefaultPrivilege(){
+		List<CarparkPrivilegeEnum> list = new ArrayList<>();
+		return list.stream().map(t->t.getKey()).collect(Collectors.toList());
 	}
 }

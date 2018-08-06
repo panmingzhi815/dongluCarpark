@@ -63,6 +63,9 @@ public class CarparkCarType extends DomainObject{
     }
 
 	public Long getTid() {
+		if (tid==null) {
+			return id;
+		}
 		return tid;
 	}
 

@@ -404,6 +404,7 @@ public class CarparkMainApp extends AbstractApp{
 						presenter.saveDevice(singleCarparkDevice);
 					}
 					presenter.showNowTimeToDevice(singleCarparkDevice);
+					presenter.showNowTimeToCamera(singleCarparkDevice);
 				}
 				size++;
 			}

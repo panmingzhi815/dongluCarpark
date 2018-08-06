@@ -74,7 +74,9 @@ public abstract class AbstractTask implements Runnable {
 		} catch (Exception e) {
 			logger.error("车辆"+type+"时发生错误",e);
 			if (e.getCause() instanceof ConnectException) {
-				MessageUtil.info("网络故障","服务器连接失败,请检查网络！",60000);
+				MessageUtil.info(type+"错误","服务器连接失败,请检查网络！",60000);
+			}else{
+				MessageUtil.info(type+"错误",e.getMessage(),60000);
 			}
 		}
 

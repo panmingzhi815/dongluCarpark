@@ -37,8 +37,8 @@ public class PrepaidUserPayHistoryListView extends AbstractListView<SingleCarpar
 	}
 
 	@Override
-	public CarparkPayHistoryListPresenter getPresenter() {
-		return (CarparkPayHistoryListPresenter) super.getPresenter();
+	public PripaidUserPayHistoryListPresenter getPresenter() {
+		return (PripaidUserPayHistoryListPresenter) super.getPresenter();
 	}
 	
 }

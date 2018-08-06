@@ -1,6 +1,5 @@
 package com.donglu.carpark.ui.view.history;
 
-import java.util.List;
 
 import org.eclipse.swt.widgets.Composite;
 
@@ -14,9 +13,12 @@ public class HistoryPresenter extends AbstractPresenter {
 		return new HistoryViewer(c);
 	}
 	@Override
+	public HistoryViewer getView() {
+		return (HistoryViewer) super.getView();
+	}
+	@Override
 	protected void continue_go() {
-		List<SingleCarparkModuleEnum> list = SingleCarparkModuleEnum.getByParent(null);
-		
+		getView().init(SingleCarparkModuleEnum.getByParent(SingleCarparkModuleEnum.记录查询));
 	}
 
 }

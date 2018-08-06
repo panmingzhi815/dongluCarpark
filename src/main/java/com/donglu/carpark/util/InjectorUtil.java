@@ -11,8 +11,7 @@ public class InjectorUtil {
 	public static void start(final Module... modules){
 		Runnable runnable = new Runnable() {
 			public void run() {
-				injector = Guice.createInjector(modules);
-				isStart=true;
+				startsyn(modules);
 			}
 		};
 		new Thread(runnable).start();
@@ -27,6 +26,14 @@ public class InjectorUtil {
 		return isStart;
 	}
 	public static Injector getInjector() {
+		return injector;
+	}
+	/**
+	 * @param modules
+	 */
+	public static Injector startsyn(final Module... modules) {
+		injector = Guice.createInjector(modules);
+		isStart=true;
 		return injector;
 	}
 }

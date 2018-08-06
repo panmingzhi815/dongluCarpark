@@ -3,6 +3,10 @@ package com.donglu.carpark.service;
 import java.util.Date;
 import java.util.List;
 
+import com.dongluhitec.card.domain.WithID;
+import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkAccountCar;
+import com.dongluhitec.card.domain.db.singlecarpark.QueryParameter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
@@ -12,7 +16,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
 
-public interface CarparkUserService {
+public interface CarparkUserService extends BaseDaoService {
 	Long saveUser(SingleCarparkUser user);
 	Long deleteUser(SingleCarparkUser user);
 	
@@ -93,5 +97,7 @@ public interface CarparkUserService {
 	
 	List<SingleCarparkUser> findOverdueUserByLastEditTime(int start, int max, Date startTime, Date endTime);
 	
+	List<CarparkAccountCar> findAccountCard(List<QueryParameter> parameters);
+	int countAccountCar(List<QueryParameter> parameters);
 	
 }

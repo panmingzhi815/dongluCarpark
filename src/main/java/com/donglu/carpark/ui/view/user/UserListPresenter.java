@@ -1,6 +1,5 @@
 package com.donglu.carpark.ui.view.user;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -19,19 +18,16 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.CarparkUserService;
-import com.donglu.carpark.ui.CarparkManagePresenter;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.view.user.wizard.AddUserModel;
 import com.donglu.carpark.ui.view.user.wizard.AddUserWizard;
 import com.donglu.carpark.ui.view.user.wizard.MonthlyUserPayModel;
 import com.donglu.carpark.ui.view.user.wizard.MonthlyUserPayWizard;
-import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ExcelImportExport;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkModuleEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
@@ -51,8 +47,6 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 	String plateNo;
 	int will=0; 
 	String ed;
-	@Inject
-	CarparkManagePresenter carparkManagePresenter;
 	@Inject
 	private CommonUIFacility commonui;
 	@Inject
@@ -111,9 +105,6 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 										return;
 									}
 									if (open == 1) {
-										if (carparkManagePresenter!=null) {
-											carparkManagePresenter.setSelete(SingleCarparkModuleEnum.固定车设置);
-										}
 										view.getModel().setSelected(Arrays.asList(user));
 									} else if (open == 3) {
 										SingleCarparkSystemSetting ss = findSystemSettingByKey;

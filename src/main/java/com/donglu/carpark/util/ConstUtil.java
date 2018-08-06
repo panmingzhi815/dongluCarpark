@@ -1,8 +1,17 @@
 package com.donglu.carpark.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkPrivilegeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 
 /**
@@ -10,6 +19,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
  */
 public class ConstUtil {
 	private static final Map<String, String> mapCache=new HashMap<>();
+	private static final Map<SystemSettingTypeEnum,String> mapSettings=new HashMap<>();
+	private static final Set<String> setPrivileges=new HashSet<>();
 	/**
 	 * Text 的data的key 值 true时回车不改变焦点
 	 */
@@ -114,5 +125,21 @@ public class ConstUtil {
 		String property = System.getProperty(VISITOR_NAME);
 		mapCache.put(VISITOR_NAME, property);
 		return System.getProperty(VISITOR_NAME, "访客车");
+	}
+	public static Map<SystemSettingTypeEnum, String> getMapsettings() {
+		return mapSettings;
+	}
+	public Boolean getBooleanSetting(SystemSettingTypeEnum systemSettingTypeEnum){
+		return Boolean.valueOf(mapSettings.getOrDefault(systemSettingTypeEnum,	 systemSettingTypeEnum.getDefaultValue()));
+	}
+	public void loadPrivilege(CarparkDatabaseServiceProvider sp,String userName,String password){
+		List<String> list=sp.getSystemUserService().findPrivilegeByName(userName,password);
+		setPrivileges.addAll(list);
+	}
+	public static boolean checkCarparkPrivilege(CarparkPrivilegeEnum privilegeEnum) {
+		if (getUserName().equals("admin")) {
+			return true;
+		}
+		return setPrivileges.contains(privilegeEnum.getKey());
 	}
 }

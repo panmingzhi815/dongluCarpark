@@ -24,4 +24,6 @@ public interface SystemUserServiceI {
 	public void loginOut(String userName);
 	
 	public String loginStatus(String userName);
+
+	public List<String> findPrivilegeByName(String userName,String password);
 }

@@ -288,6 +288,8 @@ public class SettingView extends Composite implements View {
 		button_23.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_23.setText("保存遥控开闸记录");
 		button_23.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录)));
+		new Label(group, SWT.NONE);
+		new Label(group, SWT.NONE);
 		
 
 		Composite composite_2 = new Composite(group, SWT.NONE);
@@ -330,42 +332,6 @@ public class SettingView extends Composite implements View {
 		GridData gd_label2 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_label2.widthHint = 50;
 		label2.setLayoutData(gd_label2);
-
-		Button button_carparkChangeCar = new Button(composite_2, SWT.CHECK);
-		button_carparkChangeCar.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				boolean selection = button_carparkChangeCar.getSelection();
-				mapSystemSetting.put(SystemSettingTypeEnum.绑定车辆允许场内换车, selection + "");
-				text_carparkChangeCarTime.setEnabled(selection);
-			}
-		});
-		button_carparkChangeCar.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
-		button_carparkChangeCar.setText("允许场内换车");
-		button_carparkChangeCar.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆允许场内换车)));
-
-		text_carparkChangeCarTime = new Text(composite_2, SWT.BORDER);
-		text_carparkChangeCarTime.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
-		text_carparkChangeCarTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		text_carparkChangeCarTime.setEnabled(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆允许场内换车)));
-		text_carparkChangeCarTime.setText(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆场内换车时间));
-		text_carparkChangeCarTime.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				try {
-					String text2 = text_carparkChangeCarTime.getText();
-					Integer.valueOf(text2);
-					mapSystemSetting.put(SystemSettingTypeEnum.绑定车辆场内换车时间, text2);
-				} catch (NumberFormatException e1) {
-
-				}
-			}
-		});
-
-		Label label_10 = new Label(composite_2, SWT.NONE);
-		label_10.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
-		label_10.setText("分");
-		new Label(composite_2, SWT.NONE);
 
 		Composite composite_4 = new Composite(group, SWT.NONE);
 		composite_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
@@ -792,6 +758,44 @@ public class SettingView extends Composite implements View {
 		combo_1.setLayoutData(gd_combo_1);
 		combo_1.setItems(new String[] { "6", "7" });
 		combo_1.setText(mapSystemSetting.get(SystemSettingTypeEnum.固定车车牌匹配字符数));
+		
+		Composite composite_15 = new Composite(group_3, SWT.NONE);
+		composite_15.setLayout(new GridLayout(3, false));
+		composite_15.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+				Button button_carparkChangeCar = new Button(composite_15, SWT.CHECK);
+				button_carparkChangeCar.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						boolean selection = button_carparkChangeCar.getSelection();
+						mapSystemSetting.put(SystemSettingTypeEnum.绑定车辆允许场内换车, selection + "");
+						text_carparkChangeCarTime.setEnabled(selection);
+					}
+				});
+				button_carparkChangeCar.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+				button_carparkChangeCar.setText("允许场内换车");
+				button_carparkChangeCar.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆允许场内换车)));
+				
+						text_carparkChangeCarTime = new Text(composite_15, SWT.BORDER);
+						text_carparkChangeCarTime.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+						text_carparkChangeCarTime.setEnabled(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆允许场内换车)));
+						text_carparkChangeCarTime.setText(mapSystemSetting.get(SystemSettingTypeEnum.绑定车辆场内换车时间));
+								
+										Label label_10 = new Label(composite_15, SWT.NONE);
+										label_10.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+										label_10.setText("分");
+						text_carparkChangeCarTime.addModifyListener(new ModifyListener() {
+							@Override
+							public void modifyText(ModifyEvent e) {
+								try {
+									String text2 = text_carparkChangeCarTime.getText();
+									Integer.valueOf(text2);
+									mapSystemSetting.put(SystemSettingTypeEnum.绑定车辆场内换车时间, text2);
+								} catch (NumberFormatException e1) {
+
+								}
+							}
+						});
 
 		Group group_1 = new Group(group_3, SWT.NONE);
 		group_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
@@ -954,7 +958,7 @@ public class SettingView extends Composite implements View {
 			}
 		});
 		button_36.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
-		button_36.setText("监控端提示网络情况");
+		button_36.setText("监控端提示外网故障");
 		button_36.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.监控界面提示网络故障)));
 
 		Button button_38 = new Button(grpApp, SWT.CHECK);

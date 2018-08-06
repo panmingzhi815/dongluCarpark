@@ -1,7 +1,10 @@
 package com.donglu.carpark.service.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -12,9 +15,11 @@ import org.criteria4jpa.criterion.Restrictions;
 import com.donglu.carpark.service.SystemUserServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkPrivilegeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.google.common.cache.Cache;
 import com.google.inject.Inject;
@@ -130,6 +135,23 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 	@Override
 	public String loginStatus(String userName) {
 		return mapLoginInfo.get(userName);
+	}
+
+	@Override
+	public List<String> findPrivilegeByName(String userName,String password) {
+		if (userName.equals("admin")) {
+			return Arrays.asList(CarparkPrivilegeEnum.values()).stream().map(t->t.getKey()).collect(Collectors.toList());
+		}
+//		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkSystemUser.class);
+//		c.add(Restrictions.eq(SingleCarparkSystemUser.Property.userName.name(), userName));
+//		c.add(Restrictions.eq(SingleCarparkSystemUser.Property.password.name(), password));
+//		List<SingleCarparkSystemUser> resultList = c.getResultList();
+//		if (StrUtil.isEmpty(resultList)) {
+//			return new ArrayList<>();
+//		}
+//		SingleCarparkSystemUser systemUser = resultList.get(0);
+		
+		return new ArrayList<>();
 	}
 
 }
