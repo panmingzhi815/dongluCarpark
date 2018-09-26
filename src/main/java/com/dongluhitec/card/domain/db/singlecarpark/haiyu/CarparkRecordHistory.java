@@ -33,9 +33,18 @@ public class CarparkRecordHistory implements Serializable {
     
     private String userType;
     private Long carparkId;
+    
+    private String inDeviceId;
+	private String outDeviceId;
+	
+	private String plateColor;
+	
+	private Integer leftSlot=0;
 
     @Embedded
     private HistoryDetail historyDetail = new HistoryDetail();
+
+	private Integer chargedType;
 
     public CarparkRecordHistory() {
     }
@@ -57,6 +66,11 @@ public class CarparkRecordHistory implements Serializable {
         userType=carparkInOutHistory.getUserType();
         carparkId=carparkInOutHistory.getCarparkId();
         this.historyDetail.setUpdateState(updateEnum);
+        inDeviceId=carparkInOutHistory.getInDeviceId();
+        outDeviceId=carparkInOutHistory.getOutDeviceId();
+        chargedType = carparkInOutHistory.getChargedType();
+        setLeftSlot(carparkInOutHistory.getLeftSlot());
+    	setPlateColor(carparkInOutHistory.getPlateColor());
     }
     public SingleCarparkInOutHistory getHistory(){
     	SingleCarparkInOutHistory carparkInOutHistory=new SingleCarparkInOutHistory();
@@ -75,6 +89,11 @@ public class CarparkRecordHistory implements Serializable {
     	carparkInOutHistory.setCarType(carType);
     	carparkInOutHistory.setUserType(userType);
     	carparkInOutHistory.setCarparkId(carparkId);
+    	carparkInOutHistory.setInDeviceId(inDeviceId);
+    	carparkInOutHistory.setOutDeviceId(outDeviceId);
+    	carparkInOutHistory.setLeftSlot(getLeftSlot());
+    	carparkInOutHistory.setPlateColor(getPlateColor());
+    	carparkInOutHistory.setChargedType(chargedType);
 		return carparkInOutHistory;
     }
 
@@ -227,5 +246,39 @@ public class CarparkRecordHistory implements Serializable {
 
 	public void setCarparkId(Long carparkId) {
 		this.carparkId = carparkId;
+	}
+
+	public String getInDeviceId() {
+		return inDeviceId;
+	}
+
+	public void setInDeviceId(String inDeviceId) {
+		this.inDeviceId = inDeviceId;
+	}
+
+	public String getOutDeviceId() {
+		return outDeviceId;
+	}
+
+	public void setOutDeviceId(String outDeviceId) {
+		this.outDeviceId = outDeviceId;
+	}
+
+	public String getPlateColor() {
+		return plateColor;
+	}
+
+	public void setPlateColor(String plateColor) {
+		this.plateColor = plateColor;
+		//firePropertyChange("plateColor", null, null);
+	}
+
+	public Integer getLeftSlot() {
+		return leftSlot;
+	}
+
+	public void setLeftSlot(Integer leftSlot) {
+		this.leftSlot = leftSlot;
+		//firePropertyChange("leftSlot", null, null);
 	}
 }

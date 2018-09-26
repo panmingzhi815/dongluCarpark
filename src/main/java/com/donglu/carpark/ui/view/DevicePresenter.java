@@ -98,9 +98,9 @@ public class DevicePresenter  implements Presenter{
 				log.info("设备已停用");
 				return;
 			}
-//			SingleCarparkDevice device = model.getMapIpToDevice().get(ip);
+			SingleCarparkDevice device = model.getMapIpToDevice().get(ip);
 //			presenter.openDoor(device);
-//			presenter.showContentToDevice("手动开闸", device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
+			presenter.showContentToDevice("手动开闸", device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 //			if (model.equalsSetting(SystemSettingTypeEnum.抬杆自动收费放行,"true")&&model.getMapWaitInOutHistory().get(ip)!=null) {
 //				SingleCarparkInOutHistory data = model.getMapWaitInOutHistory().get(ip);
 //				presenter.charge(false, true, data, device);

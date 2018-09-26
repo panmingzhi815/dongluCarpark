@@ -14,7 +14,9 @@ public class Result implements Serializable {
 	private Object obj;
 	private float deptFee=0;
 	private float payedFee=0;
+	private float couponValue=0;
 	private Date outTime;
+	private Date inTime;
 	
 	public boolean isSuccess() {
 		return success;
@@ -58,6 +60,19 @@ public class Result implements Serializable {
 	public void setOutTime(Date outTime) {
 		this.outTime = outTime;
 		//firePropertyChange("outTime", null, null);
+	}
+	public float getCouponValue() {
+		return couponValue;
+	}
+	public void setCouponValue(float couponValue) {
+		this.couponValue = couponValue;
+	}
+	public Date getInTime() {
+		return inTime;
+	}
+	public void setInTime(Date inTime) {
+		this.inTime = inTime;
+		//firePropertyChange("inTime", null, null);
 	}
 	
 }

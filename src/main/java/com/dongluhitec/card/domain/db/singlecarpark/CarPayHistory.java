@@ -20,7 +20,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
 public class CarPayHistory extends DomainObject{
 	public enum PayTypeEnum {
-		现金支付,支付宝,微信支付,App支付;
+		现金支付,支付宝,微信支付,App支付,优惠券抵扣;
 
 		public static PayTypeEnum getType(int intValue) {
 			switch (intValue) {
@@ -32,12 +32,20 @@ public class CarPayHistory extends DomainObject{
 				return App支付;
 			case 6:
 				return App支付;
+			case 15:
+				return 优惠券抵扣;
 			}
 			return 现金支付;
 		}
+		public int toType(){
+			if(this.ordinal()>0) {
+				return 1;
+			}
+			return 0;
+		}
 	}
 	public enum Property{
-		plateNO,payTime,createDate,payedMoney,remark,operaName,payId
+		plateNO,payTime,createDate,payedMoney,remark,operaName,payId,historyId
 	}
 	public enum Label{
 		plateNO,payTimeLabel,createDateLabel,payedMoney,remark,operaName,payType,inTimeLabel,cashCost,onlineCost,couponValue
@@ -64,6 +72,7 @@ public class CarPayHistory extends DomainObject{
 	private Double onlineCost=0d;//在线支付
 	private Double couponValue=0d;//优惠金额
 	private Integer couponTime=0;//优惠时长（）
+	private String couponCode;//优惠编码
 	private Long historyId;
 	
 	@Temporal(TemporalType.TIMESTAMP)
@@ -224,5 +233,12 @@ public class CarPayHistory extends DomainObject{
 	}
 	public void setOutTime(Date outTime) {
 		this.outTime = outTime;
+	}
+	public String getCouponCode() {
+		return couponCode;
+	}
+	public void setCouponCode(String couponCode) {
+		this.couponCode = couponCode;
+		//firePropertyChange("couponCode", null, null);
 	}
 }

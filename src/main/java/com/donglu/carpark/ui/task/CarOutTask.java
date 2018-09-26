@@ -234,7 +234,7 @@ public class CarOutTask extends AbstractTask{
 		
 		CarTypeEnum parse = user.getCarType();
 		Date inTime = cch.getInTime();
-		float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carpark.getId(),parse.index(), inTime, date);
+		float calculateTempCharge =presenter.countShouldMoney(carpark.getId(), parse+"", inTime, date, cch);
 		model.setPlateNo(cch.getPlateNo());
 		model.setInTime(inTime);
 		model.setOutTime(date);
@@ -242,9 +242,13 @@ public class CarOutTask extends AbstractTask{
 		model.setReal(calculateTempCharge);
 		model.setTotalTime(StrUtil.MinusTime2(inTime, date));
 		model.setCarType("储值车");
+//		model.setChargedMoney(0f);
 		LOGGER.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", plateNO, device.getCarpark(), "储值车", model.getInTime(), model.getOutTime(), model.getTotalTime(), model.getShouldMony());
 		if (calculateTempCharge>leftMoney) {
 			presenter.showContentToDevice(editPlateNo,device, CarparkUtils.formatFloatString("请缴费"+calculateTempCharge+"元,"+haveNoMoney), false);
+//			model.setBtnClick(true);
+//			model.setChargeDevice(device);
+//			model.setChargeHistory(cch);
 			return true;
 		}
 		LOGGER.info("准备保存储值车出场数据到数据库");
@@ -648,6 +652,11 @@ public class CarOutTask extends AbstractTask{
 		sp.getCarparkInOutService().saveInOutHistory(cch);
 		logger.info("保存车牌{}出场数据到数据库成功",editPlateNo);
 	}
+	/**
+	 * 临时车出场
+	 * @param reviseInTime
+	 * @throws Exception
+	 */
 	private void tempCarOutProcess(Date reviseInTime) throws Exception{
 		if (!visitorCarOut()) {
 			return;

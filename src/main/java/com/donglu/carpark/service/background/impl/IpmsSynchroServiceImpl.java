@@ -1,5 +1,8 @@
 package com.donglu.carpark.service.background.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -15,12 +18,16 @@ import com.donglu.carpark.service.background.AbstractCarparkBackgroundService;
 import com.donglu.carpark.service.background.IpmsSynchroServiceI;
 import com.donglu.carpark.util.ExecutorsUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.CarparkRecordHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.google.common.io.Files;
+import com.google.common.util.concurrent.Service;
 import com.google.inject.Inject;
 
 public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService implements IpmsSynchroServiceI {
@@ -28,6 +35,7 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 	private CarparkDatabaseServiceProvider sp;
 	private IpmsServiceI ipmsService;
 	private ScheduledExecutorService uploadHistoryExecutorService;
+	private boolean isRunService=false;
 
 	@Inject
 	public IpmsSynchroServiceImpl(IpmsServiceI ipmsService,CarparkDatabaseServiceProvider sp) {
@@ -37,6 +45,14 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 		uploadHistoryExecutorService = ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
+				if (!isRunService) {
+					try {
+						Thread.sleep(60000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					return;
+				}
 				//同步用户信息
 				CarparkUserService carparkUserService = sp.getCarparkUserService();
 				List<UserHistory> findUserHistory = carparkUserService.findUserHistory(UpdateEnum.values(), new ProcessEnum[] { ProcessEnum.未处理, ProcessEnum.处理失败 });
@@ -88,13 +104,22 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 				if (!findUserHistory.isEmpty()||!findHaiYuRecordHistory.isEmpty()) {
 					return;
 				}
+				syncImages();
 			}
 		}, 5, 3, TimeUnit.SECONDS, "ipms记录上传服务");
+	}
+
+	protected void syncImages() {
+		ipmsService.synchroImage(10);
 	}
 
 	@Override
 	protected void run() {
 		try {
+			checkSetting();
+			if (!isRunService) {
+				return;
+			}
 			ipmsService.updateTempCarChargeHistory();
 			ipmsService.updateFixCarChargeHistory();
 			ipmsService.updateUserInfo();
@@ -104,12 +129,33 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * 
+	 */
+	public void checkSetting() {
+		try {
+			SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.启用CJLAPP支付.name());
+			if (findSystemSettingByKey != null && findSystemSettingByKey.getBooleanValue()) {
+				isRunService=true;
+			}else {
+				isRunService=false;
+			}
+		} catch (Exception e) {
+			log.error("检测设置时发生错误!",e);
+		}
+	}
 	@Override
 	protected void shutDown() throws Exception {
 		super.shutDown();
 		if (uploadHistoryExecutorService!=null) {
 			uploadHistoryExecutorService.shutdown();
 		}
+	}
+	@Override
+	protected void startUp() throws Exception {
+		super.startUp();
+		checkSetting();
 	}
 
 	private void checkUserValidTo() {

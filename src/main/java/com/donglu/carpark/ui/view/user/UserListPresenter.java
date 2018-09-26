@@ -288,6 +288,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 					model.setFree(true);
 				}
 			}else{
+				if (!singleCarparkUser.getType().equals("免费"))
 				model.setFree(true);
 			}
 			model.setOverdueTime(singleCarparkUser.getValidTo());
@@ -404,7 +405,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "修改了用户:"+singleCarparkUser.getName(),System.getProperty("userName"));
 			commonui.info("操作成功", "修改成功!");
 			refresh();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			commonui.error("操作失败", "修改失败!",e);
 		}
 	

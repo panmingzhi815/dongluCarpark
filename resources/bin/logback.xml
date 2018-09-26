@@ -6,6 +6,12 @@
             </pattern>
         </encoder>
     </appender>
+    <appender name="APPOUT" class="com.donglu.carpark.util.MyAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
 	
 	
     <appender name="UI_MESSAGE_DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -75,6 +81,9 @@
     </logger>
      <logger name="com.donglu.carpark.util" level="ERROR">
         <appender-ref ref="UI_MESSAGE_DEBUG"/>
+    </logger>
+    <logger name="com" level="INFO">
+        <appender-ref ref="APPOUT"/>
     </logger>
  	<logger name="org.eclipse.jetty" level="ERROR"></logger> 
 </configuration>

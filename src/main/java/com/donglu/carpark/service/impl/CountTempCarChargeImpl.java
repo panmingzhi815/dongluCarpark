@@ -78,4 +78,60 @@ public class CountTempCarChargeImpl implements CountTempCarChargeI {
 		return (totalCharge - money < 0 ? 0 : totalCharge - money);
 	}
 
+	@Override
+	public float charge(Long carparkId, long carType, Date startTime, Date endTime, CarparkDatabaseServiceProvider sp, String plateNo, boolean reCharge) {
+
+		
+		float totalCharge = 0;
+		Float money = 0F;// 免费金额
+		Float hour = 0F;// 免费时间
+		try {
+			// 查找优惠信息
+			List<SingleCarparkStoreFreeHistory> findByPlateNO = sp.getStoreService().findByPlateNO(0, Integer.MAX_VALUE, null, plateNo, "未使用", startTime, endTime);
+			if (!StrUtil.isEmpty(findByPlateNO)) {
+				for (SingleCarparkStoreFreeHistory free : findByPlateNO) {
+					if (free.getIsAllFree()!=null&&free.getIsAllFree()) {
+						return 0;
+					}
+					if (!StrUtil.isEmpty(free.getFreeHour())) {
+						hour += free.getFreeHour();
+					}
+					if (!StrUtil.isEmpty(free.getFreeMoney())) {
+						money += free.getFreeMoney();
+					}
+				}
+			}
+//			LOGGER.info("车牌{}在时间{}-{}内优惠金额{}元，优惠时间{}小时", model.getPlateNo(), startTime, endTime, money, hour);
+			// 变更收费时间
+			startTime = new DateTime(startTime).plusHours(hour.intValue()).plusMinutes(Float.valueOf((hour % 1F)).intValue()).toDate();
+			//获取今天的最大收费
+			float findOneDayMaxCharge = sp.getCarparkInOutService().findOneDayMaxCharge(carType, carparkId);
+			//计算收费
+			float calculateTempCharge = sp.getCarparkService().calculateTempCharge(carparkId, carType, startTime, endTime);
+//			LOGGER.info("今天最大收费{}元，今天缴费了{}元，计算收费{}元",findOneDayMaxCharge,countTodayCharge,calculateTempCharge);
+			if (!reCharge) {
+				//今天收费
+				float countTodayCharge = sp.getCarparkInOutService().countTodayCharge(plateNo, StrUtil.getTodayTopTime(new Date()), StrUtil.getTodayBottomTime(new Date()));
+				
+				if (findOneDayMaxCharge>0&&countTodayCharge>findOneDayMaxCharge) {
+//				LOGGER.info("今天最大收费{}元，今天缴费了{}元",findOneDayMaxCharge,countTodayCharge);
+					return 0;
+				}
+				if(countTodayCharge>0&&findOneDayMaxCharge>0&&(calculateTempCharge+countTodayCharge)>(findOneDayMaxCharge)){
+					totalCharge+=(findOneDayMaxCharge-countTodayCharge);
+				}else {
+					totalCharge+=calculateTempCharge;
+				}
+			}else{
+				return calculateTempCharge;
+			}
+			
+		} catch (Exception e) {
+			LOGGER.error("计算收费是发生错误", e);
+			return 0;
+		}
+		return (totalCharge - money < 0 ? 0 : totalCharge - money);
+	
+	}
+
 }

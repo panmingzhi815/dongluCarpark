@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.eclipse.swt.widgets.Composite;
@@ -23,6 +24,7 @@ import com.donglu.carpark.ui.view.inouthistory.wizard.SetCarTypeModel;
 import com.donglu.carpark.ui.view.inouthistory.wizard.SetCarTypeWizard;
 import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
 import com.donglu.carpark.util.ExcelImportExport;
+import com.donglu.carpark.util.ExcelImportExport.ExcelImportExportData;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.CommonUIFacility.Progress;
@@ -75,18 +77,17 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	private void defaultSearch() {
 		AbstractListView<SingleCarparkInOutHistory>.Model model = v.getModel();
 		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(model.getList().size(), 500, plateNo, 
-				userName, carType, inout, start, end,outStart,outEnd, operaName, inDevice,
-				outDevice, returnAccount, carpark.getId(),shouldMoney);
-		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end,outStart,outEnd,
-				operaName, inDevice, outDevice, returnAccount, carpark.getId(),shouldMoney);
-//		List<SingleCarparkInOutHistory> filter = filter(findByCondition, modifyPlateNO);
-//		for (SingleCarparkInOutHistory singleCarparkInOutHistory : findByCondition) {
-//			if(singleCarparkInOutHistory.getPlateNo().equals("粤WZR220")){
-//				System.out.println(singleCarparkInOutHistory.getPlateNo()+"====="+singleCarparkInOutHistory.getInTime());
-//			}
-//		}
-//		System.out.println(findByCondition.size());
+		List<SingleCarparkInOutHistory> findByCondition = carparkInOutService.findByCondition(model.getList().size(), 500, plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName,
+				inDevice, outDevice, returnAccount, carpark.getId(), shouldMoney);
+		Long countByCondition = carparkInOutService.countByCondition(plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carpark.getId(),
+				shouldMoney);
+		// List<SingleCarparkInOutHistory> filter = filter(findByCondition, modifyPlateNO);
+		// for (SingleCarparkInOutHistory singleCarparkInOutHistory : findByCondition) {
+		// if(singleCarparkInOutHistory.getPlateNo().equals("粤WZR220")){
+		// System.out.println(singleCarparkInOutHistory.getPlateNo()+"====="+singleCarparkInOutHistory.getInTime());
+		// }
+		// }
+		// System.out.println(findByCondition.size());
 		model.setCountSearchAll(countByCondition.intValue());
 		model.AddList(findByCondition);
 		model.setCountSearch(model.getList().size());
@@ -125,7 +126,7 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		});
 		List<SingleCarparkInOutHistory> list = new ArrayList<>();
 		list.addAll(filter);
-		 v.setColumnWidth(new int[]{100,100,100,100,200,100,200,100,90,90,90,90,100,100});
+		v.setColumnWidth(new int[] { 100, 100, 100, 100, 200, 100, 200, 100, 90, 90, 90, 90, 100, 100 });
 		return list;
 	}
 
@@ -137,8 +138,8 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		defaultSearch();
 	}
 
-	public void search(String plateNo, String userName, Date start, Date end, Date outStart, Date outEnd, String operaName, String carType, String inout, String inDevice, String outDevice, String returnAccount,
-			SingleCarparkCarpark carpark, float... shouldMoney) {
+	public void search(String plateNo, String userName, Date start, Date end, Date outStart, Date outEnd, String operaName, String carType, String inout, String inDevice, String outDevice,
+			String returnAccount, SingleCarparkCarpark carpark, float... shouldMoney) {
 		this.plateNo = plateNo;
 		this.userName = userName;
 		this.start = start;
@@ -169,23 +170,24 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		float should = 0;
 		float fact = 0;
 		float free = 0;
-		float online=0;
+		float online = 0;
 		for (SingleCarparkInOutHistory singleCarparkInOutHistory : list) {
 			String remarkString = singleCarparkInOutHistory.getRemarkString();
 			float i = singleCarparkInOutHistory.getShouldMoney() == null ? 0 : singleCarparkInOutHistory.getShouldMoney().floatValue();
 			float j = singleCarparkInOutHistory.getFactMoney() == null ? 0 : singleCarparkInOutHistory.getFactMoney().floatValue();
 			float k = singleCarparkInOutHistory.getFreeMoney() == null ? 0 : singleCarparkInOutHistory.getFreeMoney().floatValue();
 			should += i;
-			if (remarkString!=null&&(remarkString.contains("缴费完成")||remarkString.contains("扫码缴费出场"))) {
-				online+=j;
-			}else{
+			if ((remarkString != null && (remarkString.contains("缴费完成") || remarkString.contains("扫码缴费出场")))||singleCarparkInOutHistory.getChargedType()==1) {
+				online += j;
+			} else {
 				fact += j;
 			}
 			free += k;
 		}
-		v.setMoney(should + "", fact + "", free + "",online+"");
-		return new float[] { should, fact ,free,online};
+		v.setMoney(should + "", fact + "", free + "", online + "");
+		return new float[] { should, fact, free, online };
 	}
+
 	public float[] countMoney(List<SingleCarparkInOutHistory> list) {
 		if (StrUtil.isEmpty(list)) {
 			return null;
@@ -193,23 +195,22 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		float should = 0;
 		float fact = 0;
 		float free = 0;
-		float online=0;
+		float online = 0;
 		for (SingleCarparkInOutHistory singleCarparkInOutHistory : list) {
 			String remarkString = singleCarparkInOutHistory.getRemarkString();
 			float i = singleCarparkInOutHistory.getShouldMoney() == null ? 0 : singleCarparkInOutHistory.getShouldMoney().floatValue();
 			float j = singleCarparkInOutHistory.getFactMoney() == null ? 0 : singleCarparkInOutHistory.getFactMoney().floatValue();
 			float k = singleCarparkInOutHistory.getFreeMoney() == null ? 0 : singleCarparkInOutHistory.getFreeMoney().floatValue();
 			should += i;
-			if (remarkString!=null&&(remarkString.contains("缴费完成")||remarkString.contains("扫码缴费出场"))) {
-				online+=j;
-			}else{
+			if (remarkString != null && (remarkString.contains("缴费完成") || remarkString.contains("扫码缴费出场"))) {
+				online += j;
+			} else {
 				fact += j;
 			}
 			free += k;
 		}
-		return new float[] { should, fact ,online,free };
+		return new float[] { should, fact, online, free };
 	}
-	
 
 	public void lookDetail() {
 		try {
@@ -217,7 +218,7 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 				return;
 			}
 			SingleCarparkInOutHistory h = v.getModel().getSelected().get(0);
-			ShowInOutHistoryModel model=new ShowInOutHistoryModel();
+			ShowInOutHistoryModel model = new ShowInOutHistoryModel();
 			model.setInfo(h);
 			InOutHistoryDetailWizard wizard = new InOutHistoryDetailWizard(model);
 			inOutHistory = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
@@ -235,7 +236,7 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	public void mouseDoubleClick(List<SingleCarparkInOutHistory> list) {
 		try {
 			SingleCarparkInOutHistory h = list.get(0);
-			ShowInOutHistoryModel model=new ShowInOutHistoryModel();
+			ShowInOutHistoryModel model = new ShowInOutHistoryModel();
 			model.setInfo(h);
 			InOutHistoryDetailWizard wizard = new InOutHistoryDetailWizard(model);
 			inOutHistory = (SingleCarparkInOutHistory) commonui.showWizard(wizard);
@@ -246,82 +247,137 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 
 	public void exportSearch() {
 		Integer countSearchAll = v.getModel().getCountSearchAll();
-		if (countSearchAll<=0) {
+		if (countSearchAll <= 0) {
 			return;
 		}
-		boolean exportCurtenRecord=false;
-		boolean confirm = commonui.confirm("提示", "是否导出满足查询条件的"+countSearchAll+"条车辆进出场记录？");
+		boolean exportCurtenRecord = false;
+		boolean confirm = commonui.confirm("提示", "是否导出满足查询条件的" + countSearchAll + "条车辆进出场记录？");
 		if (!confirm) {
-			countSearchAll =v.getModel().getCountSearch();
-			confirm = commonui.confirm("提示", "是否导出界面中"+countSearchAll+"条车辆进出场记录？");
+			countSearchAll = v.getModel().getCountSearch();
+			confirm = commonui.confirm("提示", "是否导出界面中" + countSearchAll + "条车辆进出场记录？");
 			if (!confirm) {
 				return;
 			}
-			exportCurtenRecord=true;
+			exportCurtenRecord = true;
 		}
 		String selectToSave = commonui.selectToSave();
 		if (StrUtil.isEmpty(selectToSave)) {
 			return;
 		}
-		Progress showProgressBar = commonui.showProgressBar("导出"+countSearchAll+"条进出记录!", 0, countSearchAll);
+		Progress showProgressBar = commonui.showProgressBar("导出" + countSearchAll + "条进出记录!", 0, countSearchAll);
 		final ProcessBarMonitor monitor = showProgressBar.getMonitor();
-		boolean exportType=exportCurtenRecord;
+		boolean exportType = exportCurtenRecord;
+		int waitReportSize = countSearchAll.intValue();
 		new Thread(new Runnable() {
 			public void run() {
 				monitor.showMessage("准备从数据库中获取数据！");
 				try {
-					List<SingleCarparkInOutHistory> list=new ArrayList<>();
-					if (!exportType) {
-						CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
-						while (true) {
-							List<SingleCarparkInOutHistory> find = carparkInOutService.findByCondition(list.size(), 500, plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName,
-									inDevice, outDevice, returnAccount, carpark.getId(), shouldMoney);
-							list.addAll(find);
-							monitor.showMessage("已加载" + list.size() + "条数据");
-							if (find.size() < 500) {
-								break;
-							}
-						} 
-					}else{
-						list.addAll(v.getModel().getList());	
-					}
-					if (list.isEmpty()) {
-						return;
-					}
-					float[] countMoney = countMoney(list);
-					if (countMoney!=null&&countMoney.length>=4) {
-						SingleCarparkInOutHistory history = new SingleCarparkInOutHistory();
-						history.setOperaName("总计:");
-						history.setShouldMoney(countMoney[0]);
-						history.setFactMoney(countMoney[1]+countMoney[2]);
-						history.setFreeMoney(countMoney[3]);
-						history.setFreeReason("现金:"+countMoney[1]+"网上:"+countMoney[2]);
-						list.add(history);
-					}
+					CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
+					List<SingleCarparkInOutHistory> list = new ArrayList<>();
+//					if (!exportType) {
+//						while (true) {
+//							List<SingleCarparkInOutHistory> find = carparkInOutService.findByCondition(list.size(), 500, plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName,
+//									inDevice, outDevice, returnAccount, carpark.getId(), shouldMoney);
+//							list.addAll(find);
+//							monitor.showMessage("已加载" + list.size() + "条数据");
+//							if (find.size() < 500) {
+//								break;
+//							}
+//						}
+//					} else {
+//						list.addAll(v.getModel().getList());
+//					}
+//					if (list.isEmpty()) {
+//						return;
+//					}
+//					float[] countMoney = countMoney(list);
+//					if (countMoney != null && countMoney.length >= 4) {
+//						SingleCarparkInOutHistory history = new SingleCarparkInOutHistory();
+//						history.setOperaName("总计:");
+//						history.setShouldMoney(countMoney[0]);
+//						history.setFactMoney(countMoney[1] + countMoney[2]);
+//						history.setFreeMoney(countMoney[3]);
+//						history.setFreeReason("现金:" + countMoney[1] + "网上:" + countMoney[2]);
+//						list.add(history);
+//					}
 					String path = StrUtil.checkPath(selectToSave, new String[] { ".xls", ".xlsx" }, ".xls");
 					String[] columnProperties = v.getColumnProperties();
 					String[] nameProperties = v.getNameProperties();
 					ExcelImportExport excelImportExport = new ExcelImportExportImpl();
-					if(monitor.isDispose()){
+					if (monitor.isDispose()) {
 						throw new Exception("导出已终止！");
 					}
-					excelImportExport.export(path, nameProperties, columnProperties, list, monitor);
+					// excelImportExport.export(path, nameProperties, columnProperties, list,
+					// monitor);
+					AtomicInteger totalSize = new AtomicInteger(0);
+					ExcelImportExportData<SingleCarparkInOutHistory> excelImportExportData = new ExcelImportExport.ExcelImportExportData<SingleCarparkInOutHistory>() {
+						float[] f = new float[4];
+
+						@Override
+						public List<SingleCarparkInOutHistory> getData(int current, int size) {
+							if (!exportType) {
+								list.clear();
+								LOGGER.info("正在加载第{}-{}条数据", current, size);
+								CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
+								while (true) {
+									List<SingleCarparkInOutHistory> find = carparkInOutService.findByCondition(list.size() + current, Math.min(size - list.size(), 500), plateNo, userName, carType,
+											inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carpark.getId(), shouldMoney);
+									list.addAll(find);
+									if (monitor.isDispose()) {
+										throw new RuntimeException("用户取消导出");
+									}
+									monitor.showMessage("已加载" + (list.size() + current) + "条数据");
+									if (find.size() < 500 || list.size() >= size) {
+										break;
+									}
+								}
+								if (!StrUtil.isEmpty(list)) {
+									float[] countMoney = countMoney(list);
+									if (countMoney != null) {
+										for (int i = 0; i < countMoney.length; i++) {
+											f[i] = f[i] + countMoney[i];
+										}
+									}
+									totalSize.addAndGet(list.size());
+									if (totalSize.get() == waitReportSize) {
+										SingleCarparkInOutHistory history = new SingleCarparkInOutHistory();
+										history.setOperaName("总计:");
+										history.setShouldMoney(f[0]);
+										history.setFactMoney(f[1] + f[2]);
+										history.setFreeMoney(f[3]);
+										history.setFreeReason("现金:" + f[1] + "网上:" + f[2]);
+										list.add(history);
+									}
+								}
+								return list;
+							} else {
+								List<SingleCarparkInOutHistory> list = v.getModel().getList();
+								if (current >= list.size()) {
+									return new ArrayList<>();
+								}
+								return list;
+							}
+						}
+					};
+					// excelImportExport.export(path, nameProperties, columnProperties,excelImportExportData, monitor);
+					excelImportExport.exportInOutHistory(path, waitReportSize, excelImportExportData, monitor);
 					commonui.info("操作成功", "导出成功");
-					LOGGER.info("导出{}条进出场记录成功", list.size());
+					LOGGER.info("导出进出场记录成功");
 				} catch (Throwable e) {
 					commonui.info("操作失败", "操作失败" + e.getMessage());
 					LOGGER.info("导出进出场记录失败", e);
-				}finally{
+				} finally {
 					if (!monitor.isDispose()) {
 						monitor.finish();
 					}
 				}
 			}
 		}).start();
+
 	}
 
 	public void flowStatistics() {
-		ShowDialog d=new ShowDialog("报表统计");
+		ShowDialog d = new ShowDialog("报表统计");
 		d.setPresenter(countFlowPresenter);
 		d.setHaveButon(false);
 		d.setSize(600, 600);
@@ -339,18 +395,18 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		if (StrUtil.isEmpty(list)) {
 			return;
 		}
-		
+
 		try {
 			List<CarparkCarType> carparkCarTypeList = sp.getCarparkService().getCarparkCarTypeList();
 			SingleCarparkInOutHistory history = list.get(0);
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
 			List<CarparkPlateCarType> find = carparkUserService.find(CarparkPlateCarType.class, QueryParameter.eq(CarparkPlateCarType.Property.plate.name(), history.getPlateNo()));
-			CarparkCarType carType=carparkCarTypeList.get(0);
+			CarparkCarType carType = carparkCarTypeList.get(0);
 			if (!StrUtil.isEmpty(find)) {
 				CarparkPlateCarType carparkPlateCarType = find.get(0);
 				for (CarparkCarType carparkCarType : carparkCarTypeList) {
 					if (carparkPlateCarType.getCarType().equals(carparkCarType.getName())) {
-						carType=carparkCarType;
+						carType = carparkCarType;
 						break;
 					}
 				}
@@ -360,24 +416,24 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 			model.setList(carparkCarTypeList);
 			SetCarTypeWizard setCarTypeWizard = new SetCarTypeWizard(model);
 			Object showWizard = commonui.showWizard(setCarTypeWizard);
-			if (showWizard==null) {
+			if (showWizard == null) {
 				return;
 			}
-			for (String plateNo : list.stream().map(t->t.getPlateNo()).collect(Collectors.toSet())) {
+			for (String plateNo : list.stream().map(t -> t.getPlateNo()).collect(Collectors.toSet())) {
 				List<CarparkPlateCarType> find2 = carparkUserService.find(CarparkPlateCarType.class, QueryParameter.eq(CarparkPlateCarType.Property.plate.name(), plateNo));
-				CarparkPlateCarType c=new CarparkPlateCarType();
+				CarparkPlateCarType c = new CarparkPlateCarType();
 				if (!StrUtil.isEmpty(find2)) {
-					c=find2.get(0);
+					c = find2.get(0);
 				}
 				c.setPlate(plateNo);
 				c.setCarType(model.getSelected().getName());
 				c.setTid(model.getSelected().getTid());
 				carparkUserService.save(c);
 			}
-			commonui.info("提示","设置成功");
+			commonui.info("提示", "设置成功");
 		} catch (Exception e) {
 			e.printStackTrace();
-			commonui.error("提示","设置失败"+e);
+			commonui.error("提示", "设置失败" + e);
 		}
 	}
 }

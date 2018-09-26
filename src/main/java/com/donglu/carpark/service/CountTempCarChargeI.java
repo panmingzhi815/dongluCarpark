@@ -13,4 +13,6 @@ import com.donglu.carpark.model.CarparkMainModel;
  */
 public interface CountTempCarChargeI extends Serializable {
 	public float charge(Long carparkId,Long carType, Date inTime, Date outTime,CarparkDatabaseServiceProvider sp,CarparkMainModel model,boolean reCharge);
+
+	public float charge(Long carparkId, long carType, Date inTime, Date outTime, CarparkDatabaseServiceProvider sp, String plateNo, boolean reCharge);
 }

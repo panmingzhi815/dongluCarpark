@@ -72,5 +72,6 @@ public interface IpmsServiceI {
 	
 	default String long2ShortUrl(String qrCodeUrl){return "";};
 	default String getQrCodeInOutInfo(Collection<String> deviceIps, Collection<String> waitPlates){return null;};
-	default boolean startQrCodeInOutService(String buildId){return false;};
+	default boolean startQrCodeInOutService(String buildId){return false;}
+	void synchroImage(int maxSize);
 }

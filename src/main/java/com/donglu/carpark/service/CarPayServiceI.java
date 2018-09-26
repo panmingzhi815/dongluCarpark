@@ -20,5 +20,7 @@ public interface CarPayServiceI {
 	CarPayHistory findCarPayHistoryByPayId(String payId);
 
 	List<CarPayHistory> getCarPayHistoryWithNew();
+
+	List<CarPayHistory> findCarPayHistoryByHistoryId(Long id);
 	
 }

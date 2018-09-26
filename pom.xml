@@ -94,11 +94,27 @@
 			<version>3.10-beta2</version>
 		</dependency>
 		<dependency>
-    <groupId>org.apache.axis2</groupId>
-    <artifactId>axis2-kernel</artifactId>
-    <version>1.7.3</version>
-</dependency>
+		    <groupId>org.apache.axis2</groupId>
+		    <artifactId>axis2-kernel</artifactId>
+		    <version>1.7.3</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.eclipse.paho</groupId>
+		    <artifactId>mqtt-client</artifactId>
+		    <version>0.4.0</version>
+		</dependency>
+
 	</dependencies>
+	
+	<repositories>
+        <repository>
+            <id>nexus-aliyun</id>
+            <name>Nexus aliyun</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+        </repository>
+    </repositories>
+	
 	<build>
 		<plugins>
 			<plugin>

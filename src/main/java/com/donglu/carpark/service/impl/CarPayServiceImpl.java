@@ -174,5 +174,17 @@ public class CarPayServiceImpl implements CarPayServiceI {
 			unitOfWork.end();
 		}
 	}
+
+	@Override
+	public List<CarPayHistory> findCarPayHistoryByHistoryId(Long id) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), CarPayHistory.class);
+			c.add(Restrictions.eq(CarPayHistory.Property.historyId.name(), id));
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
 	
 }

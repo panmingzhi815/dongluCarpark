@@ -1038,7 +1038,7 @@ public class CarparkMainPresenter {
 
 			Long saveReturnAccount = sp.getCarparkService().saveReturnAccount(a);
 			
-			carparkInOutService.updateRecount(list.get(0).longValue(),saveReturnAccount,model.isFree());
+			carparkInOutService.updateRecount(list.get(0).longValue(),saveReturnAccount,model.isFree(),userName);
 
 //			Map<Long, Long> map = new HashMap<Long, Long>();
 //			for (SingleCarparkInOutHistory singleCarparkInOutHistory : listFact) {
@@ -1403,7 +1403,7 @@ public class CarparkMainPresenter {
 		if (endTime.before(startTime)) {
 			throw new RuntimeException(StrUtil.formatString("车辆：{}出场失败,出场时间：{}在进场时间：{}前", data.getPlateNo(),StrUtil.formatDateTime(endTime),StrUtil.formatDateTime(endTime)));
 		}
-		if(data!=null&&Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.优先使用云平台计费))){
+		if(data!=null&&Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.优先使用云平台计费))&&model.booleanSetting(SystemSettingTypeEnum.启用CJLAPP支付)){
 			Result result = getPayResult(data);
 			if (result!=null&&result.getObj()!=null) {
 				if(3004!=result.getCode()&&9999!=result.getCode()){
@@ -1415,13 +1415,14 @@ public class CarparkMainPresenter {
 						model.setOutTime(result.getOutTime());
 						data.setOutTime(result.getOutTime());
 					}
+					data.setFreeMoney(result.getCouponValue());
 					if(result.getCode()==2005){
 						model.setReal(0);
 						model.setChargedMoney(result.getPayedFee());
 						model.setShouldMony(result.getPayedFee());
-						data.setFreeMoney(0);
+						data.setFreeMoney(result.getCouponValue());
 						data.setShouldMoney(result.getPayedFee());
-						data.setFactMoney(result.getPayedFee());
+						data.setFactMoney(result.getPayedFee()-result.getCouponValue());
 						data.setChargeOperaName("在线支付");
 						data.setRemarkString("在线缴费完成，在规定时间内出场！");
 						data.setChargedType(1);
@@ -1444,6 +1445,18 @@ public class CarparkMainPresenter {
 			startTime = new DateTime(startTime).plusMinutes(freeMinute).toDate();
 			charge = countTempCarCharge.charge(carparkId, model.getMapTempCharge().get(carType).getId(), startTime, endTime, sp, model, Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场重复计费)));
 			charge = charge - freeMoney;
+			float charged=0;
+			float freed=0;
+			List<CarPayHistory> list=sp.getCarPayService().findCarPayHistoryByHistoryId(data.getId());
+			for (CarPayHistory pay : list) {
+				charged+=(pay.getBalanceAmount()+pay.getCashCost()+pay.getOnlineCost());
+				freed+=pay.getCouponValue();
+				data.setChargedType(pay.getPayType().toType());
+				data.setRemarkString(pay.getRemark());
+			}
+			data.setFactMoney(charged);
+			data.setFreeMoney(freed);
+			model.setChargedMoney(charged+freed);
 		} catch (Exception e1) {
 			log.error("计算收费时发生错误", e1);
 		}
@@ -1513,7 +1526,7 @@ public class CarparkMainPresenter {
 		mapIpToJNA.get(ip).tigger(ip);
 //		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
 //		//贵A56G17贵JRJ927
-//		carInOutResultProvider.get().invok(ip, 0, "贵JRJ926", bs, null, 11);
+//		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
 	}
 
 	/**
@@ -1616,7 +1629,7 @@ public class CarparkMainPresenter {
 				try {
 					log.debug("检测设备状态");
 					for (String ip : mapIpToDevice.keySet()) {
-//						checkDeviceStatus(ip);
+						checkDeviceStatus(ip);
 					}
 				} catch (Exception e) {
 					log.error("检测设备时发生错误",e);
@@ -2236,13 +2249,17 @@ public class CarparkMainPresenter {
 				if (result!=null&&result.getCode()!=3004) {
 					log.info("请求 车辆缴费状态结果：{}",result.getObj());
 					float payedFee = result.getPayedFee();
-					if (payedFee>= data.getShouldMoney()) {
+					float shouldMoney=data.getShouldMoney();
+//					if(model.booleanSetting(SystemSettingTypeEnum.优先使用云平台计费)) {
+//						shouldMoney=result.getPayedFee()+result.getDeptFee();
+//					}
+					if (payedFee>= shouldMoney) {
 						model.setReal(0);
 						model.setChargedMoney(result.getPayedFee());
 						model.setShouldMony(result.getPayedFee());
-						data.setFreeMoney(0);
+						data.setFreeMoney(result.getCouponValue());
 						data.setShouldMoney(payedFee>data.getShouldMoney()?payedFee:data.getShouldMoney());
-						data.setFactMoney(result.getPayedFee());
+						data.setFactMoney(result.getPayedFee()-result.getCouponValue());
 						data.setChargeOperaName("在线支付");
 						data.setRemarkString("在线缴费完成，在规定时间内出场！");
 						data.setChargedType(1);
@@ -2250,7 +2267,7 @@ public class CarparkMainPresenter {
 						return true;
 					}else{
 						model.setPlateNo(model.getPlateNo()+"-未在线支付");
-						
+						data.setShouldMoney(shouldMoney);
 						if (mapIpToDevice.get(data.getOutDeviceIp())!=null) {
     						checkIsPayTimer = new Timer();
     						int delay = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场时检测云平台缴费间隔))*1000;
@@ -2288,9 +2305,9 @@ public class CarparkMainPresenter {
 											model.setReal(0);
 											model.setChargedMoney(result.getPayedFee());
 											model.setShouldMony(result.getPayedFee());
-											data.setFreeMoney(0);
+											data.setFreeMoney(result.getCouponValue());
 											data.setShouldMoney(result.getPayedFee());
-											data.setFactMoney(result.getPayedFee());
+											data.setFactMoney(result.getPayedFee()-result.getCouponValue());
 											data.setChargeOperaName("在线支付");
 											data.setRemarkString("在线缴费完成，在规定时间内出场！");
 											data.setChargedType(1);
@@ -2328,10 +2345,16 @@ public class CarparkMainPresenter {
 				}
 			}else{
 				model.setChargedMoney(chargeMoney.floatValue());
+				if (chargeMoney.floatValue()+freeMoney.floatValue()>=model.getShouldMony()) {
+					data.setShouldMoney(chargeMoney.floatValue() + freeMoney.floatValue());
+					data.setFactMoney(chargeMoney.floatValue());
+					model.setShouldMony(data.getShouldMoney());
+				}
 				data.setFreeMoney(freeMoney.floatValue());
 				model.setReal(model.getShouldMony()-model.getChargedMoney());
 				data.setChargeOperaName(ctype);
 				data.setRemarkString(ctype+chargeMoney+"元");
+				model.setPlateNo(model.getPlateNo()+"-"+ctype);
 			}
 		}
 		return true;
@@ -2429,9 +2452,10 @@ public class CarparkMainPresenter {
 			String plateNo = singleCarparkInOutHistory.getPlateNo();
 			float freeMoney = shouldChargeMoney - factMoney;
 			singleCarparkInOutHistory.setShouldMoney(shouldMoney);
-			singleCarparkInOutHistory.setFactMoney(chargedMoney+factMoney-singleCarparkInOutHistory.getOnlineMoney());
-			singleCarparkInOutHistory.setFreeMoney(freeMoney);
+			singleCarparkInOutHistory.setFactMoney(chargedMoney+factMoney-singleCarparkInOutHistory.getFreeMoney());
+			singleCarparkInOutHistory.setFreeMoney(singleCarparkInOutHistory.getFreeMoney()+freeMoney);
 			singleCarparkInOutHistory.setCarType("临时车");
+			singleCarparkInOutHistory.setLeftSlot(model.getTotalSlot()+1);
 			sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
 			model.getMapWaitInOutHistory().remove(device.getIp());
 			Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
@@ -3120,6 +3144,7 @@ public class CarparkMainPresenter {
 		long currentTimeMillis = System.currentTimeMillis();
 		Result result =null ;
 		if (mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")) {
+			log.info("准备获取:{} 云平台支付结果",cch.getPlateNo());
 			result = ipmsService.getPayResult(cch);
 			if(result.getObj()==null){
 				for (int i = 0; i < 2; i++) {
@@ -3177,7 +3202,8 @@ public class CarparkMainPresenter {
 //		ipmsService.long2ShortUrl(qrCodeUrl);
 		String shortUrl=ipmsService.long2ShortUrl(qrCodeUrl);
 		log.info("获取到二维码：{} 短连接：{}",qrCodeUrl,shortUrl);
-		carparkScreenService.showCarparkQrCode(getDevice(device), type, shortUrl,content);
+		boolean showCarparkQrCode = carparkScreenService.showCarparkQrCode(getDevice(device), type, shortUrl,content);
+		log.info("发送二维码：{} 到设备：{} 结果：{}",shortUrl,device,showCarparkQrCode);
 	}
 
 	/**

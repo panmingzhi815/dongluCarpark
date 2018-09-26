@@ -1,6 +1,5 @@
 package com.donglu.carpark.service.impl;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,11 +8,21 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
-import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +35,7 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 	Logger LOGGER = LoggerFactory.getLogger(CarparkQrCodeInOutServiceImpl.class);
 
 	private String host="www.dongluhitec.net";
+	private String mqttHost="mqtt.dongluhitec.net";
 	private int port=8991;
 	private Socket s;
 	private String parkId="9e7b56480c9f454c87339b0633b913eb";
@@ -33,9 +43,27 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 	String app_id = "1";
 	//String secret_key =123qwer
 	String secret_key = "123qwer";
+	private static final Map<String, MqttClient> mapMqttClient=new HashMap<>();
+	
+	public CarparkQrCodeInOutServiceImpl() {
+		try {
+			List<String> list = Files.readAllLines(Paths.get("setting.txt"));
+			if (!StrUtil.isEmpty(list)) {
+				host=list.get(0);
+				if (list.size()>1) {
+					mqttHost = list.get(1);
+				}
+			}
+		} catch (Exception e) {
+		}
+	}
 
 	@Override
 	public void initService(String buildId,CarparkQrCodeInOutCallback callback) throws Exception {
+		if (System.getProperty("useMqtt", "true").equals("true")) {
+			initMqttService(buildId, callback);
+			return;
+		}
 		byte[] b = new byte[1024];
 		createLongConnect(buildId);
 		new Thread(new Runnable() {
@@ -69,6 +97,26 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 			}
 		}).start();
 	}
+	
+	public void initMqttService(String buildId,CarparkQrCodeInOutCallback callback) throws Exception {
+		MqttClient mqttClient = createLongConnectMqtt(buildId,callback);
+		mapMqttClient.put(buildId, mqttClient);
+		new Timer().scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				MqttClient client = mapMqttClient.get(buildId);
+				if (client==null||!client.isConnected()) {
+					try {
+						MqttClient mqttClient = createLongConnectMqtt(buildId,callback);
+						mapMqttClient.put(buildId, mqttClient);
+					} catch (Exception e) {
+						LOGGER.error("重连mqtt:"+buildId+" 失败",e);
+					}
+				}
+			}
+		}, 5000, 5000);
+	}
+	
 
 	/**
 	 * @param buildId
@@ -79,6 +127,7 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 	 */
 	public void createLongConnect(String buildId) throws Exception {
 //		buildId="cb0dcb84a37e451c9c3825ebb04e5d3b";
+		LOGGER.info("准备与与云平台：{}：{}建立长连接",host,buildId);
 		s = new Socket(host, port);
 		s.setSoTimeout(10000);
 		InputStream is = s.getInputStream();
@@ -106,6 +155,52 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 			throw new Exception("连接失败");
 		}
 		s.setSoTimeout(0);
+	}
+
+	public MqttClient createLongConnectMqtt(String buildId, CarparkQrCodeInOutCallback callback) {
+		try {
+			MqttClient client = new MqttClient("tcp://"+mqttHost+":1883", "carpark-"+StrUtil.getHostName());
+			// 创建MqttClient
+			client.setCallback(new MqttCallback() {
+				@Override
+				public void messageArrived(String topic, MqttMessage message) throws Exception {
+					String msg = new String(message.getPayload(),"UTF-8");
+					LOGGER.info("接收到主题：{} 消息：{}",topic,msg);
+					try {
+						callback.call(msg);
+					} catch (Exception e) {
+						LOGGER.error("回调数据时发生异常", e);
+					}
+				}
+				
+				@Override
+				public void deliveryComplete(IMqttDeliveryToken token) {
+					
+				}
+				
+				@Override
+				public void connectionLost(Throwable cause) {
+					try {
+						LOGGER.info("{}的mqtt连接断开:{}",buildId,cause);
+						client.disconnect();
+					} catch (MqttException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			MqttConnectOptions conOptions = new MqttConnectOptions();
+			conOptions.setUserName(System.getProperty("mqttLoginUser", "admin"));
+			conOptions.setPassword(System.getProperty("mqttLoginPassword","dongyun!@512809").toCharArray());
+			conOptions.setCleanSession(false);
+			client.connect(conOptions);
+			client.subscribe("lightcar/ipms/"+buildId, 1);
+			boolean isSuccess = client.isConnected();
+			LOGGER.info("连接mqtt：{} 状态：{}",buildId,isSuccess);
+			// client.disconnect();
+			return client;
+		} catch (Exception e) {
+			throw new RuntimeException("连接mqtt失败:"+e.getMessage(),e);
+		}
 	}
 
 	@Override
@@ -162,35 +257,12 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
     }
 	
 	public static void main(String[] args) throws Exception {
-		System.out.println("拼接后的二维码："+getUrl("www.dongluhitec.net","9e7b56480c9f454c87339b0633b913eb","1","123qwer","192.168.1.88",0));
-		
-		
-		try {
-			String s="http://www.dongluhitec.net/third_api/ocm_login?";
-			String sign="tel=13537630413&password=123456";
-			System.out.println("加密的数据："+sign+"123qwer");
-			sign = s +sign+ "&app_id=1&sign=" + md5(sign+"123qwer");
-			System.out.println(sign.length()+"=="+sign);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		new Thread(new Runnable() {
-			public void run() {
-				Socket socket=null;
-				try{
-					socket = new Socket("www.dongluhitec.net", 8991);
-					while (true) {
-						InputStream is = socket.getInputStream();
-						byte[] bs = new byte[1024];
-						int read = is.read(bs);
-						System.out.println(read+"===="+new String(bs, "UTF-8").trim());
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+		CarparkQrCodeInOutServiceImpl impl = new CarparkQrCodeInOutServiceImpl();
+		impl.initService("7e257819d2764bb6aa5c1fd43baf2f71", new CarparkQrCodeInOutCallback() {
+			@Override
+			public void call(String ip) {
+				System.out.println(ip);
 			}
-		}).start();
+		});
 	}
 }

@@ -359,4 +359,5 @@ public interface CarparkInOutServiceI {
 	List<Double> countReturnMoney(String userName);
 
 	Long updateRecount(Long maxId, Long returnAccountId, boolean free);
+	Long updateRecount(Long maxId, Long returnAccountId, boolean free,String userName);
 }

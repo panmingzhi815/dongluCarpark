@@ -85,9 +85,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			dom.insert(inout);
 			this.emprovider.get().persist(new CarparkRecordHistory(inout,UpdateEnum.新添加));
 		} else {
-			if (inout.isSavePayHistory()&&inout.getFactMoney()!=null&&inout.getFactMoney()>0) {
-				savePayHistory(inout);
-			}
+			savePayHistory(inout);
 			dom.save(inout);
 			this.emprovider.get().merge(new CarparkRecordHistory(inout, UpdateEnum.被修改));
 		}
@@ -1829,10 +1827,15 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	@Transactional
 	@Override
 	public Long updateRecount(Long maxId, Long returnAccountId, boolean free) {
-		Query query = emprovider.get().createNativeQuery("update SingleCarparkInOutHistory set returnAccount="+returnAccountId+" where returnAccount is null and outTime is not null and id<="+maxId);
+		throw new RuntimeException("过低的版本");
+	}
+	@Transactional
+	@Override
+	public Long updateRecount(Long maxId, Long returnAccountId, boolean free,String userName) {
+		Query query = emprovider.get().createNativeQuery("update SingleCarparkInOutHistory set returnAccount="+returnAccountId+" where operaName='"+userName+"' and returnAccount is null and outTime is not null and id<="+maxId);
 		int executeUpdate = query.executeUpdate();
 		if (free) {
-			query = emprovider.get().createNativeQuery("update SingleCarparkInOutHistory set freeReturnAccount="+returnAccountId+" where freeReturnAccount is null and outTime is not null and id<="+maxId);
+			query = emprovider.get().createNativeQuery("update SingleCarparkInOutHistory set freeReturnAccount="+returnAccountId+" where operaName='"+userName+"' and freeReturnAccount is null and outTime is not null and id<="+maxId);
 			executeUpdate += query.executeUpdate();
 		}
 		return executeUpdate*1l;

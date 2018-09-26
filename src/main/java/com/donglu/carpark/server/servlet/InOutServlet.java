@@ -582,4 +582,11 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	public Long updateRecount(Long maxId, Long returnAccountId, boolean free) {
 		return carparkInOutService.updateRecount(maxId, returnAccountId, free);
 	}
+
+
+
+	@Override
+	public Long updateRecount(Long maxId, Long returnAccountId, boolean free, String userName) {
+		return carparkInOutService.updateRecount(maxId, returnAccountId, free, userName);
+	}
 }

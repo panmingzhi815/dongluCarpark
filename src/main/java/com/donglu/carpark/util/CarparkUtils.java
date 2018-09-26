@@ -158,6 +158,24 @@ public class CarparkUtils {
             return null;  
         }  
     } 
+    /**
+	 * 根据属性名获取属性值
+	 * */
+    public static boolean setFieldValueByName(String fieldName, Object o,Object value) {
+        try {
+        	
+//        	Field field = o.getClass().getDeclaredField(fieldName);
+//        	Object value = field.get(o);
+            String firstLetter = fieldName.substring(0, 1).toUpperCase();  
+            String getter = "set" + firstLetter + fieldName.substring(1);  
+            Method method = o.getClass().getMethod(getter, new Class[] {value.getClass()});
+            method.invoke(o, new Object[] {value});  
+            return true;  
+        } catch (Exception e) {  
+            e.printStackTrace();
+            return false;  
+        }  
+    }
     
     /**
      * 获取属性名数组

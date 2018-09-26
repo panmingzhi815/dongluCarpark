@@ -1010,5 +1010,17 @@ public class CarparkServiceImpl implements CarparkService {
 			unitOfWork.end();
 		}
 	}
+
+	@Override
+	public SingleCarparkCarpark findCarparkByYunIdentifier(String yunIdentifier) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
+			c.add(Restrictions.eq("yunIdentifier", yunIdentifier));
+			return (SingleCarparkCarpark) c.getSingleResultOrNull();
+		} finally {
+			unitOfWork.end();
+		}
+	}
 		
 }

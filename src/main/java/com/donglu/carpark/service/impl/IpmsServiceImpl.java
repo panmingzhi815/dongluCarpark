@@ -2,11 +2,15 @@ package com.donglu.carpark.service.impl;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,6 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -44,6 +52,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayH
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory.PayTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
+import com.dongluhitec.card.util.ThreadUtil;
 import com.google.inject.Inject;
 
 public class IpmsServiceImpl implements IpmsServiceI {
@@ -59,9 +68,10 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	
 	public Map<Long, Integer> mapImageUploadErrorSize=new HashMap<>();
 	private Map<Long, SingleCarparkCarpark> mapCarparks=new HashMap<>();
-	
+	private ExecutorService httpExecutor = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("云平台数据同步线程"));
 	@Inject
 	public IpmsServiceImpl(CarparkDatabaseServiceProvider sp) {
+		
 		this.sp = sp;
 		try {
 			List<SingleCarparkCarpark> carpark = sp.getCarparkService().findAllCarpark();
@@ -108,7 +118,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 //			String parkId=getParkId(ioh.getCarparkId());
 			String content = "{\"operation\":\"" + type + "\",\"origin\":\"" + name + "\","
 					+ "\"parkingRecord\":{\"carNum\":\"{}\",\"carType\":\"{}\",\"id\":\"{}\",\"inTimeStr\":\"{}\",\"outTimeStr\":\"{}\",\"buildingId\":\"" + buildindId + "\",\"parkId\":\"" + parkId
-					+ "\",\"parkName\":\""+ioh.getCarparkName()+"\",\"status\":\"{}\",\"userType\":\"{}\",\"deptFee\"={},\"fee\"={},\"couponValue\"={}},\"syncId\":\"{}\"}";
+					+ "\",\"parkName\":\""+ioh.getCarparkName()+"\",\"status\":\"{}\",\"userType\":\"{}\",\"deptFee\":{},\"fee\":{},\"couponValue\":{}},\"syncId\":\"{}\"}";
 			String carInfo = null;
 			String plateNo = ioh.getPlateNo();
 			Long id = ioh.getId();
@@ -135,8 +145,18 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			int fee = (int) (ioh.getShouldMoney() == null ? 0 : ioh.getShouldMoney() * 100);
 			int couponValue = fee-depFree;
 			content = StrUtil.formatString(content, plateNo,carType, parkId + id, inTime, outTime, status, userType, depFree, fee,couponValue, id);
-//			System.out.println(content);
-			carInfo = "data=" + URLEncoder.encode("["+content+"]", "UTF-8");
+			System.out.println(content);
+			JSONObject jsonObject = JSON.parseObject(content);
+			JSONObject parkingRecord = jsonObject.getJSONObject("parkingRecord");
+			if (!StrUtil.isEmpty(ioh.getInDeviceId())) {
+				parkingRecord.put("enterId",ioh.getInDeviceId() );
+			}
+			if (!StrUtil.isEmpty(ioh.getOutDeviceId())) {
+				parkingRecord.put("exitId", ioh.getOutDeviceId());
+			}
+			jsonObject.put("parkingRecord", parkingRecord);
+			System.out.println(jsonObject);
+			carInfo = "data=" + URLEncoder.encode("["+jsonObject+"]", "UTF-8");
 			String actionUrl = url;
 //			System.out.println(actionUrl);
 			String httpPostMssage = httpPostMssage(actionUrl, carInfo);
@@ -150,7 +170,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 					if (ioh.getBigImg()!=null) {
 						byte[] image = sp.getImageService().getImage(ioh.getBigImg().substring(ioh.getBigImg().lastIndexOf("/") + 1));
 						if (!StrUtil.isEmpty(image)) {
-							map.put("enterImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
+							saveWatiUploadImage(image, id, parkId, "enterImg");
+//							map.put("enterImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
 						} 
 					}
 				}
@@ -158,7 +179,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 					if (ioh.getOutBigImg()!=null) {
 						byte[] image = sp.getImageService().getImage(ioh.getOutBigImg().substring(ioh.getOutBigImg().lastIndexOf("/") + 1));
 						if (!StrUtil.isEmpty(image)) {
-							map.put("exitImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
+							saveWatiUploadImage(image, id, parkId, "exitImg");
+//							map.put("exitImg", URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
 						} 
 					}
 				}
@@ -186,6 +208,76 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		}
 		return false;
 	}
+	boolean saveWatiUploadImage(byte[] image,Long id,String parkId,String type){
+		try {
+			File dir = new File("waitUploadImg");
+			if (!dir.exists()) {
+				dir.mkdirs();
+			}
+			File img = new File(dir.getAbsolutePath(),parkId+"-"+id+"-"+type+".jpg");
+			Files.write(img.toPath(), image);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	@Override
+	public void synchroImage(int maxSize) {
+		File dir = new File("waitUploadImg");
+		if (!dir.exists()) {
+			return;
+		}
+		File[] listFiles = dir.listFiles();
+		if (StrUtil.isEmpty(listFiles)) {
+			return;
+		}
+		for (int i = 0; i < Math.min(listFiles.length, maxSize); i++) {
+			try {
+				File file = listFiles[i];
+				String name = file.getName();
+				name=name.substring(0, name.lastIndexOf("."));
+				String[] split = name.split("-");
+				boolean synchroImage = synchroImage(split[2], Long.valueOf(split[1]), split[0], Files.readAllBytes(file.toPath()));
+				if (synchroImage) {
+					file.delete();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	public boolean synchroImage(String type,Long id,String carparkId,byte[] image) {
+		if (StrUtil.isEmpty(image)) {
+			return false;
+		}
+		try {
+			String url = httpUrl + "/api/syncImgData.action?recordId=" +parkId +id + "";
+			Map<String, Object> map=new HashMap<>();
+			map.put(type, URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
+			String httpPostMssage = postMssage(url, map);
+			log.info("上传图片，结果：{}", httpPostMssage);
+			boolean result = JSONObject.parseObject(httpPostMssage).get("ret").toString().equals("0");
+			if (!result) {
+				Integer integer = mapImageUploadErrorSize.getOrDefault(id, 0);
+				if (integer>=10) {
+					result=true;
+					mapImageUploadErrorSize.remove(id);
+				}else{
+					mapImageUploadErrorSize.put(id, integer+1);
+				}
+			}else{
+				mapImageUploadErrorSize.remove(id);
+				Thread.sleep(1000);
+			}
+			return result;
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	@Override
 	public boolean updateInOutHistory(SingleCarparkInOutHistory ioh) {
 		return synchroInOutHistory("update", ioh);
@@ -357,15 +449,21 @@ public class IpmsServiceImpl implements IpmsServiceI {
 						pay.setOperaName("在线缴费");
 						String parkingRecordId = jData.getString("parkingRecordId");
 						if (jData.getIntValue("paymentType")!=3) {
-							if (parkingRecordId.contains(parkId)) {
-								parkingRecordId = parkingRecordId.replaceAll(parkId, "");
-								getIdByRecordId(parkId, parkingRecordId);
-							}
-							pay.setHistoryId(Long.valueOf(parkingRecordId));
-							SingleCarparkInOutHistory inOutHistory = sp.getCarparkInOutService().findInOutById(Long.valueOf(parkingRecordId));
-							if (inOutHistory != null) {
-								pay.setInTime(inOutHistory.getInTime());
-								pay.setOutTime(inOutHistory.getOutTime());
+							try {
+								if (parkingRecordId.contains(parkId)) {
+									parkingRecordId = parkingRecordId.replaceAll(parkId, "");
+									getIdByRecordId(parkId, parkingRecordId);
+								}else {
+									parkingRecordId=parkingRecordId.substring(32);
+								}
+								pay.setHistoryId(Long.valueOf(parkingRecordId));
+								SingleCarparkInOutHistory inOutHistory = sp.getCarparkInOutService().findInOutById(Long.valueOf(parkingRecordId));
+								if (inOutHistory != null) {
+									pay.setInTime(inOutHistory.getInTime());
+									pay.setOutTime(inOutHistory.getOutTime());
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
 							saveCarPayHistory = sp.getCarPayService().saveCarPayHistory(pay);
 						}
@@ -567,7 +665,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			String url=httpUrl+"/api/getPayedResult.action?carNum={}&recordId={}&parkId={}";
 			url = StrUtil.formatString(url, plateNO,recordId,parkId);
 			System.out.println(url);
-			String httpPostMssage = httpPostMssage(url, null,5000);
+			String httpPostMssage = httpPostMssageInThread(url, null,3000);
 			log.info("车辆:{}出场,请求查看扣费结果:{}",plateNo,httpPostMssage);
 			JSONObject jsonObject = JSONObject.parseObject(httpPostMssage);
 			int intValue = jsonObject.getIntValue("resultCode");
@@ -577,6 +675,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			result.setDeptFee(jsonObject.getFloatValue("deptFee"));
 			result.setPayedFee(jsonObject.getFloatValue("payedFee"));
 			result.setOutTime(StrUtil.parseDateTime(jsonObject.getString("outTime")));
+			result.setCouponValue(jsonObject.getFloatValue("couponValue")/100f);
 			return result;
 		} catch (Exception e) {
 			log.error("{}请求查看扣费时发生错误：{}",plateNo,e);
@@ -677,6 +776,15 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	}
 	private String httpPostMssage(String actionUrl, String parameters) throws Exception {
 		return httpPostMssage(actionUrl, parameters,10000);
+	}
+	private String httpPostMssageInThread(String actionUrl, String parameters,int readTimeOut) throws Exception {
+		Future<String> submit = httpExecutor.submit(new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return httpPostMssage(actionUrl, parameters, readTimeOut);
+			}
+		});
+		return submit.get(readTimeOut, TimeUnit.MILLISECONDS);
 	}
 	private String httpPostMssage(String actionUrl, String parameters,int readTimeOut) throws Exception {
 		if (StrUtil.isEmpty(actionUrl)) {

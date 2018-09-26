@@ -526,7 +526,7 @@ public class CarparkMainApp extends AbstractApp{
 			}
 		});
 		for (CarparkCarType carparkCarType : arrayList) {
-			listCarType.add(carparkCarType.getDisplayName());
+			listCarType.add(carparkCarType.getName());
 		}
 //		if (!StrUtil.isEmpty(mapTempCharge.get("大车"))) {
 //			listCarType.add("大车");
@@ -902,11 +902,6 @@ public class CarparkMainApp extends AbstractApp{
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(listCarType);
-		if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用集中收费))||Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付))) {
-			gd_composite.exclude = false;
-		}else{
-			gd_composite.exclude = true;
-		}
 		carOutChargeCheck = Boolean
 				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行) == null ? SystemSettingTypeEnum.出场确认放行.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行));
 		if (mapTempCharge.keySet().size() <= 1) {

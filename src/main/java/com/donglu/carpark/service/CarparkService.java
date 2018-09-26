@@ -328,5 +328,6 @@ public interface CarparkService {
 	 * @return
 	 */
 	public List<SingleCarparkMonthlyUserPayHistory> findMonthlyUserPayHistoryByValidTo(int i, int maxValue, String userName, String operaName, Date start);
+	public SingleCarparkCarpark findCarparkByYunIdentifier(String yunIdentifier);
 	
 }

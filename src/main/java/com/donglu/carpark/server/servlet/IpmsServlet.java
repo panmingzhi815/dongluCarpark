@@ -47,7 +47,7 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 				return true;
 			}
 			LOGGER.info("启动二维码进出场服务 建筑:{}",buildId);
-			CarparkQrCodeInOutService carparkQrCodeInOutService=new CarparkQrCodeInOutServiceImpl();
+			CarparkQrCodeInOutServiceImpl carparkQrCodeInOutService=new CarparkQrCodeInOutServiceImpl();
 			carparkQrCodeInOutService.initService(buildId,new CarparkQrCodeInOutService.CarparkQrCodeInOutCallback() {
 				@Override
 				public void call(String info) {
@@ -65,11 +65,11 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 							if (!StrUtil.isEmpty(deviceId)) {
 								mapQrInOutInfos.put(deviceId, info);
 							}else{
-								mapQrInOutInfos.put(jsonObject2.getString("carNum"), info);
+								mapQrInOutInfos.put(jsonObject2.getString("carNum").trim(), info);
 							}
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
+						LOGGER.error("接收云平台推送消息时发生错误",e);
 					}
 				}
 			});
@@ -170,6 +170,11 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 			}
 		}
 		return longToShort;
+	}
+
+	@Override
+	public void synchroImage(int maxSize) {
+		synchroImage(maxSize);
 	}
 
 }

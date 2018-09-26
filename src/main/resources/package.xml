@@ -42,6 +42,8 @@
             	<include>com.dongluhitec.card:update</include>
             	<include>com.dongluhitec.card:utility</include>
             	<include>com.dongluhitec.card:encryption</include>
+            	<include>org.eclipse.paho:mqtt-client</include>
+            	<include>org.apache.activemq:activemq-all</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>

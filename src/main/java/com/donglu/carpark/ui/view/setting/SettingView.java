@@ -27,7 +27,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +39,6 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.swt.layout.RowLayout;
 
 public class SettingView extends Composite implements View {
 	private String cLIENT_IMAGE_SAVE_FILE_PATH = "clientImageSaveFilePath";
@@ -378,7 +376,7 @@ public class SettingView extends Composite implements View {
 		button_14.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.进场允许手动入场, button_13.getSelection() + "");
+				mapSystemSetting.put(SystemSettingTypeEnum.进场允许手动入场, button_14.getSelection() + "");
 			}
 		});
 		button_14.setText("允许手动入场");
@@ -1159,6 +1157,7 @@ public class SettingView extends Composite implements View {
 		Label label_5 = new Label(group_2, SWT.NONE);
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_5.setText("分");
+		
 		text_1.addKeyListener(new KeyAdapter() {
 			String s = text_1.getText();
 

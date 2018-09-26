@@ -11,6 +11,9 @@ import com.google.inject.ImplementedBy;
 
 @ImplementedBy(ExcelImportExportImpl.class)
 public interface ExcelImportExport {
+	public interface ExcelImportExportData<T>{
+		public List<T> getData(int current,int size);
+	}
 	
 	/**
 	 * 所有的excel模板都应该在这里进行定义
@@ -32,4 +35,6 @@ public interface ExcelImportExport {
 	public void export(String path,String[] names,String[] cloumns,List<? extends Object> list)throws Exception;
 	List<String> importPlateNOByUser(String path) throws Exception;
 	void export(String path, String[] nameProperties, String[] columnProperties, List<? extends Object> list, ProcessBarMonitor monitor)throws Exception;
+	void exportInOutHistory(String path, List<SingleCarparkInOutHistory> list, ProcessBarMonitor monitor)throws Exception;
+	void exportInOutHistory(String path,int total, ExcelImportExportData<SingleCarparkInOutHistory> sp, ProcessBarMonitor monitor) throws Exception;
 }

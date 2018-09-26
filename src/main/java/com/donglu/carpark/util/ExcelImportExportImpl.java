@@ -2,6 +2,7 @@ package com.donglu.carpark.util;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkUserService;
+import com.donglu.carpark.util.ExcelImportExport.ExcelImportExportData;
 import com.dongluhitec.card.domain.db.CardUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -19,6 +20,8 @@ import jp.ne.so_net.ga2.no_ji.jcom.excel8.ExcelWorksheet;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+
 import javax.imageio.ImageIO;
 
 import java.awt.*;
@@ -685,6 +688,304 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		fileOut.flush();
 		fileOut.close();
 		return failNum;
+	}
+
+	@Override
+	public void exportInOutHistory(String path, List<SingleCarparkInOutHistory> list, ProcessBarMonitor monitor) throws Exception {
+
+		copyTemplement(NomalTemplate, path);
+
+		HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(path));
+		HSSFSheet sheet = wb.getSheetAt(0);
+		int currentRow = 0;
+		HSSFRow row = sheet.createRow(currentRow);
+//		row.createCell(0).setCellValue("编号");
+		String[] names=new String[]{"车牌号","车辆类型","用户名","进场设备","进场时间","出场设备","出场时间","停留时间","操作员","应收金额","实收金额","免费金额","免费原因","归账编号","备注","进场车牌","出场场车牌"};
+		int columnWidth[]=new int[names.length];
+		for (int i = 0; i < names.length; i++) {
+			String string = names[i];
+			HSSFCell createCell = row.createCell(i+1);
+			row.createCell(i).setCellValue(string);
+			columnWidth[i]=string.getBytes("GBK").length;
+		}
+		currentRow++;
+		String string;
+		Object fieldValueByName;
+		int size=0;
+		int sheetSize=0;
+		int totalSize=0;
+		int fixSize=0;
+		int lt2HourTemp=0;
+		int lt2HourFix=0;
+		int ge2HourTemp=0;
+		int ge2HourFix=0;
+		int ge3HourTemp=0;
+		int ge3HourFix=0;
+		int notOutTemp=0;
+		int notOutFix=0;
+		for (int i = 0; i < list.size(); i++) {
+			if(monitor.isDispose()){
+				throw new Exception("导出已终止！");
+			}
+			monitor.showMessage("正在导出第"+(i+1)+"条数据");
+			monitor.dowork(i+1);
+			row = sheet.createRow(currentRow + i-size);
+			SingleCarparkInOutHistory o = list.get(i);
+			if (o.getInTime()!=null) {
+				totalSize++;
+				if (o.getOutTime()!=null) {
+					if (o.getCarType().equals("固定车")) {
+						fixSize++;
+						if (o.getStillTimeCount()<2*60*60) {
+							lt2HourFix++;
+    					}else if (o.getStillTimeCount()>=2*60*60&&o.getStillTimeCount()<3*60*60) {
+    						ge2HourFix++;
+    					}else{
+    						ge3HourFix++;
+    					}
+					}else {
+    					if (o.getStillTimeCount()<2*60*60) {
+    						lt2HourTemp++;
+    					}else if (o.getStillTimeCount()>=2*60*60&&o.getStillTimeCount()<3*60*60) {
+    						ge2HourTemp++;
+    					}else{
+    						ge3HourTemp++;
+    					}
+					}
+				}else {
+					if (o.getCarType().equals("固定车")) {
+						notOutFix++;
+					}else {
+						notOutTemp++;
+					}
+				}
+			}
+			Object[] os=new Object[] {o.getPlateNo(),o.getCarType(),o.getUserName(),o.getInDevice(),o.getInTimeLabel(),o.getOutDevice(),o.getOutTimeLabel(),
+					o.getStillTimeLabel(),o.getOperaName(),o.getShouldMoney(),o.getFactMoney(),o.getFreeMoney(),o.getFreeReason(),o.getReturnAccount(),o.getRemark(),
+					o.getInPlateNO(),o.getOutPlateNO()};
+//			row.createCell(0).setCellValue(i+1);
+			for (int j = 0; j < names.length; j++) {
+				fieldValueByName = os[j];
+//				row.createCell(j+1).setCellValue(fieldValueByName+"");
+				if (!StrUtil.isEmpty(fieldValueByName)) {
+					columnWidth[j]=Math.max(fieldValueByName.toString().getBytes().length, columnWidth[j]/256)*256;
+				}
+				HSSFCell createCell = row.createCell(j);
+				createCell.setCellValue(fieldValueByName==null?"":fieldValueByName+"");
+			}
+			if(i>0&&i%65530==0){
+				sheetSize=sheetSize+1;
+				try {
+					sheet=wb.getSheetAt(sheetSize);
+					if (sheet==null) {
+						sheet = wb.createSheet();
+					}
+				} catch (Exception e) {
+					sheet = wb.createSheet();
+				}
+				size+=65530;
+			}
+		}
+		int rowTotalStart=currentRow + list.size()-size;
+		sheet.addMergedRegion(new CellRangeAddress(rowTotalStart, rowTotalStart, 1, 2));
+		sheet.addMergedRegion(new CellRangeAddress(rowTotalStart, rowTotalStart, 3, 4));
+		sheet.addMergedRegion(new CellRangeAddress(rowTotalStart, rowTotalStart, 5, 6));
+		sheet.addMergedRegion(new CellRangeAddress(rowTotalStart, rowTotalStart, 7, 8));
+		sheet.addMergedRegion(new CellRangeAddress(rowTotalStart, rowTotalStart, 9, 10));
+		row = sheet.createRow(rowTotalStart);
+		row.createCell(0).setCellValue("");
+		row.createCell(1).setCellValue("总数");
+		row.createCell(3).setCellValue("2小时内");
+		row.createCell(5).setCellValue("2小时外");
+		row.createCell(7).setCellValue("3小时外");
+		row.createCell(9).setCellValue("未出");
+		row = sheet.createRow(rowTotalStart+1);
+		row.createCell(0).setCellValue("总车次");
+		row.createCell(1).setCellValue("外来车次");
+		row.createCell(2).setCellValue("职工车次");
+		row.createCell(3).setCellValue("外来车次");
+		row.createCell(4).setCellValue("职工车次");
+		row.createCell(5).setCellValue("外来车次");
+		row.createCell(6).setCellValue("职工车次");
+		row.createCell(7).setCellValue("外来车次");
+		row.createCell(8).setCellValue("职工车次");
+		row.createCell(9).setCellValue("外来车次");
+		row.createCell(10).setCellValue("职工车次");
+		row = sheet.createRow(rowTotalStart+2);
+		row.createCell(0).setCellValue(totalSize+"");
+		row.createCell(1).setCellValue(totalSize-fixSize+"");
+		row.createCell(2).setCellValue(fixSize+"");
+		row.createCell(3).setCellValue(lt2HourTemp+"");
+		row.createCell(4).setCellValue(lt2HourFix+"");
+		row.createCell(5).setCellValue(ge2HourTemp+"");
+		row.createCell(6).setCellValue(ge2HourFix+"");
+		row.createCell(7).setCellValue(ge3HourTemp+"");
+		row.createCell(8).setCellValue(ge3HourFix+"");
+		row.createCell(9).setCellValue(notOutTemp+"");
+		row.createCell(10).setCellValue(notOutFix+"");
+		
+		for (int j = 0; j < columnWidth.length; j++) {
+			int i = columnWidth[j];
+			if (i<=0) {
+				continue;
+			}
+			sheet.setColumnWidth(j, i);
+		}
+		FileOutputStream fileOut = new FileOutputStream(path);
+		wb.write(fileOut);
+		fileOut.flush();
+		fileOut.close();
+	
+	}
+
+	@Override
+	public void exportInOutHistory(String path,int total, ExcelImportExportData<SingleCarparkInOutHistory> sp, ProcessBarMonitor monitor) throws Exception {
+		int size=0;
+		int sheetSize=0;
+		int totalSize=0;
+		int fixSize=0;
+		int lt2HourTemp=0;
+		int lt2HourFix=0;
+		int ge2HourTemp=0;
+		int ge2HourFix=0;
+		int ge3HourTemp=0;
+		int ge3HourFix=0;
+		int notOutTemp=0;
+		int notOutFix=0;
+		List<SingleCarparkInOutHistory> list = new ArrayList<>();
+		List<SingleCarparkInOutHistory> cl = new ArrayList<>();
+		int pageSize = 65500;
+		while(true) {
+			list.clear();
+			list=sp.getData(size, pageSize);
+			if(list.isEmpty()) {
+				break;
+			}
+			size+=list.size();
+			String name = new File(path).getName();
+			String parent = new File(path).getParent();
+			String excelName=parent+(parent.endsWith("\\")?"":"\\")+name.substring(0, name.lastIndexOf("."))+(sheetSize>0?"-"+sheetSize:"")+name.substring(name.lastIndexOf("."));
+			copyTemplement(NomalTemplate, excelName);
+			
+			HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(excelName));
+			HSSFSheet sheet = wb.getSheetAt(0);
+			int currentRow = 0;
+			HSSFRow row = sheet.createRow(currentRow);
+//		row.createCell(0).setCellValue("编号");
+			String[] names=new String[]{"车牌号","车辆类型","用户名","进场设备","进场时间","出场设备","出场时间","停留时间","操作员","应收金额","实收金额","免费金额","免费原因","归账编号","备注","进场车牌","出场场车牌"};
+			int columnWidth[]=new int[names.length];
+			for (int i = 0; i < names.length; i++) {
+				String string = names[i];
+				HSSFCell createCell = row.createCell(i+1);
+				row.createCell(i).setCellValue(string);
+				columnWidth[i]=string.getBytes("GBK").length;
+			}
+			currentRow++;
+			String string;
+			Object fieldValueByName;
+			for (int i = 0; i < list.size(); i++) {
+				if(monitor.isDispose()){
+					throw new Exception("导出已终止！");
+				}
+				monitor.showMessage("正在导出第"+(i+sheetSize*pageSize)+"条数据");
+				monitor.dowork(i+sheetSize*pageSize+1);
+				row = sheet.createRow(currentRow + i);
+				SingleCarparkInOutHistory o = list.get(i);
+				if (o.getInTime()!=null) {
+					totalSize++;
+					if (o.getOutTime()!=null) {
+						if (o.getCarType().equals("固定车")) {
+							fixSize++;
+							if (o.getStillTimeCount()<2*60*60) {
+								lt2HourFix++;
+							}else if (o.getStillTimeCount()>=2*60*60&&o.getStillTimeCount()<3*60*60) {
+								ge2HourFix++;
+							}else{
+								ge3HourFix++;
+							}
+						}else {
+							if (o.getStillTimeCount()<2*60*60) {
+								lt2HourTemp++;
+							}else if (o.getStillTimeCount()>=2*60*60&&o.getStillTimeCount()<3*60*60) {
+								ge2HourTemp++;
+							}else{
+								ge3HourTemp++;
+							}
+						}
+					}else {
+						if (o.getCarType().equals("固定车")) {
+							notOutFix++;
+						}else {
+							notOutTemp++;
+						}
+					}
+				}
+				Object[] os=new Object[] {o.getPlateNo(),o.getCarType(),o.getUserName(),o.getInDevice(),o.getInTimeLabel(),o.getOutDevice(),o.getOutTimeLabel(),
+						o.getStillTimeLabel(),o.getOperaName(),o.getShouldMoney(),o.getFactMoney(),o.getFreeMoney(),o.getFreeReason(),o.getReturnAccount(),o.getRemarkString(),
+						o.getInPlateNO(),o.getOutPlateNO()};
+//			row.createCell(0).setCellValue(i+1);
+				for (int j = 0; j < names.length; j++) {
+					fieldValueByName = os[j];
+//				row.createCell(j+1).setCellValue(fieldValueByName+"");
+					if (!StrUtil.isEmpty(fieldValueByName)) {
+						columnWidth[j]=Math.max(fieldValueByName.toString().getBytes().length, columnWidth[j]/256)*256;
+					}
+					HSSFCell createCell = row.createCell(j);
+					createCell.setCellValue(fieldValueByName==null?"":fieldValueByName+"");
+				}
+			}
+			if (total<=size) {
+				int rowTotalStart = currentRow + list.size();
+				sheet.addMergedRegion(new CellRangeAddress(rowTotalStart, rowTotalStart, 1, 2));
+				sheet.addMergedRegion(new CellRangeAddress(rowTotalStart, rowTotalStart, 3, 4));
+				sheet.addMergedRegion(new CellRangeAddress(rowTotalStart, rowTotalStart, 5, 6));
+				sheet.addMergedRegion(new CellRangeAddress(rowTotalStart, rowTotalStart, 7, 8));
+				sheet.addMergedRegion(new CellRangeAddress(rowTotalStart, rowTotalStart, 9, 10));
+				row = sheet.createRow(rowTotalStart);
+				row.createCell(0).setCellValue("");
+				row.createCell(1).setCellValue("总数");
+				row.createCell(3).setCellValue("2小时内");
+				row.createCell(5).setCellValue("2小时外");
+				row.createCell(7).setCellValue("3小时外");
+				row.createCell(9).setCellValue("未出");
+				row = sheet.createRow(rowTotalStart + 1);
+				row.createCell(0).setCellValue("总车次");
+				row.createCell(1).setCellValue("外来车次");
+				row.createCell(2).setCellValue("职工车次");
+				row.createCell(3).setCellValue("外来车次");
+				row.createCell(4).setCellValue("职工车次");
+				row.createCell(5).setCellValue("外来车次");
+				row.createCell(6).setCellValue("职工车次");
+				row.createCell(7).setCellValue("外来车次");
+				row.createCell(8).setCellValue("职工车次");
+				row.createCell(9).setCellValue("外来车次");
+				row.createCell(10).setCellValue("职工车次");
+				row = sheet.createRow(rowTotalStart + 2);
+				row.createCell(0).setCellValue(totalSize + "");
+				row.createCell(1).setCellValue(totalSize - fixSize + "");
+				row.createCell(2).setCellValue(fixSize + "");
+				row.createCell(3).setCellValue(lt2HourTemp + "");
+				row.createCell(4).setCellValue(lt2HourFix + "");
+				row.createCell(5).setCellValue(ge2HourTemp + "");
+				row.createCell(6).setCellValue(ge2HourFix + "");
+				row.createCell(7).setCellValue(ge3HourTemp + "");
+				row.createCell(8).setCellValue(ge3HourFix + "");
+				row.createCell(9).setCellValue(notOutTemp + "");
+				row.createCell(10).setCellValue(notOutFix + "");
+			}
+			for (int j = 0; j < columnWidth.length; j++) {
+				int i = columnWidth[j];
+				if (i<=0) {
+					continue;
+				}
+				sheet.setColumnWidth(j, i);
+			}
+			FileOutputStream fileOut = new FileOutputStream(excelName);
+			wb.write(fileOut);
+			fileOut.flush();
+			fileOut.close();
+			sheetSize++;
+		}
 	}
 
 }

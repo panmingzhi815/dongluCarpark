@@ -3,6 +3,7 @@ package com.donglu.carpark.service.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -91,11 +92,11 @@ public class ImageServiceImpl implements ImageServiceI {
     	if(!file.exists()){
     		throw new DongluServiceException("未找到指定路径下的照片:"+filePath);
     	}
-        try(FileInputStream fis = new FileInputStream(filePath);ByteArrayOutputStream outStream = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[1024];  
+        try(RandomAccessFile rf=new RandomAccessFile(file, "r");ByteArrayOutputStream outStream = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[1024];
             int len = 0;  
-            while( (len=fis.read(buffer)) != -1 ){  
-                outStream.write(buffer, 0, len);  
+            while( (len=rf.read(buffer)) != -1 ){  
+                outStream.write(buffer, 0, len);
             }  
             return outStream.toByteArray();  
         } catch (Exception e) {

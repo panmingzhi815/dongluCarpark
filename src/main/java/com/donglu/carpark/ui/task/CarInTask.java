@@ -248,8 +248,9 @@ public class CarInTask extends AbstractTask {
 //		LOGGER.debug(date + "==" + ip + "====" + plateNO + "车辆类型：" + carType + "==" + "保存图片：==查找固定用户：==界面操作：");
 		LOGGER.info("把车牌:{}的进场记录保存到数据库", plateNO);
 		if (cch.getId()!=null) {
+			LOGGER.info("车辆未正常出场时再进场,自动更新出场时间,时间:{},id:{}",StrUtil.formatDateTime(new Date()),cch.getId());
 			cch.setOutTime(cch.getInTime());
-			cch.setRemarkString("车辆未正常出场时再进场,自动更新出场时间");
+			cch.setRemarkString("车辆未正常出场时再进场,自动更新出场时间,时间:"+StrUtil.formatDateTime(new Date())+",id:"+cch.getId());
 			cch.setFactMoney(0);
 			cch.setShouldMoney(0);
 			cch.setFreeMoney(0);
@@ -271,6 +272,8 @@ public class CarInTask extends AbstractTask {
 		}else{
 			cch.setUserType("小车");
 		}
+		cch.setPlateColor(plateColor);
+		cch.setLeftSlot(model.getTotalSlot()-1);
 		cch.setInTime(date);
 		cch.setOperaName(System.getProperty("userName"));
 		cch.setBigImg(bigImgFileName);
@@ -372,6 +375,9 @@ public class CarInTask extends AbstractTask {
 	}
 
 	private boolean visitorCarIn() {
+		if(StrUtil.isEmpty(plateNO)) {
+			return true;
+		}
 		SingleCarparkVisitor visitor = sp.getCarparkService().findVisitorByPlateAndCarpark(plateNO, carpark);
 		if (visitor == null || visitor.getStatus().equals(VisitorStatus.不可用.name())) {
 			return true;

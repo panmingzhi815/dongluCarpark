@@ -61,4 +61,9 @@ public class CarPayServlet extends HessianServlet implements CarPayServiceI {
 		return carPayService.countCarPayHistoryMoney(plateNo, start, end);
 	}
 
+	@Override
+	public List<CarPayHistory> findCarPayHistoryByHistoryId(Long id) {
+		return carPayService.findCarPayHistoryByHistoryId(id);
+	}
+
 }

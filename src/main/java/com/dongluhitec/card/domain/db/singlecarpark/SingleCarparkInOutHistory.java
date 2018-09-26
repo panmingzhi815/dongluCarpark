@@ -127,6 +127,11 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	
 	private String userType="小车";
 	
+	@Column(length=10)
+	private String plateColor;
+	
+	private Integer leftSlot=0;
+	
 	@Transient
 	private boolean savePayHistory=false;
 	
@@ -146,11 +151,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		if (inTime==null) {
 			return 0+"";
 		}
-		Date date=outTime;
-		if (outTime==null) {
-			date = new Date();
-		}
-		int countTime = StrUtil.countTime(inTime, date, TimeUnit.SECONDS);
+		int countTime = getStillTimeCount().intValue();
 		
 		String s = (countTime%60)+"秒";
 		if (countTime/60>0) {
@@ -299,7 +300,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	}
 
 	public Float getFreeMoney() {
-		return freeMoney;
+		return freeMoney==null?0:freeMoney;
 	}
 
 	public void setFreeMoney(float freeMoney) {
@@ -571,6 +572,14 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		this.saveHistory = saveHistory;
 	}
 	public Long getStillTimeCount() {
+		long stillTimeMilliCount = getStillTimeMilliCount();
+		long countTime = stillTimeMilliCount/1000;
+		if(stillTimeMilliCount%1000>0) {
+			countTime++;
+		}
+		return countTime;
+	}
+	public long getStillTimeMilliCount() {
 		if (inTime==null) {
 			return 0l;
 		}
@@ -578,11 +587,11 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		if (outTime==null) {
 			date = new Date();
 		}
-		long countTime = StrUtil.countTime(inTime, date, TimeUnit.SECONDS);
+		long countTime = date.getTime()-inTime.getTime();
 		return countTime;
 	}
 	public Integer getChargedType() {
-		return chargedType;
+		return chargedType==null?0:chargedType;
 	}
 	public void setChargedType(Integer chargedType) {
 		this.chargedType = chargedType;
@@ -611,5 +620,24 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		outDeviceId = device.getIdentifire();
 		outDevice=device.getName();
 		outDeviceIp=device.getIp();
+	}
+	public String getPlateColor() {
+		return plateColor;
+	}
+	public void setPlateColor(String plateColor) {
+		this.plateColor = plateColor;
+		//firePropertyChange("plateColor", null, null);
+	}
+	public Integer getLeftSlot() {
+		return leftSlot==null?0:leftSlot;
+	}
+	public void setLeftSlot(Integer leftSlot) {
+		this.leftSlot = leftSlot;
+		//firePropertyChange("leftSlot", null, null);
+	}
+	public float getPaidMoney() {
+		float online=onlineMoney==null?0:onlineMoney;
+		float fact=factMoney==null?0:factMoney;
+		return fact+online;
 	}
 }
