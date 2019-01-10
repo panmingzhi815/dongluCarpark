@@ -43,14 +43,14 @@ public enum SystemSettingTypeEnum {
 	优先使用云平台计费("false"),
 	监控界面提示网络故障("true"),
 	
-	抬杆自动收费放行("false"),
+	抬杆自动收费放行("false"),收费放行打印小票("false"),
 	
 	自动关闭未选中的监控视频("false"),
 	固定车到期变临时车收费自动记费出场("贵州演艺集团"),
 	
 	启动HTTP对外服务("false"),
 	
-	DateBase_version("1.0.0.24"),软件版本("1.0.0.24"),发布时间("2018-11-13 17:10:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
+	DateBase_version("1.0.0.24"),软件版本("1.0.0.24"),发布时间("2019-01-18 11:10:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
 	;
 	
 	private String defaultValue;

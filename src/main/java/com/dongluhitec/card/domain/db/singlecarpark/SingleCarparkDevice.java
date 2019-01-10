@@ -34,7 +34,7 @@ public class SingleCarparkDevice extends DomainObject{
 	private Integer volume=1;
 	private String advertise="车牌自动识别，请减速缓行";
 	private ScreenTypeEnum screenType=ScreenTypeEnum.一二接口显示屏;
-	private CameraTypeEnum cameraType=CameraTypeEnum.信路威;
+	private CameraTypeEnum cameraType=CameraTypeEnum.智芯;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "carparkId", nullable = true, insertable = false, updatable = false)

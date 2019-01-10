@@ -570,9 +570,14 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				JSONObject jData = JSONObject.parseObject(jo.getString("data"));
 				String createDateTime = JSONObject.parseObject(jData.getString("createDate")).getString("time");
 				String endDateTime = JSONObject.parseObject(jData.getString("endDate")).getString("time");
-				Long id=Long.valueOf(jData.getString("monthCardId").replace(parkId, ""));
-				float money=Float.valueOf(jData.getString("rechargeAmount"))/100;
-				SingleCarparkUser user = sp.getCarparkUserService().findUserById(id);
+				float money = Float.valueOf(jData.getString("rechargeAmount"))/100;
+				SingleCarparkUser user=null;
+				try {
+					Long id=Long.valueOf(jData.getString("monthCardId").replace(parkId, ""));
+					user = sp.getCarparkUserService().findUserById(id);
+				} catch (Exception e) {
+//					sp.getCarparkUserService().findUserByPlateNo(plateNO, carparkId)
+				}
 				if (user==null) {
 					String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
 					httpPostMssage(resultUrl, null);

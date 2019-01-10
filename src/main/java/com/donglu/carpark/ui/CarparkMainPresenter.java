@@ -84,6 +84,7 @@ import com.donglu.carpark.ui.wizard.model.ReturnAccountModel;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
+import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.donglu.carpark.util.ExecutorsUtils;
 import com.donglu.carpark.util.ImageUtils;
 import com.donglu.carpark.util.ShortURLUtils;
@@ -2494,6 +2495,13 @@ public class CarparkMainPresenter {
 			plateSubmit(singleCarparkInOutHistory, singleCarparkInOutHistory.getOutTime(), device, ImageUtils.getImageByte(singleCarparkInOutHistory.getOutBigImg()));
 			updatePosition(device.getCarpark(), singleCarparkInOutHistory, false);
 			cancelCheckChargeTimer(device);
+			if(singleCarparkInOutHistory.isSaveHistory()&&singleCarparkInOutHistory.getFactMoney()>0) {
+				if(model.booleanSetting(SystemSettingTypeEnum.收费放行打印小票)) {
+					ExcelImportExportImpl excelImportExportImpl = new ExcelImportExportImpl();
+					String path = excelImportExportImpl.exportChargeInfo(singleCarparkInOutHistory);
+					excelImportExportImpl.printExcel(path);
+				}
+			}
 			return true;
 		} catch (Exception e) {
 			log.error("收费时发生错误", e);

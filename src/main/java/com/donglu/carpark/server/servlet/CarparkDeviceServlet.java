@@ -11,6 +11,11 @@ import com.google.inject.Inject;
 
 public class CarparkDeviceServlet extends HessianServlet implements CarparkDeviceService {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private CarparkDeviceService carparkDeviceService;
 
 	@Inject
@@ -28,26 +33,23 @@ public class CarparkDeviceServlet extends HessianServlet implements CarparkDevic
 	}
 
 	@Override
-	public List<SingleCarparkDevice> findAllDevice(String host) {
-		// TODO 自动生成的方法存根
-		return null;
+	public List<SingleCarparkDevice> findAllDevice(String host,String code) {
+		return carparkDeviceService.findAllDevice(host, code);
 	}
 
 	@Override
 	public Long saveDevice(List<SingleCarparkDevice> devices) {
-		// TODO 自动生成的方法存根
-		return null;
+		return carparkDeviceService.saveDevice(devices);
 	}
 
 	@Override
 	public Long saveDevice(SingleCarparkDevice device) {
-		// TODO 自动生成的方法存根
-		return null;
+		return carparkDeviceService.saveDevice(device);
 	}
 
 	@Override
 	public Long deleteDevice(SingleCarparkDevice device) {
-		// TODO 自动生成的方法存根
-		return null;
+		return carparkDeviceService.deleteDevice(device);
 	}
+
 }

@@ -988,4 +988,32 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		}
 	}
 
+	public String exportChargeInfo(SingleCarparkInOutHistory singleCarparkInOutHistory) {
+		try {
+			String path=System.getProperty("user.dir")+File.separator+"print"+File.separator+singleCarparkInOutHistory.getPlateNo()+singleCarparkInOutHistory.getOutTime().getTime()+".xls";
+			if(!new File(path).getParentFile().exists()) {
+				new File(path).getParentFile().mkdirs();
+			}
+			copyTemplement(ChargeInfoTemplate, path);
+
+			HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(path));
+			HSSFSheet sheet = wb.getSheetAt(0);
+			sheet.getRow(3).getCell(2).setCellValue(singleCarparkInOutHistory.getPlateNo());
+			sheet.getRow(4).getCell(2).setCellValue(StrUtil.formatDate(singleCarparkInOutHistory.getInTime(), "yyyy-MM-dd HH:mm:ss"));
+			sheet.getRow(5).getCell(2).setCellValue(StrUtil.formatDate(singleCarparkInOutHistory.getOutTime(), "yyyy-MM-dd HH:mm:ss"));
+			sheet.getRow(6).getCell(2).setCellValue(CarparkUtils.getCarStillTime(StrUtil.MinusTime2(singleCarparkInOutHistory.getInTime(), singleCarparkInOutHistory.getOutTime())).replaceAll("停车", "").replaceAll(",", ""));
+			sheet.getRow(7).getCell(2).setCellValue(singleCarparkInOutHistory.getFactMoney()+"元");
+			sheet.getRow(8).getCell(2).setCellValue(singleCarparkInOutHistory.getOperaName());
+			sheet.getRow(10).getCell(0).setCellValue("打印时间："+StrUtil.formatDateTime(new Date()));
+			FileOutputStream fileOut = new FileOutputStream(path);
+			wb.write(fileOut);
+			fileOut.flush();
+			fileOut.close();
+			return path;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }

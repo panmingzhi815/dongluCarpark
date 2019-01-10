@@ -285,8 +285,17 @@ public class SettingView extends Composite implements View {
 		});
 		button_23.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_23.setText("保存遥控开闸记录");
-		button_23.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录)));
-		new Label(group, SWT.NONE);
+		
+		Button button_39 = new Button(group, SWT.CHECK);
+		button_39.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.收费放行打印小票, button_39.getSelection() + "");
+			}
+		});
+		button_39.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		button_39.setText("收费放行打印小票");
+		button_39.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.收费放行打印小票)));
 		new Label(group, SWT.NONE);
 		
 

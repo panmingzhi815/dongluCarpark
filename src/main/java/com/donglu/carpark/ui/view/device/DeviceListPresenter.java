@@ -17,6 +17,6 @@ public class DeviceListPresenter extends AbstractListPresenter<SingleCarparkDevi
 	}
 	@Override
 	protected List<SingleCarparkDevice> findListInput() {
-		return sp.getCarparkDeviceService().findAllDevice(null);
+		return sp.getCarparkDeviceService().findAllDevice(null,null);
 	}
 }

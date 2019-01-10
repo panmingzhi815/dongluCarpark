@@ -31,7 +31,7 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 	 */
 	private static final long serialVersionUID = -5489797873783489607L;
 	
-	static Map<String, String> mapQrInOutInfos=new HashMap<>();
+	static Cache<String, String> mapQrInOutInfos=CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build();
 	static Map<String, CarparkQrCodeInOutService> mapStartedServices=new HashMap<>();
 	@Inject
 	private IpmsServiceI ipmsService;
@@ -86,16 +86,18 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 	public String getQrCodeInOutInfo(Collection<String> deviceIps,Collection<String> waitPlates){
 		for (String ip : deviceIps) {
 			synchronized (mapQrInOutInfos) {
-				String info = mapQrInOutInfos.remove(ip);
+				String info = mapQrInOutInfos.getIfPresent(ip);
 				if (info!=null) {
+					mapQrInOutInfos.invalidate(ip);
 					return info;
 				}
 			}
 		}
 		for (String ip : waitPlates) {
 			synchronized (mapQrInOutInfos) {
-				String info = mapQrInOutInfos.remove(ip);
+				String info = mapQrInOutInfos.getIfPresent(ip);
 				if (info!=null) {
+					mapQrInOutInfos.invalidate(ip);
 					return info;
 				}
 			}

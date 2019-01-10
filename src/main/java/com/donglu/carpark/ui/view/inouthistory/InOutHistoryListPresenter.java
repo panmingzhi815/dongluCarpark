@@ -436,4 +436,25 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 			commonui.error("提示", "设置失败" + e);
 		}
 	}
+
+	public void print() {
+		List<SingleCarparkInOutHistory> list = v.getModel().getSelected();
+		if (StrUtil.isEmpty(list)) {
+			return;
+		}
+		try {
+    		SingleCarparkInOutHistory singleCarparkInOutHistory=list.get(0);
+    		if(singleCarparkInOutHistory.getOutTime()==null||singleCarparkInOutHistory.getFactMoney()<=0) {
+    			commonui.info("提示", "只能打印实收金额大于0的记录");
+    			return;
+    		}
+    		ExcelImportExportImpl excelImportExportImpl = new ExcelImportExportImpl();
+    		String path = excelImportExportImpl.exportChargeInfo(singleCarparkInOutHistory);
+			excelImportExportImpl.printExcel(path);
+			commonui.info("成功","已发送打印命令");
+		} catch (Exception e) {
+			e.printStackTrace();
+			commonui.info("错误","打印失败"+e);
+		}
+	}
 }

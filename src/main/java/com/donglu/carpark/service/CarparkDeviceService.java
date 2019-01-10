@@ -9,7 +9,7 @@ public interface CarparkDeviceService {
 	public boolean openDoor(String ip);
 	public default String getOpenDoorDevice(Collection<String> devices){return null;}
 	
-	public List<SingleCarparkDevice> findAllDevice(String host);
+	public List<SingleCarparkDevice> findAllDevice(String host,String code);
 	Long saveDevice(List<SingleCarparkDevice> devices);
 	Long saveDevice(SingleCarparkDevice device);
 	Long deleteDevice(SingleCarparkDevice device);

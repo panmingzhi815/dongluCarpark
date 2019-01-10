@@ -99,6 +99,15 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		    }
 		});
 		setTypeItem.setToolTipText("设置车类型");
+		ToolItem printItem = new ToolItem(mainToolbar, SWT.NONE);
+		printItem.setText("打印小票");
+		printItem.addSelectionListener(new SelectionAdapter() {
+		    @Override
+		    public void widgetSelected(SelectionEvent e) {
+		    	getPresenter().print();
+		    }
+		});
+		printItem.setToolTipText("打印小票");
 	}
 
 	@Override
