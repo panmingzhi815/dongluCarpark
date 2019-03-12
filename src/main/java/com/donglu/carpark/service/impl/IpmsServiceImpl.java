@@ -5,15 +5,12 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Files;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,12 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-
-import org.apache.noggit.JSONUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -707,7 +699,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	public static void main(String[] args) throws Exception {
 //		String upload = FileuploadSend.upload("http://127.0.0.1:8899/server/", null);
 //		System.out.println(upload);
-		IpmsServiceImpl is = new IpmsServiceImpl();
+//		IpmsServiceImpl is = new IpmsServiceImpl();
 		System.out.println(UUID.randomUUID().toString().replace("-", "").length());
 		
 		System.out.println(URLEncoder.encode("http://www.dongluhitec.net/weixin_zr/test/getRecordByCarNum.html?channelId=7e257819d2764bb6aa5c1fd43baf2f71", "UTF-8"));

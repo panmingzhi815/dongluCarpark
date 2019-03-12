@@ -1,5 +1,8 @@
 package com.donglu.carpark.server.servlet;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +43,7 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 	}
 	
 	@Override
-	public boolean startQrCodeInOutService(String buildId){
+	public synchronized boolean startQrCodeInOutService(String buildId){
 		try {
 			LOGGER.debug("检测是否启动了进出场服务，建筑：{}",buildId);
 			if (mapStartedServices.get(buildId)!=null) {
@@ -59,6 +62,7 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 							return;
 						}
 						LOGGER.info("云平台推送消息：[{}]",info);
+						broadcastInfo(info);
 						JSONObject jsonObject2 = jsonObject.getJSONObject("data");
 						synchronized (mapQrInOutInfos) {
 							String deviceId = jsonObject2.getString("deviceId");
@@ -82,6 +86,17 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 		}
 	}
 	
+	protected void broadcastInfo(String info) {
+		try (DatagramSocket ds = new DatagramSocket(0);) {
+			byte[] bs = info.getBytes();
+			String host = "255.255.255.255";
+			ds.send(new DatagramPacket(bs, bs.length, InetAddress.getByName(host), 16666));
+			LOGGER.info("发送广播成功");
+		} catch (Exception e) {
+			LOGGER.info("发送广播失败",e);
+		}
+	}
+
 	@Override
 	public String getQrCodeInOutInfo(Collection<String> deviceIps,Collection<String> waitPlates){
 		for (String ip : deviceIps) {

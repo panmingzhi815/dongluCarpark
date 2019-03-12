@@ -104,6 +104,15 @@ public class ChargeListView extends AbstractListView<CarparkChargeInfo> implemen
 				getPresenter().stopUseTempCharge();
 			}
 		});
+		ToolItem toolItem_test = new ToolItem(toolBar_menu, SWT.NONE);
+		toolItem_test.setToolTipText("测试临时车收费规则");
+		toolItem_test.setText("测试临时收费");
+		toolItem_test.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().testTempCharge();
+			}
+		});
 	}
 	
 }

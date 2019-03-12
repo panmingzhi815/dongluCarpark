@@ -14,20 +14,21 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.donglu.carpark.service.CarparkQrCodeInOutService;
+import com.donglu.carpark.util.NetUtils;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.base.Strings;
 
@@ -44,6 +45,7 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 	//String secret_key =123qwer
 	String secret_key = "123qwer";
 	private static final Map<String, MqttClient> mapMqttClient=new HashMap<>();
+	private static final Map<String, Long> mapMqttLastMsgTime=new HashMap<>();
 	
 	public CarparkQrCodeInOutServiceImpl() {
 		try {
@@ -101,20 +103,51 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 	public void initMqttService(String buildId,CarparkQrCodeInOutCallback callback) throws Exception {
 		MqttClient mqttClient = createLongConnectMqtt(buildId,callback);
 		mapMqttClient.put(buildId, mqttClient);
-		new Timer().scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				MqttClient client = mapMqttClient.get(buildId);
-				if (client==null||!client.isConnected()) {
-					try {
-						MqttClient mqttClient = createLongConnectMqtt(buildId,callback);
-						mapMqttClient.put(buildId, mqttClient);
-					} catch (Exception e) {
-						LOGGER.error("重连mqtt:"+buildId+" 失败",e);
-					}
-				}
-			}
-		}, 5000, 5000);
+//		new Timer().scheduleAtFixedRate(new TimerTask() {
+//			@Override
+//			public void run() {
+//				LOGGER.info("检测MQTT:{}连接状态",buildId);
+//				MqttClient client = mapMqttClient.get(buildId);
+//				if (client==null||!client.isConnected()) {
+//					try {
+//						MqttClient mqttClient = createLongConnectMqtt(buildId,callback);
+//						mapMqttClient.put(buildId, mqttClient);
+//					} catch (Exception e) {
+//						LOGGER.error("重连mqtt:"+buildId+" 失败",e);
+//					}
+//				}else {
+//					if (mapMqttLastMsgTime.getOrDefault(buildId, 0l)==0) {
+//						try {
+//							JSONObject jo = new JSONObject();
+//							jo.put("type", "test");
+//							jo.put("buildId", buildId);
+//							mqttClient.publish("lightcar/ipms/" + buildId, new MqttMessage(jo.toJSONString().getBytes("UTF-8")));
+//							mapMqttLastMsgTime.put(buildId, System.currentTimeMillis());
+//						} catch (Exception e) {
+//							LOGGER.error("发布MQTT测试消息时发生错误，准备重连", e);
+//							try {
+//								mqttClient.disconnect();
+//								mapMqttClient.remove(buildId);
+//							} catch (MqttException e1) {
+//								if(e1.getMessage().contains("已断开")) {
+//									mapMqttClient.remove(buildId);
+//								}
+//							}
+//						} 
+//					}else {
+//						try {
+//							LOGGER.info("未收到本地发送的消息,断开MQTT连接，准备重连");
+//							mqttClient.disconnect();
+//							mapMqttClient.remove(buildId);
+//						} catch (MqttException e) {
+//							if(e.getMessage().contains("客户机未连接")) {
+//								mapMqttClient.remove(buildId);
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}, 60000, 60000);
 	}
 	
 
@@ -159,14 +192,22 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 
 	public MqttClient createLongConnectMqtt(String buildId, CarparkQrCodeInOutCallback callback) {
 		try {
-			MqttClient client = new MqttClient("tcp://"+mqttHost+":1883", "carpark-"+StrUtil.getHostName());
+			MqttClient client = new MqttClient("tcp://"+mqttHost+":1883", "DY-VLPR-"+NetUtils.getMacAddress().split(",")[0],new MemoryPersistence());
+			String topic = "lightcar/ipms/"+buildId;
+			int qos = 1;
 			// 创建MqttClient
-			client.setCallback(new MqttCallback() {
+			client.setCallback(new MqttCallbackExtended() {
 				@Override
 				public void messageArrived(String topic, MqttMessage message) throws Exception {
 					String msg = new String(message.getPayload(),"UTF-8");
 					LOGGER.info("接收到主题：{} 消息：{}",topic,msg);
 					try {
+						JSONObject jo = JSON.parseObject(msg);
+						String type = jo.getString("type");
+						if(type!=null&&type.equals("test")) {
+							mapMqttLastMsgTime.remove(jo.getString("buildId"));
+							return;
+						}
 						callback.call(msg);
 					} catch (Exception e) {
 						LOGGER.error("回调数据时发生异常", e);
@@ -180,22 +221,35 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 				
 				@Override
 				public void connectionLost(Throwable cause) {
+					LOGGER.info("{}的mqtt连接断开:{}",buildId,cause);
+				}
+
+				@Override
+				public void connectComplete(boolean reconnect, String serverURI) {
 					try {
-						LOGGER.info("{}的mqtt连接断开:{}",buildId,cause);
-						client.disconnect();
+						System.out.println(serverURI);
+						if(!reconnect) {
+							return;
+						}
+						LOGGER.info("准备订阅主题：{}:{} ：{}",serverURI,topic,reconnect);
+						client.subscribe(topic, qos);
+						LOGGER.info("订阅主题：{} 成功",topic);
 					} catch (MqttException e) {
-						e.printStackTrace();
-					}
+						LOGGER.error("订阅主题失败",e);
+					};
 				}
 			});
 			MqttConnectOptions conOptions = new MqttConnectOptions();
 			conOptions.setUserName(System.getProperty("mqttLoginUser", "admin"));
 			conOptions.setPassword(System.getProperty("mqttLoginPassword","dongyun!@512809").toCharArray());
-			conOptions.setCleanSession(false);
+			conOptions.setCleanSession(true);
+			conOptions.setKeepAliveInterval(20);
+			conOptions.setAutomaticReconnect(true);
+			
 			client.connect(conOptions);
-			client.subscribe("lightcar/ipms/"+buildId, 1);
+			client.subscribe(topic, qos);
 			boolean isSuccess = client.isConnected();
-			LOGGER.info("连接mqtt：{} 状态：{}",buildId,isSuccess);
+			LOGGER.info("连接mqtt：{}:{} 状态：{}",mqttHost,buildId,isSuccess);
 			// client.disconnect();
 			return client;
 		} catch (Exception e) {
@@ -255,6 +309,17 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 		}
         return s;
     }
+    
+    public boolean sendMqtt(String buildId, String string) {
+		MqttClient mqttClient = mapMqttClient.get(buildId);
+		try {
+			mqttClient.publish("lightcar/ipms/"+buildId, new MqttMessage(string.getBytes("UTF-8")));
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 	
 	public static void main(String[] args) throws Exception {
 		CarparkQrCodeInOutServiceImpl impl = new CarparkQrCodeInOutServiceImpl();

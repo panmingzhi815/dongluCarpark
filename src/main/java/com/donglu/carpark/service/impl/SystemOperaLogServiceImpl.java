@@ -1,5 +1,8 @@
 package com.donglu.carpark.service.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -139,5 +142,25 @@ public class SystemOperaLogServiceImpl implements SystemOperaLogServiceI {
 		} finally {
 			unitOfWork.end();
 		}
+	}
+	@Override
+	public boolean saveLog(String name, String fileName, long pos, int length, byte[] data) {
+		try {
+			File folder = new File("clientlog"+File.separator+name);
+			if(!folder.exists()) {
+				folder.mkdirs();
+			}
+			File file = new File(folder,fileName);
+			if(!file.exists()) {
+				file.createNewFile();
+			}
+			try(RandomAccessFile raf = new RandomAccessFile(file, "rw");) {
+				raf.seek(pos);
+				raf.write(data, 0, length);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 }

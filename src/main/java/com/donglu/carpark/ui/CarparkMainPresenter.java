@@ -8,11 +8,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,8 +46,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.caucho.hessian.client.HessianConnectionException;
 import com.caucho.hessian.client.HessianRuntimeException;
 import com.donglu.carpark.hardware.CarparkScreenService;
 import com.donglu.carpark.hardware.CarparkScreenServiceImpl;
@@ -59,6 +62,7 @@ import com.donglu.carpark.service.CarparkQrCodeInOutService;
 import com.donglu.carpark.service.CountTempCarChargeI;
 import com.donglu.carpark.service.IpmsServiceI;
 import com.donglu.carpark.service.PlateSubmitServiceI;
+import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.donglu.carpark.service.impl.CarparkQrCodeInOutServiceImpl;
 import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
@@ -87,7 +91,6 @@ import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.donglu.carpark.util.ExecutorsUtils;
 import com.donglu.carpark.util.ImageUtils;
-import com.donglu.carpark.util.ShortURLUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.LPRInOutType;
@@ -106,7 +109,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
-import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
@@ -387,7 +389,7 @@ public class CarparkMainPresenter {
 	/**
 	 * 自动刷新停车场视频监控
 	 */
-	private void checkPlayerPlaying() {
+	protected void checkPlayerPlaying() {
 		String property = System.getProperty(ConstUtil.AUTO_REFRESH_CAMERA, "true");
 		log.info("自动刷新视频监控：{} 设置为：{}",ConstUtil.AUTO_REFRESH_CAMERA,property);
 		if (property.equals("false")) {
@@ -1658,7 +1660,69 @@ public class CarparkMainPresenter {
 		startUpdateScreenQrCodeColorServie();
 		startHttpOpenDoorService();
 		startRefreshSettingService();
+		startUploadLogService();
+		startBroadcastService();
 	}
+	private void startUploadLogService() {
+		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				File ui = new File("log"+File.separator+"ui"+File.separator);
+				String[] list = ui.list((dir, name) -> name.endsWith(".txt"));
+				String s="";
+				for (SingleCarparkDevice device : mapIpToDevice.values()) {
+					s+=device.getName();
+				}
+				for (String string : list) {
+					File file = new File(ui, string);
+					try {
+						log.info("上传日志：{}到服务器",file);
+						long length = file.length();
+						File config = new File(ui,string+".config");
+						long pos=0;
+						if(config.exists()) {
+							String line = Files.readFirstLine(config, Charset.forName("GBK"));
+							System.out.println(config+"==="+line+"==="+file.length());
+							if(!StrUtil.isEmpty(line)) {
+								try {
+									pos=Long.valueOf(line);
+								} catch (NumberFormatException e) {
+									e.printStackTrace();
+								}
+							}
+						}else {
+							config.createNewFile();
+						}
+						if(pos==length) {
+							continue;
+						}else if(pos>length) {
+							pos=0;
+						}
+						try(RandomAccessFile raf=new RandomAccessFile(file, "r")) {
+							
+							raf.seek(pos);
+							int read = -1;
+							byte[] bs = new byte[1024];
+							
+							String name=StrUtil.getHostIp()+s;
+							SystemOperaLogServiceI systemOperaLogService = sp.getSystemOperaLogService();
+							String name2 =file.getName();
+							while((read = raf.read(bs))!=-1) {
+								systemOperaLogService.saveLog(name, name2, pos, read, bs);
+								pos+=read;
+								Files.write((""+pos).getBytes(), config);
+							}
+						}
+						log.info("上传日志：{} 成功",file);
+					} catch (Exception e) {
+						e.printStackTrace();
+						log.info("上传日志:{}时发生错误:{}",file,e);
+					}
+				}
+			}
+		}, 10, 10, TimeUnit.MINUTES, "上传日志到服务器");
+	}
+
 	private void startRefreshSettingService() {
 		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
 			
@@ -1776,7 +1840,7 @@ public class CarparkMainPresenter {
 	/**
 	 * 车辆缴费提示服务。车辆缴费后会在客户端提醒
 	 */
-	private void startPlatePayRemindService() {
+	protected void startPlatePayRemindService() {
 		if(!mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")||!mapSystemSetting.get(SystemSettingTypeEnum.监控界面提示网络故障).equals("true")){
 			return;
 		}
@@ -3432,6 +3496,7 @@ public class CarparkMainPresenter {
 							model.setChargedMoney(result.getPayedFee());
 							model.setShouldMony(result.getPayedFee());
 						}
+						MessageUtil.close(data.getPlateNo());
 						chargeCarPass(device, data, false, result.getPayedFee(), result.getPayedFee(), 0, false);
 						
 						timer.cancel();
@@ -3466,6 +3531,68 @@ public class CarparkMainPresenter {
 		} catch (Exception e) {
 			log.info("设置摄像机：{} 时间发送错误：{}",device,e);
 		}
+	}
+	
+	public void startBroadcastService() {
+		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
+			DatagramSocket ds=null;
+			@Override
+			public void run() {
+				if(ds==null) {
+					try {
+						ds=new DatagramSocket(16666);
+					} catch (SocketException e) {
+						log.error("启动广播监听服务失败",e);
+						MessageUtil.info("启动二维码监听服务","启动二维码支付监听服务失败:"+e);
+						return;
+					}
+				}
+				byte[] bs = new byte[1024];
+				try {
+					if(ds==null) {
+						ds=new DatagramSocket(16666);
+					}
+					DatagramPacket p=new DatagramPacket(bs, bs.length);
+					ds.receive(p);
+					String string = new String(p.getData(),0,p.getLength()).trim();
+					log.info("监听到广播：{}",string);
+					JSONObject jo = JSON.parseObject(string);
+					String type = jo.getString("type");
+					if (type==null) {
+						return;
+					}
+					if(type.contains("QRCode")) {
+						JSONObject jsonObject2 = jo.getJSONObject("data");
+						String deviceId=jsonObject2.getString("deviceId");
+						log.info("当前等待出场车辆：{}",model.getMapWaitInOutHistory());
+						if(deviceId!=null) {
+							if(model.getMapWaitInOutHistory().get(deviceId)==null) {
+								return;
+							}
+						}else {
+							String carNum=jsonObject2.getString("carNum").trim();
+							if(carNum==null) {
+								return;
+							}
+							boolean flag=false;
+							
+							for (SingleCarparkInOutHistory history : model.getMapWaitInOutHistory().values()) {
+								if(carNum.equals(history.getPlateNo())) {
+									flag=true;
+									break;
+								}
+							}
+							if (!flag) {
+								return;
+							}
+						}
+						qrCodeInOutTask(string);
+					}
+				}catch (Exception e) {
+					log.info("监听广播时发生错误",e);
+				}
+			}
+		}, 100, 100, TimeUnit.MILLISECONDS, "广播监听服务");
 	}
 	
 }

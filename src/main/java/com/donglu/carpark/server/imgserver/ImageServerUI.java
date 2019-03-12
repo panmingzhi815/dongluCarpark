@@ -142,6 +142,9 @@ public class ImageServerUI {
 				txt_log.getDisplay().asyncExec(new Runnable() {
 					public void run() {
 						try {
+							if(!isOpen) {
+								return;
+							}
 							if (txt_log.getLineCount() > 10000) {
 								txt_log.setText("");
 							}
@@ -286,6 +289,7 @@ public class ImageServerUI {
 			public void shellIconified(ShellEvent e) {
 				if (isSystemTraySupported) {
 					shell.setVisible(false);
+					isOpen=false;
 				}
 			}
 
@@ -476,7 +480,7 @@ public class ImageServerUI {
 		GridData gd_text_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_text_1.widthHint = 110;
 		text_1.setLayoutData(gd_text_1);
-		text_1.setText("192.168.2.163");
+		text_1.setText(StrUtil.getHostIp());
 	}
 
 	/**

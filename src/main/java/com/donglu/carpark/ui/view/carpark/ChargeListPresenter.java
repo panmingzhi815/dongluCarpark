@@ -16,6 +16,7 @@ import com.donglu.carpark.ui.view.carpark.wizard.AddMonthChargeModel;
 import com.donglu.carpark.ui.view.carpark.wizard.AddMonthChargeWizard;
 import com.donglu.carpark.ui.view.carpark.wizard.NewCommonChargeModel;
 import com.donglu.carpark.ui.view.carpark.wizard.NewCommonChargeWizard;
+import com.donglu.carpark.ui.view.carpark.wizard.TestCountChargeWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeTypeEnum;
@@ -313,6 +314,21 @@ public class ChargeListPresenter extends AbstractListPresenter<CarparkChargeInfo
 		view.setTableTitle("收费设置");
 		view.setShowMoreBtn(false);
 		return view;
+	}
+
+	public void testTempCharge() {
+		List<CarparkChargeInfo> selected = view.getModel().getSelected();
+		if (StrUtil.isEmpty(selected)||selected.get(0).getType().equals(CarparkChargeTypeEnum.固定月租收费.name())) {
+			commonui.info("提示", "请先选择一个临时收费设置");
+			return;
+		}
+		CarparkChargeStandard carparkChargeStandard = sp.getCarparkService().findCarparkChargeStandardByCode(selected.get(0).getCode(), carpark);
+		if (carparkChargeStandard==null) {
+			commonui.info("提示", "收费标准不存在！！！");
+			return;
+		}
+		TestCountChargeWizard w = new TestCountChargeWizard(sp, carparkChargeStandard);
+		commonui.showWizard(w);
 	}
 	
 }

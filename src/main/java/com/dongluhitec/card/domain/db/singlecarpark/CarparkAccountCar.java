@@ -32,4 +32,8 @@ public class CarparkAccountCar extends DomainObject {
 		this.name = name;
 		firePropertyChange("name", null, null);
 	}
+	@Override
+	public String toString() {
+		return "车牌:"+plateNo+",名称:"+name;
+	}
 }

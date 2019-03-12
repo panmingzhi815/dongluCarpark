@@ -13,7 +13,10 @@ import org.eclipse.swt.widgets.ToolItem;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.TableSort;
 import com.donglu.carpark.ui.common.View;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
+
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -70,6 +73,18 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 
 	@Override
 	protected void createMenuBarToolItem(ToolBar mainToolbar) {
+		if (ConstUtil.checkPrivilege(SystemUserTypeEnum.超级管理员)) {
+			ToolItem handOut = new ToolItem(mainToolbar, SWT.NONE);
+			handOut.setText("手动出场");
+			handOut.setData("type", "handout");
+			handOut.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					getPresenter().handOut();
+				}
+			});
+			handOut.setToolTipText("手动让未出场的车辆出场");
+		}
 		ToolItem addItem = new ToolItem(mainToolbar, SWT.NONE);
 		addItem.setText("查看");
 		addItem.setData("type", "look");

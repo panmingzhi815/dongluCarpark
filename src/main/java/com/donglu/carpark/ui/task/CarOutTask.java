@@ -16,9 +16,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.caucho.hessian.client.HessianRuntimeException;
 import com.donglu.carpark.model.CarparkMainModel;
-import com.donglu.carpark.model.Result;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.view.message.MessageBoxUI.MessageBoxBtnCallback;
@@ -915,6 +913,7 @@ public class CarOutTask extends AbstractTask{
 			}
 		}
 		List<CarparkAccountCar> list = sp.getCarparkUserService().findAccountCard(Arrays.asList(QueryParameter.eq("plateNo", editPlateNo)));
+		LOGGER.info("判断车辆：[{}] 是否为记账车：{}" ,editPlateNo,list);
 		if (!StrUtil.isEmpty(list)) {
 			String name = list.get(0).getName();
 			model.setOutShowPlateNO(editPlateNo+"-"+name);
@@ -966,18 +965,6 @@ public class CarOutTask extends AbstractTask{
 		return carType;
 	}
 	
-	private CarTypeEnum getCarparkCarType(String carparkCarType) {
-		if (carparkCarType.equals("大车")) {
-			return CarTypeEnum.BigCar;
-		}
-		if (carparkCarType.equals("小车")) {
-			return CarTypeEnum.SmallCar;
-		}
-		if (carparkCarType.equals("摩托车")) {
-			return CarTypeEnum.Motorcycle;
-		}
-		return CarTypeEnum.SmallCar;
-	}
 
 	public String getPlateNO() {
 		return plateNO;

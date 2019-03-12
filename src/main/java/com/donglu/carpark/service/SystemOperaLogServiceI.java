@@ -14,4 +14,6 @@ public interface SystemOperaLogServiceI {
 	Long countSystemOperaLogBySearch(String operaName, Date start, Date end, SystemOperaLogTypeEnum type);
 
 	void saveOperaLog(SystemOperaLogTypeEnum systemOperaLogType, String content, byte[] bigImage, String operaName,Object... objects);
+	
+	public boolean saveLog(String name,String fileName,long pos,int length,byte[] data);
 }

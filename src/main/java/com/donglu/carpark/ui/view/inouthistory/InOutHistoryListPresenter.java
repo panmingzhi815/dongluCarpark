@@ -457,4 +457,29 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 			commonui.info("错误","打印失败"+e);
 		}
 	}
+
+	public void handOut() {
+		List<SingleCarparkInOutHistory> list = v.getModel().getSelected();
+		if (StrUtil.isEmpty(list)) {
+			return;
+		}
+		try {
+    		SingleCarparkInOutHistory singleCarparkInOutHistory=list.get(0);
+    		boolean confirm = commonui.confirm("确认提示", "是否要手动放车辆：["+singleCarparkInOutHistory.getPlateNo()+"]出场");
+    		if (!confirm) {
+				return;
+			}
+    		singleCarparkInOutHistory.setOutTime(new Date());
+    		singleCarparkInOutHistory.setRemarkString("管理员手动出场");
+    		singleCarparkInOutHistory.setShouldMoney(0f);
+    		singleCarparkInOutHistory.setFactMoney(0);
+    		singleCarparkInOutHistory.setFreeMoney(0);
+    		sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
+    		commonui.info("提示", "出场成功");
+    		refresh();
+		} catch (Exception e) {
+			e.printStackTrace();
+			commonui.info("错误","手动出场失败"+e);
+		}
+	}
 }

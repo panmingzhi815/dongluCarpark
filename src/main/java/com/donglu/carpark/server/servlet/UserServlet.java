@@ -6,19 +6,14 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
-import org.criteria4jpa.CriteriaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.caucho.hessian.server.HessianServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkUserService;
-import com.donglu.carpark.service.IpmsServiceI;
 import com.donglu.carpark.service.SettingService;
 import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.donglu.carpark.service.SystemUserServiceI;
-import com.dongluhitec.card.domain.WithID;
-import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkAccountCar;
 import com.dongluhitec.card.domain.db.singlecarpark.QueryParameter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
@@ -317,5 +312,10 @@ public class UserServlet extends BaseDaoServlet implements CarparkUserService, S
 	@Override
 	public List<String> findPrivilegeByName(String userName,String password) {
 		return systemUserService.findPrivilegeByName(userName,password);
+	}
+
+	@Override
+	public boolean saveLog(String name, String fileName, long index, int length, byte[] data) {
+		return systemOperaLogService.saveLog(name, fileName, index, length, data);
 	}
 }
