@@ -19,6 +19,7 @@ import com.donglu.carpark.model.Result;
 import com.donglu.carpark.service.CarparkQrCodeInOutService;
 import com.donglu.carpark.service.IpmsServiceI;
 import com.donglu.carpark.service.impl.CarparkQrCodeInOutServiceImpl;
+import com.donglu.carpark.ui.servlet.WebSocketServer;
 import com.donglu.carpark.util.ShortURLUtils;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
@@ -87,10 +88,8 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 	}
 	
 	protected void broadcastInfo(String info) {
-		try (DatagramSocket ds = new DatagramSocket(0);) {
-			byte[] bs = info.getBytes();
-			String host = "255.255.255.255";
-			ds.send(new DatagramPacket(bs, bs.length, InetAddress.getByName(host), 16666));
+		try {
+			WebSocketServer.sendToAll(info);
 			LOGGER.info("发送广播成功");
 		} catch (Exception e) {
 			LOGGER.info("发送广播失败",e);

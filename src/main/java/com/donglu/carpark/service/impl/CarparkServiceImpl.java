@@ -66,7 +66,7 @@ import com.google.inject.persist.Transactional;
 import com.google.inject.persist.UnitOfWork;
 @SuppressWarnings("unchecked")
 public class CarparkServiceImpl implements CarparkService {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SettingServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CarparkServiceImpl.class);
 
 	@Inject
 	private Provider<EntityManager> emprovider;
@@ -547,6 +547,8 @@ public class CarparkServiceImpl implements CarparkService {
 			DatabaseOperation<SingleCarparkMonthlyCharge> dom = DatabaseOperation.forClass(SingleCarparkMonthlyCharge.class, emprovider.get());
 			SingleCarparkMonthlyCharge entityWithId = dom.getEntityWithId(id);
 			return entityWithId;
+		}catch (Exception e) {
+			return null;
 		} finally{
 			unitOfWork.end();
 		}

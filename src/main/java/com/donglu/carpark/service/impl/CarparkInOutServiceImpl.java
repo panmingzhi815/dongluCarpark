@@ -1339,28 +1339,24 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		return deviceErrorMessage.getId();
 	}
 	
+	@Transactional
 	@Override
 	public DeviceErrorMessage findDeviceErrorMessageByDevice(SingleCarparkDevice device) {
-		unitOfWork.begin();
-		try {
-			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), DeviceErrorMessage.class);
-			c.add(Restrictions.eq(DeviceErrorMessage.Property.ip.name(), device.getIp()));
-			c.add(Restrictions.isNull(DeviceErrorMessage.Property.nomalTime.name()));
-			List<DeviceErrorMessage> list = c.getResultList();
-			if (list.size()>1) {
-				DatabaseOperation<DeviceErrorMessage> dom = DatabaseOperation.forClass(DeviceErrorMessage.class, emprovider.get());
-				for (int i = 0; i < list.size()-1; i++) {
-					DeviceErrorMessage deviceErrorMessage = list.get(i);
-					dom.remove(deviceErrorMessage);
-				}
-				return list.get(list.size()-1);
-			}else if(list.size()==1){
-				return list.get(0);
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), DeviceErrorMessage.class);
+		c.add(Restrictions.eq(DeviceErrorMessage.Property.ip.name(), device.getIp()));
+		c.add(Restrictions.isNull(DeviceErrorMessage.Property.nomalTime.name()));
+		List<DeviceErrorMessage> list = c.getResultList();
+		if (list.size() > 1) {
+			DatabaseOperation<DeviceErrorMessage> dom = DatabaseOperation.forClass(DeviceErrorMessage.class, emprovider.get());
+			for (int i = 0; i < list.size() - 1; i++) {
+				DeviceErrorMessage deviceErrorMessage = list.get(i);
+				dom.remove(deviceErrorMessage);
 			}
-			return null;
-		} finally{
-			unitOfWork.end();
+			return list.get(list.size() - 1);
+		} else if (list.size() == 1) {
+			return list.get(0);
 		}
+		return null;
 	}
 
 	@Transactional

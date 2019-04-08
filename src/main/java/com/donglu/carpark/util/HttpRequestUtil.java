@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -26,6 +27,9 @@ public class HttpRequestUtil {
 	private static ExecutorService httpExecutor = Executors.newCachedThreadPool(ThreadUtil.createThreadFactory("云平台数据同步线程"));
 	private static final Logger log = LoggerFactory.getLogger(HttpRequestUtil.class);
 	public static String get(String httpUrl) {
+		return get(httpUrl, null);
+	}
+	public static String get(String httpUrl,Map<String,String> headers) {
 //		log.debug("准备对地址：["+actionUrl+"]发送消息:"+parameters);
 		try {
 			URL url = new URL(httpUrl);
@@ -35,8 +39,14 @@ public class HttpRequestUtil {
 			connection.setRequestMethod("GET");
 			connection.setUseCaches(false);
 			connection.setInstanceFollowRedirects(true);
-			connection.setRequestProperty("Charset", "UTF-8");
-			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			if (headers==null) {
+				connection.setRequestProperty("Charset", "UTF-8");
+				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			}else {
+				for (String key : headers.keySet()) {
+					connection.setRequestProperty(key, headers.get(key));
+				}
+			}
 			connection.connect();
 			
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -91,6 +101,9 @@ public class HttpRequestUtil {
 		return submit.get(readTimeOut, TimeUnit.MILLISECONDS);
 	}
 	public static String httpPostMssage(String actionUrl, String parameters,int readTimeOut) throws Exception {
+		return httpPostMssage(actionUrl, parameters, null, readTimeOut);
+	}
+	public static String httpPostMssage(String actionUrl, String parameters,String[] headers,int readTimeOut) throws Exception {
 		if (StrUtil.isEmpty(actionUrl)) {
 			return null;
 		}
@@ -105,8 +118,18 @@ public class HttpRequestUtil {
 		connection.setUseCaches(false);
 		connection.setInstanceFollowRedirects(true);
 		connection.setRequestProperty("Charset", "UTF-8");
-		connection.setRequestProperty("Content-Type", "application/json");
-		connection.connect();
+		
+		if (headers!=null) {
+			for (String string : headers) {
+				String[] split = string.split("=");
+				connection.setRequestProperty(split[0], split[1]);
+			} 
+		}else {
+			connection.setRequestProperty("Content-Type", "application/json");
+		}
+		System.out.println("token=="+connection.getRequestProperty("Token"));
+		System.out.println("Content-Type=="+connection.getRequestProperty("Content-Type"));
+		
 		OutputStream os = connection.getOutputStream();
 		os.write(parameters.getBytes("UTF-8"));
 		os.flush();
@@ -123,6 +146,9 @@ public class HttpRequestUtil {
 		// 断开连接
 		connection.disconnect();
 		return msg;
+	}
+	public static String post(String url, String[] headers, String jsonString) throws Exception {
+		return httpPostMssage(url, jsonString,headers, 3000);
 	}
 
 }

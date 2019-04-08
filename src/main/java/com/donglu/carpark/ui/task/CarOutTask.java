@@ -344,6 +344,7 @@ public class CarOutTask extends AbstractTask{
 		//过期判断
 		if (StrUtil.getTodayBottomTime(time).before(date)) {
 			LOGGER.info("车辆:{}已到期", editPlateNo);
+			model.setOutShowPlateNO(model.getOutShowPlateNO()+"-已过期");
 			Date d = null;
 			if (StrUtil.isEmpty(cch) || cch.getInTime().before(validTo)) {
 				d = validTo;
@@ -368,7 +369,6 @@ public class CarOutTask extends AbstractTask{
 				}
 			}
 			presenter.showContentToDevice(editPlateNo,device, model.getMapVoice().get(DeviceVoiceTypeEnum.固定车到期语音).getContent() + StrUtil.formatDate(user.getValidTo(), ConstUtil.VILIDTO_DATE), false);
-			model.setOutShowPlateNO(model.getOutShowPlateNO()+"-已过期");
 			return true;
 		}
 		//车位判断
@@ -684,7 +684,7 @@ public class CarOutTask extends AbstractTask{
 			singleCarparkInOutHistory.setOutSmallImg(smallImgFileName);
 			singleCarparkInOutHistory.setOutPlateNO(plateNO);
 			singleCarparkInOutHistory.setChargedType(0);
-			
+			model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
 			//
 			Date handPhotographDate = mapHandPhotograph.get(ip);
 			if (!StrUtil.isEmpty(handPhotographDate)) {

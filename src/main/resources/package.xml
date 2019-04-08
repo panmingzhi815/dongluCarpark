@@ -44,6 +44,7 @@
             	<include>com.dongluhitec.card:encryption</include>
             	<include>org.eclipse.paho:org.eclipse.paho.client.mqttv3</include>
             	<include>org.apache.activemq:activemq-all</include>
+            	<include>org.java-websocket:Java-WebSocket</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>

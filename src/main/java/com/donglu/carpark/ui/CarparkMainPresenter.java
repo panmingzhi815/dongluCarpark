@@ -13,12 +13,14 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,9 +70,11 @@ import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.servlet.OpenDoorServlet;
+import com.donglu.carpark.ui.servlet.WebSocketClient;
 import com.donglu.carpark.ui.task.CarInOutResult;
 import com.donglu.carpark.ui.task.ConfimBox;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
+import com.donglu.carpark.ui.view.account.AccountCarPresenter;
 import com.donglu.carpark.ui.view.inouthistory.CarInHistoryPresenter;
 import com.donglu.carpark.ui.view.inouthistory.FreeReasonDialog;
 import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
@@ -836,6 +840,17 @@ public class CarparkMainPresenter {
 			}
 		}
 		initVioce();
+		
+		Set<Long> ss=new HashSet<>();
+		for (SingleCarparkDevice device : mapIpToDevice.values()) {
+			SingleCarparkCarpark carpark = device.getCarpark();
+			if(ss.contains(carpark.getId())) {
+				continue;
+			}
+			ss.add(carpark.getId());
+			SingleCarparkCarpark findCarparkById = sp.getCarparkService().findCarparkById(carpark.getId());
+			device.setCarpark(findCarparkById);
+		}
 	}
 
 	private void createAutoMenuItem(PopupMenu pop) {
@@ -1447,6 +1462,7 @@ public class CarparkMainPresenter {
 			}
 			startTime = new DateTime(startTime).plusMinutes(freeMinute).toDate();
 			charge = countTempCarCharge.charge(carparkId, model.getMapTempCharge().get(carType).getId(), startTime, endTime, sp, model, Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场重复计费)));
+			log.info("{} 计费成功，进场时间：{} 出场时间：{} 费用：{}",data.getPlateNo(),startTime,endTime,charge);
 			charge = charge - freeMoney;
 			float charged=0;
 			float freed=0;
@@ -1518,6 +1534,7 @@ public class CarparkMainPresenter {
 		ShowApp showApp = new ShowApp();
 		showApp.setPresenter(inOutHistoryPresenter);
 		showApp.setPresenter(Login.injector.getInstance(UserPresenter.class));
+		showApp.setPresenter(Login.injector.getInstance(AccountCarPresenter.class));
 		app = showApp;
 		app.open();
 	}
@@ -1631,6 +1648,9 @@ public class CarparkMainPresenter {
 			public void run() {
 				try {
 					log.debug("检测设备状态");
+					if(System.getProperty("checkDeviceStatus", "true").equals("false")) {
+						return;
+					}
 					for (String ip : mapIpToDevice.keySet()) {
 						checkDeviceStatus(ip);
 					}
@@ -1661,7 +1681,6 @@ public class CarparkMainPresenter {
 		startHttpOpenDoorService();
 		startRefreshSettingService();
 		startUploadLogService();
-		startBroadcastService();
 	}
 	private void startUploadLogService() {
 		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
@@ -1787,10 +1806,23 @@ public class CarparkMainPresenter {
 				DateTime startTime = dateTime.withTime(7, 0, 0, 0);
 				DateTime endTime = dateTime.withTime(19, 0, 0, 0);
 				log.info("设置一体机二维码颜色："+dateTime+"=="+startTime+"============="+endTime);
+				int dayColor = 3;
+				int nightColor = 2;
+				try {
+					List<String> list = java.nio.file.Files.readAllLines(Paths.get("screenQrColor.txt"));
+					if(list.size()>0) {
+						dayColor=Integer.valueOf(list.get(0));
+					}
+					if(list.size()>1) {
+						nightColor=Integer.valueOf(list.get(1));
+					}
+				} catch (Exception e) {
+					log.error("读取二维码颜色配置文件失败",e);
+				}
 				if (dateTime.plusMinutes(1).isAfter(startTime)&&dateTime.plusMinutes(1).isBefore(endTime)) {
-					setAllScreenQrCodeColor(3);
+					setAllScreenQrCodeColor(dayColor);
 				}else{
-					setAllScreenQrCodeColor(2);
+					setAllScreenQrCodeColor(nightColor);
 				}
 			}
 		}, 10000, delay, TimeUnit.MILLISECONDS, "自动更新一体机屏幕二维码颜色");
@@ -1864,6 +1896,7 @@ public class CarparkMainPresenter {
 		if(!mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付).equals("true")||(!mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")&&!mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费).equals("true"))){
 			return;
 		}
+		startBroadcastService();
 		try {
 			SingleCarparkCarpark carpark = model.getCarpark().getMaxParent();
 			String buildId = carpark.getYunBuildIdentifier();
@@ -1915,7 +1948,7 @@ public class CarparkMainPresenter {
 						}
 					}
 				}
-			}, 1000, 500, TimeUnit.MILLISECONDS,"获取二维码进出场信息服务");
+			}, 1000, 1000, TimeUnit.MILLISECONDS,"获取二维码进出场信息服务");
 //			carparkQrCodeInOutService.initService(buildId,new CarparkQrCodeInOutService.CarparkQrCodeInOutCallback() {
 //				@Override
 //				public void call(String info) {
@@ -3535,61 +3568,71 @@ public class CarparkMainPresenter {
 	
 	public void startBroadcastService() {
 		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
-			DatagramSocket ds=null;
+			WebSocketClient ds=null;
 			@Override
 			public void run() {
 				if(ds==null) {
 					try {
-						ds=new DatagramSocket(16666);
-					} catch (SocketException e) {
-						log.error("启动广播监听服务失败",e);
-						MessageUtil.info("启动二维码监听服务","启动二维码支付监听服务失败:"+e);
-						return;
-					}
-				}
-				byte[] bs = new byte[1024];
-				try {
-					if(ds==null) {
-						ds=new DatagramSocket(16666);
-					}
-					DatagramPacket p=new DatagramPacket(bs, bs.length);
-					ds.receive(p);
-					String string = new String(p.getData(),0,p.getLength()).trim();
-					log.info("监听到广播：{}",string);
-					JSONObject jo = JSON.parseObject(string);
-					String type = jo.getString("type");
-					if (type==null) {
-						return;
-					}
-					if(type.contains("QRCode")) {
-						JSONObject jsonObject2 = jo.getJSONObject("data");
-						String deviceId=jsonObject2.getString("deviceId");
-						log.info("当前等待出场车辆：{}",model.getMapWaitInOutHistory());
-						if(deviceId!=null) {
-							if(model.getMapWaitInOutHistory().get(deviceId)==null) {
-								return;
-							}
-						}else {
-							String carNum=jsonObject2.getString("carNum").trim();
-							if(carNum==null) {
-								return;
-							}
-							boolean flag=false;
-							
-							for (SingleCarparkInOutHistory history : model.getMapWaitInOutHistory().values()) {
-								if(carNum.equals(history.getPlateNo())) {
-									flag=true;
-									break;
+						WebSocketClient client=new WebSocketClient("ws://"+CarparkClientConfig.getInstance().getServerIp()+":16666") {
+							@Override
+							public void onMessage(String string) {
+								try {
+									log.info("监听到广播：{}",string);
+									JSONObject jo = JSON.parseObject(string);
+									String type = jo.getString("type");
+									if (type==null) {
+										return;
+									}
+									if(type.contains("QRCode")) {
+										JSONObject jsonObject2 = jo.getJSONObject("data");
+										String deviceId=jsonObject2.getString("deviceId");
+										log.info("当前等待出场车辆：{}",model.getMapWaitInOutHistory());
+										if(!StrUtil.isEmpty(deviceId)) {
+											if(model.getMapWaitInOutHistory().get(deviceId)==null) {
+												return;
+											}
+										}else {
+											String carNum=jsonObject2.getString("carNum").trim();
+											if(carNum==null) {
+												return;
+											}
+											boolean flag=false;
+											
+											for (SingleCarparkInOutHistory history : model.getMapWaitInOutHistory().values()) {
+												if(carNum.equals(history.getPlateNo())) {
+													flag=true;
+													break;
+												}
+											}
+											if (!flag) {
+												return;
+											}
+										}
+										qrCodeInOutTask(string);
+									}
+								}catch (Exception e) {
+									log.info("监听广播时发生错误",e);
 								}
 							}
-							if (!flag) {
-								return;
+							@Override
+							public void onClose(int code, String reason, boolean remote) {
+								log.info("连接断开：{}",reason);
+								ds=null;
 							}
+							@Override
+							public void onError(Exception ex) {
+								log.info("webserver连接错误",ex);
+							}
+						};
+						boolean connectBlocking = client.connectBlocking();
+						if (connectBlocking) {
+							ds=client;
 						}
-						qrCodeInOutTask(string);
+					} catch (Exception e) {
+						log.error("启动广播监听服务失败",e);
+//						MessageUtil.info("启动二维码监听服务","启动二维码支付监听服务失败:"+e);
+						return;
 					}
-				}catch (Exception e) {
-					log.info("监听广播时发生错误",e);
 				}
 			}
 		}, 100, 100, TimeUnit.MILLISECONDS, "广播监听服务");
