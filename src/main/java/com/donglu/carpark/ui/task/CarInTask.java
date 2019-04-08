@@ -141,6 +141,13 @@ public class CarInTask extends AbstractTask {
 		cch = StrUtil.isEmpty(findByNoOut) ? null : findByNoOut.get(0);
 		if (StrUtil.isEmpty(cch)) {
 			cch = new SingleCarparkInOutHistory();
+		}else {
+			if(user!=null?carpark.getFixCarOneIn():carpark.getTempCarOneIn()) {
+				model.setInShowPlateNO(plateNO+"-"+(user!=null?user.getName():"临时车"));
+				String content2 = model.getMapVoice().get(DeviceVoiceTypeEnum.未出场在进场语音).getContent();
+				presenter.showContentToDevice(editPlateNo, device, content2, false);
+				return;
+			}
 		}
 		checkUser(!isEmptyPlateNo);
 	}

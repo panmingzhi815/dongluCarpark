@@ -59,7 +59,8 @@ public class SingleCarparkCarpark extends DomainObject {
 	private Integer leftTempNumberOfSlot=0;
 	private Integer leftFixNumberOfSlot=0;
 	
-	private Boolean fixCarOneIn;
+	private Boolean fixCarOneIn=false;
+	private Boolean tempCarOneIn=false;
 	private Boolean isCharge=true;
 	
 	private String yunIdentifier;
@@ -189,7 +190,7 @@ public class SingleCarparkCarpark extends DomainObject {
 		return "("+code+")"+name;
 	}
 	public Boolean getFixCarOneIn() {
-		return fixCarOneIn;
+		return fixCarOneIn==null?false:fixCarOneIn;
 	}
 	public void setFixCarOneIn(Boolean fixCarOneIn) {
 		this.fixCarOneIn = fixCarOneIn;
@@ -197,7 +198,7 @@ public class SingleCarparkCarpark extends DomainObject {
 			pcs.firePropertyChange("fixCarOneIn", null, null);
 	}
 	public Boolean getIsCharge() {
-		return isCharge;
+		return isCharge==null?true:isCharge;
 	}
 	public void setIsCharge(Boolean isCharge) {
 		this.isCharge = isCharge;
@@ -284,5 +285,12 @@ public class SingleCarparkCarpark extends DomainObject {
 	public void setYunBuildName(String yunBuildName) {
 		this.yunBuildName = yunBuildName;
 		firePropertyChange("yunBuildName", null, null);
+	}
+	public Boolean getTempCarOneIn() {
+		return tempCarOneIn==null?false:tempCarOneIn;
+	}
+	public void setTempCarOneIn(Boolean tempCarOneIn) {
+		this.tempCarOneIn = tempCarOneIn;
+		firePropertyChange("tempCarOneIn", null, null);
 	}
 }

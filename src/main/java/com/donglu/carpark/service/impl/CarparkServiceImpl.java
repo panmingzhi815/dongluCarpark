@@ -66,7 +66,7 @@ import com.google.inject.persist.Transactional;
 import com.google.inject.persist.UnitOfWork;
 @SuppressWarnings("unchecked")
 public class CarparkServiceImpl implements CarparkService {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SettingServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CarparkServiceImpl.class);
 
 	@Inject
 	private Provider<EntityManager> emprovider;

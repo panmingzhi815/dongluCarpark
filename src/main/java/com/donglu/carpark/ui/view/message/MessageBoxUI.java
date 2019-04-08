@@ -110,7 +110,7 @@ public class MessageBoxUI {
 		
 		Label lbl_msg = new Label(composite, SWT.WRAP);
 		lbl_msg.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.BOLD));
-		lbl_msg.setText(msg);
+		lbl_msg.setText(msg==null?"":msg);
 		lbl_msg.setAlignment(SWT.CENTER);
 		
 		Composite composite_1 = new Composite(shell, SWT.NONE);

@@ -433,6 +433,7 @@ public class CarparkMainApp extends AbstractApp{
 			@Override
 			public void shellClosed(ShellEvent e) {
 				boolean confirm = commonui.confirm("退出提示", "确定要退出监控界面！！");
+				log.info("用户关闭监控端");
 				if (!confirm) {
 					e.doit = false;
 				}else{

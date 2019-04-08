@@ -9,15 +9,20 @@ import org.eclipse.swt.widgets.ToolItem;
 
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.Presenter;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkAccountCar;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 
 public class AccountCarListView extends AbstractListView<CarparkAccountCar> {
 
 	public AccountCarListView(Composite parent) {
-		super(parent, parent.getStyle(), CarparkAccountCar.class, new String[]{"plateNo","name"}, new String[]{"车牌","名称"}, new int[]{100,200});
+		super(parent, parent.getStyle(), CarparkAccountCar.class, new String[]{"plateNo","name"}, new String[]{"车牌","名称"}, new int[]{150,200});
 	}
 	@Override
 	protected void createMenuBarToolItem(ToolBar toolBar_menu) {
+		if(!ConstUtil.checkPrivilege(SystemUserTypeEnum.普通管理员)) {
+			return;
+		}
 		ToolItem toolItem = new ToolItem(toolBar_menu, SWT.NULL);
 		toolItem.setText("导入");
 		toolItem.addSelectionListener(new SelectionAdapter() {

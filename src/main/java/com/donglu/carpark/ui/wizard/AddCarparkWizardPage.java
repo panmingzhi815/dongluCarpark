@@ -33,6 +33,9 @@ public class AddCarparkWizardPage extends WizardPage {
 	private Label label_5;
 	private Text text_5;
 	private Text text_6;
+	private Button button_1;
+	private Button button_2;
+	private Composite composite_1;
 	/**
 	 * Create the wizard.
 	 * @param model 
@@ -55,7 +58,7 @@ public class AddCarparkWizardPage extends WizardPage {
 		
 		Composite composite = new Composite(container, SWT.BORDER);
 		composite.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		composite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+		composite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 1, 1));
 		composite.setLayout(new GridLayout(2, false));
 		
 		Label label = new Label(composite, SWT.NONE);
@@ -120,17 +123,27 @@ public class AddCarparkWizardPage extends WizardPage {
 		text_6 = new Text(composite, SWT.BORDER);
 		text_6.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		text_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		new Label(composite, SWT.NONE);
 		
-		btnBu = new Button(composite, SWT.CHECK);
+		composite_1 = new Composite(container, SWT.NONE);
+		composite_1.setLayout(new GridLayout(2, false));
+		composite_1.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		
+		btnBu = new Button(composite_1, SWT.CHECK);
 		btnBu.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		btnBu.setText("不允许临时车进入");
-		new Label(composite, SWT.NONE);
 		
-		button = new Button(composite, SWT.CHECK);
+		button = new Button(composite_1, SWT.CHECK);
 		button.setToolTipText("选中则表示停车场需要收费");
 		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button.setText("需要收费");
+		button.setText("停车场需要收费");
+		
+		button_1 = new Button(composite_1, SWT.CHECK);
+		button_1.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		button_1.setText("固定车一进一出");
+		
+		button_2 = new Button(composite_1, SWT.CHECK);
+		button_2.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		button_2.setText("临时车一进一出");
 		m_bindingContext = initDataBindings();
 	}
 	protected DataBindingContext initDataBindings() {
@@ -171,6 +184,14 @@ public class AddCarparkWizardPage extends WizardPage {
 		IObservableValue observeTextText_6ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_6);
 		IObservableValue yunBuildNameModelObserveValue = BeanProperties.value("yunBuildName").observe(model);
 		bindingContext.bindValue(observeTextText_6ObserveWidget, yunBuildNameModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionButton_1ObserveWidget = WidgetProperties.selection().observe(button_1);
+		IObservableValue fixCarOneInModelObserveValue = BeanProperties.value("fixCarOneIn").observe(model);
+		bindingContext.bindValue(observeSelectionButton_1ObserveWidget, fixCarOneInModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionButton_2ObserveWidget = WidgetProperties.selection().observe(button_2);
+		IObservableValue tempCarOneInModelObserveValue = BeanProperties.value("tempCarOneIn").observe(model);
+		bindingContext.bindValue(observeSelectionButton_2ObserveWidget, tempCarOneInModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

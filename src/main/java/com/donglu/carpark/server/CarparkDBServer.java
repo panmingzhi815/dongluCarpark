@@ -18,6 +18,7 @@ import com.donglu.carpark.server.servlet.UpdatePositionServlet;
 import com.donglu.carpark.server.servlet.UserServlet;
 import com.donglu.carpark.service.background.StoreServerLinkServiceI;
 import com.donglu.carpark.service.impl.UploadServiceImpl;
+import com.donglu.carpark.ui.servlet.WebSocketServer;
 import com.dongluhitec.card.server.ServerUtil;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -76,7 +77,7 @@ public class CarparkDBServer {
 		if (System.getProperty("startHttpService", "false").equals("true")) {
 			ServerUtil.startServlet("/carparkHttpService/*", handler, carparkHttpServiceServletProvider);
 		}
-    		
+    	new WebSocketServer(16666).start();	
 	}
 	
 	public void startBackgroudService(){

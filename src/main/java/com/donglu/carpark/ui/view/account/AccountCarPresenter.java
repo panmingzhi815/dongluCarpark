@@ -27,4 +27,9 @@ public class AccountCarPresenter extends AbstractPresenter {
 	public void search(String plateNo, String name) {
 		accountCarListPresenter.search(plateNo,name);
 	}
+	
+	@Override
+	public String getTitle() {
+		return "记账车查询";
+	}
 }
