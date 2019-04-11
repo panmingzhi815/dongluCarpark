@@ -24,6 +24,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemOperaLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.UploadHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
@@ -317,5 +318,21 @@ public class UserServlet extends BaseDaoServlet implements CarparkUserService, S
 	@Override
 	public boolean saveLog(String name, String fileName, long index, int length, byte[] data) {
 		return systemOperaLogService.saveLog(name, fileName, index, length, data);
+	}
+
+
+	@Override
+	public List<UploadHistory> findUploadHistory(int start, int max, String type, int processState) {
+		return settingService.findUploadHistory(start, max, type, processState);
+	}
+
+	@Override
+	public Long updateUploadHistory(Long id, int processState) {
+		return settingService.updateUploadHistory(id, processState);
+	}
+
+	@Override
+	public Long saveUploadHistory(UploadHistory history) {
+		return settingService.saveUploadHistory(history);
 	}
 }

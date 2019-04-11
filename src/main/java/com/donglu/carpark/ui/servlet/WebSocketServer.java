@@ -26,7 +26,7 @@ public class WebSocketServer extends org.java_websocket.server.WebSocketServer {
 
 	@Override
 	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-		LOGGER.info("连接：{}断开:{}",conn,reason);
+		LOGGER.info("连接：{}断开:{}",conn.getRemoteSocketAddress(),reason);
 		listConn.remove(conn);
 	}
 

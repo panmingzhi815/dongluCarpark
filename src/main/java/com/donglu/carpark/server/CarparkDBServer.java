@@ -2,6 +2,7 @@ package com.donglu.carpark.server;
 
 import org.eclipse.jetty.servlet.ServletHandler;
 
+import com.donglu.carpark.server.servlet.ApiServlet;
 import com.donglu.carpark.server.servlet.CarPayServlet;
 import com.donglu.carpark.server.servlet.CarparkDeviceServlet;
 import com.donglu.carpark.server.servlet.CarparkHttpServiceServlet;
@@ -57,6 +58,8 @@ public class CarparkDBServer {
 	private Provider<CarparkHttpServiceServlet> carparkHttpServiceServletProvider;
 	@Inject
 	private Provider<CarparkDeviceServlet> carparkDeviceServletProvider;
+	@Inject
+	private Provider<ApiServlet> apiServletProvider;
 	
 	public void startDbServlet(ServletHandler handler){
 		ServerUtil.startServlet("/user/*", handler, userServlerProvider);
@@ -77,6 +80,7 @@ public class CarparkDBServer {
 		if (System.getProperty("startHttpService", "false").equals("true")) {
 			ServerUtil.startServlet("/carparkHttpService/*", handler, carparkHttpServiceServletProvider);
 		}
+		ServerUtil.startServlet("/api/*", handler, apiServletProvider);
     	new WebSocketServer(16666).start();	
 	}
 	

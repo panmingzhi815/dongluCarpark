@@ -19,7 +19,9 @@ public class SingleCarparkOpenDoorLog extends DomainObject{
 	private String operaName;
 	private Date operaDate;
 	private String deviceName;
+	private String deviceIdentifier;
 	private String image;
+	private String type="远程开闸";
 	
 	public String getOperaName() {
 		return operaName;
@@ -56,5 +58,19 @@ public class SingleCarparkOpenDoorLog extends DomainObject{
 		this.image = image;
 		if (pcs != null)
 			pcs.firePropertyChange("image", null, null);
+	}
+	public String getDeviceIdentifier() {
+		return deviceIdentifier;
+	}
+	public void setDeviceIdentifier(String deviceIdentifier) {
+		this.deviceIdentifier = deviceIdentifier;
+		firePropertyChange("deviceIdentifier", null, null);
+	}
+	public String getType() {
+		return type==null?"远程开闸":type;
+	}
+	public void setType(String type) {
+		this.type = type;
+		firePropertyChange("type", null, null);
 	}
 }

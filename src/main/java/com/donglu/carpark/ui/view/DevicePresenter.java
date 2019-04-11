@@ -88,29 +88,22 @@ public class DevicePresenter  implements Presenter{
 		view.controlItem(dispose);
 	}
 	public void openDoor() {
+		String ip="";
 		try {
 			CTabItem selection = view.getTabFolder().getSelection();
 			if (StrUtil.isEmpty(selection)) {
 				return;
 			}
-			String ip = model.getMapDeviceTabItem().get(selection);
+			ip = model.getMapDeviceTabItem().get(selection);
 			if (!checkStatus(ip)) {
 				log.info("设备已停用");
 				return;
 			}
-			SingleCarparkDevice device = model.getMapIpToDevice().get(ip);
-//			presenter.openDoor(device);
-			presenter.showContentToDevice("手动开闸", device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
-//			if (model.equalsSetting(SystemSettingTypeEnum.抬杆自动收费放行,"true")&&model.getMapWaitInOutHistory().get(ip)!=null) {
-//				SingleCarparkInOutHistory data = model.getMapWaitInOutHistory().get(ip);
-//				presenter.charge(false, true, data, device);
-//			}else{
-//				presenter.showContentToDevice("手动开闸", device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
-//			}
 			model.getMapOpenDoor().put(ip, true);
-			handPhotograph(ip);
+			presenter.handOpenDoor(ip);
 		} catch (Exception e) {
 			log.error("设备开闸时发生错误",e);
+			model.getMapOpenDoor().put(ip, false);
 		}
 	}
 	public void closeDoor() {

@@ -2,6 +2,7 @@ package com.donglu.carpark.server.servlet;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.caucho.hessian.server.HessianServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
@@ -50,6 +51,21 @@ public class CarparkDeviceServlet extends HessianServlet implements CarparkDevic
 	@Override
 	public Long deleteDevice(SingleCarparkDevice device) {
 		return carparkDeviceService.deleteDevice(device);
+	}
+
+	@Override
+	public boolean closeDoor(String ip) {
+		return carparkDeviceService.closeDoor(ip);
+	}
+
+	@Override
+	public List<SingleCarparkDevice> getAllDevice() {
+		return carparkDeviceService.getAllDevice();
+	}
+
+	@Override
+	public void setDevices(Map<String, SingleCarparkDevice> map) {
+		carparkDeviceService.setDevices(map);
 	}
 
 }

@@ -262,6 +262,7 @@ public class CarInTask extends AbstractTask {
 			cch.setShouldMoney(0);
 			cch.setFreeMoney(0);
 			cch.setOutPlateNO(editPlateNo);
+			cch.setOutDevice(device);
 			sp.getCarparkInOutService().saveInOutHistory(cch);
 			cch.setId(null);
 			cch.setOutTime(null);

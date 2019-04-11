@@ -92,7 +92,7 @@ public class CarInOutResult implements PlateNOResult {
 		// 开闸
 		Boolean boolean1 = mapOpenDoor.get(ip);
 		if (boolean1 != null && boolean1) {
-			mapOpenDoor.put(ip, null);
+			mapOpenDoor.put(ip, false);
 			boolean inOrOut = true;
 			if (deviceType.indexOf("出口")>-1) {
 				inOrOut = false;

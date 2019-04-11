@@ -35,6 +35,8 @@ public class UserHistory implements Serializable {
 	@Column(length=20)
 	private String telephone;
 	
+	private String idCard;
+	
 	private CarTypeEnum carType=CarTypeEnum.SmallCar;
 	
 	
@@ -56,6 +58,7 @@ public class UserHistory implements Serializable {
 		user.setTelephone(telephone);
 		user.setCreateDate(createDate);
 		user.setId(id);
+		user.setIdCard(idCard);
 		return user;
 	}
 	public void setUser(SingleCarparkUser user) {
@@ -67,6 +70,7 @@ public class UserHistory implements Serializable {
 		setTelephone(user.getTelephone());
 		setCreateDate(user.getCreateDate());
 		setId(user.getId());
+		setIdCard(user.getIdCard());
 	}
 	public HistoryDetail getHistoryDetail() {
 		return historyDetail;
@@ -130,5 +134,11 @@ public class UserHistory implements Serializable {
 	}
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
+	}
+	public String getIdCard() {
+		return idCard;
+	}
+	public void setIdCard(String idCard) {
+		this.idCard = idCard;
 	}
 }

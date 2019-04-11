@@ -18,6 +18,15 @@ public class Result implements Serializable {
 	private Date outTime;
 	private Date inTime;
 	
+	public Result() {
+	}
+	public Result(boolean success,int code,String msg,String obj) {
+		this.success=success;
+		this.code=code;
+		this.msg=msg;
+		this.obj=obj;
+	}
+	
 	public boolean isSuccess() {
 		return success;
 	}

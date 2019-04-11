@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -53,6 +54,11 @@ public class SingleCarparkDevice extends DomainObject{
 	
 	private String deviceVersion;
 	private String cameraVersion;
+	
+	private String entranceCode;//出入口编号 
+	
+	@Transient
+	private int status; 
 	
 	public String getIdentifire() {
 		return identifire;
@@ -250,5 +256,23 @@ public class SingleCarparkDevice extends DomainObject{
 	public void setCameraVersion(String cameraVersion) {
 		this.cameraVersion = cameraVersion;
 		//firePropertyChange("cameraVersion", null, null);
+	}
+	
+	@Override
+	public String toString() {
+		return identifire+"-"+name+"-"+ip+"-"+linkAddress;
+	}
+	public int getStatus() {
+		return status;
+	}
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	public String getEntranceCode() {
+		return entranceCode;
+	}
+	public void setEntranceCode(String entranceCode) {
+		this.entranceCode = entranceCode;
+		firePropertyChange("entranceCode", null, null);
 	}
 }

@@ -308,6 +308,14 @@ public class CarparkServiceImpl implements CarparkService {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkSystemSetting.class);
 			c.add(Restrictions.eq("settingKey", key));
 			SingleCarparkSystemSetting set = (SingleCarparkSystemSetting) c.getSingleResultOrNull();
+			if(set==null) {
+				set=new SingleCarparkSystemSetting();
+				set.setSettingKey(key);
+				try {
+					set.setSettingValue(SystemSettingTypeEnum.valueOf(key).getDefaultValue());
+				} catch (Exception e) {
+				}
+			}
 			return set;
 		} finally {
 			unitOfWork.end();

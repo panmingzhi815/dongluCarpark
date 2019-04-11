@@ -96,6 +96,8 @@ public class AddDeviceBasicPage extends WizardPage {
 	private Button btn_handcharge;
 	private Text text_7;
 	private Text text_8;
+	private Label label_12;
+	private Text text_9;
 
 	/**
 	 * Create the wizard.
@@ -156,6 +158,14 @@ public class AddDeviceBasicPage extends WizardPage {
 		text_1 = new Text(composite, SWT.BORDER);
 		text_1.setText("");
 		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(composite, SWT.NONE);
+		
+		label_12 = new Label(composite, SWT.NONE);
+		label_12.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_12.setText("出入口编码");
+		
+		text_9 = new Text(composite, SWT.BORDER);
+		text_9.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(composite, SWT.NONE);
 		
 		lblip = new Label(composite, SWT.NONE);
@@ -460,6 +470,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue observeTextText_8ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_8);
 		IObservableValue cameraVersionModelObserveValue = BeanProperties.value("cameraVersion").observe(model);
 		bindingContext.bindValue(observeTextText_8ObserveWidget, cameraVersionModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_9ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_9);
+		IObservableValue entranceCodeModelObserveValue = BeanProperties.value("entranceCode").observe(model);
+		bindingContext.bindValue(observeTextText_9ObserveWidget, entranceCodeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

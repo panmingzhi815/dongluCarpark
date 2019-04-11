@@ -11,6 +11,8 @@ import javax.persistence.EntityManager;
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.service.SystemUserServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
@@ -29,6 +31,7 @@ import com.google.inject.persist.UnitOfWork;
 
 @SuppressWarnings("unchecked")
 public class SystemUserServiceImpl implements SystemUserServiceI {
+	private static final Logger LOGGER=LoggerFactory.getLogger(SystemUserServiceImpl.class);
 	@Inject
 	private Provider<EntityManager> emprovider;
 
@@ -125,6 +128,12 @@ public class SystemUserServiceImpl implements SystemUserServiceI {
 	@Override
 	public void login(String userName, String password, String ip) {
 		mapLoginInfo.put(userName, ip);
+	}
+	
+	@Override
+	public void login(String userName, String password, String ip, String versionInfo) {
+		LOGGER.info("用户：{} 登录电脑：{} 版本：{}",userName,ip,versionInfo);
+		login(userName, password, ip);
 	}
 
 	@Override

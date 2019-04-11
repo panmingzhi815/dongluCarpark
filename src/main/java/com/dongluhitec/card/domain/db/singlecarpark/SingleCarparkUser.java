@@ -71,6 +71,8 @@ public class SingleCarparkUser extends DomainObject {
 	@Transient
 	private boolean createHistory=true;
 	
+	private String idCard;
+	
 	@PrePersist
 	public void initCreateDate(){
 		createDate=new Date();
@@ -290,6 +292,15 @@ public class SingleCarparkUser extends DomainObject {
 	}
 	public void setCreateHistory(boolean createHistory) {
 		this.createHistory = createHistory;
+	}
+
+	public String getIdCard() {
+		return idCard;
+	}
+
+	public void setIdCard(String idCard) {
+		this.idCard = idCard;
+		firePropertyChange("idCard", null, null);
 	}
 	
 }

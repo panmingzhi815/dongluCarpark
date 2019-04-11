@@ -21,8 +21,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
@@ -55,13 +57,13 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.WebService;
 import com.donglu.carpark.service.background.IpmsSynchroServiceI;
+import com.donglu.carpark.service.background.ShanghaidibiaoSynchroServiceI;
 import com.donglu.carpark.service.background.haiyu.AsynHaiYuRecordService;
 import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.wizard.sn.ImportSNModel;
 import com.donglu.carpark.ui.wizard.sn.ImportSNWizard;
 import com.donglu.carpark.util.CarparkDataBaseUtil;
 import com.donglu.carpark.util.CarparkFileUtils;
-import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.MyAppender;
 import com.donglu.carpark.util.SystemUpdate;
@@ -92,7 +94,6 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Link;
 
 public class ImageServerUI {
 
@@ -421,6 +422,7 @@ public class ImageServerUI {
 						btnStart.setText(btnStartText);
 						btnStart.setData("type", btnStartType);
 					} catch (Exception e1) {
+						e1.printStackTrace();
 						if (e1.getMessage().indexOf("服务器") > -1) {
 							commonui.error("启动失败", "" + e1);
 							btnStart.setText("启    动");
@@ -568,6 +570,8 @@ public class ImageServerUI {
 
 			this.server = new Server(port);
 			ServletHandler servletHandler = new ServletHandler();
+			SessionHandler sh=new SessionHandler();
+			servletHandler.setHandler(sh);
 			CarparkDBServer carparkDBServer = carparkDBServerProvider.get();
 			carparkDBServer.startDbServlet(servletHandler);
 			server.setHandler(servletHandler);
@@ -629,6 +633,8 @@ public class ImageServerUI {
 			// service.start();
 		}
 		checkHaiYunService();
+		ShanghaidibiaoSynchroServiceI instance = serverInjector.getInstance(ShanghaidibiaoSynchroServiceI.class);
+		instance.startAsync();
 	}
 
 	/**

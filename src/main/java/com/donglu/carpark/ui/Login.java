@@ -399,7 +399,7 @@ public class Login {
 							}
 							sp.start();
 							LOGGER.info("服务启动花费时间{}", System.nanoTime() - nanoTime);
-							
+							LOGGER.info("系统版本：{}-{}",SystemSettingTypeEnum.软件版本.getDefaultValue(),SystemSettingTypeEnum.发布时间.getDefaultValue());
 
 							SystemUserServiceI systemUserService = sp.getSystemUserService();
 							SingleCarparkSystemUser findByNameAndPassword = systemUserService.findByNameAndPassword(userName=cbo_userName.getText(), pwd=txt_password.getText());

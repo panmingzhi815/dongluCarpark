@@ -50,7 +50,11 @@ public enum SystemSettingTypeEnum {
 	
 	启动HTTP对外服务("false"),
 	
-	DateBase_version("1.0.0.25"),软件版本("1.0.0.25"),发布时间("2019-04-04 09:10:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
+	agboxEnable("false"),
+	agboxUrl(""),
+	agboxKey(""),
+	
+	DateBase_version("1.0.0.26"),软件版本("1.0.0.26"),发布时间("2019-07-03 11:10:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
 	;
 	
 	private String defaultValue;

@@ -28,7 +28,9 @@ public class CarparkRecordHistory implements Serializable {
     private String carparkName;
     private Long hid;
     private String inImage;
+    private String inPlateImage;
     private String outImage;
+    private String outPlateImage;
     private String carType;
     
     private String userType;
@@ -46,13 +48,17 @@ public class CarparkRecordHistory implements Serializable {
 
 	private Integer chargedType;
 
+	private String entranceCode;
+
     public CarparkRecordHistory() {
     }
 
     public CarparkRecordHistory(SingleCarparkInOutHistory carparkInOutHistory,UpdateEnum updateEnum){
         this.userName = StrUtil.isEmptyToString(carparkInOutHistory.getUserName(),"");
         this.plateNO = StrUtil.isEmptyToString(carparkInOutHistory.getPlateNo(), "");
+        System.out.println(carparkInOutHistory.getInTime());
         this.inTime = StrUtil.isEmptyToString(StrUtil.formatDateTime(carparkInOutHistory.getInTime()), "");
+        System.out.println(inTime);
         this.outTime = StrUtil.isEmptyToString(StrUtil.formatDateTime(carparkInOutHistory.getOutTime()),"");
         this.inDevice = StrUtil.isEmptyToString(carparkInOutHistory.getInDevice(), "");
         this.outDevice = StrUtil.isEmptyToString(carparkInOutHistory.getOutDevice(), "");
@@ -61,7 +67,9 @@ public class CarparkRecordHistory implements Serializable {
         this.carparkName = StrUtil.isEmptyToString(carparkInOutHistory.getCarparkName(), "");
         hid=carparkInOutHistory.getId();
         inImage=carparkInOutHistory.getBigImg();
+        inPlateImage=carparkInOutHistory.getSmallImg();
         outImage=carparkInOutHistory.getOutBigImg();
+        outPlateImage=carparkInOutHistory.getOutSmallImg();
         carType=carparkInOutHistory.getCarType();
         userType=carparkInOutHistory.getUserType();
         carparkId=carparkInOutHistory.getCarparkId();
@@ -71,6 +79,7 @@ public class CarparkRecordHistory implements Serializable {
         chargedType = carparkInOutHistory.getChargedType();
         setLeftSlot(carparkInOutHistory.getLeftSlot());
     	setPlateColor(carparkInOutHistory.getPlateColor());
+    	entranceCode=carparkInOutHistory.getEntranceCode();
     }
     public SingleCarparkInOutHistory getHistory(){
     	SingleCarparkInOutHistory carparkInOutHistory=new SingleCarparkInOutHistory();
@@ -94,6 +103,7 @@ public class CarparkRecordHistory implements Serializable {
     	carparkInOutHistory.setLeftSlot(getLeftSlot());
     	carparkInOutHistory.setPlateColor(getPlateColor());
     	carparkInOutHistory.setChargedType(chargedType);
+    	carparkInOutHistory.setEntranceCode(entranceCode);
 		return carparkInOutHistory;
     }
 
@@ -281,4 +291,29 @@ public class CarparkRecordHistory implements Serializable {
 		this.leftSlot = leftSlot;
 		//firePropertyChange("leftSlot", null, null);
 	}
+
+	public String getEntranceCode() {
+		return entranceCode;
+	}
+
+	public void setEntranceCode(String entranceCode) {
+		this.entranceCode = entranceCode;
+	}
+
+	public String getInPlateImage() {
+		return inPlateImage;
+	}
+
+	public void setInPlateImage(String inPlateImage) {
+		this.inPlateImage = inPlateImage;
+	}
+
+	public String getOutPlateImage() {
+		return outPlateImage;
+	}
+
+	public void setOutPlateImage(String outPlateImage) {
+		this.outPlateImage = outPlateImage;
+	}
+
 }

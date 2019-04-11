@@ -393,7 +393,7 @@ public class CarparkMainApp extends AbstractApp{
 			int size=0;
 			@Override
 			public void run() {
-				System.out.println("下载时间");
+				log.info("下载时间");
 				Set<String> keySet = model.getMapIpToDevice().keySet();
 				for (String c : keySet) {
 					SingleCarparkDevice singleCarparkDevice = model.getMapIpToDevice().get(c);
@@ -408,7 +408,7 @@ public class CarparkMainApp extends AbstractApp{
 				}
 				size++;
 			}
-		}, 1, 60 * 60, TimeUnit.SECONDS);
+		}, 1, 30 * 60, TimeUnit.SECONDS);
 
 	}
 

@@ -68,6 +68,11 @@ public class SingleCarparkCarpark extends DomainObject {
 	private String yunBuildIdentifier;
 	private String yunBuildName;
 	
+	private Double lon;// Number Required 经度 
+	private Double lat;// Number Required 纬度 
+	private Double alt;// Number Required 高度 MSTL
+	private Integer floor;// Number Optional 楼层
+	
 	public String getCode() {
 		return code;
 	}
@@ -292,5 +297,33 @@ public class SingleCarparkCarpark extends DomainObject {
 	public void setTempCarOneIn(Boolean tempCarOneIn) {
 		this.tempCarOneIn = tempCarOneIn;
 		firePropertyChange("tempCarOneIn", null, null);
+	}
+	public Double getLon() {
+		return lon==null?0d:lon;
+	}
+	public void setLon(Double lon) {
+		this.lon = lon;
+		firePropertyChange("lon", null, null);
+	}
+	public Double getLat() {
+		return lat==null?0d:lat;
+	}
+	public void setLat(Double lat) {
+		this.lat = lat;
+		firePropertyChange("lat", null, null);
+	}
+	public Double getAlt() {
+		return alt==null?0d:alt;
+	}
+	public void setAlt(Double alt) {
+		this.alt = alt;
+		firePropertyChange("alt", null, null);
+	}
+	public Integer getFloor() {
+		return floor==null?0:floor;
+	}
+	public void setFloor(Integer floor) {
+		this.floor = floor;
+		firePropertyChange("floor", null, null);
 	}
 }

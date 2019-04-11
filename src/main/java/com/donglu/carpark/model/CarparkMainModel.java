@@ -53,7 +53,7 @@ public class CarparkMainModel extends DomainObject {
 	// 保存车牌最近的处理时间
 	private final Map<String, Date> mapPlateNoDate = new MyMapCache<>(600 * 1000, 5);
 	//保存开门信息
-	private final Map<String, Boolean> mapOpenDoor = Maps.newHashMap();
+	private final Cache<String, Boolean> mapOpenDoor = CacheBuilder.newBuilder().expireAfterAccess(3, TimeUnit.SECONDS).build();
 	// 保存最近的手动拍照时间
 	private final Map<String, Date> mapHandPhotograph = Maps.newHashMap();
 	//保存进场任务双摄像头信息
@@ -812,7 +812,7 @@ public class CarparkMainModel extends DomainObject {
 	}
 
 	public Map<String, Boolean> getMapOpenDoor() {
-		return mapOpenDoor;
+		return mapOpenDoor.asMap();
 	}
 
 	public Map<String, Date> getMapHandPhotograph() {

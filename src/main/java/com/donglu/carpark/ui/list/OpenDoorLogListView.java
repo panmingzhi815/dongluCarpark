@@ -11,9 +11,9 @@ public class OpenDoorLogListView extends AbstractListView<SingleCarparkOpenDoorL
 	public OpenDoorLogListView(Composite parent, int style) {
 		super(parent, style,SingleCarparkOpenDoorLog.class,new String[]{SingleCarparkOpenDoorLog.Property.operaName.name(),
 				SingleCarparkOpenDoorLog.Property.operaDateLabel.name(),
-				SingleCarparkOpenDoorLog.Property.deviceName.name(),
-				}, new String[]{"操作人","抬杆时间","抬杆设备"},
-				new int[]{100,200,100}, null);
+				SingleCarparkOpenDoorLog.Property.deviceName.name(),"type"
+				}, new String[]{"操作人","抬杆时间","抬杆设备","类型"},
+				new int[]{100,200,100,120}, null);
 	}
 
 	@Override

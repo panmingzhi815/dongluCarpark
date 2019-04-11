@@ -50,6 +50,7 @@ public class AddUserWizardPage extends WizardPage {
 	private Text text_4;
 	private Text text_5;
 	private ComboViewer comboViewer_2;
+	private Text text_6;
 
 	
 	/**
@@ -137,6 +138,15 @@ public class AddUserWizardPage extends WizardPage {
 			}
 			
 		});
+		
+		Label lblNewLabel_2 = new Label(composite, SWT.NONE);
+		lblNewLabel_2.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_2.setText("证件号码");
+		
+		text_6 = new Text(composite, SWT.BORDER);
+		text_6.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		Label label_2 = new Label(composite, SWT.NONE);
 		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -324,6 +334,10 @@ public class AddUserWizardPage extends WizardPage {
 		IObservableValue observeSingleSelectionComboViewer = ViewerProperties.singleSelection().observe(comboViewer);
 		IObservableValue userTypeModelObserveValue = BeanProperties.value("userType").observe(model);
 		bindingContext.bindValue(observeSingleSelectionComboViewer, userTypeModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_6ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_6);
+		IObservableValue idCardModelObserveValue = BeanProperties.value("idCard").observe(model);
+		bindingContext.bindValue(observeTextText_6ObserveWidget, idCardModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

@@ -28,6 +28,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.google.inject.Inject;
 
@@ -91,6 +92,20 @@ public class CarparkHttpServiceServlet extends HttpServlet {
 			String identifier = req.getParameter("identifier");
 			System.out.println(ip+"==="+identifier);
 			sp.getCarparkDeviceService().openDoor(ip);
+			writeMsg(resp, 0, "已发送开闸指令");
+			break;
+		case "/closeDoor":
+			ip = req.getParameter("ip");
+			identifier = req.getParameter("identifier");
+			System.out.println(ip+"==="+identifier);
+			sp.getCarparkDeviceService().closeDoor(ip);
+			writeMsg(resp, 0, "已发送开闸指令");
+			break;
+		case "/login":
+			String username = req.getParameter("username");
+			String password = req.getParameter("password");
+			SingleCarparkSystemUser user = sp.getSystemUserService().findByNameAndPassword(username, password);
+			
 			writeMsg(resp, 0, "已发送开闸指令");
 			break;
 		}

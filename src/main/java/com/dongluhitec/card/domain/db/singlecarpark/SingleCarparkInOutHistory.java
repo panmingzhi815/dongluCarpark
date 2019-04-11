@@ -138,6 +138,8 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	@Transient
 	private boolean saveHistory=true;
 	
+	private String entranceCode;
+	
 	public String getPlateNo() {
 		return plateNo;
 	}
@@ -615,11 +617,13 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	public void setInDevice(SingleCarparkDevice device) {
 		inDeviceId = device.getIdentifire();
 		inDevice = device.getName();
+		entranceCode=device.getEntranceCode();
 	}
 	public void setOutDevice(SingleCarparkDevice device) {
 		outDeviceId = device.getIdentifire();
 		outDevice=device.getName();
 		outDeviceIp=device.getIp();
+		entranceCode=device.getEntranceCode();
 	}
 	public String getPlateColor() {
 		return plateColor;
@@ -639,5 +643,12 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		float online=onlineMoney==null?0:onlineMoney;
 		float fact=factMoney==null?0:factMoney;
 		return fact+online;
+	}
+	public String getEntranceCode() {
+		return entranceCode;
+	}
+	public void setEntranceCode(String entranceCode) {
+		this.entranceCode = entranceCode;
+		firePropertyChange("entranceCode", null, null);
 	}
 }

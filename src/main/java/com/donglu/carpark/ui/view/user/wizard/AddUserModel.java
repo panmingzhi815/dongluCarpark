@@ -53,6 +53,7 @@ public class AddUserModel extends SingleCarparkUser {
 		user.setMonthChargeCode(getMonthChargeCode());
 		user.setMonthChargeName(getMonthChargeName());
 		user.setCarparkSlotType(getCarparkSlotType());
+		user.setIdCard(getIdCard());
 		return user;
 	}
 	public void setSingleCarparkUser(SingleCarparkUser user){
@@ -75,6 +76,7 @@ public class AddUserModel extends SingleCarparkUser {
 		setMonthChargeCode(user.getMonthChargeCode());
 		setMonthChargeName(user.getMonthChargeName());
 		setCarparkSlotType(user.getCarparkSlotType());
+		setIdCard(user.getIdCard());
 	}
 
 	public MonthlyUserPayModel getModel() {

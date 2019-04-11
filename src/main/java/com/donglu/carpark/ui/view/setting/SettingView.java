@@ -61,6 +61,8 @@ public class SettingView extends Composite implements View {
 	private Text text_3;
 	private Text text_4;
 	private Text text_8;
+	private Text text_9;
+	private Text text_10;
 
 	public SettingView(Composite parent, int style) {
 		super(parent, style);
@@ -285,6 +287,7 @@ public class SettingView extends Composite implements View {
 		});
 		button_23.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_23.setText("保存遥控开闸记录");
+		button_23.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录)));
 		
 		Button button_39 = new Button(group, SWT.CHECK);
 		button_39.addSelectionListener(new SelectionAdapter() {
@@ -1166,6 +1169,60 @@ public class SettingView extends Composite implements View {
 		Label label_5 = new Label(group_2, SWT.NONE);
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_5.setText("分");
+		
+		TabItem tabItem_4 = new TabItem(tabFolder, SWT.NONE);
+		tabItem_4.setText("上海数据上传");
+		
+		Composite composite_16 = new Composite(tabFolder, SWT.NONE);
+		tabItem_4.setControl(composite_16);
+		composite_16.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
+		Group group_5 = new Group(composite_16, SWT.NONE);
+		group_5.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.BOLD));
+		group_5.setText("数据上传");
+		group_5.setLayout(new GridLayout(2, false));
+		new Label(group_5, SWT.NONE);
+		
+		Button button_40 = new Button(group_5, SWT.CHECK);
+		button_40.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.agboxEnable, button_40.getSelection()+"");
+			}
+		});
+		button_40.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		button_40.setText("启用数据上传");
+		button_40.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.agboxEnable)));
+		
+		Label label_17 = new Label(group_5, SWT.NONE);
+		label_17.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_17.setText("上传地址");
+		
+		text_9 = new Text(group_5, SWT.BORDER);
+		text_9.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.agboxUrl, text_9.getText());
+			}
+		});
+		GridData gd_text_9 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text_9.widthHint = 477;
+		text_9.setLayoutData(gd_text_9);
+		text_9.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_9.setText(mapSystemSetting.get(SystemSettingTypeEnum.agboxUrl));
+		
+		Label lblKey = new Label(group_5, SWT.NONE);
+		lblKey.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		lblKey.setText("接入key");
+		
+		text_10 = new Text(group_5, SWT.BORDER);
+		text_10.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.agboxKey, text_10.getText());
+			}
+		});
+		text_10.setText(mapSystemSetting.get(SystemSettingTypeEnum.agboxKey));
+		text_10.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		text_10.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		
 		text_1.addKeyListener(new KeyAdapter() {
 			String s = text_1.getText();

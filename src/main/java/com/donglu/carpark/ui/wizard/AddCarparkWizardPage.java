@@ -36,6 +36,12 @@ public class AddCarparkWizardPage extends WizardPage {
 	private Button button_1;
 	private Button button_2;
 	private Composite composite_1;
+	private Label label_6;
+	private Composite composite_2;
+	private Text text_7;
+	private Text text_8;
+	private Text text_9;
+	private Text text_10;
 	/**
 	 * Create the wizard.
 	 * @param model 
@@ -68,7 +74,9 @@ public class AddCarparkWizardPage extends WizardPage {
 		
 		text = new Text(composite, SWT.BORDER);
 		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_text.widthHint = 260;
+		text.setLayoutData(gd_text);
 		
 		Label label_1 = new Label(composite, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -77,7 +85,7 @@ public class AddCarparkWizardPage extends WizardPage {
 		
 		text_1 = new Text(composite, SWT.BORDER);
 		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Label lblNewLabel = new Label(composite, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -104,7 +112,7 @@ public class AddCarparkWizardPage extends WizardPage {
 		
 		text_3 = new Text(composite, SWT.BORDER);
 		text_3.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
-		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		label_4 = new Label(composite, SWT.NONE);
 		label_4.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
@@ -113,7 +121,7 @@ public class AddCarparkWizardPage extends WizardPage {
 		
 		text_5 = new Text(composite, SWT.BORDER);
 		text_5.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
-		text_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		label_5 = new Label(composite, SWT.NONE);
 		label_5.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
@@ -122,7 +130,54 @@ public class AddCarparkWizardPage extends WizardPage {
 		
 		text_6 = new Text(composite, SWT.BORDER);
 		text_6.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
-		text_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		label_6 = new Label(composite, SWT.NONE);
+		label_6.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_6.setText("停车场位置");
+		
+		composite_2 = new Composite(composite, SWT.BORDER);
+		composite_2.setLayout(new GridLayout(4, false));
+		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_7 = new Label(composite_2, SWT.NONE);
+		label_7.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_7.setText("经度");
+		
+		text_7 = new Text(composite_2, SWT.BORDER);
+		GridData gd_text_7 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_text_7.widthHint = 80;
+		text_7.setLayoutData(gd_text_7);
+		text_7.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		
+		Label label_8 = new Label(composite_2, SWT.NONE);
+		label_8.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_8.setText("纬度");
+		
+		text_8 = new Text(composite_2, SWT.BORDER);
+		text_8.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		GridData gd_text_8 = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_text_8.widthHint = 80;
+		text_8.setLayoutData(gd_text_8);
+		
+		Label label_9 = new Label(composite_2, SWT.NONE);
+		label_9.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_9.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_9.setText("高度");
+		
+		text_9 = new Text(composite_2, SWT.BORDER);
+		text_9.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_9.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_10 = new Label(composite_2, SWT.NONE);
+		label_10.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_10.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_10.setText("楼层");
+		
+		text_10 = new Text(composite_2, SWT.BORDER);
+		text_10.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_10.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		composite_1 = new Composite(container, SWT.NONE);
 		composite_1.setLayout(new GridLayout(2, false));
@@ -192,6 +247,22 @@ public class AddCarparkWizardPage extends WizardPage {
 		IObservableValue observeSelectionButton_2ObserveWidget = WidgetProperties.selection().observe(button_2);
 		IObservableValue tempCarOneInModelObserveValue = BeanProperties.value("tempCarOneIn").observe(model);
 		bindingContext.bindValue(observeSelectionButton_2ObserveWidget, tempCarOneInModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_7ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_7);
+		IObservableValue lonModelObserveValue = BeanProperties.value("lon").observe(model);
+		bindingContext.bindValue(observeTextText_7ObserveWidget, lonModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_8ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_8);
+		IObservableValue latModelObserveValue = BeanProperties.value("lat").observe(model);
+		bindingContext.bindValue(observeTextText_8ObserveWidget, latModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_9ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_9);
+		IObservableValue altModelObserveValue = BeanProperties.value("alt").observe(model);
+		bindingContext.bindValue(observeTextText_9ObserveWidget, altModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_10ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_10);
+		IObservableValue floorModelObserveValue = BeanProperties.value("floor").observe(model);
+		bindingContext.bindValue(observeTextText_10ObserveWidget, floorModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

@@ -21,18 +21,21 @@ import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDeviceVoice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.UploadHistory;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.dongluhitec.card.util.DatabaseUtil;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
+import com.google.inject.persist.UnitOfWork;
 
 public class SettingServiceImpl implements SettingService {
 	
 	@Inject
 	private Provider<EntityManager> emProvider;
-
+	@Inject
+	private UnitOfWork unitOfWork;
 
 	@Override
 	public List<File> getServerChildFiles(String fileName) {
@@ -202,6 +205,41 @@ public class SettingServiceImpl implements SettingService {
 			dv.setVolume(deviceVoiceTypeEnum.getVolume());
 			dom.insert(dv);
 		}
+	}
+
+	@Override
+	public List<UploadHistory> findUploadHistory(int start, int max, String type, int processState) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emProvider.get(), UploadHistory.class);
+			c.add(Restrictions.eq("processState", processState));
+			c.add(Restrictions.eq("type", type));
+			c.setFirstResult(start);
+			c.setMaxResults(max);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	
+	@Transactional
+	@Override
+	public Long updateUploadHistory(Long id, int processState) {
+		UploadHistory history = emProvider.get().getReference(UploadHistory.class, id);
+		history.setProcessState(processState);
+		return id;
+	}
+	
+	@Transactional
+	@Override
+	public Long saveUploadHistory(UploadHistory history) {
+		DatabaseOperation<UploadHistory> dom = DatabaseOperation.forClass(UploadHistory.class, emProvider.get());
+		if (history.getId()==null) {
+			dom.insert(history);
+		}else {
+			dom.save(history);
+		}
+		return history.getId();
 	}
 
 }

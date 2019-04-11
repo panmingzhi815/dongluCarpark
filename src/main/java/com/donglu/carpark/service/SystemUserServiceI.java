@@ -20,6 +20,7 @@ public interface SystemUserServiceI {
 	public void initSystemInfo();
 	
 	public void login(String userName,String password,String ip);
+	public default void login(String userName,String password,String ip,String versionInfo) {};
 	
 	public void loginOut(String userName);
 	

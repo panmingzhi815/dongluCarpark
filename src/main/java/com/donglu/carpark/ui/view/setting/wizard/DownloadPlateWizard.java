@@ -108,10 +108,11 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 							continue;
 						}
 						if (type.equals(CameraTypeEnum.智芯)) {
-							if (listPlate.size() > 6000) {
-								int j = listPlate.size() - 6000;
-								listPlate = listPlate.subList(0, 6000);
-								message.append("\n设备" + downloadDeviceInfo.getIp() + "下满6000条,有" + j + "条下载失败");
+							int zhixinSize = Integer.valueOf(System.getProperty("zhixinSize","20000"));
+							if (listPlate.size() > zhixinSize) {
+								int j = listPlate.size() - zhixinSize;
+								listPlate = listPlate.subList(0, zhixinSize);
+								message.append("\n设备" + downloadDeviceInfo.getIp() + "容量已满，已下载"+zhixinSize+"条,有" + j + "条未下载");
 							}
 						}
 						if (type.equals(CameraTypeEnum.信路威)) {

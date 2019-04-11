@@ -23,7 +23,7 @@ DefaultDirName=D:\Program Files\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=.
-OutputBaseFilename=停车场车牌识别{#MyAppVersion}{#MyDateTimeString}
+OutputBaseFilename=停车场车牌识别-上海{#MyAppVersion}{#MyDateTimeString}
 Compression=lzma
 SolidCompression=yes
 

@@ -12,7 +12,9 @@ import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
 import org.criteria4jpa.criterion.Restrictions;
 
+import com.alibaba.fastjson.JSONObject;
 import com.donglu.carpark.service.CarparkDeviceService;
+import com.donglu.carpark.ui.servlet.WebSocketServer;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
@@ -24,7 +26,7 @@ import com.google.inject.persist.UnitOfWork;
 public class CarparkDeviceServiceImpl implements CarparkDeviceService {
 	private Provider<EntityManager> emProvider;
 	private UnitOfWork unitOfWork;
-
+	private static final Map<String,SingleCarparkDevice> mapDevices=new HashMap<>();
 	@Inject
 	public CarparkDeviceServiceImpl(Provider<EntityManager> emProvider, UnitOfWork unitOfWork) {
 		this.emProvider = emProvider;
@@ -35,6 +37,22 @@ public class CarparkDeviceServiceImpl implements CarparkDeviceService {
 	@Override
 	public boolean openDoor(String ip) {
 		mapWaitOpenDevices.put(ip, ip);
+		JSONObject jo=new JSONObject();
+		jo.put("type", "openDoor");
+		jo.put("ip", ip);
+		System.out.println(jo.toString());
+		WebSocketServer.sendToAll(jo.toString());
+		return true;
+	}
+	@Override
+	public boolean openDoor(String ip, String userName) {
+		mapWaitOpenDevices.put(ip, ip);
+		JSONObject jo=new JSONObject();
+		jo.put("type", "openDoor");
+		jo.put("ip", ip);
+		jo.put("userName", userName);
+		System.out.println(jo.toString());
+		WebSocketServer.sendToAll(jo.toString());
 		return true;
 	}
 	
@@ -79,6 +97,24 @@ public class CarparkDeviceServiceImpl implements CarparkDeviceService {
 	@Override
 	public Long deleteDevice(SingleCarparkDevice device) {
 		return null;
+	}
+
+	@Override
+	public boolean closeDoor(String ip) {
+		JSONObject jo=new JSONObject();
+		jo.put("type", "closeDoor");
+		jo.put("ip", ip);
+		WebSocketServer.sendToAll(jo.toJSONString());
+		return true;
+	}
+
+	@Override
+	public List<SingleCarparkDevice> getAllDevice() {
+		return new ArrayList<>(mapDevices.values());
+	}
+	@Override
+	public void setDevices(Map<String,SingleCarparkDevice> map) {
+		mapDevices.putAll(map);
 	}
 	
 }

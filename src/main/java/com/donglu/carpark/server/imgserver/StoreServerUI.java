@@ -1,6 +1,5 @@
 package com.donglu.carpark.server.imgserver;
 
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.SWT;
@@ -38,15 +37,9 @@ public class StoreServerUI {
 	 * Open the window.
 	 */
 	public void open() {
-		Display display = Display.getDefault();
 		createContents();
 		shell.open();
 		shell.layout();
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
-			}
-		}
 	}
 
 	/**

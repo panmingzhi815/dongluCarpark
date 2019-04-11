@@ -125,10 +125,8 @@ public class HttpRequestUtil {
 				connection.setRequestProperty(split[0], split[1]);
 			} 
 		}else {
-			connection.setRequestProperty("Content-Type", "application/json");
+			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 		}
-		System.out.println("token=="+connection.getRequestProperty("Token"));
-		System.out.println("Content-Type=="+connection.getRequestProperty("Content-Type"));
 		
 		OutputStream os = connection.getOutputStream();
 		os.write(parameters.getBytes("UTF-8"));
