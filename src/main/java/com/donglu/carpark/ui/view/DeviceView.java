@@ -287,6 +287,7 @@ public class DeviceView extends Composite implements View{
 			editToolItem.dispose();
 			delToolItem.dispose();
 		}
+		tabFolder.layout();
 		
 	}
 }

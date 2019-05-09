@@ -227,6 +227,10 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		for (int i = 0; i < Math.min(listFiles.length, maxSize); i++) {
 			try {
 				File file = listFiles[i];
+				if(file.length()<1) {
+					file.delete();
+					continue;
+				}
 				String name = file.getName();
 				name=name.substring(0, name.lastIndexOf("."));
 				String[] split = name.split("-");

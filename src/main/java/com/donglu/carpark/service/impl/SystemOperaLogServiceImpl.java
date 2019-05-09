@@ -155,6 +155,9 @@ public class SystemOperaLogServiceImpl implements SystemOperaLogServiceI {
 				file.createNewFile();
 			}
 			try(RandomAccessFile raf = new RandomAccessFile(file, "rw");) {
+				if(pos==0) {
+					raf.setLength(0);
+				}
 				raf.seek(pos);
 				raf.write(data, 0, length);
 			}

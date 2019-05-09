@@ -69,12 +69,7 @@ public class CarInOutResult implements PlateNOResult {
 
 	@Override
 	public void invok(String ip, int channel, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize) {
-		Boolean boolean2 = model.getMapIpToDeviceStatus().get(ip);
 		SingleCarparkDevice device = model.getMapIpToDevice().get(ip);
-		if (boolean2!=null&&!boolean2&&device!=null) {
-			logger.info("设备{}限时：{}",ip,device.getControlTime());
-			return;
-		}
 		model.setPlateInTime(new Date(),10);
 		logger.info("车辆{}在设备{}通道{}处进场,可信度：{}", plateNO, ip, channel, rightSize);
 		String deviceType = model.getMapDeviceType().get(ip);
@@ -98,6 +93,11 @@ public class CarInOutResult implements PlateNOResult {
 				inOrOut = false;
 			}
 			presenter.saveOpenDoor(device, bigImage, plateNO, inOrOut);
+			return;
+		}
+		Boolean boolean2 = model.getMapIpToDeviceStatus().get(ip);
+		if (boolean2!=null&&!boolean2&&device!=null) {
+			logger.info("设备{}限时：{}",ip,device.getControlTime());
 			return;
 		}
 		

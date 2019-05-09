@@ -36,6 +36,7 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 	private IpmsServiceI ipmsService;
 	private ScheduledExecutorService uploadHistoryExecutorService;
 	private boolean isRunService=false;
+	private ScheduledExecutorService uploadImageExecutorService;
 
 	@Inject
 	public IpmsSynchroServiceImpl(IpmsServiceI ipmsService,CarparkDatabaseServiceProvider sp) {
@@ -101,12 +102,22 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 						sp.getCarparkInOutService().updateHaiYuRecordHistory(Arrays.asList(carparkRecordHistory.getId()), ProcessEnum.己处理);
 					}
 				}
-				if (!findUserHistory.isEmpty()||!findHaiYuRecordHistory.isEmpty()) {
+			}
+		}, 5, 3, TimeUnit.SECONDS, "ipms记录上传服务");
+		uploadImageExecutorService = ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				if (!isRunService) {
+					try {
+						Thread.sleep(60000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					return;
 				}
 				syncImages();
 			}
-		}, 5, 3, TimeUnit.SECONDS, "ipms记录上传服务");
+		}, 5, 3, TimeUnit.SECONDS, "ipms图片上传服务");
 	}
 
 	protected void syncImages() {
@@ -150,6 +161,9 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 		super.shutDown();
 		if (uploadHistoryExecutorService!=null) {
 			uploadHistoryExecutorService.shutdown();
+		}
+		if(uploadImageExecutorService!=null) {
+			uploadImageExecutorService.shutdown();
 		}
 	}
 	@Override

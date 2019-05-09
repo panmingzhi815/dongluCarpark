@@ -247,7 +247,7 @@ public class CarparkMainApp extends AbstractApp{
 					}
 				}
 				singleCarparkDevice.setCarpark(carpark);
-				model.setCarpark(carpark);
+				model.setCarpark(carpark.getMaxParent());
 				model.getMapDeviceType().put(key, inType);
 				model.getMapIpToDevice().put(key, singleCarparkDevice);
 				List<SingleCarparkDevice> list = mapTypeDevices.get(inType);
@@ -396,19 +396,23 @@ public class CarparkMainApp extends AbstractApp{
 				System.out.println("下载时间");
 				Set<String> keySet = model.getMapIpToDevice().keySet();
 				for (String c : keySet) {
-					SingleCarparkDevice singleCarparkDevice = model.getMapIpToDevice().get(c);
-					if (size==0&&StrUtil.isEmpty(singleCarparkDevice.getDeviceVersion())) {
-						String deviceVersion = presenter.getDeviceVersion(singleCarparkDevice);
-						System.out.println(deviceVersion);
-						singleCarparkDevice.setDeviceVersion(deviceVersion);
-						presenter.saveDevice(singleCarparkDevice);
+					try {
+						SingleCarparkDevice singleCarparkDevice = model.getMapIpToDevice().get(c);
+						if (size==0&&StrUtil.isEmpty(singleCarparkDevice.getDeviceVersion())) {
+							String deviceVersion = presenter.getDeviceVersion(singleCarparkDevice);
+							System.out.println(deviceVersion);
+							singleCarparkDevice.setDeviceVersion(deviceVersion);
+							presenter.saveDevice(singleCarparkDevice);
+						}
+						presenter.showNowTimeToDevice(singleCarparkDevice);
+						presenter.showNowTimeToCamera(singleCarparkDevice);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-					presenter.showNowTimeToDevice(singleCarparkDevice);
-					presenter.showNowTimeToCamera(singleCarparkDevice);
 				}
 				size++;
 			}
-		}, 1, 60 * 60, TimeUnit.SECONDS);
+		}, 30, 60 * 60, TimeUnit.SECONDS);
 
 	}
 

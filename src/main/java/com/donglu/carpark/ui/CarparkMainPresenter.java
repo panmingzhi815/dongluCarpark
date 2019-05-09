@@ -12,6 +12,8 @@ import java.io.RandomAccessFile;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -94,6 +96,7 @@ import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.donglu.carpark.util.ExecutorsUtils;
+import com.donglu.carpark.util.HttpRequestUtil;
 import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
@@ -140,7 +143,9 @@ import com.dongluhitec.card.hardware.service.BasicHardwareService;
 import com.dongluhitec.card.mapper.BeanUtil;
 import com.dongluhitec.card.shanghaiyunpingtai.ShanghaiYunCarparkCfg;
 import com.dongluhitec.card.ui.util.FileUtils;
+import com.dongluhitec.card.util.HttpUtil;
 import com.dongluhitec.card.util.ThreadUtil;
+import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -1423,6 +1428,7 @@ public class CarparkMainPresenter {
 		}
 		if(data!=null&&Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.优先使用云平台计费))&&model.booleanSetting(SystemSettingTypeEnum.启用CJLAPP支付)){
 			Result result = getPayResult(data);
+			log.info("云平台计费：{}",result.getObj());
 			if (result!=null&&result.getObj()!=null) {
 				if(3004!=result.getCode()&&9999!=result.getCode()){
 					model.setChargedMoney(result.getPayedFee());
@@ -1627,7 +1633,8 @@ public class CarparkMainPresenter {
 		model.setTotalCharge(carparkInOutService.findFactMoneyByName(userName));
 		model.setTotalFree(carparkInOutService.findFreeMoneyByName(userName));
 		model.setTotalSlot(getSlotOfLeft());
-
+		
+		log.info("查找停车场:{} 的收费设置",model.getCarpark());
 		List<CarparkChargeStandard> listTemp = sp.getCarparkService().findAllCarparkChargeStandard(model.getCarpark(), true);
 		for (CarparkChargeStandard carparkChargeStandard : listTemp) {
 			String name = carparkChargeStandard.getCarparkCarType().getName();
@@ -1661,14 +1668,13 @@ public class CarparkMainPresenter {
 		}, 20, 20, TimeUnit.SECONDS,"自动检测设备连接状态");
 		// 车牌自动下载
 		startAutoDownloadPlatesService();
-		if (mapSystemSetting.get(SystemSettingTypeEnum.允许设备限时).equals("true")) {
-			ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
-				@Override
-				public void run() {
-					checkAllDeviceControlTimeStatus();
-				}
-			}, 60 - DateTime.now().getSecondOfMinute(), 60, TimeUnit.SECONDS,"检查设备是否限时");
-		}
+		
+		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				checkAllDeviceControlTimeStatus();
+			}
+		}, 60 - DateTime.now().getSecondOfMinute(), 60, TimeUnit.SECONDS,"检查设备是否限时");
 		
 		if (mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录).equals("true")) {
 			CarparkUtils.startServer(10002, "/*", new OpenDoorServlet(this));
@@ -1681,63 +1687,17 @@ public class CarparkMainPresenter {
 		startHttpOpenDoorService();
 		startRefreshSettingService();
 		startUploadLogService();
+		
+		if (System.getProperty("testInOutAndPay", "false").equals("true")) {
+			testInOut("粤", "192.168.3.243");
+			testInOut("贵", "192.168.3.244");
+		}
 	}
 	private void startUploadLogService() {
 		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
-				File ui = new File("log"+File.separator+"ui"+File.separator);
-				String[] list = ui.list((dir, name) -> name.endsWith(".txt"));
-				String s="";
-				for (SingleCarparkDevice device : mapIpToDevice.values()) {
-					s+=device.getName();
-				}
-				for (String string : list) {
-					File file = new File(ui, string);
-					try {
-						log.info("上传日志：{}到服务器",file);
-						long length = file.length();
-						File config = new File(ui,string+".config");
-						long pos=0;
-						if(config.exists()) {
-							String line = Files.readFirstLine(config, Charset.forName("GBK"));
-							System.out.println(config+"==="+line+"==="+file.length());
-							if(!StrUtil.isEmpty(line)) {
-								try {
-									pos=Long.valueOf(line);
-								} catch (NumberFormatException e) {
-									e.printStackTrace();
-								}
-							}
-						}else {
-							config.createNewFile();
-						}
-						if(pos==length) {
-							continue;
-						}else if(pos>length) {
-							pos=0;
-						}
-						try(RandomAccessFile raf=new RandomAccessFile(file, "r")) {
-							
-							raf.seek(pos);
-							int read = -1;
-							byte[] bs = new byte[1024];
-							
-							String name=StrUtil.getHostIp()+s;
-							SystemOperaLogServiceI systemOperaLogService = sp.getSystemOperaLogService();
-							String name2 =file.getName();
-							while((read = raf.read(bs))!=-1) {
-								systemOperaLogService.saveLog(name, name2, pos, read, bs);
-								pos+=read;
-								Files.write((""+pos).getBytes(), config);
-							}
-						}
-						log.info("上传日志：{} 成功",file);
-					} catch (Exception e) {
-						e.printStackTrace();
-						log.info("上传日志:{}时发生错误:{}",file,e);
-					}
-				}
+				uploadLogsToServer();
 			}
 		}, 10, 10, TimeUnit.MINUTES, "上传日志到服务器");
 	}
@@ -1809,7 +1769,8 @@ public class CarparkMainPresenter {
 				int dayColor = 3;
 				int nightColor = 2;
 				try {
-					List<String> list = java.nio.file.Files.readAllLines(Paths.get("screenQrColor.txt"));
+					List<String> list = java.nio.file.Files.readAllLines(Paths.get("screenQrColor.txt"),Charset.forName("GBK"));
+					log.info("读取到屏幕颜色配置文件：{}",list);
 					if(list.size()>0) {
 						dayColor=Integer.valueOf(list.get(0));
 					}
@@ -2050,10 +2011,9 @@ public class CarparkMainPresenter {
 			log.info("{}为节假日,限制时间为：{}",date,controlTime);
 		}
 		String ip = device.getIp();
-		if (StrUtil.isEmpty(controlTime)) {
-			setDeviceTabItemStatus(ip, "deviceStatus_16", "正在使用");
+		if (StrUtil.isEmpty(controlTime)||!model.booleanSetting(SystemSettingTypeEnum.允许设备限时)) {
 			model.getMapIpToDeviceStatus().put(ip, true);
-			log.debug("设备{}未做限时设置", device.getIp());
+			log.debug("设备{}未做限时设置:{}", device.getIp(),model.booleanSetting(SystemSettingTypeEnum.允许设备限时));
 			return true;
 		}
 		String[] split = controlTime.split(",");
@@ -2179,7 +2139,7 @@ public class CarparkMainPresenter {
 	 */
 	public void showManualSearch(String plateNO, String bigImg, String smallImg) {
 		try {
-
+			log.info("人工查找车牌：{},",plateNO);
 			searchErrorCarPresenter.getModel().setPlateNo(model.getOutShowPlateNO().split("-")[0]);
 			searchErrorCarPresenter.getModel().setHavePlateNoSelect(null);
 			searchErrorCarPresenter.getModel().setNoPlateNoSelect(null);
@@ -2209,6 +2169,7 @@ public class CarparkMainPresenter {
 				// }
 				sp.getCarparkInOutService().saveInOutHistory(select);
 			}
+			log.info("人工查找到设备：{} 车牌：{}",model.getIp(),select.getPlateNo());
 			carInOutResultProvider.get().invok(model.getIp(), 0, select.getPlateNo(), m.getBigImg(), m.getSmallImg(), 1);
 		} catch (Exception e) {
 			log.error("人工查找时发生错误", e);
@@ -2274,10 +2235,14 @@ public class CarparkMainPresenter {
 	}
 
 	public Boolean showNowTimeToDevice(SingleCarparkDevice singleCarparkDevice) {
-		if(singleCarparkDevice.getScreenType().equals(ScreenTypeEnum.一体机)){
-			return carparkScreenService.setDeviceDateTime(getDevice(singleCarparkDevice), new Date());
+		Device device = getDevice(singleCarparkDevice);
+		if(device==null) {
+			return true;
 		}
-		return hardwareService.setCarparkDate(getDevice(singleCarparkDevice), new Date());
+		if(singleCarparkDevice.getScreenType().equals(ScreenTypeEnum.一体机)){
+			return carparkScreenService.setDeviceDateTime(device, new Date());
+		}
+		return hardwareService.setCarparkDate(device, new Date());
 	}
 	
 	public void charge(Boolean carOutChargeCheck) {
@@ -2967,6 +2932,11 @@ public class CarparkMainPresenter {
 	 * @param inOrOut
 	 */
 	public void updatePosition(SingleCarparkCarpark carpark, final SingleCarparkInOutHistory cch, final boolean inOrOut) {
+		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+		for (int i = 0; i < stackTrace.length; i++) {
+			StackTraceElement element = stackTrace[i];
+			log.info("{}-{}-{} 调用updatePosition",element.getClassName(),element.getMethodName(),element.getLineNumber());
+		}
 		sp.getPositionUpdateService().updatePosion(carpark, cch==null?null:cch.getUserId(), inOrOut);
 		Integer slotShowType = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位数显示方式));
 		if (!StrUtil.isEmpty(model.getTotalSlotTooltip()) &&slotShowType == 6) {
@@ -3167,7 +3137,7 @@ public class CarparkMainPresenter {
 					if (image!=null) {
 						cTabItem.setImage(JFaceUtil.getImage(image));
 					}
-					if (title!=null) {
+					if (msg!=null) {
 						cTabItem.setToolTipText(msg);
 					}
 					String text = cTabItem.getText();
@@ -3281,7 +3251,7 @@ public class CarparkMainPresenter {
 		if(!device.getScreenType().equals(ScreenTypeEnum.一体机)){
 			return;
 		}
-		log.info("向设备发送二维码和");
+		log.info("向设备发送二维码和语音：{}",content);
 		String yunIdentifier = device.getCarpark().getYunIdentifier();
 		String buildId = device.getCarpark().getYunBuildIdentifier();
 		if(yunIdentifier==null||buildId==null){
@@ -3562,6 +3532,7 @@ public class CarparkMainPresenter {
 			boolean setTime = mapIpToJNA.get(device.getIp()).setTime(device.getIp());
 			log.info("设置摄像机：{} 时间：{}",device,setTime);
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.info("设置摄像机：{} 时间发送错误：{}",device,e);
 		}
 	}
@@ -3609,6 +3580,8 @@ public class CarparkMainPresenter {
 											}
 										}
 										qrCodeInOutTask(string);
+									}else if(type.equals("uploadLog")) {
+										uploadLogsToServer();
 									}
 								}catch (Exception e) {
 									log.info("监听广播时发生错误",e);
@@ -3636,6 +3609,129 @@ public class CarparkMainPresenter {
 				}
 			}
 		}, 100, 100, TimeUnit.MILLISECONDS, "广播监听服务");
+	}
+
+	/**
+	 * 
+	 */
+	public void uploadLogsToServer() {
+		File ui = new File("log"+File.separator+"ui"+File.separator);
+		String[] list = ui.list((dir, name) -> name.endsWith(".txt"));
+		String s="";
+		for (SingleCarparkDevice device : mapIpToDevice.values()) {
+			s+=device.getName();
+		}
+		for (String string : list) {
+			File file = new File(ui, string);
+			try {
+				log.info("上传日志：{}到服务器",file);
+				long length = file.length();
+				File config = new File(ui,string+".config");
+				long pos=0;
+				if(config.exists()) {
+					String line = Files.readFirstLine(config, Charset.forName("GBK"));
+					System.out.println(config+"==="+line+"==="+file.length());
+					if(!StrUtil.isEmpty(line)) {
+						try {
+							pos=Long.valueOf(line);
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+						}
+					}
+				}else {
+					config.createNewFile();
+				}
+				if(pos==length) {
+					continue;
+				}else if(pos>length) {
+					pos=0;
+				}
+				try(RandomAccessFile raf=new RandomAccessFile(file, "r")) {
+					
+					raf.seek(pos);
+					int read = -1;
+					byte[] bs = new byte[1024];
+					
+					String name=StrUtil.getHostIp()+s;
+					SystemOperaLogServiceI systemOperaLogService = sp.getSystemOperaLogService();
+					String name2 =file.getName();
+					while((read = raf.read(bs))!=-1) {
+						systemOperaLogService.saveLog(name, name2, pos, read, bs);
+						pos+=read;
+						Files.write((""+pos).getBytes(), config);
+					}
+				}
+				log.info("上传日志：{} 成功",file);
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.info("上传日志:{}时发生错误:{}",file,e);
+			}
+		}
+	}
+	
+	public void testInOut(String platetestindex,String deviceIp) {
+		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
+			int totalSize=0;
+			int errorSize=0;
+			int outFailSize=0;
+			@Override
+			public void run() {
+				totalSize++;
+				SingleCarparkInOutHistory history = new SingleCarparkInOutHistory();
+				history.setInTime(new DateTime().minusMinutes(2).toDate());
+				String plateNo = platetestindex+Strings.padStart(totalSize+"", 6, '0');
+				String time = StrUtil.formatDate(history.getInTime(), "yyyyMMddHHmmss");
+				log.info("车辆：{} -{}测试出场",plateNo,time);
+				log.info("=========================================================================================================");
+				history.setPlateNo(plateNo);
+				history.setPlateColor("蓝色");
+				history.setCarType("临时车");
+				history.setUserType("小车");
+				history.setCarpark(model.getCarpark());
+				try {
+    				Long long1 = sp.getCarparkInOutService().saveInOutHistory(history);
+    				Thread.sleep(5000);
+    				byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+    				carInOutResultProvider.get().invok(deviceIp, 0, plateNo, bs, null, 1);
+					Thread.sleep(3000);
+					boolean flag=true;
+					for (SingleCarparkInOutHistory inOutHistory : model.getMapWaitInOutHistory().values()) {
+						if(inOutHistory.getPlateNo().equals(plateNo)) {
+							flag=false;
+							break;
+						}
+					}
+					if (flag) {
+						return;
+					}
+					String string = HttpRequestUtil.get("http://119.23.26.114/DongYunPayAction_createOrder.action?parkingRecordId=8f4cec1316224f17bb4aab5da62bc415"+long1);
+					log.info("{}-{} 测试回调返回：{}",plateNo,time,string);
+					if(string==null) {
+						log.info("测试下单失败,进行下一轮测试");
+						return;
+					}
+					Thread.sleep(8000);
+					flag=true;
+					for (SingleCarparkInOutHistory inOutHistory : model.getMapWaitInOutHistory().values()) {
+						if(inOutHistory.getPlateNo().equals(plateNo)) {
+							flag=false;
+							break;
+						}
+					}
+					if(!flag) {
+						log.info("车辆：{} -{}可能未收到mqtt通知",plateNo,time);
+						outFailSize++;
+						
+					}
+				} catch (Exception e) {
+					errorSize++;
+					log.error("测试出场时发生错误");
+				}finally {
+					log.info("====================================================================================================");
+					log.info("车辆：{} ：{}测试出场完成一轮，总次数,：{}出场失败次数,：{}执行异常错误：{}",plateNo,time,totalSize,outFailSize,errorSize);
+				}
+			}
+		}, 10, 5, TimeUnit.SECONDS, "自动测试");
 	}
 	
 }

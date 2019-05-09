@@ -131,6 +131,7 @@ public class Login {
 					injector = InjectorUtil.startsyn(new CarparkClientGuiceModule());
 					System.out.println("依赖注入用时==="+(System.nanoTime()-nanoTime));
 					Login window = injector.getInstance(Login.class);
+					InjectorUtil.setInjector(injector);
 					System.out.println("窗口打开==="+(System.nanoTime()-nanoTime));
 					window.open();
 				} catch (Exception e) {

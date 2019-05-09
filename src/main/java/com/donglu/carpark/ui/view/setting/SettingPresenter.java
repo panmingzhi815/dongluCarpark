@@ -63,7 +63,7 @@ public class SettingPresenter implements Presenter {
 		return listPresenter;
 	}
 
-	public void saveAll(Map<SystemSettingTypeEnum, String> mapSystemSetting) {
+	public void saveAll(Map<SystemSettingTypeEnum, String> mapSystemSetting,boolean isRestart) {
 		boolean confirm = commonui.confirm("提示", "确定保存设置信息？");
 		if (!confirm) {
 			return;
@@ -76,7 +76,11 @@ public class SettingPresenter implements Presenter {
 			carparkService.saveSystemSetting(h);
 		}
 		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "保存了设置信息",OPERANAME);
-		commonui.info("成功", "保存设置成功，请重启监控界面或等待监控界面5分钟后自动刷新！");
+		String s="请重启监控界面或等待监控界面5分钟后自动刷新！";
+		if(isRestart) {
+			s="重启监控界面后生效！！！";
+		}
+		commonui.info("成功", "保存设置成功。"+s);
 
 	}
 

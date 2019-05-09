@@ -46,6 +46,10 @@ public class ChangeUserWizard extends Wizard implements AbstractWizard{
 			page.setErrorMessage("自己不能跟自己换班");
 			return false;
 		}
+		if(model.getPwd()==null) {
+			page.setErrorMessage("请输入换班人密码");
+			return false;
+		}
 		SingleCarparkSystemUser systemUser=checkLogin();
 		if (StrUtil.isEmpty(systemUser)) {
 			page.setErrorMessage("用户名或密码错误");

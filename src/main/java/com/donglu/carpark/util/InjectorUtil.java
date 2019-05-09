@@ -36,4 +36,7 @@ public class InjectorUtil {
 		isStart=true;
 		return injector;
 	}
+	public static void setInjector(Injector injector) {
+		InjectorUtil.injector = injector;
+	}
 }

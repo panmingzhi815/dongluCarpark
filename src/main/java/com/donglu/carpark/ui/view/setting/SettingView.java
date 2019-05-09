@@ -61,6 +61,7 @@ public class SettingView extends Composite implements View {
 	private Text text_3;
 	private Text text_4;
 	private Text text_8;
+	protected boolean isRestart=false;
 
 	public SettingView(Composite parent, int style) {
 		super(parent, style);
@@ -100,7 +101,7 @@ public class SettingView extends Composite implements View {
 		btn_save.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getPresenter().saveAll(mapSystemSetting);
+				getPresenter().saveAll(mapSystemSetting,true);
 			}
 		});
 		btn_save.setText("保存设置");
@@ -175,6 +176,7 @@ public class SettingView extends Composite implements View {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				mapSystemSetting.put(SystemSettingTypeEnum.允许设备限时, button_31.getSelection() + "");
+				isRestart=true;
 			}
 		});
 		button_31.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -246,6 +248,7 @@ public class SettingView extends Composite implements View {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				mapSystemSetting.put(SystemSettingTypeEnum.启动HTTP对外服务, btnhttp.getSelection() + "");
+				isRestart=true;
 			}
 		});
 		btnhttp.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
@@ -270,6 +273,7 @@ public class SettingView extends Composite implements View {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				mapSystemSetting.put(SystemSettingTypeEnum.自动下载车牌, button_30.getSelection() + "");
+				isRestart=true;
 			}
 		});
 		button_30.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -281,6 +285,7 @@ public class SettingView extends Composite implements View {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				mapSystemSetting.put(SystemSettingTypeEnum.保存遥控开闸记录, button_23.getSelection() + "");
+				isRestart=true;
 			}
 		});
 		button_23.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
