@@ -45,6 +45,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory.PayTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.util.ThreadUtil;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.inject.Inject;
 
 public class IpmsServiceImpl implements IpmsServiceI {
@@ -823,5 +825,31 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		// 断开连接
 		connection.disconnect();
 		return msg;
+	}
+	Cache<String, Double> cache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.SECONDS).build();
+	@Override
+	public boolean pustFee(String parkingRecordId, double fee) {
+		try {
+			if(cache.getIfPresent(parkingRecordId)!=null) {
+				return true;
+			}
+			cache.put(parkingRecordId, fee);
+//			String parkId=getParkId(inout.getCarparkId());
+			log.info("上传车辆:{} 计费结果",parkingRecordId);
+			String url=httpUrl+"/api/pustParkingRecordFee.action?parkingRecordId={}&Fee={}";
+			url = StrUtil.formatString(url, parkingRecordId,fee);
+			System.out.println(url);
+			String httpPostMssage = httpPostMssageInThread(url, null,3000);
+			log.info("上传车辆:{} 计费结果:{}",parkingRecordId,httpPostMssage);
+			JSONObject result = JSON.parseObject(httpPostMssage);
+			boolean equals = "0".equals(result.getString("ret"));
+			if (equals) {
+				return equals;
+			}
+		} catch (Exception e) {
+			log.error("上传车辆:{}计费结果时发生错误：{}",parkingRecordId,e);
+		}
+		cache.invalidate(parkingRecordId);
+		return false;
 	}
 }

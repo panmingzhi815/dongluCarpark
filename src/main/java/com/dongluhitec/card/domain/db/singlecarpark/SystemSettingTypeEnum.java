@@ -50,7 +50,7 @@ public enum SystemSettingTypeEnum {
 	
 	启动HTTP对外服务("false"),
 	
-	DateBase_version("1.0.0.26"),软件版本("1.0.0.26"),发布时间("2019-05-07 14:50:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
+	DateBase_version("1.0.0.27"),软件版本("1.0.0.27"),发布时间("2019-06-21 13:10:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
 	;
 	
 	private String defaultValue;

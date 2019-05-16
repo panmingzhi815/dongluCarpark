@@ -302,6 +302,9 @@ public class CarOutTask extends AbstractTask{
 		model.setOutShowPlateNO(model.getOutShowPlateNO()+"-未入场");
 		handSearch();
 		model.setSearchCarpark(device.getCarpark());
+		model.setChargeHistory(null);
+		model.setChargeDevice(null);
+		model.setBtnClick(false);
 	}
 	
 	/**
@@ -685,6 +688,7 @@ public class CarOutTask extends AbstractTask{
 			singleCarparkInOutHistory.setOutPlateNO(plateNO);
 			singleCarparkInOutHistory.setChargedType(0);
 			model.getMapWaitInOutHistory().put(device.getIp(), singleCarparkInOutHistory);
+			logger.info("当前等待出场车辆：{}",model.getMapWaitInOutHistory());
 			//
 			Date handPhotographDate = mapHandPhotograph.get(ip);
 			if (!StrUtil.isEmpty(handPhotographDate)) {
@@ -885,13 +889,6 @@ public class CarOutTask extends AbstractTask{
 				presenter.showContentToDevice(editPlateNo,device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			}else{
 				notFindInHistory();
-//				if(device.getScreenType().equals(ScreenTypeEnum.一体机)&&mapSystemSetting.get(SystemSettingTypeEnum.无车牌时使用二维码进出场).equals("true")){
-//					SingleCarparkInOutHistory value = new SingleCarparkInOutHistory();
-//					value.setOutSmallImg(smallImgFileName);
-//					value.setOutBigImg(bigImgFileName);
-//					model.getMapWaitInOutHistory().put(device.getIp(), value);
-//					presenter.qrCodeInOut("", device, false);
-//				}
 			}
 		}
 	}

@@ -5,8 +5,10 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import javax.servlet.ServletException;
 
@@ -16,13 +18,17 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONObject;
 import com.caucho.hessian.server.HessianServlet;
 import com.donglu.carpark.model.Result;
+import com.donglu.carpark.server.WebSocketServer;
+import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkQrCodeInOutService;
 import com.donglu.carpark.service.IpmsServiceI;
 import com.donglu.carpark.service.impl.CarparkQrCodeInOutServiceImpl;
-import com.donglu.carpark.ui.servlet.WebSocketServer;
 import com.donglu.carpark.util.ShortURLUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -39,8 +45,30 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 	static Map<String, CarparkQrCodeInOutService> mapStartedServices=new HashMap<>();
 	@Inject
 	private IpmsServiceI ipmsService;
+	@Inject
+	private CarparkDatabaseServiceProvider sp;
 	@Override
 	public void init() throws ServletException {
+		SingleCarparkSystemSetting key = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.启用CJLAPP支付.name());
+		if (key==null||!key.getBooleanValue()) {
+			return;
+		}
+		Map<String, SingleCarparkCarpark> mapYunIdToCarpark=new HashMap<>();
+		List<SingleCarparkCarpark> list = sp.getCarparkService().findAllCarpark();
+		list.forEach(e->{
+			if(StrUtil.isEmpty(e.getYunIdentifier())||StrUtil.isEmpty(e.getYunBuildIdentifier())) {
+				LOGGER.info("停车场：{}未设置云平台编号",e.getName());
+				return;
+			}
+			mapYunIdToCarpark.put(e.getYunIdentifier(), e);
+		});
+		for (String string : mapYunIdToCarpark.keySet()) {
+			try {
+				startQrCodeInOutService(mapYunIdToCarpark.get(string).getYunBuildIdentifier());
+			} catch (Exception e1) {
+				LOGGER.info(e1.getMessage());
+			}
+		}
 	}
 	
 	@Override
@@ -62,16 +90,22 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 						if (type.equals("PONG_MSG")) {
 							return;
 						}
+						if(type.equals("synchData")) {
+							LOGGER.info("暂时忽略synchData类型消息");
+							return;
+						}
 						LOGGER.info("云平台推送消息：[{}]",info);
 						broadcastInfo(info);
-						JSONObject jsonObject2 = jsonObject.getJSONObject("data");
-						synchronized (mapQrInOutInfos) {
-							String deviceId = jsonObject2.getString("deviceId");
-							if (!StrUtil.isEmpty(deviceId)) {
-								mapQrInOutInfos.put(deviceId, info);
-							}else{
-								mapQrInOutInfos.put(jsonObject2.getString("carNum").trim(), info);
-							}
+						if ("true".equals(System.getProperty("saveMqttMsg", "false"))) {
+							JSONObject jsonObject2 = jsonObject.getJSONObject("data");
+							synchronized (mapQrInOutInfos) {
+								String deviceId = jsonObject2.getString("deviceId");
+								if (!StrUtil.isEmpty(deviceId)) {
+									mapQrInOutInfos.put(deviceId, info);
+								} else if (!StrUtil.isEmpty(jsonObject2.getString("carNum"))) {
+									mapQrInOutInfos.put(jsonObject2.getString("carNum").trim(), info);
+								}
+							} 
 						}
 					} catch (Exception e) {
 						LOGGER.error("接收云平台推送消息时发生错误",e);
@@ -176,6 +210,11 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 	}
 	@Override
 	public String long2ShortUrl(String qrCodeUrl) {
+		String[] split = qrCodeUrl.split("\\?");
+		qrCodeUrl=System.getProperty("qrUrl","http://www.dongluhitec.net/dongyun_pay/parking_detail.html");
+		if (split.length>1) {
+			qrCodeUrl+="?"+split[1];
+		}
 		String longToShort = ShortURLUtils.longToShort(qrCodeUrl);
 		if (longToShort==null) {
 			for (int i = 0; i < 2; i++) {
@@ -193,4 +232,17 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 		synchroImage(maxSize);
 	}
 
+	@Override
+	public boolean pustFee(String parkingRecordId, double fee) {
+		return ipmsService.pustFee(parkingRecordId, fee);
+	}
+	
+	@Override
+	public boolean sendMqtt(String id, String msg) {
+		CarparkQrCodeInOutService service = mapStartedServices.get(id);
+		if (service!=null) {
+			return service.sendMqtt(id, msg);
+		}
+		return false;
+	}
 }

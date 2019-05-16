@@ -6,4 +6,5 @@ public interface CarparkQrCodeInOutService {
 	}
 	public void initService(String buildId,CarparkQrCodeInOutCallback callback) throws Exception;
 	public String getQrCodeUrl(String parkId,String plate,String ip, int type);
+	boolean sendMqtt(String buildId, String msg);
 }

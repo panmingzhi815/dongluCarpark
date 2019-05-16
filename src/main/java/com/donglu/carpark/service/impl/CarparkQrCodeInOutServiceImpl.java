@@ -47,6 +47,8 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 	private static final Map<String, MqttClient> mapMqttClient=new HashMap<>();
 	private static final Map<String, Long> mapMqttLastMsgTime=new HashMap<>();
 	
+	private String qrUrl="http://www.dongluhitec.net/dongyun_pay/parking_detail.html";
+	
 	public CarparkQrCodeInOutServiceImpl() {
 		try {
 			List<String> list = Files.readAllLines(Paths.get("setting.txt"));
@@ -54,6 +56,9 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 				host=list.get(0);
 				if (list.size()>1) {
 					mqttHost = list.get(1);
+				}
+				if (list.size()>2) {
+					qrUrl = list.get(2);
 				}
 			}
 		} catch (Exception e) {
@@ -260,7 +265,7 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 	@Override
 	public String getQrCodeUrl(String parkId,String plate,String ip, int type) {
 		if (!StrUtil.isEmpty(plate)) {
-			return "http://"+host+"/weixin_parkingRecord/test/ScanCode.jsp?recordId=";
+			return qrUrl+"?recordId=";
 		}
 		return getUrl(host, parkId, app_id, secret_key, ip, type);
 	}
@@ -309,7 +314,7 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 		}
         return s;
     }
-    
+    @Override
     public boolean sendMqtt(String buildId, String string) {
 		MqttClient mqttClient = mapMqttClient.get(buildId);
 		try {
@@ -320,6 +325,7 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 		}
 		return false;
 	}
+    
 	
 	public static void main(String[] args) throws Exception {
 		CarparkQrCodeInOutServiceImpl impl = new CarparkQrCodeInOutServiceImpl();

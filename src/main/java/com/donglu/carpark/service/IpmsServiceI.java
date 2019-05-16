@@ -70,8 +70,12 @@ public interface IpmsServiceI {
 	Result getPayResult(SingleCarparkInOutHistory inout);
 	void updateParkSpace();
 	
-	default String long2ShortUrl(String qrCodeUrl){return "";};
+	default String long2ShortUrl(String qrCodeUrl){return qrCodeUrl;};
 	default String getQrCodeInOutInfo(Collection<String> deviceIps, Collection<String> waitPlates){return null;};
 	default boolean startQrCodeInOutService(String buildId){return false;}
 	void synchroImage(int maxSize);
+	
+	public boolean pustFee(String parkingRecordId, double fee);
+	
+	public default boolean sendMqtt(String id,String msg) {return true;};
 }

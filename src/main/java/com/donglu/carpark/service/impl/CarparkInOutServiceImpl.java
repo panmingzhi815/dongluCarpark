@@ -1082,6 +1082,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	public void clearCarHistoryWithInByDate(int date) {
 		DatabaseOperation<SingleCarparkInOutHistory> dom = DatabaseOperation.forClass(SingleCarparkInOutHistory.class, emprovider.get());
 		dom.executeQuery(SingleCarparkInOutHistory.Query.deleteWithNotOutByDate.query(), new DateTime().minusDays(date).toDate());
+		numberCache.invalidateAll();
 	}
 
 	@Override

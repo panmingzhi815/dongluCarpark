@@ -146,7 +146,6 @@ public class OutInfoView extends Composite implements View{
 					commonui.info("提示", "请先输入车牌");
 					return;
 				}
-				model.setBtnClick(false);
 				model.setDisContinue(true);
 				String data = model.getSearchPlateNo();
 				String bigImg = model.getSearchBigImage();

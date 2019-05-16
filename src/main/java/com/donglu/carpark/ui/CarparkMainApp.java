@@ -1270,6 +1270,9 @@ public class CarparkMainApp extends AbstractApp{
 		if (!confirm) {
 			return;
 		}
+		if(model.getChargeDevice()!=null) {
+			model.getMapWaitInOutHistory().remove(model.getChargeDevice().getIp());
+		}
 		model.setDisContinue(true);
 		model.setBtnClick(false);
 		model.setComboCarTypeEnable(false);

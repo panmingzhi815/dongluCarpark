@@ -35,7 +35,7 @@ public class CarPayListPresenter extends AbstractListPresenter<CarPayHistory> {
 			plateNo2=null;
 		}
 		List<CarPayHistory> findVisitorByLike = sp.getCarPayService().findCarPayHistoryByLike(view.getModel().getList().size(), 500,plateNo2,start,end);
-		int count=sp.getCarPayService().countCarPayHistoryByLike(plateNo,start,end);
+		int count=sp.getCarPayService().countCarPayHistoryByLike(plateNo2,start,end);
 		view.getModel().AddList(findVisitorByLike);
 		view.getModel().setCountSearch(view.getModel().getList().size());
 		view.getModel().setCountSearchAll(count);

@@ -13,6 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.eclipse.swt.custom.CTabItem;
 import org.joda.time.DateTime;
 
+import com.donglu.carpark.ui.MyHashMap1;
 import com.donglu.carpark.ui.task.CarInTask;
 import com.donglu.carpark.ui.task.CarOutTask;
 import com.donglu.carpark.util.MyHashMap;
@@ -179,7 +180,7 @@ public class CarparkMainModel extends DomainObject {
 	private SingleCarparkVisitor visitor;
 	
 	
-	private final Map<String, SingleCarparkInOutHistory> mapWaitInOutHistory=new HashMap<>();
+	private final Cache<String, SingleCarparkInOutHistory> mapWaitInOutHistory=CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
 	private final Cache<String, String> plateColorCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS).build();
 	
 	public String getUserName() {
@@ -911,7 +912,8 @@ public class CarparkMainModel extends DomainObject {
 	}
 
 	public Map<String, SingleCarparkInOutHistory> getMapWaitInOutHistory() {
-		return mapWaitInOutHistory;
+		return new MyHashMap1<>(mapWaitInOutHistory.asMap());
+//		return mapWaitInOutHistory.asMap();
 	}
 
 	public Cache<String, String> getPlateColorCache() {
@@ -924,5 +926,13 @@ public class CarparkMainModel extends DomainObject {
 
 	public boolean booleanSetting(SystemSettingTypeEnum systemSettingTypeEnum) {
 		return Boolean.valueOf(mapSystemSetting.get(systemSettingTypeEnum));
+	}
+	
+	public void printStack() {
+		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+		for (int i = 0; i < stackTrace.length-2; i++) {
+			StackTraceElement element = stackTrace[i];
+			System.out.println(element.getClassName()+"=="+element.getMethodName()+"=="+element.getLineNumber());
+		}
 	}
 }

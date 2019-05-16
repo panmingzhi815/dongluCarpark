@@ -18,7 +18,6 @@ import com.donglu.carpark.server.servlet.UpdatePositionServlet;
 import com.donglu.carpark.server.servlet.UserServlet;
 import com.donglu.carpark.service.background.StoreServerLinkServiceI;
 import com.donglu.carpark.service.impl.UploadServiceImpl;
-import com.donglu.carpark.ui.servlet.WebSocketServer;
 import com.dongluhitec.card.server.ServerUtil;
 import com.google.inject.Inject;
 import com.google.inject.Provider;

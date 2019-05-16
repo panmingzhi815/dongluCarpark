@@ -556,7 +556,7 @@ public class Login {
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
-			setErrorMessage("连接失败,请检查服务器状态");
+			setErrorMessage("连接"+CarparkClientConfig.getInstance().getServerIp()+"失败,请检查服务器状态");
 			return false;
 		}
 

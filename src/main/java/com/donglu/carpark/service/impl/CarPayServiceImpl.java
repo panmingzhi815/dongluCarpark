@@ -59,7 +59,10 @@ public class CarPayServiceImpl implements CarPayServiceI {
 			c.setFirstResult(i);
 			c.setMaxResults(maxValue);
 			return c.getResultList();
-		} finally{
+		}catch (Exception e) {
+			e.printStackTrace();
+			return new ArrayList<>();
+		}finally{
 			unitOfWork.end();
 		}
 	}
@@ -72,14 +75,18 @@ public class CarPayServiceImpl implements CarPayServiceI {
 	 */
 	public Criteria createFindCarPayHistoryByLikeCriteria(String plateNo, Date start, Date end) {
 		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), CarPayHistory.class);
-		if (!StrUtil.isEmpty(plateNo)) {
-			c.add(Restrictions.like(CarPayHistory.Property.plateNO.name(), plateNo));
-		}
 		if (!StrUtil.isEmpty(start)) {
 			c.add(Restrictions.ge(CarPayHistory.Property.payTime.name(), start));
 		}
 		if (!StrUtil.isEmpty(end)) {
 			c.add(Restrictions.le(CarPayHistory.Property.payTime.name(), end));
+		}
+		if (!StrUtil.isEmpty(plateNo)) {
+			if (plateNo.contains("%")) {
+				c.add(Restrictions.like(CarPayHistory.Property.plateNO.name(), plateNo));
+			}else {
+				c.add(Restrictions.eq(CarPayHistory.Property.plateNO.name(), plateNo));
+			}
 		}
 		return c;
 	}
