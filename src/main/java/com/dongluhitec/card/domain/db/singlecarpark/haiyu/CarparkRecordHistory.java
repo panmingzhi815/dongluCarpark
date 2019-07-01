@@ -281,4 +281,12 @@ public class CarparkRecordHistory implements Serializable {
 		this.leftSlot = leftSlot;
 		//firePropertyChange("leftSlot", null, null);
 	}
+
+	public Integer getChargedType() {
+		return chargedType;
+	}
+
+	public void setChargedType(Integer chargedType) {
+		this.chargedType = chargedType;
+	}
 }

@@ -1054,6 +1054,19 @@ public class SettingView extends Composite implements View {
 		label_14.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		label_14.setText("秒");
 		new Label(grpApp, SWT.NONE);
+		
+		Button btn_lianjielvdi = new Button(grpApp, SWT.CHECK);
+		btn_lianjielvdi.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.上传数据到绿地平台, btn_lianjielvdi.getSelection()+"");
+			}
+		});
+		btn_lianjielvdi.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		btn_lianjielvdi.setText("连接绿地云平台");
+		btn_lianjielvdi.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.上传数据到绿地平台)));
+		new Label(grpApp, SWT.NONE);
+		new Label(grpApp, SWT.NONE);
 
 		TabItem tabItem_1 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_1.setText("双摄像头设置");

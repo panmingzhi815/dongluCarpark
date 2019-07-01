@@ -119,7 +119,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			if (!StrUtil.isEmpty(plateNo)) {
 				c.add(Restrictions.eq("plateNo", plateNo));
 			}
-			c.add(Restrictions.eq("carparkId", carpark.getId()));
+			if (carpark!=null) {
+				c.add(Restrictions.eq("carparkId", carpark.getId()));
+			}
 			c.addOrder(Order.desc("inTime"));
 			c.setFirstResult(0);
 			c.setMaxResults(2);

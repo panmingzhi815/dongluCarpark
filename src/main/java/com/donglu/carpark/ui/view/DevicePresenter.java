@@ -97,7 +97,11 @@ public class DevicePresenter  implements Presenter{
 			
 			SingleCarparkDevice device = model.getMapIpToDevice().get(ip);
 //			presenter.openDoor(device);
-			presenter.showContentToDevice("手动开闸", device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
+			if (device.getInOrOut().contains("进口")) {
+				presenter.showContentToDevice("手动开闸", device, model.getMapVoice().get(DeviceVoiceTypeEnum.进口开闸语音).getContent(), true);
+			}else {
+				presenter.showContentToDevice("手动开闸", device, model.getMapVoice().get(DeviceVoiceTypeEnum.出口开闸语音).getContent(), true);
+			}
 //			if (model.equalsSetting(SystemSettingTypeEnum.抬杆自动收费放行,"true")&&model.getMapWaitInOutHistory().get(ip)!=null) {
 //				SingleCarparkInOutHistory data = model.getMapWaitInOutHistory().get(ip);
 //				presenter.charge(false, true, data, device);

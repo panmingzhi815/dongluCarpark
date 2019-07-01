@@ -55,6 +55,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.WebService;
 import com.donglu.carpark.service.background.IpmsSynchroServiceI;
+import com.donglu.carpark.service.background.LvdiSynchroServiceI;
 import com.donglu.carpark.service.background.haiyu.AsynHaiYuRecordService;
 import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.wizard.sn.ImportSNModel;
@@ -684,8 +685,11 @@ public class ImageServerUI {
 	 */
 	@SuppressWarnings("unchecked")
 	private void autoSendInfoToCloud() {
-		IpmsSynchroServiceI instance = serverInjector.getInstance(IpmsSynchroServiceI.class);
-		instance.startAsync();
+//		IpmsSynchroServiceI instance = serverInjector.getInstance(IpmsSynchroServiceI.class);
+//		instance.startAsync();
+		
+		LvdiSynchroServiceI instance2 = serverInjector.getInstance(LvdiSynchroServiceI.class);
+		instance2.startAsync();
 
 		CarparkYunConfig cf = (CarparkYunConfig) CarparkFileUtils.readObject(YunConfigUI.CARPARK_YUN_CONFIG);
 		if (cf == null) {

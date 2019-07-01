@@ -18,7 +18,7 @@ public class WebSocketClient extends org.java_websocket.client.WebSocketClient {
 
 	@Override
 	public void onMessage(String message) {
-
+		System.out.println(message);
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class WebSocketClient extends org.java_websocket.client.WebSocketClient {
 
 	@Override
 	public void onError(Exception ex) {
-
+		ex.printStackTrace();
 	}
 
 }

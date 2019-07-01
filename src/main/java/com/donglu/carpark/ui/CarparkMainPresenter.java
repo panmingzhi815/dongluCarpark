@@ -1891,7 +1891,7 @@ public class CarparkMainPresenter {
 			}
 			try {
 				ipmsService.startQrCodeInOutService(buildId);
-				MessageUtil.info("提示", "二维码进出场服务启动成功！", 5000);
+//				MessageUtil.info("提示", "二维码进出场服务启动成功！", 5000);
 			} catch (Exception e2) {
 				MessageUtil.info("启动二维码实时进出场服务失败！请检查停车场云编号是否正确或检查网络!软件将在后台重连！");
 			}
@@ -1932,7 +1932,7 @@ public class CarparkMainPresenter {
 						}
 					}
 				}
-			}, 1000, 1000, TimeUnit.MILLISECONDS,"获取二维码进出场信息服务");
+			}, 3000, 3000, TimeUnit.MILLISECONDS,"获取二维码进出场信息服务");
 //			carparkQrCodeInOutService.initService(buildId,new CarparkQrCodeInOutService.CarparkQrCodeInOutCallback() {
 //				@Override
 //				public void call(String info) {
