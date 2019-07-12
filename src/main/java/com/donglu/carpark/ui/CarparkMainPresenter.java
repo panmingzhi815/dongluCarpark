@@ -146,6 +146,7 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.sun.jna.Native;
 
+import ch.qos.logback.core.joran.conditional.IfAction;
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
@@ -3778,6 +3779,19 @@ public class CarparkMainPresenter {
 				}
 			}
 		}, 10, 5, TimeUnit.SECONDS, "自动测试"+deviceIp);
+	}
+
+	public void notifyDeviceCarIn(final SingleCarparkDevice device, final String plate) {
+		if (StrUtil.isEmpty(plate)||plate.contains("无牌车")) {
+			return;
+		}
+		if (model.booleanSetting(SystemSettingTypeEnum.启用CJLAPP支付)&&model.booleanSetting(SystemSettingTypeEnum.使用设备二维码)) {
+			new Thread(new Runnable() {
+				public void run() {
+					ipmsService.notifyDeviceCarIn(device.getIdentifire(), plate);
+				}
+			}).start();
+		}
 	}
 	
 }

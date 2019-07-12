@@ -77,5 +77,6 @@ public interface IpmsServiceI {
 	
 	public boolean pustFee(String parkingRecordId, double fee);
 	
-	public default boolean sendMqtt(String id,String msg) {return true;};
+	public default boolean sendMqtt(String id,String msg) {return true;}
+	public boolean notifyDeviceCarIn(String deviceId, String plate);
 }

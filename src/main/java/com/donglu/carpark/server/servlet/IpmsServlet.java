@@ -245,4 +245,9 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 		}
 		return false;
 	}
+
+	@Override
+	public boolean notifyDeviceCarIn(String deviceId, String plate) {
+		return ipmsService.notifyDeviceCarIn(deviceId, plate);
+	}
 }

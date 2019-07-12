@@ -100,7 +100,6 @@ public class CarInOutResult implements PlateNOResult {
 			logger.info("设备{}限时：{}",ip,device.getControlTime());
 			return;
 		}
-		
 		boolean equals = (mapSystemSetting.get(SystemSettingTypeEnum.双摄像头识别间隔))
 				.equals(SystemSettingTypeEnum.双摄像头识别间隔.getDefaultValue());
 		String linkAddress = device.getLinkInfo();
@@ -108,6 +107,7 @@ public class CarInOutResult implements PlateNOResult {
 		Boolean isTwoChanel = mapIsTwoChanel.get(linkAddress);
 		String inOrOut = device.getInOrOut();
 		if (inOrOut.indexOf("出口")>-1) {
+			presenter.notifyDeviceCarIn(device,plateNO);
 			Date serverDate = sp.getSettingService().getServerDate();
 			SystemUtils.setLocalTime(serverDate);
 			// 是否是双摄像头

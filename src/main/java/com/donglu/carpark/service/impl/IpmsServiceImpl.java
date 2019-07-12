@@ -852,4 +852,24 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		cache.invalidate(parkingRecordId);
 		return false;
 	}
+	@Override
+	public boolean notifyDeviceCarIn(String deviceId, String plate) {
+		try {
+//			String parkId=getParkId(inout.getCarparkId());
+			log.info("上传设备:{} 车辆信息：{}",deviceId,plate);
+			String url=httpUrl+"/api/noticeDeviceCarNum.action?deviceId={}&parkId="+parkId+"&carNum={}";
+			url = StrUtil.formatString(url, deviceId,plate);
+			System.out.println(url);
+			String httpPostMssage = httpPostMssageInThread(url, null,3000);
+			log.info("上传设备:{} 车辆信息：{}  返回结果：{}",deviceId,plate,httpPostMssage);
+			JSONObject result = JSON.parseObject(httpPostMssage);
+			boolean equals = "0000".equals(result.getString("resultCode"));
+			if (equals) {
+				return equals;
+			}
+		} catch (Exception e) {
+			log.error("上传设备:{} 车辆信息：{} 发生错误：{}",deviceId,plate,e);
+		}
+		return false;
+	}
 }

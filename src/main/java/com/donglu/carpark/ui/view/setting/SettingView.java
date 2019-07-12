@@ -941,6 +941,7 @@ public class SettingView extends Composite implements View {
 		btncjlapp.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.启用CJLAPP支付)));
 
 		Button button_34 = new Button(grpApp, SWT.CHECK);
+		button_34.setToolTipText("无牌车进场会在显示屏显示二维码");
 		button_34.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -974,6 +975,7 @@ public class SettingView extends Composite implements View {
 		button_36.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.监控界面提示网络故障)));
 
 		Button button_38 = new Button(grpApp, SWT.CHECK);
+		button_38.setToolTipText("出场时在出口展示二维码");
 		button_38.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -983,7 +985,18 @@ public class SettingView extends Composite implements View {
 		button_38.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		button_38.setText("使用二维码缴费(需要一体机)");
 		button_38.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.使用二维码缴费)));
-		new Label(grpApp, SWT.NONE);
+		
+		Button button_40 = new Button(grpApp, SWT.CHECK);
+		button_40.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.使用设备二维码, button_40.getSelection()+"");
+			}
+		});
+		button_40.setToolTipText("设备编号必须更云平台上设备序列号对应");
+		button_40.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_40.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.使用设备二维码)));
+		button_40.setText("启用设备二维码");
 
 		Composite composite_12 = new Composite(grpApp, SWT.NONE);
 		GridLayout gl_composite_12 = new GridLayout(3, false);

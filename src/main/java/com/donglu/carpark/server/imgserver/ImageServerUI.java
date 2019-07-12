@@ -685,11 +685,14 @@ public class ImageServerUI {
 	 */
 	@SuppressWarnings("unchecked")
 	private void autoSendInfoToCloud() {
-//		IpmsSynchroServiceI instance = serverInjector.getInstance(IpmsSynchroServiceI.class);
-//		instance.startAsync();
+		IpmsSynchroServiceI instance = serverInjector.getInstance(IpmsSynchroServiceI.class);
+		instance.startAsync();
 		
-		LvdiSynchroServiceI instance2 = serverInjector.getInstance(LvdiSynchroServiceI.class);
-		instance2.startAsync();
+		SingleCarparkSystemSetting findSystemSettingByKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.上传数据到绿地平台.name());
+		if (findSystemSettingByKey!=null&&findSystemSettingByKey.getBooleanValue()) {
+    		LvdiSynchroServiceI instance2 = serverInjector.getInstance(LvdiSynchroServiceI.class);
+    		instance2.startAsync();
+		}
 
 		CarparkYunConfig cf = (CarparkYunConfig) CarparkFileUtils.readObject(YunConfigUI.CARPARK_YUN_CONFIG);
 		if (cf == null) {

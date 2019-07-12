@@ -22,7 +22,9 @@ public class MyHashMap1<K, V> extends HashMap<K, V> {
 	@Override
 	public V remove(Object key) {
 		LOGGER.info("移除数据：{}",key);
-		for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+		for (int i = 0; i < Math.min(stackTrace.length, 8); i++) {
+			StackTraceElement element = stackTrace[i];
 			LOGGER.info("{}-{}-{} 调用remove",element.getClassName(),element.getMethodName(),element.getLineNumber());
 		}
 		map.remove(key);
