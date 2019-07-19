@@ -9,6 +9,9 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
 public class WebSocketServer extends org.java_websocket.server.WebSocketServer {
 	private static Logger LOGGER=LoggerFactory.getLogger(WebSocketServer.class);
 	private static final List<WebSocket> listConn=new ArrayList<>();
@@ -26,13 +29,18 @@ public class WebSocketServer extends org.java_websocket.server.WebSocketServer {
 
 	@Override
 	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-		LOGGER.info("连接：{}断开:{}",conn,reason);
+		LOGGER.info("连接：{}断开:{}",conn.getRemoteSocketAddress(),reason);
 		listConn.remove(conn);
 	}
 
 	@Override
 	public void onMessage(WebSocket conn, String message) {
-
+		LOGGER.info("收到客户端：{} 消息：{} ",conn.getRemoteSocketAddress(),message);
+		JSONObject jo = JSON.parseObject(message);
+		String type = jo.getString("type");
+		if ("test".equals(type)) {
+			conn.send(message);
+		}
 	}
 
 	@Override

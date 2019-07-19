@@ -857,9 +857,9 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		try {
 //			String parkId=getParkId(inout.getCarparkId());
 			log.info("上传设备:{} 车辆信息：{}",deviceId,plate);
+			plate=URLEncoder.encode(plate, "UTF-8");
 			String url=httpUrl+"/api/noticeDeviceCarNum.action?deviceId={}&parkId="+parkId+"&carNum={}";
 			url = StrUtil.formatString(url, deviceId,plate);
-			System.out.println(url);
 			String httpPostMssage = httpPostMssageInThread(url, null,3000);
 			log.info("上传设备:{} 车辆信息：{}  返回结果：{}",deviceId,plate,httpPostMssage);
 			JSONObject result = JSON.parseObject(httpPostMssage);

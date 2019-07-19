@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.NotYetConnectedException;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -3579,6 +3580,7 @@ public class CarparkMainPresenter {
 	public void startBroadcastService() {
 		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
 			WebSocketClient ds=null;
+			private long messageId=System.currentTimeMillis();
 			@Override
 			public void run() {
 				if(ds==null) {
@@ -3588,9 +3590,13 @@ public class CarparkMainPresenter {
 							public void onMessage(String string) {
 								try {
 									log.info("监听到广播：{}",string);
+									messageId=System.currentTimeMillis();
 									JSONObject jo = JSON.parseObject(string);
 									String type = jo.getString("type");
 									if (type==null) {
+										return;
+									}
+									if("test".equals("test")) {
 										return;
 									}
 									log.info("当前等待出场车辆：{}",model.getMapWaitInOutHistory());
@@ -3650,9 +3656,27 @@ public class CarparkMainPresenter {
 //						MessageUtil.info("启动二维码监听服务","启动二维码支付监听服务失败:"+e);
 						return;
 					}
+				}else {
+					long currentTimeMillis = System.currentTimeMillis();
+					if (currentTimeMillis-messageId>31000) {
+						ds.close();
+						ds=null;
+						messageId=System.currentTimeMillis();
+						return;
+					}
+					if (currentTimeMillis-messageId>=15000) {
+						try {
+							ds.send("{\"type\":\"test\",\"messageId\":\""+messageId+"\"}");
+						} catch (Exception e) {
+							log.info("发送测试消息时发生错误");
+							ds.close();
+							ds=null;
+						}finally {
+						}
+					}
 				}
 			}
-		}, 100, 100, TimeUnit.MILLISECONDS, "广播监听服务");
+		}, 1000, 1000, TimeUnit.MILLISECONDS, "广播监听服务");
 	}
 
 	/**
