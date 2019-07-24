@@ -48,7 +48,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 	public void addPages() {
 		page = new DownloadPlateWizardPage(model);
 		addPage(page);
-		getShell().setSize(560, 500);
+		getShell().setSize(610, 500);
 		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 		WidgetUtil.center(getShell());
 		getShell().addShellListener(new ShellAdapter() {
@@ -224,6 +224,40 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 				model.addInfo(downloadDeviceInfo);
 			}
 		}
+	}
+
+	public void readPlateSize() {
+		readPlateSize(model.getListSelected());
+	}
+
+	private void readPlateSize(List<DownloadDeviceInfo> listSelected) {
+		for (DownloadDeviceInfo info : listSelected) {
+			String ip = info.getIp();
+			PlateNOJNA plateNOJNA = info.getType().getJNA(Login.injector);
+			try {
+				boolean openEx = plateNOJNA.openEx(ip,0, new PlateNOResult() {
+					@Override
+					public void invok(String ip, int channel, String plateNO, byte[] bigImage, byte[] smallImage, float rightSize) {
+
+					}
+				});
+				if (!openEx) {
+					throw new Exception("摄像机："+ip+"连接失败");
+				}
+				if (!StrUtil.isEmpty(plateNOJNA)) {
+					int plateSize = plateNOJNA.getPlateSize(ip);
+					info.setPlateSize(plateSize);
+				}
+			} catch (Exception e) {
+				commonui.info("提示", "获取摄像机："+ip+"白名单数失败："+e.getMessage());
+				continue;
+			} finally {
+				plateNOJNA.closeEx(ip);
+			}
+		}
+		List<DownloadDeviceInfo> list = model.getList();
+		model.setList(new ArrayList<>());
+		model.setList(list);
 	}
 
 }

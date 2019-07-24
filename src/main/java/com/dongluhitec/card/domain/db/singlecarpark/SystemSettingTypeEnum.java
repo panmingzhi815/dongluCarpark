@@ -53,6 +53,9 @@ public enum SystemSettingTypeEnum {
 	agboxEnable("false"),
 	agboxUrl(""),
 	agboxKey(""),
+	agboxMqttUrl(""),
+	agboxMqttUser(""),
+	agboxMqttPwd(""),
 	
 	DateBase_version("1.0.0.26"),软件版本("1.0.0.26"),发布时间("2019-07-03 11:10:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
 	;

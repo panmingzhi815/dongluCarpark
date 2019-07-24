@@ -63,6 +63,9 @@ public class SettingView extends Composite implements View {
 	private Text text_8;
 	private Text text_9;
 	private Text text_10;
+	private Text text_11;
+	private Text text_12;
+	private Text text_13;
 
 	public SettingView(Composite parent, int style) {
 		super(parent, style);
@@ -1223,6 +1226,51 @@ public class SettingView extends Composite implements View {
 		text_10.setText(mapSystemSetting.get(SystemSettingTypeEnum.agboxKey));
 		text_10.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		text_10.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		
+		Label lblMqtt = new Label(group_5, SWT.NONE);
+		lblMqtt.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		lblMqtt.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblMqtt.setText("mqtt地址");
+		
+		text_11 = new Text(group_5, SWT.BORDER);
+		text_11.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.agboxMqttUrl, text_11.getText());
+			}
+		});
+		text_11.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_11.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_11.setText(mapSystemSetting.get(SystemSettingTypeEnum.agboxMqttUrl));
+		
+		Label lblNewLabel_4 = new Label(group_5, SWT.NONE);
+		lblNewLabel_4.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		lblNewLabel_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_4.setText("mqtt账号");
+		
+		text_12 = new Text(group_5, SWT.BORDER);
+		text_12.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.agboxMqttUser, text_12.getText());
+			}
+		});
+		text_12.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_12.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_12.setText(mapSystemSetting.get(SystemSettingTypeEnum.agboxMqttUser));
+		
+		Label lblNewLabel_5 = new Label(group_5, SWT.NONE);
+		lblNewLabel_5.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		lblNewLabel_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_5.setText("mqtt密码");
+		
+		text_13 = new Text(group_5, SWT.BORDER);
+		text_13.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.agboxMqttPwd, text_13.getText());
+			}
+		});
+		text_13.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_13.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_13.setText(mapSystemSetting.get(SystemSettingTypeEnum.agboxMqttPwd));
 		
 		text_1.addKeyListener(new KeyAdapter() {
 			String s = text_1.getText();

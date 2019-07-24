@@ -15,6 +15,8 @@ public class DownloadDeviceInfo extends DomainObject {
 	private CameraTypeEnum type;
 	private SingleCarparkCarpark carpark;
 	
+	private int plateSize=0;
+	
 	public String getIp() {
 		return ip;
 	}
@@ -33,7 +35,7 @@ public class DownloadDeviceInfo extends DomainObject {
 	}
 	@Override
 	public String getLabelString() {
-		return ip+"-"+type+"="+carpark.getName();
+		return ip+"-"+type+"-"+carpark.getName()+(plateSize==0?"":"-白名单数量:"+plateSize);
 	}
 	@Override
 	public boolean equals(Object obj) {
@@ -52,6 +54,13 @@ public class DownloadDeviceInfo extends DomainObject {
 	public void setCarpark(SingleCarparkCarpark carpark) {
 		this.carpark = carpark;
 		firePropertyChange("carpark", null, null);
+	}
+	public int getPlateSize() {
+		return plateSize;
+	}
+	public void setPlateSize(int plateSize) {
+		this.plateSize = plateSize;
+		firePropertyChange("plateSize", null, null);
 	}
 	
 	

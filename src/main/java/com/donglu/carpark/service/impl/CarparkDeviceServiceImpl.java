@@ -14,6 +14,7 @@ import org.criteria4jpa.criterion.Restrictions;
 
 import com.alibaba.fastjson.JSONObject;
 import com.donglu.carpark.service.CarparkDeviceService;
+import com.donglu.carpark.service.background.impl.ShanghaidibiaoSynchroServiceImpl;
 import com.donglu.carpark.ui.servlet.WebSocketServer;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -115,6 +116,9 @@ public class CarparkDeviceServiceImpl implements CarparkDeviceService {
 	@Override
 	public void setDevices(Map<String,SingleCarparkDevice> map) {
 		mapDevices.putAll(map);
+		for (SingleCarparkDevice d : map.values()) {
+			ShanghaidibiaoSynchroServiceImpl.addTopic(d.getIdentifire());
+		}
 	}
 	
 }

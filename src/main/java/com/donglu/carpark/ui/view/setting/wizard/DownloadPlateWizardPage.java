@@ -73,7 +73,7 @@ public class DownloadPlateWizardPage extends WizardPage {
 		
 		Group group = new Group(composite, SWT.NONE);
 		group.setText("操作");
-		group.setLayout(new GridLayout(9, false));
+		group.setLayout(new GridLayout(10, false));
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		
 		Label lblNewLabel = new Label(group, SWT.NONE);
@@ -143,6 +143,16 @@ public class DownloadPlateWizardPage extends WizardPage {
 			}
 		});
 		button.setText("下载");
+		
+		Button button_1 = new Button(group, SWT.NONE);
+		button_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getWizard().readPlateSize();
+				listViewer.refresh();
+			}
+		});
+		button_1.setText("读白名单数量");
 		
 		Composite composite_1 = new Composite(composite, SWT.NONE);
 		composite_1.setLayout(new FillLayout(SWT.HORIZONTAL));
