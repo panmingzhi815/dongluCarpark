@@ -1,14 +1,11 @@
 package com.donglu.carpark.server.servlet;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 import javax.servlet.ServletException;
 
@@ -47,6 +44,7 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 	private IpmsServiceI ipmsService;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
+	private static List<Thread> listUpdateThread=new ArrayList<Thread>();
 	@Override
 	public void init() throws ServletException {
 		SingleCarparkSystemSetting key = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.启用CJLAPP支付.name());
@@ -91,7 +89,25 @@ public class IpmsServlet extends HessianServlet implements IpmsServiceI {
 							return;
 						}
 						if(type.equals("synchData")) {
-							LOGGER.info("暂时忽略synchData类型消息");
+							LOGGER.info("收到synchData类型消息,添加更新缴费记录任务");
+							if (listUpdateThread.size()<2) {
+								Thread thread = new Thread(new Runnable() {
+									@Override
+									public void run() {
+										try {
+											Thread.sleep(5000);
+											ipmsService.updateTempCarChargeHistory();
+											if (listUpdateThread.size()>0) {
+												listUpdateThread.remove(0);
+											}
+										} catch (Exception e) {
+											e.printStackTrace();
+										}
+									}
+								});
+								thread.start();
+								listUpdateThread.add(thread);
+							}
 							return;
 						}
 						LOGGER.info("云平台推送消息：[{}]",info);

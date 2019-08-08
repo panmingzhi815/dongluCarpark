@@ -141,6 +141,8 @@ import com.dongluhitec.card.shanghaiyunpingtai.ShanghaiYunCarparkCfg;
 import com.dongluhitec.card.ui.util.FileUtils;
 import com.dongluhitec.card.util.ThreadUtil;
 import com.google.common.base.Strings;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -200,6 +202,8 @@ public class CarparkMainPresenter {
 	private int openDoorDelay = 500;
 
 	private Map<String, Timer> mapCheckChargeTimer=new HashMap<>();
+	
+	Cache<String, Double> feeCache = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build();
 	/**
 	 * 删除一个设备tab页
 	 * 
@@ -1436,7 +1440,10 @@ public class CarparkMainPresenter {
 						model.setOutTime(result.getOutTime());
 						data.setOutTime(result.getOutTime());
 					}
+					data.setOnlineMoney(result.getPayedFee()-result.getCouponValue());
 					data.setFreeMoney(result.getCouponValue());
+					data.setRemarkString(data.getOnlineMoney()>0?"在线支付"+data.getOnlineMoney()+"元":"");
+					data.setRemarkString(data.getRemarkString()+(result.getCouponValue()>0?"线上优惠"+result.getCouponValue()+"元":""));
 					if(result.getCode()==2005){
 						model.setReal(0);
 						model.setChargedMoney(result.getPayedFee());
@@ -1484,19 +1491,24 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	public float countCharge(Long carparkId, String carType, Date startTime, Date endTime, SingleCarparkInOutHistory data) {
-		float charge;
-		int freeMinute = 0;
-		int freeMoney = 0;
-		// 获取临时车优惠
-		SingleCarparkFreeTempCar findTempCarFreeByPlateNO = sp.getCarparkInOutService().findTempCarFreeByPlateNO(data.getPlateNo());
-		if (findTempCarFreeByPlateNO != null && findTempCarFreeByPlateNO.getStatus()) {
-			freeMinute = findTempCarFreeByPlateNO.getFreeMinute();
-			freeMoney = findTempCarFreeByPlateNO.getFreeMoney();
+		float charge=0;
+		Double cacheFee = feeCache.getIfPresent(model.getCarpark().getYunIdentifier() + data.getId());
+		if (cacheFee!=null&&model.booleanSetting(SystemSettingTypeEnum.启用CJLAPP支付)) {
+			charge=cacheFee.floatValue();
+		}else {
+    		int freeMinute = 0;
+    		int freeMoney = 0;
+    		// 获取临时车优惠
+    		SingleCarparkFreeTempCar findTempCarFreeByPlateNO = sp.getCarparkInOutService().findTempCarFreeByPlateNO(data.getPlateNo());
+    		if (findTempCarFreeByPlateNO != null && findTempCarFreeByPlateNO.getStatus()) {
+    			freeMinute = findTempCarFreeByPlateNO.getFreeMinute();
+    			freeMoney = findTempCarFreeByPlateNO.getFreeMoney();
+    		}
+    		startTime = new DateTime(startTime).plusMinutes(freeMinute).toDate();
+    		charge = countTempCarCharge.charge(carparkId, model.getMapTempCharge().get(carType).getId(), startTime, endTime, sp, model, Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场重复计费)));
+    		log.info("{} 计费成功，进场时间：{} 出场时间：{} 费用：{}",data.getPlateNo(),startTime,endTime,charge);
+    		charge = charge - freeMoney;
 		}
-		startTime = new DateTime(startTime).plusMinutes(freeMinute).toDate();
-		charge = countTempCarCharge.charge(carparkId, model.getMapTempCharge().get(carType).getId(), startTime, endTime, sp, model, Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.停车场重复计费)));
-		log.info("{} 计费成功，进场时间：{} 出场时间：{} 费用：{}",data.getPlateNo(),startTime,endTime,charge);
-		charge = charge - freeMoney;
 		if(charge>0&&model.booleanSetting(SystemSettingTypeEnum.启用CJLAPP支付)&&!model.booleanSetting(SystemSettingTypeEnum.优先使用云平台计费)) {
 			double fee=Double.valueOf(charge+"");
 			new Thread(new Runnable() {
@@ -1575,9 +1587,9 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 		mapIpToJNA.get(ip).tigger(ip);
-//		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
-//		//贵A56G17贵JRJ927
-//		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
+		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+		//贵A56G17贵JRJ927
+		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
 	}
 
 	/**
@@ -2286,6 +2298,7 @@ public class CarparkMainPresenter {
 			return;
 		}
 		data.setSavePayHistory(savePay);
+		data.setChargedType(0);
 //		boolean checkIsPay = checkIsPay(data,model.getReal(),true);
 //		if (!checkIsPay) {
 //			return;
@@ -2389,6 +2402,9 @@ public class CarparkMainPresenter {
 												return;
 										}
 										 float payedFee = result.getPayedFee();
+										 if (payedFee>0) {
+											data.setOnlineMoney(payedFee-result.getCouponValue());
+										}
 										if (payedFee>= data.getShouldMoney()) {
 											model.setReal(0);
 											model.setChargedMoney(result.getPayedFee());
@@ -3412,9 +3428,18 @@ public class CarparkMainPresenter {
 			}
 			inOutHistory.setPlateNo(plate);
 			float shouldMoney = Float.valueOf(data.getString("fee"))/100f;
-			inOutHistory.setShouldMoney(shouldMoney);
-			inOutHistory.setFactMoney(shouldMoney);
-			inOutHistory.setFreeMoney(0f);
+			if (inOutHistory.getShouldMoney()>shouldMoney) {
+				Result payResult = getPayResult(inOutHistory);
+				if (payResult!=null) {
+					inOutHistory.setShouldMoney(payResult.getPayedFee());
+					inOutHistory.setFactMoney(payResult.getPayedFee()-payResult.getCouponValue());
+					inOutHistory.setFreeMoney(payResult.getCouponValue());
+				}
+			}else {
+    			inOutHistory.setShouldMoney(shouldMoney);
+    			inOutHistory.setFactMoney(shouldMoney);
+    			inOutHistory.setFreeMoney(0f);
+			}
 			inOutHistory.setRemarkString("扫码缴费出场");
 			inOutHistory.setChargedType(1);
 			sp.getCarparkInOutService().saveInOutHistory(inOutHistory);
@@ -3596,11 +3621,16 @@ public class CarparkMainPresenter {
 									if (type==null) {
 										return;
 									}
-									if("test".equals("test")) {
+									if("test".equals(type)) {
 										return;
 									}
 									log.info("当前等待出场车辆：{}",model.getMapWaitInOutHistory());
 									log.info("当前出场:{}-{}",model.getChargeDevice(),model.getChargeHistory());
+									if (type.contains("outQRCode")&&!model.booleanSetting(SystemSettingTypeEnum.优先使用云平台计费)) {
+										JSONObject data = jo.getJSONObject("data");
+										double fee=data.getDoubleValue("fee")/100;
+										feeCache.put(data.getString("parkingRecordId"), fee);
+									}
 									if(type.contains("QRCode")) {
 										JSONObject jsonObject2 = jo.getJSONObject("data");
 										String deviceId=jsonObject2.getString("deviceId");

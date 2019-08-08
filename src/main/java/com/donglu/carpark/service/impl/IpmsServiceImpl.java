@@ -444,6 +444,9 @@ public class IpmsServiceImpl implements IpmsServiceI {
 						pay.setPayId(payId);
 						pay.setCouponTime(couponTime);
 						pay.setCouponValue(couponValue);
+						if (PayTypeEnum.优惠券抵扣==pay.getPayType()) {
+							pay.setCouponValue(pay.getPayedMoney()*1d);
+						}
 						pay.setOperaName("在线缴费");
 						String parkingRecordId = jData.getString("parkingRecordId");
 						if (jData.getIntValue("paymentType")!=3) {

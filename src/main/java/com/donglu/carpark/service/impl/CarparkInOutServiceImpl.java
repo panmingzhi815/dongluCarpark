@@ -103,10 +103,18 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	private void savePayHistory(SingleCarparkInOutHistory inout) {
-		if (!(inout.isSavePayHistory()&&inout.getFactMoney()!=null&&inout.getFactMoney()>0)) {
+		if (!(inout.isSavePayHistory()&&inout.getFactMoney()!=null&&inout.getFactMoney()-inout.getOnlineMoney()>0)) {
 			return;
 		}
 		CarPayHistory carPayHistory = new CarPayHistory(inout);
+		List<CarPayHistory> list = CriteriaUtils.createCriteria(emprovider.get(), CarPayHistory.class).add(Restrictions.eq(CarPayHistory.Property.historyId.name(), inout.getId())).getResultList();
+		for (CarPayHistory cp : list) {
+			carPayHistory.setPayedMoney(carPayHistory.getPayedMoney()-cp.getPayedMoney());
+			carPayHistory.setBalanceAmount(carPayHistory.getBalanceAmount()-cp.getBalanceAmount());
+			carPayHistory.setCashCost(carPayHistory.getCashCost()-cp.getCashCost());
+			carPayHistory.setOnlineCost(carPayHistory.getOnlineCost()-cp.getOnlineCost());
+			carPayHistory.setCouponValue(carPayHistory.getCouponValue()-cp.getCouponValue());
+		}
 		this.emprovider.get().persist(carPayHistory);
 	}
 
