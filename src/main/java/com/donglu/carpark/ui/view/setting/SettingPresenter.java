@@ -188,16 +188,20 @@ public class SettingPresenter implements Presenter {
 	 * 下载车牌信息到设备
 	 */
 	public void downloadPlate() {
-		List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
-		if(findAllCarpark.size()<=0){
-			return;
+		try {
+			List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
+			if(findAllCarpark.size()<=0){
+				return;
+			}
+			DownloadPlateModel model = new DownloadPlateModel();
+			model.setListCarpark(findAllCarpark);
+			model.setCarpark(findAllCarpark.get(0));
+			DownloadPlateWizard w=new DownloadPlateWizard(model,commonui);
+			commonui.showWizard(w);
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "打开了车牌下载车牌界面,"+model.getMsg(),OPERANAME);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		DownloadPlateModel model = new DownloadPlateModel();
-		model.setListCarpark(findAllCarpark);
-		model.setCarpark(findAllCarpark.get(0));
-		DownloadPlateWizard w=new DownloadPlateWizard(model,commonui);
-		commonui.showWizard(w);
-		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "打开了车牌下载车牌界面,"+model.getMsg(),OPERANAME);
 	}
 
 	public String setFreeReson() {

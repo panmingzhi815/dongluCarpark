@@ -147,6 +147,8 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 								if (errorSize>0) {
 									message.append( ip + "成功：" + (listPlate.size() - errorSize)+"，失败:"+errorSize+"\t\n");
 								}
+								int plateSize = plateNOJNA.getPlateSize(ip);
+								downloadDeviceInfo.setPlateSize(plateSize);
 							}
 						} catch (Exception e) {
 							errorListInfo.add(downloadDeviceInfo);
@@ -163,6 +165,7 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 					Runnable runnable = new Runnable() {
 						public void run() {
 							commonui.info("提示", msg);
+							refreshInfo();
 						}
 					};
 					model.setMsg(model.getMsg() + listSelected);
@@ -255,6 +258,13 @@ public class DownloadPlateWizard extends Wizard implements AbstractWizard {
 				plateNOJNA.closeEx(ip);
 			}
 		}
+		refreshInfo();
+	}
+
+	/**
+	 * 
+	 */
+	public void refreshInfo() {
 		List<DownloadDeviceInfo> list = model.getList();
 		model.setList(new ArrayList<>());
 		model.setList(list);
