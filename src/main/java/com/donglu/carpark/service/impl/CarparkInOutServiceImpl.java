@@ -1847,5 +1847,21 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}
 		return executeUpdate*1l;
 	}
+
+	@Override
+	public List<SingleCarparkInOutHistory> findHistoryByTimeOrder(int start, int size, String plate, Date begin, Date end, int timeType) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+		if (!StrUtil.isEmpty(plate)) {
+			c.add(Restrictions.like(SingleCarparkInOutHistory.Property.plateNo.name(), plate));
+		}
+		if (begin!=null) {
+			String name = SingleCarparkInOutHistory.Property.inTime.name();
+			if (timeType!=0) {
+				name = SingleCarparkInOutHistory.Property.outTime.name();
+			}
+			c.add(Restrictions.ge(name, begin));
+		}
+		return null;
+	}
 	
 }

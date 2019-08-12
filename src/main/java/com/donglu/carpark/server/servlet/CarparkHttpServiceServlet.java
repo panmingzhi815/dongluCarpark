@@ -7,9 +7,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 
@@ -92,6 +95,43 @@ public class CarparkHttpServiceServlet extends HttpServlet {
 			System.out.println(ip+"==="+identifier);
 			sp.getCarparkDeviceService().openDoor(ip);
 			writeMsg(resp, 0, "已发送开闸指令");
+			break;
+		case "historySearch":
+			String plate = req.getParameter("plate");
+			if (plate!=null) {
+				plate=URLDecoder.decode(plate, "UTF-8");
+			}
+			String beginTime = req.getParameter("beginTime");
+			String endTime = req.getParameter("endTime");
+			Date begin=null;
+			Date end=null;
+			if (!StrUtil.isEmpty(beginTime)) {
+				begin = StrUtil.parse(beginTime, "yyyyMMddHHmmss");
+			}
+			
+			if (!StrUtil.isEmpty(endTime)) {
+				end=StrUtil.parse(endTime, "yyyyMMddHHmmss");
+			}
+			String timeType = req.getParameter("timeType");
+			if (StrUtil.isEmpty(timeType)) {
+				timeType="0";
+			}
+			int page=1;
+			int size=10;
+			String ppage = req.getParameter("page");
+			if (!StrUtil.isEmpty(ppage)) {
+				page=Integer.valueOf(ppage);
+			}
+			String psize = req.getParameter("size");
+			if (!StrUtil.isEmpty(psize)) {
+				
+			}
+			findHistoryThanId=sp.getCarparkInOutService().findHistoryByTimeOrder((page-1)*size,size,plate,begin,end,Integer.valueOf(timeType));
+			filter=new SimplePropertyPreFilter();
+			filter.getExcludes().addAll(Arrays.asList("remark","labelString","uuid","propertyChangeSupport","reviseInTime","stillTimeLabel","saveHistory","savePayHistory"));
+			jsonString = JSON.toJSONString(findHistoryThanId,filter);
+			System.out.println(jsonString);
+			writeMsg(resp, 0, jsonString);
 			break;
 		}
 	}

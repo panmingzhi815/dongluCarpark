@@ -360,4 +360,6 @@ public interface CarparkInOutServiceI {
 
 	Long updateRecount(Long maxId, Long returnAccountId, boolean free);
 	Long updateRecount(Long maxId, Long returnAccountId, boolean free,String userName);
+
+	List<SingleCarparkInOutHistory> findHistoryByTimeOrder(int start, int size, String plate, Date begin, Date end, int timeType);
 }
