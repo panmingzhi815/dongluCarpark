@@ -1340,6 +1340,25 @@ public class CarparkMainPresenter {
 			return false;
 		}
 	}
+	public boolean closeDoor(SingleCarparkDevice device,String type,String userName) {
+		boolean closeDoor = closeDoor(device);
+		if (closeDoor) {
+			SingleCarparkOpenDoorLog openDoor = new SingleCarparkOpenDoorLog();
+			openDoor.setOperaDate(new Date());
+			openDoor.setDeviceName(device.getName());
+			openDoor.setType(type);
+			if (StrUtil.isEmpty(type)) {
+				openDoor.setType("远程落闸");
+			}
+			openDoor.setOperaName(userName);
+			if (StrUtil.isEmpty(userName)) {
+				openDoor.setOperaName(CarparkUtils.getUserName());
+			}
+			Long id = sp.getCarparkInOutService().saveOpenDoorLog(openDoor);
+			openDoor.setId(id);
+		}
+		return closeDoor;
+	}
 
 	/**
 	 * 设备车队操作
@@ -3722,7 +3741,8 @@ public class CarparkMainPresenter {
 										if (device==null) {
 											return;
 										}
-										closeDoor(device);
+										closeDoor(device,"手机落闸",jo.getString("userName"));
+										
 									}
 								}catch (Exception e) {
 									log.info("监听广播时发生错误",e);

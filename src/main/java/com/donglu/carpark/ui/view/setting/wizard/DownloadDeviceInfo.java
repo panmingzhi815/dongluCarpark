@@ -35,7 +35,7 @@ public class DownloadDeviceInfo extends DomainObject {
 	}
 	@Override
 	public String getLabelString() {
-		return ip+"-"+type+"-"+carpark.getName()+("-白名单数量:"+plateSize);
+		return ip+"-"+type+"-"+carpark.getName();
 	}
 	@Override
 	public boolean equals(Object obj) {

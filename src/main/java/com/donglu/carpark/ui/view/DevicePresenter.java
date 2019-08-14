@@ -117,7 +117,7 @@ public class DevicePresenter  implements Presenter{
 				log.info("设备已停用");
 				return;
 			}
-			presenter.closeDoor(model.getMapIpToDevice().get(ip));
+			presenter.closeDoor(model.getMapIpToDevice().get(ip),"远程落闸",null);
 		} catch (Exception e) {
 			log.error("设备落杆时发生错误",e);
 		}

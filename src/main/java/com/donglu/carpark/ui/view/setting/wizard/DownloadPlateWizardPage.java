@@ -145,6 +145,7 @@ public class DownloadPlateWizardPage extends WizardPage {
 		button.setText("下载");
 		
 		Button button_1 = new Button(group, SWT.NONE);
+		button_1.setVisible(false);
 		button_1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
