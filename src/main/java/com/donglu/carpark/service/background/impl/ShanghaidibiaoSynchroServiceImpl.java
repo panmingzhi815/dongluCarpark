@@ -71,6 +71,7 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 	private String villageCode;
 	private String buildingCode;
 	private String houseCode;
+	private int credentialType=Integer.valueOf(System.getProperty("credentialType", "1"));
 
 	@Inject
 	public ShanghaidibiaoSynchroServiceImpl(CarparkDatabaseServiceProvider sp) {
@@ -96,6 +97,13 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 			mqttPwd = agboxMqttPwd.getSettingValue();
 			if (client == null && !StrUtil.isEmpty(agboxMqttUrl.getSettingValue())) {
 				startMqtt();
+			}
+			JSONArray credentialTypeCodes = getCredentialTypeCode();
+			for (int i = 0; i < credentialTypeCodes.size(); i++) {
+				JSONObject object = credentialTypeCodes.getJSONObject(i);
+				if ("身份证".equals(object.getString("name"))) {
+					credentialType=object.getIntValue("code");
+				}
 			}
 		}
 		runSize++;
@@ -187,6 +195,31 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 				}
 			}
 		}
+	}
+	
+	private JSONArray getCredentialTypeCode() {
+		JSONObject jo = new JSONObject();
+		jo.put("jsonrpc", "2.0");
+		jo.put("method", "getCredentialTypeCode");
+		jo.put("id", "" + System.currentTimeMillis());
+		try {
+			Map<String, String> map = new HashMap<>();
+			map.put("key", key);
+			map.put("json", jo.toJSONString());
+			String post = post(serverUrl + "person", map, null);
+			System.out.println(post);
+			LOGGER.info("获取获取证件类型编码列表结果：{}", post);
+			if (post != null) {
+				JSONObject d = JSON.parseObject(post);
+				JSONObject result = d.getJSONObject("result");
+				if (result!=null) {
+					return result.getJSONArray("credentialType");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new JSONArray();
 	}
 
 	private JSONArray getPlateList(int page,int size) {
@@ -359,7 +392,7 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 		params.put("plateNo", userHistory.getPlateNo());
 		params.put("plateTypeCode", 1);
 		params.put("carTypeCode", 1);
-		params.put("credentialType", 1);
+		params.put("credentialType", credentialType);
 		params.put("credentialNo", userHistory.getIdCard());
 		params.put("enabled", userHistory.getHistoryDetail().getUpdateState() == UpdateEnum.被删除 ? "false" : "true");
 		jo.put("params", params);
@@ -401,26 +434,27 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 		params.put("peopleName", userHistory.getName());
 		params.put("source", 4);
 		params.put("typeCode", 1);
-		params.put("credentialType", 1);
+		params.put("credentialType", credentialType);
 		params.put("credentialNo", userHistory.getIdCard());
-		JSONObject domicile = new JSONObject();
-		domicile.put("provinceCode","310000000000");
-		domicile.put("cityCode","310100000000");
-		domicile.put("districtCode","310109000000");
-		domicile.put("streetCode","310109010000");
-		params.put("domicile", domicile);
 		
-		JSONObject residence = new JSONObject();
-		residence.put("provinceCode","310000000000");
-		residence.put("cityCode","310100000000");
-		residence.put("districtCode","310109000000");
-		residence.put("streetCode","310109010000");
-		params.put("residence", residence);
+//		JSONObject domicile = new JSONObject();
+//		domicile.put("provinceCode","310000000000");
+//		domicile.put("cityCode","310100000000");
+//		domicile.put("districtCode","310109000000");
+//		domicile.put("streetCode","310109010000");
+//		params.put("domicile", domicile);
+//		
+//		JSONObject residence = new JSONObject();
+//		residence.put("provinceCode","310000000000");
+//		residence.put("cityCode","310100000000");
+//		residence.put("districtCode","310109000000");
+//		residence.put("streetCode","310109010000");
+//		params.put("residence", residence);
 		
 		JSONObject phone1 = new JSONObject();
 		phone1.put("no", userHistory.getTelephone());
 		phone1.put("name", userHistory.getName());
-		phone1.put("credentialType", 1);
+		phone1.put("credentialType", credentialType);
 		phone1.put("credentialNo", userHistory.getIdCard());
 		params.put("phone1",phone1);
 		params.put("phone2", phone1);
@@ -472,7 +506,7 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 		jo.put("method", "bindingHouse");
 		JSONObject params = new JSONObject();
 		
-		params.put("credentialType", 1);
+		params.put("credentialType", credentialType);
 		params.put("credentialNo", userHistory.getIdCard());
 		JSONObject house = new JSONObject();
 		house.put("villageCode", villageCode);
@@ -724,7 +758,7 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 				dos.write(sb.toString().getBytes("UTF-8"));
 			}
 			dos.flush();
-			LOGGER.info("通讯状态",con.getResponseCode());
+			LOGGER.debug("通讯状态:{}",con.getResponseCode());
 			BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
 			String readLine = br.readLine();
 			dos.close();
