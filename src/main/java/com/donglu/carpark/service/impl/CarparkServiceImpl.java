@@ -1030,5 +1030,16 @@ public class CarparkServiceImpl implements CarparkService {
 			unitOfWork.end();
 		}
 	}
-		
+	@Transactional
+	@Override
+	public Long deleteBlackUser(String plateNo) {
+		Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkBlackUser.class);
+		c.add(Restrictions.eq(SingleCarparkBlackUser.Property.plateNO.name(), plateNo));
+		SingleCarparkBlackUser bu=(SingleCarparkBlackUser) c.getSingleResultOrNull();
+		if (bu!=null) {
+			emprovider.get().remove(bu);
+			return bu.getId();
+		}
+		return 0l;
+	}
 }

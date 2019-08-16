@@ -12,9 +12,10 @@ public class SystemLogListView extends AbstractListView<SingleCarparkSystemOpera
 		super(parent, style,SingleCarparkSystemOperaLog.class,new String[]{SingleCarparkSystemOperaLog.Property.operaName.name(),
 				SingleCarparkSystemOperaLog.Property.operaDateLabel.name(),
 				SingleCarparkSystemOperaLog.Property.type.name(),
-				SingleCarparkSystemOperaLog.Property.content.name()
-				}, new String[]{"操作人","操作时间","操作对象","操作内容"},
-				new int[]{100,200,100,200}, null);
+				SingleCarparkSystemOperaLog.Property.content.name(),
+				"remarkString"
+				}, new String[]{"操作人","操作时间","操作对象","操作内容","详情"},
+				new int[]{100,200,100,200,300}, null);
 	}
 
 	@Override

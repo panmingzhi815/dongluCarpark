@@ -63,7 +63,9 @@ public class CarparkUserServiceImpl extends BaseDaoServiceImpl implements Carpar
 		if (user.getId() == null) {
 			split=user.getPlateNo().split(",");
 			dom.insert(user);
-			emprovider.get().persist(new UserHistory(user,UpdateEnum.新添加));
+			if (user.isCreateHistory()) {
+				emprovider.get().persist(new UserHistory(user,UpdateEnum.新添加));
+			}
 		} else {
 			SingleCarparkUser reference = emprovider.get().getReference(SingleCarparkUser.class, user.getId());
 			split=(reference.getPlateNo()+","+user.getPlateNo()).split(",");

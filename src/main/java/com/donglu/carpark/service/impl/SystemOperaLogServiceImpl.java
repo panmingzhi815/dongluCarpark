@@ -60,9 +60,10 @@ public class SystemOperaLogServiceImpl implements SystemOperaLogServiceI {
 		});
 	}
 	@Transactional
-	void save(SingleCarparkSystemOperaLog log){
+	Long save(SingleCarparkSystemOperaLog log){
 		DatabaseOperation<SingleCarparkSystemOperaLog> dom = DatabaseOperation.forClass(SingleCarparkSystemOperaLog.class, emprovider.get());
 		dom.insert(log);
+		return log.getId();
 	}
 	@Override
 	public List<SingleCarparkSystemOperaLog> findBySearch(String operaName, Date start, Date end, SystemOperaLogTypeEnum type) {
@@ -162,5 +163,9 @@ public class SystemOperaLogServiceImpl implements SystemOperaLogServiceI {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	@Override
+	public Long saveOperaLog(SingleCarparkSystemOperaLog log) {
+		return save(log);
 	}
 }

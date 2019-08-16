@@ -329,5 +329,6 @@ public interface CarparkService {
 	 */
 	public List<SingleCarparkMonthlyUserPayHistory> findMonthlyUserPayHistoryByValidTo(int i, int maxValue, String userName, String operaName, Date start);
 	public SingleCarparkCarpark findCarparkByYunIdentifier(String yunIdentifier);
+	public default Long deleteBlackUser(String plateNo) {return 0l;};
 	
 }

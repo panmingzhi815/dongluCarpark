@@ -335,4 +335,9 @@ public class UserServlet extends BaseDaoServlet implements CarparkUserService, S
 	public Long saveUploadHistory(UploadHistory history) {
 		return settingService.saveUploadHistory(history);
 	}
+
+	@Override
+	public Long saveOperaLog(SingleCarparkSystemOperaLog log) {
+		return systemOperaLogService.saveOperaLog(log);
+	}
 }

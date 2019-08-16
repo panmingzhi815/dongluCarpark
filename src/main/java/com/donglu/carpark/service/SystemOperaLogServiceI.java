@@ -15,5 +15,7 @@ public interface SystemOperaLogServiceI {
 
 	void saveOperaLog(SystemOperaLogTypeEnum systemOperaLogType, String content, byte[] bigImage, String operaName,Object... objects);
 	
+	public Long saveOperaLog(SingleCarparkSystemOperaLog log);
+	
 	public boolean saveLog(String name,String fileName,long pos,int length,byte[] data);
 }

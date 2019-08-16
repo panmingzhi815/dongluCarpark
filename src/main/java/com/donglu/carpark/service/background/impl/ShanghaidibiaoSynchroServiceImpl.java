@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +24,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +36,11 @@ import com.donglu.carpark.service.background.AbstractCarparkBackgroundService;
 import com.donglu.carpark.service.background.ShanghaidibiaoSynchroServiceI;
 import com.donglu.carpark.util.HttpRequestUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemOperaLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.UploadHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.CarparkRecordHistory;
@@ -63,6 +68,9 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 	private String mqttUser;
 	private String mqttPwd;
 	public static Set<String> mqttTopicSet = new HashSet<>();
+	private String villageCode;
+	private String buildingCode;
+	private String houseCode;
 
 	@Inject
 	public ShanghaidibiaoSynchroServiceImpl(CarparkDatabaseServiceProvider sp) {
@@ -126,6 +134,88 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 				sp.getCarparkUserService().updateUserHistory(userHistory, ProcessEnum.己处理);
 			}
 		}
+		
+		if ((runSize-1)%120==0) {
+			int i=1;
+			while(true) {
+				JSONArray plateList = getPlateList(i,10);
+				if (plateList==null||plateList.isEmpty()) {
+					return;
+				}
+				SingleCarparkSystemOperaLog log = new SingleCarparkSystemOperaLog();
+				log.setType(SystemOperaLogTypeEnum.数据上传);
+				log.setContent("获取到"+plateList.size()+"车辆信息");
+				log.setRemarkString("获取到"+plateList.size()+"车辆信息："+plateList);
+				log.setOperaDate(new Date());
+				log.setOperaName("服务器更新");
+				sp.getSystemOperaLogService().saveOperaLog(log);
+				for (Object object : plateList) {
+					try {
+						JSONObject plateInfo = JSONObject.class.cast(object);
+						String plateNo = plateInfo.getString("plateNo");
+						boolean enabled = plateInfo.getBooleanValue("enabled");
+						List<SingleCarparkUser> list2 = sp.getCarparkUserService().findByNameOrPlateNo(null, plateNo, null, null, 0, null);
+						if (enabled&&StrUtil.isEmpty(list2)) {
+							SingleCarparkUser user = new SingleCarparkUser();
+							user.setPlateNo(plateNo);
+							List<SingleCarparkCarpark> list3 = sp.getCarparkService().findCarparkToLevel();
+							user.setCarpark(list3.get(0));
+							user.setValidTo(new Date(System.currentTimeMillis()+30*24*60*60*1000));
+							user.setCreateHistory(false);
+							user.setName("Agbox数据");
+							user.setIdCard(plateInfo.getString("credentialNo"));
+							sp.getCarparkUserService().saveUser(user);
+						}
+						
+						if (!StrUtil.isEmpty(list2)) {
+							if (!enabled) {
+								for (SingleCarparkUser singleCarparkUser : list2) {
+									singleCarparkUser.setValidTo(new Date(System.currentTimeMillis()-24*60*60*1000));
+									singleCarparkUser.setCreateHistory(false);
+									sp.getCarparkUserService().saveUser(singleCarparkUser);
+								}
+							}
+						}
+					} catch (Exception e) {
+						LOGGER.error("处理车牌数据："+object+"时发生错误",e);
+					}
+				}
+				if (plateList.size()<10) {
+					return;
+				}else {
+					i++;
+				}
+			}
+		}
+	}
+
+	private JSONArray getPlateList(int page,int size) {
+		JSONObject jo = new JSONObject();
+		jo.put("jsonrpc", "2.0");
+		jo.put("method", "getPlate");
+		JSONObject params=new JSONObject();
+		params.put("pageSize", size);
+		params.put("page", page);
+		jo.put("params", params);
+		jo.put("id", "" + System.currentTimeMillis());
+		try {
+			Map<String, String> map = new HashMap<>();
+			map.put("key", key);
+			map.put("json", jo.toJSONString());
+			String post = post(serverUrl + "share/car", map, null);
+			System.out.println(post);
+			LOGGER.info("获取车牌列表结果：{}", post);
+			if (post != null) {
+				JSONObject d = JSON.parseObject(post);
+				JSONObject result = d.getJSONObject("result");
+				if (result!=null) {
+					return result.getJSONArray("plateList");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new JSONArray();
 	}
 
 	@Override
@@ -161,7 +251,17 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 				public void messageArrived(String topic, MqttMessage message) throws Exception {
 					String msg = new String(message.getPayload(), "UTF-8");
 					LOGGER.info("接收到主题：{} 消息：{}", topic, msg);
-
+					try {
+						SingleCarparkSystemOperaLog log = new SingleCarparkSystemOperaLog();
+						log.setType(SystemOperaLogTypeEnum.数据上传);
+						log.setContent("接收到主题:"+topic+"消息:"+msg);
+						log.setRemarkString("接收到主题:"+topic+"消息:"+msg);
+						log.setOperaDate(new Date());
+						log.setOperaName("服务器MQTT");
+						sp.getSystemOperaLogService().saveOperaLog(log);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 
 				@Override
@@ -244,6 +344,8 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 	}
 
 	private boolean updatePlate(UserHistory userHistory) {
+		updateUser(userHistory);
+		bindingHouse(userHistory);
 		JSONObject jo = new JSONObject();
 		jo.put("jsonrpc", "2.0");
 		jo.put("method", "updatePlate");
@@ -255,9 +357,9 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 		// credentialNo String Optional 证件号码
 		// enabled Boolean Optional 启用/弃用
 		params.put("plateNo", userHistory.getPlateNo());
-		params.put("plateTypeCode", "1");
-		params.put("carTypeCode", "1");
-		params.put("credentialType", "1");
+		params.put("plateTypeCode", 1);
+		params.put("carTypeCode", 1);
+		params.put("credentialType", 1);
 		params.put("credentialNo", userHistory.getIdCard());
 		params.put("enabled", userHistory.getHistoryDetail().getUpdateState() == UpdateEnum.被删除 ? "false" : "true");
 		jo.put("params", params);
@@ -277,6 +379,214 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 		}
 		return false;
 	}
+	public boolean updateUser(UserHistory userHistory) {
+//		peopleName String Optional 姓名 
+//		credentialType Number Required 证件类型 
+//		credentialNo String Required 证件号码 
+//		source Number Required 来源 
+//		
+//		phone1 Object Optional 电话1 
+//		no String Optional 电话号码 
+//		name String Optional 归属人姓名 
+//		credentialType Number Optional 归属人证件类型 
+//		credentialNo String Optional 归属人身份证号码 
+//		phone2 Object Optional 电话2 
+//		phone3 Object Optional 电话3 
+//		entranceTypeCode Number Required 出入类型
+		JSONObject jo = new JSONObject();
+		jo.put("jsonrpc", "2.0");
+		jo.put("method", "update");
+		JSONObject params = new JSONObject();
+		
+		params.put("peopleName", userHistory.getName());
+		params.put("source", 4);
+		params.put("typeCode", 1);
+		params.put("credentialType", 1);
+		params.put("credentialNo", userHistory.getIdCard());
+		JSONObject domicile = new JSONObject();
+		domicile.put("provinceCode","310000000000");
+		domicile.put("cityCode","310100000000");
+		domicile.put("districtCode","310109000000");
+		domicile.put("streetCode","310109010000");
+		params.put("domicile", domicile);
+		
+		JSONObject residence = new JSONObject();
+		residence.put("provinceCode","310000000000");
+		residence.put("cityCode","310100000000");
+		residence.put("districtCode","310109000000");
+		residence.put("streetCode","310109010000");
+		params.put("residence", residence);
+		
+		JSONObject phone1 = new JSONObject();
+		phone1.put("no", userHistory.getTelephone());
+		phone1.put("name", userHistory.getName());
+		phone1.put("credentialType", 1);
+		phone1.put("credentialNo", userHistory.getIdCard());
+		params.put("phone1",phone1);
+		params.put("phone2", phone1);
+		params.put("phone3", phone1);
+		
+		jo.put("params", params);
+		jo.put("id", "" + System.currentTimeMillis());
+		try {
+			Map<String, String> map = new HashMap<>();
+			map.put("key", key);
+			map.put("json", jo.toJSONString());
+			String post = post(serverUrl + "person", map, null);
+			System.out.println(post);
+			LOGGER.info("更新用户信息结果：{}", post);
+			if (post != null) {
+				return true;
+			}
+		} catch (Exception e) {
+			LOGGER.info("更新用户信息发生错误", e);
+		}
+		return false;
+	}
+	
+	public boolean bindingHouse(UserHistory userHistory) {
+		if (villageCode==null) {
+			JSONArray village = getVillage();
+			if (StrUtil.isEmpty(village)) {
+				return false;
+			}
+			villageCode = village.getJSONObject(0).getString("villageCode");
+		}
+		if (buildingCode==null) {
+			JSONArray buildings = getBuilding(villageCode);
+			if (StrUtil.isEmpty(buildings)) {
+				return false;
+			}
+			buildingCode = buildings.getJSONObject(0).getString("buildingCode");
+		}
+		if (houseCode==null) {
+			JSONArray houses = getHouse(buildingCode);
+			if (StrUtil.isEmpty(houses)) {
+				return false;
+			}
+			houseCode = houses.getJSONObject(0).getString("houseCode");
+		}
+		LOGGER.info("更新人屋信息：证件号码：{}：区域编号：{} 楼栋编号：{},房屋编号：{}",userHistory.getIdCard(),villageCode,buildingCode,houseCode);
+		JSONObject jo = new JSONObject();
+		jo.put("jsonrpc", "2.0");
+		jo.put("method", "bindingHouse");
+		JSONObject params = new JSONObject();
+		
+		params.put("credentialType", 1);
+		params.put("credentialNo", userHistory.getIdCard());
+		JSONObject house = new JSONObject();
+		house.put("villageCode", villageCode);
+		house.put("buildingCode",buildingCode);
+		house.put("houseCode", houseCode);
+		house.put("HouseRelCode", 1);
+		params.put("house",house);
+		jo.put("params", params);
+		jo.put("id", "" + System.currentTimeMillis());
+		try {
+			Map<String, String> map = new HashMap<>();
+			map.put("key", key);
+			map.put("json", jo.toJSONString());
+			String post = post(serverUrl + "person", map, null);
+			System.out.println(post);
+			LOGGER.info("更新用户人屋信息结果：{}", post);
+			if (post != null) {
+				return true;
+			}
+		} catch (Exception e) {
+			LOGGER.info("更新用户信息发生错误", e);
+		}
+		return false;
+		
+	}
+	
+	public JSONArray getVillage() {
+		JSONObject jo = new JSONObject();
+		jo.put("jsonrpc", "2.0");
+		jo.put("method", "getList");
+		JSONObject params=new JSONObject();
+		params.put("pageSize", 2);
+		params.put("page", 1);
+		jo.put("params", params);
+		jo.put("id", "" + System.currentTimeMillis());
+		try {
+			Map<String, String> map = new HashMap<>();
+			map.put("key", key);
+			map.put("json", jo.toJSONString());
+			String post = post(serverUrl + "village", map, null);
+			System.out.println(post);
+			LOGGER.info("获取小区列表结果：{}", post);
+			if (post != null) {
+				JSONObject d = JSON.parseObject(post);
+				JSONObject result = d.getJSONObject("result");
+				if (result!=null) {
+					return result.getJSONArray("villageList");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new JSONArray();
+	}
+	public JSONArray getBuilding(String villageCode) {
+		JSONObject jo = new JSONObject();
+		jo.put("jsonrpc", "2.0");
+		jo.put("method", "getBuilding");
+		JSONObject params=new JSONObject();
+		params.put("pageSize", 2);
+		params.put("page", 1);
+		params.put("villageCode", villageCode);
+		jo.put("params", params);
+		jo.put("id", "" + System.currentTimeMillis());
+		try {
+			Map<String, String> map = new HashMap<>();
+			map.put("key", key);
+			map.put("json", jo.toJSONString());
+			String post = post(serverUrl + "village", map, null);
+			System.out.println(post);
+			LOGGER.info("获取小区楼栋列表结果：{}", post);
+			if (post != null) {
+				JSONObject d = JSON.parseObject(post);
+				JSONObject result = d.getJSONObject("result");
+				if (result!=null) {
+					return result.getJSONArray("buildingList");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new JSONArray();
+	}
+	
+	public JSONArray getHouse(String buildingCode) {
+		JSONObject jo = new JSONObject();
+		jo.put("jsonrpc", "2.0");
+		jo.put("method", "getHouse");
+		JSONObject params=new JSONObject();
+		params.put("pageSize", 2);
+		params.put("page", 1);
+		params.put("buildingCode", buildingCode);
+		jo.put("params", params);
+		jo.put("id", "" + System.currentTimeMillis());
+		try {
+			Map<String, String> map = new HashMap<>();
+			map.put("key", key);
+			map.put("json", jo.toJSONString());
+			String post = post(serverUrl + "village", map, null);
+			System.out.println(post);
+			LOGGER.info("获取小区楼栋列表结果：{}", post);
+			if (post != null) {
+				JSONObject d = JSON.parseObject(post);
+				JSONObject result = d.getJSONObject("result");
+				if (result!=null) {
+					return result.getJSONArray("houseList");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new JSONArray();
+	}
+	
 
 	public boolean addEvent(CarparkRecordHistory history) {
 		JSONObject jo = new JSONObject();
@@ -295,20 +605,22 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 		// similarity Number Optional 识别可信度
 		// note String Optional 备注信息
 		params.put("deviceId", StrUtil.isEmpty(history.getOutTime()) ? history.getInDeviceId() : history.getOutDeviceId());
-		params.put("channel", "1");
+		params.put("channel", 1);
 		params.put("entranceCode", history.getEntranceCode());
 		params.put("plateNo", history.getPlateNO());
-		params.put("plateCode", "1");
-		params.put("plateColor", "2");
-		params.put("carType", "10");
+		params.put("plateCode", 1);
+		params.put("plateColor", "蓝");
+		params.put("carType", 10);
 		String triggerTime = StrUtil.isEmpty(history.getOutTime()) ? history.getInTime() : history.getOutTime();
 		params.put("triggerTime", triggerTime);
-		String eventCode = StrUtil.isEmpty(history.getOutTime()) ? "25" : "26";
+		int eventCode = StrUtil.isEmpty(history.getOutTime()) ? 25 : 26;
 		if (!StrUtil.isEmpty(history.getUserName())) {
-			eventCode = StrUtil.isEmpty(history.getOutTime()) ? "1" : "2";
+			eventCode = StrUtil.isEmpty(history.getOutTime()) ? 1: 2;
 		}
+		params.put("accessType", StrUtil.isEmpty(history.getOutTime()) ? 1 : 2);
+		params.put("carTypeCode", 10);
 		params.put("eventCode", eventCode);
-		params.put("similarity", "28");
+		params.put("similarity", 28);
 		params.put("note", "备注");
 		String image = history.getInImage();
 		String plateImage = history.getInPlateImage();
@@ -384,7 +696,7 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 					sb.append("\r\n");
 				}
 
-				dos.write(sb.toString().getBytes());
+				dos.write(sb.toString().getBytes("UTF-8"));
 			}
 
 			if (images != null) {
@@ -401,17 +713,18 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 					sb.append("\"\r\n");
 					sb.append("Content-Type: application/octet-stream");// 这里注意！如果上传的不是图片，要在这里改文件格式，比如txt文件，这里应该是text/plain
 					sb.append("\r\n\r\n");
-					dos.write(sb.toString().getBytes());
+					dos.write(sb.toString().getBytes("UTF-8"));
 					dos.write(f);
-					dos.write("\r\n".getBytes());
+					dos.write("\r\n".getBytes("UTF-8"));
 				}
 				sb = new StringBuilder();
 				sb.append("--");
 				sb.append(BOUNDARY);
 				sb.append("--\r\n");
-				dos.write(sb.toString().getBytes());
+				dos.write(sb.toString().getBytes("UTF-8"));
 			}
 			dos.flush();
+			LOGGER.info("通讯状态",con.getResponseCode());
 			BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
 			String readLine = br.readLine();
 			dos.close();
