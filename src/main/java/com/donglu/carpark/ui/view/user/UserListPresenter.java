@@ -145,6 +145,17 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			addUserModel.setCarparkNo("1");
 			addUserModel.setModel(model);
 			addUserModel.setTotalSlot(sp.getCarparkInOutService().findFixSlotIsNow(list.get(0)));
+			List<String> listCarTypeShanghaoi = sp.getCarparkUserService().getListCarTypeShanghaoi();
+			addUserModel.setListCarTypeShanghaoi(listCarTypeShanghaoi);
+			if (!listCarTypeShanghaoi.isEmpty()) {
+				addUserModel.setCarTypeShanghai(listCarTypeShanghaoi.get(0));
+			}
+			
+			List<String> listPlateTypes = sp.getCarparkUserService().getListPlateTypes();
+			addUserModel.setListPlateType(listPlateTypes);;
+			if (!listCarTypeShanghaoi.isEmpty()) {
+				addUserModel.setPlateType(listPlateTypes.get(0));
+			}
 			AddUserWizard addUserWizard = new AddUserWizard(addUserModel,sp);
 			AddUserModel m = (AddUserModel) commonui.showWizard(addUserWizard);
 			if (m == null) {
@@ -392,6 +403,10 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			addUserModel.setAllList(list);
 			addUserModel.setSingleCarparkUser(singleCarparkUser);
 			addUserModel.setTotalSlot(sp.getCarparkInOutService().findFixSlotIsNow(singleCarparkUser.getCarpark()));
+			List<String> listCarTypeShanghaoi = sp.getCarparkUserService().getListCarTypeShanghaoi();
+			addUserModel.setListCarTypeShanghaoi(listCarTypeShanghaoi);
+			List<String> listPlateTypes = sp.getCarparkUserService().getListPlateTypes();
+			addUserModel.setListPlateType(listPlateTypes);;
 			AddUserWizard addUserWizard = new AddUserWizard(addUserModel,sp);
 			AddUserModel m = (AddUserModel) commonui.showWizard(addUserWizard);
 			if (m == null) {

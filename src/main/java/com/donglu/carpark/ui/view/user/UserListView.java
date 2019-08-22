@@ -23,6 +23,9 @@ public class UserListView extends AbstractListView<SingleCarparkUser> {
 				SingleCarparkUser.Property.name.name(),
 				SingleCarparkUser.Property.address.name(),
 				SingleCarparkUser.Property.telephone.name(),
+				SingleCarparkUser.Property.carTypeShanghai.name(),
+				SingleCarparkUser.Property.plateType.name(),
+				SingleCarparkUser.Property.idCard.name(),
 				SingleCarparkUser.Property.type.name(),
 				SingleCarparkUser.Property.carType.name(),
 				SingleCarparkUser.Property.leftMoney.name(),
@@ -31,8 +34,8 @@ public class UserListView extends AbstractListView<SingleCarparkUser> {
 				SingleCarparkUser.Property.monthChargeName.name(),
 				SingleCarparkUser.Property.carparkNo.name(),
 				SingleCarparkUser.Property.parkingSpace.name(),
-				SingleCarparkUser.Property.remark.name()}, new String[]{"车牌号","姓名","住址","电话","用户类型","车辆类型","账号余额","有效期","停车场","收费标准","车位数量","车位号","备注"},
-				new int[]{100,100,100,100,100,100,100,120,100,100,100,100,100}, null);
+				SingleCarparkUser.Property.remark.name()}, new String[]{"车牌号","姓名","住址","电话","车辆类型","车牌类型","证件号码","用户类型","大小类型","账号余额","有效期","停车场","收费标准","车位数量","车位号","备注"},
+				new int[]{100,100,100,100,100,100,150,100,100,100,120,100,100,100,100,100}, null);
 		TableSort.mapComparator.put(SingleCarparkUser.Property.parkingSpace.name(), new Comparator<Object>() {
 			@Override
 			public int compare(Object o1, Object o2) {

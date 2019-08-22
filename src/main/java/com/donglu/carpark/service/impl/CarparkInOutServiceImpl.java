@@ -35,6 +35,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkEvent;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkHolidayTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
@@ -83,7 +84,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		
 		if (inout.getId() == null) {
 			dom.insert(inout);
-			this.emprovider.get().persist(new CarparkRecordHistory(inout,UpdateEnum.新添加));
+			if (inout.isSaveHistory()) {
+				this.emprovider.get().persist(new CarparkRecordHistory(inout,UpdateEnum.新添加));
+			}
 		} else {
 			savePayHistory(inout);
 			dom.save(inout);
@@ -1835,6 +1838,63 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			executeUpdate += query.executeUpdate();
 		}
 		return executeUpdate*1l;
+	}
+
+	@Override
+	public List<CarparkEvent> findByCarparkEvent(int current, int pageSize, String plateNo, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), CarparkEvent.class);
+			if (!StrUtil.isEmpty(plateNo)) {
+				c.add(Restrictions.like("plate", plateNo, MatchMode.ANYWHERE));
+			}
+			if (!StrUtil.isEmpty(start)) {
+				c.add(Restrictions.ge("eventTime", start));
+			}
+			if (!StrUtil.isEmpty(end)) {
+				c.add(Restrictions.le("eventTime", end));
+			}
+			c.setFirstResult(current);
+			c.setMaxResults(pageSize);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public Long countByCarparkEvent(String plateNo, Date start, Date end) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), CarparkEvent.class);
+			if (!StrUtil.isEmpty(plateNo)) {
+				c.add(Restrictions.like("plate", plateNo, MatchMode.ANYWHERE));
+			}
+			if (!StrUtil.isEmpty(start)) {
+				c.add(Restrictions.ge("eventTime", start));
+			}
+			if (!StrUtil.isEmpty(end)) {
+				c.add(Restrictions.le("eventTime", end));
+			}
+			c.setProjection(Projections.rowCount());
+			Long l = (Long) c.getSingleResultOrNull();
+			return l == null ? 0l : l;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+    
+	@Transactional
+	@Override
+	public Long saveCarparkEvent(CarparkEvent e) {
+		DatabaseOperation<CarparkEvent> dom = DatabaseOperation.forClass(CarparkEvent.class, emprovider.get());
+		
+		if (e.getId() == null) {
+			dom.insert(e);
+		} else {
+			dom.save(e);
+		}
+		return e.getId();
 	}
 	
 }

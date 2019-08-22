@@ -35,8 +35,10 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.background.AbstractCarparkBackgroundService;
 import com.donglu.carpark.service.background.ShanghaidibiaoSynchroServiceI;
 import com.donglu.carpark.util.HttpRequestUtil;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkEvent;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemOperaLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
@@ -72,6 +74,14 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 	private String buildingCode;
 	private String houseCode;
 	private int credentialType=Integer.valueOf(System.getProperty("credentialType", "1"));
+	public static final Map<String,Integer> mapCarType=new HashMap<>();
+	public static final Map<Integer,String> mapCarTypeToName=new HashMap<>();
+	public static final List<String> listCarTypeNames=new ArrayList<>();
+	public static final Map<String,Integer> mapEventCode=new HashMap<>();
+	public static final Map<Integer,String> mapEventCodeToName=new HashMap<>();
+	public static final Map<String,Integer> mapPlateType=new HashMap<>();
+	public static final Map<Integer,String> mapPlateTypeToName=new HashMap<>();
+	public static final List<String> listPlateTypeNames=new ArrayList<>();
 
 	@Inject
 	public ShanghaidibiaoSynchroServiceImpl(CarparkDatabaseServiceProvider sp) {
@@ -81,7 +91,7 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 
 	@Override
 	protected void run() {
-		if (runSize % 30 == 0) {
+		if (runSize % 60 == 0) {
 			SingleCarparkSystemSetting agboxUrl = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.agboxUrl.name());
 			SingleCarparkSystemSetting agboxEnable = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.agboxEnable.name());
 			SingleCarparkSystemSetting agboxKey = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.agboxKey.name());
@@ -98,11 +108,48 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 			if (client == null && !StrUtil.isEmpty(agboxMqttUrl.getSettingValue())) {
 				startMqtt();
 			}
-			JSONArray credentialTypeCodes = getCredentialTypeCode();
-			for (int i = 0; i < credentialTypeCodes.size(); i++) {
-				JSONObject object = credentialTypeCodes.getJSONObject(i);
-				if ("身份证".equals(object.getString("name"))) {
-					credentialType=object.getIntValue("code");
+			if (isStart&&!StrUtil.isEmpty(serverUrl)) {
+				JSONArray credentialTypeCodes = getCredentialTypeCode();
+				for (int i = 0; i < credentialTypeCodes.size(); i++) {
+					JSONObject object = credentialTypeCodes.getJSONObject(i);
+					if ("身份证".equals(object.getString("name"))) {
+						credentialType = object.getIntValue("code");
+					}
+				}
+				JSONArray carTypeCode = getCarTypeCode();
+				System.out.println(carTypeCode);
+				if (!StrUtil.isEmpty(carTypeCode)) {
+					listCarTypeNames.clear();
+					mapCarType.clear();
+					for (int i = 0; i < carTypeCode.size(); i++) {
+						JSONObject object = carTypeCode.getJSONObject(i);
+						System.out.println(object);
+						mapCarType.put(object.getString("name"), object.getIntValue("code"));
+						mapCarTypeToName.put(object.getIntValue("code"), object.getString("name"));
+						listCarTypeNames.add(object.getString("name"));
+					}
+				}
+				JSONArray plateTypeCode = getPlateTypeCode();
+				System.out.println(plateTypeCode);
+				if (!StrUtil.isEmpty(plateTypeCode)) {
+					mapPlateType.clear();
+					listPlateTypeNames.clear();
+					for (int i = 0; i < plateTypeCode.size(); i++) {
+						JSONObject object = plateTypeCode.getJSONObject(i);
+						System.out.println(object);
+						mapPlateType.put(object.getString("name"), object.getIntValue("code"));
+						mapPlateTypeToName.put(object.getIntValue("code"), object.getString("name"));
+						listPlateTypeNames.add(object.getString("name"));
+					}
+				}
+				JSONArray eventCode = getEventCode();
+				System.out.println(eventCode);
+				if (!StrUtil.isEmpty(eventCode)) {
+					for (int i = 0; i < eventCode.size(); i++) {
+						JSONObject jo = eventCode.getJSONObject(i);
+						mapEventCode.put(jo.getString("name"), jo.getIntValue("code"));
+						mapEventCodeToName.put(jo.getIntValue("code"), jo.getString("name"));
+					}
 				}
 			}
 		}
@@ -130,9 +177,13 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 		}
 		List<CarparkRecordHistory> list = sp.getCarparkInOutService().findHaiYuRecordHistory(0, 10, new UpdateEnum[] { UpdateEnum.新添加, UpdateEnum.被修改 }, new ProcessEnum[] { ProcessEnum.未处理 });
 		for (CarparkRecordHistory carparkRecordHistory : list) {
-			boolean addEvent = addEvent(carparkRecordHistory);
-			if (addEvent) {
-				sp.getCarparkInOutService().updateHaiYuRecordHistory(Arrays.asList(carparkRecordHistory.getId()), ProcessEnum.己处理);
+			try {
+				boolean addEvent = addEvent(carparkRecordHistory);
+				if (addEvent) {
+					sp.getCarparkInOutService().updateHaiYuRecordHistory(Arrays.asList(carparkRecordHistory.getId()), ProcessEnum.己处理);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 		List<UserHistory> findUserHistory = sp.getCarparkUserService().findUserHistory(UpdateEnum.values(), new ProcessEnum[] { ProcessEnum.未处理 });
@@ -163,15 +214,33 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 						String plateNo = plateInfo.getString("plateNo");
 						boolean enabled = plateInfo.getBooleanValue("enabled");
 						List<SingleCarparkUser> list2 = sp.getCarparkUserService().findByNameOrPlateNo(null, plateNo, null, null, 0, null);
-						if (enabled&&StrUtil.isEmpty(list2)) {
-							SingleCarparkUser user = new SingleCarparkUser();
-							user.setPlateNo(plateNo);
-							List<SingleCarparkCarpark> list3 = sp.getCarparkService().findCarparkToLevel();
-							user.setCarpark(list3.get(0));
-							user.setValidTo(new Date(System.currentTimeMillis()+30*24*60*60*1000));
+						SingleCarparkUser user=null;
+						if (enabled) {
+							if(StrUtil.isEmpty(list2)) {
+								user = new SingleCarparkUser();
+								user.setPlateNo(plateNo);
+								List<SingleCarparkCarpark> list3 = sp.getCarparkService().findCarparkToLevel();
+								user.setCarpark(list3.get(0));
+							}else {
+								user=list2.get(0);
+							}
+							JSONObject info = getUserInfo(plateInfo.getIntValue("credentialType"),plateInfo.getString("credentialNo"));
+							if (info!=null) {
+								user.setName(info.getString("peopleName"));
+								try {
+									JSONArray phone = info.getJSONArray("phone");
+									user.setTelephone(phone.size() > 0 ? phone.getString(0) : "");
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}else {
+								user.setName("agbox数据");
+							}
+							user.setValidTo(new Date(System.currentTimeMillis()+30l*24*60*60*1000));
 							user.setCreateHistory(false);
-							user.setName("Agbox数据");
 							user.setIdCard(plateInfo.getString("credentialNo"));
+							user.setPlateType(mapPlateTypeToName.get(plateInfo.getIntValue("plateTypeCode")));
+							user.setCarTypeShanghai(mapCarTypeToName.get(plateInfo.getIntValue("carTypeCode")));
 							sp.getCarparkUserService().saveUser(user);
 						}
 						
@@ -195,6 +264,81 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 				}
 			}
 		}
+	}
+	
+	public JSONArray getPlateTypeCode() {
+		JSONObject jo = new JSONObject();
+		jo.put("jsonrpc", "2.0");
+		jo.put("method", "getPlateTypeCode");
+		jo.put("id", "" + System.currentTimeMillis());
+		try {
+			Map<String, String> map = new HashMap<>();
+			map.put("key", key);
+			map.put("json", jo.toJSONString());
+			String post = post(serverUrl + "share/car", map, null);
+			System.out.println(post);
+			LOGGER.info("获取车辆类型编码列表结果：{}", post);
+			if (post != null) {
+				JSONObject d = JSON.parseObject(post);
+				JSONObject result = d.getJSONObject("result");
+				if (result!=null) {
+					return result.getJSONArray("plateType");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new JSONArray();
+	}
+	
+	public JSONArray getCarTypeCode() {
+		JSONObject jo = new JSONObject();
+		jo.put("jsonrpc", "2.0");
+		jo.put("method", "getCarTypeCode");
+		jo.put("id", "" + System.currentTimeMillis());
+		try {
+			Map<String, String> map = new HashMap<>();
+			map.put("key", key);
+			map.put("json", jo.toJSONString());
+			String post = post(serverUrl + "share/car", map, null);
+			System.out.println(post);
+			LOGGER.info("获取车辆类型编码列表结果：{}", post);
+			if (post != null) {
+				JSONObject d = JSON.parseObject(post);
+				JSONObject result = d.getJSONObject("result");
+				if (result!=null) {
+					return result.getJSONArray("carType");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new JSONArray();
+	}
+	
+	public JSONArray getEventCode() {
+		JSONObject jo = new JSONObject();
+		jo.put("jsonrpc", "2.0");
+		jo.put("method", "getEventCode");
+		jo.put("id", "" + System.currentTimeMillis());
+		try {
+			Map<String, String> map = new HashMap<>();
+			map.put("key", key);
+			map.put("json", jo.toJSONString());
+			String post = post(serverUrl + "device/parking", map, null);
+			System.out.println(post);
+			LOGGER.info("获取事件编码列表结果：{}", post);
+			if (post != null) {
+				JSONObject d = JSON.parseObject(post);
+				JSONObject result = d.getJSONObject("result");
+				if (result!=null) {
+					return result.getJSONArray("eventCode");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new JSONArray();
 	}
 	
 	private JSONArray getCredentialTypeCode() {
@@ -288,9 +432,42 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 						SingleCarparkSystemOperaLog log = new SingleCarparkSystemOperaLog();
 						log.setType(SystemOperaLogTypeEnum.数据上传);
 						log.setContent("接收到主题:"+topic+"消息:"+msg);
-						log.setRemarkString("接收到主题:"+topic+"消息:"+msg);
 						log.setOperaDate(new Date());
 						log.setOperaName("服务器MQTT");
+						log.setRemarkString("接收到主题:"+topic+"消息:"+msg);
+						JSONObject jo = JSON.parseObject(msg);
+						if ("event".equals(jo.getString("method"))) {
+							JSONObject e = getEvent(jo.getString("id"));
+							System.out.println(e);
+							log.setRemarkString("接收到主题:"+topic+"消息:"+msg+" 内容："+e);
+							String eventName = mapEventCodeToName.get(e.getIntValue("eventCode"));
+//							SingleCarparkInOutHistory ioh = new SingleCarparkInOutHistory();
+//							ioh.setPlateNo(e.getString("plateNo"));
+//							ioh.setEntranceCode(e.getString("entranceCode"));
+//							ioh.setPlateColor(e.getString("plateColor"));
+//							ioh.setEventName(eventName);
+//							ioh.setPlateType(mapPlateTypeToName.getOrDefault(e.getIntValue("plateCode"), "普通蓝牌"));
+//							ioh.setRemarkString(ioh.getEventName()+","+ioh.getPlateType()+",mqtt消息时间");
+//							ioh.setOutTime(StrUtil.parseDateTime(e.getString("triggerTime")));
+//							ioh.setInTime(StrUtil.parseDateTime(e.getString("triggerTime")));
+//							ioh.setCarType("");
+//							ioh.setSaveHistory(false);
+//							ioh.setShouldMoney(0);
+//							ioh.setFactMoney(0);
+//							ioh.setCarTypeShanghai(eventName.substring(0, eventName.length()-1));
+//							sp.getCarparkInOutService().saveInOutHistory(ioh);
+							CarparkEvent ee = new CarparkEvent();
+							ee.setPlate(e.getString("plateNo"));
+							ee.setCarType(eventName.substring(0, eventName.length()-1));
+							ee.setPlateType(mapPlateTypeToName.getOrDefault(e.getIntValue("plateCode"), "普通蓝牌"));
+							ee.setChannel(e.getString("channel"));
+							ee.setDeviceId(e.getString("deviceId"));
+							ee.setEntranceCode(e.getString("entranceCode"));
+							ee.setEventName(eventName);
+							ee.setEventTime(StrUtil.parseDateTime(e.getString("triggerTime")));
+							ee.setPlateColor(e.getString("plateColor"));
+							sp.getCarparkInOutService().saveCarparkEvent(ee);
+						}
 						sp.getSystemOperaLogService().saveOperaLog(log);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -351,6 +528,31 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 		}
 		return new JSONArray();
 	}
+	
+	public JSONObject getUserInfo(int credentialType, String certifiedNo) {
+		JSONObject jo = new JSONObject();
+		jo.put("jsonrpc", "2.0");
+		jo.put("method", "getInfo");
+		JSONObject params = new JSONObject();
+		// eventId Number Required 事件id，来自于通知订阅
+		params.put("credentialType", credentialType);
+		params.put("credentialNo", certifiedNo);
+		params.put("range", "basic");
+		jo.put("params", params);
+		jo.put("id", "" + System.currentTimeMillis());
+		try {
+			Map<String, String> map = new HashMap<>();
+			map.put("key", key);
+			map.put("json", jo.toJSONString());
+			String post = post(serverUrl+"person", map, null);
+			LOGGER.info("获取用户信息结果：{}", post);
+			JSONObject result = JSON.parseObject(post);
+			return result.getJSONObject("result").getJSONObject("personInfo");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	protected JSONObject getEvent(String id) {
 		JSONObject jo = new JSONObject();
@@ -363,7 +565,7 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 		jo.put("id", "" + System.currentTimeMillis());
 		try {
 			Map<String, String> map = new HashMap<>();
-			map.put("key", "570670eb-9916-43a6-8a63-fa9e49ce1ef6");
+			map.put("key", key);
 			map.put("json", jo.toJSONString());
 			String post = post(serverUrl+"device/parking", map, null);
 			LOGGER.info("获取事件信息结果：{}", post);
@@ -390,8 +592,8 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 		// credentialNo String Optional 证件号码
 		// enabled Boolean Optional 启用/弃用
 		params.put("plateNo", userHistory.getPlateNo());
-		params.put("plateTypeCode", 1);
-		params.put("carTypeCode", 1);
+		params.put("plateTypeCode", mapPlateType.getOrDefault(userHistory.getPlateType(), 1));
+		params.put("carTypeCode", mapCarType.getOrDefault(userHistory.getCarTypeShanghai(), 1));
 		params.put("credentialType", credentialType);
 		params.put("credentialNo", userHistory.getIdCard());
 		params.put("enabled", userHistory.getHistoryDetail().getUpdateState() == UpdateEnum.被删除 ? "false" : "true");
@@ -457,8 +659,8 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 		phone1.put("credentialType", credentialType);
 		phone1.put("credentialNo", userHistory.getIdCard());
 		params.put("phone1",phone1);
-		params.put("phone2", phone1);
-		params.put("phone3", phone1);
+		params.put("phone2", new JSONObject());
+		params.put("phone3", new JSONObject());
 		
 		jo.put("params", params);
 		jo.put("id", "" + System.currentTimeMillis());
@@ -642,15 +844,23 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 		params.put("channel", 1);
 		params.put("entranceCode", history.getEntranceCode());
 		params.put("plateNo", history.getPlateNO());
-		params.put("plateCode", 1);
-		params.put("plateColor", "蓝");
-		params.put("carType", 10);
+		params.put("plateCode", mapPlateType.getOrDefault(history.getPlateType(), 1));
+		params.put("plateColor", history.getPlateColor());
+		
 		String triggerTime = StrUtil.isEmpty(history.getOutTime()) ? history.getInTime() : history.getOutTime();
 		params.put("triggerTime", triggerTime);
-		int eventCode = StrUtil.isEmpty(history.getOutTime()) ? 25 : 26;
-		if (!StrUtil.isEmpty(history.getUserName())) {
-			eventCode = StrUtil.isEmpty(history.getOutTime()) ? 1: 2;
+		String eventName = history.getEventName();
+		if (eventName==null) {
+			eventName=StrUtil.isEmpty(history.getOutTime()) ? "其他车辆进" : "其他车辆出";
 		}
+		int eventCode = mapEventCode.getOrDefault(eventName, StrUtil.isEmpty(history.getOutTime()) ? 25 : 26);
+		int carType=mapCarType.getOrDefault(eventName.substring(0, eventName.length()-1), 12);
+		if (!StrUtil.isEmpty(history.getUserName())) {
+			eventCode = mapEventCode.getOrDefault(eventName, StrUtil.isEmpty(history.getOutTime()) ? 1: 2);
+			carType=mapCarType.getOrDefault(eventName.substring(0, eventName.length()-1), 1);
+		}
+		
+		params.put("carType", carType);
 		params.put("accessType", StrUtil.isEmpty(history.getOutTime()) ? 1 : 2);
 		params.put("carTypeCode", 10);
 		params.put("eventCode", eventCode);
@@ -862,20 +1072,6 @@ public class ShanghaidibiaoSynchroServiceImpl extends AbstractCarparkBackgroundS
 		params.put("source", "4");
 		// params.put("entranceTypeCode", 1);
 		jo.put("params", params);
-		jo.put("id", "" + System.currentTimeMillis());
-
-		Map<String, String> map = new HashMap<>();
-		map.put("key", key);
-		map.put("json", jo.toJSONString());
-		String post = post(url, map, null);
-		System.out.println(post);
-	}
-
-	private static void getCarTypeCode() {
-		String url = "http://cctvyz.gicp.net:8081/agbox/share/car";
-		JSONObject jo = new JSONObject();
-		jo.put("jsonrpc", "2.0");
-		jo.put("method", "getCarTypeCode");
 		jo.put("id", "" + System.currentTimeMillis());
 
 		Map<String, String> map = new HashMap<>();

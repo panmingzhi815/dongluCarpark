@@ -292,6 +292,9 @@ public class CarInTask extends AbstractTask {
 		if (!StrUtil.isEmpty(user)) {
 			cch.setUserName(user.getName());
 			cch.setUserId(user.getId());
+			cch.setEventName(user.getCarTypeShanghai()+"进");
+			cch.setCarTypeShanghai(user.getCarTypeShanghai());
+			cch.setPlateType(user.getPlateType());
 		}
 		cch.setInDevice(device);
 		cch.setInPhotographType("自动");

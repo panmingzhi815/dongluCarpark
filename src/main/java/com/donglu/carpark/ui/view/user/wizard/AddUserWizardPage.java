@@ -51,6 +51,9 @@ public class AddUserWizardPage extends WizardPage {
 	private Text text_5;
 	private ComboViewer comboViewer_2;
 	private Text text_6;
+	private Label label_9;
+	private Combo combo_3;
+	private Combo combo_4;
 
 	
 	/**
@@ -253,7 +256,7 @@ public class AddUserWizardPage extends WizardPage {
 		Label lblNewLabel = new Label(composite, SWT.NONE);
 		lblNewLabel.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel.setText("车辆类型");
+		lblNewLabel.setText("大小类型");
 		
 		comboViewer_1 = new ComboViewer(composite, SWT.READ_ONLY);
 		Combo combo_1 = comboViewer_1.getCombo();
@@ -262,11 +265,36 @@ public class AddUserWizardPage extends WizardPage {
 		comboViewer_1.setContentProvider(new ArrayContentProvider());
 		comboViewer_1.setLabelProvider(new LabelProvider());
 		comboViewer_1.setInput(CarTypeEnum.values());
+		
+		label_9 = new Label(composite, SWT.NONE);
+		label_9.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_9.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_9.setText("车辆类型");
+		
+		combo_3 = new Combo(composite, SWT.NONE);
+		combo_3.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		combo_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label label_10 = new Label(composite, SWT.NONE);
+		label_10.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_10.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_10.setText("车牌类型");
+		
+		combo_4 = new Combo(composite, SWT.NONE);
+		combo_4.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		combo_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		Label label_6 = new Label(composite, SWT.NONE);
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_6.setText("备      注");
-		
+		if (!model.getListCarTypeShanghaoi().isEmpty()) {
+			combo_3.setItems(
+					model.getListCarTypeShanghaoi().toArray(new String[model.getListCarTypeShanghaoi().size()]));
+		}
+		if (!model.getListPlateType().isEmpty()) {
+			combo_4.setItems(
+					model.getListPlateType().toArray(new String[model.getListPlateType().size()]));
+		}
 		text_2 = new Text(composite, SWT.BORDER);
 		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		GridData gd_text_2 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -338,6 +366,14 @@ public class AddUserWizardPage extends WizardPage {
 		IObservableValue observeTextText_6ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_6);
 		IObservableValue idCardModelObserveValue = BeanProperties.value("idCard").observe(model);
 		bindingContext.bindValue(observeTextText_6ObserveWidget, idCardModelObserveValue, null, null);
+		//
+		IObservableValue observeTextCombo_3ObserveWidget = WidgetProperties.text().observe(combo_3);
+		IObservableValue carTypeShanghaiModelObserveValue = BeanProperties.value("carTypeShanghai").observe(model);
+		bindingContext.bindValue(observeTextCombo_3ObserveWidget, carTypeShanghaiModelObserveValue, null, null);
+		//
+		IObservableValue observeTextCombo_4ObserveWidget = WidgetProperties.text().observe(combo_4);
+		IObservableValue plateTypeModelObserveValue = BeanProperties.value("plateType").observe(model);
+		bindingContext.bindValue(observeTextCombo_4ObserveWidget, plateTypeModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

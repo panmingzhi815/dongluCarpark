@@ -1,5 +1,6 @@
 package com.donglu.carpark.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -99,5 +100,7 @@ public interface CarparkUserService extends BaseDaoService {
 	
 	List<CarparkAccountCar> findAccountCard(List<QueryParameter> parameters);
 	int countAccountCar(List<QueryParameter> parameters);
+	default List<String> getListCarTypeShanghaoi(){return new ArrayList<String>();};
+	default List<String> getListPlateTypes(){return new ArrayList<String>();};
 	
 }

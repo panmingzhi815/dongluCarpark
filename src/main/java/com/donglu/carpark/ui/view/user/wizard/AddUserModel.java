@@ -1,5 +1,6 @@
 package com.donglu.carpark.ui.view.user.wizard;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
@@ -19,6 +20,11 @@ public class AddUserModel extends SingleCarparkUser {
 	private int totalSlot=0;
 	private boolean free;
 	private UserType userType=UserType.普通;
+	private String carTypeShanghai;
+	private List<String> listCarTypeShanghaoi=new ArrayList<String>();
+	
+	private String plateType;
+	private List<String> listPlateType=new ArrayList<String>();
 
 	public List<SingleCarparkCarpark> getAllList() {
 		return allList;
@@ -54,6 +60,8 @@ public class AddUserModel extends SingleCarparkUser {
 		user.setMonthChargeName(getMonthChargeName());
 		user.setCarparkSlotType(getCarparkSlotType());
 		user.setIdCard(getIdCard());
+		user.setCarTypeShanghai(getCarTypeShanghai());
+		user.setPlateType(getPlateType());
 		return user;
 	}
 	public void setSingleCarparkUser(SingleCarparkUser user){
@@ -77,6 +85,8 @@ public class AddUserModel extends SingleCarparkUser {
 		setMonthChargeName(user.getMonthChargeName());
 		setCarparkSlotType(user.getCarparkSlotType());
 		setIdCard(user.getIdCard());
+		setCarTypeShanghai(user.getCarTypeShanghai());
+		setPlateType(user.getPlateType());
 	}
 
 	public MonthlyUserPayModel getModel() {
@@ -116,5 +126,39 @@ public class AddUserModel extends SingleCarparkUser {
 	public void setUserType(UserType userType) {
 		this.userType=userType;
 		firePropertyChange("userType", null, null);
+	}
+
+	public String getCarTypeShanghai() {
+		return carTypeShanghai;
+	}
+
+	public void setCarTypeShanghai(String carTypeShanghai) {
+		this.carTypeShanghai = carTypeShanghai;
+		firePropertyChange("carTypeShanghai", null, null);
+	}
+
+	public List<String> getListCarTypeShanghaoi() {
+		return listCarTypeShanghaoi;
+	}
+
+	public void setListCarTypeShanghaoi(List<String> listCarTypeShanghaoi) {
+		this.listCarTypeShanghaoi = listCarTypeShanghaoi;
+	}
+
+	public String getPlateType() {
+		return plateType;
+	}
+
+	public void setPlateType(String plateType) {
+		this.plateType = plateType;
+		firePropertyChange("plateType", null, null);
+	}
+
+	public List<String> getListPlateType() {
+		return listPlateType;
+	}
+
+	public void setListPlateType(List<String> listPlateType) {
+		this.listPlateType = listPlateType;
 	}
 }

@@ -9,6 +9,7 @@ import java.util.Set;
 import com.donglu.carpark.server.module.CacheMethod;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkEvent;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
@@ -360,4 +361,9 @@ public interface CarparkInOutServiceI {
 
 	Long updateRecount(Long maxId, Long returnAccountId, boolean free);
 	Long updateRecount(Long maxId, Long returnAccountId, boolean free,String userName);
+
+	List<CarparkEvent> findByCarparkEvent(int current, int pageSize, String plateNo, Date start, Date end);
+
+	Long countByCarparkEvent(String plateNo, Date start, Date end);
+	Long saveCarparkEvent(CarparkEvent e);
 }

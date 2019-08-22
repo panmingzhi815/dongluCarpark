@@ -31,7 +31,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	
 	public enum Property{
 		plateNo,userName,carType,inTime,outTime,inDevice,outDevice,operaName,returnAccount,shouldMoney,factMoney,freeMoney
-		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,isCountSlot,freeReason,reviseInTime,onlineMoney,carRecordStatus,chargedType
+		,freeReturnAccount,carparkId,inPlateNO,outPlateNO,chargeOperaName,chargeTime,isCountSlot,freeReason,reviseInTime,onlineMoney,carRecordStatus,chargedType,plateType,carTypeShanghai
 	}
 	public enum Label{
 		inTimeLabel,outTimeLabel,remarkString,stillTimeLabel
@@ -139,6 +139,10 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private boolean saveHistory=true;
 	
 	private String entranceCode;
+	private String eventName;
+	
+	private String plateType;
+	private String carTypeShanghai;
 	
 	public String getPlateNo() {
 		return plateNo;
@@ -650,5 +654,23 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	public void setEntranceCode(String entranceCode) {
 		this.entranceCode = entranceCode;
 		firePropertyChange("entranceCode", null, null);
+	}
+	public String getEventName() {
+		return eventName;
+	}
+	public void setEventName(String eventName) {
+		this.eventName = eventName;
+	}
+	public String getPlateType() {
+		return plateType==null?"普通蓝牌":plateType;
+	}
+	public void setPlateType(String plateType) {
+		this.plateType = plateType;
+	}
+	public String getCarTypeShanghai() {
+		return carTypeShanghai==null?"其他车辆":carTypeShanghai;
+	}
+	public void setCarTypeShanghai(String carTypeShanghai) {
+		this.carTypeShanghai = carTypeShanghai;
 	}
 }

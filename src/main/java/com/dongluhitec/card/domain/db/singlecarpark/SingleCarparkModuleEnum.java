@@ -17,6 +17,7 @@ import com.donglu.carpark.ui.view.history.HistoryPresenter;
 import com.donglu.carpark.ui.view.img.ImageHistoryPresenter;
 import com.donglu.carpark.ui.view.inouthistory.CarPayPresenter;
 import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
+import com.donglu.carpark.ui.view.inouthistory.event.EventPresenter;
 import com.donglu.carpark.ui.view.main.AboutPresenter;
 import com.donglu.carpark.ui.view.offline.CarparkOffLineHistoryPresenter;
 import com.donglu.carpark.ui.view.setting.SettingPresenter;
@@ -52,6 +53,7 @@ public enum SingleCarparkModuleEnum {
 	设备故障记录(记录查询,9,DeviceErrorPresenter.class),
 	离线记录(记录查询,10,CarparkOffLineHistoryPresenter.class),
 	图片记录(记录查询,11,ImageHistoryPresenter.class),
+	停车场事件(记录查询,12,EventPresenter.class),
 	;
 	
 	

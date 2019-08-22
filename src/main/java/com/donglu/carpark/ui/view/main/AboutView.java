@@ -62,7 +62,7 @@ public class AboutView extends AbstractView {
 		Label lblNewLabel_2 = new Label(composite_21, SWT.NONE);
 		lblNewLabel_2.setFont(SWTResourceManager.getFont("宋体", 9, SWT.NORMAL));
 		lblNewLabel_2.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		lblNewLabel_2.setText("东陆一卡通管理平台");
+		lblNewLabel_2.setText("深圳市东陆智能停车场系统");
 		
 		Label label1 = new Label(composite_21, SWT.NONE);
 		label1.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));

@@ -68,6 +68,14 @@ public class SingleCarparkCarpark extends DomainObject {
 	private String yunBuildIdentifier;
 	private String yunBuildName;
 	
+	private String address;
+	
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
 	private Double lon;// Number Required 经度 
 	private Double lat;// Number Required 纬度 
 	private Double alt;// Number Required 高度 MSTL

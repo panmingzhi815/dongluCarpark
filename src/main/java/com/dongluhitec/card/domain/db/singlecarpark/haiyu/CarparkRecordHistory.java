@@ -49,6 +49,10 @@ public class CarparkRecordHistory implements Serializable {
 	private Integer chargedType;
 
 	private String entranceCode;
+	private String eventName;
+	
+	private String plateType;
+	private String carTypeShanghai;
 
     public CarparkRecordHistory() {
     }
@@ -80,6 +84,9 @@ public class CarparkRecordHistory implements Serializable {
         setLeftSlot(carparkInOutHistory.getLeftSlot());
     	setPlateColor(carparkInOutHistory.getPlateColor());
     	entranceCode=carparkInOutHistory.getEntranceCode();
+    	eventName=carparkInOutHistory.getEventName();
+    	plateType=carparkInOutHistory.getPlateType();
+    	carTypeShanghai=carparkInOutHistory.getCarTypeShanghai();
     }
     public SingleCarparkInOutHistory getHistory(){
     	SingleCarparkInOutHistory carparkInOutHistory=new SingleCarparkInOutHistory();
@@ -104,6 +111,7 @@ public class CarparkRecordHistory implements Serializable {
     	carparkInOutHistory.setPlateColor(getPlateColor());
     	carparkInOutHistory.setChargedType(chargedType);
     	carparkInOutHistory.setEntranceCode(entranceCode);
+    	carparkInOutHistory.setEventName(eventName);
 		return carparkInOutHistory;
     }
 
@@ -314,6 +322,30 @@ public class CarparkRecordHistory implements Serializable {
 
 	public void setOutPlateImage(String outPlateImage) {
 		this.outPlateImage = outPlateImage;
+	}
+
+	public String getEventName() {
+		return eventName;
+	}
+
+	public void setEventName(String eventName) {
+		this.eventName = eventName;
+	}
+
+	public String getPlateType() {
+		return plateType;
+	}
+
+	public void setPlateType(String plateType) {
+		this.plateType = plateType;
+	}
+
+	public String getCarTypeShanghai() {
+		return carTypeShanghai;
+	}
+
+	public void setCarTypeShanghai(String carTypeShanghai) {
+		this.carTypeShanghai = carTypeShanghai;
 	}
 
 }

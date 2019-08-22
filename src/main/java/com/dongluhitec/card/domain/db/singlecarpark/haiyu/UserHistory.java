@@ -38,7 +38,8 @@ public class UserHistory implements Serializable {
 	private String idCard;
 	
 	private CarTypeEnum carType=CarTypeEnum.SmallCar;
-	
+	private String carTypeShanghai;
+	private String plateType="普通蓝牌";
 	
 	@Embedded
     private HistoryDetail historyDetail = new HistoryDetail();
@@ -59,6 +60,7 @@ public class UserHistory implements Serializable {
 		user.setCreateDate(createDate);
 		user.setId(id);
 		user.setIdCard(idCard);
+		user.setPlateType(plateType);
 		return user;
 	}
 	public void setUser(SingleCarparkUser user) {
@@ -71,6 +73,8 @@ public class UserHistory implements Serializable {
 		setCreateDate(user.getCreateDate());
 		setId(user.getId());
 		setIdCard(user.getIdCard());
+		setCarTypeShanghai(user.getCarTypeShanghai());
+		setPlateType(user.getPlateType());
 	}
 	public HistoryDetail getHistoryDetail() {
 		return historyDetail;
@@ -140,5 +144,17 @@ public class UserHistory implements Serializable {
 	}
 	public void setIdCard(String idCard) {
 		this.idCard = idCard;
+	}
+	public String getCarTypeShanghai() {
+		return carTypeShanghai;
+	}
+	public void setCarTypeShanghai(String carTypeShanghai) {
+		this.carTypeShanghai = carTypeShanghai;
+	}
+	public String getPlateType() {
+		return plateType;
+	}
+	public void setPlateType(String plateType) {
+		this.plateType = plateType;
 	}
 }

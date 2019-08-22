@@ -22,7 +22,7 @@ public class SingleCarparkUser extends DomainObject {
 	public enum Property{
 		id,plateNo,name,type,carType,address,carparkNo,leftMoney,createDate,validTo,remark
 		,telephone,parkingSpace,carpark,
-		carparkSlot,carparkSlotType,monthChargeId,monthChargeName,lastEditDate
+		carparkSlot,carparkSlotType,monthChargeId,monthChargeName,lastEditDate,carTypeShanghai,plateType,idCard
 	}
 	public enum Label{
 	valitoLabel
@@ -72,6 +72,9 @@ public class SingleCarparkUser extends DomainObject {
 	private boolean createHistory=true;
 	
 	private String idCard;
+	
+	private String carTypeShanghai;
+	private String plateType="普通蓝牌";
 	
 	@PrePersist
 	public void initCreateDate(){
@@ -301,6 +304,22 @@ public class SingleCarparkUser extends DomainObject {
 	public void setIdCard(String idCard) {
 		this.idCard = idCard;
 		firePropertyChange("idCard", null, null);
+	}
+
+	public String getCarTypeShanghai() {
+		return carTypeShanghai==null?"住户车辆":carTypeShanghai;
+	}
+
+	public void setCarTypeShanghai(String carTypeShanghai) {
+		this.carTypeShanghai = carTypeShanghai;
+	}
+
+	public String getPlateType() {
+		return plateType==null?"普通蓝牌":plateType;
+	}
+
+	public void setPlateType(String plateType) {
+		this.plateType = plateType;
 	}
 	
 }

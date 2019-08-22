@@ -335,6 +335,9 @@ public class CarOutTask extends AbstractTask{
 				user=singleCarparkUser;
 			}
 		}
+		if (cch!=null) {
+			cch.setEventName(user.getCarTypeShanghai()+"出");
+		}
 		Integer delayDays = user.getDelayDays();
 
 		Calendar c = Calendar.getInstance();

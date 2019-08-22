@@ -1565,9 +1565,9 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 		mapIpToJNA.get(ip).tigger(ip);
-//		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
-//		//贵A56G17贵JRJ927
-//		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
+		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+		//贵A56G17贵JRJ927
+		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
 	}
 	public void handOpenDoor(String ip) {
 		handOpenDoor(ip, true,null,null);
@@ -1768,7 +1768,8 @@ public class CarparkMainPresenter {
 //					gis Object Optional  
 						params.put("deviceId", device.getIdentifire());
 						params.put("name", device.getCarpark().getName());
-						params.put("note", device.getName());
+						params.put("note", device.getCarpark().getAddress());
+						params.put("address", device.getCarpark().getAddress());
 						params.put("totalSpace", model.getHoursSlot()+model.getMonthSlot());
 						params.put("leftSpace", model.getTotalSlot());
 						JSONObject gis = new JSONObject();
@@ -1776,6 +1777,7 @@ public class CarparkMainPresenter {
 						gis.put("lat", device.getCarpark().getLat());
 						gis.put("alt", device.getCarpark().getAlt());
 						gis.put("floor", device.getCarpark().getFloor());
+						gis.put("gisType", 3);
 						params.put("gis", gis);
 						jo.put("params", params);
 						jo.put("id", ""+System.currentTimeMillis());

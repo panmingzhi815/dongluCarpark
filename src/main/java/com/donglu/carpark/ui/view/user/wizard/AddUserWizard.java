@@ -37,7 +37,7 @@ public class AddUserWizard extends Wizard implements AbstractWizard {
 			page2 = new MonthlyUserPayBasicPage(model.getModel());
 			addPage(page2);
 		}
-		getShell().setSize(450, 650);
+		getShell().setSize(450, 750);
 		WidgetUtil.center(getShell());
 		getShell().setImage(JFaceUtil.getImage("carpark_32"));
 	}

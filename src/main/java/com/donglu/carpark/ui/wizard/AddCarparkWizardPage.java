@@ -42,6 +42,8 @@ public class AddCarparkWizardPage extends WizardPage {
 	private Text text_8;
 	private Text text_9;
 	private Text text_10;
+	private Label label_11;
+	private Text text_11;
 	/**
 	 * Create the wizard.
 	 * @param model 
@@ -131,6 +133,15 @@ public class AddCarparkWizardPage extends WizardPage {
 		text_6 = new Text(composite, SWT.BORDER);
 		text_6.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		text_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		label_11 = new Label(composite, SWT.NONE);
+		label_11.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_11.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_11.setText("停车场地址");
+		
+		text_11 = new Text(composite, SWT.BORDER);
+		text_11.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		text_11.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		label_6 = new Label(composite, SWT.NONE);
 		label_6.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
@@ -263,6 +274,10 @@ public class AddCarparkWizardPage extends WizardPage {
 		IObservableValue observeTextText_10ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_10);
 		IObservableValue floorModelObserveValue = BeanProperties.value("floor").observe(model);
 		bindingContext.bindValue(observeTextText_10ObserveWidget, floorModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_11ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_11);
+		IObservableValue addressModelObserveValue = BeanProperties.value("address").observe(model);
+		bindingContext.bindValue(observeTextText_11ObserveWidget, addressModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

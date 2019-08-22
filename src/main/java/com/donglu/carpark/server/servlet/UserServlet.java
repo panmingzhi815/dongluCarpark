@@ -14,6 +14,7 @@ import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.service.SettingService;
 import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.donglu.carpark.service.SystemUserServiceI;
+import com.donglu.carpark.service.background.impl.ShanghaidibiaoSynchroServiceImpl;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkAccountCar;
 import com.dongluhitec.card.domain.db.singlecarpark.QueryParameter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
@@ -339,5 +340,14 @@ public class UserServlet extends BaseDaoServlet implements CarparkUserService, S
 	@Override
 	public Long saveOperaLog(SingleCarparkSystemOperaLog log) {
 		return systemOperaLogService.saveOperaLog(log);
+	}
+	@Override
+	public List<String> getListCarTypeShanghaoi() {
+		return ShanghaidibiaoSynchroServiceImpl.listCarTypeNames;
+	}
+	
+	@Override
+	public List<String> getListPlateTypes() {
+		return ShanghaidibiaoSynchroServiceImpl.listPlateTypeNames;
 	}
 }

@@ -18,6 +18,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkEvent;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
@@ -588,5 +589,26 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	@Override
 	public Long updateRecount(Long maxId, Long returnAccountId, boolean free, String userName) {
 		return carparkInOutService.updateRecount(maxId, returnAccountId, free, userName);
+	}
+
+
+
+	@Override
+	public List<CarparkEvent> findByCarparkEvent(int current, int pageSize, String plateNo, Date start, Date end) {
+		return carparkInOutService.findByCarparkEvent(current, pageSize, plateNo, start, end);
+	}
+
+
+
+	@Override
+	public Long countByCarparkEvent(String plateNo, Date start, Date end) {
+		return carparkInOutService.countByCarparkEvent(plateNo, start, end);
+	}
+
+
+
+	@Override
+	public Long saveCarparkEvent(CarparkEvent e) {
+		return carparkInOutService.saveCarparkEvent(e);
 	}
 }
