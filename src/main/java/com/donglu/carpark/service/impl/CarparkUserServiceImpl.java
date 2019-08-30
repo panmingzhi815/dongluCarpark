@@ -1,7 +1,6 @@
 package com.donglu.carpark.service.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -26,8 +25,6 @@ import org.joda.time.DateTime;
 import com.donglu.carpark.service.CarparkUserService;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.blservice.DongluServiceException;
-import com.dongluhitec.card.domain.WithID;
-import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkAccountCar;
 import com.dongluhitec.card.domain.db.singlecarpark.QueryParameter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;

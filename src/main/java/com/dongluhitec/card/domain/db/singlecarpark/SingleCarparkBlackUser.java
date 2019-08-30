@@ -1,5 +1,7 @@
 package com.dongluhitec.card.domain.db.singlecarpark;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
@@ -10,7 +12,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
 public class SingleCarparkBlackUser extends DomainObject {
 	public enum Property {
-		plateNO, remark, timeLabel, hoursStartLabel, hoursEndLabel, minuteStartLabel, minuteEndLabel
+		plateNO, remark, timeLabel, hoursStartLabel, hoursEndLabel, minuteStartLabel, minuteEndLabel,validLabel
 	}
 
 	/**
@@ -27,6 +29,8 @@ public class SingleCarparkBlackUser extends DomainObject {
 	private Boolean timeIn=false;
 	private Boolean weekDayIn=false;
 	private Boolean holidayIn=false;
+	
+	private Date valid;
 	
 	@Transient
 	private String hoursStartLabel;
@@ -59,6 +63,10 @@ public class SingleCarparkBlackUser extends DomainObject {
 		} else {
 			return hoursEndLabel;
 		}
+	}
+	
+	public String getValidLabel() {
+		return valid==null?"无":StrUtil.formatDate(valid);
 	}
 
 	public String getMinuteStartLabel() {
@@ -204,6 +212,15 @@ public class SingleCarparkBlackUser extends DomainObject {
 		this.holidayIn = holidayIn;
 		if (pcs != null)
 			pcs.firePropertyChange("holidayIn", null, null);
+	}
+
+	public Date getValid() {
+		return valid;
+	}
+
+	public void setValid(Date valid) {
+		this.valid = valid;
+		firePropertyChange("valid", null, null);
 	}
 
 }

@@ -28,6 +28,7 @@ import com.donglu.carpark.ui.view.user.CarparkPayHistoryPresenter;
 import com.donglu.carpark.ui.view.user.PrepaidUserPayHistoryPresenter;
 import com.donglu.carpark.ui.view.user.UserPresenter;
 import com.donglu.carpark.ui.view.visitor.VisitorPresenter;
+import com.donglu.carpark.ui.view.speed.OverSpeedCarPresenter;
 
 public enum SingleCarparkModuleEnum {
 	停车场设置(null,0,CarparkPresenter.class),
@@ -52,6 +53,7 @@ public enum SingleCarparkModuleEnum {
 	设备故障记录(记录查询,9,DeviceErrorPresenter.class),
 	离线记录(记录查询,10,CarparkOffLineHistoryPresenter.class),
 	图片记录(记录查询,11,ImageHistoryPresenter.class),
+	车辆限速(记录查询,12,OverSpeedCarPresenter.class),
 	;
 	
 	

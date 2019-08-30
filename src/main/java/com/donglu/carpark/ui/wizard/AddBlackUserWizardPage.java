@@ -18,6 +18,9 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
+import org.eclipse.nebula.widgets.datechooser.DateChooserComboObservableValue;
+import org.eclipse.nebula.widgets.datechooser.DateChooserObservableValue;
 
 public class AddBlackUserWizardPage extends WizardPage {
 	@SuppressWarnings("unused")
@@ -32,6 +35,8 @@ public class AddBlackUserWizardPage extends WizardPage {
 	private Button button;
 	private Button button_1;
 	private Button btnCheckButton;
+	private Label label_6;
+	private DateChooserCombo dateChooserCombo;
 
 	/**
 	 * Create the wizard.
@@ -119,6 +124,15 @@ public class AddBlackUserWizardPage extends WizardPage {
 		gd_text_5.widthHint = 21;
 		text_5.setLayoutData(gd_text_5);
 		
+		label_6 = new Label(composite, SWT.NONE);
+		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_6.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label_6.setText("有效期");
+		
+		dateChooserCombo = new DateChooserCombo(composite, SWT.BORDER);
+		dateChooserCombo.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		dateChooserCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
 		Label label_1 = new Label(composite, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
@@ -145,7 +159,14 @@ public class AddBlackUserWizardPage extends WizardPage {
 		btnCheckButton.setToolTipText("选中后，限制车辆工作日不允许进入");
 		btnCheckButton.setText("工作日不允许进入");
 		m_bindingContext = initDataBindings();
+		initBind();
 	}
+	private void initBind() {
+		DateChooserComboObservableValue dateChooserObservableValue=new DateChooserComboObservableValue(dateChooserCombo, SWT.Modify);
+		IObservableValue validModelObserveValue = BeanProperties.value("valid").observe(model);
+		m_bindingContext.bindValue(dateChooserObservableValue, validModelObserveValue);
+	}
+
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//

@@ -113,7 +113,7 @@ public interface CarparkService {
 	 * 
 	 * @return
 	 */
-	public List<SingleCarparkSystemSetting> findAllSystemSetting();
+	public List<SingleCarparkSystemSetting> findAllSystemSetting(SystemSettingTypeEnum... enums);
 	/**
 	 * 
 	 * @param h

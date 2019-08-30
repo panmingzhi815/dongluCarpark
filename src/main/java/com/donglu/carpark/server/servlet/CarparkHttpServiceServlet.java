@@ -6,15 +6,13 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -24,10 +22,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.Labels;
 import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.OverSpeedCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
@@ -132,6 +130,49 @@ public class CarparkHttpServiceServlet extends HttpServlet {
 			jsonString = JSON.toJSONString(findHistoryThanId,filter);
 			System.out.println(jsonString);
 			writeMsg(resp, 0, jsonString);
+			break;
+		case "/overSpeedCar":
+			try {
+				String CamID = req.getParameter("CamID");
+				String PassTime = req.getParameter("PassTime");
+				String PlaceName = req.getParameter("PlaceName");
+				String CarPlate = req.getParameter("CarPlate");
+				String VehicleSpeed = req.getParameter("VehicleSpeed");
+				String MarkedSpeed = req.getParameter("MarkedSpeed");
+				String Image = req.getParameter("Image");
+				String Image1 = req.getParameter("Image1");
+				if (StrUtil.isEmpty(CarPlate)||StrUtil.isEmpty(PassTime)||StrUtil.isEmpty(VehicleSpeed)||StrUtil.isEmpty(MarkedSpeed)) {
+					writeMsg(resp, 1, "参数不能为空");
+					return;
+				}
+				OverSpeedCar car = new OverSpeedCar();
+				car.setCamId(CamID);
+				car.setCurrentSpeed(Integer.valueOf(VehicleSpeed));
+				car.setPlace(PlaceName);
+				car.setRateLimiting(Integer.valueOf(MarkedSpeed));
+				car.setPlate(CarPlate);
+				car.setTime(StrUtil.parse(PassTime, "yyyyMMddHHmmssSSS"));
+				car.setStatus((car.getCurrentSpeed()>car.getRateLimiting()&&car.getRateLimiting()>0)?1:0);
+				if(!StrUtil.isEmpty(Image)) {
+					byte[] decode = Base64.getDecoder().decode(Image);
+					String string = sp.getImageService().saveImageInServer(decode, "/img/"+StrUtil.formatDate(new Date())+"/"+System.currentTimeMillis()+".jpg");
+					car.setImage(string);
+				}
+				if(!StrUtil.isEmpty(Image1)) {
+					byte[] decode = Base64.getDecoder().decode(Image1);
+					String string = sp.getImageService().saveImageInServer(decode, "/img/"+StrUtil.formatDate(new Date())+"/"+System.currentTimeMillis()+".jpg");
+					car.setImage(string);
+				}
+				String carType="临时车";
+				if (sp.getCarparkUserService().findUserByPlateNo(CarPlate, null)!=null) {
+					carType="固定车";
+				}
+				car.setCarType(carType);
+				sp.getCarparkInOutService().saveOverSpeedCar(car);
+				writeMsg(resp, 0, "成功");
+			} catch (Exception e) {
+				writeMsg(resp, 1, "失败,"+e);
+			}
 			break;
 		}
 	}

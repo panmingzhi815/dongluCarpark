@@ -73,7 +73,7 @@ public class CarparkDBServer {
 		ServerUtil.startServlet("/shanghaiYunCarpark/*", handler, shanghaiYunCarparkServletProvider);
 		ServerUtil.startServlet("/carparkDeviceService/*", handler, carparkDeviceServletProvider);
 		
-		if (System.getProperty("startHttpService", "false").equals("true")) {
+		if (System.getProperty("startHttpService", "true").equals("true")) {
 			ServerUtil.startServlet("/carparkHttpService/*", handler, carparkHttpServiceServletProvider);
 		}
     	new WebSocketServer(16666).start();	

@@ -182,6 +182,7 @@ public class CarparkMainModel extends DomainObject {
 	
 	private final Cache<String, SingleCarparkInOutHistory> mapWaitInOutHistory=CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
 	private final Cache<String, String> plateColorCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS).build();
+	private final Cache<String, Integer> plateOverSpeedSizeCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS).build();
 	
 	public String getUserName() {
 		return userName;
@@ -934,5 +935,13 @@ public class CarparkMainModel extends DomainObject {
 			StackTraceElement element = stackTrace[i];
 			System.out.println(element.getClassName()+"=="+element.getMethodName()+"=="+element.getLineNumber());
 		}
+	}
+
+	public int intSetting(SystemSettingTypeEnum systemSettingTypeEnum) {
+		return Integer.valueOf(mapSystemSetting.get(systemSettingTypeEnum));
+	}
+
+	public Cache<String, Integer> getPlateOverSpeedSizeCache() {
+		return plateOverSpeedSizeCache;
 	}
 }

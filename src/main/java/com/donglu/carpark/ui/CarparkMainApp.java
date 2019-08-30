@@ -937,6 +937,9 @@ public class CarparkMainApp extends AbstractApp{
 			public void mouseUp(MouseEvent e) {
 				setBoundsY(lbl_charge, -2);
 				log.info("点击收费放行");
+				if(model.getChargeHistory()!=null) {
+					model.getChargeHistory().setChargedType(0);
+				}
 				presenter.charge(carOutChargeCheck,true);
 			}
 

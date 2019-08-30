@@ -152,7 +152,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			System.out.println(jsonObject);
 			carInfo = "data=" + URLEncoder.encode("["+jsonObject+"]", "UTF-8");
 			String actionUrl = url;
-//			System.out.println(actionUrl);
+			System.out.println(actionUrl);
 			String httpPostMssage = httpPostMssage(actionUrl, carInfo);
 			log.info("{}停车场记录,结果:{}", type, httpPostMssage);
 			boolean result = JSONObject.parseObject(httpPostMssage).get("ret").toString().equals("0");
@@ -271,7 +271,13 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			}
 			return result;
 		}catch (Exception e) {
-			e.printStackTrace();
+			Integer integer = mapImageUploadErrorSize.getOrDefault(id, 0);
+			if (integer>=10) {
+				mapImageUploadErrorSize.remove(id);
+				return true;
+			}else{
+				mapImageUploadErrorSize.put(id, integer+1);
+			}
 		}
 		return false;
 	}
@@ -519,30 +525,41 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			JSONArray parseArray = JSONObject.parseArray(data);
 			log.info("获取更新的用户信息：{}",parseArray.size());
 			for (Object object : parseArray) {
-				JSONObject jo = (JSONObject) object;
-				JSONObject po = JSONObject.parseObject(jo.getString("data"));
-				String status = po.getString("status");
-				if (!status.equals("1")) {
-					String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
-					httpPostMssage(resultUrl, null);
-					continue;
-				}
-				String tpEndTime = po.getString("tpEndTime");
-				SingleCarparkUser user;
+				try {
+					JSONObject jo = (JSONObject) object;
+					if("delete".equals(jo.getString("operation"))) {
+						String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
+						System.out.println(jo+"==="+resultUrl);
+						httpPostMssage(resultUrl, null);
+						continue;
+					}
+					JSONObject po = JSONObject.parseObject(jo.getString("data"));
+					String status = po.getString("status");
+					if (!status.equals("1")) {
+						String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
+						httpPostMssage(resultUrl, null);
+						continue;
+					}
+					String tpEndTime = po.getString("tpEndTime");
+					SingleCarparkUser user;
 //				String id = ((String) po.get("id")).replace(parkId, "");
 //				Long valueOf = Long.valueOf(id);
 //				user = sp.getCarparkUserService().findUserById(valueOf);
-				user=sp.getCarparkUserService().findUserByPlateNo(po.getString("carNum"), null);
-				if (user==null) {
+					user=sp.getCarparkUserService().findUserByPlateNo(po.getString("carNum"), null);
+					if (user==null) {
+						String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
+						httpPostMssage(resultUrl, null);
+						continue;
+					}
+					user.setValidTo(StrUtil.getTodayBottomTime(StrUtil.parseDateTime(tpEndTime)));
+					user.setCreateHistory(false);
+					sp.getCarparkUserService().saveUser(user);
 					String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
 					httpPostMssage(resultUrl, null);
-					continue;
+				} catch (Exception e) {
+					e.printStackTrace();
+					log.info("处理信息：{}时发生错误：{}",object,e);
 				}
-				user.setValidTo(StrUtil.getTodayBottomTime(StrUtil.parseDateTime(tpEndTime)));
-				user.setCreateHistory(false);
-				sp.getCarparkUserService().saveUser(user);
-				String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
-				httpPostMssage(resultUrl, null);
 			}
 		} catch (Exception e) {
 			log.error("更新固定用户信息时发生错误"+e);

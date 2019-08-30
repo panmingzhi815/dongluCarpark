@@ -12,6 +12,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
+import com.dongluhitec.card.domain.db.singlecarpark.OverSpeedCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkFreeTempCar;
@@ -362,4 +363,9 @@ public interface CarparkInOutServiceI {
 	Long updateRecount(Long maxId, Long returnAccountId, boolean free,String userName);
 
 	List<SingleCarparkInOutHistory> findHistoryByTimeOrder(int start, int size, String plate, Date begin, Date end, int timeType);
+
+	Long saveOverSpeedCar(OverSpeedCar car);
+	
+	public List<OverSpeedCar> findOverSpeedCarByMap(int start,int size,Map<String,Object> map);
+	public Long countOverSpeedCarByMap(Map<String,Object> map);
 }

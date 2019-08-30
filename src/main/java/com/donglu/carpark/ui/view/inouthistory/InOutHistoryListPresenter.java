@@ -209,6 +209,10 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 			if (remarkString != null && (remarkString.contains("缴费完成") || remarkString.contains("扫码缴费出场"))) {
 				online += j;
 			} else {
+				if (singleCarparkInOutHistory.getOnlineMoney()>0) {
+					online+=singleCarparkInOutHistory.getOnlineMoney();
+					j-=singleCarparkInOutHistory.getOnlineMoney();
+				}
 				fact += j;
 			}
 			free += k;

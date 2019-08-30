@@ -161,8 +161,8 @@ public class CarparkServlet extends HessianServlet implements CarparkService {
 
 
 	@Override
-	public List<SingleCarparkSystemSetting> findAllSystemSetting() {
-		return carparkService.findAllSystemSetting();
+	public List<SingleCarparkSystemSetting> findAllSystemSetting(SystemSettingTypeEnum... enums) {
+		return carparkService.findAllSystemSetting(enums);
 	}
 
 

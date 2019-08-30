@@ -111,7 +111,7 @@ public class CarInTask extends AbstractTask {
 		if (checkBlackUser(device, date)) {
 			return;
 		}
-		LOGGER.debug("查找是否为固定车");
+		LOGGER.info("查找是否为固定车");
 		user = sp.getCarparkUserService().findUserByPlateNo(plateNO, carpark.getId());
 		if (user==null) {
 			String plateLikeSize = mapSystemSetting.get(SystemSettingTypeEnum.固定车车牌匹配字符数);
@@ -194,8 +194,9 @@ public class CarInTask extends AbstractTask {
 	 * 
 	 */
 	public void showPlateToDevice() {
-		LOGGER.debug("显示车牌:{}", plateNO);
+		LOGGER.info("显示车牌:{}", plateNO);
 		presenter.showPlateNOToDevice(device, editPlateNo);
+		LOGGER.info("显示车牌完成");
 	}
 
 	/**
@@ -206,6 +207,7 @@ public class CarInTask extends AbstractTask {
 	 * @throws Exception
 	 */
 	public void checkUser(boolean isInCheck) throws Exception {
+		LOGGER.info("处理车牌信息");
 		if (isEmptyPlateNo) {
 			saveImage();
 		}
@@ -219,6 +221,7 @@ public class CarInTask extends AbstractTask {
 				return;
 			}
 		}
+		LOGGER.info("车牌处理完成");
 		saveInHistory();
 	}
 
@@ -335,6 +338,9 @@ public class CarInTask extends AbstractTask {
 
 		// 黑名单判断
 		if (!StrUtil.isEmpty(blackUser)) {
+			if (blackUser.getValid()!=null||blackUser.getValid().before(date)) {
+				return false;
+			}
 			Holiday findHolidayByDate = sp.getCarparkService().findHolidayByDate(new Date());
 			String blackInContent = model.getMapVoice().get(DeviceVoiceTypeEnum.黑名单入场语音).getContent();
 			if (!StrUtil.isEmpty(findHolidayByDate) && !StrUtil.isEmpty(blackUser.getHolidayIn())
@@ -492,6 +498,22 @@ public class CarInTask extends AbstractTask {
 		if (!visitorCarIn()) {
 			return false;
 		}
+//		if(new DateTime(date).withTime(14, 0, 0, 0).isBeforeNow()&&new DateTime(date).withTime(15, 0, 0, 0).isAfterNow()) {
+//			presenter.showContentToDevice(editPlateNo, device, "外部车辆限时", false);
+//			return true;
+//		}
+//		if(new DateTime(date).withTime(16, 40, 0, 0).isBeforeNow()&&new DateTime(date).withTime(17, 40, 0, 0).isAfterNow()) {
+//			presenter.showContentToDevice(editPlateNo, device, "车辆限时", false);
+//			return true;
+//		}
+		if(checkSpecialCar()) {
+			model.setInShowPlateNO(editPlateNo+"-特殊车");
+			return false;
+		}
+		if(checkInTime()) {
+			presenter.showContentToDevice(editPlateNo, device, "外部车辆限行", false);
+			return true;
+		}
 		LOGGER.info("临时车:{} 进场",editPlateNo);
 		if (incheck) {
 			// 临时车是否确认
@@ -506,7 +528,7 @@ public class CarInTask extends AbstractTask {
 			}
 		}
 		model.setInShowPlateNO(model.getInShowPlateNO() + "-临时车");
-		LOGGER.debug("判断是否允许临时车进");
+		LOGGER.info("判断是否允许临时车进");
 		if (device.getCarpark().isTempCarIsIn()) {
 			presenter.showContentToDevice(device,
 					model.getMapVoice().get(DeviceVoiceTypeEnum.固定停车场临时车进入语音).getContent(), false);
@@ -582,6 +604,9 @@ public class CarInTask extends AbstractTask {
 			}
 		}
 		String fixCarInMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.固定车进场语音).getContent();
+		if("免费".equals(user.getType())) {
+			fixCarInMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.免费车进场语音).getContent();
+		}
 		logger.info("过期判断");
 		// 过期判断
 		if (date.after(

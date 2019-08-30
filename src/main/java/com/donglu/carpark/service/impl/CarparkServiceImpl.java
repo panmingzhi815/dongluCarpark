@@ -263,11 +263,14 @@ public class CarparkServiceImpl implements CarparkService {
 	}
 
 	@Override
-	public List<SingleCarparkSystemSetting> findAllSystemSetting() {
+	public List<SingleCarparkSystemSetting> findAllSystemSetting(SystemSettingTypeEnum... enums) {
 		unitOfWork.begin();
 		try {
 			Criteria c=CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkSystemSetting.class);
 			List<SimpleExpression> list=new ArrayList<>();
+			if(enums==null) {
+				enums=SystemSettingTypeEnum.values();
+			}
 			for (SystemSettingTypeEnum sst : SystemSettingTypeEnum.values()) {
 				SimpleExpression eq = Restrictions.eq("settingKey", sst.name());
 				list.add(eq);
@@ -634,6 +637,7 @@ public class CarparkServiceImpl implements CarparkService {
 		for (Holiday h:list) {
 			dom.remove(h.getId());
 		}
+		cache.invalidateAll();
 		return list.size()*1L;
 	}
 
@@ -648,6 +652,7 @@ public class CarparkServiceImpl implements CarparkService {
 				dom.save(b);
 			}
 		}
+		cache.invalidateAll();
 		return list.size()*1L;
 	}
 	

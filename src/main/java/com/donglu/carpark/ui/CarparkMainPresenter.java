@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.channels.NotYetConnectedException;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -114,7 +113,9 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
+import com.dongluhitec.card.domain.db.singlecarpark.OverSpeedCar;
 import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice.DeviceInOutTypeEnum;
@@ -149,7 +150,6 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.sun.jna.Native;
 
-import ch.qos.logback.core.joran.conditional.IfAction;
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
@@ -831,7 +831,7 @@ public class CarparkMainPresenter {
 
 	protected void refreshSystemSetting() {
 		// 获取设置信息设置
-		List<SingleCarparkSystemSetting> findAllSystemSetting = sp.getCarparkService().findAllSystemSetting();
+		List<SingleCarparkSystemSetting> findAllSystemSetting = sp.getCarparkService().findAllSystemSetting(SystemSettingTypeEnum.values());
 		for (SystemSettingTypeEnum systemSetting : SystemSettingTypeEnum.values()) {
 			mapSystemSetting.put(systemSetting, systemSetting.getDefaultValue());
 		}
@@ -1731,6 +1731,7 @@ public class CarparkMainPresenter {
 			testInOut("贵", "192.168.3.244");
 		}
 		
+		feeCache = CacheBuilder.newBuilder().expireAfterWrite(model.intSetting(SystemSettingTypeEnum.支付完成后出场时间), TimeUnit.MINUTES).build();
 	}
 	private void startUploadLogService() {
 		ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
@@ -2298,7 +2299,6 @@ public class CarparkMainPresenter {
 			return;
 		}
 		data.setSavePayHistory(savePay);
-		data.setChargedType(0);
 //		boolean checkIsPay = checkIsPay(data,model.getReal(),true);
 //		if (!checkIsPay) {
 //			return;
@@ -2566,13 +2566,16 @@ public class CarparkMainPresenter {
 			String carOutMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent();
 			if (tempCarNoChargeIsPass) {
 				if (shouldMoney > 0) {
-					showContentToDevice(plateNo,device, carOutMsg, true);
 				} else {
-					showContentToDevice(plateNo,device, CarparkUtils.formatFloatString("请缴费" + shouldMoney + "元") + "," + carOutMsg, true);
+					Integer integer = model.getPlateOverSpeedSizeCache().asMap().getOrDefault(plateNo, 0);
+					if (integer>0) {
+						carOutMsg="超速"+integer+"次,"+carOutMsg;
+					}else
+					carOutMsg=CarparkUtils.formatFloatString("请缴费" + shouldMoney + "元") + "," + carOutMsg;
 				}
 			} else {
-				showContentToDevice(plateNo,device, carOutMsg, true);
 			}
+			showContentToDevice(plateNo,device, carOutMsg, true);
 			if (!StrUtil.isEmpty(model.getStroeFrees())) {
 				for (SingleCarparkStoreFreeHistory free : model.getStroeFrees()) {
 					free.setUsed("已使用");
@@ -3846,6 +3849,52 @@ public class CarparkMainPresenter {
 				}
 			}).start();
 		}
+	}
+
+	public int countOverSpeedSize(String plateNo, boolean isFixCar,SingleCarparkUser user) {
+		if (model.booleanSetting(SystemSettingTypeEnum.启用测速系统)) {
+			Map<String, Object> map=new HashMap<>();
+			map.put(OverSpeedCar.Property.plate.name(), plateNo);
+			String carType="临时车";
+			if (isFixCar) {
+				carType="固定车";
+			}
+			map.put(OverSpeedCar.Property.carType.name(), carType);
+			int day=0;
+			int size=0;
+			int blackSize=7;
+			if (isFixCar) {
+				String[] split = model.getMapSystemSetting().get(SystemSettingTypeEnum.固定车超速自动删除).split("-");
+				day=Integer.valueOf(split[0]);
+				size=Integer.valueOf(split[1]);
+			}else {
+				String[] split = model.getMapSystemSetting().get(SystemSettingTypeEnum.临时车超速自动拉黑).split("-");
+				day=Integer.valueOf(split[0]);
+				size=Integer.valueOf(split[1]);
+				blackSize=Integer.valueOf(split[2]);
+			}
+			if (size==0) {
+				return 0;
+			}
+			map.put(OverSpeedCar.Property.time.name()+"-ge", StrUtil.getTodayTopTime(new DateTime(new Date()).minusDays(day).toDate()));
+			map.put(OverSpeedCar.Property.time.name()+"-le", StrUtil.getTodayBottomTime(new Date()));
+			map.put(OverSpeedCar.Property.status.name(), 1);
+			List<OverSpeedCar> list = sp.getCarparkInOutService().findOverSpeedCarByMap(0, 100, map);
+			if (list.size()>size) {
+				if (isFixCar) {
+					sp.getCarparkUserService().deleteUser(user);
+					sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "用户有效期："+StrUtil.formatDate(user.getValidTo())+",超速"+list.size()+"次,自动删除", "系统操作");
+				}else {
+					SingleCarparkBlackUser bu=new SingleCarparkBlackUser();
+					bu.setPlateNO(plateNo);
+					bu.setValid(StrUtil.getTodayTopTime(new DateTime(new Date()).plusDays(blackSize).toDate()));
+					bu.setRemark("超速"+list.size()+"次");
+					sp.getCarparkService().saveBlackUser(bu);
+				}
+			}
+			return list.size();
+		}
+		return 0;
 	}
 	
 }

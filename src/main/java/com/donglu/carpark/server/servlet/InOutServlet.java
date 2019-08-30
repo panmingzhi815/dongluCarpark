@@ -21,6 +21,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
+import com.dongluhitec.card.domain.db.singlecarpark.OverSpeedCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkFreeTempCar;
@@ -595,5 +596,26 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	@Override
 	public List<SingleCarparkInOutHistory> findHistoryByTimeOrder(int start, int size, String plate, Date begin, Date end, int timeType) {
 		return carparkInOutService.findHistoryByTimeOrder(start, size, plate, begin, end, timeType);
+	}
+
+
+
+	@Override
+	public Long saveOverSpeedCar(OverSpeedCar car) {
+		return carparkInOutService.saveOverSpeedCar(car);
+	}
+
+
+
+	@Override
+	public List<OverSpeedCar> findOverSpeedCarByMap(int start, int size, Map<String, Object> map) {
+		return carparkInOutService.findOverSpeedCarByMap(start, size, map);
+	}
+
+
+
+	@Override
+	public Long countOverSpeedCarByMap(Map<String, Object> map) {
+		return carparkInOutService.countOverSpeedCarByMap(map);
 	}
 }

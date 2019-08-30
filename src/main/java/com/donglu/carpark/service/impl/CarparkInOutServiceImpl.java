@@ -30,6 +30,7 @@ import org.joda.time.DateTime;
 
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.util.CarparkUtils;
+import com.dongluhitec.card.blservice.DatabaseServiceDaemon;
 import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
@@ -40,6 +41,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
+import com.dongluhitec.card.domain.db.singlecarpark.OverSpeedCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkFreeTempCar;
@@ -1804,6 +1806,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			c.add(Restrictions.eq("operaName", userName));
 			c.add(Restrictions.isNull("returnAccount"));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.chargedType.name(), 0));
 			ProjectionList projectionList = Projections.projectionList();
 			projectionList.add(Projections.max("id"));
 			projectionList.add(Projections.sum("shouldMoney"));
@@ -1850,18 +1853,118 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 
 	@Override
 	public List<SingleCarparkInOutHistory> findHistoryByTimeOrder(int start, int size, String plate, Date begin, Date end, int timeType) {
-		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
-		if (!StrUtil.isEmpty(plate)) {
-			c.add(Restrictions.like(SingleCarparkInOutHistory.Property.plateNo.name(), plate));
-		}
-		if (begin!=null) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			if (!StrUtil.isEmpty(plate)) {
+				c.add(Restrictions.like(SingleCarparkInOutHistory.Property.plateNo.name(), plate));
+			}
+			if (begin != null) {
+				String name = SingleCarparkInOutHistory.Property.inTime.name();
+				if (timeType != 0) {
+					name = SingleCarparkInOutHistory.Property.outTime.name();
+				}
+				c.add(Restrictions.ge(name, begin));
+			}
+			if (end != null) {
+				String name = SingleCarparkInOutHistory.Property.inTime.name();
+				if (timeType != 0) {
+					name = SingleCarparkInOutHistory.Property.outTime.name();
+				}
+				c.add(Restrictions.ge(name, end));
+			}
 			String name = SingleCarparkInOutHistory.Property.inTime.name();
-			if (timeType!=0) {
+			if (timeType != 0) {
 				name = SingleCarparkInOutHistory.Property.outTime.name();
 			}
-			c.add(Restrictions.ge(name, begin));
+			c.addOrder(Order.desc(name));
+			c.setFirstResult(start);
+			c.setMaxResults(size);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
 		}
-		return null;
+	}
+	
+	@Transactional
+	@Override
+	public Long saveOverSpeedCar(OverSpeedCar car) {
+		DatabaseOperation<OverSpeedCar> dom = DatabaseOperation.forClass(OverSpeedCar.class, emprovider.get());
+		if (car.getId()==null) {
+			dom.insert(car);
+		}else {
+			dom.save(car);
+		}
+		return car.getId();
+	}
+
+	@Override
+	public List<OverSpeedCar> findOverSpeedCarByMap(int start, int size, Map<String, Object> map) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createCriteriaByMap(OverSpeedCar.class, map);
+			c.setFirstResult(start);
+			c.setMaxResults(size);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	private Criteria createCriteriaByMap(Class<OverSpeedCar> class1, Map<String, Object> map) {
+		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), class1);
+		for (String key : map.keySet()) {
+			Object v = map.get(key);
+			if (StrUtil.isEmpty(v)) {
+				continue;
+			}
+			String[] split = key.split("-");
+			if (1==split.length) {
+				c.add(Restrictions.eq(key, v));
+			}else if(2==split.length) {
+				String type = split[1];
+				switch (type) {
+				case "like":
+					c.add(Restrictions.like(split[0], String.valueOf(v)));
+					break;
+				case "ge":
+					System.out.println();
+					c.add(Restrictions.ge(split[0], v));
+					break;
+				case "le":
+					c.add(Restrictions.le(split[0], v));
+					break;
+				case "gt":
+					c.add(Restrictions.gt(split[0], v));
+					break;
+				case "lt":
+					c.add(Restrictions.lt(split[0], v));
+					break;
+				case "in":
+					c.add(Restrictions.in(split[0], (Object[])v));
+					break;
+				case "ne":
+					c.add(Restrictions.ne(split[0], v));
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		return c;
+	}
+
+	@Override
+	public Long countOverSpeedCarByMap(Map<String, Object> map) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createCriteriaByMap(OverSpeedCar.class, map);
+			c.setProjection(Projections.rowCount());
+			Long l = (Long) c.getSingleResultOrNull();
+			return l==null?0l:l;
+		} finally {
+			unitOfWork.end();
+		}
 	}
 	
 }

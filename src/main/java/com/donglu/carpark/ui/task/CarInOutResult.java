@@ -107,7 +107,6 @@ public class CarInOutResult implements PlateNOResult {
 		Boolean isTwoChanel = mapIsTwoChanel.get(linkAddress);
 		String inOrOut = device.getInOrOut();
 		if (inOrOut.indexOf("出口")>-1) {
-			presenter.notifyDeviceCarIn(device,plateNO);
 			Date serverDate = sp.getSettingService().getServerDate();
 			SystemUtils.setLocalTime(serverDate);
 			// 是否是双摄像头

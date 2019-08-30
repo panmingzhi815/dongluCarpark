@@ -440,7 +440,13 @@ public class CarOutTask extends AbstractTask{
 		c.add(Calendar.DATE, user.getRemindDays() == null ? 0 : user.getRemindDays() * -1);
 		time = c.getTime();
 		String content = model.getMapVoice().get(DeviceVoiceTypeEnum.固定车出场语音).getContent();
-		
+		if("免费".equals(user.getType())) {
+			content = model.getMapVoice().get(DeviceVoiceTypeEnum.免费车出场语音).getContent();
+		}
+		int size=presenter.countOverSpeedSize(editPlateNo,true,user);
+		if (size>0) {
+			content="超速"+size+"次,"+content;
+		}
 		if (StrUtil.getTodayBottomTime(time).before(date)) {
 			presenter.showContentToDevice(editPlateNo,device, content + ",剩余" + CarparkUtils.countDayByBetweenTime(date, user.getValidTo()) + "天", true);
 			LOGGER.info("车辆:{}即将到期", editPlateNo);
@@ -662,6 +668,61 @@ public class CarOutTask extends AbstractTask{
 		if (!visitorCarOut()) {
 			return;
 		}
+//		if(new DateTime(date).withTime(14, 0, 0, 0).isBeforeNow()&&new DateTime(date).withTime(15, 0, 0, 0).isAfterNow()) {
+//			presenter.showContentToDevice(editPlateNo, device, "外部车辆限时", false);
+//			return;
+//		}
+//		if(new DateTime(date).withTime(16, 40, 0, 0).isBeforeNow()&&new DateTime(date).withTime(17, 40, 0, 0).isAfterNow()) {
+//			presenter.showContentToDevice(editPlateNo, device, "车辆限时", false);
+//			return;
+//		}
+		
+		if (checkSpecialCar()) {
+			SingleCarparkInOutHistory io=cch;
+			if (cch==null) {
+				io=new SingleCarparkInOutHistory();
+				io.setPlateNo(editPlateNo);
+				io.setInTime(date);
+				model.setInTime(null);
+				model.setTotalTime("未入场");
+			}else {
+				model.setInTime(cch.getInTime());
+				model.setTotalTime(StrUtil.MinusTime2(cch.getInTime(), date));
+			}
+			io.setOutBigImg(bigImgFileName);
+			io.setOutSmallImg(smallImgFileName);
+			io.setOutTime(date);
+			io.setFactMoney(0);
+			io.setShouldMoney(0);
+			io.setFreeMoney(0);
+			io.setCarparkId(device.getCarpark().getId());
+			io.setCarparkName(device.getCarpark().getName());
+			io.setCarType("临时车");
+			io.setOutDevice(device.getName());
+			io.setOperaName(System.getProperty("userName"));
+			io.setOutPlateNO(plateNO);
+			io.setSaveHistory(false);
+			io.setRemarkString("特殊车");
+			model.setOutShowPlateNO(editPlateNo+"-特殊车");
+			model.setPlateNo(plateNO);
+			model.setOutTime(date);
+			model.setCarType("特殊车");
+			model.setShouldMony(0);
+			model.setReal(0);
+			model.setChargedMoney(0f);
+			sp.getCarparkInOutService().saveInOutHistory(io);
+			LOGGER.info("保存车辆{}的出场记录成功",plateNO);
+			presenter.showPlateNOToDevice(device, plateNO);
+			presenter.updatePosition(carpark, io, false);
+			presenter.showContentToDevice(editPlateNo,device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
+			return;
+		}
+		if(checkInTime()) {
+			presenter.showContentToDevice(editPlateNo, device, "外部车辆限行", false);
+			return;
+		}
+		
+		
 		logger.info("临时车：{} 计费出场",editPlateNo);
 		model.setOutShowPlateNO(model.getOutShowPlateNO()+"-临时车");
 		model.setPlateInTime(date, 30);
@@ -820,10 +881,16 @@ public class CarOutTask extends AbstractTask{
 				Boolean valueOf = Boolean.valueOf(property);
 				// 临时车零收费是否自动出场
 				if (shouldMoney>0) {
+					presenter.notifyDeviceCarIn(device,plateNO);
 					presenter.checkIsPay(singleCarparkInOutHistory, 0f, false);
 					if (model.getChargedMoney() > 0 && model.getReal() > 0) {
 						s += ",已缴费" + CarparkUtils.formatFloatString(model.getChargedMoney() + "") + "元";
 					} 
+				}
+				int countOverSpeedSize = presenter.countOverSpeedSize(editPlateNo, false, user);
+				if (countOverSpeedSize>0) {
+					s="超速"+countOverSpeedSize+"次,"+s;
+					model.getPlateOverSpeedSizeCache().put(editPlateNo, countOverSpeedSize);
 				}
 				Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
 				model.setBtnClick(true);
@@ -862,7 +929,7 @@ public class CarOutTask extends AbstractTask{
 			}
 		}else{
 			LOGGER.info("车辆{}未入场且停车场是否收费设置为{}",plateNO,isCharge);
-			if (!isCharge) {
+			if (!isCharge||model.booleanSetting(SystemSettingTypeEnum.无记录自动放行)) {
 				SingleCarparkInOutHistory io=new SingleCarparkInOutHistory();
 				io.setPlateNo(plateNO);
 				io.setOutBigImg(bigImgFileName);
@@ -877,6 +944,9 @@ public class CarOutTask extends AbstractTask{
 				io.setOutDevice(device.getName());
 				io.setOperaName(System.getProperty("userName"));
 				io.setOutPlateNO(plateNO);
+				io.setInTime(date);
+				io.setSaveHistory(false);
+				io.setRemarkString("未找到入场记录");
 				model.setPlateNo(plateNO);
 				model.setInTime(null);
 				model.setOutTime(date);
@@ -888,6 +958,14 @@ public class CarOutTask extends AbstractTask{
 				presenter.updatePosition(carpark, io, false);
 				presenter.showContentToDevice(editPlateNo,device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			}else{
+				List<SingleCarparkInOutHistory> list = sp.getCarparkInOutService().findHistoryByTimeOrder(0, 1, editPlateNo, null, null, 1);
+				if (!StrUtil.isEmpty(list)) {
+					if (date.getTime()-list.get(0).getOutTime().getTime()<model.intSetting(SystemSettingTypeEnum.支付完成后出场时间)*60*1000) {
+						LOGGER.info("车辆出场时间：{} 未找到进场记录,上次出场时间：{} ,在{} 分钟内 自动放行",date,list.get(0).getOutTime(),model.intSetting(SystemSettingTypeEnum.支付完成后出场时间));
+						presenter.showContentToDevice(editPlateNo,device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
+						return;
+					}
+				}
 				notFindInHistory();
 			}
 		}
