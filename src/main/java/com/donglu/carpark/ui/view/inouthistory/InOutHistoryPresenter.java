@@ -52,10 +52,6 @@ public class InOutHistoryPresenter  implements Presenter{
 //		}else
 		listPresenter.search( plateNo,  returnUser,  start,  end,outStart,outEnd,  operaName,  carType,  inout,  inDevice,  outDevice,  returnAccount,carpark,shouldMoney);
 	}
-	public float[] countMoney() {
-		
-		return listPresenter.countMoney();
-	}
 	
 	public InOutHistoryListPresenter getListPresenter() {
 		return listPresenter;

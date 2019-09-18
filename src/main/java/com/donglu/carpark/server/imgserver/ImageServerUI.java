@@ -598,6 +598,10 @@ public class ImageServerUI {
 			// list.add("update SingleCarparkInOutHistory set carRecordStatus='已出场' where outTime is
 			// not null and carRecordStatus is null");
 		}
+		if (checkVercionIsLess(databaseVersion, "1.0.0.30")) {
+			String sql = "update SingleCarparkInOutHistory set onlineMoney=factMoney where chargedType=1 and onlineMoney is null";
+			list.add(sql);
+		}
 		for (String sql : list) {
 			CarparkDataBaseUtil.executeSQL(instance.getDbServerIp(), instance.getDbServerPort(), "carpark", instance.getDbServerUsername(), instance.getDbServerPassword(), sql,
 					instance.getDbServerType());

@@ -20,6 +20,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.layout.FillLayout;
 
 public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHistory> implements View{
 	
@@ -27,6 +28,7 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 	private Label lbl_factMoney;
 	private Label lbl_freeMoney;
 	private Label lbl_onlineMoney;
+	private Label lbl_freeCarSize;
 	public InOutHistoryListView(Composite parent, int style) {
 		super(parent, style, SingleCarparkInOutHistory.class,
 				new String[]{SingleCarparkInOutHistory.Property.plateNo.name(),
@@ -96,7 +98,7 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		});
 		addItem.setToolTipText("查看图片");
 		ToolItem countItem = new ToolItem(mainToolbar, SWT.NONE);
-		countItem.setText("统计");
+		countItem.setText("流量统计");
 		countItem.setData("type", "count");
 		countItem.addSelectionListener(new SelectionAdapter() {
 		    @Override
@@ -105,6 +107,16 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		    }
 		});
 		countItem.setToolTipText("流量统计");
+		ToolItem feeCountItem = new ToolItem(mainToolbar, SWT.NONE);
+		feeCountItem.setText("收费统计");
+		feeCountItem.setData("type", "count");
+		feeCountItem.addSelectionListener(new SelectionAdapter() {
+		    @Override
+		    public void widgetSelected(SelectionEvent e) {
+		    	getPresenter().feeCount();
+		    }
+		});
+		feeCountItem.setToolTipText("收费统计");
 		ToolItem setTypeItem = new ToolItem(mainToolbar, SWT.NONE);
 		setTypeItem.setText("设置车类型");
 		setTypeItem.addSelectionListener(new SelectionAdapter() {
@@ -129,9 +141,8 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 	protected void createBottomComposite(Composite parent) {
 		Composite composite_4 = new Composite(parent, SWT.NONE);
 		GridLayout gl_composite_4 = new GridLayout(1, true);
-		gl_composite_4.verticalSpacing = 0;
-		gl_composite_4.marginWidth = 0;
 		gl_composite_4.marginHeight = 0;
+		gl_composite_4.marginWidth = 0;
 		gl_composite_4.horizontalSpacing = 0;
 		composite_4.setLayout(gl_composite_4);
 		
@@ -181,6 +192,15 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		GridData gd_lbl_freeMoney = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lbl_freeMoney.widthHint = 70;
 		lbl_freeMoney.setLayoutData(gd_lbl_freeMoney);
+		
+		Composite composite_1 = new Composite(composite_4, SWT.NONE);
+		composite_1.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		composite_1.setLayout(new FillLayout(SWT.HORIZONTAL));
+		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		lbl_freeCarSize = new Label(composite_1, SWT.NONE);
+		lbl_freeCarSize.setAlignment(SWT.RIGHT);
+		lbl_freeCarSize.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 	}
 	public void setMoney(String shouldMoney,String factMoney,String freeMoney,String onlineMoney){
 		lbl_shouldMoney.setText(shouldMoney);
@@ -188,4 +208,9 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		lbl_freeMoney.setText(freeMoney);
 		lbl_onlineMoney.setText(onlineMoney);
 	}
+	
+	public void setFreeSizeLabel(String s) {
+		lbl_freeCarSize.setText(s);
+	}
+	
 }

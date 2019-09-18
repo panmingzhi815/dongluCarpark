@@ -703,6 +703,7 @@ public class CarOutTask extends AbstractTask{
 			io.setOutPlateNO(plateNO);
 			io.setSaveHistory(false);
 			io.setRemarkString("特殊车");
+			io.setFreeReason("特殊车");
 			model.setOutShowPlateNO(editPlateNo+"-特殊车");
 			model.setPlateNo(plateNO);
 			model.setOutTime(date);

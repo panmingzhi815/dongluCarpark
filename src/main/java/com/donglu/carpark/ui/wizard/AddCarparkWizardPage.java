@@ -68,7 +68,9 @@ public class AddCarparkWizardPage extends WizardPage {
 		
 		text = new Text(composite, SWT.BORDER);
 		text.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text.widthHint = 260;
+		text.setLayoutData(gd_text);
 		
 		Label label_1 = new Label(composite, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

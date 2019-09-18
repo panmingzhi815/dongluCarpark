@@ -20,9 +20,13 @@ import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
 import org.criteria4jpa.Criteria;
 import org.criteria4jpa.CriteriaUtils;
+import org.criteria4jpa.criterion.Criterion;
 import org.criteria4jpa.criterion.MatchMode;
 import org.criteria4jpa.criterion.Restrictions;
 import org.criteria4jpa.criterion.SimpleExpression;
+import org.criteria4jpa.impl.CriteriaImpl;
+import org.criteria4jpa.impl.CriteriaQueryBuilder;
+import org.criteria4jpa.impl.MetaEntry;
 import org.criteria4jpa.order.Order;
 import org.criteria4jpa.projection.ProjectionList;
 import org.criteria4jpa.projection.Projections;
@@ -30,7 +34,6 @@ import org.joda.time.DateTime;
 
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.util.CarparkUtils;
-import com.dongluhitec.card.blservice.DatabaseServiceDaemon;
 import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
@@ -1962,6 +1965,96 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			c.setProjection(Projections.rowCount());
 			Long l = (Long) c.getSingleResultOrNull();
 			return l==null?0l:l;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public Map<String, Integer> countFreeSize(String plateNo, String userName, String carType, String inout, Date start, Date end, Date outStart, Date outEnd, String operaName, String inDevice,
+			String outDevice, Long returnAccount, Long carparkId, float... shouldMoney) {
+		unitOfWork.begin();
+		try {
+			EntityManager entityManager = emprovider.get();
+			CriteriaImpl c = (CriteriaImpl) CriteriaUtils.createCriteria(entityManager, SingleCarparkInOutHistory.class);
+			createCriteriaByCondition(c, plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carparkId, shouldMoney);
+			ProjectionList projectionList = Projections.projectionList();
+			projectionList.add(Projections.property("freeReason"));
+			projectionList.add(Projections.count("freeReason"));
+			c.setProjection(projectionList);
+			CriteriaQueryBuilder criteriaQueryBuilder = new CriteriaQueryBuilder(entityManager, c);
+			String string = criteriaQueryBuilder.createQueryString();
+			Query query = emprovider.get().createQuery(string+" group by freeReason");
+			int position=1;
+			for (MetaEntry<Criterion> metaEntry : c.getCriterionList()) {
+				query.setParameter(position++, metaEntry.getEntry().getParameterValues()[0]);
+			}
+			List<Object[]> list = query.getResultList();
+			Map<String,Integer> map=new HashMap<>();
+			for (Object[] object : list) {
+				if (object[0]==null) {
+					continue;
+				}
+				String name=String.valueOf(object[0]).split("-")[0];
+				Long size=object[1]==null?0l:(Long) object[1];
+				map.put(name, size.intValue());
+			}
+			return map;
+		}finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public float[] countMoney(String plateNo, String userName, String carType, String inout, Date start, Date end, Date outStart, Date outEnd, String operaName, String inDevice, String outDevice,
+			Long returnAccount, Long carparkId, float... shouldMoney) {
+		unitOfWork.begin();
+		try {
+			CriteriaImpl c = (CriteriaImpl) CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+			createCriteriaByCondition(c, plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carparkId, shouldMoney);
+			ProjectionList projectionList = Projections.projectionList();
+			projectionList.add(Projections.sum(SingleCarparkInOutHistory.Property.shouldMoney.name()));
+			projectionList.add(Projections.sum(SingleCarparkInOutHistory.Property.factMoney.name()));
+			projectionList.add(Projections.sum(SingleCarparkInOutHistory.Property.onlineMoney.name()));
+			projectionList.add(Projections.sum(SingleCarparkInOutHistory.Property.freeMoney.name()));
+			c.setProjection(projectionList);
+			List<Object[]> resultList = c.getResultList();
+			float[] f=new float[4];
+			for (Object[] objects : resultList) {
+				System.out.println(objects);
+				f[0]=objects[0]==null?0:((Double)objects[0]).floatValue();
+				f[1]=objects[1]==null?0:((Double)objects[1]).floatValue();
+				f[2]=objects[2]==null?0:((Double)objects[2]).floatValue();
+				f[3]=objects[3]==null?0:((Double)objects[3]).floatValue();
+			}
+			return f;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<Object[]> countFeeBySearch(Date start, Date end, String operaName, int type) {
+		unitOfWork.begin();
+		try {
+			String time = "CONVERT(varchar, outTime, 112)";
+			if (type==1) {
+				time="SUBSTRING(CONVERT(varchar, outTime, 112),0,7)";
+				start=StrUtil.getMonthTopTime(start);
+				end=StrUtil.getMonthBottomTime(end);
+			}else if(type==2) {
+				time="DATEPART(YY,outTime)";
+				start=StrUtil.getYearTopTime(start);
+				end=StrUtil.getYearBottomTime(end);
+			}
+			String s = start == null ? "" : " and outtime>='" + StrUtil.formatDateTime(start) + "'";
+			String e = end == null ? "" : " and outtime<='" + StrUtil.formatDateTime(end) + "'";
+			String opera = StrUtil.isEmpty(operaName) ? "" : " and operaName='" + operaName + "'";
+			String sql = "select operaName,"+time+" a,SUM(shouldMoney) b,sum(factMoney) c,sum(onlineMoney) d,sum(freeMoney) e from SingleCarparkInOutHistory where 1=1 " + s + e + opera
+					+ " group by operaName,"+time;
+//			System.out.println(sql);
+			Query query = emprovider.get().createNativeQuery(sql);
+			return query.getResultList();
 		} finally {
 			unitOfWork.end();
 		}

@@ -618,4 +618,27 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	public Long countOverSpeedCarByMap(Map<String, Object> map) {
 		return carparkInOutService.countOverSpeedCarByMap(map);
 	}
+
+
+
+	@Override
+	public Map<String, Integer> countFreeSize(String plateNo, String userName, String carType, String inout, Date start, Date end, Date outStart, Date outEnd, String operaName, String inDevice,
+			String outDevice, Long returnAccount, Long carparkId, float... shouldMoney) {
+		return carparkInOutService.countFreeSize(plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carparkId, shouldMoney);
+	}
+
+
+
+	@Override
+	public float[] countMoney(String plateNo, String userName, String carType, String inout, Date start, Date end, Date outStart, Date outEnd, String operaName, String inDevice, String outDevice,
+			Long returnAccount, Long carparkId, float... shouldMoney) {
+		return carparkInOutService.countMoney(plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carparkId, shouldMoney);
+	}
+
+
+
+	@Override
+	public List<Object[]> countFeeBySearch(Date start, Date end, String operaName, int type) {
+		return carparkInOutService.countFeeBySearch(start, end, operaName,type);
+	}
 }

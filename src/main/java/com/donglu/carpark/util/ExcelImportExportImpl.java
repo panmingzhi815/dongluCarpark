@@ -24,6 +24,8 @@ import org.apache.poi.ss.util.CellRangeAddress;
 
 import javax.imageio.ImageIO;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -447,18 +449,28 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 		HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(path));
 		HSSFSheet sheet = wb.getSheetAt(0);
 		int currentRow = 0;
-		HSSFRow row = sheet.createRow(currentRow);
-//		row.createCell(0).setCellValue("编号");
-		for (int i = 0; i < names.length; i++) {
-			String string = names[i];
-			HSSFCell createCell = row.createCell(i+1);
-			row.createCell(i).setCellValue(string);
-		}
-		currentRow++;
+		HSSFRow row;
+        if (!StrUtil.isEmpty(names)) {
+        	row = sheet.createRow(currentRow);
+        	//		row.createCell(0).setCellValue("编号");
+        	for (int i = 0; i < names.length; i++) {
+        		String string = names[i];
+        		HSSFCell createCell = row.createCell(i + 1);
+        		row.createCell(i).setCellValue(string);
+        	}
+        	currentRow++;
+        }
 		for (int i = 0; i < list.size(); i++) {
 			row = sheet.createRow(currentRow + i);
 			Object o = list.get(i);
-			
+			if (o instanceof List<?>) {
+				List<?> l=(List<?>) o;
+				int index=0;
+				for (Object object : l) {
+					row.createCell(index++).setCellValue(String.valueOf(object));
+				}
+				continue;
+			}
 //			row.createCell(0).setCellValue(i+1);
 			for (int j = 0; j < cloumns.length; j++) {
 				String string = cloumns[j];

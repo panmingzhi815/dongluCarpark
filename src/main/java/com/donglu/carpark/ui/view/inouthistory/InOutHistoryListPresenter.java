@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -20,6 +21,7 @@ import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.ShowDialog;
 import com.donglu.carpark.ui.common.View;
+import com.donglu.carpark.ui.view.inouthistory.feecount.FeeCountPresenter;
 import com.donglu.carpark.ui.view.inouthistory.wizard.SetCarTypeModel;
 import com.donglu.carpark.ui.view.inouthistory.wizard.SetCarTypeWizard;
 import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
@@ -36,6 +38,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.util.ProcessBarMonitor;
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.inject.Inject;
 
@@ -48,6 +51,8 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	private CommonUIFacility commonui;
 	@Inject
 	private CountFlowPresenter countFlowPresenter;
+	@Inject
+	private FeeCountPresenter feeCountPresenter;
 
 	private String plateNo;
 	private String userName;
@@ -91,7 +96,22 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		model.setCountSearchAll(countByCondition.intValue());
 		model.AddList(findByCondition);
 		model.setCountSearch(model.getList().size());
-		countMoney();
+		
+		Map<String,Integer> map=carparkInOutService.countFreeSize(plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carpark.getId(),
+				shouldMoney);
+		if (map.keySet().size()>0) {
+			String s="免费车：    ";
+			for (String string : map.keySet().stream().sorted((s1,s2)->{return s1.compareTo(s2);}).collect(Collectors.toList())) {
+				s+=string+"："+Strings.padEnd(String.valueOf(map.get(string)), 9, ' ');
+			}
+			v.setFreeSizeLabel(s);
+		}else {
+			v.setFreeSizeLabel("");
+		}
+		float[] countMoney = carparkInOutService.countMoney(plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carpark.getId(),
+				shouldMoney);
+//		System.out.println(countMoney[0]+"="+countMoney[1]+"="+countMoney[2]+"="+countMoney[3]);
+		v.setMoney(countMoney[0] + "", (countMoney[1]-countMoney[2]) + "", countMoney[3] + "", countMoney[2] + "");
 	}
 
 	/**
@@ -160,36 +180,6 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		this.carpark = carpark;
 		this.shouldMoney = shouldMoney;
 		refresh();
-	}
-
-	public float[] countMoney() {
-		List<SingleCarparkInOutHistory> list = v.getModel().getList();
-		if (StrUtil.isEmpty(list)) {
-			return null;
-		}
-		float should = 0;
-		float fact = 0;
-		float free = 0;
-		float online = 0;
-		for (SingleCarparkInOutHistory singleCarparkInOutHistory : list) {
-			String remarkString = singleCarparkInOutHistory.getRemarkString();
-			float i = singleCarparkInOutHistory.getShouldMoney() == null ? 0 : singleCarparkInOutHistory.getShouldMoney().floatValue();
-			float j = singleCarparkInOutHistory.getFactMoney() == null ? 0 : singleCarparkInOutHistory.getFactMoney().floatValue();
-			float k = singleCarparkInOutHistory.getFreeMoney() == null ? 0 : singleCarparkInOutHistory.getFreeMoney().floatValue();
-			should += i;
-			if ((remarkString != null && (remarkString.contains("缴费完成") || remarkString.contains("扫码缴费出场")))||singleCarparkInOutHistory.getChargedType()==1) {
-				online += j;
-			} else {
-				if (singleCarparkInOutHistory.getOnlineMoney()>0) {
-					online+=singleCarparkInOutHistory.getOnlineMoney();
-					j-=singleCarparkInOutHistory.getOnlineMoney();
-				}
-				fact += j;
-			}
-			free += k;
-		}
-		v.setMoney(should + "", fact + "", free + "", online + "");
-		return new float[] { should, fact, free, online };
 	}
 
 	public float[] countMoney(List<SingleCarparkInOutHistory> list) {
@@ -489,5 +479,13 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 			e.printStackTrace();
 			commonui.info("错误","手动出场失败"+e);
 		}
+	}
+
+	public void feeCount() {
+		ShowDialog d = new ShowDialog("报表统计");
+		d.setPresenter(feeCountPresenter);
+		d.setHaveButon(false);
+		d.setSize(1280, 960);
+		d.open();
 	}
 }

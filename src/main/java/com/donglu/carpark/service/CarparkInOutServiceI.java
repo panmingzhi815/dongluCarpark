@@ -368,4 +368,12 @@ public interface CarparkInOutServiceI {
 	
 	public List<OverSpeedCar> findOverSpeedCarByMap(int start,int size,Map<String,Object> map);
 	public Long countOverSpeedCarByMap(Map<String,Object> map);
+
+	Map<String, Integer> countFreeSize(String plateNo, String userName, String carType, String inout, Date start, Date end, Date outStart, Date outEnd, String operaName, String inDevice,
+			String outDevice, Long returnAccount, Long carparkId, float... shouldMoney);
+	
+	public float[] countMoney(String plateNo, String userName, String carType, String inout, Date start, Date end, Date outStart, Date outEnd, String operaName, String inDevice,
+			String outDevice, Long returnAccount, Long carparkId, float... shouldMoney);
+
+	List<Object[]> countFeeBySearch(Date start, Date end, String operaName, int type);
 }

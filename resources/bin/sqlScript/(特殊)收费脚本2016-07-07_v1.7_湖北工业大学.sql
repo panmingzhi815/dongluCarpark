@@ -51,8 +51,20 @@ begin
 	
 	if @outtime > @InTimeTmp
 	begin
-		set @hourSize=60-datediff(minute,@intime,@InTimeTmp)%60
-		set @outtime = dateadd(minute,@hourSize,@InTimeTmp)
+		if datediff(minute,@InTimeTmp,@outtime)<60 and datediff(minute,@intime,@outtime)>60 and DATEPART(hh,@outtime) =19
+		begin
+			set @outtime = DATEADD(MINUTE,datediff(minute,@InTimeTmp,@outtime)-60,@outtime)
+		end
+		else if datediff(minute,@intime,@outtime)>60
+		begin
+			set @outtime=@InTimeTmp;
+		end
+		else
+		begin
+			set @hourSize=60-datediff(minute,@intime,@InTimeTmp)%60
+			set @outtime = dateadd(minute,@hourSize,@InTimeTmp)
+		end
+		
 	end
 	if @IsAcrossDuration=0 and @startStepTime>0
 	begin

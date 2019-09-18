@@ -508,6 +508,7 @@ public class CarInTask extends AbstractTask {
 //		}
 		if(checkSpecialCar()) {
 			model.setInShowPlateNO(editPlateNo+"-特殊车");
+			isOpenDoor=true;
 			return false;
 		}
 		if(checkInTime()) {

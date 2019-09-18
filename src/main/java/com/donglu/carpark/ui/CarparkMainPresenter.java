@@ -2341,6 +2341,10 @@ public class CarparkMainPresenter {
 				freeMoney+=carPayHistory.getCouponValue();
 				ctype=carPayHistory.getPayType().name();
 			}
+			if (!model.booleanSetting(SystemSettingTypeEnum.优先使用云平台计费)) {
+				data.setOnlineMoney(chargeMoney.floatValue());
+				data.setFreeMoney(freeMoney.floatValue());
+			}
 			if (chargeMoney+freeMoney<model.getShouldMony()) {
 				Result result = new Result();
 				
@@ -3437,17 +3441,22 @@ public class CarparkMainPresenter {
 					inOutHistory.setShouldMoney(payResult.getPayedFee());
 					inOutHistory.setFactMoney(payResult.getPayedFee()-payResult.getCouponValue());
 					inOutHistory.setFreeMoney(payResult.getCouponValue());
+					inOutHistory.setOnlineMoney(payResult.getPayedFee());
 				}
 			}else {
     			inOutHistory.setShouldMoney(shouldMoney);
     			inOutHistory.setFactMoney(shouldMoney);
     			inOutHistory.setFreeMoney(0f);
+    			inOutHistory.setOnlineMoney(shouldMoney);
 			}
 			inOutHistory.setRemarkString("扫码缴费出场");
 			inOutHistory.setChargedType(1);
 			sp.getCarparkInOutService().saveInOutHistory(inOutHistory);
 			if (plate.length()>8) {
 				plate="";
+			}
+			if (plate.length()>1&&model.getPlateNo().contains(plate)) {
+				model.setPlateNo(plate+"-已在线支付");
 			}
 			MessageUtil.close(plate);
 			model.getMapWaitInOutHistory().remove(device.getIp());

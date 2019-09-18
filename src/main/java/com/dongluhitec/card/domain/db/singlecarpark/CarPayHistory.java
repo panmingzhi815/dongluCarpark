@@ -92,8 +92,9 @@ public class CarPayHistory extends DomainObject{
 		operaName=inout.getOperaName();
 		createDate=new Date();
 		payedMoney=inout.getShouldMoney();
-		cashCost=inout.getFactMoney().doubleValue();
+		cashCost=inout.getFactMoney().doubleValue()-inout.getOnlineMoney();
 		couponValue=inout.getFreeMoney().doubleValue();
+		onlineCost=inout.getOnlineMoney().doubleValue();
 		payId=UUID.randomUUID().toString().replace("-", "");
 	}
 	public String getInTimeLabel(){

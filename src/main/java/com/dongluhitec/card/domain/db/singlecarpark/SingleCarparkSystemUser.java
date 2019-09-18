@@ -28,6 +28,7 @@ public class SingleCarparkSystemUser extends DomainObject{
 	private Date lastEditDate;
 	private String lastEditUser; 
 	private String remark;
+	private String area;
 	
 	private Boolean singleLogin=true;
 	
@@ -120,6 +121,14 @@ public class SingleCarparkSystemUser extends DomainObject{
 	public void setSingleLogin(Boolean singleLogin) {
 		this.singleLogin = singleLogin;
 		firePropertyChange("singleLogin", null, null);
+	}
+
+	public String getArea() {
+		return area;
+	}
+
+	public void setArea(String area) {
+		this.area = area;
 	}
 	
 	

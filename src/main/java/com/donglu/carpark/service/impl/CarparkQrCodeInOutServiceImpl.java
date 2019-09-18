@@ -14,6 +14,7 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
@@ -197,7 +198,7 @@ public class CarparkQrCodeInOutServiceImpl implements CarparkQrCodeInOutService 
 
 	public MqttClient createLongConnectMqtt(String buildId, CarparkQrCodeInOutCallback callback) {
 		try {
-			MqttClient client = new MqttClient("tcp://"+mqttHost+":1883", "DY-VLPR-"+NetUtils.getMacAddress().split(",")[0],new MemoryPersistence());
+			MqttClient client = new MqttClient("tcp://"+mqttHost+":1883", "DY-VLPR-"+NetUtils.getMacAddress().split(",")[0]+new Random().nextInt(99),new MemoryPersistence());
 			String topic = "lightcar/ipms/"+buildId;
 			int qos = 1;
 			// 创建MqttClient
