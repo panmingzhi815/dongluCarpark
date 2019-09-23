@@ -703,7 +703,7 @@ public class CarOutTask extends AbstractTask{
 			io.setOutPlateNO(plateNO);
 			io.setSaveHistory(false);
 			io.setRemarkString("特殊车");
-			io.setFreeReason("特殊车");
+//			io.setFreeReason("特殊车");
 			model.setOutShowPlateNO(editPlateNo+"-特殊车");
 			model.setPlateNo(plateNO);
 			model.setOutTime(date);
@@ -953,6 +953,10 @@ public class CarOutTask extends AbstractTask{
 				model.setOutTime(date);
 				model.setCarType("临时车");
 				model.setTotalTime("未入场");
+				model.setBtnClick(false);
+				model.setShouldMony(0);
+				model.setChargedMoney(0f);
+				model.setReal(0);
 				sp.getCarparkInOutService().saveInOutHistory(io);
 				LOGGER.info("保存车辆{}的出场记录成功",plateNO);
 				presenter.showPlateNOToDevice(device, plateNO);

@@ -45,6 +45,11 @@ public class ImageServiceImpl implements ImageServiceI {
 		}
 		return null;
 	}
+	
+	public String saveImageInServer(byte[] image) {
+		String imageName="";
+		return saveImageInServer(image, imageName);
+	}
 
 	@Override
 	public byte[] getImage(String imageName) {

@@ -26,6 +26,7 @@ public class OverSpeedCarListPresenter extends AbstractListPresenter<OverSpeedCa
 	private CarparkDatabaseServiceProvider sp;
 	@Inject
 	private CommonUIFacility commonui;
+	private int status;
 
 	@Override
 	protected List<OverSpeedCar> findListInput() {
@@ -42,6 +43,9 @@ public class OverSpeedCarListPresenter extends AbstractListPresenter<OverSpeedCa
 		}
 		map.put(OverSpeedCar.Property.time.name()+"-ge", start);
 		map.put(OverSpeedCar.Property.time.name()+"-le", end);
+		if (status>0) {
+			map.put(OverSpeedCar.Property.status.name(), status-1);
+		}
 		return map;
 	}
 	
@@ -50,10 +54,11 @@ public class OverSpeedCarListPresenter extends AbstractListPresenter<OverSpeedCa
 		return sp.getCarparkInOutService().countOverSpeedCarByMap(getMap()).intValue();
 	}
 	
-	public void search(Date start, Date end, String plateNo) {
+	public void search(Date start, Date end, String plateNo, int status) {
 		this.start=start;
 		this.end=end;
 		this.plateNo = plateNo;
+		this.status = status;
 		refresh();
 	}
 	@Override
@@ -84,13 +89,17 @@ public class OverSpeedCarListPresenter extends AbstractListPresenter<OverSpeedCa
 			if (StrUtil.isEmpty(list)) {
 				return;
 			}
-			OverSpeedCar car = list.get(0);
-			boolean confirm = commonui.confirm("提示", "是否将车辆："+car.getPlace()+"的记录设置为正常!");
+			boolean confirm = commonui.confirm("提示", "是否将选中的条"+list.size()+"记录设置为正常!");
 			if (!confirm) {
 				return;
 			}
-			car.setStatus(0);
-			sp.getCarparkInOutService().saveOverSpeedCar(car);
+			for (OverSpeedCar car : list) {
+				if (car.getStatus()==0) {
+					continue;
+				}
+				car.setStatus(0);
+				sp.getCarparkInOutService().saveOverSpeedCar(car);
+			}
 			refresh();
 		} catch (Exception e) {
 			commonui.error("提示", "修改时发生错误", e);

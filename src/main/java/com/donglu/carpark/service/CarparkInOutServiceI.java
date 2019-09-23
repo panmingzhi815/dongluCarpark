@@ -374,6 +374,22 @@ public interface CarparkInOutServiceI {
 	
 	public float[] countMoney(String plateNo, String userName, String carType, String inout, Date start, Date end, Date outStart, Date outEnd, String operaName, String inDevice,
 			String outDevice, Long returnAccount, Long carparkId, float... shouldMoney);
-
+	/**
+	 * 根据操作员，时间统计费用
+	 * @param start
+	 * @param end
+	 * @param operaName
+	 * @param type
+	 * @return
+	 */
 	List<Object[]> countFeeBySearch(Date start, Date end, String operaName, int type);
+	/**
+	 * 根据时间，操作员，免费原因,统计免费车数量
+	 * @param start
+	 * @param end
+	 * @param userName
+	 * @param type
+	 * @return
+	 */
+	List<Object[]> countFreeBySearch(Date start, Date end, String operaName, int type);
 }

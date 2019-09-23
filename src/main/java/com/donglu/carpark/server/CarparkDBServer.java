@@ -5,6 +5,7 @@ import org.eclipse.jetty.servlet.ServletHandler;
 import com.donglu.carpark.server.servlet.CarPayServlet;
 import com.donglu.carpark.server.servlet.CarparkDeviceServlet;
 import com.donglu.carpark.server.servlet.CarparkHttpServiceServlet;
+import com.donglu.carpark.server.servlet.CarparkOverSpeedCarServlet;
 import com.donglu.carpark.server.servlet.CarparkServlet;
 import com.donglu.carpark.server.servlet.ImageUploadServlet;
 import com.donglu.carpark.server.servlet.InOutServlet;
@@ -57,6 +58,9 @@ public class CarparkDBServer {
 	@Inject
 	private Provider<CarparkDeviceServlet> carparkDeviceServletProvider;
 	
+	@Inject
+	private Provider<CarparkOverSpeedCarServlet> carparkOverSpeedCarServletProvider;
+	
 	public void startDbServlet(ServletHandler handler){
 		ServerUtil.startServlet("/user/*", handler, userServlerProvider);
 		ServerUtil.startServlet("/carpark/*", handler, carparkServletProvider);
@@ -76,6 +80,8 @@ public class CarparkDBServer {
 		if (System.getProperty("startHttpService", "true").equals("true")) {
 			ServerUtil.startServlet("/carparkHttpService/*", handler, carparkHttpServiceServletProvider);
 		}
+		
+		ServerUtil.startServlet("/overSpeedCar/*", handler, carparkOverSpeedCarServletProvider);
     	new WebSocketServer(16666).start();	
 	}
 	

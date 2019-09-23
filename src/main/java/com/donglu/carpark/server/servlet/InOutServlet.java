@@ -641,4 +641,11 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	public List<Object[]> countFeeBySearch(Date start, Date end, String operaName, int type) {
 		return carparkInOutService.countFeeBySearch(start, end, operaName,type);
 	}
+
+
+
+	@Override
+	public List<Object[]> countFreeBySearch(Date start, Date end, String operaName, int type) {
+		return carparkInOutService.countFreeBySearch(start, end, operaName, type);
+	}
 }

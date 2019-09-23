@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -233,13 +234,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			c.add(Restrictions.like(SingleCarparkInOutHistory.Property.operaName.name(), operaName, MatchMode.ANYWHERE));
 		}
 		if (!StrUtil.isEmpty(carparkId)) {
-			List<SingleCarparkCarpark> findSameCarpark = findSameCarpark(carparkId);
-			List<SimpleExpression> list=new ArrayList<>();
-			for (SingleCarparkCarpark singleCarparkCarpark : findSameCarpark) {
-				SimpleExpression eq = Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), singleCarparkCarpark.getId());
-				list.add(eq);
-			}
-			c.add(Restrictions.or(list.toArray(new SimpleExpression[list.size()])));
+			c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carparkId.name(), carparkId));
 		}
 		if (!StrUtil.isEmpty(shouldMoney)) {
 			if (shouldMoney[0]>0) {
@@ -1987,7 +1982,10 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			Query query = emprovider.get().createQuery(string+" group by freeReason");
 			int position=1;
 			for (MetaEntry<Criterion> metaEntry : c.getCriterionList()) {
-				query.setParameter(position++, metaEntry.getEntry().getParameterValues()[0]);
+				Object[] parameterValues = metaEntry.getEntry().getParameterValues();
+				for (Object object : parameterValues) {
+					query.setParameter(position++, object);
+				}
 			}
 			List<Object[]> list = query.getResultList();
 			Map<String,Integer> map=new HashMap<>();
@@ -2021,7 +2019,6 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			List<Object[]> resultList = c.getResultList();
 			float[] f=new float[4];
 			for (Object[] objects : resultList) {
-				System.out.println(objects);
 				f[0]=objects[0]==null?0:((Double)objects[0]).floatValue();
 				f[1]=objects[1]==null?0:((Double)objects[1]).floatValue();
 				f[2]=objects[2]==null?0:((Double)objects[2]).floatValue();
@@ -2053,6 +2050,33 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			String sql = "select operaName,"+time+" a,SUM(shouldMoney) b,sum(factMoney) c,sum(onlineMoney) d,sum(freeMoney) e from SingleCarparkInOutHistory where 1=1 " + s + e + opera
 					+ " group by operaName,"+time;
 //			System.out.println(sql);
+			Query query = emprovider.get().createNativeQuery(sql);
+			return query.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<Object[]> countFreeBySearch(Date start, Date end, String operaName, int type) {
+		unitOfWork.begin();
+		try {
+			String time = "CONVERT(varchar, outTime, 112)";
+			if (type == 1) {
+				time = "SUBSTRING(CONVERT(varchar, outTime, 112),0,7)";
+				start = StrUtil.getMonthTopTime(start);
+				end = StrUtil.getMonthBottomTime(end);
+			} else if (type == 2) {
+				time = "DATEPART(YY,outTime)";
+				start = StrUtil.getYearTopTime(start);
+				end = StrUtil.getYearBottomTime(end);
+			}
+			String s = start == null ? "" : " and outtime>='" + StrUtil.formatDateTime(start) + "'";
+			String e = end == null ? "" : " and outtime<='" + StrUtil.formatDateTime(end) + "'";
+			String opera = StrUtil.isEmpty(operaName) ? "" : " and operaName='" + operaName + "'";
+			String sql = "select " + time + " a,operaName,freeReason,COUNT(id) b from SingleCarparkInOutHistory where freeReason is not null " + s + e + opera + " group by freeReason,operaName,"
+					+ time;
+			System.out.println(sql);
 			Query query = emprovider.get().createNativeQuery(sql);
 			return query.getResultList();
 		} finally {

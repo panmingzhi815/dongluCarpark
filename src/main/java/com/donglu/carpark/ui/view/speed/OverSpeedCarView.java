@@ -22,6 +22,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.nebula.widgets.cdatetime.CDateTime;
 import org.eclipse.nebula.widgets.cdatetime.CDT;
+import org.eclipse.swt.widgets.Combo;
 
 public class OverSpeedCarView extends Composite implements View{
 	private Presenter presenter;
@@ -35,7 +36,7 @@ public class OverSpeedCarView extends Composite implements View{
 		Group group = new Group(this, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		group.setLayout(new GridLayout(7, false));
+		group.setLayout(new GridLayout(9, false));
 		
 		Label label_3 = new Label(group, SWT.NONE);
 		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -67,12 +68,23 @@ public class OverSpeedCarView extends Composite implements View{
 		dateTime_1.setPattern("yyyy-MM-dd HH:mm");
 		dateTime_1.setSelection(StrUtil.getTodayBottomTime(new Date()));
 		
+		Label label = new Label(group, SWT.NONE);
+		label.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("状态");
+		
+		Combo combo = new Combo(group, SWT.READ_ONLY);
+		combo.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		combo.setItems(new String[] {"全部", "正常", "超速"});
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		combo.select(0);
+		
 		Button button = new Button(group, SWT.NONE);
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
-					getPresenter().search(dateTime.getSelection(), dateTime_1.getSelection(),text_plate.getText());
+					getPresenter().search(dateTime.getSelection(), dateTime_1.getSelection(),text_plate.getText(),combo.getSelectionIndex());
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}

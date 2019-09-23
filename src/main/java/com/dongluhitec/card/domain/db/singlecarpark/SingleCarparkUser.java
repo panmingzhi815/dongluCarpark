@@ -25,7 +25,7 @@ public class SingleCarparkUser extends DomainObject {
 		carparkSlot,carparkSlotType,monthChargeId,monthChargeName,lastEditDate
 	}
 	public enum Label{
-	valitoLabel
+	valitoLabel,createDateLabel
 	}
 	public enum UserType{
 		普通,免费,储值
@@ -75,7 +75,9 @@ public class SingleCarparkUser extends DomainObject {
 	public void initCreateDate(){
 		createDate=new Date();
 	}
-	
+	public String getCreateDateLabel() {
+		return StrUtil.formatDate(createDate);
+	}
 	public String getValitoLabel(){
 		return StrUtil.formatDate(validTo, "yyyy-MM-dd");
 	}

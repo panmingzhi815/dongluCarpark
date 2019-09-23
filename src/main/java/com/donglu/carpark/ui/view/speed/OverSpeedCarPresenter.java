@@ -22,8 +22,8 @@ public class OverSpeedCarPresenter  implements Presenter{
 		return listPresenter;
 	}
 	
-	public void search( Date start, Date end, String plateNo) {
-		listPresenter.search(start, end, plateNo);
+	public void search( Date start, Date end, String plateNo, int status) {
+		listPresenter.search(start, end, plateNo,status);
 	}
 	
 }

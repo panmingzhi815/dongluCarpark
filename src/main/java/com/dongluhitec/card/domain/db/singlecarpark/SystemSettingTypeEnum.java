@@ -61,7 +61,7 @@ public enum SystemSettingTypeEnum {
 	临时车超速自动拉黑("30-3-7"),
 	
 	支付完成后出场时间("15"),
-	DateBase_version("1.0.0.29"),软件版本("1.0.0.30"),发布时间("2019-09-17 15:50:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"),    
+	DateBase_version("1.0.0.29"),软件版本("1.0.0.30"),发布时间("2019-09-20 17:10:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"),    
 	;
 	
 	private String defaultValue;

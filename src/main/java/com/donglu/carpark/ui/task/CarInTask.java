@@ -341,17 +341,21 @@ public class CarInTask extends AbstractTask {
 			if (blackUser.getValid()!=null||blackUser.getValid().before(date)) {
 				return false;
 			}
+			String reason="";
+			if (!StrUtil.isEmpty(blackUser.getRemark())) {
+				reason="-"+blackUser.getRemark();
+			}
 			Holiday findHolidayByDate = sp.getCarparkService().findHolidayByDate(new Date());
 			String blackInContent = model.getMapVoice().get(DeviceVoiceTypeEnum.黑名单入场语音).getContent();
 			if (!StrUtil.isEmpty(findHolidayByDate) && !StrUtil.isEmpty(blackUser.getHolidayIn())
 					&& blackUser.getHolidayIn()) {
-				model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单");
+				model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单"+reason);
 				presenter.showContentToDevice(device, blackInContent, false);
 				return true;
 			}
 			if (StrUtil.isEmpty(findHolidayByDate) && !StrUtil.isEmpty(blackUser.getWeekDayIn())
 					&& blackUser.getWeekDayIn()) {
-				model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单");
+				model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单"+reason);
 				presenter.showContentToDevice(device, blackInContent, false);
 				return true;
 			}
@@ -368,7 +372,7 @@ public class CarInTask extends AbstractTask {
 			if (blackUser.getTimeIn()) {
 				LOGGER.info("黑名单车牌：{}允许进入的时间为{}点到{}点", plateNO, hoursStart, hoursEnd);
 				if (now.isBefore(dt.getMillis()) || now.isAfter(de.getMillis())) {
-					model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单");
+					model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单"+reason);
 					presenter.showContentToDevice(device, blackInContent, false);
 					return true;
 				}
@@ -378,7 +382,7 @@ public class CarInTask extends AbstractTask {
 				if (now.toDate().after(dt.toDate()) && now.toDate().before(de.toDate())) {
 					LOGGER.error("车牌：{}为黑名单,现在时间为{}，在{}点到{}点之间", plateNO, now.toString("HH:mm:ss"), hoursStart,
 							hoursEnd);
-					model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单");
+					model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单"+reason);
 					presenter.showContentToDevice(device, blackInContent, false);
 					return true;
 				}

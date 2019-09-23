@@ -3889,18 +3889,6 @@ public class CarparkMainPresenter {
 			map.put(OverSpeedCar.Property.time.name()+"-le", StrUtil.getTodayBottomTime(new Date()));
 			map.put(OverSpeedCar.Property.status.name(), 1);
 			List<OverSpeedCar> list = sp.getCarparkInOutService().findOverSpeedCarByMap(0, 100, map);
-			if (list.size()>size) {
-				if (isFixCar) {
-					sp.getCarparkUserService().deleteUser(user);
-					sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "用户有效期："+StrUtil.formatDate(user.getValidTo())+",超速"+list.size()+"次,自动删除", "系统操作");
-				}else {
-					SingleCarparkBlackUser bu=new SingleCarparkBlackUser();
-					bu.setPlateNO(plateNo);
-					bu.setValid(StrUtil.getTodayTopTime(new DateTime(new Date()).plusDays(blackSize).toDate()));
-					bu.setRemark("超速"+list.size()+"次");
-					sp.getCarparkService().saveBlackUser(bu);
-				}
-			}
 			return list.size();
 		}
 		return 0;

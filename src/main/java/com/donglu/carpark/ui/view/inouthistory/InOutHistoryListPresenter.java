@@ -77,6 +77,22 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	public void refresh() {
 		v.getModel().setList(new ArrayList<>());
 		defaultSearch();
+		CarparkInOutServiceI carparkInOutService = sp.getCarparkInOutService();
+		Map<String,Integer> map=carparkInOutService.countFreeSize(plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carpark.getId(),
+				shouldMoney);
+		if (map.keySet().size()>0) {
+			String s="免费车：    ";
+			for (String string : map.keySet().stream().sorted((s1,s2)->{return s1.compareTo(s2);}).collect(Collectors.toList())) {
+				s+=string+"："+Strings.padEnd(String.valueOf(map.get(string)), 9, ' ');
+			}
+			v.setFreeSizeLabel(s);
+		}else {
+			v.setFreeSizeLabel("");
+		}
+		float[] countMoney = sp.getCarparkInOutService().countMoney(plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carpark.getId(),
+				shouldMoney);
+//		System.out.println(countMoney[0]+"="+countMoney[1]+"="+countMoney[2]+"="+countMoney[3]);
+		v.setMoney(countMoney[0] + "", (countMoney[1]-countMoney[2]) + "", countMoney[3] + "", countMoney[2] + "");
 	}
 
 	private void defaultSearch() {
@@ -97,21 +113,6 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 		model.AddList(findByCondition);
 		model.setCountSearch(model.getList().size());
 		
-		Map<String,Integer> map=carparkInOutService.countFreeSize(plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carpark.getId(),
-				shouldMoney);
-		if (map.keySet().size()>0) {
-			String s="免费车：    ";
-			for (String string : map.keySet().stream().sorted((s1,s2)->{return s1.compareTo(s2);}).collect(Collectors.toList())) {
-				s+=string+"："+Strings.padEnd(String.valueOf(map.get(string)), 9, ' ');
-			}
-			v.setFreeSizeLabel(s);
-		}else {
-			v.setFreeSizeLabel("");
-		}
-		float[] countMoney = carparkInOutService.countMoney(plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carpark.getId(),
-				shouldMoney);
-//		System.out.println(countMoney[0]+"="+countMoney[1]+"="+countMoney[2]+"="+countMoney[3]);
-		v.setMoney(countMoney[0] + "", (countMoney[1]-countMoney[2]) + "", countMoney[3] + "", countMoney[2] + "");
 	}
 
 	/**
@@ -329,21 +330,18 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 										break;
 									}
 								}
+								
 								if (!StrUtil.isEmpty(list)) {
-									float[] countMoney = countMoney(list);
-									if (countMoney != null) {
-										for (int i = 0; i < countMoney.length; i++) {
-											f[i] = f[i] + countMoney[i];
-										}
-									}
+									f = carparkInOutService.countMoney( plateNo, userName, carType,
+											inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carpark.getId(), shouldMoney);
 									totalSize.addAndGet(list.size());
 									if (totalSize.get() == waitReportSize) {
 										SingleCarparkInOutHistory history = new SingleCarparkInOutHistory();
 										history.setOperaName("总计:");
 										history.setShouldMoney(f[0]);
-										history.setFactMoney(f[1] + f[2]);
+										history.setFactMoney(f[1] - f[2]);
 										history.setFreeMoney(f[3]);
-										history.setFreeReason("现金:" + f[1] + "网上:" + f[2]);
+										history.setFreeReason("现金:" + history.getFactMoney() + "网上:" + f[2]);
 										list.add(history);
 									}
 								}
