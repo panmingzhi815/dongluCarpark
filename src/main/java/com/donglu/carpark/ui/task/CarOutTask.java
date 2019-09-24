@@ -839,6 +839,7 @@ public class CarOutTask extends AbstractTask{
 				shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, date,cch);
 				model.setTotalTime(StrUtil.MinusTime2(inTime, singleCarparkInOutHistory.getOutTime()));
 				singleCarparkInOutHistory.setShouldMoney(shouldMoney);
+				singleCarparkInOutHistory.getRemarkString();
 				// model.setComboCarTypeEnable(false);
 				
 				//集中收费

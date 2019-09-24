@@ -145,7 +145,7 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		
 		label_1 = new Label(composite, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
-		label_1.setText("起始时间");
+		label_1.setText("到期时间");
 		
 		dateChooserCombo_start = new DateChooserCombo(composite, SWT.BORDER);
 		dateChooserCombo_start.addSelectionListener(new SelectionAdapter() {

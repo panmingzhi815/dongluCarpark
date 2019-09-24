@@ -91,6 +91,21 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			dom.insert(inout);
 			this.emprovider.get().persist(new CarparkRecordHistory(inout,UpdateEnum.新添加));
 		} else {
+			if (inout.getChargedType()==1&&inout.getOnlineMoney()==0&&inout.getFactMoney()>0) {
+				inout.setOnlineMoney(inout.getFactMoney());
+			}else if(inout.getFreeMoney()>inout.getShouldMoney()) {
+				inout.setFreeMoney(inout.getShouldMoney());
+				inout.setFactMoney(0);
+				inout.setOnlineMoney(0f);
+			}else if(inout.getOnlineMoney()>0&&inout.getOnlineMoney()>inout.getShouldMoney()) {
+				inout.setShouldMoney(inout.getOnlineMoney());
+				inout.setFactMoney(inout.getOnlineMoney());
+				inout.setChargedType(1);
+			}else if(inout.getOnlineMoney()>0&&inout.getOnlineMoney()==inout.getShouldMoney()&&inout.getFreeMoney()>0) {
+				inout.setFreeMoney(0);
+				inout.setFactMoney(inout.getOnlineMoney());
+				inout.setChargedType(1);
+			}
 			savePayHistory(inout);
 			dom.save(inout);
 			this.emprovider.get().merge(new CarparkRecordHistory(inout, UpdateEnum.被修改));
@@ -116,9 +131,17 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		List<CarPayHistory> list = CriteriaUtils.createCriteria(emprovider.get(), CarPayHistory.class).add(Restrictions.eq(CarPayHistory.Property.historyId.name(), inout.getId())).getResultList();
 		for (CarPayHistory cp : list) {
 			carPayHistory.setPayedMoney(carPayHistory.getPayedMoney()-cp.getPayedMoney());
+			if (carPayHistory.getPayedMoney()<=0) {
+				return;
+			}
 			carPayHistory.setBalanceAmount(carPayHistory.getBalanceAmount()-cp.getBalanceAmount());
+			double onlineCost = carPayHistory.getOnlineCost()-cp.getOnlineCost();
 			carPayHistory.setCashCost(carPayHistory.getCashCost()-cp.getCashCost());
-			carPayHistory.setOnlineCost(carPayHistory.getOnlineCost()-cp.getOnlineCost());
+			if (onlineCost<0) {
+				carPayHistory.setCashCost(carPayHistory.getCashCost()+onlineCost);
+				onlineCost=0;
+			}
+			carPayHistory.setOnlineCost(onlineCost);
 			carPayHistory.setCouponValue(carPayHistory.getCouponValue()-cp.getCouponValue());
 		}
 		this.emprovider.get().persist(carPayHistory);

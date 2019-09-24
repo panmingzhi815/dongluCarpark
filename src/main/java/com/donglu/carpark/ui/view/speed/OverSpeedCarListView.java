@@ -21,8 +21,9 @@ public class OverSpeedCarListView extends AbstractListView<OverSpeedCar> impleme
 				OverSpeedCar.Property.place.name(),
 				OverSpeedCar.Property.carType.name(),
 				OverSpeedCar.Label.statusLabel.name(),
-				}, new String[]{"车牌号","时间","当前速度","限速","设备编号","设备地点","车类型","状态"},
-				new int[]{100,200,80,80,120,120,100,100}, null);
+				OverSpeedCar.Label.createTimeLabel.name(),
+				}, new String[]{"车牌号","时间","当前速度","限速","设备编号","设备地点","车类型","状态","保存时间"},
+				new int[]{100,200,80,80,120,120,100,100,200}, null);
 	}
 
 	@Override

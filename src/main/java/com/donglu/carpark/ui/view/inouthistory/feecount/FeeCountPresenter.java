@@ -1,7 +1,6 @@
 package com.donglu.carpark.ui.view.inouthistory.feecount;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,8 +41,6 @@ public class FeeCountPresenter extends AbstractPresenter {
 	}
 
 	public List<Object[]> feeCount(Date start, Date end, int type,String userName) {
-		start=StrUtil.getTodayTopTime(start);
-		end=StrUtil.getTodayBottomTime(end);
 		if (userName!=null&&"全部".equals(userName.trim())) {
 			userName=null;
 		}
@@ -60,7 +57,6 @@ public class FeeCountPresenter extends AbstractPresenter {
 		freeReasonType.clear();
 		Map<String,Map<String,Map<String,Integer>>> map=new HashMap<>();
 		for (Object[] objects : listFreeSize) {
-			System.out.println(Arrays.asList(objects));
 			String time=objects[0].toString();
 			String operaName=objects[1].toString();
 			String freeReason=objects[2].toString();
@@ -88,11 +84,12 @@ public class FeeCountPresenter extends AbstractPresenter {
 		if (StrUtil.isEmpty(list)) {
 			return;
 		}
-		String open = commonui.selectToOpen();
+		String open = commonui.selectToSave();
 		if (open == null) {
 			return;
 		}
 		try {
+			open = StrUtil.checkPath(open, new String[] {".xls",".xlsx"}, ".xls");
 			List<List<Object>> listExcelData = getTableData();
 
 			new ExcelImportExportImpl().export(open, new String[] {}, new String[] {}, listExcelData);
@@ -120,7 +117,7 @@ public class FeeCountPresenter extends AbstractPresenter {
 			Double fact=objects[3]==null?0:(Double) objects[3];
 			Double online=objects[4]==null?0:(Double) objects[4];
 			Double free=objects[5]==null?0:(Double) objects[5];
-			System.out.println(name+"=="+date+"=="+should+"=="+fact+"=="+online+"=="+free);
+//			System.out.println(name+"=="+date+"=="+should+"=="+fact+"=="+online+"=="+free);
 			Map<String, Double[]> mapMoney = map.getOrDefault(date, new HashMap<>());
 			mapMoney.put(name, new Double[] { should, fact - online, online, free });
 			map.put(date, mapMoney);
@@ -195,14 +192,14 @@ public class FeeCountPresenter extends AbstractPresenter {
 			line.add(String.valueOf(wtotal));
 			line.add(String.valueOf(utotal + wtotal));
 			Long ut = 0l;
-			System.out.println(mapDateReasonTotal);
+//			System.out.println(mapDateReasonTotal);
 			for (String string2 : freeReasonTypeList) {
 				Long orDefault = mapDateReasonTotal.getOrDefault(string2, 0l);
 				ut += orDefault;
 				line.add(String.valueOf(orDefault));
 				mapReasonTotal.put(string2, mapReasonTotal.getOrDefault(string2, 0l) + orDefault);
 			}
-			System.out.println(mapReasonTotal);
+//			System.out.println(mapReasonTotal);
 			line.add(String.valueOf(ut));
 			listExcelData.add(line);
 		}
@@ -238,7 +235,7 @@ public class FeeCountPresenter extends AbstractPresenter {
 			for (List<Object> list : list2) {
 				arrayList.add(list.get(i));
 			}
-			System.out.println(arrayList);
+//			System.out.println(arrayList);
 			listExcelData.add(arrayList);
 		}
 		return listExcelData;

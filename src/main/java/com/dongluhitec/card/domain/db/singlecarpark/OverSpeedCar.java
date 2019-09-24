@@ -3,6 +3,7 @@ package com.dongluhitec.card.domain.db.singlecarpark;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.PrePersist;
 
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -14,7 +15,7 @@ public class OverSpeedCar extends DomainObject {
 		plate,time,currentSpeed,rateLimiting,place,camId,status,carType
 	}
 	public enum Label{
-		plate,timeLabel,currentSpeed,rateLimiting,place,camId,statusLabel
+		plate,timeLabel,currentSpeed,rateLimiting,place,camId,statusLabel,createTimeLabel
 	}
 	/**
 	 * 
@@ -31,9 +32,18 @@ public class OverSpeedCar extends DomainObject {
 	private String place;
 	private String camId;
 	private String carType;
+	private Date createTime;
+	
+	@PrePersist
+	public void init() {
+		createTime=new Date();
+	}
 	
 	public String getTimeLabel() {
 		return StrUtil.formatDateTime(time);
+	}
+	public String getCreateTimeLabel() {
+		return StrUtil.formatDateTime(createTime);
 	}
 	public String getStatusLabel() {
 		return status==0?"正常":"超速";

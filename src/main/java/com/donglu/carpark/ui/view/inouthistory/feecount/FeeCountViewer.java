@@ -3,7 +3,6 @@ package com.donglu.carpark.ui.view.inouthistory.feecount;
 import org.eclipse.swt.widgets.Composite;
 
 import com.donglu.carpark.ui.common.AbstractView;
-import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemUserTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -15,15 +14,9 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Text;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
@@ -32,10 +25,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.DateTime;
 
 public class FeeCountViewer extends AbstractView {
 	private Table table;
@@ -56,7 +49,7 @@ public class FeeCountViewer extends AbstractView {
 		composite.setLayout(new GridLayout(1, false));
 		
 		Composite composite_1 = new Composite(composite, SWT.NONE);
-		composite_1.setLayout(new GridLayout(10, false));
+		composite_1.setLayout(new GridLayout(12, false));
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label label = new Label(composite_1, SWT.NONE);
@@ -82,11 +75,19 @@ public class FeeCountViewer extends AbstractView {
 		dateChooserCombo_start.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		dateChooserCombo_start.setValue(StrUtil.getMonthTopTime(new Date()));
 		
+		DateTime dateTime_start = new DateTime(composite_1, SWT.BORDER | SWT.TIME | SWT.LONG);
+		dateTime_start.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		dateTime_start.setTime(0, 0, 0);
+		
 		Label label_2 = new Label(composite_1, SWT.NONE);
 		label_2.setText("-");
 		
 		DateChooserCombo dateChooserCombo_end = new DateChooserCombo(composite_1, SWT.BORDER);
 		dateChooserCombo_end.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		
+		DateTime dateTime_end = new DateTime(composite_1, SWT.BORDER | SWT.TIME | SWT.LONG);
+		dateTime_end.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
+		dateTime_end.setTime(23, 59, 59);
 		
 		Label label_3 = new Label(composite_1, SWT.NONE);
 		label_3.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
@@ -105,7 +106,7 @@ public class FeeCountViewer extends AbstractView {
 			public void widgetSelected(SelectionEvent e) {
 				table.removeAll();
 				try {
-					getPresenter().feeCount(dateChooserCombo_start.getValue(),dateChooserCombo_end.getValue(),combo.getSelectionIndex(),combo_userName.getText());
+					getPresenter().feeCount(getTime(dateChooserCombo_start,dateTime_start),getTime(dateChooserCombo_end,dateTime_end),combo.getSelectionIndex(),combo_userName.getText());
 					TableColumn[] columns = table.getColumns();
 					for (TableColumn tableColumn : columns) {
 						tableColumn.dispose();
@@ -155,6 +156,10 @@ public class FeeCountViewer extends AbstractView {
 		table.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
+	}
+	protected Date getTime(DateChooserCombo dateChooserCombo_start, DateTime dateTime) {
+		return new org.joda.time.DateTime(dateChooserCombo_start.getValue()).withTime(dateTime.getHours(), dateTime.getMinutes()
+				, dateTime.getSeconds(), 0).toDate();
 	}
 	@Override
 	public FeeCountPresenter getPresenter() {

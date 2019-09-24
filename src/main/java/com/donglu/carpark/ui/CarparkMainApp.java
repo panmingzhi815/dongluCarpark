@@ -184,7 +184,6 @@ public class CarparkMainApp extends AbstractApp{
 	private TableViewer tableViewer;
 	private Text text;
 
-	private Boolean carOutChargeCheck;
 	@Inject
 	private Provider<DevicePresenter> devicePresenterProvider;
 	private DevicePresenter inDevicePresenter;
@@ -907,8 +906,7 @@ public class CarparkMainApp extends AbstractApp{
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(listCarType);
-		carOutChargeCheck = Boolean
-				.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行) == null ? SystemSettingTypeEnum.出场确认放行.getDefaultValue() : mapSystemSetting.get(SystemSettingTypeEnum.出场确认放行));
+		
 		if (mapTempCharge.keySet().size() <= 1) {
 			gd_composite_14.exclude = true;
 		}
@@ -940,7 +938,7 @@ public class CarparkMainApp extends AbstractApp{
 				if(model.getChargeHistory()!=null) {
 					model.getChargeHistory().setChargedType(0);
 				}
-				presenter.charge(carOutChargeCheck,true);
+				presenter.charge(true,true);
 			}
 
 			@Override
@@ -959,7 +957,7 @@ public class CarparkMainApp extends AbstractApp{
 			@Override
 			public void mouseUp(MouseEvent e) {
 				log.info("点击免费放行");
-				presenter.free(carOutChargeCheck);
+				presenter.free(true);
 				setBoundsY(lbl_free, -2);
 			}
 
@@ -1141,7 +1139,7 @@ public class CarparkMainApp extends AbstractApp{
 		control.getDisplay().addFilter(SWT.KeyUp, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				keyReleasedByControl(carOutChargeCheck, new KeyEvent(event),keySetting);
+				keyReleasedByControl(true, new KeyEvent(event),keySetting);
 			}
 		});
 		control.getDisplay().addFilter(SWT.KeyDown, new Listener() {
@@ -1214,7 +1212,7 @@ public class CarparkMainApp extends AbstractApp{
 	 * @param carparkCarType
 	 * @return
 	 */
-	private CarTypeEnum getCarparkCarType(String carparkCarType) {
+	protected CarTypeEnum getCarparkCarType(String carparkCarType) {
 		if (carparkCarType.equals("大车")) {
 			return CarTypeEnum.BigCar;
 		}

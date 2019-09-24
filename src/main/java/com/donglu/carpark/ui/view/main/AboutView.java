@@ -11,6 +11,13 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.MouseAdapter;
@@ -19,6 +26,12 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 
 public class AboutView extends AbstractView {
+
+	private Label lbl_softName;
+	private Label lbl_company;
+	private Label lbl_tel;
+	String companyUrl = "http://www.dongluhitec.com/";
+	String companyEmail = "mailto:154341736@qq.com";
 
 	public AboutView(Composite parent) {
 		super(parent, parent.getStyle());
@@ -59,19 +72,19 @@ public class AboutView extends AbstractView {
 		lblNewLabel_11.setFont(SWTResourceManager.getFont("宋体", 9, SWT.NORMAL));
 		lblNewLabel_11.setText("软件名称：");
 		
-		Label lblNewLabel_2 = new Label(composite_21, SWT.NONE);
-		lblNewLabel_2.setFont(SWTResourceManager.getFont("宋体", 9, SWT.NORMAL));
-		lblNewLabel_2.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		lblNewLabel_2.setText("停车场智能管理系统");
+		lbl_softName = new Label(composite_21, SWT.NONE);
+		lbl_softName.setFont(SWTResourceManager.getFont("宋体", 9, SWT.NORMAL));
+		lbl_softName.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		lbl_softName.setText("深圳市东陆高新停车场智能管理系统");
 		
 		Label label1 = new Label(composite_21, SWT.NONE);
 		label1.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		label1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label1.setText("开发组织：");
 		
-		Label label_1 = new Label(composite_21, SWT.NONE);
-		label_1.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		label_1.setText("");
+		lbl_company = new Label(composite_21, SWT.NONE);
+		lbl_company.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		lbl_company.setText("深圳市东陆高新实业有限公司");
 		
 		Label label_21 = new Label(composite_21, SWT.NONE);
 		label_21.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
@@ -98,6 +111,15 @@ public class AboutView extends AbstractView {
 		Label label_6 = new Label(composite_21, SWT.NONE);
 		label_6.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		label_6.setText(SystemSettingTypeEnum.发布时间.getDefaultValue());
+		
+		Label label = new Label(composite_21, SWT.NONE);
+		label.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("联系电话：");
+		
+		lbl_tel = new Label(composite_21, SWT.NONE);
+		lbl_tel.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		lbl_tel.setText("0755-26992770");
 		new Label(composite_21, SWT.NONE);
 		new Label(composite_21, SWT.NONE);
 		
@@ -126,7 +148,7 @@ public class AboutView extends AbstractView {
 			@Override
 			public void mouseUp(MouseEvent e) {
 				try{
-					Runtime.getRuntime().exec("cmd /k start "+"http://www.dongluhitec.com/");
+					Runtime.getRuntime().exec("cmd /k start "+companyUrl);
 				}catch(Exception ex){}
 			}
 			
@@ -137,11 +159,26 @@ public class AboutView extends AbstractView {
 			@Override
 			public void mouseUp(MouseEvent e) {
 				try{
-					Runtime.getRuntime().exec("cmd /k start "+"mailto:154341736@qq.com");
+					
+					Runtime.getRuntime().exec("cmd /k start "+companyEmail);
 				}catch(Exception ex){}
 			}
 			
 		});
+		init();
+	}
+
+	private void init() {
+		try {
+			List<String> list = Files.readAllLines(Paths.get("about.txt"), Charset.forName("GBK"));
+			lbl_softName.setText(list.get(0));
+			lbl_company.setText(list.get(1));
+			lbl_tel.setText(list.get(2));
+			companyUrl=list.get(3);
+			companyEmail="mailto:"+list.get(4);
+		} catch (Exception e) {
+			
+		}
 	}
 
 }

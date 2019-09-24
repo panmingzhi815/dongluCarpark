@@ -1,8 +1,6 @@
 package com.donglu.carpark.ui.view.inouthistory;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -71,6 +69,10 @@ public class CarPayPresenter  extends AbstractPresenter{
 		}else{
 			scheduledExecutorService.shutdown();
 		}
+	}
+
+	public void export() {
+		listPresenter.export();
 	}
 	
 }

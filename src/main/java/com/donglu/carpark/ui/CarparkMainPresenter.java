@@ -1451,6 +1451,7 @@ public class CarparkMainPresenter {
 						data.setFreeMoney(result.getCouponValue());
 						data.setShouldMoney(result.getPayedFee());
 						data.setFactMoney(result.getPayedFee()-result.getCouponValue());
+						data.setOnlineMoney(data.getFactMoney());
 						data.setChargeOperaName("在线支付");
 						data.setRemarkString("在线缴费完成，在规定时间内出场！");
 						data.setChargedType(1);
@@ -1465,15 +1466,18 @@ public class CarparkMainPresenter {
 			charge = countCharge(carparkId, carType, startTime, endTime, data);
 			float charged=0;
 			float freed=0;
+			float online=0;
 			List<CarPayHistory> list=sp.getCarPayService().findCarPayHistoryByHistoryId(data.getId());
 			for (CarPayHistory pay : list) {
 				charged+=(pay.getBalanceAmount()+pay.getCashCost()+pay.getOnlineCost());
 				freed+=pay.getCouponValue();
+				online+=pay.getOnlineCost();
 				data.setChargedType(pay.getPayType().toType());
 				data.setRemarkString(pay.getRemark());
 			}
 			data.setFactMoney(charged);
 			data.setFreeMoney(freed);
+			data.setOnlineMoney(online);
 			model.setChargedMoney(charged+freed);
 		} catch (Exception e1) {
 			log.error("计算收费时发生错误", e1);
@@ -1587,9 +1591,9 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 		mapIpToJNA.get(ip).tigger(ip);
-		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
-		//贵A56G17贵JRJ927
-		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
+//		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+//		//贵A56G17贵JRJ927
+//		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
 	}
 
 	/**
@@ -2475,7 +2479,7 @@ public class CarparkMainPresenter {
 	 *            是否需要确认
 	 */
 	public void free(Boolean carOutChargeCheck) {
-		free(carOutChargeCheck, false);
+		free(carOutChargeCheck, true);
 	}
 	public void free(Boolean carOutChargeCheck,boolean savePay) {
 		carOutChargeCheck=mapSystemSetting.get(SystemSettingTypeEnum.出场免费确认放行).equals("true");
@@ -2486,10 +2490,10 @@ public class CarparkMainPresenter {
 		}
 		data.setSavePayHistory(savePay);
 		model.setReal(0);
-		boolean checkIsPay = checkIsPay(data,model.getReal(),true);
-		if (!checkIsPay) {
-			return;
-		}
+//		boolean checkIsPay = checkIsPay(data,model.getReal(),true);
+//		if (!checkIsPay) {
+//			return;
+//		}
 		if (!chargeCarPass(device, data, carOutChargeCheck)) {
 			model.setReal(model.getShouldMony());
 			return;
@@ -3441,7 +3445,7 @@ public class CarparkMainPresenter {
 					inOutHistory.setShouldMoney(payResult.getPayedFee());
 					inOutHistory.setFactMoney(payResult.getPayedFee()-payResult.getCouponValue());
 					inOutHistory.setFreeMoney(payResult.getCouponValue());
-					inOutHistory.setOnlineMoney(payResult.getPayedFee());
+					inOutHistory.setOnlineMoney(inOutHistory.getFactMoney());
 				}
 			}else {
     			inOutHistory.setShouldMoney(shouldMoney);
@@ -3485,7 +3489,10 @@ public class CarparkMainPresenter {
 			countCharge(model.getCarpark().getId(), "小车", history.getInTime(), new Date(), history);
 		}
 	}
-
+	/**
+	 * 取消查询计费定时器
+	 * @param device
+	 */
 	private void cancelCheckChargeTimer(SingleCarparkDevice device) {
 		Timer timer = mapCheckChargeTimer.get(device.getIp());
 		if (timer != null) {

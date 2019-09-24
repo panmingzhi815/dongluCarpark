@@ -339,10 +339,23 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 										SingleCarparkInOutHistory history = new SingleCarparkInOutHistory();
 										history.setOperaName("总计:");
 										history.setShouldMoney(f[0]);
-										history.setFactMoney(f[1] - f[2]);
+										history.setFactMoney(f[1]);
 										history.setFreeMoney(f[3]);
-										history.setFreeReason("现金:" + history.getFactMoney() + "网上:" + f[2]);
+										history.setOnlineMoney(f[2]);
+										history.setFreeReason("应收:"+f[0]+"现金:" + (f[1]-f[2]) + "网上:" + f[2]+"免费:"+f[3]);
 										list.add(history);
+										
+										Map<String,Integer> map=carparkInOutService.countFreeSize(plateNo, userName, carType, inout, start, end, outStart, outEnd, operaName, inDevice, outDevice, returnAccount, carpark.getId(),
+												shouldMoney);
+										if (map.keySet().size()>0) {
+											String s="免费车：    ";
+											for (String string : map.keySet().stream().sorted((s1,s2)->{return s1.compareTo(s2);}).collect(Collectors.toList())) {
+												s+=string+"："+Strings.padEnd(String.valueOf(map.get(string)), 9, ' ');
+											}
+											SingleCarparkInOutHistory history1 = new SingleCarparkInOutHistory();
+											history1.setFreeReason(s);
+											list.add(history1);
+										}
 									}
 								}
 								return list;

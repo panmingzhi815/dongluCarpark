@@ -476,7 +476,7 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				String string = cloumns[j];
 				Object fieldValueByName = CarparkUtils.getFieldValueByName(string, o);
 //				row.createCell(j+1).setCellValue(fieldValueByName+"");
-				row.createCell(j).setCellValue(fieldValueByName+"");
+				row.createCell(j).setCellValue(fieldValueByName==null?"":String.valueOf(fieldValueByName));
 			}
 		}
 		FileOutputStream fileOut = new FileOutputStream(path);
@@ -884,7 +884,7 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 			int currentRow = 0;
 			HSSFRow row = sheet.createRow(currentRow);
 //		row.createCell(0).setCellValue("编号");
-			String[] names=new String[]{"车牌号","车辆类型","用户名","进场设备","进场时间","出场设备","出场时间","停留时间","操作员","应收金额","实收金额","免费金额","免费原因","归账编号","备注","进场车牌","出场场车牌"};
+			String[] names=new String[]{"车牌号","车辆类型","用户名","进场设备","进场时间","出场设备","出场时间","停留时间","操作员","应收金额","现金金额","网上金额","免费金额","免费原因","归账编号","备注","进场车牌","出场场车牌"};
 			int columnWidth[]=new int[names.length];
 			for (int i = 0; i < names.length; i++) {
 				String string = names[i];
@@ -933,7 +933,8 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 					}
 				}
 				Object[] os=new Object[] {o.getPlateNo(),o.getCarType(),o.getUserName(),o.getInDevice(),o.getInTimeLabel(),o.getOutDevice(),o.getOutTimeLabel(),
-						o.getStillTimeLabel(),o.getOperaName(),o.getShouldMoney(),o.getFactMoney(),o.getFreeMoney(),o.getFreeReason(),o.getReturnAccount(),o.getRemarkString(),
+						o.getStillTimeLabel(),o.getOperaName(),o.getShouldMoney(),
+						o.getFactMoney()==null?null:(o.getFactMoney()-o.getOnlineMoney()),o.getOnlineMoney(),o.getFreeMoney(),o.getFreeReason(),o.getReturnAccount(),o.getRemarkString(),
 						o.getInPlateNO(),o.getOutPlateNO()};
 //			row.createCell(0).setCellValue(i+1);
 				for (int j = 0; j < names.length; j++) {

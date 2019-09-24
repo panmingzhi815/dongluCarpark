@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
@@ -47,7 +46,7 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 	
 	private CarparkDatabaseServiceProvider sp;
 	
-	private  static final Cache<String, String> cacheSetting = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.MINUTES).build();
+	private  static final Cache<String, String> cacheSetting = CacheBuilder.newBuilder().expireAfterWrite(20, TimeUnit.MINUTES).build();
 	
 	@Inject
 	public CarparkOverSpeedCarServlet(CarparkDatabaseServiceProvider sp) {
@@ -73,10 +72,12 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 				String Image = req.getParameter("Image");
 				String Image1 = req.getParameter("Image1");
 				String ImageURL=req.getParameter("ImageURL");
-				if (cacheSetting.getIfPresent(CarPlate+PassTime)!=null) {
+				Date time = StrUtil.parse(PassTime, "yyyyMMddHHmmssSSS");
+				String key = CarPlate+StrUtil.formatDate(time, "yyyyMMddHHmm");
+				if (cacheSetting.getIfPresent(key)!=null) {
+					writeMsg(resp, 0, "成功");
 					return;
 				}
-				cacheSetting.put(CarPlate+PassTime, CarPlate);
 				if (StrUtil.isEmpty(CarPlate)||StrUtil.isEmpty(PassTime)||StrUtil.isEmpty(VehicleSpeed)||StrUtil.isEmpty(MarkedSpeed)) {
 					writeMsg(resp, 1, "参数不能为空");
 					return;
@@ -85,10 +86,11 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 				car.setCamId(CamID);
 				car.setCurrentSpeed(Integer.valueOf(VehicleSpeed));
 				car.setPlace(PlaceName);
-				car.setRateLimiting(Integer.valueOf(MarkedSpeed));
 				car.setPlate(CarPlate);
-				car.setTime(StrUtil.parse(PassTime, "yyyyMMddHHmmssSSS"));
-				car.setStatus(getStatus(car));
+				car.setTime(time);
+				
+				System.out.println(key);
+				cacheSetting.put(key, CarPlate);
 				if(!StrUtil.isEmpty(Image)) {
 					byte[] decode = Base64.getDecoder().decode(Image);
 					String string = sp.getImageService().saveImageInServer(decode, "/img/"+StrUtil.formatDate(new Date())+"/"+System.currentTimeMillis()+".jpg");
@@ -107,10 +109,13 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 					car.setImage2(string);
 				}
 				String carType="临时车";
+				car.setRateLimiting(Integer.valueOf(MarkedSpeed));
 				SingleCarparkUser user = sp.getCarparkUserService().findUserByPlateNo(CarPlate, null);
 				if (user!=null) {
 					carType="固定车";
+					car.setRateLimiting(50);
 				}
+				car.setStatus(getStatus(car));
 				if (car.getTime()==null) {
 					car.setTime(new Date());
 				}
@@ -247,7 +252,9 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 			List<OverSpeedCar> list = sp.getCarparkInOutService().findOverSpeedCarByMap(0, 100, map);
 			if (list.size()>=size) {
 				if (isFixCar) {
-					sp.getCarparkUserService().deleteUser(user);
+					user.setRemark(user.getRemark()==null?"":(user.getRemark()+";")+"超速"+list.size()+"次");
+					user.setValidTo(null);
+					sp.getCarparkUserService().saveUser(user);
 					sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "用户有效期："+StrUtil.formatDate(user.getValidTo())+",超速"+list.size()+"次,自动删除", "系统操作");
 				}else {
 					SingleCarparkBlackUser bu=sp.getCarparkService().findBlackUserByPlateNO(plateNo);

@@ -280,7 +280,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	}
 
 	public Float getShouldMoney() {
-		return shouldMoney;
+		return shouldMoney==null?0:shouldMoney;
 	}
 
 	public void setShouldMoney(float shouldMoney) {
@@ -290,7 +290,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	}
 
 	public Float getFactMoney() {
-		return factMoney;
+		return factMoney==null?0f:factMoney;
 	}
 
 	public void setFactMoney(float factMoney) {
