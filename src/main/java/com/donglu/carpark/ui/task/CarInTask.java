@@ -101,7 +101,7 @@ public class CarInTask extends AbstractTask {
 				model.getMapInCheck().put(plateNO, this);
 				return;
 			} else {
-				if (!valueOf) {
+				if (!valueOf&&carpark.getParent()!=null) {
 					return;
 				}
 			}

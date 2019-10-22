@@ -12,7 +12,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 @Entity
 public class SingleCarparkDevice extends DomainObject{
 	public enum Property{
-		identifire,name,ip,inOrOut,cameraType,screenType,carpark,linkAddress
+		identifire,name,ip,inOrOut,cameraType,screenType,carpark,linkAddress,host
 	}
 	public enum DeviceInOutTypeEnum{
 		进口,出口
@@ -36,12 +36,8 @@ public class SingleCarparkDevice extends DomainObject{
 	private ScreenTypeEnum screenType=ScreenTypeEnum.一二接口显示屏;
 	private CameraTypeEnum cameraType=CameraTypeEnum.智芯;
 	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name = "carparkId", nullable = true, insertable = false, updatable = false)
+	@ManyToOne
 	private SingleCarparkCarpark carpark; //所属停车场
-	
-	@Column(name = "carparkId", nullable = true)
-	private Long carparkId;
 	
 	private String controlTime;
 	private String holidayControlTime;
@@ -52,7 +48,9 @@ public class SingleCarparkDevice extends DomainObject{
 	private Boolean isHandCharge=true;
 	
 	private String deviceVersion;
+	@Column(length=512)
 	private String cameraVersion;
+	private String host;
 	
 	public String getIdentifire() {
 		return identifire;
@@ -108,11 +106,6 @@ public class SingleCarparkDevice extends DomainObject{
 	}
 	public void setCarpark(SingleCarparkCarpark carpark) {
 		this.carpark = carpark;
-		if (!StrUtil.isEmpty(carpark)) {
-			if (StrUtil.isEmpty(carpark.getId())) {
-				this.carparkId=carpark.getId();
-			}
-		}
 		if (pcs != null)
 			pcs.firePropertyChange("carpark", null, null);
 	}
@@ -134,14 +127,6 @@ public class SingleCarparkDevice extends DomainObject{
 		this.inType = inType;
 		if (pcs != null)
 			pcs.firePropertyChange("inType", null, null);
-	}
-	public Long getCarparkId() {
-		return carparkId;
-	}
-	public void setCarparkId(Long carparkId) {
-		this.carparkId = carparkId;
-		if (pcs != null)
-			pcs.firePropertyChange("carparkId", null, null);
 	}
 	public Integer getVolume() {
 		return volume;
@@ -250,5 +235,12 @@ public class SingleCarparkDevice extends DomainObject{
 	public void setCameraVersion(String cameraVersion) {
 		this.cameraVersion = cameraVersion;
 		//firePropertyChange("cameraVersion", null, null);
+	}
+	public String getHost() {
+		return host;
+	}
+	public void setHost(String host) {
+		this.host = host;
+		//firePropertyChange("host", null, null);
 	}
 }

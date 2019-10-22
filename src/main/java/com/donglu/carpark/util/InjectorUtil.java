@@ -16,7 +16,7 @@ public class InjectorUtil {
 		};
 		new Thread(runnable).start();
 	}
-	public <T> T getInstance(Class<T> t){
+	public static <T> T getInstance(Class<T> t){
 		if (!isStart) {
 			return null;
 		}
@@ -38,5 +38,6 @@ public class InjectorUtil {
 	}
 	public static void setInjector(Injector injector) {
 		InjectorUtil.injector = injector;
+		isStart=true;
 	}
 }

@@ -21,7 +21,9 @@ import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.ShowDialog;
 import com.donglu.carpark.ui.common.View;
+import com.donglu.carpark.ui.view.inouthistory.feecount.CashFeeCountPresenter;
 import com.donglu.carpark.ui.view.inouthistory.feecount.FeeCountPresenter;
+import com.donglu.carpark.ui.view.inouthistory.feecount.OnlineFeeCountPresenter;
 import com.donglu.carpark.ui.view.inouthistory.wizard.SetCarTypeModel;
 import com.donglu.carpark.ui.view.inouthistory.wizard.SetCarTypeWizard;
 import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
@@ -52,7 +54,9 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	@Inject
 	private CountFlowPresenter countFlowPresenter;
 	@Inject
-	private FeeCountPresenter feeCountPresenter;
+	private CashFeeCountPresenter cashFeeCountPresenter;
+	@Inject
+	private OnlineFeeCountPresenter onlineFeeCountPresenter;
 
 	private String plateNo;
 	private String userName;
@@ -493,10 +497,18 @@ public class InOutHistoryListPresenter extends AbstractListPresenter<SingleCarpa
 	}
 
 	public void feeCount() {
-		ShowDialog d = new ShowDialog("报表统计");
-		d.setPresenter(feeCountPresenter);
+		ShowDialog d = new ShowDialog("收费统计");
+		d.setPresenter(cashFeeCountPresenter);
 		d.setHaveButon(false);
 		d.setSize(1280, 960);
+		d.open();
+	}
+
+	public void onlineFeeCount() {
+		ShowDialog d = new ShowDialog("网上统计");
+		d.setPresenter(onlineFeeCountPresenter);
+		d.setHaveButon(false);
+		d.setSize(1024, 768);
 		d.open();
 	}
 }

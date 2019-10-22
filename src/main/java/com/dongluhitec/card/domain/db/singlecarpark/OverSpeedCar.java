@@ -5,6 +5,8 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.PrePersist;
 
+import org.hibernate.annotations.Index;
+
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
 
@@ -22,7 +24,9 @@ public class OverSpeedCar extends DomainObject {
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	@Index(name = "OverSpeedCar_plate")
 	private String plate;
+	@Index(name = "OverSpeedCar_time")
 	private Date time;
 	private int currentSpeed;
 	private int rateLimiting;
@@ -31,6 +35,7 @@ public class OverSpeedCar extends DomainObject {
 	private int status;
 	private String place;
 	private String camId;
+	@Index(name = "OverSpeedCar_carType")
 	private String carType;
 	private Date createTime;
 	

@@ -20,6 +20,7 @@ import com.donglu.carpark.ui.view.inouthistory.InOutHistoryPresenter;
 import com.donglu.carpark.ui.view.main.AboutPresenter;
 import com.donglu.carpark.ui.view.offline.CarparkOffLineHistoryPresenter;
 import com.donglu.carpark.ui.view.setting.SettingPresenter;
+import com.donglu.carpark.ui.view.sms.SmsPresenter;
 import com.donglu.carpark.ui.view.store.StoreChargePresenter;
 import com.donglu.carpark.ui.view.store.StoreFreePresenter;
 import com.donglu.carpark.ui.view.store.StorePresenter;
@@ -39,6 +40,7 @@ public enum SingleCarparkModuleEnum {
 	商铺优惠(null,4,StorePresenter.class),
 	访客车管理(null,5,VisitorPresenter.class),
 	临时车优惠(null,6,TempCarFreePresenter.class),
+//	设备设置(null,7,com.donglu.carpark.ui.view.device.DevicePresenter.class),
 	参数设置(null,7,SettingPresenter.class),
 	关于(null,8,AboutPresenter.class),
 	进出记录查询(记录查询,0,InOutHistoryPresenter.class),
@@ -54,6 +56,7 @@ public enum SingleCarparkModuleEnum {
 	离线记录(记录查询,10,CarparkOffLineHistoryPresenter.class),
 	图片记录(记录查询,11,ImageHistoryPresenter.class),
 	车辆限速(记录查询,12,OverSpeedCarPresenter.class),
+	短信服务(记录查询,12,SmsPresenter.class),
 	;
 	
 	

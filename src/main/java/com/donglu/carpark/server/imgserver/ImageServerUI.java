@@ -56,6 +56,7 @@ import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.WebService;
 import com.donglu.carpark.service.background.IpmsSynchroServiceI;
 import com.donglu.carpark.service.background.LvdiSynchroServiceI;
+import com.donglu.carpark.service.background.SmsSendServiceI;
 import com.donglu.carpark.service.background.haiyu.AsynHaiYuRecordService;
 import com.donglu.carpark.ui.Login;
 import com.donglu.carpark.ui.wizard.sn.ImportSNModel;
@@ -615,25 +616,31 @@ public class ImageServerUI {
 	}
 
 	private void startBackGroudService() {
-		LOGGER.info("上海云停车场服务启动设置：{}", ShanghaiYunCarparkCfg.getInstance().isStart());
-		if (ShanghaiYunCarparkCfg.getInstance().isStart()) {
-			try {
-				Injector injector = serverInjector.createChildInjector(new AbstractModule() {
-					@Override
-					protected void configure() {
-						bind(ShangHaiYunCarParkService.class).toInstance(sp.getYunCarparkService());
-					}
-				});
-				ShangHaiYunCarParkService yunCarparkService = injector.getInstance(ShangHaiYunCarParkService.class);
-				YunCarparkStartService service = new YunCarparkStartService(yunCarparkService);
-				service.start();
-			} catch (Exception e) {
-				e.printStackTrace();
+		try {
+			LOGGER.info("上海云停车场服务启动设置：{}", ShanghaiYunCarparkCfg.getInstance().isStart());
+			if (ShanghaiYunCarparkCfg.getInstance().isStart()) {
+				try {
+					Injector injector = serverInjector.createChildInjector(new AbstractModule() {
+						@Override
+						protected void configure() {
+							bind(ShangHaiYunCarParkService.class).toInstance(sp.getYunCarparkService());
+						}
+					});
+					ShangHaiYunCarParkService yunCarparkService = injector.getInstance(ShangHaiYunCarParkService.class);
+					YunCarparkStartService service = new YunCarparkStartService(yunCarparkService);
+					service.start();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				// YunCarparkStartService service=new YunCarparkStartService(sp.getYunCarparkService());
+				// service.start();
 			}
-			// YunCarparkStartService service=new YunCarparkStartService(sp.getYunCarparkService());
-			// service.start();
+			checkHaiYunService();
+			serverInjector.getInstance(SmsSendServiceI.class).startAsync();
+		} catch (Exception e) {
+			LOGGER.error("启动后台服务时发生错误",e);
+			
 		}
-		checkHaiYunService();
 	}
 
 	/**

@@ -3,6 +3,8 @@ package com.donglu.carpark.ui;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -246,7 +248,34 @@ public class CarparkMainApp extends AbstractApp{
 					}
 				}
 				singleCarparkDevice.setCarpark(carpark);
+				singleCarparkDevice.setHost(StrUtil.getHostIp());
+				sp.getCarparkDeviceService().saveDevice(singleCarparkDevice);
 				model.setCarpark(carpark.getMaxParent());
+				model.getMapDeviceType().put(key, inType);
+				model.getMapIpToDevice().put(key, singleCarparkDevice);
+				List<SingleCarparkDevice> list = mapTypeDevices.get(inType);
+				if (StrUtil.isEmpty(list)) {
+					list = new ArrayList<>();
+				}
+				list.add(singleCarparkDevice);
+				mapTypeDevices.put(inType, list);
+			}
+//			try {
+//				Files.deleteIfExists(Paths.get("temp\\"+ConstUtil.MAP_IP_TO_DEVICE+".temp"));
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+		}else {
+			List<SingleCarparkDevice> findAllDevice = sp.getCarparkDeviceService().findAllDevice(StrUtil.getHostIp(), null);
+			for (SingleCarparkDevice singleCarparkDevice : findAllDevice) {
+				String inType = singleCarparkDevice.getInType();
+				if (StrUtil.isEmpty(inType)) {
+					continue;
+				}
+				SingleCarparkCarpark carpark=singleCarparkDevice.getCarpark();
+				singleCarparkDevice.setCarpark(carpark);
+				model.setCarpark(carpark.getMaxParent());
+				String key=singleCarparkDevice.getIp();
 				model.getMapDeviceType().put(key, inType);
 				model.getMapIpToDevice().put(key, singleCarparkDevice);
 				List<SingleCarparkDevice> list = mapTypeDevices.get(inType);

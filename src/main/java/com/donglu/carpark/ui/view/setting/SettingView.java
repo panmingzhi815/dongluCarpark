@@ -1198,6 +1198,15 @@ public class SettingView extends Composite implements View {
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_5.setText("分");
 		
+		TabItem tabItem_4 = new TabItem(tabFolder, SWT.NONE);
+		tabItem_4.setText("短信服务");
+		
+		Composite composite_16 = new Composite(tabFolder, SWT.NONE);
+		tabItem_4.setControl(composite_16);
+		composite_16.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
+		SmsSettingComposite smsSettingComposite = new SmsSettingComposite(composite_16, SWT.NONE,mapSystemSetting);
+		
 		text_1.addKeyListener(new KeyAdapter() {
 			String s = text_1.getText();
 

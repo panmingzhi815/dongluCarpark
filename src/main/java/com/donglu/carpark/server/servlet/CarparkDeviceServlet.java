@@ -3,10 +3,13 @@ package com.donglu.carpark.server.servlet;
 import java.util.Collection;
 import java.util.List;
 
+import javax.servlet.ServletException;
+
 import com.caucho.hessian.server.HessianServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkDeviceService;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
+import com.dongluhitec.card.server.util.HibernateSerializerFactory;
 import com.google.inject.Inject;
 
 public class CarparkDeviceServlet extends HessianServlet implements CarparkDeviceService {
@@ -21,6 +24,11 @@ public class CarparkDeviceServlet extends HessianServlet implements CarparkDevic
 	@Inject
 	public CarparkDeviceServlet(CarparkDatabaseServiceProvider sp) {
 		this.carparkDeviceService = sp.getCarparkDeviceService();
+	}
+	
+	@Override
+	public void init() throws ServletException {
+		getSerializerFactory().addFactory(new HibernateSerializerFactory());
 	}
 
 	@Override

@@ -243,7 +243,6 @@ public class CarparkMainPresenter {
 				commonui.info("提示", type + "最多只能添加8个设备");
 				return;
 			}
-			CarparkFileUtils.writeObjectForException(MAP_IP_TO_DEVICE, mapIpToDevice);
 			AddDeviceModel model = new AddDeviceModel();
 			List<SingleCarparkCarpark> findAllCarpark = sp.getCarparkService().findAllCarpark();
 
@@ -357,7 +356,7 @@ public class CarparkMainPresenter {
 			commonui.error("添加失败", "设备" + ip + "已存在");
 			// return;
 		}
-		CarparkFileUtils.writeObject(MAP_IP_TO_DEVICE, mapIpToDevice);
+		saveDevice(device);
 		CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
 		tabItem.setFont(SWTResourceManager.getFont("微软雅黑", 15, SWT.NORMAL));
 		tabItem.setText(name);
@@ -826,6 +825,7 @@ public class CarparkMainPresenter {
 
 	protected void saveDevice(SingleCarparkDevice device) {
 		mapIpToDevice.put(device.getIp(), device);
+//		sp.getCarparkDeviceService().saveDevice(device);
 		CarparkFileUtils.writeObject(MAP_IP_TO_DEVICE, mapIpToDevice);
 	}
 

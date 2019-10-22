@@ -45,6 +45,7 @@
             	<include>org.eclipse.paho:org.eclipse.paho.client.mqttv3</include>
             	<include>org.apache.activemq:activemq-all</include>
             	<include>org.java-websocket:Java-WebSocket</include>
+            	<include>org.projectlombok:lombok</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>

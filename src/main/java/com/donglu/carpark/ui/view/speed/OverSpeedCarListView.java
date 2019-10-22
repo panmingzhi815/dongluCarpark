@@ -31,9 +31,6 @@ public class OverSpeedCarListView extends AbstractListView<OverSpeedCar> impleme
 		return (OverSpeedCarListPresenter) presenter;
 	}
 
-	@Override
-	protected void searchMore() {
-	}
 
 	@Override
 	protected void createMenuBarToolItem(ToolBar toolBar_menu) {

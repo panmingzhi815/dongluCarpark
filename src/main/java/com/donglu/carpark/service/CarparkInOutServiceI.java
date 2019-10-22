@@ -7,10 +7,12 @@ import java.util.Map;
 import java.util.Set;
 
 import com.donglu.carpark.server.module.CacheMethod;
+import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
+import com.dongluhitec.card.domain.db.singlecarpark.CheckOnlineOrder;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceErrorMessage;
 import com.dongluhitec.card.domain.db.singlecarpark.OverSpeedCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
@@ -21,6 +23,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SmsInfo;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.CarparkRecordHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
@@ -392,4 +395,17 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	List<Object[]> countFreeBySearch(Date start, Date end, String operaName, int type);
+
+	List<SmsInfo> findSmsInfoByStatus(int size, int[] status);
+
+	Long saveSmsInfo(SmsInfo smsInfo);
+
+	<T> List<T> findByMap(int current, int pageSize, Class<T> class1, Map<String, Object> map);
+
+	Long countByMap(Class<?> class1, Map<String, Object> map);
+
+	List<Object[]> countCarPayBySearch(Date start, Date end, String operaName, int type);
+
+	<T extends DomainObject> Long saveEntity(T t);
+	<T extends DomainObject> Long saveEntity(List<T> t);
 }

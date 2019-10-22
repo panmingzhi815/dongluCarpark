@@ -57,11 +57,14 @@ public enum SystemSettingTypeEnum {
 	上传数据到绿地平台("false"),
 	
 	启用测速系统("false"),
+	固定车超速速度("50"),
+	固定车超速发送短信(""),
 	固定车超速自动删除("30-3"),
 	临时车超速自动拉黑("30-3-7"),
 	
 	支付完成后出场时间("15"),
-	DateBase_version("1.0.0.29"),软件版本("1.0.0.30"),发布时间("2019-10-08 15:05:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"),    
+	DateBase_version("1.0.0.29"),软件版本("1.0.0.30"),发布时间("2019-10-22 14:55:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
+	启动短信发送服务("false"), 短信服务appid(""), 短信服务appsecret(""), 短信签名(""), 短信模板(""),    
 	;
 	
 	private String defaultValue;
@@ -79,5 +82,8 @@ public enum SystemSettingTypeEnum {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	public int getIntValue() {
+		return Integer.valueOf(defaultValue);
 	}
 }

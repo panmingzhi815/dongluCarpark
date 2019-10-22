@@ -467,6 +467,9 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 				List<?> l=(List<?>) o;
 				int index=0;
 				for (Object object : l) {
+					if(object instanceof Double) {
+						row.createCell(index++).setCellValue((Double)object);
+					}else
 					row.createCell(index++).setCellValue(String.valueOf(object));
 				}
 				continue;

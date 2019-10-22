@@ -109,7 +109,7 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		});
 		countItem.setToolTipText("流量统计");
 		ToolItem feeCountItem = new ToolItem(mainToolbar, SWT.NONE);
-		feeCountItem.setText("收费统计");
+		feeCountItem.setText("现金统计");
 		feeCountItem.setData("type", "count");
 		feeCountItem.addSelectionListener(new SelectionAdapter() {
 		    @Override
@@ -117,7 +117,19 @@ public class InOutHistoryListView extends AbstractListView<SingleCarparkInOutHis
 		    	getPresenter().feeCount();
 		    }
 		});
-		feeCountItem.setToolTipText("收费统计");
+		feeCountItem.setToolTipText("现金收费统计");
+		
+		ToolItem onlineFeeCountItem = new ToolItem(mainToolbar, SWT.NONE);
+		onlineFeeCountItem.setText("网上统计");
+		onlineFeeCountItem.setData("type", "count");
+		onlineFeeCountItem.addSelectionListener(new SelectionAdapter() {
+		    @Override
+		    public void widgetSelected(SelectionEvent e) {
+		    	getPresenter().onlineFeeCount();
+		    }
+		});
+		onlineFeeCountItem.setToolTipText("网上统计");
+		
 		ToolItem setTypeItem = new ToolItem(mainToolbar, SWT.NONE);
 		setTypeItem.setText("设置车类型");
 		setTypeItem.addSelectionListener(new SelectionAdapter() {

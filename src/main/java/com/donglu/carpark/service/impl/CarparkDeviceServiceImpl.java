@@ -51,14 +51,19 @@ public class CarparkDeviceServiceImpl implements CarparkDeviceService {
 
 	@Override
 	public List<SingleCarparkDevice> findAllDevice(String host,String code) {
-		Criteria c = CriteriaUtils.createCriteria(emProvider.get(), SingleCarparkDevice.class);
-		if (!StrUtil.isEmpty(host)) {
-			c.add(Restrictions.eq("", host));
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emProvider.get(), SingleCarparkDevice.class);
+			if (!StrUtil.isEmpty(host)) {
+				c.add(Restrictions.eq("host", host));
+			}
+			if (!StrUtil.isEmpty(code)) {
+				c.add(Restrictions.eq("identifire", code));
+			}
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
 		}
-		if (!StrUtil.isEmpty(code)) {
-			c.add(Restrictions.eq("", code));
-		}
-		return c.getResultList();
 	}
 	
 	@Transactional
@@ -70,9 +75,21 @@ public class CarparkDeviceServiceImpl implements CarparkDeviceService {
 		}
 		return (long) devices.size();
 	}
-
+	
+	@Transactional
 	@Override
 	public Long saveDevice(SingleCarparkDevice device) {
+		Criteria c = CriteriaUtils.createCriteria(emProvider.get(), SingleCarparkDevice.class);
+		c.add(Restrictions.eq(SingleCarparkDevice.Property.ip.name(), device.getIp()));
+		SingleCarparkDevice singleResultOrNull = (SingleCarparkDevice) c.getSingleResultOrNull();
+		DatabaseOperation<SingleCarparkDevice> dom = DatabaseOperation.forClass(SingleCarparkDevice.class, emProvider.get());
+		if (singleResultOrNull==null) {
+			device.setId(null);
+			dom.insert(device);
+		}else {
+			device.setId(singleResultOrNull.getId());
+			dom.save(device);
+		}
 		return device.getId();
 	}
 

@@ -1,8 +1,12 @@
 package com.donglu.carpark.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
+import com.alibaba.fastjson.JSONObject;
 import com.donglu.carpark.model.Result;
 import com.donglu.carpark.service.impl.IpmsServiceImpl;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
@@ -79,4 +83,6 @@ public interface IpmsServiceI {
 	
 	public default boolean sendMqtt(String id,String msg) {return true;}
 	public boolean notifyDeviceCarIn(String deviceId, String plate);
+	
+	public default List<JSONObject> findOnlineOrder(Date start,Date end) {return new ArrayList<JSONObject>();};
 }

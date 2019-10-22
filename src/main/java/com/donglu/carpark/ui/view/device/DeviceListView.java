@@ -15,7 +15,10 @@ public class DeviceListView extends AbstractListView<SingleCarparkDevice> {
 				SingleCarparkDevice.Property.linkAddress.name(),
 				SingleCarparkDevice.Property.screenType.name(),
 				SingleCarparkDevice.Property.inOrOut.name(),
-				}, new String[]{"编号","名称","摄像机","摄像机类型","控制器","屏幕类型","进出类型"}, new int[]{});
+				SingleCarparkDevice.Property.carpark.name(),
+				SingleCarparkDevice.Property.host.name(),
+				}, new String[]{"编号","名称","摄像机","摄像机类型","控制器","屏幕类型","进出类型","停车场","岗亭IP"}, 
+				new int[]{100,100,150,100,150,100,100,100,100});
 	}
 
 }

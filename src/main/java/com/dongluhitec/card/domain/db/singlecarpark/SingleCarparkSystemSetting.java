@@ -64,4 +64,8 @@ public class SingleCarparkSystemSetting extends DomainObject {
 		}
 		return b;
 	}
+
+	public int getIntValue() {
+		return Integer.valueOf(settingValue);
+	}
 }

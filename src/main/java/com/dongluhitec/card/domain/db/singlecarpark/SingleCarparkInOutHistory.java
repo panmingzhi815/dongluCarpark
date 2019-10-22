@@ -1,7 +1,6 @@
 package com.dongluhitec.card.domain.db.singlecarpark;
 
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,9 +14,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
-import org.hibernate.annotations.IndexColumn;
 
-import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
 

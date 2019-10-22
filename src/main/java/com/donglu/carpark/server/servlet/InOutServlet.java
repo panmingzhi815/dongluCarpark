@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.caucho.hessian.server.HessianServlet;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
+import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
@@ -30,6 +31,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SmsInfo;
 import com.dongluhitec.card.server.util.HibernateSerializerFactory;
 import com.google.inject.Inject;
 
@@ -647,5 +649,54 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	@Override
 	public List<Object[]> countFreeBySearch(Date start, Date end, String operaName, int type) {
 		return carparkInOutService.countFreeBySearch(start, end, operaName, type);
+	}
+
+
+
+	@Override
+	public List<SmsInfo> findSmsInfoByStatus(int size, int[] status) {
+		return carparkInOutService.findSmsInfoByStatus(size, status);
+	}
+
+
+
+	@Override
+	public Long saveSmsInfo(SmsInfo smsInfo) {
+		return carparkInOutService.saveSmsInfo(smsInfo);
+	}
+
+
+
+	@Override
+	public <T> List<T> findByMap(int current, int pageSize, Class<T> class1, Map<String, Object> map) {
+		return carparkInOutService.findByMap(current, pageSize, class1, map);
+	}
+
+
+
+	@Override
+	public Long countByMap(Class<?> class1, Map<String, Object> map) {
+		return carparkInOutService.countByMap(class1, map);
+	}
+
+
+
+	@Override
+	public List<Object[]> countCarPayBySearch(Date start, Date end, String operaName, int type) {
+		return carparkInOutService.countCarPayBySearch(start, end, operaName, type);
+	}
+
+
+
+	@Override
+	public <T extends DomainObject> Long saveEntity(T t) {
+		return carparkInOutService.saveEntity(t);
+	}
+
+
+
+	@Override
+	public <T extends DomainObject> Long saveEntity(List<T> t) {
+		return carparkInOutService.saveEntity(t);
 	}
 }

@@ -53,7 +53,7 @@ begin
 	begin
 		if datediff(minute,@InTimeTmp,@outtime)<60 and datediff(minute,@intime,@outtime)>60 and DATEPART(hh,@outtime) =19
 		begin
-			set @outtime = DATEADD(MINUTE,datediff(minute,@InTimeTmp,@outtime)-60,@outtime)
+			set @outtime = DATEADD(MINUTE,datediff(minute,@InTimeTmp,@outtime)-60,@InTimeTmp)
 		end
 		else if datediff(minute,@intime,@outtime)>60
 		begin

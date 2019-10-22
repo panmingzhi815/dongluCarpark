@@ -1027,7 +1027,7 @@ public class CarOutTask extends AbstractTask{
 				String s = model.getPlateColorCache().asMap().get(editPlateNo);
 				if (!StrUtil.isEmpty(s)) {
 					boolean b = !StrUtil.isEmpty(mapTempCharge.get("大车"));
-					if (s.contains("黄")&&b) {
+					if (s.contains("黄")&&b&&!editPlateNo.contains("学")) {
 						model.setCarparkCarType(mapTempCharge.get("大车").getDisplayName());
 					}else{
 						model.setCarparkCarType(mapTempCharge.get("小车").getDisplayName());

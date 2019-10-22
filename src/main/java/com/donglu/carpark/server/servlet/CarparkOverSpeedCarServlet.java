@@ -23,12 +23,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.dongluhitec.card.domain.db.singlecarpark.OverSpeedCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SmsInfo;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -38,7 +41,7 @@ import com.google.inject.Inject;
 
 
 public class CarparkOverSpeedCarServlet extends HttpServlet {
-
+	private Logger LOGGER=LoggerFactory.getLogger(CarparkOverSpeedCarServlet.class);
 	/**
 	 * 
 	 */
@@ -46,7 +49,7 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 	
 	private CarparkDatabaseServiceProvider sp;
 	
-	private  static final Cache<String, String> cacheSetting = CacheBuilder.newBuilder().expireAfterWrite(20, TimeUnit.MINUTES).build();
+	private  static final Cache<String, String> cacheSetting = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
 	
 	@Inject
 	public CarparkOverSpeedCarServlet(CarparkDatabaseServiceProvider sp) {
@@ -59,7 +62,7 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String pathInfo = req.getPathInfo();
-		System.out.println("pathInfo=="+pathInfo);
+		LOGGER.info("pathInfo=="+pathInfo);
 		switch (pathInfo) {
 		case "/add":
 			try {
@@ -89,7 +92,6 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 				car.setPlate(CarPlate);
 				car.setTime(time);
 				
-				System.out.println(key);
 				cacheSetting.put(key, CarPlate);
 				if(!StrUtil.isEmpty(Image)) {
 					byte[] decode = Base64.getDecoder().decode(Image);
@@ -112,16 +114,18 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 				car.setRateLimiting(Integer.valueOf(MarkedSpeed));
 				SingleCarparkUser user = sp.getCarparkUserService().findUserByPlateNo(CarPlate, null);
 				if (user!=null) {
+					LOGGER.info("固定车：{}-{}",user.getName(),user.getTelephone());
 					carType="固定车";
-					car.setRateLimiting(50);
+					int fixCarRateLimiting=Integer.valueOf(getSystemSetting(SystemSettingTypeEnum.固定车超速速度));
+					car.setRateLimiting(fixCarRateLimiting);
 				}
 				car.setStatus(getStatus(car));
 				if (car.getTime()==null) {
 					car.setTime(new Date());
 				}
-				countOverSpeedSize(CarPlate, user!=null, user);
 				car.setCarType(carType);
 				sp.getCarparkInOutService().saveOverSpeedCar(car);
+				countOverSpeedSize(CarPlate, user!=null, user,car);
 				writeMsg(resp, 0, "成功");
 			} catch (Exception e) {
 				writeMsg(resp, 1, "失败,"+e);
@@ -221,13 +225,14 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 		System.out.println(new String(b,0,read));
 	}
 	
-	public int countOverSpeedSize(String plateNo, boolean isFixCar,SingleCarparkUser user) {
+	public int countOverSpeedSize(String plateNo, boolean isFixCar,SingleCarparkUser user,OverSpeedCar overSpeedCar) {
 		if (booleanSetting(SystemSettingTypeEnum.启用测速系统)) {
 			Map<String, Object> map=new HashMap<>();
 			map.put(OverSpeedCar.Property.plate.name(), plateNo);
 			String carType="临时车";
 			if (isFixCar) {
 				carType="固定车";
+				
 			}
 			map.put(OverSpeedCar.Property.carType.name(), carType);
 			int day=0;
@@ -250,6 +255,28 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 			map.put(OverSpeedCar.Property.time.name()+"-le", StrUtil.getTodayBottomTime(new Date()));
 			map.put(OverSpeedCar.Property.status.name(), 1);
 			List<OverSpeedCar> list = sp.getCarparkInOutService().findOverSpeedCarByMap(0, 100, map);
+			String templateCode = getSystemSetting(SystemSettingTypeEnum.固定车超速发送短信);
+			if (isFixCar&&!StrUtil.isEmpty(user.getTelephone())&&overSpeedCar.getStatus()==1&&!StrUtil.isEmpty(templateCode)) {
+				SmsInfo smsInfo = new SmsInfo();
+				smsInfo.setTel(user.getTelephone());
+				smsInfo.setOverSpeedSize(list.size());
+				smsInfo.setOverSpeedTime(overSpeedCar.getTime());
+				smsInfo.setUserName(user.getName());
+				smsInfo.setPlate(plateNo);
+				smsInfo.setSpeed(overSpeedCar.getCurrentSpeed());
+				smsInfo.setAddress(overSpeedCar.getPlace());
+				smsInfo.setTemplateCode(templateCode);
+				JSONObject jo=new JSONObject();
+				jo.put("plate", plateNo);
+				jo.put("name", user.getName());
+				jo.put("overSpeedsize", list.size());
+				jo.put("time", StrUtil.formatDateTime(overSpeedCar.getTime()));
+				jo.put("day", day);
+				jo.put("address", overSpeedCar.getPlace());
+				jo.put("speed", overSpeedCar.getCurrentSpeed());
+				smsInfo.setData(jo.toJSONString());
+				sp.getCarparkInOutService().saveSmsInfo(smsInfo);
+			}
 			if (list.size()>=size) {
 				if (isFixCar) {
 					user.setRemark(user.getRemark()==null?"":(user.getRemark()+";")+"超速"+list.size()+"次");
@@ -266,10 +293,14 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 					bu.setRemark("超速"+list.size()+"次");
 					sp.getCarparkService().saveBlackUser(bu);
 				}
+				for (OverSpeedCar c : list) {
+					c.setStatus(0);
+				}
+				sp.getCarparkInOutService().saveEntity(list);
 			}
 			return list.size();
 		}
-		return 0;
+		return -1;
 	}
 	private boolean booleanSetting(SystemSettingTypeEnum systemSettingTypeEnum) {
 		return Boolean.valueOf(getSystemSetting(systemSettingTypeEnum));

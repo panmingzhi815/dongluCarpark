@@ -1,6 +1,7 @@
 package com.donglu.carpark.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -36,6 +37,7 @@ import org.joda.time.DateTime;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.blservice.DongluServiceException;
+import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
@@ -57,6 +59,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkOpenDoorLog;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkReturnAccount;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser.CarparkSlotTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SmsInfo;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.service.impl.DatabaseOperation;
 import com.google.common.base.Predicate;
@@ -1932,7 +1935,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}
 	}
 
-	private Criteria createCriteriaByMap(Class<OverSpeedCar> class1, Map<String, Object> map) {
+	private Criteria createCriteriaByMap(Class<?> class1, Map<String, Object> map) {
 		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), class1);
 		for (String key : map.keySet()) {
 			Object v = map.get(key);
@@ -2057,7 +2060,10 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	public List<Object[]> countFeeBySearch(Date start, Date end, String operaName, int type) {
 		unitOfWork.begin();
 		try {
-			String time = "CONVERT(varchar, outTime, 112)";
+			String time = "";
+			if (0==type) {
+				time = "CONVERT(varchar, outTime, 112)";
+			}
 			if (type==1) {
 				time="SUBSTRING(CONVERT(varchar, outTime, 112),0,7)";
 				start=StrUtil.getMonthTopTime(start);
@@ -2070,9 +2076,11 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			String s = start == null ? "" : " and outtime>='" + StrUtil.formatDateTime(start) + "'";
 			String e = end == null ? "" : " and outtime<='" + StrUtil.formatDateTime(end) + "'";
 			String opera = StrUtil.isEmpty(operaName) ? "" : " and operaName='" + operaName + "'";
-			String sql = "select operaName,"+time+" a,SUM(shouldMoney) b,sum(factMoney) c,sum(onlineMoney) d,sum(freeMoney) e from SingleCarparkInOutHistory where 1=1 " + s + e + opera
-					+ " group by operaName,"+time;
-//			System.out.println(sql);
+			String selectTime=time.isEmpty()?"":(time+" a,");
+			String groupTime=time.isEmpty()?"":(","+time);
+			String sql = "select operaName,"+selectTime+"SUM(shouldMoney) b,sum(factMoney) c,sum(onlineMoney) d,sum(freeMoney) e from SingleCarparkInOutHistory where shouldMoney>0 " + s + e + opera
+					+ " group by operaName"+groupTime;
+			System.out.println(sql);
 			Query query = emprovider.get().createNativeQuery(sql);
 			return query.getResultList();
 		} finally {
@@ -2097,7 +2105,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			String s = start == null ? "" : " and outtime>='" + StrUtil.formatDateTime(start) + "'";
 			String e = end == null ? "" : " and outtime<='" + StrUtil.formatDateTime(end) + "'";
 			String opera = StrUtil.isEmpty(operaName) ? "" : " and operaName='" + operaName + "'";
-			String sql = "select " + time + " a,operaName,freeReason,COUNT(id) b from SingleCarparkInOutHistory where freeReason is not null " + s + e + opera + " group by freeReason,operaName,"
+			String sql = "select " + time + " a,operaName,freeReason,COUNT(id) b from SingleCarparkInOutHistory where freeReason is not null and shouldMoney>0 " + s + e + opera + " group by freeReason,operaName,"
 					+ time;
 			System.out.println(sql);
 			Query query = emprovider.get().createNativeQuery(sql);
@@ -2105,6 +2113,120 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		} finally {
 			unitOfWork.end();
 		}
+	}
+	@Override
+	public List<Object[]> countCarPayBySearch(Date start, Date end, String operaName, int type) {
+		unitOfWork.begin();
+		try {
+			String time = "";
+			if(0==type) {
+				time = "CONVERT(varchar, payTime, 112)";
+			}else if (type == 1) {
+				time = "SUBSTRING(CONVERT(varchar, payTime, 112),0,7)";
+				start = StrUtil.getMonthTopTime(start);
+				end = StrUtil.getMonthBottomTime(end);
+			} else if (type == 2) {
+				time = "DATEPART(YY,payTime)";
+				start = StrUtil.getYearTopTime(start);
+				end = StrUtil.getYearBottomTime(end);
+			}
+			String s = start == null ? "" : " and payTime>='" + StrUtil.formatDateTime(start) + "'";
+			String e = end == null ? "" : " and payTime<='" + StrUtil.formatDateTime(end) + "'";
+			String opera = StrUtil.isEmpty(operaName) ? "" : " and operaName='" + operaName + "'";
+			String selectTime=time+" a,";
+			String groupTime=","+time;
+			String sql = "select operaName,payType,"+selectTime+"SUM(payedMoney) b,sum(cashCost) c,sum(onlineCost) d,sum(couponValue) e from CarPayHistory where 1=1 " + s + e + opera
+					+ " group by operaName,payType"+groupTime;
+			System.out.println(sql);
+			Query query = emprovider.get().createNativeQuery(sql);
+			return query.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<SmsInfo> findSmsInfoByStatus(int size, int[] status) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SmsInfo.class);
+			ArrayList<Object> list = new ArrayList<>();
+			for (int i : status) {
+				list.add(i);
+			}
+			c.add(Restrictions.in("status", list));
+			c.setFirstResult(0);
+			c.setMaxResults(size);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	
+	@Transactional
+	@Override
+	public Long saveSmsInfo(SmsInfo smsInfo) {
+		DatabaseOperation<SmsInfo> dom = DatabaseOperation.forClass(SmsInfo.class, emprovider.get());
+		if (smsInfo.getId()==null) {
+			dom.insert(smsInfo);
+		}else {
+			dom.save(smsInfo);
+		}
+		return smsInfo.getId();
+	}
+
+	@Override
+	public <T> List<T> findByMap(int current, int pageSize, Class<T> class1, Map<String, Object> map) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createCriteriaByMap(class1, map);
+			c.setFirstResult(current);
+			c.setMaxResults(pageSize);
+			return c.getResultList();
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public Long countByMap(Class<?> class1, Map<String, Object> map) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createCriteriaByMap(class1, map);
+			c.setProjection(Projections.rowCount());
+			Long l = (Long) c.getSingleResultOrNull();
+			return l == null ? 0l : l;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+	
+	@Transactional
+	@Override
+	public <T extends DomainObject> Long saveEntity(T t) {
+		DatabaseOperation<T> dom = (DatabaseOperation<T>) DatabaseOperation.forClass(t.getClass(), emprovider.get());
+		if (t.getId()==null) {
+			dom.insert(t);
+		}else {
+			dom.save(t);
+		}
+		return t.getId();
+	}
+	@Transactional
+	@Override
+	public <T extends DomainObject> Long saveEntity(List<T> t) {
+		if (t==null||t.isEmpty()) {
+			return 0l;
+		}
+		DatabaseOperation<T> dom = (DatabaseOperation<T>) DatabaseOperation.forClass(t.get(0).getClass(), emprovider.get());
+		for (T t2 : t) {
+			if (t2.getId()==null) {
+				dom.insert(t2);
+			}else {
+				dom.save(t2);
+			}
+		}
+		return (long) t.size();
 	}
 	
 }

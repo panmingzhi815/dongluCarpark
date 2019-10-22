@@ -60,6 +60,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		device.setIsHandCharge(getIsHandCharge());
 		device.setDeviceVersion(getDeviceVersion());
 		device.setCameraVersion(getCameraVersion());
+		device.setHost(getHost());
 		return device;
 	}
 	public String getSerialAddress() {
@@ -107,6 +108,7 @@ public class AddDeviceModel extends SingleCarparkDevice{
 		setIsHandCharge(device.getIsHandCharge());
 		setDeviceVersion(device.getDeviceVersion());
 		setCameraVersion(device.getCameraVersion());
+		setHost(device.getHost());
 	}
 	public String getVoice() {
 		return voice;

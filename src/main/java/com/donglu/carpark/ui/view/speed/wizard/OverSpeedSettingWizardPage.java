@@ -1,6 +1,5 @@
 package com.donglu.carpark.ui.view.speed.wizard;
 
-import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -21,6 +20,8 @@ public class OverSpeedSettingWizardPage extends WizardPage {
 	private Text txt_tempSize;
 	private Text txt_tempBlackDay;
 	private Button btn_start;
+	private Text txt_fixSpeed;
+	private Text txt_overSpeedSmsTempCode;
 
 	protected OverSpeedSettingWizardPage() {
 		super("超速车辆设置");
@@ -39,6 +40,28 @@ public class OverSpeedSettingWizardPage extends WizardPage {
 		btn_start = new Button(composite_1, SWT.CHECK);
 		btn_start.setText("启用车辆车速统计");
 		
+		Composite composite_4 = new Composite(composite_1, SWT.NONE);
+		composite_4.setLayout(new GridLayout(4, false));
+		composite_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label label_7 = new Label(composite_4, SWT.NONE);
+		label_7.setText("固定车超速速度");
+		
+		txt_fixSpeed = new Text(composite_4, SWT.BORDER);
+		GridData gd_txt_fixSpeed = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_txt_fixSpeed.widthHint = 50;
+		txt_fixSpeed.setLayoutData(gd_txt_fixSpeed);
+		
+		Label label_8 = new Label(composite_4, SWT.NONE);
+		label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_8.setText("超速后发送短信");
+		
+		txt_overSpeedSmsTempCode = new Text(composite_4, SWT.BORDER);
+		txt_overSpeedSmsTempCode.setToolTipText("短信模板编号");
+		GridData gd_txt_overSpeedSmsTempCode = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_txt_overSpeedSmsTempCode.widthHint = 100;
+		txt_overSpeedSmsTempCode.setLayoutData(gd_txt_overSpeedSmsTempCode);
+		
 		Composite composite_2 = new Composite(composite_1, SWT.NONE);
 		composite_2.setLayout(new GridLayout(5, false));
 		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
@@ -47,9 +70,9 @@ public class OverSpeedSettingWizardPage extends WizardPage {
 		label.setText("固定车");
 		
 		txt_fixDay = new Text(composite_2, SWT.BORDER);
-		GridData gd_text = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_text.widthHint = 30;
-		txt_fixDay.setLayoutData(gd_text);
+		GridData gd_txt_fixDay = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_txt_fixDay.widthHint = 30;
+		txt_fixDay.setLayoutData(gd_txt_fixDay);
 		
 		Label label_1 = new Label(composite_2, SWT.NONE);
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -111,6 +134,17 @@ public class OverSpeedSettingWizardPage extends WizardPage {
 		txt_tempDay.setText(split[0]);
 		txt_tempSize.setText(split[1]);
 		txt_tempBlackDay.setText(split[2]);
+		
+		setting = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.固定车超速速度.name());
+		txt_fixSpeed.setText(setting.getSettingValue());
+		
+		setText(txt_overSpeedSmsTempCode, SystemSettingTypeEnum.固定车超速发送短信);
+	}
+	
+	public void setText(Text txt,SystemSettingTypeEnum systemSettingTypeEnum) {
+		CarparkDatabaseServiceProvider sp = getWizard().getSp();
+		SingleCarparkSystemSetting setting = sp.getCarparkService().findSystemSettingByKey(systemSettingTypeEnum.name());
+		txt.setText(setting.getSettingValue());
 	}
 	
 	protected void save() {
@@ -125,6 +159,18 @@ public class OverSpeedSettingWizardPage extends WizardPage {
 		
 		setting = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.临时车超速自动拉黑.name());
 		setting.setSettingValue(txt_tempDay.getText()+"-"+txt_tempSize.getText()+"-"+txt_tempBlackDay.getText());
+		sp.getCarparkService().saveSystemSetting(setting);
+		
+		setting = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.固定车超速速度.name());
+		setting.setSettingValue(txt_fixSpeed.getText());
+		sp.getCarparkService().saveSystemSetting(setting);
+		
+		getText(txt_overSpeedSmsTempCode, SystemSettingTypeEnum.固定车超速发送短信);
+	}
+	public void getText(Text txt,SystemSettingTypeEnum systemSettingTypeEnum) {
+		CarparkDatabaseServiceProvider sp = getWizard().getSp();
+		SingleCarparkSystemSetting setting = sp.getCarparkService().findSystemSettingByKey(systemSettingTypeEnum.name());
+		setting.setSettingValue(txt.getText());
 		sp.getCarparkService().saveSystemSetting(setting);
 	}
 

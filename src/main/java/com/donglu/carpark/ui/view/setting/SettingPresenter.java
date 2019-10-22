@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
@@ -30,6 +32,7 @@ import com.dongluhitec.card.hardware.plateDevice.bean.PlateDownload;
 import com.google.inject.Inject;
 
 public class SettingPresenter implements Presenter {
+	private Logger LOGGER=LoggerFactory.getLogger(SettingPresenter.class);
 	private static final String OPERANAME = System.getProperty("userName");
 	private SettingView view;
 	@Inject
@@ -158,20 +161,35 @@ public class SettingPresenter implements Presenter {
 			return;
 		}
 		sp.getCarparkInOutService().clearCarHistoryWithInByDate(date);
+		sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "清除场内车："+date,OPERANAME);
 		commonui.info("提示", "清除成功");
 	}
 
 	public void backup(String path) {
-		boolean executeSQL = sp.getSettingService().backupDataBase(path);
-		if (executeSQL) {
-			commonui.info("成功", "备份数据库到" + path + "成功");
-		} else {
-			commonui.error("失败", "备份数据库到" + path + "失败");
+		try {
+			boolean confirm = commonui.confirm("提示", "是否确认备份数据库!!!");
+			if (!confirm) {
+				return;
+			}
+			boolean executeSQL = sp.getSettingService().backupDataBase(path);
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "备份数据库："+path,OPERANAME);
+			if (executeSQL) {
+				commonui.info("成功", "备份数据库到" + path + "成功");
+			} else {
+				commonui.error("失败", "备份数据库到" + path + "失败");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
 	public void restoreDataBase(String path) {
 		try {
+			boolean confirm = commonui.confirm("提示", "是否确认还原数据库!!!");
+			if (!confirm) {
+				return;
+			}
+			LOGGER.info("还原数据库");
 			int restoreDataBase = sp.getSettingService().restoreDataBase(path);
 			if (restoreDataBase == 0) {
 				commonui.error("错误", "没有找到数据库备份文件");
@@ -183,6 +201,7 @@ public class SettingPresenter implements Presenter {
 			if (restoreDataBase == 2) {
 				commonui.error("失败", "重新建立数据库连接失败，请重启程序");
 			}
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.参数设置, "还原数据库："+restoreDataBase,OPERANAME);
 			commonui.info("成功", "还原数据库成功");
 		} catch (Exception e) {
 			e.printStackTrace();

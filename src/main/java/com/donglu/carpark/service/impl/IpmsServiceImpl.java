@@ -11,6 +11,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -464,6 +466,17 @@ public class IpmsServiceImpl implements IpmsServiceI {
 									parkingRecordId=parkingRecordId.substring(32);
 								}
 								pay.setHistoryId(Long.valueOf(parkingRecordId));
+								
+//								List<CarPayHistory> list = sp.getCarPayService().findCarPayHistoryByHistoryId(pay.getHistoryId());
+//								if (!list.isEmpty()&&list.size()==1&&list.get(0).getPayType()==PayTypeEnum.现金支付&&list.get(0).getPayedMoney()>=pay.getPayedMoney()) {
+//									CarPayHistory carPayHistory = list.get(0);
+//									if (carPayHistory.getCashCost()==carPayHistory.getPayedMoney()) {
+//										carPayHistory.setPayedMoney(carPayHistory.getPayedMoney() - pay.getPayedMoney());
+//										carPayHistory.setCashCost(carPayHistory.getCashCost() - pay.getOnlineCost());
+//										sp.getCarPayService().saveCarPayHistory(carPayHistory);
+//									}
+//								}
+								
 								SingleCarparkInOutHistory inOutHistory = sp.getCarparkInOutService().findInOutById(Long.valueOf(parkingRecordId));
 								if (inOutHistory != null) {
 									pay.setInTime(inOutHistory.getInTime());
@@ -766,8 +779,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 //		JSONArray parseArray = JSONObject.parseArray(parameters);
 //		System.out.println();
 		
-		String url="http%3A%2F%2Fwww.lightcar.cn%2Fipms%2Fweixin_zr%2FweixinAction%21getOpenStep2.action%3FchannelId%3Db57c0ebcd45846d996eabc962f54766d";
-		System.out.println(URLDecoder.decode(url, "UTF-8"));
+//		String url="http%3A%2F%2Fwww.lightcar.cn%2Fipms%2Fweixin_zr%2FweixinAction%21getOpenStep2.action%3FchannelId%3Db57c0ebcd45846d996eabc962f54766d";
+//		System.out.println(URLDecoder.decode(url, "UTF-8"));
 //		UUID uuid = UUID.randomUUID();
 //		System.out.println(uuid.toString());
 //		Map<Object,Object> map = new HashMap<>(100000000);
@@ -783,6 +796,16 @@ public class IpmsServiceImpl implements IpmsServiceI {
 //			e.printStackTrace();
 //		}
 //		System.out.println(i);
+		
+		
+		IpmsServiceImpl is = new IpmsServiceImpl();
+		is.httpUrl="http://www.dongluhitec.net";
+		is.parkId="a94b0ed03666434483cbb997acac0679";
+		List<JSONObject> list = is.findOnlineOrder(new DateTime(2019, 8, 24, 0, 0, 0).toDate(), new DateTime(2019, 8, 24, 23, 59, 59).toDate());
+		System.out.println(list.size());
+		for (JSONObject jo : list) {
+			System.out.println(jo);
+		}
 	}
 	private String postMssage(String actionUrl, Map<String, Object> maps) throws Exception{
 		Set<String> keySet = maps.keySet();
@@ -891,5 +914,32 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			log.error("上传设备:{} 车辆信息：{} 发生错误：{}",deviceId,plate,e);
 		}
 		return false;
+	}
+	@Override
+	public List<JSONObject> findOnlineOrder(Date start, Date end) {
+		try {
+//			String parkId=getParkId(inout.getCarparkId());
+			String startTime=URLEncoder.encode(StrUtil.formatDateTime(start), "UTF-8");
+			String endTime=URLEncoder.encode(StrUtil.formatDateTime(end), "UTF-8");
+			log.info("查询支付账单：{}-{}",startTime,endTime);
+			String url=httpUrl+"/api/queryPayOrder.action?startTime={}&parkId="+parkId+"&endTime={}";
+			url = StrUtil.formatString(url, startTime,endTime);
+			String httpPostMssage = httpPostMssageInThread(url, null,30000);
+			JSONObject result = JSON.parseObject(httpPostMssage);
+			log.info("查询支付账单：{}-{}  返回结果：{}",startTime,endTime,result.getString("resultCode"));
+			boolean equals = "0000".equals(result.getString("resultCode"));
+			if (equals) {
+				JSONArray data = JSON.parseArray(URLDecoder.decode(result.getString("data"), "UTF-8"));
+				List<JSONObject> list=new ArrayList<JSONObject>();
+				for (int i = 0; i < data.size(); i++) {
+					JSONObject object = data.getJSONObject(i);
+					list.add(object);
+				}
+				return list;
+			}
+		} catch (Exception e) {
+			log.error("查询支付账单发生错误：{}",e);
+		}
+		return IpmsServiceI.super.findOnlineOrder(start, end);
 	}
 }
