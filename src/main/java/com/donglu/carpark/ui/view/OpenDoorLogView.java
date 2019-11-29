@@ -16,6 +16,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import com.donglu.carpark.ui.common.Presenter;
 import com.donglu.carpark.ui.common.View;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemUser;
+import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.FillLayout;
@@ -33,6 +34,7 @@ public class OpenDoorLogView extends Composite implements View{
 	private Composite listComposite;
 	private Text text_device;
 	private ComboViewer comboViewer;
+	private Text txt_plate;
 
 	public OpenDoorLogView(Composite parent, int style) {
 		super(parent, style);
@@ -41,7 +43,7 @@ public class OpenDoorLogView extends Composite implements View{
 		Group group = new Group(this, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		group.setLayout(new GridLayout(9, false));
+		group.setLayout(new GridLayout(11, false));
 		
 		Label label = new Label(group, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -68,6 +70,17 @@ public class OpenDoorLogView extends Composite implements View{
 		gd_text_device.widthHint = 88;
 		text_device.setLayoutData(gd_text_device);
 		
+		Label label_4 = new Label(group, SWT.NONE);
+		label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_4.setText("车牌");
+		
+		txt_plate = new Text(group, SWT.BORDER);
+		txt_plate.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_txt_plate = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_txt_plate.widthHint = 90;
+		txt_plate.setLayoutData(gd_txt_plate);
+		
 		Label label_1 = new Label(group, SWT.NONE);
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_1.setText("开始时间");
@@ -76,7 +89,7 @@ public class OpenDoorLogView extends Composite implements View{
 		CDateTime dateTime = new CDateTime(group, CDT.BORDER);
 		dateTime.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		dateTime.setPattern("yyyy-MM-dd HH:mm");
-		dateTime.setSelection(new org.joda.time.DateTime(new Date()).minusDays(1).toDate());
+		dateTime.setSelection(StrUtil.getTodayTopTime(new Date()));
 		Label label_2 = new Label(group, SWT.NONE);
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_2.setText("结束时间");
@@ -85,7 +98,7 @@ public class OpenDoorLogView extends Composite implements View{
 		CDateTime dateTime_1 = new CDateTime(group, CDT.BORDER);
 		dateTime_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		dateTime_1.setPattern("yyyy-MM-dd HH:mm");
-		dateTime_1.setSelection(new Date());
+		dateTime_1.setSelection(StrUtil.getTodayBottomTime(new Date()));
 		
 		Button button = new Button(group, SWT.NONE);
 		button.addSelectionListener(new SelectionAdapter() {
@@ -96,7 +109,7 @@ public class OpenDoorLogView extends Composite implements View{
 					if (text.equals("全部")) {
 						text=null;
 					}
-					getPresenter().search(text, dateTime.getSelection(), dateTime_1.getSelection(),text_device.getText());
+					getPresenter().search(text, dateTime.getSelection(), dateTime_1.getSelection(),text_device.getText(),txt_plate.getText());
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}

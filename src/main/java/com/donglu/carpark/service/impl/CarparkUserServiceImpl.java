@@ -158,7 +158,7 @@ public class CarparkUserServiceImpl extends BaseDaoServiceImpl implements Carpar
 		return c;
 	}
 	
-	static Cache<Object, Object> userCache = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).build();
+	static Cache<Object, Object> userCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build();
 	@Override
 	public SingleCarparkUser findUserByPlateNo(String plateNO,Long carparkId) {
 		try {

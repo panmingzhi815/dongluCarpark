@@ -38,7 +38,9 @@ public class SmsSendServiceImpl extends AbstractCarparkBackgroundService impleme
 	protected void run() {
 		try {
 			List<SmsInfo> list = sp.getCarparkInOutService().findSmsInfoByStatus(10,new int[] { 1, 2 });
-			
+			if(list.isEmpty()) {
+				list = sp.getCarparkInOutService().findSmsInfoByStatus(10,new int[] { 3 });
+			}
 			for (SmsInfo smsInfo : list) {
 				if (smsInfo.getTemplateCode()==null) {
 					smsInfo.setStatus(4);
@@ -51,6 +53,8 @@ public class SmsSendServiceImpl extends AbstractCarparkBackgroundService impleme
 			    	JSONObject result = JSON.parseObject(sendSms);
 					if("OK".equals(result.getString("Code"))) {
 						smsInfo.setStatus(0);
+						smsInfo.setSendTime(new Date());
+						smsInfo.setRemark("发送成功");
 						sp.getCarparkInOutService().saveSmsInfo(smsInfo);
 					    continue;
 					}

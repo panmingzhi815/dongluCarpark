@@ -52,6 +52,8 @@ public class SingleCarparkDevice extends DomainObject{
 	private String cameraVersion;
 	private String host;
 	
+	private Boolean openCameraDoor=true;
+	
 	public String getIdentifire() {
 		return identifire;
 	}
@@ -242,5 +244,12 @@ public class SingleCarparkDevice extends DomainObject{
 	public void setHost(String host) {
 		this.host = host;
 		//firePropertyChange("host", null, null);
+	}
+	public Boolean getOpenCameraDoor() {
+		return openCameraDoor==null?true:openCameraDoor;
+	}
+	public void setOpenCameraDoor(Boolean openCameraDoor) {
+		this.openCameraDoor = openCameraDoor;
+		firePropertyChange("openCameraDoor", null, null);
 	}
 }

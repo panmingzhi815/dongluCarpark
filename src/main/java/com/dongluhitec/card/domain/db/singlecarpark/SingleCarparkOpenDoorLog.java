@@ -10,7 +10,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 public class SingleCarparkOpenDoorLog extends DomainObject{
 	
 	public enum Property{
-		operaName,operaDate,deviceName,image, operaDateLabel
+		operaName,operaDate,deviceName,image, operaDateLabel,plateNo
 	}
 	/**
 	 * 
@@ -20,6 +20,7 @@ public class SingleCarparkOpenDoorLog extends DomainObject{
 	private Date operaDate;
 	private String deviceName;
 	private String image;
+	private String plateNo;
 	
 	public String getOperaName() {
 		return operaName;
@@ -56,5 +57,11 @@ public class SingleCarparkOpenDoorLog extends DomainObject{
 		this.image = image;
 		if (pcs != null)
 			pcs.firePropertyChange("image", null, null);
+	}
+	public String getPlateNo() {
+		return plateNo;
+	}
+	public void setPlateNo(String plateNo) {
+		this.plateNo = plateNo;
 	}
 }

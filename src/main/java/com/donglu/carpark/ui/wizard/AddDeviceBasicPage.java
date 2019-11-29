@@ -96,6 +96,7 @@ public class AddDeviceBasicPage extends WizardPage {
 	private Button btn_handcharge;
 	private Text text_7;
 	private Text text_8;
+	private Button button;
 
 	/**
 	 * Create the wizard.
@@ -180,7 +181,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		comboViewer_4.setContentProvider(new ArrayContentProvider());
 		comboViewer_4.setLabelProvider(new LabelProvider());
 		comboViewer_4.setInput(CameraTypeEnum.values());
-		new Label(composite, SWT.NONE);
+		
+		button = new Button(composite, SWT.CHECK);
+		button.setToolTipText("进出场时是否对摄像机开闸");
+		button.setText("摄像机开闸");
 		
 		label = new Label(composite, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -460,6 +464,10 @@ public class AddDeviceBasicPage extends WizardPage {
 		IObservableValue observeTextText_8ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_8);
 		IObservableValue cameraVersionModelObserveValue = BeanProperties.value("cameraVersion").observe(model);
 		bindingContext.bindValue(observeTextText_8ObserveWidget, cameraVersionModelObserveValue, null, null);
+		//
+		IObservableValue observeSelectionButtonObserveWidget = WidgetProperties.selection().observe(button);
+		IObservableValue openCameraDoorModelObserveValue = BeanProperties.value("openCameraDoor").observe(model);
+		bindingContext.bindValue(observeSelectionButtonObserveWidget, openCameraDoorModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

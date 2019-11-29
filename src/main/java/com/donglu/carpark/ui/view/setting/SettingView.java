@@ -301,6 +301,31 @@ public class SettingView extends Composite implements View {
 		button_39.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		button_39.setText("收费放行打印小票");
 		button_39.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.收费放行打印小票)));
+		
+		Button button_43 = new Button(group, SWT.CHECK);
+		button_43.setToolTipText("勾选后临时车入场会弹出窗口确认，，监控界面不能直接抬杆，要抓拍后才能抬杆。");
+		button_43.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.临时车弹窗确认, button_43.getSelection()+"");
+			}
+		});
+		button_43.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_43.setText("临时车入场确认弹窗确认");
+		button_43.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车弹窗确认)));
+		
+		Button button_44 = new Button(group, SWT.CHECK);
+		button_44.setToolTipText("勾选后出场收费会弹出窗口确认，监控界面不能直接抬杆，要抓拍后才能抬杆。");
+		button_44.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.出场收费弹窗显示, button_43.getSelection()+"");
+			}
+		});
+		button_44.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_44.setText("出场收费弹窗收费");
+		button_44.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场收费弹窗显示)));
+		new Label(group, SWT.NONE);
 		new Label(group, SWT.NONE);
 		
 
@@ -754,6 +779,20 @@ public class SettingView extends Composite implements View {
 		button_28.setText("固定车到期提醒");
 		button_28.setToolTipText("选择后，固定车即将到期或到期后会在管理界面提醒");
 		button_28.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车到期提醒)));
+		
+		Button button_42 = new Button(composite_14, SWT.CHECK);
+		button_42.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.车位满临时车收费到固定车出场, String.valueOf(button_42.getSelection()));
+			}
+		});
+		button_42.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_42.setText("车位满计费到固定车出场");
+		button_42.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满临时车收费到固定车出场)));
+		button_42.setToolTipText("固定车车位满做临时车进场时计费直到前一辆固定车出场,不选一直计费到出场,跟场内换车有冲突");
+		new Label(composite_14, SWT.NONE);
+		new Label(composite_14, SWT.NONE);
 
 		Composite composite_11 = new Composite(group_3, SWT.NONE);
 		composite_11.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -997,6 +1036,19 @@ public class SettingView extends Composite implements View {
 		button_40.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_40.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.使用设备二维码)));
 		button_40.setText("启用设备二维码");
+		
+		Button button_41 = new Button(grpApp, SWT.CHECK);
+		button_41.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.显示网上支付金额, button_41.getSelection()+"");
+			}
+		});
+		button_41.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_41.setText("监控端显示网上支付金额");
+		button_41.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.显示网上支付金额)));
+		new Label(grpApp, SWT.NONE);
+		new Label(grpApp, SWT.NONE);
 
 		Composite composite_12 = new Composite(grpApp, SWT.NONE);
 		GridLayout gl_composite_12 = new GridLayout(3, false);

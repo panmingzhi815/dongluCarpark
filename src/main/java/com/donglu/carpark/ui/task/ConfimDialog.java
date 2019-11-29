@@ -64,7 +64,7 @@ public class ConfimDialog extends Dialog {
 	private void createContents() {
 //		shell = new Shell(getParent(), getStyle());
 		shell = new Shell();
-		shell.setSize(450, 167);
+		shell.setSize(600, 167);
 		shell.setImage(JFaceUtil.getImage("carpark_32"));
 		shell.setText(getText());
 		GridLayout gl_shell = new GridLayout(1, false);

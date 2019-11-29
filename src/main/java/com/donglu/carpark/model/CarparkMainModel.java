@@ -14,11 +14,13 @@ import org.eclipse.swt.custom.CTabItem;
 import org.joda.time.DateTime;
 
 import com.donglu.carpark.ui.MyHashMap1;
+import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.task.CarInTask;
 import com.donglu.carpark.ui.task.CarOutTask;
 import com.donglu.carpark.util.MyHashMap;
 import com.donglu.carpark.util.MyMapCache;
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.db.singlecarpark.CarCheckHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
@@ -115,6 +117,7 @@ public class CarparkMainModel extends DomainObject {
 	int monthSlot;
 	float totalCharge;
 	float totalFree;
+	float totalOnline;
 
 	String plateNo;
 	String carUser;
@@ -183,6 +186,11 @@ public class CarparkMainModel extends DomainObject {
 	private final Cache<String, SingleCarparkInOutHistory> mapWaitInOutHistory=CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
 	private final Cache<String, String> plateColorCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS).build();
 	private final Cache<String, Integer> plateOverSpeedSizeCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS).build();
+	
+	private final Map<String,App> mapInOutWindow=new HashMap<>();
+	
+	private final List<CarCheckHistory> carChecks=new ArrayList<>();
+	private CarCheckHistory carCheck=null;
 	
 	public String getUserName() {
 		return userName;
@@ -943,5 +951,50 @@ public class CarparkMainModel extends DomainObject {
 
 	public Cache<String, Integer> getPlateOverSpeedSizeCache() {
 		return plateOverSpeedSizeCache;
+	}
+
+	public float getTotalOnline() {
+		return totalOnline;
+	}
+
+	public void setTotalOnline(float totalOnline) {
+		this.totalOnline = totalOnline;
+		firePropertyChange("totalOnline", null, null);
+	}
+
+	public List<CarCheckHistory> getCarChecks() {
+		return carChecks;
+	}
+
+	public void addCarChecks(List<CarCheckHistory> carChecks) {
+		this.carChecks.addAll(0, carChecks);
+		if (this.carChecks.size()>200) {
+			this.carChecks.remove(this.carChecks.size()-1);
+		}
+		firePropertyChange("carChecks", null, null);
+	}
+
+	public CarCheckHistory getCarCheck() {
+		return carCheck;
+	}
+
+	public void setCarCheck(CarCheckHistory carCheck) {
+		this.carCheck = carCheck;
+		firePropertyChange("carCheck", null, null);
+	}
+
+	public void removeCarCheck(CarCheckHistory carCheck) {
+		this.carChecks.remove(carCheck);
+		firePropertyChange("carChecks", null, null);
+	}
+
+	public void setCarChecks(List<CarCheckHistory> carChecks) {
+		this.carChecks.clear();
+		this.carChecks.addAll(carChecks);
+		firePropertyChange("carChecks", null, null);
+	}
+
+	public Map<String, App> getMapInOutWindow() {
+		return mapInOutWindow;
 	}
 }

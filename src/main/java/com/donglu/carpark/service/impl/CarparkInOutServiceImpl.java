@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -81,6 +80,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	
 	static Cache<String, Number> numberCache = CacheBuilder.newBuilder().maximumSize(100).expireAfterWrite(1, TimeUnit.MINUTES).build();
 	static Cache<Object, List<SingleCarparkCarpark>> carparkCache = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
+	static Cache<Object, Object> objectCache = CacheBuilder.newBuilder().maximumSize(100).expireAfterWrite(5, TimeUnit.SECONDS).build();
 
 	@Override
 	@Transactional
@@ -777,7 +777,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	public List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName) {
 		unitOfWork.begin();
 		try {
-			Criteria c = createFindOpenDoorLogBySearchCriteria(operaName, start, end, deviceName);
+			Criteria c = createFindOpenDoorLogBySearchCriteria(operaName, start, end, deviceName,null);
 			return c.getResultList();
 		} finally {
 			unitOfWork.end();
@@ -789,9 +789,10 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	 * @param start
 	 * @param end
 	 * @param deviceName
+	 * @param plate 
 	 * @return
 	 */
-	public Criteria createFindOpenDoorLogBySearchCriteria(String operaName, Date start, Date end, String deviceName) {
+	public Criteria createFindOpenDoorLogBySearchCriteria(String operaName, Date start, Date end, String deviceName, String plate) {
 		Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkOpenDoorLog.class);
 		if (!StrUtil.isEmpty(operaName)) {
 			c.add(Restrictions.like(SingleCarparkOpenDoorLog.Property.operaName.name(), operaName, MatchMode.ANYWHERE));
@@ -804,6 +805,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		}
 		if (!StrUtil.isEmpty(deviceName)) {
 			c.add(Restrictions.like(SingleCarparkOpenDoorLog.Property.deviceName.name(), deviceName, MatchMode.ANYWHERE));
+		}
+		if (!StrUtil.isEmpty(plate)) {
+			c.add(Restrictions.like(SingleCarparkOpenDoorLog.Property.plateNo.name(), plate, MatchMode.ANYWHERE));
 		}
 		return c;
 	}
@@ -1706,10 +1710,10 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(int startSize, int size, String operaName, Date start, Date end, String deviceName) {
+	public List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(int startSize, int size, String operaName, Date start, Date end, String deviceName,String plate) {
 		unitOfWork.begin();
 		try {
-			Criteria c = createFindOpenDoorLogBySearchCriteria(operaName, start, end, deviceName);
+			Criteria c = createFindOpenDoorLogBySearchCriteria(operaName, start, end, deviceName,plate);
 			c.setFirstResult(startSize);
 			c.setMaxResults(size);
 			return c.getResultList();
@@ -1719,10 +1723,10 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 	}
 
 	@Override
-	public Long countOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName) {
+	public Long countOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName,String plate) {
 		unitOfWork.begin();
 		try {
-			Criteria c = createFindOpenDoorLogBySearchCriteria(operaName, start, end, deviceName);
+			Criteria c = createFindOpenDoorLogBySearchCriteria(operaName, start, end, deviceName,plate);
 			c.setProjection(Projections.rowCount());
 			Long l = (Long) c.getSingleResultOrNull();
 			return l == null ? 0 : l;
@@ -1969,6 +1973,15 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 					break;
 				case "ne":
 					c.add(Restrictions.ne(split[0], v));
+					break;
+				case "null":
+					c.add(Restrictions.isNull(split[0]));
+					break;
+				case "notNull":
+					c.add(Restrictions.isNotNull(split[0]));
+					break;
+				case "desc":
+					c.addOrder(Order.desc(split[0]));
 					break;
 				default:
 					break;
@@ -2227,6 +2240,103 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			}
 		}
 		return (long) t.size();
+	}
+	@Transactional
+	@Override
+	public <T extends DomainObject> Long deleteEntity(T t) {
+		DatabaseOperation<T> dom = (DatabaseOperation<T>) DatabaseOperation.forClass(t.getClass(), emprovider.get());
+		dom.remove(t);
+		return t.getId();
+	}
+	@Transactional
+	@Override
+	public <T extends DomainObject> Long deleteEntity(List<T> t) {
+		if (t==null||t.isEmpty()) {
+			return 0l;
+		}
+		DatabaseOperation<T> dom = (DatabaseOperation<T>) DatabaseOperation.forClass(t.get(0).getClass(), emprovider.get());
+		for (T t2 : t) {
+			dom.remove(t2);
+		}
+		return (long) t.size();
+	}
+
+	@Override
+	public List<Double> sum(Class<? extends DomainObject> class1, List<String> list,Map<String,Object> map) {
+		unitOfWork.begin();
+		try {
+			Criteria c = createCriteriaByMap(class1, map);
+			ProjectionList projectionList = Projections.projectionList();
+			for (String string : list) {
+				projectionList.add(Projections.sum(string));
+			}
+			c.setProjection(projectionList);
+			List<Object[]> resultList = c.getResultList();
+			List<Double> ld=new ArrayList<>();
+			for (Object[] objects : resultList) {
+				for (Object object : objects) {
+					ld.add((Double) object);
+				}
+			}
+			return ld;
+		} finally {
+			unitOfWork.end();
+		}
+	}
+
+	@Override
+	public List<Double> countNoReturnAccountMoney(String userName) {
+		try {
+			return (List<Double>) objectCache.get("countNoReturnAccountMoney-"+userName, new Callable<Object>() {
+				@Override
+				public Object call() throws Exception {
+					unitOfWork.begin();
+					try {
+						Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
+						c.add(Restrictions.isNull(SingleCarparkInOutHistory.Property.returnAccount.name()));
+						c.add(Restrictions.gt(SingleCarparkInOutHistory.Property.factMoney.name(), 0f));
+						c.add(Restrictions.or(Restrictions.isNotNull(SingleCarparkInOutHistory.Property.outTime.name()),Restrictions.isNotNull(SingleCarparkInOutHistory.Property.chargeTime.name())));
+						c.add(Restrictions.or(Restrictions.eq(SingleCarparkInOutHistory.Property.operaName.name(), userName),Restrictions.eq(SingleCarparkInOutHistory.Property.chargeOperaName.name(), userName)));
+						c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.carType.name(), "临时车"));
+						ProjectionList projectionList = Projections.projectionList();
+						projectionList.add(Projections.sum(SingleCarparkInOutHistory.Property.factMoney.name()));
+						projectionList.add(Projections.sum(SingleCarparkInOutHistory.Property.onlineMoney.name()));
+						c.setProjection(projectionList);
+						Object[] singleResult = (Object[]) c.getSingleResult();
+						if (singleResult==null) {
+							return Arrays.asList(0d,0d);
+						}
+						List<Double> list = new ArrayList<>();
+						for (Object object : singleResult) {
+							if (object==null) {
+								list.add(0d);
+							}else {
+								list.add(Double.class.cast(object));
+							}
+						}
+						return list;
+					} finally {
+						unitOfWork.end();
+					}
+				}
+			});
+		} catch (Exception e) {
+			throw new DongluServiceException("获取未归账金额时发生错误", e);
+		}
+	}
+
+	@Override
+	public <T extends DomainObject> T findById(Class<T> class1, Long id) {
+		unitOfWork.begin();
+		try {
+			DatabaseOperation<T> dom = (DatabaseOperation<T>) DatabaseOperation.forClass(class1, emprovider.get());
+    		T entityWithId = dom.getEntityWithId(id);
+    		return entityWithId;
+		}catch(Exception e){
+			return null;
+		}finally{
+			unitOfWork.end();
+		}
 	}
 	
 }

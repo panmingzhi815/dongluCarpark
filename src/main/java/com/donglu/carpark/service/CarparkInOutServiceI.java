@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.donglu.carpark.server.module.CacheMethod;
 import com.dongluhitec.card.domain.db.DomainObject;
+import com.dongluhitec.card.domain.db.singlecarpark.CarCheckHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
@@ -135,8 +136,8 @@ public interface CarparkInOutServiceI {
 	 * @return
 	 */
 	List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName);
-	List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(int startSize,int size,String operaName, Date start, Date end, String deviceName);
-	Long countOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName);
+	List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(int startSize,int size,String operaName, Date start, Date end, String deviceName,String plate);
+	Long countOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName,String plate);
 	/**
 	 * 查找子停车场的进出场记录
 	 * @param carparkId
@@ -408,4 +409,12 @@ public interface CarparkInOutServiceI {
 
 	<T extends DomainObject> Long saveEntity(T t);
 	<T extends DomainObject> Long saveEntity(List<T> t);
+	<T extends DomainObject> Long deleteEntity(T t);
+	<T extends DomainObject> Long deleteEntity(List<T> t);
+	<T extends DomainObject> T findById(Class<T> class1, Long id);
+
+	List<Double> sum(Class<? extends DomainObject> class1, List<String> list,Map<String,Object> map);
+
+	List<Double> countNoReturnAccountMoney(String userName);
+
 }

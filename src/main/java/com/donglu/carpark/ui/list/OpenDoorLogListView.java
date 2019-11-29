@@ -12,17 +12,14 @@ public class OpenDoorLogListView extends AbstractListView<SingleCarparkOpenDoorL
 		super(parent, style,SingleCarparkOpenDoorLog.class,new String[]{SingleCarparkOpenDoorLog.Property.operaName.name(),
 				SingleCarparkOpenDoorLog.Property.operaDateLabel.name(),
 				SingleCarparkOpenDoorLog.Property.deviceName.name(),
-				}, new String[]{"操作人","抬杆时间","抬杆设备"},
-				new int[]{100,200,100}, null);
+				SingleCarparkOpenDoorLog.Property.plateNo.name(),
+				}, new String[]{"操作人","抬杆时间","抬杆设备","车牌"},
+				new int[]{100,200,100,100}, null);
 	}
 
 	@Override
 	public OpenDoorListPresenter getPresenter() {
 		return (OpenDoorListPresenter) presenter;
-	}
-
-	@Override
-	protected void searchMore() {
 	}
 
 	@Override

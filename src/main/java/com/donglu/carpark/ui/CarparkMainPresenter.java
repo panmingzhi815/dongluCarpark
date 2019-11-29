@@ -68,7 +68,10 @@ import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.servlet.OpenDoorServlet;
 import com.donglu.carpark.ui.servlet.WebSocketClient;
+import com.donglu.carpark.ui.task.AbstractTask;
 import com.donglu.carpark.ui.task.CarInOutResult;
+import com.donglu.carpark.ui.task.CarInTask;
+import com.donglu.carpark.ui.task.CarOutTask;
 import com.donglu.carpark.ui.task.ConfimBox;
 import com.donglu.carpark.ui.view.SearchErrorCarPresenter;
 import com.donglu.carpark.ui.view.account.AccountCarPresenter;
@@ -80,6 +83,7 @@ import com.donglu.carpark.ui.view.user.UserPresenter;
 import com.donglu.carpark.ui.wizard.AddDeviceModel;
 import com.donglu.carpark.ui.wizard.AddDeviceWizard;
 import com.donglu.carpark.ui.wizard.ChangeUserWizard;
+import com.donglu.carpark.ui.wizard.ClientConfigWizard;
 import com.donglu.carpark.ui.wizard.EditSystemUserPasswordWizard;
 import com.donglu.carpark.ui.wizard.InOutHistoryDetailWizard;
 import com.donglu.carpark.ui.wizard.ReturnAccountWizard;
@@ -105,6 +109,7 @@ import com.dongluhitec.card.domain.db.SerialDeviceAddress;
 import com.dongluhitec.card.domain.db.shanghaiyunpingtai.HistoryUseStatus;
 import com.dongluhitec.card.domain.db.shanghaiyunpingtai.YunCarparkCarInOut;
 import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarCheckHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory.PayTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
@@ -115,7 +120,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.OverSpeedCar;
 import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice.DeviceInOutTypeEnum;
@@ -856,6 +860,10 @@ public class CarparkMainPresenter {
 			SingleCarparkCarpark findCarparkById = sp.getCarparkService().findCarparkById(carpark.getId());
 			device.setCarpark(findCarparkById);
 		}
+		Object readObject = FileUtils.readObject(SystemSettingTypeEnum.临时车入场是否确认.name());
+		if (readObject!=null) {
+			mapSystemSetting.put(SystemSettingTypeEnum.临时车入场是否确认, String.valueOf(readObject));
+		}
 	}
 
 	private void createAutoMenuItem(PopupMenu pop) {
@@ -1164,6 +1172,7 @@ public class CarparkMainPresenter {
 		if (!b) {
 			b = showContentToDeviceOnce(plate, device, content, isOpenDoor);
 		}
+		log.info("发送语音结果：{}",b);
 		return b;
 	}
 	public boolean showContentToDeviceOnce(String plate,SingleCarparkDevice device, String content, boolean isOpenDoor){
@@ -1199,7 +1208,7 @@ public class CarparkMainPresenter {
 			log.error("对设备" + device.getIp() + "的控制器"+device.getLinkAddress()+"开闸失败", e);
 			return false;
 		}finally{
-			if (isOpenDoor) {
+			if (isOpenDoor&&device.getOpenCameraDoor()) {
 				openDoorToPhotograph(device.getIp());
 			}
 		}
@@ -1593,7 +1602,7 @@ public class CarparkMainPresenter {
 		mapIpToJNA.get(ip).tigger(ip);
 //		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
 //		//贵A56G17贵JRJ927
-//		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
+//		carInOutResultProvider.get().invok(ip, 0, "粤BD022W", bs, null, 11);
 	}
 
 	/**
@@ -1808,7 +1817,7 @@ public class CarparkMainPresenter {
 			public void run() {
 				DateTime dateTime = new DateTime();
 				DateTime startTime = dateTime.withTime(7, 0, 0, 0);
-				DateTime endTime = dateTime.withTime(19, 0, 0, 0);
+				DateTime endTime = dateTime.withTime(18, 30, 0, 0);
 				log.info("设置一体机二维码颜色："+dateTime+"=="+startTime+"============="+endTime);
 				int dayColor = 3;
 				int nightColor = 2;
@@ -2249,7 +2258,7 @@ public class CarparkMainPresenter {
 	 * @param plateNO
 	 * @param inOrOut
 	 */
-	public void saveOpenDoor(final SingleCarparkDevice device, final byte[] image, final String plateNO, final boolean inOrOut) {
+	public void saveOpenDoor(final SingleCarparkDevice device, final byte[] image, final String plateNO, final boolean inOrOut,Date time) {
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {
@@ -2263,6 +2272,8 @@ public class CarparkMainPresenter {
 				openDoor.setOperaDate(date);
 				openDoor.setImage(bigImgFileName);
 				openDoor.setDeviceName(device.getName());
+				openDoor.setPlateNo(plateNO);
+				openDoor.setOperaDate(time);
 				sp.getCarparkInOutService().saveOpenDoorLog(openDoor);
 //				log.info("对设备{}，地址{}-{}开闸", device.getName(), device.getLinkAddress(), device.getAddress());
 //				showPlateNOToDevice(device, "手动开闸");
@@ -2568,6 +2579,7 @@ public class CarparkMainPresenter {
 			singleCarparkInOutHistory.setFreeMoney(singleCarparkInOutHistory.getFreeMoney()+freeMoney);
 			singleCarparkInOutHistory.setCarType("临时车");
 			singleCarparkInOutHistory.setLeftSlot(model.getTotalSlot()+1);
+			singleCarparkInOutHistory.setTotalSlot(model.getCarpark().getTotalNumberOfSlot());
 			sp.getCarparkInOutService().saveInOutHistory(singleCarparkInOutHistory);
 			model.getMapWaitInOutHistory().remove(device.getIp());
 			Boolean tempCarNoChargeIsPass = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车零收费是否自动出场));
@@ -2987,6 +2999,12 @@ public class CarparkMainPresenter {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
+					if (!inOrOut&&cch!=null) {
+						App app = model.getMapInOutWindow().get(cch.getPlateNo());
+						if (app!=null) {
+							app.close();
+						}
+					}
 					sp.getPositionUpdateService().updatePosion(carpark, cch == null ? null : cch.getUserId(), inOrOut);
 					Integer slotShowType = Integer.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位数显示方式));
 					if (!StrUtil.isEmpty(model.getTotalSlotTooltip()) && slotShowType == 6) {
@@ -3899,6 +3917,59 @@ public class CarparkMainPresenter {
 			return list.size();
 		}
 		return 0;
+	}
+
+	public void stopCharge() {
+		if(model.getChargeDevice()!=null) {
+			model.getMapWaitInOutHistory().remove(model.getChargeDevice().getIp());
+		}
+		model.setDisContinue(true);
+		model.setBtnClick(false);
+		model.setComboCarTypeEnable(false);
+		model.setHandSearch(false);
+		model.setOutPlateNOEditable(false);
+		model.setChargeDevice(null);
+		model.setChargeHistory(null);
+	}
+
+	public void config() {
+		ClientConfigWizard w = new ClientConfigWizard();
+		commonui.showWizard(w);
+	}
+
+	public void reCarCheck() {
+		CarCheckHistory carCheck = model.getCarCheck();
+		if (carCheck==null) {
+			return;
+		}
+		carCheck=sp.getCarparkInOutService().findById(CarCheckHistory.class,carCheck.getId());
+		if (carCheck==null||"确认放行".equals(carCheck.getStatus())) {
+			MessageUtil.info("记录不存在或已放行,请刷新后再试！",5000);
+			return;
+		}
+//		model.removeCarCheck(carCheck);
+//		sp.getCarparkInOutService().deleteEntity(carCheck);
+		if (mapIpToDevice.get(carCheck.getDeviceIp())==null) {
+			MessageUtil.info(String.format("设备%s不存在", carCheck.getDeviceIp()));
+			return;
+		}
+		AbstractTask task=null;
+		if ("进场".equals(carCheck.getType())) {
+			task = new CarInTask(carCheck.getDeviceIp(), carCheck.getSourcePlate(), ImageUtils.getImageByte(carCheck.getBigImage()), ImageUtils.getImageByte(carCheck.getSmallImage()), model, sp, this, 0f);
+		}else {
+			task = new CarOutTask(carCheck.getDeviceIp(), carCheck.getSourcePlate(), ImageUtils.getImageByte(carCheck.getBigImage()), ImageUtils.getImageByte(carCheck.getSmallImage()), model, sp, this, 0f);
+		}
+		task.setDate(carCheck.getTime());
+		task.setCarCheck(carCheck);
+		task.run();
+	}
+
+	public void refreshCarCheck() {
+		Map<String,Object> map=new HashMap<>();
+		map.put("time-desc", 1);
+		map.put("status", "取消确认");
+		List<CarCheckHistory> list = sp.getCarparkInOutService().findByMap(0, 200, CarCheckHistory.class, map);
+		model.setCarChecks(list);
 	}
 	
 }

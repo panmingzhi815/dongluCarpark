@@ -4,7 +4,7 @@ public enum SystemSettingTypeEnum {
 	车位满是否允许临时车入场("false"),
 	车位满是否允许免费车入场("false"),
 	车位满是否允许储值车入场("false"),
-	临时车入场是否确认("false"),
+	临时车入场是否确认("false"),临时车弹窗确认("false"),出场收费弹窗显示("false"),
 	临时车零收费是否自动出场("false"),
 	固定车入场是否确认("false"),
 	固定车出场确认("false"),
@@ -15,7 +15,7 @@ public enum SystemSettingTypeEnum {
 	是否允许无牌车进("false"),
 	同一车牌识别间隔("1"), 出场确认放行("false"),出场免费确认放行("true"),
 	固定车到期变临时车("true"),固定车到期所属停车场限制("false"),
-	固定车非所属停车场停留收费("false"), 固定车非所属停车场停留时间("15"),固定车到期提醒("false"),
+	固定车非所属停车场停留收费("false"), 固定车非所属停车场停留时间("15"),固定车到期提醒("false"),车位满临时车收费到固定车出场("false"),
 	双摄像头识别间隔("0"),
 	双摄像头忽略间隔("3000"),
 	左下监控("false"),
@@ -43,6 +43,7 @@ public enum SystemSettingTypeEnum {
 	优先使用云平台计费("false"),
 	监控界面提示网络故障("true"),
 	使用设备二维码("false"),
+	显示网上支付金额("false"),
 	
 	抬杆自动收费放行("false"),收费放行打印小票("false"),
 	
@@ -63,7 +64,7 @@ public enum SystemSettingTypeEnum {
 	临时车超速自动拉黑("30-3-7"),
 	
 	支付完成后出场时间("15"),
-	DateBase_version("1.0.0.29"),软件版本("1.0.0.30"),发布时间("2019-10-22 14:55:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
+	DateBase_version("1.0.0.29"),软件版本("1.0.0.31"),发布时间("2019-11-29 12:11:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
 	启动短信发送服务("false"), 短信服务appid(""), 短信服务appsecret(""), 短信签名(""), 短信模板(""),    
 	;
 	

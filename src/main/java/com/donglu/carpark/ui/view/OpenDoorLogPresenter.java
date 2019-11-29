@@ -36,11 +36,11 @@ public class OpenDoorLogPresenter  implements Presenter{
 		return listPresenter;
 	}
 	
-	public void search(String operaName, Date start, Date end, String deviceName) {
-		if (deviceName.equals(SystemOperaLogTypeEnum.全部)) {
+	public void search(String operaName, Date start, Date end, String deviceName, String plate) {
+		if (deviceName.equals(SystemOperaLogTypeEnum.全部.name())) {
 			deviceName=null;
 		}
-		listPresenter.search(operaName, start, end, deviceName);
+		listPresenter.search(operaName, start, end, deviceName,plate);
 	}
 	
 }

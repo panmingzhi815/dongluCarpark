@@ -92,7 +92,7 @@ public class CarInOutResult implements PlateNOResult {
 			if (deviceType.indexOf("出口")>-1) {
 				inOrOut = false;
 			}
-			presenter.saveOpenDoor(device, bigImage, plateNO, inOrOut);
+			presenter.saveOpenDoor(device, bigImage, plateNO, inOrOut,null);
 			return;
 		}
 		Boolean boolean2 = model.getMapIpToDeviceStatus().get(ip);

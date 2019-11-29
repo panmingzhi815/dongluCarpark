@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -113,6 +114,9 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.PaintEvent;
+import com.dongluhitec.card.domain.db.singlecarpark.CarCheckHistory;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.DoubleClickEvent;
 
 public class CarparkMainApp extends AbstractApp{
 	private static final String MAIN_APP_SASH_FORM_LAYOUT = "mainAppSashFormLayout";
@@ -205,6 +209,9 @@ public class CarparkMainApp extends AbstractApp{
 	private SashForm sashForm_main;
 	private SashForm sashForm_play;
 	private SashForm sashForm_image;
+	private Text text_2;
+	private Table table_1;
+	private TableViewer tableViewer_1;
 	
 	/**
 	 * Launch the application.
@@ -249,7 +256,7 @@ public class CarparkMainApp extends AbstractApp{
 				}
 				singleCarparkDevice.setCarpark(carpark);
 				singleCarparkDevice.setHost(StrUtil.getHostIp());
-				sp.getCarparkDeviceService().saveDevice(singleCarparkDevice);
+//				sp.getCarparkDeviceService().saveDevice(singleCarparkDevice);
 				model.setCarpark(carpark.getMaxParent());
 				model.getMapDeviceType().put(key, inType);
 				model.getMapIpToDevice().put(key, singleCarparkDevice);
@@ -586,7 +593,7 @@ public class CarparkMainApp extends AbstractApp{
 
 		TabFolder tabFolder = new TabFolder(group, SWT.NONE);
 		GridData gd_tabFolder = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
-		gd_tabFolder.heightHint = 244;
+		gd_tabFolder.heightHint = 255;
 		gd_tabFolder.widthHint = 272;
 		tabFolder.setLayoutData(gd_tabFolder);
 
@@ -676,7 +683,7 @@ public class CarparkMainApp extends AbstractApp{
 		text_1.setEditable(false);
 
 		Label label_4 = new Label(composite_13, SWT.NONE);
-		label_4.setText("实收金额");
+		label_4.setText("现金金额");
 		label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 
 		text_charge = new Text(composite_13, SWT.BORDER | SWT.READ_ONLY);
@@ -686,6 +693,30 @@ public class CarparkMainApp extends AbstractApp{
 		text_charge.setText("1000");
 		text_charge.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
 		text_charge.setEditable(false);
+		
+		Composite composite_1 = new Composite(composite_13, SWT.NONE);
+		GridLayout gl_composite_1 = new GridLayout(2, false);
+		gl_composite_1.marginHeight = 0;
+		gl_composite_1.marginWidth = 0;
+		composite_1.setLayout(gl_composite_1);
+		GridData gd_composite_1 = new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1);
+		gd_composite_1.exclude = true;
+		composite_1.setLayoutData(gd_composite_1);
+		if (model.booleanSetting(SystemSettingTypeEnum.启用CJLAPP支付)&&model.booleanSetting(SystemSettingTypeEnum.显示网上支付金额)) {
+			gd_composite_1.exclude = false;
+			gd_tabFolder.heightHint = 275;
+		}
+		
+		Label label_7 = new Label(composite_1, SWT.NONE);
+		label_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		label_7.setText("网上金额");
+		
+		text_2 = new Text(composite_1, SWT.BORDER);
+		text_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_2.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		text_2.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+		text_2.setFont(SWTResourceManager.getFont("微软雅黑", 11, SWT.BOLD));
+		text_2.setText("0");
 
 		Label label_5 = new Label(composite_13, SWT.NONE);
 		label_5.setText("免费金额");
@@ -707,11 +738,11 @@ public class CarparkMainApp extends AbstractApp{
 		composite_18.setLayout(new GridLayout(1, false));
 
 		Composite composite_7 = new Composite(composite_18, SWT.NONE);
-		composite_7.setLayout(new GridLayout(3, false));
+		composite_7.setLayout(new GridLayout(4, false));
 		composite_7.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 		text = new Text(composite_7, SWT.BORDER);
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_text.widthHint = 128;
+		gd_text.widthHint = 110;
 		text.setLayoutData(gd_text);
 		text.setEditable(isCarHandIn);
 		Button btnNewButton = new Button(composite_7, SWT.NONE);
@@ -732,6 +763,15 @@ public class CarparkMainApp extends AbstractApp{
 			}
 		});
 		button_1.setText("刷新");
+		
+		Button button = new Button(composite_7, SWT.NONE);
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.config();
+			}
+		});
+		button.setText("配置");
 		tableViewer = new TableViewer(composite_18, SWT.BORDER | SWT.FULL_SELECTION);
 		table = tableViewer.getTable();
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -760,6 +800,65 @@ public class CarparkMainApp extends AbstractApp{
 		TableColumn tableColumn_2 = tableViewerColumn_2.getColumn();
 		tableColumn_2.setWidth(143);
 		tableColumn_2.setText("用户");
+		
+		TabItem tabItem_2 = new TabItem(tabFolder, SWT.NONE);
+		tabItem_2.setText("弹窗确认");
+		
+		Composite composite_2 = new Composite(tabFolder, SWT.NONE);
+		tabItem_2.setControl(composite_2);
+		composite_2.setLayout(new GridLayout(1, false));
+		
+		Composite composite_3 = new Composite(composite_2, SWT.NONE);
+		composite_3.setLayout(new GridLayout(2, false));
+		composite_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Button button_2 = new Button(composite_3, SWT.NONE);
+		button_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.reCarCheck();
+			}
+		});
+		button_2.setText("重新确认");
+		
+		Button button_3 = new Button(composite_3, SWT.NONE);
+		button_3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				presenter.refreshCarCheck();
+			}
+		});
+		button_3.setText("刷新");
+		
+		tableViewer_1 = new TableViewer(composite_2, SWT.BORDER | SWT.FULL_SELECTION);
+		tableViewer_1.addDoubleClickListener(new IDoubleClickListener() {
+			public void doubleClick(DoubleClickEvent event) {
+				presenter.reCarCheck();
+			}
+		});
+		table_1 = tableViewer_1.getTable();
+		table_1.setLinesVisible(true);
+		table_1.setHeaderVisible(true);
+		table_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		TableColumn tableColumn_3 = new TableColumn(table_1, SWT.NONE);
+		tableColumn_3.setWidth(77);
+		tableColumn_3.setText("车牌");
+		
+		TableViewerColumn tableViewerColumn_3 = new TableViewerColumn(tableViewer_1, SWT.NONE);
+		TableColumn tableColumn_4 = tableViewerColumn_3.getColumn();
+		tableColumn_4.setWidth(155);
+		tableColumn_4.setText("时间");
+		
+		TableViewerColumn tableViewerColumn_4 = new TableViewerColumn(tableViewer_1, SWT.NONE);
+		TableColumn tableColumn_5 = tableViewerColumn_4.getColumn();
+		tableColumn_5.setWidth(65);
+		tableColumn_5.setText("类型");
+		
+		TableViewerColumn tableViewerColumn_5 = new TableViewerColumn(tableViewer_1, SWT.NONE);
+		TableColumn tableColumn_6 = tableViewerColumn_5.getColumn();
+		tableColumn_6.setWidth(100);
+		tableColumn_6.setText("状态");
 
 		Label lblNewLabel_1 = new Label(group, SWT.SEPARATOR | SWT.HORIZONTAL);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
@@ -769,6 +868,10 @@ public class CarparkMainApp extends AbstractApp{
 		label_6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label_6.setText("车牌号码");
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		
+		if (!model.booleanSetting(SystemSettingTypeEnum.临时车弹窗确认)&&!model.booleanSetting(SystemSettingTypeEnum.出场收费弹窗显示)) {
+			tabItem_2.dispose();
+		}
 
 		// if (!Boolean.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.左下监控))) {
 		// tabItem_1.dispose();
@@ -1277,6 +1380,9 @@ public class CarparkMainApp extends AbstractApp{
 					return;
 				}
 				String userName = System.getProperty("userName");
+				
+				List<Double> list = sp.getCarparkInOutService().countNoReturnAccountMoney(userName);
+				model.setTotalOnline(list.get(1).floatValue());
 				model.setTotalCharge(sp.getCarparkInOutService().findFactMoneyByName(userName));
 				model.setTotalFree(sp.getCarparkInOutService().findFreeMoneyByName(userName));
 				model.setHoursSlot(sp.getCarparkInOutService().findTempSlotIsNow(model.getCarpark()));
@@ -1380,14 +1486,13 @@ public class CarparkMainApp extends AbstractApp{
 
 		return shell;
 	}
-
 	protected DataBindingContext initDataBindings() {
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
 		IObservableValue observeTextText_totalObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_total);
 		IObservableValue totalSlotModelObserveValue = BeanProperties.value("totalSlot").observe(model);
 		bindingContext.bindValue(observeTextText_totalObserveWidget, totalSlotModelObserveValue, null, null);
-		
+		//
 		IObservableValue observeTooltipTextText_totalObserveWidget = WidgetProperties.tooltipText().observe(text_total);
 		IObservableValue totalLeftSlotModelObserveValue = BeanProperties.value("totalSlotTooltip").observe(model);
 		bindingContext.bindValue(observeTooltipTextText_totalObserveWidget, totalLeftSlotModelObserveValue, null, null);
@@ -1443,32 +1548,6 @@ public class CarparkMainApp extends AbstractApp{
 		IObservableValue observeTextText_realObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_real);
 		IObservableValue realModelObserveValue = BeanProperties.value("real").observe(model);
 		bindingContext.bindValue(observeTextText_realObserveWidget, realModelObserveValue, null, null);
-		model.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent e) {
-				if (!e.getPropertyName().equals("real")) {
-					return;
-				}
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						if (!text_real.isFocusControl()) {
-							text_real.setFocus();
-							text_real.selectAll();
-						}
-					}
-				});
-			}
-		});
-		model.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent e) {
-				if (!e.getPropertyName().equals("carparkCarType")) {
-					return;
-				}
-				CarparkUtils.setFocus(carTypeSelectCombo);
-			}
-		});
 		//
 		IObservableValue observeEnabledComboObserveWidget = WidgetProperties.enabled().observe(carTypeSelectCombo);
 		IObservableValue comboCarTypeEnableModelObserveValue = BeanProperties.value("comboCarTypeEnable").observe(model);
@@ -1487,7 +1566,7 @@ public class CarparkMainApp extends AbstractApp{
 		bindingContext.bindValue(observeEditableText_realObserveWidget, btnClickModelObserveValue, null, null);
 		//
 		ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
-		IObservableMap[] observeMaps = BeansObservables.observeMaps(listContentProvider.getKnownElements(), SingleCarparkInOutHistory.class, new String[] { "plateNo", "inTimeLabel","userName" });
+		IObservableMap[] observeMaps = BeansObservables.observeMaps(listContentProvider.getKnownElements(), SingleCarparkInOutHistory.class, new String[]{"plateNo", "inTimeLabel", "userName"});
 		tableViewer.setLabelProvider(new ObservableMapLabelProvider(observeMaps));
 		tableViewer.setContentProvider(listContentProvider);
 		//
@@ -1505,6 +1584,22 @@ public class CarparkMainApp extends AbstractApp{
 		IObservableValue observeTextText_chargedMoneybserveWidget = WidgetProperties.text(SWT.Modify).observe(txt_chargedMoney);
 		IObservableValue chargedMoneyModelObserveValue = BeanProperties.value("chargedMoney").observe(model);
 		bindingContext.bindValue(observeTextText_chargedMoneybserveWidget, chargedMoneyModelObserveValue, null, null);
+		//
+		IObservableValue observeTextText_2ObserveWidget = WidgetProperties.text(SWT.Modify).observe(text_2);
+		IObservableValue totalOnlineModelObserveValue = BeanProperties.value("totalOnline").observe(model);
+		bindingContext.bindValue(observeTextText_2ObserveWidget, totalOnlineModelObserveValue, null, null);
+		//
+		ObservableListContentProvider listContentProvider_1 = new ObservableListContentProvider();
+		IObservableMap[] observeMaps_1 = BeansObservables.observeMaps(listContentProvider_1.getKnownElements(), CarCheckHistory.class, new String[]{"plate", "timeLabel", "type", "status"});
+		tableViewer_1.setLabelProvider(new ObservableMapLabelProvider(observeMaps_1));
+		tableViewer_1.setContentProvider(listContentProvider_1);
+		//
+		IObservableList carChecksModelObserveList = BeanProperties.list("carChecks").observe(model);
+		tableViewer_1.setInput(carChecksModelObserveList);
+		//
+		IObservableValue observeSingleSelectionTableViewer_1 = ViewerProperties.singleSelection().observe(tableViewer_1);
+		IObservableValue carCheckModelObserveValue = BeanProperties.value("carCheck").observe(model);
+		bindingContext.bindValue(observeSingleSelectionTableViewer_1, carCheckModelObserveValue, null, null);
 		//
 		return bindingContext;
 	}

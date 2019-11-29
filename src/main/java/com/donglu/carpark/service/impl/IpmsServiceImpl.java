@@ -295,7 +295,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	}
 	
 	private boolean synchroUser(String type,SingleCarparkUser user) {
-		log.info("{}用户信息",type);
+		log.info("{}用户信息:{}",type,user);
 		String url=httpUrl+"/api/syncMonthCard.action";
 		try {
 			String userInfo="";

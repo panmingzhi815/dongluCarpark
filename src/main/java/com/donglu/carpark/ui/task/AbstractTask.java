@@ -21,6 +21,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.view.message.MessageUtil;
 import com.donglu.carpark.util.CarparkUtils;
+import com.dongluhitec.card.domain.db.singlecarpark.CarCheckHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.Holiday;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
@@ -61,6 +62,7 @@ public abstract class AbstractTask implements Runnable {
 	protected String type = "进场";
 	// 保存车牌最近的处理时间
 	protected final Map<String, Date> mapPlateNoDate;
+	private CarCheckHistory carCheck;
 
 	public AbstractTask(CarparkMainModel model, CarparkDatabaseServiceProvider sp, CarparkMainPresenter presenter, String ip, String plateNO, byte[] bigImage, byte[] smallImage, Float rightSize) {
 		super();
@@ -249,5 +251,25 @@ public abstract class AbstractTask implements Runnable {
 
 	public String getBigImgFileName() {
 		return bigImgFileName;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public CarparkMainPresenter getPresenter() {
+		return presenter;
+	}
+
+	public void setCarCheck(CarCheckHistory carCheck) {
+		this.carCheck = carCheck;
+	}
+
+	public CarCheckHistory getCarCheck() {
+		return carCheck;
 	}
 }

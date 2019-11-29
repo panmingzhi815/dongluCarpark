@@ -16,6 +16,7 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.ui.CarparkMainPresenter;
+import com.donglu.carpark.ui.view.CarInCheckApp;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
@@ -96,8 +97,12 @@ public class CarInTask extends AbstractTask {
 					.valueOf(CarparkUtils.getSettingValue(mapSystemSetting, SystemSettingTypeEnum.是否允许无牌车进));
 			if (Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车入场是否确认))
 					|| Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认)) || !valueOf) {
-				model.setInCheckClick(true);
 				isEmptyPlateNo = true;
+				if (model.booleanSetting(SystemSettingTypeEnum.临时车弹窗确认)) {
+					new CarInCheckApp(this, sp, model).open();
+					return;
+				}
+				model.setInCheckClick(true);
 				model.getMapInCheck().put(plateNO, this);
 				return;
 			} else {
@@ -284,6 +289,7 @@ public class CarInTask extends AbstractTask {
 		}
 		cch.setPlateColor(plateColor);
 		cch.setLeftSlot(model.getTotalSlot()-1);
+		cch.setTotalSlot(model.getCarpark().getTotalNumberOfSlot());
 		cch.setInTime(date);
 		cch.setOperaName(System.getProperty("userName"));
 		cch.setBigImg(bigImgFileName);
@@ -292,8 +298,7 @@ public class CarInTask extends AbstractTask {
 		cch.setCarparkId(carpark.getId());
 		cch.setCarparkName(carpark.getName());
 		if (!StrUtil.isEmpty(user)) {
-			cch.setUserName(user.getName());
-			cch.setUserId(user.getId());
+			cch.setUser(user);
 		}
 		cch.setInDevice(device);
 		cch.setInPhotographType("自动");
@@ -338,7 +343,7 @@ public class CarInTask extends AbstractTask {
 
 		// 黑名单判断
 		if (!StrUtil.isEmpty(blackUser)) {
-			if (blackUser.getValid()!=null||blackUser.getValid().before(date)) {
+			if (blackUser.getValid()!=null&&StrUtil.getTodayBottomTime(blackUser.getValid()).before(date)) {
 				return false;
 			}
 			String reason="";
@@ -525,8 +530,12 @@ public class CarInTask extends AbstractTask {
 			boolean flag = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车入场是否确认));
 			if (!isEmptyPlateNo) {
 				if (flag) {
-					model.setInCheckClick(true);
 					presenter.showContentToDevice(editPlateNo,device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车入场确认语音).getContent(), false);
+					if (model.booleanSetting(SystemSettingTypeEnum.临时车弹窗确认)) {
+						new CarInCheckApp(this, sp, model).open();
+						return true;
+					}
+					model.setInCheckClick(true);
 					model.getMapInCheck().put(plateNO, this);
 					return true;
 				}

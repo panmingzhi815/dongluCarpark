@@ -55,6 +55,7 @@ public enum SingleCarparkModuleEnum {
 	设备故障记录(记录查询,9,DeviceErrorPresenter.class),
 	离线记录(记录查询,10,CarparkOffLineHistoryPresenter.class),
 	图片记录(记录查询,11,ImageHistoryPresenter.class),
+	弹窗确认(记录查询,11,com.donglu.carpark.ui.view.carcheck.CarCheckPresenter.class),
 	车辆限速(记录查询,12,OverSpeedCarPresenter.class),
 	短信服务(记录查询,12,SmsPresenter.class),
 	;

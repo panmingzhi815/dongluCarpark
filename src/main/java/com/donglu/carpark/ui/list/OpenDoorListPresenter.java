@@ -21,20 +21,24 @@ public class OpenDoorListPresenter extends AbstractListPresenter<SingleCarparkOp
 	private String deviceName;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
-	@Override
-	public void refresh() {
-		List<SingleCarparkOpenDoorLog> findByNameOrPlateNo = sp.getCarparkInOutService().findOpenDoorLogBySearch(operaName,start,end,deviceName);
-		view.getModel().setList(findByNameOrPlateNo);
-		view.getModel().setCountSearch(findByNameOrPlateNo.size());
-		view.getModel().setCountSearchAll(findByNameOrPlateNo.size());
-	}
-
+	private String plate;
 	
-	public void search(String operaName, Date start, Date end, String deviceName) {
+	@Override
+	protected List<SingleCarparkOpenDoorLog> findListInput() {
+		return sp.getCarparkInOutService().findOpenDoorLogBySearch(current,pageSize,operaName,start,end,deviceName,plate);
+	}
+	
+	@Override
+	protected int getTotalSize() {
+		return sp.getCarparkInOutService().countOpenDoorLogBySearch(operaName, start, end, deviceName, plate).intValue();
+	}
+	
+	public void search(String operaName, Date start, Date end, String deviceName, String plate) {
 		this.operaName=operaName;
 		this.start=start;
 		this.end=end;
 		this.deviceName=deviceName;
+		this.plate = plate;
 		refresh();
 	}
 	@Override

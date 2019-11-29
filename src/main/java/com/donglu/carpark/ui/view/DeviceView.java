@@ -54,7 +54,8 @@ public class DeviceView extends Composite implements View{
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				System.out.println(tabFolder.getSelection());
+				enableOpenDoor();
+				System.out.println("device==="+tabFolder.getSelection());
 				if (getPresenter().getPresenter().getModel().getMapSystemSetting().get(SystemSettingTypeEnum.自动关闭未选中的监控视频).equals("false")) {
 					return;
 				}
@@ -79,7 +80,6 @@ public class DeviceView extends Composite implements View{
 		Label label = new Label(control3, SWT.NONE);
 		GridData gd_label = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_label.widthHint = 50;
-		gd_label.heightHint = 25;
 		label.setLayoutData(gd_label);
 		
 		ToolBar toolBar3 = new ToolBar(control3, SWT.FLAT | SWT.NONE);
@@ -206,6 +206,8 @@ public class DeviceView extends Composite implements View{
 		
 		tabFolder.setFont(SWTResourceManager.getFont("微软雅黑", 14, SWT.BOLD));
 		tabFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+		
+		
 	}
 
 	@Override
@@ -279,6 +281,7 @@ public class DeviceView extends Composite implements View{
 			toolItem_in_closeDoor.setToolTipText("手动落杆F3");
 			tabFolder.setToolTipText("出口设备");
 		}
+		enableOpenDoor();
 	}
 
 	public void controlItem(Boolean dispose) {
@@ -289,5 +292,16 @@ public class DeviceView extends Composite implements View{
 		}
 		tabFolder.layout();
 		
+	}
+
+	/**
+	 * 
+	 */
+	public void enableOpenDoor() {
+		if (((SingleCarparkDevice) tabFolder.getSelection().getData("device")).getInOrOut().contains("进口")) {
+			toolItem_in_openDoor.setEnabled(!getPresenter().getPresenter().getModel().booleanSetting(SystemSettingTypeEnum.临时车弹窗确认));
+		}else {
+			toolItem_in_openDoor.setEnabled(!getPresenter().getPresenter().getModel().booleanSetting(SystemSettingTypeEnum.出场收费弹窗显示));
+		}
 	}
 }

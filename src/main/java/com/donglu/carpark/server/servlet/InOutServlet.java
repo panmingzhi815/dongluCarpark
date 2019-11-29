@@ -526,15 +526,15 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 
 
 	@Override
-	public List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(int startSize, int size, String operaName, Date start, Date end, String deviceName) {
-		return carparkInOutService.findOpenDoorLogBySearch(startSize, size, operaName, start, end, deviceName);
+	public List<SingleCarparkOpenDoorLog> findOpenDoorLogBySearch(int startSize, int size, String operaName, Date start, Date end, String deviceName,String plate) {
+		return carparkInOutService.findOpenDoorLogBySearch(startSize, size, operaName, start, end, deviceName,plate);
 	}
 
 
 
 	@Override
-	public Long countOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName) {
-		return carparkInOutService.countOpenDoorLogBySearch(operaName, start, end, deviceName);
+	public Long countOpenDoorLogBySearch(String operaName, Date start, Date end, String deviceName,String plate) {
+		return carparkInOutService.countOpenDoorLogBySearch(operaName, start, end, deviceName,plate);
 	}
 
 
@@ -698,5 +698,40 @@ public class InOutServlet extends HessianServlet implements CarparkInOutServiceI
 	@Override
 	public <T extends DomainObject> Long saveEntity(List<T> t) {
 		return carparkInOutService.saveEntity(t);
+	}
+
+
+
+	@Override
+	public List<Double> sum(Class<? extends DomainObject> class1, List<String> list, Map<String, Object> map) {
+		return carparkInOutService.sum(class1, list, map);
+	}
+
+
+
+	@Override
+	public List<Double> countNoReturnAccountMoney(String userName) {
+		return carparkInOutService.countNoReturnAccountMoney(userName);
+	}
+
+
+
+	@Override
+	public <T extends DomainObject> Long deleteEntity(T t) {
+		return carparkInOutService.deleteEntity(t);
+	}
+
+
+
+	@Override
+	public <T extends DomainObject> Long deleteEntity(List<T> t) {
+		return carparkInOutService.deleteEntity(t);
+	}
+
+
+
+	@Override
+	public <T extends DomainObject> T findById(Class<T> class1, Long id) {
+		return carparkInOutService.findById(class1, id);
 	}
 }

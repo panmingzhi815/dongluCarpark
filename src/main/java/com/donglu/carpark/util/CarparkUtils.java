@@ -801,5 +801,22 @@ public class CarparkUtils {
 	        
 	        return instance.getTime();
 	}
+	public static int checkNotAlikeSize(String source, String s) {
+		int size=0;
+		char[] c1 = source.toCharArray();
+		char[] c2 = s.toCharArray();
+		for (int i = 0; i < Math.max(c2.length, c1.length); i++) {
+			if (c1.length<i+1||c2.length<i+1) {
+				i++;
+				continue;
+			}
+			char c = c1[i];
+			char cc = c2[i];
+			if (c!=cc) {
+				size++;
+			}
+		}
+		return size;
+	}
 	
 }

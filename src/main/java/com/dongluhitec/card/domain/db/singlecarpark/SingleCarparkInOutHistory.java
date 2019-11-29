@@ -58,6 +58,10 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private String userName;
 	private Boolean isCountSlot=true;
 	private Long userId;
+	private String userTel;
+	private String userAddress;
+	private Date userBeginDate;
+	private Date userEndDate;
 	@Column(length=20)
 	private String carType;
 	@Temporal(TemporalType.TIMESTAMP)
@@ -128,6 +132,7 @@ public class SingleCarparkInOutHistory extends DomainObject{
 	private String plateColor;
 	
 	private Integer leftSlot=0;
+	private Integer totalSlot=0;
 	
 	@Transient
 	private boolean savePayHistory=false;
@@ -636,5 +641,51 @@ public class SingleCarparkInOutHistory extends DomainObject{
 		float online=onlineMoney==null?0:onlineMoney;
 		float fact=factMoney==null?0:factMoney;
 		return fact+online;
+	}
+	public String getUserTel() {
+		return userTel;
+	}
+	public void setUserTel(String userTel) {
+		this.userTel = userTel;
+		//firePropertyChange("userTel", null, null);
+	}
+	public String getUserAddress() {
+		return userAddress;
+	}
+	public void setUserAddress(String userAddress) {
+		this.userAddress = userAddress;
+		//firePropertyChange("userAddress", null, null);
+	}
+	public Date getUserBeginDate() {
+		return userBeginDate;
+	}
+	public void setUserBeginDate(Date userBeginDate) {
+		this.userBeginDate = userBeginDate;
+		//firePropertyChange("userBeginDate", null, null);
+	}
+	public Date getUserEndDate() {
+		return userEndDate;
+	}
+	public void setUserEndDate(Date userEndDate) {
+		this.userEndDate = userEndDate;
+		//firePropertyChange("userEndDate", null, null);
+	}
+	public Integer getTotalSlot() {
+		return totalSlot;
+	}
+	public void setTotalSlot(Integer totalSlot) {
+		this.totalSlot = totalSlot;
+		//firePropertyChange("totalSlot", null, null);
+	}
+	public void setUser(SingleCarparkUser user) {
+		if (user==null) {
+			return;
+		}
+		userId=user.getId();
+		userName=user.getName();
+		userTel=user.getTelephone();
+		userAddress=user.getAddress();
+		userBeginDate=user.getCreateDate();
+		userEndDate=user.getValidTo();
 	}
 }

@@ -77,10 +77,10 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 				String ImageURL=req.getParameter("ImageURL");
 				Date time = StrUtil.parse(PassTime, "yyyyMMddHHmmssSSS");
 				String key = CarPlate+StrUtil.formatDate(time, "yyyyMMddHHmm");
-				if (cacheSetting.getIfPresent(key)!=null) {
-					writeMsg(resp, 0, "成功");
-					return;
-				}
+//				if (cacheSetting.getIfPresent(key)!=null) {
+//					writeMsg(resp, 0, "成功");
+//					return;
+//				}
 				if (StrUtil.isEmpty(CarPlate)||StrUtil.isEmpty(PassTime)||StrUtil.isEmpty(VehicleSpeed)||StrUtil.isEmpty(MarkedSpeed)) {
 					writeMsg(resp, 1, "参数不能为空");
 					return;
