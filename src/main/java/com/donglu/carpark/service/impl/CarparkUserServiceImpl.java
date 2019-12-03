@@ -60,7 +60,9 @@ public class CarparkUserServiceImpl extends BaseDaoServiceImpl implements Carpar
 		if (user.getId() == null) {
 			split=user.getPlateNo().split(",");
 			dom.insert(user);
-			emprovider.get().persist(new UserHistory(user,UpdateEnum.新添加));
+			if (user.isCreateHistory()) {
+				emprovider.get().persist(new UserHistory(user, UpdateEnum.新添加));
+			}
 		} else {
 			SingleCarparkUser reference = emprovider.get().getReference(SingleCarparkUser.class, user.getId());
 			split=(reference.getPlateNo()+","+user.getPlateNo()).split(",");
@@ -620,5 +622,20 @@ public class CarparkUserServiceImpl extends BaseDaoServiceImpl implements Carpar
 	@Override
 	public int countAccountCar(List<QueryParameter> parameters) {
 		return count(CarparkAccountCar.class, parameters.toArray(new QueryParameter[parameters.size()])).intValue();
+	}
+
+
+	@Override
+	public SingleCarparkUser findByUuid(String uuid) {
+		unitOfWork.begin();
+		try {
+			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkUser.class);
+			c.add(Restrictions.eq("uuid", uuid));
+			c.setFirstResult(0);
+			c.setMaxResults(1);
+			return (SingleCarparkUser) c.getSingleResultOrNull();
+		} finally {
+			unitOfWork.end();
+		}
 	}
 }

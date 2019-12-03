@@ -1024,6 +1024,8 @@ public class CarparkServiceImpl implements CarparkService {
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkCarpark.class);
 			c.add(Restrictions.eq("yunIdentifier", yunIdentifier));
+			c.setFirstResult(0);
+			c.setMaxResults(1);
 			return (SingleCarparkCarpark) c.getSingleResultOrNull();
 		} finally {
 			unitOfWork.end();

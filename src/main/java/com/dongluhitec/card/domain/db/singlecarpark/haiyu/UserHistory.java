@@ -36,6 +36,9 @@ public class UserHistory implements Serializable {
 	private String telephone;
 	
 	private CarTypeEnum carType=CarTypeEnum.SmallCar;
+	private String uuid;
+	
+	private String yunId;
 	
 	
 	@Embedded
@@ -56,6 +59,8 @@ public class UserHistory implements Serializable {
 		user.setTelephone(telephone);
 		user.setCreateDate(createDate);
 		user.setId(id);
+		user.setUuid(getUuid());
+		user.setYunId(getYunId());
 		return user;
 	}
 	public void setUser(SingleCarparkUser user) {
@@ -67,6 +72,8 @@ public class UserHistory implements Serializable {
 		setTelephone(user.getTelephone());
 		setCreateDate(user.getCreateDate());
 		setId(user.getId());
+		setUuid(user.getUuid());
+		setYunId(user.getYunId());
 	}
 	public HistoryDetail getHistoryDetail() {
 		return historyDetail;
@@ -130,5 +137,17 @@ public class UserHistory implements Serializable {
 	}
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
+	}
+	public String getUuid() {
+		return uuid;
+	}
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+	public String getYunId() {
+		return yunId;
+	}
+	public void setYunId(String yunId) {
+		this.yunId = yunId;
 	}
 }

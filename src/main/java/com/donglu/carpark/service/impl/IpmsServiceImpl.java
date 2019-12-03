@@ -40,6 +40,7 @@ import com.donglu.carpark.util.CarparkFileUtils;
 import com.donglu.carpark.yun.CarparkYunConfig;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.QueryParameter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
@@ -141,7 +142,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			int fee = (int) (ioh.getShouldMoney() == null ? 0 : ioh.getShouldMoney() * 100);
 			int couponValue = fee-depFree;
 			content = StrUtil.formatString(content, plateNo,carType, parkId + id, inTime, outTime, status, userType, depFree, fee,couponValue, id);
-			System.out.println(content);
+//			System.out.println(content);
 			JSONObject jsonObject = JSON.parseObject(content);
 			JSONObject parkingRecord = jsonObject.getJSONObject("parkingRecord");
 			if (!StrUtil.isEmpty(ioh.getInDeviceId())) {
@@ -151,10 +152,11 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				parkingRecord.put("exitId", ioh.getOutDeviceId());
 			}
 			jsonObject.put("parkingRecord", parkingRecord);
-			System.out.println(jsonObject);
+//			System.out.println(jsonObject);
 			carInfo = "data=" + URLEncoder.encode("["+jsonObject+"]", "UTF-8");
 			String actionUrl = url;
-			System.out.println(actionUrl);
+//			System.out.println(actionUrl);
+			log.info("向：{} 发送数据：{}",actionUrl,jsonObject);
 			String httpPostMssage = httpPostMssage(actionUrl, carInfo);
 			log.info("{}停车场记录,结果:{}", type, httpPostMssage);
 			boolean result = JSONObject.parseObject(httpPostMssage).get("ret").toString().equals("0");
@@ -242,8 +244,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				if (synchroImage) {
 					file.delete();
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				log.error("上传图片时发生错误"+e);
 			}
 		}
 		
@@ -308,6 +310,9 @@ public class IpmsServiceImpl implements IpmsServiceI {
 						+ "{\"carNum\":\"{}\",\"carType\":\"{}\",\"cardType\":\"1\",\"id\":\"{}\",\"buildingId\":\""+buildindId+"\","
 						+ "\"parkId\":\""+parkId+"\",\"status\":\"{}\",\"tpEndTime\":\"{}\",\"tpStartTime\":\"{}\","
 								+ "\"userAddress\":\"{}\",\"userName\":\"{}\",\"userPhone\":\"{}\",\"monthFee\":0}";
+				if (user.getYunId()!=null) {
+					rid=user.getYunId();
+				}
 				String name = user.getName()==null?"":user.getName();
 				String plateNo = user.getPlateNo();
 				int carTypeIndex=0;
@@ -334,18 +339,20 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			}
 			String parameters="[{\"dataId\":\"{}\",\"operation\":\""+type+"\",\"origin\":\"东陆高新\",\"syncId\":\"{}\""+userInfo+"}]";
 			parameters=StrUtil.formatString(parameters, rid,id);
+			System.out.println(parameters);
 			parameters="data="+URLEncoder.encode(parameters, "UTF-8");
 			String httpPostMssage = httpPostMssage(url, parameters);
 			JSONObject parseObject = JSONObject.parseObject(httpPostMssage);
 			Object object = parseObject.get("ret");
 			log.info("{}用户信息,结果：{}",type,httpPostMssage);
 			boolean result = object.toString().equals("0");
-			if (type.equals("add")&&!result) {
+			if (type.equals("add")) {
 				if (parseObject.getString("retInfo").contains("id已存")) {
 					parameters="[{\"dataId\":\"{}\",\"operation\":\"delete\",\"origin\":\"东陆高新\",\"syncId\":\"{}\""+userInfo+"}]";
 					parameters=StrUtil.formatString(parameters, rid,id);
 					parameters="data="+URLEncoder.encode(parameters, "UTF-8");
 					httpPostMssage = httpPostMssage(url, parameters);
+					return false;
 				}
 				if (parseObject.getString("retInfo").contains("已存在相同车")) {
 					JSONObject users = getUsers(user.getPlateNo(),parkId);
@@ -355,6 +362,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 					httpPostMssage = httpPostMssage(url, parameters);
 					System.out.println(httpPostMssage);
 					//				return synchroUser("update", user);
+					return false;
 				}
 				
 			}
@@ -539,10 +547,23 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			log.info("获取更新的用户信息：{}",parseArray.size());
 			for (Object object : parseArray) {
 				try {
+					log.info("处理固定车信息：{}",object);
 					JSONObject jo = (JSONObject) object;
 					if("delete".equals(jo.getString("operation"))) {
+						String dataId = jo.getString("dataId");
+						if (dataId.startsWith(parkId)) {
+							SingleCarparkUser user=sp.getCarparkUserService().findUserById(Long.valueOf(dataId.replace(parkId, "")));
+							if (user!=null) {
+								sp.getCarparkUserService().delete(user);
+							}
+						}else {
+							List<SingleCarparkUser> list = sp.getCarparkUserService().find(SingleCarparkUser.class, QueryParameter.eq("yunId", dataId));
+							for (SingleCarparkUser singleCarparkUser : list) {
+								sp.getCarparkUserService().delete(singleCarparkUser);
+							}
+						}
+						
 						String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
-						System.out.println(jo+"==="+resultUrl);
 						httpPostMssage(resultUrl, null);
 						continue;
 					}
@@ -560,23 +581,44 @@ public class IpmsServiceImpl implements IpmsServiceI {
 //				user = sp.getCarparkUserService().findUserById(valueOf);
 					user=sp.getCarparkUserService().findUserByPlateNo(po.getString("carNum"), null);
 					if (user==null) {
-						String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
-						httpPostMssage(resultUrl, null);
-						continue;
+//						String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
+//						httpPostMssage(resultUrl, null);
+//						continue;
+						user=new SingleCarparkUser();
+						user.setCarpark(sp.getCarparkService().findCarparkByYunIdentifier(po.getString("parkId")));
+						user.setCreateHistory(false);
 					}
+					user.setName(po.getString("userName"));
+					user.setTelephone(po.getString("userPhone"));
+					user.setAddress(po.getString("userAddress"));
+					user.setPlateNo(po.getString("carNum"));
+					user.setYunId(po.getString("id"));
 					user.setValidTo(StrUtil.getTodayBottomTime(StrUtil.parseDateTime(tpEndTime)));
+					user.setCarType(getCarType(po.getIntValue("cardType")));
 					user.setCreateHistory(false);
 					sp.getCarparkUserService().saveUser(user);
 					String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
 					httpPostMssage(resultUrl, null);
 				} catch (Exception e) {
-					e.printStackTrace();
 					log.info("处理信息：{}时发生错误：{}",object,e);
 				}
 			}
 		} catch (Exception e) {
 			log.error("更新固定用户信息时发生错误"+e);
 		}
+	}
+	private CarTypeEnum getCarType(int type) {
+		switch (type) {
+		case 0:
+			
+			break;
+		case 2:
+			
+			break;
+		default:
+			break;
+		}
+		return CarTypeEnum.SmallCar;
 	}
 	@Override
 	public void updateFixCarChargeHistory() {
@@ -634,7 +676,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				httpPostMssage(resultUrl, null);
 			}
 		} catch (Exception e) {
-			log.error("更新固定用户充值记录时发生错误"+e);
+			log.error("更新固定用户充值记录时发生错误",e);
 		}
 		
 	}

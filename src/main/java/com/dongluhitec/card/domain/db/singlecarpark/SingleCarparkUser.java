@@ -14,7 +14,7 @@ import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity
-public class SingleCarparkUser extends DomainObject {
+public class SingleCarparkUser extends CarparkDomainObject {
 	/**
 	 * 
 	 */
@@ -70,6 +70,8 @@ public class SingleCarparkUser extends DomainObject {
 	
 	@Transient
 	private boolean createHistory=true;
+	
+	private String yunId;
 	
 	@PrePersist
 	public void initCreateDate(){
@@ -292,6 +294,12 @@ public class SingleCarparkUser extends DomainObject {
 	}
 	public void setCreateHistory(boolean createHistory) {
 		this.createHistory = createHistory;
+	}
+	public String getYunId() {
+		return yunId;
+	}
+	public void setYunId(String yunId) {
+		this.yunId = yunId;
 	}
 	
 }

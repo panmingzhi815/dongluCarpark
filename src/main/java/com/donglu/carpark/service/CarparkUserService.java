@@ -99,5 +99,6 @@ public interface CarparkUserService extends BaseDaoService {
 	
 	List<CarparkAccountCar> findAccountCard(List<QueryParameter> parameters);
 	int countAccountCar(List<QueryParameter> parameters);
+	SingleCarparkUser findByUuid(String uuid);
 	
 }

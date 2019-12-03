@@ -318,4 +318,9 @@ public class UserServlet extends BaseDaoServlet implements CarparkUserService, S
 	public boolean saveLog(String name, String fileName, long index, int length, byte[] data) {
 		return systemOperaLogService.saveLog(name, fileName, index, length, data);
 	}
+
+	@Override
+	public SingleCarparkUser findByUuid(String uuid) {
+		return carparkUserService.findByUuid(uuid);
+	}
 }

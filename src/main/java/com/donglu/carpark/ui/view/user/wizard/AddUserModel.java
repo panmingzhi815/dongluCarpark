@@ -33,48 +33,11 @@ public class AddUserModel extends SingleCarparkUser {
 
 	public SingleCarparkUser getSingleCarparkUser() {
 		SingleCarparkUser user = new SingleCarparkUser();
-		user.setAddress(getAddress());
-		user.setCarpark(getCarpark());
-		user.setCarparkNo(getCarparkNo());
-		user.setName(getName());
-		user.setPlateNo(getPlateNo());
-		user.setType(userType.toString());
-		user.setCreateDate(getCreateDate());
-		user.setId(getId());
-		user.setValidTo(getValidTo());
-		user.setRemark(getRemark());
-		user.setDelayDays(getDelayDays());
-		user.setRemindDays(getRemindDays());
-		user.setLeftMoney(getLeftMoney());
-		user.setCarType(getCarType());
-		user.setTelephone(getTelephone());
-		user.setParkingSpace(getParkingSpace());
-		user.setMonthChargeId(getMonthChargeId());
-		user.setMonthChargeCode(getMonthChargeCode());
-		user.setMonthChargeName(getMonthChargeName());
-		user.setCarparkSlotType(getCarparkSlotType());
+		copy(user);
 		return user;
 	}
 	public void setSingleCarparkUser(SingleCarparkUser user){
-		setAddress(user.getAddress());
-		setCarpark(user.getCarpark());
-		setCarparkNo(user.getCarparkNo());
-		setName(user.getName());
-		setPlateNo(user.getPlateNo());
-		setUserType(UserType.valueOf(user.getType()));
-		setType(user.getType());
-		setCreateDate(user.getCreateDate());
-		setId(user.getId());
-		setValidTo(user.getValidTo());
-		setRemark(user.getRemark());
-		setLeftMoney(user.getLeftMoney());
-		setCarType(user.getCarType());
-		setTelephone(user.getTelephone());
-		setParkingSpace(user.getParkingSpace());
-		setMonthChargeId(user.getMonthChargeId());
-		setMonthChargeCode(user.getMonthChargeCode());
-		setMonthChargeName(user.getMonthChargeName());
-		setCarparkSlotType(user.getCarparkSlotType());
+		user.copy(this);
 	}
 
 	public MonthlyUserPayModel getModel() {

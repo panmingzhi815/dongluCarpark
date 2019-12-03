@@ -53,7 +53,7 @@ public enum SystemSettingTypeEnum {
 	启动HTTP对外服务("false"),
 	无记录自动放行("false"),
 	特殊车辆自动放行("true"),
-	特殊车辆车牌类型("(.*警)|(.*巡)|(.*应急.*)|(.*消.*)|(.*WJ.*)"),
+	特殊车辆车牌类型("(.*警)|(.*巡)|(.*应急.*)|(.*消.*)|(WJ.*)"),
 	
 	上传数据到绿地平台("false"),
 	
@@ -64,7 +64,7 @@ public enum SystemSettingTypeEnum {
 	临时车超速自动拉黑("30-3-7"),
 	
 	支付完成后出场时间("15"),
-	DateBase_version("1.0.0.29"),软件版本("1.0.0.31"),发布时间("2019-11-29 12:11:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
+	DateBase_version("1.0.0.29"),软件版本("1.0.0.31"),发布时间("2019-12-03 13:11:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
 	启动短信发送服务("false"), 短信服务appid(""), 短信服务appsecret(""), 短信签名(""), 短信模板(""),    
 	;
 	

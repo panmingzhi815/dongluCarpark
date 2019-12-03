@@ -40,7 +40,7 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 
 	@Inject
 	public IpmsSynchroServiceImpl(IpmsServiceI ipmsService,CarparkDatabaseServiceProvider sp) {
-		super(Scheduler.newFixedDelaySchedule(2, 2, TimeUnit.MINUTES), "ipms信息同步服务");
+		super(Scheduler.newFixedDelaySchedule(20, 10, TimeUnit.SECONDS), "ipms信息同步服务");
 		this.ipmsService = ipmsService;
 		this.sp = sp;
 		uploadHistoryExecutorService = ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
@@ -168,8 +168,10 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 	}
 	@Override
 	protected void startUp() throws Exception {
+		log.info("启动在线支付数据同步服务");
 		super.startUp();
 		checkSetting();
+		log.info("在线支付设置：{}",isRunService);
 	}
 
 	private void checkUserValidTo() {
