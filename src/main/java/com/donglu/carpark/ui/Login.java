@@ -422,7 +422,8 @@ public class Login {
 							System.setProperty("userName", userName);
 							System.setProperty("password", pwd);
 							System.setProperty("userType", type);
-							
+							sp.stop();
+							sp.start();
 							SingleCarparkSystemSetting systemSetting = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.访客车名称.name());
 							if (systemSetting!=null) {
 								System.setProperty(ConstUtil.VISITOR_NAME, systemSetting.getSettingValue());

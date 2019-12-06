@@ -69,6 +69,10 @@ public class AddDeviceWizard extends Wizard implements AbstractWizard{
 			page.setErrorMessage("平时语音不能超过39个汉字");
 			return false;
 		}
+		if (model.getName().length()>19) {
+			page.setErrorMessage("名称不能超过19个汉字");
+			return false;
+		}
 		String voice = model.getVoice();
 		
 		model.setVolume(Integer.valueOf(voice));

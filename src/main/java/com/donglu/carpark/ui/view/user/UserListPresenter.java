@@ -193,7 +193,6 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
 			carparkUserService.saveUser(user);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "添加了用户:"+user.getName(),System.getProperty("userName"));
 			commonui.info("操作成功", "保存成功!");
 			refresh();
 		} catch (Exception e) {
@@ -209,13 +208,10 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			if (!confirm) {
 				return;
 			}
-			String userName="";
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
 			for (SingleCarparkUser singleCarparkUser : list) {
 				carparkUserService.deleteUser(singleCarparkUser);
-				userName+="["+singleCarparkUser.getName()+"]";
 			}
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "删除了用户:"+userName,System.getProperty("userName"));
 			commonui.info("成功", "删除用户成功");
 			refresh();
 		} catch (Exception e) {
@@ -325,7 +321,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			SingleCarparkMonthlyUserPayHistory singleCarparkMonthlyUserPayHistory = m.getSingleCarparkMonthlyUserPayHistory();
 			singleCarparkMonthlyUserPayHistory.setParkingSpace(singleCarparkUser.getParkingSpace());
 			sp.getCarparkService().saveMonthlyUserPayHistory(singleCarparkMonthlyUserPayHistory);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了用户:"+singleCarparkUser.getName(),System.getProperty("userName"));
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了用户:"+singleCarparkUser.getName()+"-"+singleCarparkUser.getValitoLabel(),System.getProperty("userName"));
 			commonui.info("操作成功", "充值成功");
 			refresh();
 		} catch (Exception e) {
@@ -402,7 +398,6 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
 			user.setLastEditDate(new Date());
 			carparkUserService.saveUser(user);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "修改了用户:"+singleCarparkUser.getName(),System.getProperty("userName"));
 			commonui.info("操作成功", "修改成功!");
 			refresh();
 		} catch (Throwable e) {

@@ -1600,9 +1600,9 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 		mapIpToJNA.get(ip).tigger(ip);
-		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
-		//贵A56G17贵JRJ927
-		carInOutResultProvider.get().invok(ip, 0, "粤BD022W", bs, null, 11);
+//		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+//		//贵A56G17贵JRJ927
+//		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
 	}
 
 	/**
@@ -3896,7 +3896,6 @@ public class CarparkMainPresenter {
 			map.put(OverSpeedCar.Property.carType.name(), carType);
 			int day=0;
 			int size=0;
-			int blackSize=7;
 			if (isFixCar) {
 				String[] split = model.getMapSystemSetting().get(SystemSettingTypeEnum.固定车超速自动删除).split("-");
 				day=Integer.valueOf(split[0]);
@@ -3905,7 +3904,6 @@ public class CarparkMainPresenter {
 				String[] split = model.getMapSystemSetting().get(SystemSettingTypeEnum.临时车超速自动拉黑).split("-");
 				day=Integer.valueOf(split[0]);
 				size=Integer.valueOf(split[1]);
-				blackSize=Integer.valueOf(split[2]);
 			}
 			if (size==0) {
 				return 0;

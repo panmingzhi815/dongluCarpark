@@ -40,6 +40,8 @@ public class SystemOperaLogServiceImpl implements SystemOperaLogServiceI {
 
 	private ScheduledExecutorService saveLogService;
 	
+	ThreadLocal<String> loginUser=new ThreadLocal<>();
+	
 	@Override
 	public void saveOperaLog(SystemOperaLogTypeEnum type, String content, String operaName) {
 		if (StrUtil.isEmpty(saveLogService)) {
@@ -59,6 +61,16 @@ public class SystemOperaLogServiceImpl implements SystemOperaLogServiceI {
 			save(log);
 		});
 	}
+	
+	@Override
+	public void saveOperaLog(SystemOperaLogTypeEnum systemOperaLogType, String content) {
+		String userName = loginUser.get();
+		if (userName==null) {
+			userName="服务器自调用";
+		}
+		saveOperaLog(systemOperaLogType, content,userName);
+	}
+	
 	@Transactional
 	void save(SingleCarparkSystemOperaLog log){
 		DatabaseOperation<SingleCarparkSystemOperaLog> dom = DatabaseOperation.forClass(SingleCarparkSystemOperaLog.class, emprovider.get());
@@ -165,5 +177,9 @@ public class SystemOperaLogServiceImpl implements SystemOperaLogServiceI {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	@Override
+	public void setLoginUser(String userName) {
+		loginUser.set(userName);
 	}
 }

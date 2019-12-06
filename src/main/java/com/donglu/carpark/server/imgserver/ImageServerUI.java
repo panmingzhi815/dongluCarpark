@@ -603,6 +603,10 @@ public class ImageServerUI {
 			String sql = "update SingleCarparkInOutHistory set onlineMoney=factMoney where chargedType=1 and onlineMoney is null";
 			list.add(sql);
 		}
+		if (checkVercionIsLess(databaseVersion, "1.0.0.31")) {
+			String sql = "update OverSpeedCar set processState=0 where processState is null";
+			list.add(sql);
+		}
 		for (String sql : list) {
 			CarparkDataBaseUtil.executeSQL(instance.getDbServerIp(), instance.getDbServerPort(), "carpark", instance.getDbServerUsername(), instance.getDbServerPassword(), sql,
 					instance.getDbServerType());

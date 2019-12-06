@@ -116,6 +116,7 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
             <version>1.18.6</version>
+            <scope>provided</scope>
         </dependency>
 		
 	</dependencies>

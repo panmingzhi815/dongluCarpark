@@ -17,6 +17,7 @@ import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkInOutServiceI;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.view.CarInCheckApp;
+import com.donglu.carpark.ui.view.message.MessageUtil;
 import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
@@ -354,14 +355,12 @@ public class CarInTask extends AbstractTask {
 			String blackInContent = model.getMapVoice().get(DeviceVoiceTypeEnum.黑名单入场语音).getContent();
 			if (!StrUtil.isEmpty(findHolidayByDate) && !StrUtil.isEmpty(blackUser.getHolidayIn())
 					&& blackUser.getHolidayIn()) {
-				model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单"+reason);
-				presenter.showContentToDevice(device, blackInContent, false);
+				showBlackInfo(device, reason, blackInContent);
 				return true;
 			}
 			if (StrUtil.isEmpty(findHolidayByDate) && !StrUtil.isEmpty(blackUser.getWeekDayIn())
 					&& blackUser.getWeekDayIn()) {
-				model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单"+reason);
-				presenter.showContentToDevice(device, blackInContent, false);
+				showBlackInfo(device, reason, blackInContent);
 				return true;
 			}
 
@@ -377,8 +376,7 @@ public class CarInTask extends AbstractTask {
 			if (blackUser.getTimeIn()) {
 				LOGGER.info("黑名单车牌：{}允许进入的时间为{}点到{}点", plateNO, hoursStart, hoursEnd);
 				if (now.isBefore(dt.getMillis()) || now.isAfter(de.getMillis())) {
-					model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单"+reason);
-					presenter.showContentToDevice(device, blackInContent, false);
+					showBlackInfo(device, reason, blackInContent);
 					return true;
 				}
 
@@ -387,13 +385,23 @@ public class CarInTask extends AbstractTask {
 				if (now.toDate().after(dt.toDate()) && now.toDate().before(de.toDate())) {
 					LOGGER.error("车牌：{}为黑名单,现在时间为{}，在{}点到{}点之间", plateNO, now.toString("HH:mm:ss"), hoursStart,
 							hoursEnd);
-					model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单"+reason);
-					presenter.showContentToDevice(device, blackInContent, false);
+					showBlackInfo(device, reason, blackInContent);
 					return true;
 				}
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * @param device
+	 * @param reason
+	 * @param blackInContent
+	 */
+	public void showBlackInfo(SingleCarparkDevice device, String reason, String blackInContent) {
+		model.setInShowPlateNO(model.getInShowPlateNO() + "-黑名单"+reason);
+		presenter.showContentToDevice(device, blackInContent, false);
+		MessageUtil.info(editPlateNo+"黑名单", editPlateNo+"为黑名单"+(StrUtil.isEmpty(reason)?"":"\n原因"+reason), 60000);
 	}
 
 	private boolean visitorCarIn() {

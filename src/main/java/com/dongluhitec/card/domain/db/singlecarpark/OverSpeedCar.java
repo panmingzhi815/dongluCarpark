@@ -14,7 +14,7 @@ import com.dongluhitec.card.domain.util.StrUtil;
 public class OverSpeedCar extends DomainObject {
 	
 	public enum Property{
-		plate,time,currentSpeed,rateLimiting,place,camId,status,carType
+		plate,time,currentSpeed,rateLimiting,place,camId,status,carType,processState
 	}
 	public enum Label{
 		plate,timeLabel,currentSpeed,rateLimiting,place,camId,statusLabel,createTimeLabel
@@ -38,6 +38,9 @@ public class OverSpeedCar extends DomainObject {
 	@Index(name = "OverSpeedCar_carType")
 	private String carType;
 	private Date createTime;
+	private String remark;
+	
+	private Integer processState=0;
 	
 	@PrePersist
 	public void init() {
@@ -51,7 +54,15 @@ public class OverSpeedCar extends DomainObject {
 		return StrUtil.formatDateTime(createTime);
 	}
 	public String getStatusLabel() {
-		return status==0?"正常":"超速";
+		switch (status) {
+		case 1:
+			return "超速";
+		case 2:
+			return "严重超速";
+		default:
+			break;
+		}
+		return "正常";
 	}
 	
 	public String getPlate() {
@@ -123,5 +134,23 @@ public class OverSpeedCar extends DomainObject {
 	public void setCarType(String carType) {
 		this.carType = carType;
 		firePropertyChange("carType", null, null);
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+		firePropertyChange("remark", null, null);
+	}
+
+	public Integer getProcessState() {
+		return processState;
+	}
+
+	public void setProcessState(Integer processState) {
+		this.processState = processState;
+		firePropertyChange("processState", null, null);
 	}
 }

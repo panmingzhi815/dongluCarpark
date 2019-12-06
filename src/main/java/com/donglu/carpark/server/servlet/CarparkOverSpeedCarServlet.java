@@ -111,13 +111,22 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 					car.setImage2(string);
 				}
 				String carType="临时车";
-				car.setRateLimiting(Integer.valueOf(MarkedSpeed));
+				
+				String[] nomalSpeeds = getSystemSetting(SystemSettingTypeEnum.普通超速速度).split("-");
+				int nomalSpeedStart=Integer.valueOf(nomalSpeeds[0]);
+				int nomalSpeedEnd=Integer.valueOf(nomalSpeeds[1]);
+				int seriousSpeed=Integer.valueOf(getSystemSetting(SystemSettingTypeEnum.严重超速速度));
+				if (car.getCurrentSpeed()>=nomalSpeedStart&&car.getCurrentSpeed()<=nomalSpeedEnd) {
+					car.setStatus(1);
+					car.setRateLimiting(nomalSpeedStart);
+				}else if(car.getCurrentSpeed()>=seriousSpeed) {
+					car.setStatus(2);
+					car.setRateLimiting(seriousSpeed);
+				}
 				SingleCarparkUser user = sp.getCarparkUserService().findUserByPlateNo(CarPlate, null);
 				if (user!=null) {
 					LOGGER.info("固定车：{}-{}",user.getName(),user.getTelephone());
 					carType="固定车";
-					int fixCarRateLimiting=Integer.valueOf(getSystemSetting(SystemSettingTypeEnum.固定车超速速度));
-					car.setRateLimiting(fixCarRateLimiting);
 				}
 				car.setStatus(getStatus(car));
 				if (car.getTime()==null) {
@@ -148,6 +157,7 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 				bos.write(b,0,read);
 				bos.flush();
 			}
+			conn.disconnect();
 			return bos.toByteArray();
 		}catch (Exception e) {
 		}
@@ -162,7 +172,7 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 		if (car.getPlate().matches(getSystemSetting(SystemSettingTypeEnum.特殊车辆车牌类型))) {
 			return 0;
 		}
-		return (car.getCurrentSpeed()>car.getRateLimiting()&&car.getRateLimiting()>0)?1:0;
+		return car.getStatus();
 	}
 	
 	private void writeMsg(HttpServletResponse resp, int code, String msg) throws IOException {
@@ -227,6 +237,7 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 	
 	public int countOverSpeedSize(String plateNo, boolean isFixCar,SingleCarparkUser user,OverSpeedCar overSpeedCar) {
 		if (booleanSetting(SystemSettingTypeEnum.启用测速系统)) {
+			
 			Map<String, Object> map=new HashMap<>();
 			map.put(OverSpeedCar.Property.plate.name(), plateNo);
 			String carType="临时车";
@@ -235,70 +246,127 @@ public class CarparkOverSpeedCarServlet extends HttpServlet {
 				
 			}
 			map.put(OverSpeedCar.Property.carType.name(), carType);
-			int day=0;
-			int size=0;
-			int blackSize=7;
-			if (isFixCar) {
-				String[] split = getSystemSetting(SystemSettingTypeEnum.固定车超速自动删除).split("-");
-				day=Integer.valueOf(split[0]);
-				size=Integer.valueOf(split[1]);
-			}else {
-				String[] split = getSystemSetting(SystemSettingTypeEnum.临时车超速自动拉黑).split("-");
-				day=Integer.valueOf(split[0]);
-				size=Integer.valueOf(split[1]);
-				blackSize=Integer.valueOf(split[2]);
-			}
-			if (size==0) {
-				return 0;
-			}
-			map.put(OverSpeedCar.Property.time.name()+"-ge", StrUtil.getTodayTopTime(new DateTime(new Date()).minusDays(day).toDate()));
-			map.put(OverSpeedCar.Property.time.name()+"-le", StrUtil.getTodayBottomTime(new Date()));
-			map.put(OverSpeedCar.Property.status.name(), 1);
-			List<OverSpeedCar> list = sp.getCarparkInOutService().findOverSpeedCarByMap(0, 100, map);
-			String templateCode = getSystemSetting(SystemSettingTypeEnum.固定车超速发送短信);
-			if (isFixCar&&!StrUtil.isEmpty(user.getTelephone())&&overSpeedCar.getStatus()==1&&!StrUtil.isEmpty(templateCode)) {
-				SmsInfo smsInfo = new SmsInfo();
-				smsInfo.setTel(user.getTelephone());
-				smsInfo.setOverSpeedSize(list.size());
-				smsInfo.setOverSpeedTime(overSpeedCar.getTime());
-				smsInfo.setUserName(user.getName());
-				smsInfo.setPlate(plateNo);
-				smsInfo.setSpeed(overSpeedCar.getCurrentSpeed());
-				smsInfo.setAddress(overSpeedCar.getPlace());
-				smsInfo.setTemplateCode(templateCode);
-				JSONObject jo=new JSONObject();
-				jo.put("plate", plateNo);
-				jo.put("name", user.getName());
-				jo.put("overSpeedsize", list.size());
-				jo.put("time", StrUtil.formatDateTime(overSpeedCar.getTime()));
-				jo.put("day", day);
-				jo.put("address", overSpeedCar.getPlace());
-				jo.put("speed", overSpeedCar.getCurrentSpeed());
-				smsInfo.setData(jo.toJSONString());
-				sp.getCarparkInOutService().saveSmsInfo(smsInfo);
-			}
-			if (list.size()>=size) {
+			
+			if (1==overSpeedCar.getStatus()) {
+				int day=0;
+				int size=0;
+				int blackSize=7;
 				if (isFixCar) {
-					user.setRemark(user.getRemark()==null?"":(user.getRemark()+";")+"超速"+list.size()+"次");
+					String[] split = getSystemSetting(SystemSettingTypeEnum.固定车超速自动删除).split("-");
+					day=Integer.valueOf(split[0]);
+					size=Integer.valueOf(split[1]);
+				}else {
+					String[] split = getSystemSetting(SystemSettingTypeEnum.临时车超速自动拉黑).split("-");
+					day=Integer.valueOf(split[0]);
+					size=Integer.valueOf(split[1]);
+					blackSize=Integer.valueOf(split[2]);
+				}
+				if (size==0) {
+					return 0;
+				}
+				map.put(OverSpeedCar.Property.time.name()+"-ge", StrUtil.getTodayTopTime(new DateTime(new Date()).minusDays(day).toDate()));
+				map.put(OverSpeedCar.Property.time.name()+"-le", StrUtil.getTodayBottomTime(new Date()));
+				map.put(OverSpeedCar.Property.status.name(), 1);
+				map.put(OverSpeedCar.Property.processState.name(), 0);
+				List<OverSpeedCar> list = sp.getCarparkInOutService().findOverSpeedCarByMap(0, 100, map);
+				String templateCode = getSystemSetting(SystemSettingTypeEnum.固定车超速发送短信);
+				if (isFixCar&&!StrUtil.isEmpty(user.getTelephone())&&!StrUtil.isEmpty(templateCode)) {
+					SmsInfo smsInfo = new SmsInfo();
+					smsInfo.setTel(user.getTelephone());
+					smsInfo.setOverSpeedSize(list.size());
+					smsInfo.setOverSpeedTime(overSpeedCar.getTime());
+					smsInfo.setUserName(user.getName());
+					smsInfo.setPlate(plateNo);
+					smsInfo.setSpeed(overSpeedCar.getCurrentSpeed());
+					smsInfo.setAddress(overSpeedCar.getPlace());
+					smsInfo.setTemplateCode(templateCode);
+					JSONObject jo=new JSONObject();
+					jo.put("plate", plateNo);
+					jo.put("name", user.getName());
+					jo.put("overSpeedsize", list.size());
+					jo.put("time", StrUtil.formatDateTime(overSpeedCar.getTime()));
+					jo.put("day", day);
+					jo.put("address", overSpeedCar.getPlace());
+					jo.put("speed", overSpeedCar.getCurrentSpeed());
+					smsInfo.setData(jo.toJSONString());
+					sp.getCarparkInOutService().saveSmsInfo(smsInfo);
+				}
+				if (list.size()>=size) {
+					if (isFixCar) {
+						user.setRemark(user.getRemark()==null?"":(user.getRemark()+";")+"超速"+list.size()+"次");
+						user.setValidTo(null);
+						sp.getCarparkUserService().saveUser(user);
+						sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "用户有效期："+StrUtil.formatDate(user.getValidTo())+",超速"+list.size()+"次,自动删除", "系统操作");
+					}else {
+						SingleCarparkBlackUser bu=sp.getCarparkService().findBlackUserByPlateNO(plateNo);
+						if (bu==null) {
+							bu=new SingleCarparkBlackUser();
+						}
+						bu.setPlateNO(plateNo);
+						bu.setValid(StrUtil.getTodayTopTime(new DateTime(new Date()).plusDays(blackSize).toDate()));
+						bu.setRemark("超速"+list.size()+"次");
+						sp.getCarparkService().saveBlackUser(bu);
+					}
+					for (OverSpeedCar c : list) {
+						c.setProcessState(1);
+						c.setRemark("["+StrUtil.formatDateTime(new Date())+"]已做拉黑或取消授权处理,标记为已处理");
+					}
+					sp.getCarparkInOutService().saveEntity(list);
+				}
+				return list.size();
+			}else if(2==overSpeedCar.getStatus()) {
+				String templateCode = getSystemSetting(SystemSettingTypeEnum.固定车严重超速发送短信);
+				if (isFixCar&&!StrUtil.isEmpty(user.getTelephone())&&!StrUtil.isEmpty(templateCode)) {
+					SmsInfo smsInfo = new SmsInfo();
+					smsInfo.setTel(user.getTelephone());
+					smsInfo.setOverSpeedTime(overSpeedCar.getTime());
+					smsInfo.setUserName(user.getName());
+					smsInfo.setPlate(plateNo);
+					smsInfo.setSpeed(overSpeedCar.getCurrentSpeed());
+					smsInfo.setAddress(overSpeedCar.getPlace());
+					smsInfo.setTemplateCode(templateCode);
+					JSONObject jo=new JSONObject();
+					jo.put("plate", plateNo);
+					jo.put("name", user.getName());
+					jo.put("time", StrUtil.formatDateTime(overSpeedCar.getTime()));
+					jo.put("address", overSpeedCar.getPlace());
+					jo.put("speed", overSpeedCar.getCurrentSpeed());
+					smsInfo.setData(jo.toJSONString());
+					sp.getCarparkInOutService().saveSmsInfo(smsInfo);
+				}
+				
+				map.put(OverSpeedCar.Property.status.name()+"-ge", 1);
+				List<OverSpeedCar> list = sp.getCarparkInOutService().findOverSpeedCarByMap(0, 100, map);
+				if (isFixCar) {
+					if (!booleanSetting(SystemSettingTypeEnum.固定车严重超速取消授权)) {
+						return -1;
+					}
+					user.setRemark(user.getRemark()==null?"":(user.getRemark()+";")+"严重超速");
 					user.setValidTo(null);
 					sp.getCarparkUserService().saveUser(user);
-					sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "用户有效期："+StrUtil.formatDate(user.getValidTo())+",超速"+list.size()+"次,自动删除", "系统操作");
+					sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "用户有效期："+StrUtil.formatDate(user.getValidTo())+",严重超速,自动删除", "系统操作");
 				}else {
+					String systemSetting = getSystemSetting(SystemSettingTypeEnum.临时车严重超速拉黑);
+					int blackSize=Integer.valueOf(systemSetting);
+					if (systemSetting==null||(blackSize=Integer.valueOf(systemSetting))<=0) {
+						return -1;
+					}
 					SingleCarparkBlackUser bu=sp.getCarparkService().findBlackUserByPlateNO(plateNo);
 					if (bu==null) {
 						bu=new SingleCarparkBlackUser();
 					}
 					bu.setPlateNO(plateNo);
 					bu.setValid(StrUtil.getTodayTopTime(new DateTime(new Date()).plusDays(blackSize).toDate()));
-					bu.setRemark("超速"+list.size()+"次");
+					bu.setRemark("严重超速");
 					sp.getCarparkService().saveBlackUser(bu);
 				}
 				for (OverSpeedCar c : list) {
-					c.setStatus(0);
+					c.setProcessState(1);
+					c.setRemark("["+StrUtil.formatDateTime(new Date())+"]已做拉黑或取消授权处理,标记为已处理");
 				}
 				sp.getCarparkInOutService().saveEntity(list);
 			}
-			return list.size();
+			
 		}
 		return -1;
 	}

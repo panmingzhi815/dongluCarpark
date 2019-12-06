@@ -75,7 +75,7 @@ public class OverSpeedCarView extends Composite implements View{
 		
 		Combo combo = new Combo(group, SWT.READ_ONLY);
 		combo.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
-		combo.setItems(new String[] {"全部", "正常", "超速"});
+		combo.setItems(new String[] {"全部", "正常", "超速","严重超速"});
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		combo.select(0);
 		

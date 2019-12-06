@@ -80,7 +80,7 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 			}
 			sp.getCarparkService().saveBlackUser(b);
 			String property = System.getProperty("userName");
-			if (StrUtil.isEmpty(singleCarparkBlackUser.getPlateNO())) {
+			if (StrUtil.isEmpty(singleCarparkBlackUser.getId())) {
 				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.黑名单, "添加黑名单:"+b.getPlateNO(),property);
 			}else{
 				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.黑名单, "修改黑名单:"+b.getPlateNO(),property);

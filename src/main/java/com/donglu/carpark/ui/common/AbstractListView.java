@@ -4,6 +4,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Button;
@@ -16,6 +18,8 @@ import com.dongluhitec.card.domain.util.StrUtil;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Table;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +33,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
@@ -43,7 +48,9 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -76,6 +83,7 @@ public abstract class AbstractListView<T> extends AbstractView {
 	private TableViewerColumn[] tableViewerColumns;
 	private DataBindingContext bindingContext;
 	private Composite composite_tableViewer;
+	private ViewerCell selectedCell;
 
 	public class Model extends DomainObject {
 		/**
@@ -185,6 +193,7 @@ public abstract class AbstractListView<T> extends AbstractView {
 			}
 		});
 		
+		
 		table = tableViewer.getTable();
 		table.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		table.setLinesVisible(true);
@@ -196,12 +205,37 @@ public abstract class AbstractListView<T> extends AbstractView {
 				presenter.mouseDoubleClick(model.selected);
 			}
 		});
+		Menu menu = new Menu(table);
+		MenuItem menuItem = new MenuItem(menu, SWT.NONE);
+		menuItem.setText("复制");
+		menuItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (selectedCell!=null) {
+					String text = selectedCell.getText();
+					if (StrUtil.isEmpty(text)) {
+						return;
+					}
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+				}
+			}
+		});
+		table.setMenu(menu);
 		table.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode==127) {
 					presenter.delete(model.getSelected());
 				}
+			}
+		});
+		table.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				selectedCell = tableViewer.getCell(new Point(e.x, e.y));
+				System.out.println(selectedCell);
+				menuItem.setEnabled(selectedCell!=null&&!StrUtil.isEmpty(selectedCell.getText()));
 			}
 		});
 		tableViewerColumns = new TableViewerColumn[columnProperties.length];

@@ -1,11 +1,18 @@
 package com.donglu.carpark.server.servlet;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jetty.server.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +68,19 @@ public class UserServlet extends BaseDaoServlet implements CarparkUserService, S
         settingService.initData();
         baseDaoService=carparkUserService;
         
+    }
+    
+    @Override
+    public void service(ServletRequest request, ServletResponse response) throws IOException, ServletException {
+    	super.service(request, response);
+    	Request req = (Request)request;
+    	String header = req.getHeader("Authorization");
+    	if (header!=null) {
+    		String string = new String(Base64.getDecoder().decode(header.substring(6)),"UTF-8");
+    		String userName=string.split(":")[0];
+			systemOperaLogService.setLoginUser(userName);
+		}
+    	
     }
 	
 	@Override

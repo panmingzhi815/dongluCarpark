@@ -23,6 +23,7 @@ import org.criteria4jpa.projection.Projections;
 import org.joda.time.DateTime;
 
 import com.donglu.carpark.service.CarparkUserService;
+import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.blservice.DongluServiceException;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkAccountCar;
@@ -32,6 +33,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkLockCar;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyCharge;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkPrepaidUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
@@ -47,10 +49,13 @@ import com.google.inject.persist.UnitOfWork;
 public class CarparkUserServiceImpl extends BaseDaoServiceImpl implements CarparkUserService {
 	
 	@Inject
+	private SystemOperaLogServiceI systemOperaLogService;
+	
+	@Inject
 	public CarparkUserServiceImpl(UnitOfWork unitOfWork, Provider<EntityManager> emprovider) {
 		super(unitOfWork, emprovider);
 	}
-
+	
 	
 	@Override
 	@Transactional
@@ -60,13 +65,19 @@ public class CarparkUserServiceImpl extends BaseDaoServiceImpl implements Carpar
 		if (user.getId() == null) {
 			split=user.getPlateNo().split(",");
 			dom.insert(user);
+			systemOperaLogService.saveOperaLog(SystemOperaLogTypeEnum.固定用户, "添加了用户:"+user.getName()+"-"+user.getPlateNo()+"-"+user.getValitoLabel());
 			if (user.isCreateHistory()) {
 				emprovider.get().persist(new UserHistory(user, UpdateEnum.新添加));
 			}
 		} else {
 			SingleCarparkUser reference = emprovider.get().getReference(SingleCarparkUser.class, user.getId());
+			Object oldName=reference.getName();
+			Object oldPlateNo=reference.getPlateNo();
+			String valitoLabel = reference.getValitoLabel();
 			split=(reference.getPlateNo()+","+user.getPlateNo()).split(",");
 			dom.save(user);
+			getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, String.format("修改了用户:%s->%s %s->%s %s->%s", 
+					oldName,user.getName(),oldPlateNo,user.getPlateNo(),valitoLabel,user.getValitoLabel()));
 			if (user.isCreateHistory()) {
 				emprovider.get().persist(new UserHistory(user,UpdateEnum.被修改));
 			}
@@ -95,6 +106,7 @@ public class CarparkUserServiceImpl extends BaseDaoServiceImpl implements Carpar
 	public Long deleteUser(SingleCarparkUser user) {
 		DatabaseOperation<SingleCarparkUser> dom = DatabaseOperation.forClass(SingleCarparkUser.class, emprovider.get());
 		dom.remove(user.getId());
+		systemOperaLogService.saveOperaLog(SystemOperaLogTypeEnum.固定用户, "删除了用户:"+user.getPlateNo());
 		emprovider.get().persist(new UserHistory(user,UpdateEnum.被删除));
 		String[] split = user.getPlateNo().split(",");
 		for (String string : split) {
@@ -637,5 +649,10 @@ public class CarparkUserServiceImpl extends BaseDaoServiceImpl implements Carpar
 		} finally {
 			unitOfWork.end();
 		}
+	}
+
+
+	public SystemOperaLogServiceI getSystemOperaLogService() {
+		return systemOperaLogService;
 	}
 }

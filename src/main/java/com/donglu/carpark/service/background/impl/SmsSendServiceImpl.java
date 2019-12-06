@@ -18,6 +18,7 @@ import com.donglu.carpark.util.aliyun.AliyunSmsUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SmsInfo;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
+import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 public class SmsSendServiceImpl extends AbstractCarparkBackgroundService implements SmsSendServiceI {
@@ -42,8 +43,9 @@ public class SmsSendServiceImpl extends AbstractCarparkBackgroundService impleme
 				list = sp.getCarparkInOutService().findSmsInfoByStatus(10,new int[] { 3 });
 			}
 			for (SmsInfo smsInfo : list) {
-				if (smsInfo.getTemplateCode()==null) {
+				if (smsInfo.getTemplateCode()==null||StrUtil.isEmpty(smsInfo.getTel())||smsInfo.getTel().length()<11) {
 					smsInfo.setStatus(4);
+					smsInfo.setRemark("格式不正确");
 					sp.getCarparkInOutService().saveSmsInfo(smsInfo);
 				}
 				LOGGER.info("发送短信：{}-{}",smsInfo.getTel(),smsInfo.getData());
@@ -58,7 +60,7 @@ public class SmsSendServiceImpl extends AbstractCarparkBackgroundService impleme
 						sp.getCarparkInOutService().saveSmsInfo(smsInfo);
 					    continue;
 					}
-					smsInfo.setStatus(3);
+					smsInfo.setStatus(4);
 					smsInfo.setRemark(result.getString("Message"));
 				} catch (Exception e) {
 					smsInfo.setStatus(2);
@@ -68,7 +70,7 @@ public class SmsSendServiceImpl extends AbstractCarparkBackgroundService impleme
 			    sp.getCarparkInOutService().saveSmsInfo(smsInfo);
 			}
 		} catch (Exception e) {
-			LOGGER.error("发送短信时发生错误",e);
+			LOGGER.error("发送短信时发生错误"+e);
 		}
 	}
 

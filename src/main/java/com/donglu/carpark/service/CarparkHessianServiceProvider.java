@@ -4,6 +4,7 @@ import com.caucho.hessian.client.HessianProxyFactory;
 import com.donglu.carpark.ui.CarparkClientConfig;
 import com.donglu.carpark.ui.ClientConfigUI;
 import com.donglu.carpark.util.CarparkFileUtils;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.blservice.ShangHaiYunCarParkService;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.*;
@@ -48,7 +49,7 @@ public class CarparkHessianServiceProvider extends AbstractCarparkDatabaseServic
 
     @Override
 	protected void stopServices() {
-        persistService.stop();
+        
     }
 
     public class Model extends AbstractModule {
@@ -67,7 +68,8 @@ public class CarparkHessianServiceProvider extends AbstractCarparkDatabaseServic
 
             HessianProxyFactory factory = new HessianProxyFactory();
             factory.setOverloadEnabled(true);
-            
+            factory.setUser(ConstUtil.getUserName());
+            factory.setPassword("donglu");
             try {
             	this.bind(SettingService.class).toInstance((SettingService) factory.create(SettingService.class, url+"user/"));
             	this.bind(CarparkUserService.class).toInstance((CarparkUserService) factory.create(CarparkUserService.class, url+"user/"));
