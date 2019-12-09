@@ -49,6 +49,7 @@ import com.donglu.carpark.ui.keybord.KeySetting;
 import com.donglu.carpark.ui.keybord.KeySetting.KeyReleaseTypeEnum;
 import com.donglu.carpark.ui.task.CarInTask;
 import com.donglu.carpark.ui.task.CarOutTask;
+import com.donglu.carpark.ui.task.ConfimDialog;
 import com.donglu.carpark.ui.view.DevicePresenter;
 import com.donglu.carpark.ui.view.InInfoPresenter;
 import com.donglu.carpark.ui.view.OutInfoPresenter;
@@ -471,7 +472,9 @@ public class CarparkMainApp extends AbstractApp{
 		shell.addShellListener(new ShellAdapter() {
 			@Override
 			public void shellClosed(ShellEvent e) {
-				boolean confirm = commonui.confirm("退出提示", "确定要退出监控界面！！");
+//				boolean confirm = commonui.confirm("退出提示", "确定要退出监控界面！！");
+				boolean confirm = new ConfimDialog("退出提示", "确定要退出监控界面！！").open();
+				
 				log.info("用户关闭监控端");
 				if (!confirm) {
 					e.doit = false;

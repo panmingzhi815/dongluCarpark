@@ -39,14 +39,16 @@ public class TestCountChargeWizardPage extends WizardPage {
 		
 		DateChooserCombo dateChooserCombo_inTime = new DateChooserCombo(composite_1, SWT.BORDER);
 		
-		DateTime dateTime_inTime = new DateTime(composite_1, SWT.BORDER | SWT.TIME | SWT.SHORT);
+		DateTime dateTime_inTime = new DateTime(composite_1, SWT.BORDER | SWT.TIME | SWT.LONG);
+		dateTime_inTime.setSeconds(0);
 		
 		Label label_1 = new Label(composite_1, SWT.NONE);
 		label_1.setText("出场时间");
 		
 		DateChooserCombo dateChooserCombo_outTime = new DateChooserCombo(composite_1, SWT.BORDER);
 		
-		DateTime dateTime_outTime = new DateTime(composite_1, SWT.BORDER | SWT.TIME | SWT.SHORT);
+		DateTime dateTime_outTime = new DateTime(composite_1, SWT.BORDER | SWT.TIME | SWT.LONG);
+		dateTime_outTime.setSeconds(0);
 		
 		Label label_2 = new Label(composite_1, SWT.NONE);
 		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));

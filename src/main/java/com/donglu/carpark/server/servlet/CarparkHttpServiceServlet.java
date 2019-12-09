@@ -86,6 +86,9 @@ public class CarparkHttpServiceServlet extends HttpServlet {
 		case "/user":
 			userHandle(req,resp);
 			break;
+		case "/visitor":
+			visitorHandle(req,resp);
+			break;
 		case "/openDoor":
 			String ip = req.getParameter("ip");
 			String identifier = req.getParameter("identifier");
@@ -131,6 +134,9 @@ public class CarparkHttpServiceServlet extends HttpServlet {
 			writeMsg(resp, 0, jsonString);
 			break;
 		}
+	}
+	private void visitorHandle(HttpServletRequest req, HttpServletResponse resp) {
+		String type = req.getParameter("type");
 	}
 	private void userHandle(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		String type = req.getParameter("type");

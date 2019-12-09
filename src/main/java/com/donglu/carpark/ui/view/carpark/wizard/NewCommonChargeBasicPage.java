@@ -296,12 +296,7 @@ public class NewCommonChargeBasicPage extends WizardPage {
 				carparkDurationStandard.setStartTime(sTime);
 				carparkDurationStandard.setEndTime(eTime);
 
-				int hours = startTime.getHours();
-				int hours2 = endTime.getHours();
-				if (hours >= hours2)
-					hours2 += 24;
-				int j = hours2 - hours;
-				for (int i = 1; i <= j; i++) {
+				for (int i = 1; i <= 24; i++) {
 					CarparkDurationPrice carparkDurationPrice = new CarparkDurationPrice();
 					carparkDurationPrice.setDurationLength(i);
 					carparkDurationPrice.setDurationLengthPrice(0);

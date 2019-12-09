@@ -1,11 +1,14 @@
 package com.donglu.carpark.ui.view.carpark.wizard;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
+import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
@@ -99,9 +102,17 @@ public class NewCommonChargeWizard extends Wizard implements AbstractWizard {
     	
     	int totalHour = 0;
     	for (CarparkDurationStandard carparkDurationStandard : durationTable) {
-    		totalHour += carparkDurationStandard.getCarparkDurationHoursSize();
+    		if (carparkDurationStandard.getStartTime().equals(carparkDurationStandard.getEndTime())) {
+    			totalHour+=1440;
+    			continue;
+			}
+    		Date endTime = carparkDurationStandard.getEndTime();
+    		if (endTime.before(carparkDurationStandard.getStartTime())) {
+    			endTime=new DateTime(endTime).plusDays(1).toDate();
+			}
+			totalHour += Math.abs(CarparkUtils.countTime(carparkDurationStandard.getStartTime(), endTime, TimeUnit.MINUTES));
 		}
-    	if(totalHour != 24){
+    	if(totalHour != 1440){
     		commonui.error("错误", "时段不完整");
     		return false;
     	}

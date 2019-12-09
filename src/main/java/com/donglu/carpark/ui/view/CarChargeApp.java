@@ -161,7 +161,7 @@ public class CarChargeApp implements App {
 	 * @wbp.parser.entryPoint
 	 */
 	protected void createContents() {
-		shell = new Shell(SWT.ON_TOP|SWT.MIN|SWT.CLOSE);
+		shell = new Shell(task.getPresenter().getView().getShell(),SWT.TOP|SWT.CLOSE);
 		shell.setSize(996, 660);
 		shell.setText("停车收费");
 		shell.setLayout(new GridLayout(1, false));

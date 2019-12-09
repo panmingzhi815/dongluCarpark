@@ -63,7 +63,7 @@ public class ConfimDialog extends Dialog {
 	 */
 	private void createContents() {
 //		shell = new Shell(getParent(), getStyle());
-		shell = new Shell();
+		shell = new Shell(SWT.ON_TOP|SWT.CLOSE);
 		shell.setSize(600, 167);
 		shell.setImage(JFaceUtil.getImage("carpark_32"));
 		shell.setText(getText());
@@ -95,7 +95,7 @@ public class ConfimDialog extends Dialog {
 				shell.close();
 			}
 		});
-		button.setText("确  认");
+		button.setText(" 确  认 ");
 		
 		Label label_1 = new Label(composite_1, SWT.NONE);
 		GridData gd_label_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -111,7 +111,7 @@ public class ConfimDialog extends Dialog {
 				shell.close();
 			}
 		});
-		button_1.setText("取  消");
+		button_1.setText(" 取  消 ");
 		button.setFocus();
 	}
 

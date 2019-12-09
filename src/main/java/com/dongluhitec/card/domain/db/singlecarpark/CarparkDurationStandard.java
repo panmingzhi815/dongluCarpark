@@ -206,6 +206,9 @@ public class CarparkDurationStandard extends DomainObject{
 		}else if (countTime<0) {
 			countTime=countTime*-1;
 		}
+		if (new DateTime(endTime).getMinuteOfHour()-new DateTime(startTime).getMinuteOfHour()!=0) {
+			countTime++;
+		}
 		return countTime;
 	}
 	public String getStartEndLabel(){
