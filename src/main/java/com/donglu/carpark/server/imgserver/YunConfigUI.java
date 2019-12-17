@@ -16,6 +16,8 @@ import com.donglu.carpark.yun.CarparkYunConfig;
 
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 
 public class YunConfigUI {
 
@@ -63,6 +65,13 @@ public class YunConfigUI {
 		shell.setSize(450, 300);
 		shell.setText("云服务上传配置");
 		shell.setLayout(new GridLayout(1, false));
+		shell.addShellListener(new ShellAdapter() {
+			@Override
+			public void shellClosed(ShellEvent e) {
+				e.doit=false;
+				shell.dispose();
+			}
+		});
 		
 		Composite composite = new Composite(shell, SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));

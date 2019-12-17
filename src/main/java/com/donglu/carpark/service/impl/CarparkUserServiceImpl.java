@@ -176,7 +176,8 @@ public class CarparkUserServiceImpl extends BaseDaoServiceImpl implements Carpar
 	@Override
 	public SingleCarparkUser findUserByPlateNo(String plateNO,Long carparkId) {
 		try {
-			SingleCarparkUser user = (SingleCarparkUser) userCache.get("findUserByPlateNo-"+plateNO+"-"+carparkId, new Callable<SingleCarparkUser>() {
+			String key = "findUserByPlateNo-"+plateNO+"-"+carparkId;
+			SingleCarparkUser user = (SingleCarparkUser) userCache.get(key, new Callable<SingleCarparkUser>() {
 				@Override
 				public SingleCarparkUser call() throws Exception {
 					unitOfWork.begin();
@@ -206,6 +207,7 @@ public class CarparkUserServiceImpl extends BaseDaoServiceImpl implements Carpar
 				}
 			});
 			if (user.getId()==null) {
+				userCache.invalidate(key);
 				return null;
 			}
 			return user;

@@ -19,6 +19,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.task.CarInTask;
+import com.donglu.carpark.ui.view.message.MessageUtil;
 import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CarCheckHistory;
@@ -170,13 +171,14 @@ public class CarInCheckApp {
 			System.out.println(showContentToDevice);
 			if (showContentToDevice) {
 				task.getPresenter().saveOpenDoor(task.getDevice(), task.getBigImage(), txt_plate.getText(), true,new Date());
-				cc.setStatus("确认放行");
+				cc.setStatus("手动抬杆");
 	    		sp.getCarparkInOutService().saveEntity(cc);
+	    		task.getPresenter().refreshCarCheck();
+	    		close();
 			}
 		} catch (Exception e) {
-			log.error("手动抬杆时发生错误",e);
-		}finally {
-			close();
+			log.error("入场手动抬杆时发生错误",e);
+			MessageUtil.info("入场手动抬杆时发生错误", e.getMessage());
 		}
 	}
 	private void init() {

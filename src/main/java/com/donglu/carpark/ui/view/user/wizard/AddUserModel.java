@@ -34,10 +34,12 @@ public class AddUserModel extends SingleCarparkUser {
 	public SingleCarparkUser getSingleCarparkUser() {
 		SingleCarparkUser user = new SingleCarparkUser();
 		copy(user);
+		user.setType(userType.name());
 		return user;
 	}
 	public void setSingleCarparkUser(SingleCarparkUser user){
 		user.copy(this);
+		setUserType(UserType.valueOf(user.getType()));
 	}
 
 	public MonthlyUserPayModel getModel() {

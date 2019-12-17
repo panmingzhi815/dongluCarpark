@@ -112,6 +112,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarCheckHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory.PayTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
@@ -3504,7 +3505,14 @@ public class CarparkMainPresenter {
 				log.info("停车记录：{}-{}不存在",plate,parkingRecordId);
 				return;
 			}
-			countCharge(model.getCarpark().getId(), "小车", history.getInTime(), new Date(), history);
+			String carType = "小车";
+			if (history.getPlateColor().contains("黄")&&!history.getPlateNo().contains("学")) {
+				
+				if (model.getMapTempCharge().get("大车")!=null) {
+					carType="大车";
+				}
+			}
+			countCharge(model.getCarpark().getId(), carType, history.getInTime(), new Date(), history);
 		}
 	}
 	/**
@@ -3957,6 +3965,7 @@ public class CarparkMainPresenter {
 		}else {
 			task = new CarOutTask(carCheck.getDeviceIp(), carCheck.getSourcePlate(), ImageUtils.getImageByte(carCheck.getBigImage()), ImageUtils.getImageByte(carCheck.getSmallImage()), model, sp, this, 0f);
 		}
+		model.getMapPlateNoDate().remove(carCheck.getPlate());
 		task.setDate(carCheck.getTime());
 		task.setCarCheck(carCheck);
 		task.run();

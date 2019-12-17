@@ -34,6 +34,7 @@ public class AddVisitorWizard extends Wizard implements AbstractWizard {
 	public boolean performFinish() {
 		page.setErrorMessage(null);
 		model.setValidTo(page.getValidTo());
+		model.setStartTime(page.getStartTime());
 		return true;
 	}
 

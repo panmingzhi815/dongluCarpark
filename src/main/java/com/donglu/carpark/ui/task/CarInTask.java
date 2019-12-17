@@ -409,7 +409,7 @@ public class CarInTask extends AbstractTask {
 			return true;
 		}
 		SingleCarparkVisitor visitor = sp.getCarparkService().findVisitorByPlateAndCarpark(plateNO, carpark);
-		if (visitor == null || visitor.getStatus().equals(VisitorStatus.不可用.name())) {
+		if (visitor == null || visitor.getStatus().equals(VisitorStatus.不可用.name())||(visitor.getStartTime()!=null&&visitor.getStartTime().after(date))) {
 			return true;
 		}
 		Date validTo = visitor.getValidTo();

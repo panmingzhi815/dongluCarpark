@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.CarparkManagePresenter;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
+import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.view.free.wizard.AddTempCarFreeWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -30,7 +31,7 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 	private CarparkDatabaseServiceProvider sp;
 
 
-	private Date start;
+	private Date start=StrUtil.getTodayTopTime(new Date());
 
 	private Date end;
 
@@ -41,6 +42,8 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 	private Boolean isEdit;
 
 	private Integer editPlateSize;
+
+	private double money;
 
 
 	@Override
@@ -74,6 +77,9 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 		map.put("status", status);
 		map.put("editedPlate", isEdit);
 		map.put(CarCheckHistory.Label.editedPlateSize.name()+"-ge", editPlateSize);
+		if (money>0) {
+			map.put(CarCheckHistory.Label.shouldMoney.name() + "-ge", money);
+		}
 		return map;
 	}
 	/**
@@ -110,7 +116,7 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 	}
 	
 
-	public void search(String plateNo, Date start, Date end, String type, String status, Boolean isEdit, Integer editPlateSize) {
+	public void search(String plateNo, Date start, Date end, String type, String status, Boolean isEdit, Integer editPlateSize, double money) {
 		this.plateNo = plateNo;
 		this.start = start;
 		this.end = end;
@@ -118,6 +124,7 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 		this.status = status;
 		this.isEdit = isEdit;
 		this.editPlateSize = editPlateSize;
+		this.money = money;
 		refresh();
 	}
 
@@ -129,9 +136,17 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 	}
 	@Override
 	protected void continue_go() {
-		view.setTableTitle("临时车永久优惠列表");
+		view.setTableTitle("弹窗确认列表");
 		view.setShowMoreBtn(false);
 		refresh();
 	}
-
+	@Override
+	public void mouseDoubleClick(List<CarCheckHistory> list) {
+		if (list.isEmpty()) {
+			return;
+		}
+		CarCheckHistory history = list.get(0);
+		ImageDialog id=new ImageDialog(history.getBigImage());
+		id.open();
+	}
 }

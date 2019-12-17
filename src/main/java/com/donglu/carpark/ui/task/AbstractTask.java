@@ -1,13 +1,10 @@
 package com.donglu.carpark.ui.task;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.ConnectException;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -271,5 +268,13 @@ public abstract class AbstractTask implements Runnable {
 
 	public CarCheckHistory getCarCheck() {
 		return carCheck;
+	}
+
+	public String getCarType() {
+		return carType;
+	}
+
+	public void setCarType(String carType) {
+		this.carType = carType;
 	}
 }

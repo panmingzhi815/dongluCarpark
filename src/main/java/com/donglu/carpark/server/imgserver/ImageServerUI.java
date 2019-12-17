@@ -560,6 +560,7 @@ public class ImageServerUI {
 			}
 			SingleCarparkSystemSetting findSystemSettingByKey2 = sp.getCarparkService().findSystemSettingByKey(SystemSettingTypeEnum.启动HTTP对外服务.name());
 			if (findSystemSettingByKey2 != null) {
+				LOGGER.info("启动HTTP对外服务：{}",findSystemSettingByKey2.getSettingValue());
 				System.setProperty("startHttpService", findSystemSettingByKey2.getSettingValue());
 			}
 			int port = 8899;

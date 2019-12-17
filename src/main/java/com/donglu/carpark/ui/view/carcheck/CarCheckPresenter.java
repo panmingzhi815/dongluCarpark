@@ -16,7 +16,7 @@ public class CarCheckPresenter  extends AbstractPresenter{
 		return listPresenter;
 	}
 	
-	public void search(String plateNo, Date start, Date end, String type, String status, String edit, String editPlateSize) {
+	public void search(String plateNo, Date start, Date end, String type, String status, String edit, String editPlateSize, double money) {
 		if ("全部".equals(type)) {
 			type=null;
 		}
@@ -26,7 +26,7 @@ public class CarCheckPresenter  extends AbstractPresenter{
 		if ("全部".equals(edit)) {
 			edit=null;
 		}
-		listPresenter.search(plateNo,start,end,type,status,edit==null?null:"已修改".equals(edit),StrUtil.isEmpty(editPlateSize)?null:Integer.valueOf(editPlateSize));
+		listPresenter.search(plateNo,start,end,type,status,edit==null?null:"已修改".equals(edit),StrUtil.isEmpty(editPlateSize)?null:Integer.valueOf(editPlateSize),money);
 	}
 	@Override
 	protected CarCheckView createView(Composite c) {

@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -91,7 +92,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				}
 			}
 		} catch (Exception e) {
-			
+			log.debug("初始化在线支付服务时发生错误",e);
 		}
 	}
 	public IpmsServiceImpl() {}
@@ -216,7 +217,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			Files.write(img.toPath(), image);
 			return true;
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.debug("保存上传图片时发生错误");
 		}
 		return false;
 	}
@@ -275,8 +276,10 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			}
 			return result;
 		}catch (Exception e) {
+			log.debug("上传图片时发生错误",e);
 			Integer integer = mapImageUploadErrorSize.getOrDefault(id, 0);
 			if (integer>=10) {
+				log.error("上传图片时发生错误",e);
 				mapImageUploadErrorSize.remove(id);
 				return true;
 			}else{
@@ -396,7 +399,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			}
 			System.out.println(postMssage);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.debug("查询用户信息时发生错误",e);
 		}
 		return null;
 	}
@@ -508,7 +511,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				}
 			}
 		} catch (Exception e) {
-			log.error("更新临时车缴费记录时发生错误",e);
+			log.debug("更新临时车缴费记录时发生错误",e);
 		}
 	}
 	private Long getIdByRecordId(String parkId, String parkingRecordId) {
@@ -530,9 +533,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			log.debug("更新固定用户信息");
 			String url=httpUrl+"/api/pullMonthCard.action?buildingId="+buildindId;
 			
-//			System.out.println(URLDecoder.decode(httpPostMssage(httpUrl+"/api/queryCreatMonthCardData.action?parkId="+parkId+"&type=1&carNum="+URLEncoder.encode("粤BD021W", "UTF-8"), null), "UTF-8"));
-			
 			String httpPostMssage = httpPostMssage(url, null,30000);
+			log.info("获取到月卡数据：{}",httpPostMssage);
 			JSONObject parseObject = JSONObject.parseObject(httpPostMssage);
 			String result = (String) parseObject.get("result");
 			if (!result.equals("success")) {
@@ -549,17 +551,20 @@ public class IpmsServiceImpl implements IpmsServiceI {
 				try {
 					log.info("处理固定车信息：{}",object);
 					JSONObject jo = (JSONObject) object;
+//					jo=JSON.parseObject(new String(Files.readAllBytes(Paths.get("C:\\Users\\hjx\\Desktop\\测试.txt"))));
 					if("delete".equals(jo.getString("operation"))) {
 						String dataId = jo.getString("dataId");
 						if (dataId.startsWith(parkId)) {
 							SingleCarparkUser user=sp.getCarparkUserService().findUserById(Long.valueOf(dataId.replace(parkId, "")));
 							if (user!=null) {
+								log.info("云平台删除用户：{}，同步删除用户：{}",dataId,user);
 								sp.getCarparkUserService().delete(user);
 							}
 						}else {
 							List<SingleCarparkUser> list = sp.getCarparkUserService().find(SingleCarparkUser.class, QueryParameter.eq("yunId", dataId));
-							for (SingleCarparkUser singleCarparkUser : list) {
-								sp.getCarparkUserService().delete(singleCarparkUser);
+							for (SingleCarparkUser user : list) {
+								log.info("云平台删除用户：{}，同步删除用户：{}",dataId,user);
+								sp.getCarparkUserService().delete(user);
 							}
 						}
 						
@@ -580,13 +585,18 @@ public class IpmsServiceImpl implements IpmsServiceI {
 //				Long valueOf = Long.valueOf(id);
 //				user = sp.getCarparkUserService().findUserById(valueOf);
 					user=sp.getCarparkUserService().findUserByPlateNo(po.getString("carNum"), null);
+					SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkByYunIdentifier(po.getString("parkId"));
 					if (user==null) {
 //						String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
 //						httpPostMssage(resultUrl, null);
 //						continue;
 						user=new SingleCarparkUser();
-						user.setCarpark(sp.getCarparkService().findCarparkByYunIdentifier(po.getString("parkId")));
+						user.setCarpark(carpark);
 						user.setCreateHistory(false);
+					}else {
+						if (carpark!=null) {
+							user.setCarpark(carpark);
+						}
 					}
 					user.setName(po.getString("userName"));
 					user.setTelephone(po.getString("userPhone"));
@@ -594,13 +604,14 @@ public class IpmsServiceImpl implements IpmsServiceI {
 					user.setPlateNo(po.getString("carNum"));
 					user.setYunId(po.getString("id"));
 					user.setValidTo(StrUtil.getTodayBottomTime(StrUtil.parseDateTime(tpEndTime)));
-					user.setCarType(getCarType(po.getIntValue("cardType")));
+					user.setCarType(getCarType(po.getIntValue("carType")));
 					user.setCreateHistory(false);
 					sp.getCarparkUserService().saveUser(user);
 					String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
 					httpPostMssage(resultUrl, null);
 				} catch (Exception e) {
 					log.info("处理信息：{}时发生错误：{}",object,e);
+					log.error("",e);
 				}
 			}
 		} catch (Exception e) {
@@ -609,12 +620,10 @@ public class IpmsServiceImpl implements IpmsServiceI {
 	}
 	private CarTypeEnum getCarType(int type) {
 		switch (type) {
-		case 0:
-			
-			break;
+		case 1:
+			return CarTypeEnum.BigCar;
 		case 2:
-			
-			break;
+			return CarTypeEnum.Motorcycle;
 		default:
 			break;
 		}
@@ -694,8 +703,12 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			JSONArray array = new JSONArray();
 			JSONObject e = new JSONObject();
 			e.put("parkId", parkId);
-			e.put("totalCount", tempSlotIsNow);
 			e.put("surplusCount", totalSlotIsNow.intValue());
+			int findTotalFixCarIn = sp.getCarparkInOutService().findTotalFixCarIn(carpark);
+			int monthSlot = sp.getCarparkInOutService().findFixSlotIsNow(carpark);
+			e.put("totalCount", tempSlotIsNow+monthSlot);
+			int i = monthSlot - findTotalFixCarIn;
+			e.put("fixCount", i);
 			array.add(e);
 			Map<String, Object> maps=new HashMap<>();
 			String jsonString = array.toJSONString();
@@ -878,7 +891,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		if (StrUtil.isEmpty(actionUrl)) {
 			return null;
 		}
-		log.debug("准备对地址：["+actionUrl+"]发送消息:"+parameters);
+		log.debug("准备对地址：["+actionUrl+"]发送消息:{}",parameters);
 		URL url = new URL(actionUrl);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setReadTimeout(readTimeOut);

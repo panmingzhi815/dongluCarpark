@@ -30,6 +30,7 @@ public class CarCheckView extends Composite implements View{
 	private Composite listComposite;
 	private Text txt_plate;
 	private Text text;
+	private Text text_1;
 
 	public CarCheckView(Composite parent, int style) {
 		super(parent, style);
@@ -38,7 +39,7 @@ public class CarCheckView extends Composite implements View{
 		Group group = new Group(this, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		group.setLayout(new GridLayout(15, false));
+		group.setLayout(new GridLayout(9, false));
 		
 		Label label_1 = new Label(group, SWT.NONE);
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -53,7 +54,7 @@ public class CarCheckView extends Composite implements View{
 		
 		Label label = new Label(group, SWT.NONE);
 		label.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label.setText("时间");
+		label.setText("起始时间");
 		
 		CDateTime dateTime_startTime = new CDateTime(group, CDT.BORDER);
 		GridData gd_dateTime_startTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -63,50 +64,16 @@ public class CarCheckView extends Composite implements View{
 		dateTime_startTime.setSelection(StrUtil.getTodayTopTime(new Date()));
 		dateTime_startTime.setPattern("yyyy-MM-dd HH:mm:ss");
 		
-		Label label_2 = new Label(group, SWT.NONE);
-		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_2.setText("-");
-		
-		CDateTime dateTime_endTime = new CDateTime(group, CDT.BORDER);
-		GridData gd_dateTime_endTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_dateTime_endTime.widthHint = 160;
-		dateTime_endTime.setLayoutData(gd_dateTime_endTime);
-		dateTime_endTime.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		dateTime_endTime.setPattern("yyyy-MM-dd HH:mm:ss");
-		dateTime_endTime.setSelection(StrUtil.getTodayBottomTime(new Date()));
-		
 		Label label_3 = new Label(group, SWT.NONE);
 		label_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_3.setText("类型");
+		label_3.setText("弹窗类型");
 		
 		Combo combo_type = new Combo(group, SWT.READ_ONLY);
 		combo_type.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		combo_type.setItems(new String[] {"全部", "进场", "出场"});
 		combo_type.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		combo_type.select(0);
-		
-		Label label_4 = new Label(group, SWT.NONE);
-		label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_4.setText("状态");
-		
-		Combo combo_status = new Combo(group, SWT.READ_ONLY);
-		combo_status.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		combo_status.setItems(new String[] {"全部", "确认中", "取消确认", "确认放行"});
-		combo_status.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		combo_status.select(0);
-		
-		Label label_5 = new Label(group, SWT.NONE);
-		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label_5.setText("修改车牌");
-		
-		Combo combo_editPlate = new Combo(group, SWT.READ_ONLY);
-		combo_editPlate.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		combo_editPlate.setItems(new String[] {"全部", "已修改", "未修改"});
-		combo_editPlate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		combo_editPlate.select(0);
 		
 		Label label_6 = new Label(group, SWT.NONE);
 		label_6.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
@@ -120,22 +87,74 @@ public class CarCheckView extends Composite implements View{
 		text.setLayoutData(gd_text);
 		
 		Button button = new Button(group, SWT.NONE);
+		button.setText("查询");
+		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		
+		Label label_4 = new Label(group, SWT.NONE);
+		label_4.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_4.setText("状态");
+		
+		Combo combo_status = new Combo(group, SWT.READ_ONLY);
+		combo_status.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		combo_status.setItems(new String[] {"全部", "确认中", "取消确认", "确认放行","手动抬杆"});
+		combo_status.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		combo_status.select(0);
+		
+		Label label_2 = new Label(group, SWT.NONE);
+		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_2.setText("截止时间");
+		
+		CDateTime dateTime_endTime = new CDateTime(group, CDT.BORDER);
+		GridData gd_dateTime_endTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_dateTime_endTime.widthHint = 160;
+		dateTime_endTime.setLayoutData(gd_dateTime_endTime);
+		dateTime_endTime.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		dateTime_endTime.setPattern("yyyy-MM-dd HH:mm:ss");
+		dateTime_endTime.setSelection(StrUtil.getTodayBottomTime(new Date()));
+		
+		Label label_5 = new Label(group, SWT.NONE);
+		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_5.setText("修改车牌");
+		
+		Combo combo_editPlate = new Combo(group, SWT.READ_ONLY);
+		combo_editPlate.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		combo_editPlate.setItems(new String[] {"全部", "已修改", "未修改"});
+		combo_editPlate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		combo_editPlate.select(0);
+		
+		Label label_7 = new Label(group, SWT.NONE);
+		label_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_7.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_7.setText("收费金额");
+		
+		text_1 = new Text(group, SWT.BORDER);
+		text_1.setText("0");
+		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		new Label(group, SWT.NONE);
+		
+		listComposite = new Composite(this, SWT.NONE);
+		listComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		listComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
-					getPresenter().search(txt_plate.getText(),dateTime_startTime.getSelection(),dateTime_endTime.getSelection(),combo_type.getText(),combo_status.getText(),combo_editPlate.getText(),text.getText());
+					double money=0;
+					try {
+						money = Double.valueOf(text_1.getText());
+					} catch (Exception e1) {
+						
+					}
+					getPresenter().search(txt_plate.getText(),dateTime_startTime.getSelection(),dateTime_endTime.getSelection(),combo_type.getText(),combo_status.getText(),combo_editPlate.getText(),text.getText(),money);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 			}
 		});
-		button.setText("查询");
-		button.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		
-		listComposite = new Composite(this, SWT.NONE);
-		listComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		listComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
 	}
 
 	@Override

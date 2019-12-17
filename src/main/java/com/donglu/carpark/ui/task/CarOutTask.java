@@ -555,7 +555,7 @@ public class CarOutTask extends AbstractTask{
 	}
 	private boolean visitorCarOut(){
 		SingleCarparkVisitor visitor = sp.getCarparkService().findVisitorByPlateAndCarpark(plateNO, carpark);
-		if (visitor==null||visitor.getStatus().equals(VisitorStatus.不可用.name())||visitor.getOutNeedCharge()) {
+		if (visitor==null||visitor.getStatus().equals(VisitorStatus.不可用.name())||visitor.getOutNeedCharge()||(visitor.getStartTime()!=null&&visitor.getStartTime().after(date))) {
 			return true;
 		}
 		boolean flag=false;
@@ -868,8 +868,11 @@ public class CarOutTask extends AbstractTask{
 						}
 					}
 				}
-				String carType = getCarType(singleCarparkInOutHistory);
+				carType = getCarType(singleCarparkInOutHistory);
 				if (carType==null) {
+					cch.setChargeTime(chargeTime);
+					presenter.stopCharge();
+					new CarChargeApp(this).open();
 					return;
 				}
 				shouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carType, inTime, chargeTime,cch);

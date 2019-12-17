@@ -953,7 +953,7 @@ public class CarparkServiceImpl implements CarparkService {
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkVisitor.class);
 			if (!StrUtil.isEmpty(carpark)) {
-				c.add(Restrictions.eq(SingleCarparkVisitor.Property.carpark.name(), carpark));
+				c.add(Restrictions.or(Restrictions.eq(SingleCarparkVisitor.Property.carpark.name(), carpark),Restrictions.isNull(SingleCarparkVisitor.Property.carpark.name())));
 			}
 			if (!StrUtil.isEmpty(plateNo)) {
 				c.add(Restrictions.like(SingleCarparkVisitor.Property.plateNO.name(), plateNo,MatchMode.ANYWHERE));

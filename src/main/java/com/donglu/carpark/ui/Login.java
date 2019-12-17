@@ -134,7 +134,7 @@ public class Login {
 					InjectorUtil.setInjector(injector);
 					System.out.println("窗口打开==="+(System.nanoTime()-nanoTime));
 					window.open();
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					e.printStackTrace();
 					LOGGER.error("main is error",e);
 				}
@@ -147,22 +147,6 @@ public class Login {
 	 */
 	public void open() {
 		long nanoTime = System.nanoTime();
-		try {
-			File f = new File(MONITOR_TEMP);
-			if (f.exists()) {
-				f.delete();
-			}
-			f = new File(SYSTEM_TEMP);
-			if (f.exists()) {
-				f.delete();
-			}
-			f = new File(CONCENTRATE_TEMP);
-			if (f.exists()) {
-				f.delete();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		Display display = Display.getDefault();
 		createContents();
 		WidgetUtil.center(shell);
@@ -205,6 +189,28 @@ public class Login {
 		System.out.println("system is exit");
 	}
 
+	/**
+	 * 
+	 */
+	public void deleteTempFile() {
+		try {
+			File f = new File(MONITOR_TEMP);
+			if (f.exists()) {
+				f.delete();
+			}
+			f = new File(SYSTEM_TEMP);
+			if (f.exists()) {
+				f.delete();
+			}
+			f = new File(CONCENTRATE_TEMP);
+			if (f.exists()) {
+				f.delete();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void init() {
 		carparkManageApp=injector.getInstance(CarparkManageApp.class);
 		carparkMainApp=injector.getInstance(CarparkMainApp.class);
@@ -213,6 +219,7 @@ public class Login {
 		commonui=injector.getInstance(CommonUIFacility.class);
 		concentrateApp=injector.getInstance(ConcentrateApp.class);
 		cbo_userName.setFocus();
+		LOGGER.info("软件版本：{}-{}",SystemSettingTypeEnum.软件版本.getDefaultValue(),SystemSettingTypeEnum.发布时间.getDefaultValue());
 	}
 
 	/**
@@ -382,6 +389,7 @@ public class Login {
 	 * 
 	 */
 	public void login() {
+		deleteTempFile();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {

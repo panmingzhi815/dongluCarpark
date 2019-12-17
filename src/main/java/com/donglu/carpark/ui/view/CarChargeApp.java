@@ -13,7 +13,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.joda.time.DateTime;
 
+import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
+import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.keybord.KeySetting;
 import com.donglu.carpark.ui.keybord.KeySetting.KeyReleaseTypeEnum;
@@ -21,6 +23,7 @@ import com.donglu.carpark.ui.task.CarOutTask;
 import com.donglu.carpark.ui.view.hand.HandSearchPresenter;
 import com.donglu.carpark.ui.view.message.MessageUtil;
 import com.donglu.carpark.ui.wizard.PresenterWizard;
+import com.donglu.carpark.util.CarparkUtils;
 import com.donglu.carpark.util.ImageUtils;
 import com.donglu.carpark.util.InjectorUtil;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -28,8 +31,11 @@ import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.db.singlecarpark.CarCheckHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -50,11 +56,11 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.widgets.TabFolder;
@@ -71,6 +77,7 @@ import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.swt.widgets.Combo;
 
 @Slf4j
 public class CarChargeApp implements App {
@@ -117,6 +124,7 @@ public class CarChargeApp implements App {
 	private CarCheckHistory cc;
 	
 	private boolean open=true;
+	private Combo combo_carType;
 
 	/**
 	 * Launch the application.
@@ -329,6 +337,59 @@ public class CarChargeApp implements App {
 		txt_fact.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
 		txt_fact.setText("0");
 		txt_fact.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label lbl_carType = new Label(composite, SWT.NONE);
+		lbl_carType.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		GridData gd_lbl_carType = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		lbl_carType.setLayoutData(gd_lbl_carType);
+		lbl_carType.setText("车流类型");
+		
+		combo_carType = new Combo(composite, SWT.READ_ONLY);
+		combo_carType.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.BOLD));
+		GridData gd_combo_carType = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		combo_carType.setLayoutData(gd_combo_carType);
+		combo_carType.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String carparkCarType2 = combo_carType.getText();
+				if (carparkCarType2.equals("请选择车型")) {
+					return;
+				}
+				SingleCarparkInOutHistory h = task.getCch();
+				SingleCarparkDevice device = task.getDevice();
+				if (StrUtil.isEmpty(h)) {
+					return;
+				}
+				Date inTime = h.getInTime();
+				Date outTime = h.getOutTime();
+				CarparkMainPresenter presenter = task.getPresenter();
+				CarparkMainModel model = presenter.getModel();
+				float countShouldMoney = presenter.countShouldMoney(device.getCarpark().getId(), carparkCarType2, inTime, outTime, h);
+				String totalTime = StrUtil.MinusTime2(inTime, outTime);
+				log.info("等待收费：车辆{}，停车场{}，车辆类型{}，进场时间{}，出场时间{}，停车：{}，应收费：{}元", h.getPlateNo(), device.getCarpark(), carparkCarType2, h.getInTime(),
+						h.getOutTime(), totalTime,
+						countShouldMoney);
+				presenter.showContentToDevice(h.getPlateNo(), device,
+						CarparkUtils.getCarStillTime(totalTime) + CarparkUtils.formatFloatString("请缴费" + countShouldMoney + "元"), false);
+				cch.setShouldMoney(countShouldMoney);
+				Float chargedMoney = cch.getFactMoney();
+				h.setShouldMoney(countShouldMoney);
+				if (countShouldMoney - chargedMoney > 0 && device.getScreenType().equals(ScreenTypeEnum.一体机) && model.booleanSetting(SystemSettingTypeEnum.无车牌时使用二维码进出场)) {
+					if (device.getIsHandCharge()) {
+						model.getMapWaitInOutHistory().put(device.getIp(), h);
+						presenter.qrCodeInOut(h.getPlateNo(), device, false, h, "缴费" + countShouldMoney + "元,请在黄线外扫码付费");
+						return;
+					}
+				}
+				task.setCarType(carparkCarType2);
+				init();
+			}
+		});
+		boolean isManyCharge=task.getPresenter().getModel().getMapTempCharge().keySet().size()<=1;
+		gd_lbl_carType.exclude=isManyCharge;
+		gd_combo_carType.exclude=isManyCharge;
+		
+		
 		new Label(composite, SWT.NONE);
 		
 		Composite composite_3 = new Composite(composite, SWT.NONE);
@@ -445,13 +506,17 @@ public class CarChargeApp implements App {
 			boolean showContentToDevice = task.getPresenter().showContentToDevice("手动开闸", task.getDevice(), task.getPresenter().getModel().getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			if (showContentToDevice) {
 				task.getPresenter().saveOpenDoor(task.getDevice(), task.getBigImage(), txt_plate.getText(), true,new Date());
-				cc.setStatus("确认放行");
+				cc.setStatus("手动抬杆");
+				if (cch!=null) {
+					cc.setShouldMoney(cch.getShouldMoney().doubleValue());
+				}
 	    		sp.getCarparkInOutService().saveEntity(cc);
+	    		task.getPresenter().refreshCarCheck();
+	    		close();
 			}
 		} catch (Exception e) {
-			log.error("手动抬杆时发生错误",e);
-		}finally {
-			close();
+			log.error("出场手动抬杆时发生错误",e);
+			MessageUtil.info("出场手动抬杆时发生错误", e.getMessage());
 		}
 	}
 	protected void handSearch() {
@@ -496,12 +561,17 @@ public class CarChargeApp implements App {
 	private void init() {
 		try {
 			shell.setText(task.getEditPlateNo()+"停车收费");
+			Set<String> carTypes = task.getPresenter().getModel().getMapTempCharge().keySet();
+			List<String> listCarTypes = new ArrayList<>();
+			listCarTypes.add("请选择车型");
+			listCarTypes.addAll(carTypes);
+			combo_carType.setItems(listCarTypes.toArray(new String[listCarTypes.size()]));
 			Set<String> plates=new HashSet<>();
 			if (user!=null) {
 				txt_userName.setText(user.getName());
 				txt_userPlate.setText(user.getPlateNo());
 				txt_userPlate.setToolTipText(user.getPlateNo());
-				txt_slotNo.setText(user.getParkingSpace());
+				txt_slotNo.setText(user.getParkingSpace()==null?"":user.getParkingSpace());
 				txt_valid.setText(user.getValitoLabel());
 				plates.addAll(Arrays.asList(user.getName().split(",")));
 			}else {
@@ -528,6 +598,11 @@ public class CarChargeApp implements App {
 				txt_paid.setText(String.valueOf(cch.getFactMoney()));
 				txt_fact.setText(String.valueOf(cch.getShouldMoney()-cch.getFactMoney()));
 				ImageUtils.setBackgroundImage(ImageUtils.getImageByte(cch.getBigImg()), lbl_inImage,cch.getBigImg());
+				if (task.getCarType()!=null) {
+					combo_carType.setText(task.getCarType());
+				}else {
+					combo_carType.select(0);
+				}
 			}
 			ImageUtils.setBackgroundImage(task.getBigImage(), lbl_outImage,task.getBigImgFileName());
 			if ((cc=task.getCarCheck())==null) {
@@ -543,6 +618,7 @@ public class CarChargeApp implements App {
 				Long saveEntity = sp.getCarparkInOutService().saveEntity(cc);
 				cc.setId(saveEntity);
 				task.getPresenter().getModel().addCarChecks(Arrays.asList(cc));
+				task.setCarCheck(cc);
 			}
 			task.getPresenter().getModel().getMapInOutWindow().put(task.getPlateNO(), this);
 			KeySetting keySetting = KeySetting.read();
@@ -595,6 +671,9 @@ public class CarChargeApp implements App {
 			if (cch==null) {
 				return;
 			}
+			if (task.getCarType()==null) {
+				return;
+			}
 			boolean chargeCarPass = task.getPresenter().chargeCarPass(task.getDevice(), cch, true, cch.getShouldMoney(), cch.getFactMoney(), 0, false);
 			if (chargeCarPass) {
 				updateCheckStatus("确认放行");
@@ -609,6 +688,9 @@ public class CarChargeApp implements App {
 	protected void charge() {
 		try {
 			if (cch==null) {
+				return;
+			}
+			if (task.getCarType()==null) {
 				return;
 			}
 			boolean chargeCarPass = task.getPresenter().chargeCarPass(task.getDevice(), cch, true, cch.getShouldMoney(), cch.getFactMoney(), Float.valueOf(txt_fact.getText()), false);
@@ -628,6 +710,8 @@ public class CarChargeApp implements App {
 	public void updateCheckStatus(String s) {
 		cc.setPlate(txt_plate.getText());
 		cc.setEditedPlate(!cc.getSourcePlate().equals(txt_plate.getText()));
+		cc.setShouldMoney(Double.valueOf(txt_should.getText()));
+		cc.setCarType(task.getCarType());
 		cc.setStatus(s);
 		sp.getCarparkInOutService().saveEntity(cc);
 	}

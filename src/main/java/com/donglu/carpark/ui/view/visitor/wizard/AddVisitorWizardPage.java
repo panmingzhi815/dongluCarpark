@@ -45,6 +45,8 @@ public class AddVisitorWizardPage extends WizardPage {
 	private DateChooserCombo dateChooserCombo;
 	private DateTime dateTime;
 	private Button button;
+	private DateChooserCombo dateChooserCombo_startTime;
+	private DateTime dateTime_startTime;
 
 	
 	/**
@@ -121,10 +123,31 @@ public class AddVisitorWizardPage extends WizardPage {
 		gd_text_4.widthHint = 150;
 		txt_carNO.setLayoutData(gd_text_4);
 		
+		Label label_2 = new Label(composite, SWT.NONE);
+		label_2.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_2.setText("起始时间");
+		
+		Composite composite_2 = new Composite(composite, SWT.NONE);
+		GridLayout gl_composite_2 = new GridLayout(2, false);
+		gl_composite_2.marginHeight = 0;
+		gl_composite_2.marginWidth = 0;
+		gl_composite_2.horizontalSpacing = 0;
+		composite_2.setLayout(gl_composite_2);
+		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		dateChooserCombo_startTime = new DateChooserCombo(composite_2, SWT.BORDER);
+		dateChooserCombo_startTime.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		dateChooserCombo_startTime.setValue(model.getStartTime());
+		
+		dateTime_startTime = new DateTime(composite_2, SWT.BORDER | SWT.TIME | SWT.SHORT);
+		dateTime_startTime.setMinutes(0);
+		dateTime_startTime.setHours(0);
+		dateTime_startTime.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		
 		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
 		lblNewLabel_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_1.setText("时间限制");
+		lblNewLabel_1.setText("截止时间");
 		
 		Composite composite_1 = new Composite(composite, SWT.NONE);
 		GridLayout gl_composite_1 = new GridLayout(2, false);
@@ -140,6 +163,7 @@ public class AddVisitorWizardPage extends WizardPage {
 		dateChooserCombo.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		
 		dateTime = new DateTime(composite_1, SWT.BORDER | SWT.TIME | SWT.SHORT);
+		dateTime.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		dateTime.setHours(23);
 		dateTime.setMinutes(59);
 		
@@ -176,6 +200,15 @@ public class AddVisitorWizardPage extends WizardPage {
 			dateTime.setHours(hours);
 			dateTime.setMinutes(minute);
 		}
+		if (model.getStartTime()!=null) {
+			Date validTo = model.getStartTime();
+			Calendar c = Calendar.getInstance();
+			c.setTime(validTo);
+			int hours = c.get(Calendar.HOUR_OF_DAY);
+			int minute = c.get(Calendar.MINUTE);
+			dateTime_startTime.setHours(hours);
+			dateTime_startTime.setMinutes(minute);
+		}
 	}
 	
 	public Date getValidTo(){
@@ -185,6 +218,17 @@ public class AddVisitorWizardPage extends WizardPage {
 			c.setTime(date);
 			c.set(Calendar.HOUR_OF_DAY, dateTime.getHours());
 			c.set(Calendar.MINUTE, dateTime.getMinutes());
+			return c.getTime();
+		}
+		return date;
+	}
+	public Date getStartTime() {
+		Date date = dateChooserCombo_startTime.getValue();
+		if (date!=null) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(date);
+			c.set(Calendar.HOUR_OF_DAY, dateTime_startTime.getHours());
+			c.set(Calendar.MINUTE, dateTime_startTime.getMinutes());
 			return c.getTime();
 		}
 		return date;

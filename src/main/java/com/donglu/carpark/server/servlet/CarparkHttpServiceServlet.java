@@ -19,6 +19,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -28,12 +30,13 @@ import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 
 public class CarparkHttpServiceServlet extends HttpServlet {
-
+	private Logger LOGGER=LoggerFactory.getLogger(CarparkHttpServiceServlet.class);
 	/**
 	 * 
 	 */
@@ -52,7 +55,7 @@ public class CarparkHttpServiceServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String pathInfo = req.getPathInfo();
-		System.out.println("pathInfo=="+pathInfo);
+		LOGGER.info("接收到请求pathInfo={}",pathInfo);
 		switch (pathInfo) {
 		case "/carpark":
 			carparkHandle(req,resp);
@@ -135,8 +138,79 @@ public class CarparkHttpServiceServlet extends HttpServlet {
 			break;
 		}
 	}
-	private void visitorHandle(HttpServletRequest req, HttpServletResponse resp) {
-		String type = req.getParameter("type");
+	private void visitorHandle(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		try {
+			String type = req.getParameter("type");
+			String plate = req.getParameter("plate");
+			if (type==null||plate==null) {
+				writeMsg(resp, -1, "未传必传的参数");
+				return;
+			}
+			String valid = req.getParameter("endTime");
+			String startTime = req.getParameter("startTime");
+			String times = req.getParameter("times");
+			String parkId = req.getParameter("parkId");
+			String name = req.getParameter("name");
+			String tel = req.getParameter("tel");
+			switch (type) {
+			case "update":
+				List<SingleCarparkVisitor> list = sp.getCarparkService().findVisitorByLike(0, 10, null, plate);
+				if (list.isEmpty()) {
+					SingleCarparkCarpark carpark = null;
+					if (parkId!=null) {
+						try {
+							carpark = sp.getCarparkService().findCarparkById(Long.valueOf(parkId));
+						} catch (Exception e) {
+							
+						}
+						if (carpark==null) {
+							carpark=sp.getCarparkService().findCarparkByYunIdentifier(parkId);
+						}
+					}
+					SingleCarparkVisitor v = new SingleCarparkVisitor();
+					v.setPlateNO(plate);
+					v.setValidTo(StrUtil.parse(valid, "yyyyMMddHHmmss"));
+					v.setStartTime(StrUtil.parse(startTime, "yyyyMMddHHmmss"));
+					if (!StrUtil.isEmpty(times)) {
+						v.setAllIn(Integer.valueOf(times));
+					}
+					v.setCarpark(carpark);
+					v.setStatus(SingleCarparkVisitor.VisitorStatus.可用.name());
+					v.setName(name);
+					v.setTelephone(tel);
+					sp.getCarparkService().saveVisitor(v);
+					writeMsg(resp, 0, "添加成功");
+				}else {
+					for (SingleCarparkVisitor v : list) {
+						v.setPlateNO(plate);
+						v.setValidTo(StrUtil.parse(valid, "yyyyMMddHHmmss"));
+						v.setStartTime(StrUtil.parse(startTime, "yyyyMMddHHmmss"));
+						if (!StrUtil.isEmpty(times)) {
+							v.setAllIn(Integer.valueOf(times));
+						}
+						v.setStatus(SingleCarparkVisitor.VisitorStatus.可用.name());
+						v.setName(name);
+						v.setTelephone(tel);
+						sp.getCarparkService().saveVisitor(v);
+					}
+					writeMsg(resp, 0, "更新成功");
+				}
+				break;
+			case "delete":
+				list = sp.getCarparkService().findVisitorByLike(0, 10, null, plate);
+				for (SingleCarparkVisitor singleCarparkVisitor : list) {
+					sp.getCarparkService().deleteVisitor(singleCarparkVisitor);
+				}
+				writeMsg(resp, 0, "删除成功");
+				break;
+			default:
+				writeMsg(resp, 1, "错误的type");
+				break;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			writeMsg(resp, 1, e.getMessage());
+		}
 	}
 	private void userHandle(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		String type = req.getParameter("type");
@@ -259,7 +333,7 @@ public class CarparkHttpServiceServlet extends HttpServlet {
 		jo.put("code", code);
 		jo.put("result", msg);
 		String string = jo.toString();
-		System.out.println(string);
+		LOGGER.info("返回消息：{}",string);
 		os.write(string.getBytes("UTF-8"));
 		os.flush();
 	}

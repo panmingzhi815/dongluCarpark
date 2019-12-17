@@ -1,13 +1,8 @@
 package com.donglu.carpark.service.background.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -26,12 +21,9 @@ import com.dongluhitec.card.domain.db.singlecarpark.haiyu.ProcessEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UpdateEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.haiyu.UserHistory;
 import com.dongluhitec.card.domain.util.StrUtil;
-import com.google.common.io.Files;
-import com.google.common.util.concurrent.Service;
 import com.google.inject.Inject;
 
 public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService implements IpmsSynchroServiceI {
-	private static final String IMPS_USER_SAVE_HISTORY = "impsUserSaveHistory";
 	private CarparkDatabaseServiceProvider sp;
 	private IpmsServiceI ipmsService;
 	private ScheduledExecutorService uploadHistoryExecutorService;
@@ -40,7 +32,7 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 
 	@Inject
 	public IpmsSynchroServiceImpl(IpmsServiceI ipmsService,CarparkDatabaseServiceProvider sp) {
-		super(Scheduler.newFixedDelaySchedule(20, 10, TimeUnit.SECONDS), "ipms信息同步服务");
+		super(Scheduler.newFixedDelaySchedule(20, 120, TimeUnit.SECONDS), "ipms信息同步服务");
 		this.ipmsService = ipmsService;
 		this.sp = sp;
 		uploadHistoryExecutorService = ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {

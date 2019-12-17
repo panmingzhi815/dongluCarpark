@@ -83,7 +83,9 @@ public class ConfimDialog extends Dialog {
 		label.setAlignment(SWT.CENTER);
 		label.setText(message);
 		Composite composite_1 = new Composite(shell, SWT.NONE);
-		composite_1.setLayout(new GridLayout(3, false));
+		GridLayout gl_composite_1 = new GridLayout(3, false);
+		gl_composite_1.marginBottom = 5;
+		composite_1.setLayout(gl_composite_1);
 		composite_1.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false, false, 1, 1));
 		
 		Button button = new Button(composite_1, SWT.NONE);
@@ -95,7 +97,7 @@ public class ConfimDialog extends Dialog {
 				shell.close();
 			}
 		});
-		button.setText(" 确  认 ");
+		button.setText("  确  认  ");
 		
 		Label label_1 = new Label(composite_1, SWT.NONE);
 		GridData gd_label_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -111,7 +113,7 @@ public class ConfimDialog extends Dialog {
 				shell.close();
 			}
 		});
-		button_1.setText(" 取  消 ");
+		button_1.setText("  取  消  ");
 		button.setFocus();
 	}
 
