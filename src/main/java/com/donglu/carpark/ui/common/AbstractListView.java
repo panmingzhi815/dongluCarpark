@@ -207,12 +207,33 @@ public abstract class AbstractListView<T> extends AbstractView {
 		});
 		Menu menu = new Menu(table);
 		MenuItem menuItem = new MenuItem(menu, SWT.NONE);
-		menuItem.setText("复制");
+		menuItem.setText("复制单元格内容");
 		menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (selectedCell!=null) {
 					String text = selectedCell.getText();
+					if (StrUtil.isEmpty(text)) {
+						return;
+					}
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+				}
+			}
+		});
+		MenuItem menuItem_copyRow = new MenuItem(menu, SWT.NONE);
+		menuItem_copyRow.setText("复制整行内容");
+		menuItem_copyRow.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (selectedCell!=null) {
+					int columnCount = selectedCell.getViewerRow().getColumnCount();
+					StringBuffer sb=new StringBuffer();
+					for (int i = 0; i < columnCount; i++) {
+						ViewerCell cell = selectedCell.getViewerRow().getCell(i);
+						sb.append(cell.getText());
+						sb.append("\t");
+					}
+					String text = sb.toString();
 					if (StrUtil.isEmpty(text)) {
 						return;
 					}
@@ -234,8 +255,7 @@ public abstract class AbstractListView<T> extends AbstractView {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				selectedCell = tableViewer.getCell(new Point(e.x, e.y));
-				System.out.println(selectedCell);
-				menuItem.setEnabled(selectedCell!=null&&!StrUtil.isEmpty(selectedCell.getText()));
+				menuItem_copyRow.setEnabled(selectedCell!=null&&!StrUtil.isEmpty(selectedCell.getText()));
 			}
 		});
 		tableViewerColumns = new TableViewerColumn[columnProperties.length];

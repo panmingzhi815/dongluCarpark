@@ -15,12 +15,13 @@ public class CarCheckListView extends AbstractListView<CarCheckHistory> {
 						CarCheckHistory.Label.timeLabel.name(),
 						CarCheckHistory.Label.type.name(),
 						CarCheckHistory.Label.status.name(),
+						CarCheckHistory.Label.operaName.name(),
 						CarCheckHistory.Label.editedPlateLabel.name(),
 						CarCheckHistory.Label.sourcePlate.name(),
 						CarCheckHistory.Label.editedPlateSize.name(),
 						CarCheckHistory.Label.shouldMoney.name(),
 				},
-				new String[] { "车牌号", "时间", "类型","状态","是否修改车牌","原车牌","修改车牌数","金额" }, new int[] { 100, 180, 100,100,100,100,150,100,100,100}, null);
+				new String[] { "车牌号", "时间", "类型","状态","操作员","是否修改车牌","原车牌","修改车牌数","金额" }, new int[] { 100, 180, 100,100,100,100,100,150,100,100,100}, null);
 	}
 
 	@Override

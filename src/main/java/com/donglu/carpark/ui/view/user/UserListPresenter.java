@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.service.CarparkService;
 import com.donglu.carpark.service.CarparkUserService;
+import com.donglu.carpark.service.SystemOperaLogServiceI;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.view.user.wizard.AddUserModel;
@@ -190,9 +191,10 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			}else if(user.getType().equals("永久")){
 				user.setValidTo(new DateTime(3000,1,1,1,1,1).toDate());
 			}
-			
+			user.setStartDate(mm.getOldOverDueTime());
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
 			carparkUserService.saveUser(user);
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "添加了用户:"+user.getName()+"-"+user.getPlateNo()+"-"+user.getValitoLabel(),System.getProperty("userName"));
 			commonui.info("操作成功", "保存成功!");
 			refresh();
 		} catch (Exception e) {
@@ -209,8 +211,10 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 				return;
 			}
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
+			SystemOperaLogServiceI systemOperaLogService = sp.getSystemOperaLogService();
 			for (SingleCarparkUser singleCarparkUser : list) {
 				carparkUserService.deleteUser(singleCarparkUser);
+				systemOperaLogService.saveOperaLog(SystemOperaLogTypeEnum.固定用户, "删除了用户:"+singleCarparkUser.getPlateNo(),System.getProperty("userName"));
 			}
 			commonui.info("成功", "删除用户成功");
 			refresh();
@@ -293,6 +297,11 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			if (StrUtil.isEmpty(m)) {
 				return;
 			}
+			if (!StrUtil.formatDate(singleCarparkUser.getValidTo()).equals(StrUtil.formatDate(m.getOldOverDueTime()))&&m.getOldOverDueTime().after(singleCarparkUser.getValidTo())) {
+				singleCarparkUser.setStartDate(m.getOldOverDueTime());
+			}else if(m.getOldOverDueTime().before(singleCarparkUser.getStartDate())) {
+				singleCarparkUser.setStartDate(m.getOldOverDueTime());
+			}
 			singleCarparkUser.setValidTo(m.getOverdueTime());
 			if (singleCarparkUser.getType().equals("普通")) {
 				if (StrUtil.isEmpty(m.getSelectMonth())) {
@@ -321,7 +330,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			SingleCarparkMonthlyUserPayHistory singleCarparkMonthlyUserPayHistory = m.getSingleCarparkMonthlyUserPayHistory();
 			singleCarparkMonthlyUserPayHistory.setParkingSpace(singleCarparkUser.getParkingSpace());
 			sp.getCarparkService().saveMonthlyUserPayHistory(singleCarparkMonthlyUserPayHistory);
-			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了用户:"+singleCarparkUser.getName()+"-"+singleCarparkUser.getValitoLabel(),System.getProperty("userName"));
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, "充值了用户:"+singleCarparkUser.getName(),System.getProperty("userName"));
 			commonui.info("操作成功", "充值成功");
 			refresh();
 		} catch (Exception e) {
@@ -384,6 +393,9 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			CarparkService carparkService = sp.getCarparkService();
 			List<SingleCarparkCarpark> list = carparkService.findAllCarpark();
 			SingleCarparkUser singleCarparkUser = selectList.get(0);
+			Object oldName=singleCarparkUser.getName();
+			Object oldPlateNo=singleCarparkUser.getPlateNo();
+			String valitoLabel = singleCarparkUser.getValitoLabel();
 			AddUserModel addUserModel = new AddUserModel();
 			addUserModel.setAllList(list);
 			addUserModel.setSingleCarparkUser(singleCarparkUser);
@@ -398,6 +410,8 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			CarparkUserService carparkUserService = sp.getCarparkUserService();
 			user.setLastEditDate(new Date());
 			carparkUserService.saveUser(user);
+			sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.固定用户, String.format("修改了用户:%s->%s %s->%s %s->%s", 
+					oldName,user.getName(),oldPlateNo,user.getPlateNo(),valitoLabel,user.getValitoLabel()),System.getProperty("userName"));
 			commonui.info("操作成功", "修改成功!");
 			refresh();
 		} catch (Throwable e) {

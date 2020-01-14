@@ -998,6 +998,7 @@ public class CarparkServiceImpl implements CarparkService {
 			createCriteriaBySingleCarparkMonthlyUserPayHistory(c,userName,plate,address,operaName,start,end);
 			c.setFirstResult(maxResult);
 			c.setMaxResults(size);
+			c.addOrder(Order.desc(SingleCarparkMonthlyUserPayHistory.Property.createTime.name()));
 			return c.getResultList();
 		} finally{
 			unitOfWork.end();

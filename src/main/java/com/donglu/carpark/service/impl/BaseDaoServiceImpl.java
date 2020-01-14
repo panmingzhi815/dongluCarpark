@@ -1,5 +1,6 @@
 package com.donglu.carpark.service.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,6 +33,17 @@ public class BaseDaoServiceImpl implements BaseDaoService {
 	@Override
 	public <T> List<T> find(Class<T> clz, QueryParameter... parameters) {
 		return find(clz, Arrays.asList(parameters));
+	}
+	@Override
+	public <T> T findOne(Class<T> clz, QueryParameter... parameters) {
+		ArrayList<QueryParameter> list = new ArrayList<>(Arrays.asList(parameters));
+		list.add(QueryParameter.firstResult(0));
+		list.add(QueryParameter.maxResult(1));
+		List<T> find = find(clz, list);
+		if (find.isEmpty()) {
+			return null;
+		}
+		return find.get(0);
 	}
 	@Override
 	public Long count(Class<?> clz,QueryParameter... parameters) {
@@ -104,5 +116,6 @@ public class BaseDaoServiceImpl implements BaseDaoService {
 			unitOfWork.end();
 		}
 	}
+
 
 }

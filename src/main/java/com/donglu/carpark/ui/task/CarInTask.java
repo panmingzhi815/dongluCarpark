@@ -629,7 +629,7 @@ public class CarInTask extends AbstractTask {
 		if("免费".equals(user.getType())) {
 			fixCarInMsg = model.getMapVoice().get(DeviceVoiceTypeEnum.免费车进场语音).getContent();
 		}
-		logger.info("过期判断");
+		logger.info("过期判断:{}",validTo);
 		// 过期判断
 		if (date.after(
 				new DateTime(validTo).plusDays(user.getDelayDays() == null ? 0 : user.getDelayDays()).toDate())) {
@@ -695,6 +695,7 @@ public class CarInTask extends AbstractTask {
 					.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费));
 			int fixCarInSize = 0;
 			String inPlates = "";
+			logger.info("固定车车位：{},关联车牌：{}",slot,platesSet);
 			for (String pn : platesSet) {
 				List<SingleCarparkInOutHistory> findHistoryByChildCarparkInOut = null;
 				// 如果找到这俩车的记录，判断这辆车是否为临时车进场，临时车进场则永远为临时车
@@ -733,11 +734,12 @@ public class CarInTask extends AbstractTask {
 				if (StrUtil.isEmpty(findHistoryByChildCarparkInOut)) {
 					continue;
 				}
+				logger.info("场内车：{}",findHistoryByChildCarparkInOut);
 				fixCarInSize++;
 				inPlates += "[" + pn + "]";
 			}
 			if (isFixCarSlotFullAutoBeTemp) {
-				if (slot <= fixCarInSize) {
+				if (fixCarInSize>0&&slot <= fixCarInSize) {
 					setFixCarToTemIn(date, user);
 					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，作临时车进入", isFixCarSlotFullAutoBeTemp,
 							user.getCarparkNo(), fixCarInSize);
@@ -745,7 +747,7 @@ public class CarInTask extends AbstractTask {
 					return tempCarShowToDevice(false);
 				}
 			} else {
-				if (slot <= fixCarInSize) {
+				if (fixCarInSize>0&&slot <= fixCarInSize) {
 					LOGGER.info("固定车车位满作临时车计费设置为{}，用户车位为{}，场内车辆为{}，不允许进入", isFixCarSlotFullAutoBeTemp,
 							user.getCarparkNo(), fixCarInSize);
 					presenter.showContentToDevice(device,
@@ -794,7 +796,7 @@ public class CarInTask extends AbstractTask {
 		}
 		Integer carparkSlot = user.getCarparkSlot();
 		if (user.getCarparkSlotType().equals(CarparkSlotTypeEnum.固定车位)) {
-			LOGGER.debug("车辆{}用户固定车位{},不计算车位", cch.getPlateNo(), carparkSlot);
+			LOGGER.info("车辆{}用户固定车位{},不计算车位", cch.getPlateNo(), carparkSlot);
 			cch.setIsCountSlot(false);
 		} else {
 			cch.setIsCountSlot(true);

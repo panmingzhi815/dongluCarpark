@@ -238,4 +238,8 @@ public class SettingPresenter implements Presenter {
 		return path;
 	}
 
+	public void search(String plate) {
+		listPresenter.search(plate);
+	}
+
 }

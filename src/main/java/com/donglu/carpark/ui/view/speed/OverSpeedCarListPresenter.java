@@ -4,16 +4,26 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.swt.widgets.Composite;
+import org.joda.time.DateTime;
 
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.view.speed.wizard.OverSpeedSettingWizard;
+import com.donglu.carpark.util.ConstUtil;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
 import com.dongluhitec.card.domain.db.singlecarpark.OverSpeedCar;
+import com.dongluhitec.card.domain.db.singlecarpark.QueryParameter;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
@@ -99,6 +109,25 @@ public class OverSpeedCarListPresenter extends AbstractListPresenter<OverSpeedCa
 				}
 				car.setStatus(0);
 				sp.getCarparkInOutService().saveOverSpeedCar(car);
+				sp.getSystemOperaLogService().saveOperaLog(SystemOperaLogTypeEnum.停车场, String.format("修改超速记录[%s-%s]为正常", car.getPlate(),car.getTimeLabel()), ConstUtil.getUserName());
+			}
+			Set<String> set = list.stream().map(e->e.getPlate()).collect(Collectors.toSet());
+			for (String plate : set) {
+				List<SingleCarparkUser> find = sp.getCarparkUserService().find(SingleCarparkUser.class, QueryParameter.eq(SingleCarparkUser.Property.plateNo.name(), plate));
+				SingleCarparkBlackUser blackUser = sp.getCarparkService().findBlackUserByPlateNO(plate);
+				if (blackUser!=null) {
+					sp.getCarparkService().deleteBlackUser(blackUser);
+				}
+				if (!find.isEmpty()) {
+					for (SingleCarparkUser user : find) {
+						List<SingleCarparkMonthlyUserPayHistory> list2 = sp.getCarparkService().findMonthlyUserPayHistoryByCondition(0, 1, null, user.getPlateNo(), null, null, null, null);
+						if (list2.isEmpty()) {
+							continue;
+						}
+						user.setValidTo(list2.get(0).getOverdueTime());
+						sp.getCarparkUserService().saveUser(user);
+					}
+				}
 			}
 			refresh();
 		} catch (Exception e) {

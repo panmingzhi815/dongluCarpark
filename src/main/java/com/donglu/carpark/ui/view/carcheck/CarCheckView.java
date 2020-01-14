@@ -31,6 +31,7 @@ public class CarCheckView extends Composite implements View{
 	private Text txt_plate;
 	private Text text;
 	private Text text_1;
+	private Text txt_operaName;
 
 	public CarCheckView(Composite parent, int style) {
 		super(parent, style);
@@ -39,7 +40,7 @@ public class CarCheckView extends Composite implements View{
 		Group group = new Group(this, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		group.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		group.setLayout(new GridLayout(9, false));
+		group.setLayout(new GridLayout(11, false));
 		
 		Label label_1 = new Label(group, SWT.NONE);
 		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -85,6 +86,15 @@ public class CarCheckView extends Composite implements View{
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		gd_text.widthHint = 58;
 		text.setLayoutData(gd_text);
+		
+		Label label_8 = new Label(group, SWT.NONE);
+		label_8.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		label_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_8.setText("操作员");
+		
+		txt_operaName = new Text(group, SWT.BORDER);
+		txt_operaName.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		txt_operaName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		Button button = new Button(group, SWT.NONE);
 		button.setText("查询");
@@ -134,6 +144,17 @@ public class CarCheckView extends Composite implements View{
 		text_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		new Label(group, SWT.NONE);
+		new Label(group, SWT.NONE);
+		
+		Button button_1 = new Button(group, SWT.NONE);
+		button_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPresenter().export();
+			}
+		});
+		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_1.setText("导出");
 		
 		listComposite = new Composite(this, SWT.NONE);
 		listComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -149,7 +170,7 @@ public class CarCheckView extends Composite implements View{
 					} catch (Exception e1) {
 						
 					}
-					getPresenter().search(txt_plate.getText(),dateTime_startTime.getSelection(),dateTime_endTime.getSelection(),combo_type.getText(),combo_status.getText(),combo_editPlate.getText(),text.getText(),money);
+					getPresenter().search(txt_plate.getText(),dateTime_startTime.getSelection(),dateTime_endTime.getSelection(),combo_type.getText(),combo_status.getText(),combo_editPlate.getText(),text.getText(),money,txt_operaName.getText());
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}

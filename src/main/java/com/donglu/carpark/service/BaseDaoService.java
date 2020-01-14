@@ -9,6 +9,8 @@ import com.dongluhitec.card.domain.db.singlecarpark.QueryParameter;
 public interface BaseDaoService {
 	public <T> List<T> find(Class<T> clz,QueryParameter... parameters);
 	public <T> List<T> find(Class<T> clz,List<QueryParameter> parameters);
+	public <T> T findOne(Class<T> clz,QueryParameter... parameters);
+	
 	Long count(Class<?> clz, QueryParameter... parameters);
 	Long count(Class<?> clz, List<QueryParameter> parameters);
 	Long save(DomainObject model);

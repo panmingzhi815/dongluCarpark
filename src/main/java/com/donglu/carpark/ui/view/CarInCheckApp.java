@@ -20,6 +20,7 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.donglu.carpark.ui.task.CarInTask;
 import com.donglu.carpark.ui.view.message.MessageUtil;
+import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ImageUtils;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.CarCheckHistory;
@@ -172,6 +173,7 @@ public class CarInCheckApp {
 			if (showContentToDevice) {
 				task.getPresenter().saveOpenDoor(task.getDevice(), task.getBigImage(), txt_plate.getText(), true,new Date());
 				cc.setStatus("手动抬杆");
+				cc.setOperaName(ConstUtil.getUserName());
 	    		sp.getCarparkInOutService().saveEntity(cc);
 	    		task.getPresenter().refreshCarCheck();
 	    		close();
@@ -217,6 +219,7 @@ public class CarInCheckApp {
     		cc.setPlate(txt_plate.getText());
     		cc.setEditedPlate(!cc.getSourcePlate().equals(plateNO));
     		cc.setStatus("确认放行");
+    		cc.setOperaName(ConstUtil.getUserName());
     		sp.getCarparkInOutService().saveEntity(cc);
     		log.info("车辆：{}入场确认",txt_plate.getText());
     		if (!cc.getSourcePlate().equals(plateNO)) {

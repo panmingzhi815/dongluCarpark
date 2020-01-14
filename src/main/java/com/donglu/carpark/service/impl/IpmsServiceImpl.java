@@ -46,6 +46,7 @@ import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkMonthlyUserPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser.CarparkSlotTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory.PayTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.util.ThreadUtil;
@@ -256,9 +257,10 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			return false;
 		}
 		try {
-			String url = httpUrl + "/api/syncImgData.action?recordId=" +parkId +id + "";
+			String url = httpUrl + "/api/syncImgData.action";
 			Map<String, Object> map=new HashMap<>();
 			map.put(type, URLEncoder.encode(Base64.getEncoder().encodeToString(image), "UTF-8"));
+			map.put("recordId", parkId +id);
 			String httpPostMssage = postMssage(url, map);
 			log.info("上传图片，结果：{}", httpPostMssage);
 			boolean result = JSONObject.parseObject(httpPostMssage).get("ret").toString().equals("0");
@@ -555,17 +557,20 @@ public class IpmsServiceImpl implements IpmsServiceI {
 					if("delete".equals(jo.getString("operation"))) {
 						String dataId = jo.getString("dataId");
 						if (dataId.startsWith(parkId)) {
-							SingleCarparkUser user=sp.getCarparkUserService().findUserById(Long.valueOf(dataId.replace(parkId, "")));
-							if (user!=null) {
-								log.info("云平台删除用户：{}，同步删除用户：{}",dataId,user);
-								sp.getCarparkUserService().delete(user);
+							try {
+								SingleCarparkUser user=sp.getCarparkUserService().findUserById(Long.valueOf(dataId.replace(parkId, "")));
+								if (user!=null) {
+									log.info("云平台删除用户：{}，同步删除用户：{}",dataId,user);
+									sp.getCarparkUserService().delete(user);
+								}
+							} catch (Exception e) {
+								
 							}
-						}else {
-							List<SingleCarparkUser> list = sp.getCarparkUserService().find(SingleCarparkUser.class, QueryParameter.eq("yunId", dataId));
-							for (SingleCarparkUser user : list) {
-								log.info("云平台删除用户：{}，同步删除用户：{}",dataId,user);
-								sp.getCarparkUserService().delete(user);
-							}
+						}
+						List<SingleCarparkUser> list = sp.getCarparkUserService().find(SingleCarparkUser.class, QueryParameter.eq("yunId", dataId));
+						for (SingleCarparkUser user : list) {
+							log.info("云平台删除用户：{}，同步删除用户：{}",dataId,user);
+							sp.getCarparkUserService().delete(user);
 						}
 						
 						String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
@@ -581,15 +586,13 @@ public class IpmsServiceImpl implements IpmsServiceI {
 					}
 					String tpEndTime = po.getString("tpEndTime");
 					SingleCarparkUser user;
-//				String id = ((String) po.get("id")).replace(parkId, "");
-//				Long valueOf = Long.valueOf(id);
-//				user = sp.getCarparkUserService().findUserById(valueOf);
-					user=sp.getCarparkUserService().findUserByPlateNo(po.getString("carNum"), null);
+
+					user=findUserById(po.getString("id"),po.getString("carNum"));
 					SingleCarparkCarpark carpark = sp.getCarparkService().findCarparkByYunIdentifier(po.getString("parkId"));
+					if (carpark==null) {
+						carpark=sp.getCarparkService().findCarparkTopLevel();
+					}
 					if (user==null) {
-//						String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
-//						httpPostMssage(resultUrl, null);
-//						continue;
 						user=new SingleCarparkUser();
 						user.setCarpark(carpark);
 						user.setCreateHistory(false);
@@ -605,6 +608,10 @@ public class IpmsServiceImpl implements IpmsServiceI {
 					user.setYunId(po.getString("id"));
 					user.setValidTo(StrUtil.getTodayBottomTime(StrUtil.parseDateTime(tpEndTime)));
 					user.setCarType(getCarType(po.getIntValue("carType")));
+					if (4==po.getIntValue("carType")) {
+						user.setCarparkSlotType(CarparkSlotTypeEnum.固定车位);
+						user.setType("免费");
+					}
 					user.setCreateHistory(false);
 					sp.getCarparkUserService().saveUser(user);
 					String resultUrl=httpUrl+"/api/responseResult.action?ids="+jo.getString("id");
@@ -617,6 +624,27 @@ public class IpmsServiceImpl implements IpmsServiceI {
 		} catch (Exception e) {
 			log.error("更新固定用户信息时发生错误"+e);
 		}
+	}
+	private SingleCarparkUser findUserById(String dataId,String plateNo) {
+		if (dataId.startsWith(parkId)) {
+			try {
+				SingleCarparkUser user=sp.getCarparkUserService().findUserById(Long.valueOf(dataId.replace(parkId, "")));
+				if (user!=null) {
+					return user;
+				}
+			} catch (Exception e) {
+				
+			}
+		}
+		List<SingleCarparkUser> list = sp.getCarparkUserService().find(SingleCarparkUser.class, QueryParameter.eq("yunId", dataId));
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+		list = sp.getCarparkUserService().find(SingleCarparkUser.class, QueryParameter.eq(SingleCarparkUser.Property.plateNo.name(), plateNo));
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+		return null;
 	}
 	private CarTypeEnum getCarType(int type) {
 		switch (type) {
@@ -713,6 +741,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			Map<String, Object> maps=new HashMap<>();
 			String jsonString = array.toJSONString();
 			maps.put("data", jsonString);
+			log.info("同步停车场：{} 车位信息：{}",carpark,maps);
 			String mssage = postMssage(url, maps);
 			log.debug("同步停车场：{} 车位信息，结果为：{}",carpark,mssage);
 		} catch (Exception e) {

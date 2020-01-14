@@ -25,7 +25,7 @@ public class SingleCarparkUser extends CarparkDomainObject {
 		carparkSlot,carparkSlotType,monthChargeId,monthChargeName,lastEditDate
 	}
 	public enum Label{
-	valitoLabel,createDateLabel
+	valitoLabel,createDateLabel,startDateLabel
 	}
 	public enum UserType{
 		普通,免费,储值
@@ -64,6 +64,8 @@ public class SingleCarparkUser extends CarparkDomainObject {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastEditDate;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date startDate;
 	
 	@ManyToOne
 	private SingleCarparkCarpark carpark;
@@ -80,6 +82,11 @@ public class SingleCarparkUser extends CarparkDomainObject {
 	public String getCreateDateLabel() {
 		return StrUtil.formatDate(createDate);
 	}
+	
+	public String getStartDateLabel() {
+		return StrUtil.formatDate(getStartDate());
+	}
+	
 	public String getValitoLabel(){
 		return StrUtil.formatDate(validTo, "yyyy-MM-dd");
 	}
@@ -300,6 +307,13 @@ public class SingleCarparkUser extends CarparkDomainObject {
 	}
 	public void setYunId(String yunId) {
 		this.yunId = yunId;
+	}
+	public Date getStartDate() {
+		return startDate==null?createDate:startDate;
+	}
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+		firePropertyChange("startDate", null, null);
 	}
 	
 }

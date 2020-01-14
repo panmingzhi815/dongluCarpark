@@ -24,6 +24,7 @@ import com.donglu.carpark.ui.view.hand.HandSearchPresenter;
 import com.donglu.carpark.ui.view.message.MessageUtil;
 import com.donglu.carpark.ui.wizard.PresenterWizard;
 import com.donglu.carpark.util.CarparkUtils;
+import com.donglu.carpark.util.ConstUtil;
 import com.donglu.carpark.util.ImageUtils;
 import com.donglu.carpark.util.InjectorUtil;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
@@ -510,6 +511,7 @@ public class CarChargeApp implements App {
 				if (cch!=null) {
 					cc.setShouldMoney(cch.getShouldMoney().doubleValue());
 				}
+				cc.setOperaName(ConstUtil.getUserName());
 	    		sp.getCarparkInOutService().saveEntity(cc);
 	    		task.getPresenter().refreshCarCheck();
 	    		close();
@@ -713,6 +715,7 @@ public class CarChargeApp implements App {
 		cc.setShouldMoney(Double.valueOf(txt_should.getText()));
 		cc.setCarType(task.getCarType());
 		cc.setStatus(s);
+		cc.setOperaName(ConstUtil.getUserName());
 		sp.getCarparkInOutService().saveEntity(cc);
 	}
 	protected DataBindingContext initDataBindings() {

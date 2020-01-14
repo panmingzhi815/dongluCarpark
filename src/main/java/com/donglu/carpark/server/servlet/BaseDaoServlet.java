@@ -53,4 +53,9 @@ public class BaseDaoServlet extends HessianServlet implements BaseDaoService {
 		return baseDaoService.countMutil(clz, parameters);
 	}
 
+	@Override
+	public <T> T findOne(Class<T> clz, QueryParameter... parameters) {
+		return baseDaoService.findOne(clz, parameters);
+	}
+
 }

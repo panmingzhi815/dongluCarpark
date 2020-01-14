@@ -13,7 +13,9 @@ import com.donglu.carpark.ui.common.AbstractListPresenter;
 import com.donglu.carpark.ui.common.ImageDialog;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.view.free.wizard.AddTempCarFreeWizard;
+import com.donglu.carpark.util.ExcelImportExportImpl;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.common.ui.CommonUIFacility.Progress;
 import com.dongluhitec.card.domain.db.singlecarpark.CarCheckHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkFreeTempCar;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -44,6 +46,8 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 	private Integer editPlateSize;
 
 	private double money;
+
+	private String operaName;
 
 
 	@Override
@@ -80,6 +84,7 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 		if (money>0) {
 			map.put(CarCheckHistory.Label.shouldMoney.name() + "-ge", money);
 		}
+		map.put("operaName", operaName);
 		return map;
 	}
 	/**
@@ -116,7 +121,7 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 	}
 	
 
-	public void search(String plateNo, Date start, Date end, String type, String status, Boolean isEdit, Integer editPlateSize, double money) {
+	public void search(String plateNo, Date start, Date end, String type, String status, Boolean isEdit, Integer editPlateSize, double money, String operaName) {
 		this.plateNo = plateNo;
 		this.start = start;
 		this.end = end;
@@ -125,6 +130,7 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 		this.isEdit = isEdit;
 		this.editPlateSize = editPlateSize;
 		this.money = money;
+		this.operaName = operaName;
 		refresh();
 	}
 
@@ -137,7 +143,7 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 	@Override
 	protected void continue_go() {
 		view.setTableTitle("弹窗确认列表");
-		view.setShowMoreBtn(false);
+		view.setShowMoreBtn(true);
 		refresh();
 	}
 	@Override
@@ -148,5 +154,30 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 		CarCheckHistory history = list.get(0);
 		ImageDialog id=new ImageDialog(history.getBigImage());
 		id.open();
+	}
+	public void export() {
+		final String path = commonui.selectToSave();
+		if (StrUtil.isEmpty(path)) {
+			return;
+		}
+		new Thread(new Runnable() {
+			public void run() {
+				final List<CarCheckHistory> list = sp.getCarparkInOutService().findByMap(0, Integer.MAX_VALUE, CarCheckHistory.class, getMap());
+				if (StrUtil.isEmpty(list)) {
+					return;
+				}
+				final Progress p = commonui.showProgressBar("导出弹窗确认数据", 0, list.size());
+				try {
+					new ExcelImportExportImpl().export(path, getView().getNameProperties(), getView().getColumnProperties(), list, p.getMonitor());
+					System.out.println("导出完成");
+					commonui.info("提示", "导出成功");
+				} catch (Exception e) {
+					e.printStackTrace();
+					commonui.error("导出时发生错误", e.getMessage());
+				} finally {
+					p.getMonitor().finish();
+				}
+			}
+		}).start();
 	}
 }

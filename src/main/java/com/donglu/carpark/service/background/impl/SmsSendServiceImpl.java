@@ -47,6 +47,7 @@ public class SmsSendServiceImpl extends AbstractCarparkBackgroundService impleme
 					smsInfo.setStatus(4);
 					smsInfo.setRemark("格式不正确");
 					sp.getCarparkInOutService().saveSmsInfo(smsInfo);
+					continue;
 				}
 				LOGGER.info("发送短信：{}-{}",smsInfo.getTel(),smsInfo.getData());
 			    try {
@@ -60,8 +61,13 @@ public class SmsSendServiceImpl extends AbstractCarparkBackgroundService impleme
 						sp.getCarparkInOutService().saveSmsInfo(smsInfo);
 					    continue;
 					}
-					smsInfo.setStatus(4);
+					if ("-1".equals(result.getString("Code"))) {
+						smsInfo.setStatus(3);
+					}else {
+						smsInfo.setStatus(4);
+					}
 					smsInfo.setRemark(result.getString("Message"));
+					Thread.sleep(1000);
 				} catch (Exception e) {
 					smsInfo.setStatus(2);
 					smsInfo.setRemark("发送失败,"+e);

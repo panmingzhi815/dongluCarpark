@@ -10,6 +10,7 @@ import com.donglu.carpark.ui.common.AbstractListView;
 import com.donglu.carpark.ui.common.View;
 import com.donglu.carpark.ui.wizard.AddBlackUserWizard;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
+import com.dongluhitec.card.domain.db.singlecarpark.QueryParameter;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SystemOperaLogTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
@@ -22,6 +23,8 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 	private CommonUIFacility commonui;
 	@Inject
 	private CarparkDatabaseServiceProvider sp;
+
+	private String plate;
 	@Override
 	public void add() {
 		addAndEditBlackUser(new SingleCarparkBlackUser());
@@ -51,7 +54,7 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 
 	@Override
 	public void refresh() {
-		List<SingleCarparkBlackUser> list=sp.getCarparkService().findAllBlackUser();
+		List<SingleCarparkBlackUser> list=sp.getCarparkUserService().find(SingleCarparkBlackUser.class, QueryParameter.like("plateNO", StrUtil.isEmpty(plate)?null:"%"+plate+"%"));
 		AbstractListView<SingleCarparkBlackUser>.Model model = view.getModel();
 		model.setList(list);
 		model.setCountSearch(list.size());
@@ -96,6 +99,10 @@ public class BlackUserListPresenter extends AbstractListPresenter<SingleCarparkB
 		view=new BlackUserListView(c,c.getStyle());
 		view.setTableTitle("黑名单列表");
 		return view;
+	}
+	public void search(String plate) {
+		this.plate = plate;
+		refresh();
 	}
 	
 }

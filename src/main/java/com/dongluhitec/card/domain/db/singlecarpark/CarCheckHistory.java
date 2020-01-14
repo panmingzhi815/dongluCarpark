@@ -20,7 +20,7 @@ import lombok.Value;
 public class CarCheckHistory extends DomainObject {
 	
 	public enum Label{
-		plate,type,timeLabel,sourcePlate,status,editedPlateLabel,editedPlateSize,shouldMoney
+		plate,type,timeLabel,sourcePlate,status,editedPlateLabel,editedPlateSize,shouldMoney,operaName
 	}
 	/**
 	 * 
@@ -40,6 +40,8 @@ public class CarCheckHistory extends DomainObject {
 	private Integer editedPlateSize=0;
 	private Double shouldMoney=0d;
 	private String carType;
+	
+	private String operaName;
 	
 	public String getTimeLabel(){
 		return StrUtil.formatDateTime(time);

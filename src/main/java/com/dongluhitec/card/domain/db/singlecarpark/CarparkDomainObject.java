@@ -16,7 +16,11 @@ public class CarparkDomainObject extends DomainObject {
 			super.initUuid();
 		}
 	}
-
+	/**
+	 * copy self to object
+	 * @param to
+	 * @return
+	 */
 	public <T> T copy(T to) {
 		for (Method method : to.getClass().getMethods()) {
 			String name = method.getName();

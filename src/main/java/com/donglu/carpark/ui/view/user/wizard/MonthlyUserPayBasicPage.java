@@ -145,7 +145,7 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		
 		label_1 = new Label(composite, SWT.NONE);
 		label_1.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
-		label_1.setText("到期时间");
+		label_1.setText("起始时间");
 		
 		dateChooserCombo_start = new DateChooserCombo(composite, SWT.BORDER);
 		dateChooserCombo_start.addSelectionListener(new SelectionAdapter() {
@@ -158,7 +158,7 @@ public class MonthlyUserPayBasicPage extends WizardPage {
 		dateChooserCombo_start.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.NORMAL));
 		dateChooserCombo_start.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		dateChooserCombo_start.setValue(model.getOldOverDueTime());
-		dateChooserCombo_start.setEnabled((ConstUtil.checkPrivilege(SystemUserTypeEnum.超级管理员)||model.getUserId()==null));
+		dateChooserCombo_start.setEnabled((ConstUtil.checkPrivilege(SystemUserTypeEnum.超级管理员)||model.getUserId()==null)||model.getOldOverDueTime().before(new Date()));
 
 		Label label_5 = new Label(composite, SWT.NONE);
 		label_5.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));

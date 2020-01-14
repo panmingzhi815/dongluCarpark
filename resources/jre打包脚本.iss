@@ -1,8 +1,8 @@
 ; 脚本由 Inno Setup 脚本向导 生成！
 ; 有关创建 Inno Setup 脚本文件的详细资料请查阅帮助文档！
 
-#define MyAppName "java虚拟机1.0"
-#define MyAppVersion "1.0"
+#define MyAppName "java虚拟机1.0.1"
+#define MyAppVersion "1.0.1"
 #define MyAppPublisher "东陆高新实业有限公司"
 #define MyAppURL "http://www.dongluhitec.com/"
 
@@ -22,7 +22,7 @@ DefaultDirName={pf}\java
 DefaultGroupName=java虚拟机
 DisableProgramGroupPage=yes
 OutputDir=.
-OutputBaseFilename=java虚拟机1.0
+OutputBaseFilename=java虚拟机1.0.1
 Compression=lzma
 SolidCompression=yes
 AlwaysRestart=yes
