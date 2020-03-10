@@ -61,7 +61,6 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.widgets.TabFolder;
@@ -617,6 +616,7 @@ public class CarChargeApp implements App {
 				cc.setSmallImage(task.getSmallImgFileName());
 				cc.setDeviceIp(task.getDevice().getIp());
 				cc.setDeviceName(task.getDevice().getName());
+				cc.setOperaName(ConstUtil.getUserName());
 				Long saveEntity = sp.getCarparkInOutService().saveEntity(cc);
 				cc.setId(saveEntity);
 				task.getPresenter().getModel().addCarChecks(Arrays.asList(cc));

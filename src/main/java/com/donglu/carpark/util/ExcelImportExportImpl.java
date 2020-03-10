@@ -546,7 +546,7 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 			String string = names[i];
 			HSSFCell createCell = row.createCell(i+1);
 			row.createCell(i).setCellValue(string);
-			columnWidth[i]=string.getBytes("GBK").length;
+			columnWidth[i]=string.getBytes("GBK").length*256;
 		}
 		currentRow++;
 		String string;
@@ -591,7 +591,7 @@ public class ExcelImportExportImpl implements ExcelImportExport {
 			if (i<=0) {
 				continue;
 			}
-			sheet.setColumnWidth(j, i);
+			sheet.setColumnWidth(j, i+256);
 		}
 		FileOutputStream fileOut = new FileOutputStream(path);
 		wb.write(fileOut);

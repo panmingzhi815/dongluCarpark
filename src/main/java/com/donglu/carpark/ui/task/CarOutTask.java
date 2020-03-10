@@ -1007,7 +1007,9 @@ public class CarOutTask extends AbstractTask{
 				presenter.updatePosition(carpark, io, false);
 				presenter.showContentToDevice(editPlateNo,device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
 			}else{
+				LOGGER.info("查找车牌{}最后一次出场记录",editPlateNo);
 				List<SingleCarparkInOutHistory> list = sp.getCarparkInOutService().findHistoryByTimeOrder(0, 1, editPlateNo, null, null, 1);
+				LOGGER.info("查找车牌{}最后一次出场记录完成",editPlateNo);
 				if (!StrUtil.isEmpty(list)) {
 					if (date.getTime()-list.get(0).getOutTime().getTime()<model.intSetting(SystemSettingTypeEnum.支付完成后出场时间)*60*1000) {
 						LOGGER.info("车辆出场时间：{} 未找到进场记录,上次出场时间：{} ,在{} 分钟内 自动放行",date,list.get(0).getOutTime(),model.intSetting(SystemSettingTypeEnum.支付完成后出场时间));

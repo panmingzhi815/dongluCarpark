@@ -199,6 +199,7 @@ public class CarInCheckApp {
 				cc.setSmallImage(task.getSmallImgFileName());
 				cc.setDeviceIp(task.getDevice().getIp());
 				cc.setDeviceName(task.getDevice().getName());
+				cc.setOperaName(ConstUtil.getUserName());
 				Long saveEntity = sp.getCarparkInOutService().saveEntity(cc);
 				cc.setId(saveEntity);
 				model.addCarChecks(Arrays.asList(cc));

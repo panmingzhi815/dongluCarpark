@@ -297,9 +297,7 @@ public class UserListPresenter extends AbstractListPresenter<SingleCarparkUser>{
 			if (StrUtil.isEmpty(m)) {
 				return;
 			}
-			if (!StrUtil.formatDate(singleCarparkUser.getValidTo()).equals(StrUtil.formatDate(m.getOldOverDueTime()))&&m.getOldOverDueTime().after(singleCarparkUser.getValidTo())) {
-				singleCarparkUser.setStartDate(m.getOldOverDueTime());
-			}else if(m.getOldOverDueTime().before(singleCarparkUser.getStartDate())) {
+			if (!StrUtil.formatDate(singleCarparkUser.getValidTo()).equals(StrUtil.formatDate(m.getOldOverDueTime()))) {
 				singleCarparkUser.setStartDate(m.getOldOverDueTime());
 			}
 			singleCarparkUser.setValidTo(m.getOverdueTime());

@@ -84,7 +84,9 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 		if (money>0) {
 			map.put(CarCheckHistory.Label.shouldMoney.name() + "-ge", money);
 		}
-		map.put("operaName", operaName);
+		if (!StrUtil.isEmpty(operaName)) {
+			map.put("operaName", operaName);
+		}
 		return map;
 	}
 	/**
@@ -156,19 +158,19 @@ public class CarCheckListPresenter extends AbstractListPresenter<CarCheckHistory
 		id.open();
 	}
 	public void export() {
-		final String path = commonui.selectToSave();
+		String path = commonui.selectToSave();
 		if (StrUtil.isEmpty(path)) {
 			return;
 		}
 		new Thread(new Runnable() {
 			public void run() {
-				final List<CarCheckHistory> list = sp.getCarparkInOutService().findByMap(0, Integer.MAX_VALUE, CarCheckHistory.class, getMap());
+				List<CarCheckHistory> list = sp.getCarparkInOutService().findByMap(0, Integer.MAX_VALUE, CarCheckHistory.class, getMap());
 				if (StrUtil.isEmpty(list)) {
 					return;
 				}
-				final Progress p = commonui.showProgressBar("导出弹窗确认数据", 0, list.size());
+				Progress p = commonui.showProgressBar("导出弹窗确认数据", 0, list.size());
 				try {
-					new ExcelImportExportImpl().export(path, getView().getNameProperties(), getView().getColumnProperties(), list, p.getMonitor());
+					new ExcelImportExportImpl().export(StrUtil.checkPath(path, new String[] {".xls",".xlsx"}, ".xls"), getView().getNameProperties(), getView().getColumnProperties(), list, p.getMonitor());
 					System.out.println("导出完成");
 					commonui.info("提示", "导出成功");
 				} catch (Exception e) {
