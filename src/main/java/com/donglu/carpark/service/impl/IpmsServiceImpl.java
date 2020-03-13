@@ -726,17 +726,14 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			if (carpark==null) {
 				return;
 			}
-			Integer totalSlotIsNow = sp.getCarparkInOutService().findTotalSlotIsNow(carpark);
-			int tempSlotIsNow = sp.getCarparkInOutService().findTempSlotIsNow(carpark);
+			int tempSlotIsNow = carpark.getLeftTempNumberOfSlot();
 			JSONArray array = new JSONArray();
 			JSONObject e = new JSONObject();
 			e.put("parkId", parkId);
-			e.put("surplusCount", totalSlotIsNow.intValue());
-			int findTotalFixCarIn = sp.getCarparkInOutService().findTotalFixCarIn(carpark);
-			int monthSlot = sp.getCarparkInOutService().findFixSlotIsNow(carpark);
+			e.put("surplusCount",carpark.getLeftTempNumberOfSlot());
+			int monthSlot = carpark.getLeftFixNumberOfSlot();
 			e.put("totalCount", tempSlotIsNow+monthSlot);
-			int i = monthSlot - findTotalFixCarIn;
-			e.put("fixCount", i);
+			e.put("fixCount", monthSlot);
 			array.add(e);
 			Map<String, Object> maps=new HashMap<>();
 			String jsonString = array.toJSONString();
@@ -1025,5 +1022,30 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			log.error("查询支付账单发生错误：{}",e);
 		}
 		return IpmsServiceI.super.findOnlineOrder(start, end);
+	}
+	
+	public void updateSlot(SingleCarparkCarpark carpark,int temp,int fix,int total) {
+		try {
+			log.debug("同步停车场车位信息。");
+			String url=httpUrl+"/api/syncParkSpace.action";
+			if (carpark==null) {
+				return;
+			}
+			JSONArray array = new JSONArray();
+			JSONObject e = new JSONObject();
+			e.put("parkId", parkId);
+			e.put("surplusCount",temp);
+			e.put("totalCount", total);
+			e.put("fixCount", fix);
+			array.add(e);
+			Map<String, Object> maps=new HashMap<>();
+			String jsonString = array.toJSONString();
+			maps.put("data", jsonString);
+			log.info("同步停车场：{} 车位信息：{}",carpark,maps);
+			String mssage = postMssage(url, maps);
+			log.debug("同步停车场：{} 车位信息，结果为：{}",carpark,mssage);
+		} catch (Exception e) {
+			log.error("同步停车场车位信息时发生错误！");
+		}
 	}
 }

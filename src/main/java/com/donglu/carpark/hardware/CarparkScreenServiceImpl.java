@@ -25,8 +25,6 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 		if (device==null) {
 			return true;
 		}
-		String address = device.getLink().getAddress();
-		System.out.println(address);
 		byte[] bs=new byte[194];
 		bs[0]=(byte) type;
 		byte[] bytes = content.getBytes();
@@ -180,7 +178,7 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 	}
     
     void println(String s){
-    	System.out.println(s);
+    	LOGGER.debug(s);
     	if(log!=null){
     		log.log(s);
     	}
@@ -271,8 +269,6 @@ public class CarparkScreenServiceImpl implements CarparkScreenService {
 		if (voice==null||voice.trim().isEmpty()) {
 			return showCarparkQrCode(device, type, qrCode);
 		}
-		String address = device.getLink().getAddress();
-		System.out.println(address);
 		byte[] bs=new byte[194];
 		bs[0]=(byte) type;
 		byte[] bytes = qrCode.getBytes();

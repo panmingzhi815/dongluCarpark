@@ -69,8 +69,9 @@ public enum SystemSettingTypeEnum {
 	固定车严重超速发送短信(""),
 	
 	支付完成后出场时间("15"),
-	DateBase_version("1.0.0.31"),软件版本("1.0.0.32"),发布时间("2020-01-07 10:30:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
-	启动短信发送服务("false"), 短信服务appid(""), 短信服务appsecret(""), 短信签名(""), 短信模板(""),    
+	DateBase_version("1.0.0.31"),软件版本("1.0.0.33"),发布时间("2020-03-13 16:20:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
+	启动短信发送服务("false"), 短信服务appid(""), 短信服务appsecret(""), 短信签名(""), 短信模板(""), 
+	手动开闸更改车位("true"),    
 	;
 	
 	private String defaultValue;

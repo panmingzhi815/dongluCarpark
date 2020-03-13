@@ -1886,7 +1886,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		try {
 			Criteria c = CriteriaUtils.createCriteria(emprovider.get(), SingleCarparkInOutHistory.class);
 			if (!StrUtil.isEmpty(plate)) {
-				c.add(Restrictions.like(SingleCarparkInOutHistory.Property.plateNo.name(), plate));
+				c.add(Restrictions.eq(SingleCarparkInOutHistory.Property.plateNo.name(), plate));
 			}
 			if (begin != null) {
 				String name = SingleCarparkInOutHistory.Property.inTime.name();
@@ -1906,7 +1906,7 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 			if (timeType != 0) {
 				name = SingleCarparkInOutHistory.Property.outTime.name();
 			}
-			c.addOrder(Order.desc("id"));
+			c.addOrder(Order.desc(name));
 			c.setFirstResult(start);
 			c.setMaxResults(size);
 			return c.getResultList();

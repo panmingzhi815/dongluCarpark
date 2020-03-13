@@ -21,6 +21,7 @@ public class SingleCarparkOpenDoorLog extends DomainObject{
 	private String deviceName;
 	private String image;
 	private String plateNo;
+	private String type;
 	
 	public String getOperaName() {
 		return operaName;
@@ -63,5 +64,11 @@ public class SingleCarparkOpenDoorLog extends DomainObject{
 	}
 	public void setPlateNo(String plateNo) {
 		this.plateNo = plateNo;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+	public String getType() {
+		return type;
 	}
 }

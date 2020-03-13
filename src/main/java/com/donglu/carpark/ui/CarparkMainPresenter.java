@@ -66,7 +66,7 @@ import com.donglu.carpark.service.impl.CarparkQrCodeInOutServiceImpl;
 import com.donglu.carpark.service.impl.CountTempCarChargeImpl;
 import com.donglu.carpark.ui.common.App;
 import com.donglu.carpark.ui.common.ImageDialog;
-import com.donglu.carpark.ui.servlet.OpenDoorServlet;
+import com.donglu.carpark.ui.servlet.OpenDoorSocketServer;
 import com.donglu.carpark.ui.servlet.WebSocketClient;
 import com.donglu.carpark.ui.task.AbstractTask;
 import com.donglu.carpark.ui.task.CarInOutResult;
@@ -112,7 +112,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.CameraTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.CarCheckHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory.PayTypeEnum;
-import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkOffLineHistory;
 import com.dongluhitec.card.domain.db.singlecarpark.CarparkStillTime;
@@ -209,6 +208,8 @@ public class CarparkMainPresenter {
 	private Map<String, Timer> mapCheckChargeTimer=new HashMap<>();
 	
 	Cache<String, Double> feeCache = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build();
+	
+	Map<String,SingleCarparkOpenDoorLog> mapOpenDoorLog=new HashMap<>();
 	/**
 	 * 删除一个设备tab页
 	 * 
@@ -1193,8 +1194,6 @@ public class CarparkMainPresenter {
 					}
 					Boolean carparkContentVoiceAndOpenDoor = hardwareService.carparkContentVoiceAndOpenDoorWithDelay(d, content, device.getVolume() == null ? 1 : device.getVolume(), openDoorDelay);
 					return carparkContentVoiceAndOpenDoor;
-				} else {
-					openDoor(device);
 				}
 			} else {
 				if (d != null) {
@@ -1560,6 +1559,7 @@ public class CarparkMainPresenter {
 		String oldUserName = ConstUtil.getUserName();
 		SingleCarparkSystemUser systemUser = showWizard.getSystemUser();
 		String userName = systemUser.getUserName();
+		sp.getSystemUserService().login(userName, systemUser.getPassword(), StrUtil.getHostIp());
 		System.setProperty("userName", userName);
 		System.setProperty("userType", systemUser.getType());
 
@@ -1604,6 +1604,40 @@ public class CarparkMainPresenter {
 //		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
 //		//贵A56G17贵JRJ927
 //		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
+	}
+	public void handOpenDoor(String ip) {
+		handOpenDoor(ip, true,null,null);
+	}
+	public void handOpenDoor(String ip,boolean isOpenDoor,String type,String userName) {
+		log.info("设备：{} 手动开闸：{}",ip,isOpenDoor);
+		SingleCarparkDevice device = mapIpToDevice.get(ip);
+		if(device==null) {
+			return;
+		}
+		String content = model.getMapVoice().get(DeviceVoiceTypeEnum.出口开闸语音).getContent();
+		if(device.getInOrOut().contains("进口")) {
+			content = model.getMapVoice().get(DeviceVoiceTypeEnum.进口开闸语音).getContent();
+		}
+		showContentToDevice("手动开闸", device, content, isOpenDoor);
+		SingleCarparkOpenDoorLog openDoor = new SingleCarparkOpenDoorLog();
+		openDoor.setOperaDate(new Date());
+		openDoor.setDeviceName(device.getName());
+		openDoor.setType(type);
+		if (StrUtil.isEmpty(type)) {
+			openDoor.setType("远程开闸");
+		}
+		openDoor.setOperaName(userName);
+		if (StrUtil.isEmpty(userName)) {
+			openDoor.setOperaName(CarparkUtils.getUserName());
+		}
+		Long id = sp.getCarparkInOutService().saveOpenDoorLog(openDoor);
+		openDoor.setId(id);
+		mapOpenDoorLog.put(ip, openDoor);
+		model.getMapOpenDoor().put(ip, true);
+		handPhotograph(ip);
+		if (model.booleanSetting(SystemSettingTypeEnum.手动开闸更改车位)) {
+			updatePosition(device.getCarpark(), null, device.getInOrOut().contains("进口"));
+		}
 	}
 
 	/**
@@ -1728,7 +1762,7 @@ public class CarparkMainPresenter {
 		}, 60 - DateTime.now().getSecondOfMinute(), 60, TimeUnit.SECONDS,"检查设备是否限时");
 		
 		if (mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录).equals("true")) {
-			CarparkUtils.startServer(10002, "/*", new OpenDoorServlet(this));
+			new OpenDoorSocketServer(this, 10002).start();
 		}
 		
 		startShowInHistoryTask();
@@ -2268,21 +2302,21 @@ public class CarparkMainPresenter {
 				String fileName = StrUtil.formatDate(date, "yyyyMMddHHmmssSSS");
 				String bigImgFileName = fileName + "_" + plateNO + "_big.jpg";
 				saveImage(folder, bigImgFileName, image);
-				SingleCarparkOpenDoorLog openDoor = new SingleCarparkOpenDoorLog();
-				openDoor.setOperaName(CarparkUtils.getUserName());
+				SingleCarparkOpenDoorLog openDoor = mapOpenDoorLog.remove(device.getIp());
+				if (openDoor==null) {
+					openDoor = new SingleCarparkOpenDoorLog();
+				}
+				if(StrUtil.isEmpty(openDoor.getOperaName())) {
+					openDoor.setOperaName(CarparkUtils.getUserName());
+				}
 				openDoor.setOperaDate(date);
 				openDoor.setImage(bigImgFileName);
 				openDoor.setDeviceName(device.getName());
 				openDoor.setPlateNo(plateNO);
-				openDoor.setOperaDate(time);
+				if (time!=null) {
+					openDoor.setOperaDate(time);
+				}
 				sp.getCarparkInOutService().saveOpenDoorLog(openDoor);
-//				log.info("对设备{}，地址{}-{}开闸", device.getName(), device.getLinkAddress(), device.getAddress());
-//				showPlateNOToDevice(device, "手动开闸");
-//				if (inOrOut) {
-//					showContentToDevice("手动开闸",device, model.getMapVoice().get(DeviceVoiceTypeEnum.进口开闸语音).getContent(), false);
-//				} else {
-//					showContentToDevice("手动开闸",device, model.getMapVoice().get(DeviceVoiceTypeEnum.出口开闸语音).getContent(), false);
-//				}
 			}
 		};
 		openDoorTheadPool.submit(runnable);

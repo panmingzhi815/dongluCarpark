@@ -13,7 +13,6 @@ import org.eclipse.swt.widgets.Text;
 
 import com.donglu.carpark.server.CarparkServerConfig;
 import com.donglu.carpark.server.imgserver.FileuploadSend;
-import com.donglu.carpark.ui.keybord.KeySetting;
 import com.donglu.carpark.ui.keybord.SWTKeySettingApp;
 import com.donglu.carpark.util.CarparkFileUtils;
 import com.dongluhitec.card.common.ui.CommonUIFacility;

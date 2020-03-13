@@ -14,10 +14,7 @@ import com.donglu.carpark.model.CarparkMainModel;
 import com.donglu.carpark.ui.CarparkMainPresenter;
 import com.donglu.carpark.ui.common.Presenter;
 import com.dongluhitec.card.common.ui.CommonUIFacility;
-import com.dongluhitec.card.domain.db.singlecarpark.DeviceVoiceTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice;
-import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
-import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
@@ -88,37 +85,22 @@ public class DevicePresenter  implements Presenter{
 		view.controlItem(dispose);
 	}
 	public void openDoor() {
+		String ip="";
 		try {
 			CTabItem selection = view.getTabFolder().getSelection();
 			if (StrUtil.isEmpty(selection)) {
 				return;
 			}
-			String ip = model.getMapDeviceTabItem().get(selection);
-			
-			SingleCarparkDevice device = model.getMapIpToDevice().get(ip);
-//			presenter.openDoor(device);
-			if (device.getInOrOut().contains("进口")) {
-				if (model.booleanSetting(SystemSettingTypeEnum.临时车弹窗确认)) {
-					return;
-				}
-				presenter.showContentToDevice("手动开闸", device, model.getMapVoice().get(DeviceVoiceTypeEnum.进口开闸语音).getContent(), true);
-			}else {
-				if (model.booleanSetting(SystemSettingTypeEnum.出场收费弹窗显示)) {
-					return;
-				}
-				presenter.showContentToDevice("手动开闸", device, model.getMapVoice().get(DeviceVoiceTypeEnum.出口开闸语音).getContent(), true);
+			ip = model.getMapDeviceTabItem().get(selection);
+			if (!checkStatus(ip)) {
+				log.info("设备已停用");
+				return;
 			}
-//			if (model.equalsSetting(SystemSettingTypeEnum.抬杆自动收费放行,"true")&&model.getMapWaitInOutHistory().get(ip)!=null) {
-//				SingleCarparkInOutHistory data = model.getMapWaitInOutHistory().get(ip);
-//				presenter.charge(false, true, data, device);
-//			}else{
-//				presenter.showContentToDevice("手动开闸", device, model.getMapVoice().get(DeviceVoiceTypeEnum.临时车出场语音).getContent(), true);
-//			}
 			model.getMapOpenDoor().put(ip, true);
-			presenter.handPhotograph(ip);
-			model.getMapHandPhotograph().put(ip, new Date());
+			presenter.handOpenDoor(ip);
 		} catch (Exception e) {
 			log.error("设备开闸时发生错误",e);
+			model.getMapOpenDoor().put(ip, false);
 		}
 	}
 	public void closeDoor() {

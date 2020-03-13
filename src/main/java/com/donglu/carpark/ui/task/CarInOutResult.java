@@ -28,7 +28,6 @@ import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import ch.qos.logback.core.joran.conditional.IfAction;
 
 @Singleton
 public class CarInOutResult implements PlateNOResult {

@@ -3,7 +3,6 @@ package com.donglu.carpark.ui.wizard;
 import org.eclipse.jface.wizard.Wizard;
 import org.joda.time.DateTime;
 
-import com.donglu.carpark.util.CarparkUtils;
 import com.dongluhitec.card.common.ui.AbstractWizard;
 import com.dongluhitec.card.common.ui.uitl.JFaceUtil;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkBlackUser;

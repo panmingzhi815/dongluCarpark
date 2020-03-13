@@ -109,10 +109,10 @@ public class ConstUtil {
 		return false;
 	}
 	public static String getUserName() {
-		String string = mapCache.get(USER_NAME);
-		if (string!=null) {
-			return string;
-		}
+//		String string = mapCache.get(USER_NAME);
+//		if (string!=null) {
+//			return string;
+//		}
 		String property = System.getProperty(USER_NAME);
 		mapCache.put(USER_NAME, property);
 		return property;

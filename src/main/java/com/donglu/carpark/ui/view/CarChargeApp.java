@@ -81,7 +81,6 @@ import org.eclipse.swt.widgets.Combo;
 
 @Slf4j
 public class CarChargeApp implements App {
-	private DataBindingContext m_bindingContext;
 	public class Model extends DomainObject{
 		private static final long serialVersionUID = 1L;
 		private List<SingleCarparkInOutHistory> list=new ArrayList<>();
@@ -498,7 +497,7 @@ public class CarChargeApp implements App {
 		tableColumn_4.setWidth(200);
 		tableColumn_4.setText("备注");
 		init();
-		m_bindingContext = initDataBindings();
+		initDataBindings();
 	}
 
 	protected void openDoor() {

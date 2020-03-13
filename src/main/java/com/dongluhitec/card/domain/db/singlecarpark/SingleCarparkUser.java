@@ -10,7 +10,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import com.dongluhitec.card.domain.db.DomainObject;
 import com.dongluhitec.card.domain.util.StrUtil;
 
 @Entity

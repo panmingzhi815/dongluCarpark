@@ -315,6 +315,18 @@ public class SettingView extends Composite implements View {
 		button_43.setText("临时车入场确认弹窗确认");
 		button_43.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车弹窗确认)));
 
+		Button button_46 = new Button(group, SWT.CHECK);
+		button_46.setToolTipText("只有显示实时车位才有效");
+		button_46.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mapSystemSetting.put(SystemSettingTypeEnum.手动开闸更改车位, button_46.getSelection() + "");
+			}
+		});
+		button_46.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_46.setText("手动开闸更新车位");
+		button_46.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.手动开闸更改车位)));
+
 		Button button_44 = new Button(group, SWT.CHECK);
 		button_44.setToolTipText("勾选后出场收费会弹出窗口确认，监控界面不能直接抬杆，要抓拍后才能抬杆。");
 		button_44.addSelectionListener(new SelectionAdapter() {
@@ -327,10 +339,9 @@ public class SettingView extends Composite implements View {
 		button_44.setText("出场收费弹窗收费");
 		button_44.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.出场收费弹窗显示)));
 		new Label(group, SWT.NONE);
-		new Label(group, SWT.NONE);
 
 		Composite composite_2 = new Composite(group, SWT.NONE);
-		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
+		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 3, 1));
 		composite_2.setLayout(new GridLayout(4, false));
 
 		Label label = new Label(composite_2, SWT.NONE);

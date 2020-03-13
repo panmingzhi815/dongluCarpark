@@ -1,6 +1,5 @@
 package com.donglu.carpark.util;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
 
 import java.io.BufferedReader;
 import java.io.File;

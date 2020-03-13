@@ -40,7 +40,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.dongluhitec.card.ui.main.DongluUIAppConfigurator;
 import com.dongluhitec.card.ui.util.WidgetUtil;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import org.eclipse.wb.swt.SWTResourceManager;

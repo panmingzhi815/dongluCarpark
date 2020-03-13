@@ -318,11 +318,11 @@ public class CarInTask extends AbstractTask {
 					StrUtil.isEmpty(editPlateNo) ? plateNO : editPlateNo, cch.getBigImg());
 		}
 		Long saveInOutHistory = sp.getCarparkInOutService().saveInOutHistory(cch);
+		LOGGER.info("保存车牌：{}的进场记录到数据库成功:{}", plateNO,saveInOutHistory);
 		presenter.plateSubmit(cch, date, device, bigImage);
 		cch.setId(saveInOutHistory);
 		model.addInHistorys(cch);
 		model.setInHistorySelect(cch);
-		LOGGER.info("保存车牌：{}的进场记录到数据库成功:{}", plateNO,saveInOutHistory);
 		model.getMapCameraLastImage().put(ip, cch.getBigImg());
 		presenter.showContentToDevice(editPlateNo,device, content, isOpenDoor);
 		presenter.updatePosition(carpark, cch, true);
