@@ -290,6 +290,7 @@ public class SettingView extends Composite implements View {
 			}
 		});
 		button_23.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_23.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.保存遥控开闸记录)));
 		button_23.setText("保存遥控开闸记录");
 
 		Button button_39 = new Button(group, SWT.CHECK);
@@ -696,7 +697,7 @@ public class SettingView extends Composite implements View {
 			}
 		});
 		button_3.setToolTipText("选中后，停车场车位满允许固定免费车进");
-		button_3.setText("车位满是否允许固定车入场");
+		button_3.setText("车位满允许普通固定车入场");
 		button_3.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_3.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场)));
 
@@ -723,19 +724,17 @@ public class SettingView extends Composite implements View {
 		button_7.setText("固定车出场是否需要确认");
 		button_7.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
 		button_7.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车出场确认)));
-
-		Button button_9 = new Button(composite_14, SWT.CHECK);
-		button_9.addSelectionListener(new SelectionAdapter() {
+		
+		Button button_47 = new Button(composite_14, SWT.CHECK);
+		button_47.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.固定车车位满作临时车计费, button_9.getSelection() + "");
+				mapSystemSetting.put(SystemSettingTypeEnum.车位满是否允许普通车入场, button_47.getSelection() + "");
 			}
 		});
-		button_9.setToolTipText("选择之后，固定用户车位停满后再进车就会当作临时车计费，否则固定车车位满就不允许进入");
-		button_9.setText("固定车车位满作临时车计费");
-		button_9.setSelection(false);
-		button_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_9.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费)));
+		button_47.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+		button_47.setText("车位满允许免费固定车入场");
+		button_47.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许普通车入场)));
 
 		Button button_24 = new Button(composite_14, SWT.CHECK);
 		button_24.setToolTipText("选择后固定车到期后作临时车计费，否则到期后不允许进入。默认选中");
@@ -790,20 +789,32 @@ public class SettingView extends Composite implements View {
 		button_28.setText("固定车到期提醒");
 		button_28.setToolTipText("选择后，固定车即将到期或到期后会在管理界面提醒");
 		button_28.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车到期提醒)));
-
-		Button button_42 = new Button(composite_14, SWT.CHECK);
-		button_42.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapSystemSetting.put(SystemSettingTypeEnum.车位满临时车收费到固定车出场, String.valueOf(button_42.getSelection()));
-			}
-		});
-		button_42.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
-		button_42.setText("车位满计费到固定车出场");
-		button_42.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满临时车收费到固定车出场)));
-		button_42.setToolTipText("固定车车位满做临时车进场时计费直到前一辆固定车出场,不选一直计费到出场,跟场内换车有冲突");
-		new Label(composite_14, SWT.NONE);
-		new Label(composite_14, SWT.NONE);
+				
+						Button button_42 = new Button(composite_14, SWT.CHECK);
+						button_42.addSelectionListener(new SelectionAdapter() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								mapSystemSetting.put(SystemSettingTypeEnum.车位满临时车收费到固定车出场, String.valueOf(button_42.getSelection()));
+							}
+						});
+						button_42.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+						button_42.setText("车位满计费到固定车出场");
+						button_42.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满临时车收费到固定车出场)));
+						button_42.setToolTipText("固定车车位满做临时车进场时计费直到前一辆固定车出场,不选一直计费到出场,跟场内换车有冲突");
+				
+						Button button_9 = new Button(composite_14, SWT.CHECK);
+						button_9.addSelectionListener(new SelectionAdapter() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								mapSystemSetting.put(SystemSettingTypeEnum.固定车车位满作临时车计费, button_9.getSelection() + "");
+							}
+						});
+						button_9.setToolTipText("选择之后，固定用户车位停满后再进车就会当作临时车计费，否则固定车车位满就不允许进入");
+						button_9.setText("固定车车位满作临时车计费");
+						button_9.setSelection(false);
+						button_9.setFont(SWTResourceManager.getFont("微软雅黑", 12, SWT.NORMAL));
+						button_9.setSelection(Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.固定车车位满作临时车计费)));
+						new Label(composite_14, SWT.NONE);
 
 		Composite composite_11 = new Composite(group_3, SWT.NONE);
 		composite_11.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));

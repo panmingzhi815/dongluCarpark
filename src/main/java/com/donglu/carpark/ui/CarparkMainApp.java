@@ -438,7 +438,7 @@ public class CarparkMainApp extends AbstractApp{
 						presenter.showNowTimeToDevice(singleCarparkDevice);
 						presenter.showNowTimeToCamera(singleCarparkDevice);
 					} catch (Exception e) {
-						e.printStackTrace();
+						log.error("发送时间到设备{}发生错误",c,e);
 					}
 				}
 				size++;
@@ -1325,10 +1325,6 @@ public class CarparkMainApp extends AbstractApp{
 			@Override
 			public void run() {
 				try {
-					if(model.getPlateInTime().after(new Date())){
-						log.info("车辆进出场时间为{}，暂时不发送车位",model.getPlateInTime());
-						return;
-					}
 					presenter.sendPositionToAllDevice(true);
 				} catch (Exception e) {
 					log.info("发送车位时发生错误",e);
@@ -1372,11 +1368,7 @@ public class CarparkMainApp extends AbstractApp{
 				if (refreshTimes.addAndGet(1) % refreshTimeSpeedSecond != 0) {
 					return;
 				}
-				long l = new Date().getTime()-model.getPlateInTime().getTime();
-				if (l<-25000) {
-					log.info("车辆进出场时间为{}，暂时不更新停车场基本信息", model.getPlateInTime());
-					return;
-				}
+				
 				String userName = System.getProperty("userName");
 				
 				List<Double> list = sp.getCarparkInOutService().countNoReturnAccountMoney(userName);

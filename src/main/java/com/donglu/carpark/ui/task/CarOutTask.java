@@ -759,7 +759,7 @@ public class CarOutTask extends AbstractTask{
 		
 		logger.info("临时车：{} 计费出场",editPlateNo);
 		model.setOutShowPlateNO(model.getOutShowPlateNO()+"-临时车");
-		model.setPlateInTime(date, 30);
+		model.setPlateInTime(device.getIp(),date, 5);
 		if (!Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.临时车通道限制))) {
 			if (CarparkUtils.checkRoadType(device,model, presenter, DeviceRoadTypeEnum.储值车通道,DeviceRoadTypeEnum.固定车通道)) {
 				return;

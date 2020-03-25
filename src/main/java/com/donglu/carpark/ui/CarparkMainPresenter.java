@@ -328,14 +328,8 @@ public class CarparkMainPresenter {
 		Set<String> keySet = mapIpToDevice.keySet();
 		for (String c : keySet) {
 			SingleCarparkDevice d = mapIpToDevice.get(c);
-			if (d.getInType().indexOf("进口") < 0&&!d.getScreenType().equals(ScreenTypeEnum.一体机)) {
+			if (d.getInType().indexOf("进口") < 0) {
 				continue;
-			}
-			Date when = new Date();
-			Date plateInTime = model.getPlateInTime();
-			if (plateInTime.after(when)) {
-				log.info("车辆进出场，在时间：{}后在对设备{}发车位数,现在时间：{}", plateInTime, d, when);
-				return;
 			}
 			if (isreturn) {
 				showPositionToDevice(d, model.getTotalSlot());
@@ -1230,6 +1224,9 @@ public class CarparkMainPresenter {
 		try {
 			Device d = getDevice(device);
 			if (d != null) {
+				if (position<0) {
+					position=0;
+				}
 				if(device.getScreenType().equals(ScreenTypeEnum.一体机)){
 					return carparkScreenService.showCarparkPosition(d, position);
 				}
@@ -1601,9 +1598,9 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 		mapIpToJNA.get(ip).tigger(ip);
-//		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
-//		//贵A56G17贵JRJ927
-//		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
+		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+		//贵A56G17贵JRJ927
+		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
 	}
 	public void handOpenDoor(String ip) {
 		handOpenDoor(ip, true,null,null);
@@ -2651,7 +2648,7 @@ public class CarparkMainPresenter {
 				model.setChargeDevice(null);
 				model.setChargeHistory(null);
 				model.setOutCheckClick(false);
-				model.setPlateInTime(new Date(), 5);
+				model.setPlateInTime(device.getIp(),new Date(), 5);
 			}
 			plateSubmit(singleCarparkInOutHistory, singleCarparkInOutHistory.getOutTime(), device, ImageUtils.getImageByte(singleCarparkInOutHistory.getOutBigImg()));
 			updatePosition(device.getCarpark(), singleCarparkInOutHistory, false);

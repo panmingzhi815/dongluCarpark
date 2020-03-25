@@ -608,6 +608,8 @@ public class IpmsServiceImpl implements IpmsServiceI {
 					user.setYunId(po.getString("id"));
 					user.setValidTo(StrUtil.getTodayBottomTime(StrUtil.parseDateTime(tpEndTime)));
 					user.setCarType(getCarType(po.getIntValue("carType")));
+					user.setCarparkSlotType(CarparkSlotTypeEnum.非固定车位);
+					user.setType("普通");
 					if (4==po.getIntValue("carType")) {
 						user.setCarparkSlotType(CarparkSlotTypeEnum.固定车位);
 						user.setType("免费");

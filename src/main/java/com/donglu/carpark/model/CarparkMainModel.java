@@ -174,7 +174,7 @@ public class CarparkMainModel extends DomainObject {
 	private CTabItem selectTabSelect;
 	private Float chargedMoney = 0F;
 	// 停车场进场时间
-	private Date plateInTime = new Date();
+	private Map<String,Date> plateInTime = new HashMap<>();
 
 	private SingleCarparkCarpark searchCarpark;
 
@@ -764,12 +764,12 @@ public class CarparkMainModel extends DomainObject {
 			pcs.firePropertyChange("chargedMoney", null, null);
 	}
 
-	public Date getPlateInTime() {
-		return plateInTime;
+	public Date getPlateInTime(String ip) {
+		return plateInTime.getOrDefault(ip, DateTime.now().minusSeconds(10).toDate());
 	}
 
-	public synchronized void setPlateInTime(Date plateInTime, int second) {
-		this.plateInTime = new DateTime(plateInTime).plusSeconds(second).toDate();
+	public synchronized void setPlateInTime(String ip,Date plateInTime, int second) {
+		this.plateInTime.put(ip, new DateTime(plateInTime).plusSeconds(second).toDate());
 	}
 
 	public void setSearchCarpark(SingleCarparkCarpark searchCarpark) {

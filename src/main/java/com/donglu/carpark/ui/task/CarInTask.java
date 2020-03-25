@@ -606,8 +606,14 @@ public class CarInTask extends AbstractTask {
 			return true;
 		}
 		Boolean valueOf = Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.车位满是否允许免费车入场));
-		if (!valueOf) {
+		if (!valueOf&&"普通".equals(user.getType())) {
 			if (model.getTotalSlot() <= 0) {
+				presenter.showContentToDevice(device, SLOT_IS_FULL, false);
+				LOGGER.error("车位已满,不允许普通固定车进入");
+				return true;
+			}
+		}else {
+			if (model.getTotalSlot() <= 0&&!model.booleanSetting(SystemSettingTypeEnum.车位满是否允许普通车入场)) {
 				presenter.showContentToDevice(device, SLOT_IS_FULL, false);
 				LOGGER.error("车位已满,不允许免费车进入");
 				return true;

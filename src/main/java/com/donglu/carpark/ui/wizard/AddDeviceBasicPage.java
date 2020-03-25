@@ -13,16 +13,12 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
@@ -33,7 +29,6 @@ import com.dongluhitec.card.domain.db.singlecarpark.DeviceRoadTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.ScreenTypeEnum;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkDevice.DeviceInOutTypeEnum;
-import com.dongluhitec.card.domain.util.StrUtil;
 
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -278,6 +273,7 @@ public class AddDeviceBasicPage extends WizardPage {
 		GridData gd_combo_2 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_combo_2.widthHint = 78;
 		combo_2.setLayoutData(gd_combo_2);
+		combo_2.setToolTipText("一体机无效");
 		comboViewer_2.setContentProvider(new ArrayContentProvider());
 		comboViewer_2.setLabelProvider(new LabelProvider());
 		comboViewer_2.setInput(new String[]{"0","1","2","3","4","5","6","7","8","9"});

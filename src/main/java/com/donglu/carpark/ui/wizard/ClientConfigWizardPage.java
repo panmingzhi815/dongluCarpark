@@ -17,6 +17,7 @@ public class ClientConfigWizardPage extends WizardPage {
 
 	protected ClientConfigWizardPage() {
 		super("客户端参数设置");
+		setMessage("修改后参数将不再使用服务器设置的参数");
 		setTitle("客户端参数设置");
 	}
 

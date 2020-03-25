@@ -3,6 +3,7 @@ package com.dongluhitec.card.domain.db.singlecarpark;
 public enum SystemSettingTypeEnum {
 	车位满是否允许临时车入场("false"),
 	车位满是否允许免费车入场("false"),
+	车位满是否允许普通车入场("true"),//免费车 参数和车类型相反
 	车位满是否允许储值车入场("false"),
 	临时车入场是否确认("false"),临时车弹窗确认("false"),出场收费弹窗显示("false"),
 	临时车零收费是否自动出场("false"),
@@ -69,7 +70,7 @@ public enum SystemSettingTypeEnum {
 	固定车严重超速发送短信(""),
 	
 	支付完成后出场时间("15"),
-	DateBase_version("1.0.0.31"),软件版本("1.0.0.33"),发布时间("2020-03-13 16:20:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
+	DateBase_version("1.0.0.31"),软件版本("1.0.0.33"),发布时间("2020-03-19 17:00:00"), 更新文件夹("jar,native"), 自动下载车牌("false"), 允许设备限时("false"), 访客车名称("访客车"), CadreSetting("false"), 
 	启动短信发送服务("false"), 短信服务appid(""), 短信服务appsecret(""), 短信签名(""), 短信模板(""), 
 	手动开闸更改车位("true"),    
 	;
