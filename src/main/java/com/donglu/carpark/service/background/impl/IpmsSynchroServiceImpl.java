@@ -38,7 +38,8 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 		uploadHistoryExecutorService = ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
-				if (!isRunService) {
+				
+				if (!isRunService||StrUtil.isEmpty(ipmsService.getBuildindId())) {
 					try {
 						Thread.sleep(60000);
 					} catch (InterruptedException e) {
@@ -99,7 +100,7 @@ public class IpmsSynchroServiceImpl extends AbstractCarparkBackgroundService imp
 		uploadImageExecutorService = ExecutorsUtils.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
-				if (!isRunService) {
+				if (!isRunService||StrUtil.isEmpty(ipmsService.getBuildindId())) {
 					try {
 						Thread.sleep(60000);
 					} catch (InterruptedException e) {

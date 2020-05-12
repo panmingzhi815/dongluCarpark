@@ -85,4 +85,6 @@ public interface IpmsServiceI {
 	public boolean notifyDeviceCarIn(String deviceId, String plate);
 	
 	public default List<JSONObject> findOnlineOrder(Date start,Date end) {return new ArrayList<JSONObject>();};
+	
+	public default String getBuildindId() {return null;};
 }

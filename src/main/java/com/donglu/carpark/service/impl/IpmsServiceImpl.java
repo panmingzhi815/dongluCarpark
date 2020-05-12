@@ -1050,4 +1050,7 @@ public class IpmsServiceImpl implements IpmsServiceI {
 			log.error("同步停车场车位信息时发生错误！");
 		}
 	}
+	public String getBuildindId() {
+		return buildindId;
+	}
 }

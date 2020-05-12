@@ -256,6 +256,7 @@ public class CarparkMainApp extends AbstractApp{
 				model.setCarpark(carpark.getMaxParent());
 				model.getMapDeviceType().put(key, inType);
 				model.getMapIpToDevice().put(key, singleCarparkDevice);
+				model.getMapIpToDevice().put(singleCarparkDevice.getIdentifire(), singleCarparkDevice);
 				List<SingleCarparkDevice> list = mapTypeDevices.get(inType);
 				if (StrUtil.isEmpty(list)) {
 					list = new ArrayList<>();

@@ -130,6 +130,9 @@ public class CarparkInOutServiceImpl implements CarparkInOutServiceI {
 		if (!(inout.isSavePayHistory()&&inout.getFactMoney()!=null&&inout.getFactMoney()-inout.getOnlineMoney()>0)) {
 			return;
 		}
+		if (inout.getOutTime()==null&&inout.getChargeTime()==null) {
+			return;
+		}
 		CarPayHistory carPayHistory = new CarPayHistory(inout);
 		List<CarPayHistory> list = CriteriaUtils.createCriteria(emprovider.get(), CarPayHistory.class).add(Restrictions.eq(CarPayHistory.Property.historyId.name(), inout.getId())).getResultList();
 		for (CarPayHistory cp : list) {

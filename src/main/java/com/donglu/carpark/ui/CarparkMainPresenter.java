@@ -1430,7 +1430,7 @@ public class CarparkMainPresenter {
 	 * @return
 	 */
 	public float countShouldMoney(Long carparkId, String carType, Date startTime, Date endTime,SingleCarparkInOutHistory data) {
-		if (endTime.before(startTime)) {
+		if (startTime==null||endTime.before(startTime)) {
 			throw new RuntimeException(StrUtil.formatString("车辆：{}出场失败,出场时间：{}在进场时间：{}前", data.getPlateNo(),StrUtil.formatDateTime(endTime),StrUtil.formatDateTime(endTime)));
 		}
 		if(data!=null&&Boolean.valueOf(mapSystemSetting.get(SystemSettingTypeEnum.优先使用云平台计费))&&model.booleanSetting(SystemSettingTypeEnum.启用CJLAPP支付)){
@@ -1598,9 +1598,9 @@ public class CarparkMainPresenter {
 	 */
 	public void handPhotograph(String ip) {
 		mapIpToJNA.get(ip).tigger(ip);
-		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
-		//贵A56G17贵JRJ927
-		carInOutResultProvider.get().invok(ip, 0, "粤BD021W", bs, null, 11);
+//		byte[] bs = FileUtils.readFile("D:\\img\\20161122111651128_粤BD021W_big.jpg");
+//		//贵A56G17贵JRJ927
+//		carInOutResultProvider.get().invok(ip, 0, "粤BD022W", bs, null, 11);
 	}
 	public void handOpenDoor(String ip) {
 		handOpenDoor(ip, true,null,null);

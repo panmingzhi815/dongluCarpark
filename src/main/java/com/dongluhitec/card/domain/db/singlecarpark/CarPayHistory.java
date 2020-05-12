@@ -86,7 +86,7 @@ public class CarPayHistory extends DomainObject{
 		plateNO=inout.getPlateNo();
 		inTime=inout.getInTime();
 		outTime=inout.getOutTime();
-		payTime=inout.getOutTime();
+		payTime=inout.getOutTime()==null?inout.getChargeTime():inout.getOutTime();
 		historyId=inout.getId();
 		cashCost=inout.getFactMoney().doubleValue();
 		operaName=inout.getOperaName();

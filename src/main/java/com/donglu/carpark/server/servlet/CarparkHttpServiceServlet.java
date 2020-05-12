@@ -3,15 +3,23 @@ package com.donglu.carpark.server.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -27,26 +35,34 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 import com.donglu.carpark.service.CarparkDatabaseServiceProvider;
 import com.dongluhitec.card.domain.db.singlecarpark.CarPayHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkCarType;
+import com.dongluhitec.card.domain.db.singlecarpark.CarparkChargeStandard;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkCarpark;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkInOutHistory;
+import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkSystemSetting;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkUser;
 import com.dongluhitec.card.domain.db.singlecarpark.SingleCarparkVisitor;
+import com.dongluhitec.card.domain.db.singlecarpark.SystemSettingTypeEnum;
 import com.dongluhitec.card.domain.util.StrUtil;
 import com.google.inject.Inject;
 
 
 public class CarparkHttpServiceServlet extends HttpServlet {
-	private Logger LOGGER=LoggerFactory.getLogger(CarparkHttpServiceServlet.class);
+	private Logger log=LoggerFactory.getLogger(CarparkHttpServiceServlet.class);
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2486848099999025170L;
 	
 	private CarparkDatabaseServiceProvider sp;
+	String key="";
 	
 	@Inject
 	public CarparkHttpServiceServlet(CarparkDatabaseServiceProvider sp) {
 		this.sp = sp;
+		SingleCarparkSystemSetting systemSetting = sp.getCarparkService().findSystemSettingByKey("HTTP对外服务签名秘钥");
+		key=systemSetting==null?SystemSettingTypeEnum.HTTP对外服务签名秘钥.getDefaultValue():systemSetting.getSettingValue();
+		
 	}
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -55,7 +71,10 @@ public class CarparkHttpServiceServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String pathInfo = req.getPathInfo();
-		LOGGER.info("接收到请求pathInfo={}",pathInfo);
+		log.info("接收到请求pathInfo={}",pathInfo);
+		if (!checkSign(req,resp)) {
+			return;
+		}
 		switch (pathInfo) {
 		case "/carpark":
 			carparkHandle(req,resp);
@@ -99,7 +118,7 @@ public class CarparkHttpServiceServlet extends HttpServlet {
 			sp.getCarparkDeviceService().openDoor(ip);
 			writeMsg(resp, 0, "已发送开闸指令");
 			break;
-		case "historySearch":
+		case "/historySearch":
 			String plate = req.getParameter("plate");
 			if (plate!=null) {
 				plate=URLDecoder.decode(plate, "UTF-8");
@@ -136,6 +155,129 @@ public class CarparkHttpServiceServlet extends HttpServlet {
 			System.out.println(jsonString);
 			writeMsg(resp, 0, jsonString);
 			break;
+		case "/countPayInfo":
+			countPayInfo(req,resp);
+			break;
+		case "/pushPay":
+			pushPay(req,resp);
+			break;
+		default:
+			writeMsg(resp, -1, "未知的方法"+pathInfo);
+			break;
+		}
+	}
+	public boolean checkSign(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		if (key==null||key.trim().isEmpty()) {
+			return true;
+		}
+		List<String> collect = req.getParameterMap().keySet().stream().sorted((e1,e2)->e1.compareTo(e2)).collect(Collectors.toList());
+		collect.remove("sign");
+		if (collect.isEmpty()) {
+			return true;
+		}
+		String sign = req.getParameter("sign");
+		if (sign==null) {
+			writeMsg(resp, -2, "签名错误");
+			return false;
+		}
+		StringBuffer sb=new StringBuffer();
+		for (String name : collect) {
+			if ("sign".equals(name)) {
+				continue;
+			}
+			String p = req.getParameter(name);
+			if (p!=null) {
+				sb.append("&");
+				sb.append(name);
+				sb.append("=");
+				sb.append(p);
+			}
+		}
+		sb.append("&key="+key);
+		sb.deleteCharAt(0);
+		try {
+			String md5 = md5(sb.toString());
+			log.info("签名数据：{} 结果：{}",sb,md5);
+			if (sign.equals(md5)) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		writeMsg(resp, -2, "签名错误");
+		return false;
+	}
+	
+	private void pushPay(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		String hid = req.getParameter("id");
+		String shouldMoney = req.getParameter("shouldMoney");
+		String factMoney = req.getParameter("factMoney");
+		String freeMoney = req.getParameter("freeMoney");
+		String paidTime = req.getParameter("paidTime");
+		String delayOutTime = req.getParameter("delayOutTime");
+		if (hid==null||shouldMoney==null||factMoney==null||freeMoney==null||paidTime==null) {
+			writeMsg(resp, -1, "缺少必传参数");
+			return;
+		}
+		SingleCarparkInOutHistory ioh = sp.getCarparkInOutService().findInOutById(Long.valueOf(hid));
+		if (ioh==null) {
+			writeMsg(resp, -1, String.format("id为%s的记录不存在", hid));
+			return;
+		}
+		ioh.setShouldMoney(Float.valueOf(shouldMoney));
+		ioh.setFactMoney(Float.valueOf(factMoney));
+		ioh.setFreeMoney(Float.valueOf(freeMoney));
+		
+		CarPayHistory carPayHistory = new CarPayHistory(ioh);
+		carPayHistory.setPayTime(StrUtil.parse(paidTime, "yyyyMMddHHmmss"));
+		sp.getCarPayService().saveCarPayHistory(carPayHistory);
+		writeMsg(resp, 0, "操作成功");
+	}
+	private void countPayInfo(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		try {
+			String plate = req.getParameter("plate");
+			String parkId = req.getParameter("parkId");
+			if (plate==null||parkId==null) {
+				writeMsg(resp, -1, "错误的参数");
+				return;
+			}
+			SingleCarparkCarpark carpark=sp.getCarparkService().findCarparkById(Long.valueOf(parkId));
+			if (carpark==null) {
+				writeMsg(resp, -1, "停车场不存在");
+				return;
+			}
+			List<SingleCarparkInOutHistory> findByNoOut = sp.getCarparkInOutService().findByNoOut(plate,carpark);
+			if (findByNoOut.isEmpty()) {
+				writeMsg(resp, -1, "停车记录不存在或已出场");
+				return;
+			}
+			List<CarparkCarType> carparkCarTypeList = sp.getCarparkService().getCarparkCarTypeList();
+			Map<String, CarparkCarType> map = carparkCarTypeList.stream().collect(Collectors.toMap(e->e.getName(), e1->e1));
+			
+			Long carType=Optional.ofNullable(map.get("小车")).orElse(carparkCarTypeList.get(0)).getId();
+			SingleCarparkInOutHistory ioh = findByNoOut.get(0);
+			Date endTime = new Date();
+			float f = sp.getCarparkService().calculateTempCharge(carpark.getId(), carType, ioh.getInTime(), endTime);
+			List<CarPayHistory> list = sp.getCarPayService().findCarPayHistoryByHistoryId(ioh.getId());
+			double cashCost=0;
+			double couponValue=0;
+			for (CarPayHistory carPayHistory : list) {
+				cashCost += carPayHistory.getCashCost();
+				couponValue += carPayHistory.getCouponValue();
+			}
+			JSONObject jo=new JSONObject();
+			jo.put("plate", plate);
+			jo.put("parkId", parkId);
+			jo.put("inTime", StrUtil.formatDateTime(ioh.getInTime()));
+			jo.put("countTime", StrUtil.formatDateTime(new Date()));
+			double money = f-cashCost-couponValue;
+			jo.put("money", money<0?0:money);
+			jo.put("totalPaidMoney", cashCost);
+			jo.put("totalFreeMoney", couponValue);
+			jo.put("id", ioh.getId());
+			writeMsg(resp, 0, "计费成功",jo);
+		} catch (Exception e) {
+			writeMsg(resp, -1, "计费时发生错误"+e);
 		}
 	}
 	private void visitorHandle(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -333,32 +475,74 @@ public class CarparkHttpServiceServlet extends HttpServlet {
 		jo.put("code", code);
 		jo.put("result", msg);
 		String string = jo.toString();
-		LOGGER.info("返回消息：{}",string);
+		log.info("返回消息：{}",string);
+		os.write(string.getBytes("UTF-8"));
+		os.flush();
+	}
+	private void writeMsg(HttpServletResponse resp, int code, String msg,Object result) throws IOException {
+		ServletOutputStream os = resp.getOutputStream();
+		JSONObject jo = new JSONObject();
+		jo.put("code", code);
+		jo.put("result", result);
+		jo.put("msg", msg);
+		String string = jo.toString();
+		log.info("返回消息：{}",string);
 		os.write(string.getBytes("UTF-8"));
 		os.flush();
 	}
 	public static void main(String[] args) throws Exception {
 //		testCarpark();
-		URL url=new URL("http://127.0.0.1:8899/carparkHttpService/user?type=delete");
+		URL url=new URL("http://47.92.24.201:8899/carparkHttpService/countPayInfo");
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setDoOutput(true);
 		conn.setDoInput(true);
-		JSONObject json = new JSONObject();
-		json.put("id", "93");
-		json.put("plateNo", "粤BD021W");
-		json.put("name", "hjx");
-		json.put("address", "宝安");
-		json.put("telephone", "133");
-		json.put("validTo", "2018-05-15 23:59:59");
-		json.put("carparkId", 1);
+//		JSONObject json = new JSONObject();
+//		json.put("id", "93");
+//		json.put("plateNo", "粤BD021W");
+//		json.put("name", "hjx");
+//		json.put("address", "宝安");
+//		json.put("telephone", "133");
+//		json.put("validTo", "2018-05-15 23:59:59");
+//		json.put("carparkId", 1);
+//		OutputStream os = conn.getOutputStream();
+//		System.out.println(URLEncoder.encode(json+"", "UTF-8"));
+//		os.write(("user="+json).getBytes());
+//		os.flush();
+//		InputStream is = conn.getInputStream();
+//		byte[] b = new byte[1024];
+//		is.read(b);
+//		System.out.println(new String(b).trim());
+		
+		TreeMap<String, Object> map = new TreeMap<>();
+		map.put("plate", "粤BD022W");
+		map.put("parkId", 1);
+		StringBuffer sb=new StringBuffer();
+		Iterator<String> iterator = map.keySet().iterator();
+		while(iterator.hasNext()) {
+			String next = iterator.next();
+			sb.append("&");
+			sb.append(next);
+			sb.append("=");
+			sb.append(map.get(next));
+		}
+		sb.deleteCharAt(0);
+		String string = sb.toString()+"&key=123";
+		System.out.println("带加密数据："+string);
+		String md5 = md5(string);
+		System.out.println("加密后数据：{}"+md5);
+		
 		OutputStream os = conn.getOutputStream();
-		System.out.println(URLEncoder.encode(json+"", "UTF-8"));
-		os.write(("user="+json).getBytes());
+		String p = sb.toString()+"&sign="+md5;
+		System.out.println("param=="+p);
+		os.write(p.getBytes("UTF-8"));
 		os.flush();
 		InputStream is = conn.getInputStream();
 		byte[] b = new byte[1024];
 		is.read(b);
 		System.out.println(new String(b).trim());
+		
+		
+		System.out.println(md5("delayOutTime=20&factMoney=291.0&freeMoney=0&id=1&paidTime=20200414123048&shouldMoney=291.0&key=123"));
 	}
 	/**
 	 * @throws MalformedURLException
@@ -386,6 +570,38 @@ public class CarparkHttpServiceServlet extends HttpServlet {
 		int read = is.read(b);
 		System.out.println(new String(b,0,read));
 	}
-	
+	/**
+	 * 利用MD5进行加密
+	 * 
+	 * @param str 待加密的字符串
+	 * @return 加密后的字符串
+	 * @throws NoSuchAlgorithmException
+	 *             没有这种产生消息摘要的算法
+	 * @throws UnsupportedEncodingException
+	 */
+	public static String md5(String str) throws Exception {
+		 System.out.println(str);
+		// 确定计算方法
+		MessageDigest md5 = MessageDigest.getInstance("MD5");
+		// 加密后的字符串
+		byte[] digest = md5.digest(str.getBytes("utf-8"));
+		String s = "";
+		for (byte b : digest) {
+			s += padStart(Integer.toHexString(b & 0xff), 2, '0');
+		}
+		return s;
+	}
+
+	private static String padStart(String string, int minLength, char padChar) {
+		if (string.length() >= minLength) {
+			return string;
+		}
+		StringBuilder sb = new StringBuilder(minLength);
+		for (int i = string.length(); i < minLength; i++) {
+			sb.append(padChar);
+		}
+		sb.append(string);
+		return sb.toString();
+	}
 	
 }
